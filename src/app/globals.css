@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* 루비 태그(한자)와 rt(후리가나) 사이의 간격과 스타일을 정의합니다 */
+ruby {
+  ruby-align: center;
+  ruby-position: over; /* 한자 위에 표시 */
+}
+
+rt {
+  font-size: 0.6em; /* 후리가나 크기 조절 */
+  line-height: 1;
+  color: #3b82f6; /* 라이트 모드에서 파란색 포인트 (선택 사항) */
+  user-select: none; /* 후리가나는 드래그되지 않게 설정 */
+}
+
+.dark rt {
+  color: #60a5fa; /* 다크 모드에서 밝은 하늘색 포인트 */
+}
+
+/* 1. 진짜 헤더 제어 */
+header.header-instance {
+  transition: transform 0.3s ease-in-out !important;
+}
+
+body[data-menu-visible="false"] header.header-instance {
+  transform: translateY(-100%) !important;
+}
+
+/* 2. 레이아웃의 메워주는 레이어 제어 */
+/* MainLayout의 그 div에 클래스를 하나 주면 더 정확해요 (예: .header-filler) */
+.header-filler {
+  transition: transform 0.3s ease-in-out !important;
+}
+
+body[data-menu-visible="false"] .header-filler {
+  transform: translateY(-100%) !important;
+}
+
+/* 3. 배경 이미지 레이어 제어 추가 */
+.bg-layer-instance {
+  transition: transform 0.3s ease-in-out !important;
+}
+
+body[data-menu-visible="false"] .bg-layer-instance {
+  transform: translateY(-60px) !important; /* 헤더 높이만큼만 위로 */
+}
+
+/* 스크롤바를 아주 얇고 투명하게 */
+.custom-scroll::-webkit-scrollbar {
+  width: 4px; /* 너비를 줄여서 존재감을 최소화 */
+}
+
+/* 아래쪽 튀어나오는 부분 방지를 위해 버튼(화살표) 영역 제거 */
+.custom-scroll::-webkit-scrollbar-button {
+  display: none;
+}
+
+/* 스크롤바 트랙(배경) - 투명하게 */
+.custom-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 스크롤바 핸들(움직이는 부분) - 오렌지 포인트나 연한 그레이 */
+.custom-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(249, 115, 22, 0.2); /* 은은한 오렌지색 */
+  border-radius: 20px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(249, 115, 22, 0.5); /* 호버 시 좀 더 진하게 */
+}
+
+/* Chrome, Safari, Edge */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Firefox */
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none; /* IE, Edge */
+}

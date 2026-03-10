@@ -1,0 +1,57 @@
+{
+  "Common": {
+    "noData": "데이터가 존재하지 않습니다.",
+    "loading": "불러오는 중..."
+  },
+  "Login": {
+    "title": "로그인",
+    "googleButton": "Continue with Google",
+    "loading": "잠시만 기다려주세요...",
+    "description": "언어의 벽을 넘는 가장 귀여운 방법"
+  },
+  "Navigation": {
+    "home": "홈",
+    "platform": "웹소설",
+    "voice": "음성 번역",
+    "login": "로그인",
+    "logout": "로그아웃",
+    "welcome": "님, 환영합니다!"
+  },
+  "ServiceSelect": {
+    "title": "TranslaCat",
+    "description": "원하시는 번역 방식을 선택해 주세요.",
+    "novelTitle": "웹소설 번역",
+    "novelDesc": "웹소설 플랫폼별 실시간 번역 및 뷰어",
+    "voiceTitle": "실시간 음성 번역",
+    "voiceDesc": "마이크 및 시스템 오디오 실시간 음성 번역",
+    "start": "시작하기"
+  },
+  "Voice": {
+    "title": "실시간 음성 번역",
+    "micMode": "마이크 번역",
+    "systemMode": "시스템 번역",
+    "startListening": "음성 인식 시작",
+    "stopListening": "인식 중단",
+    "original": "일본어 (원문)",
+    "translated": "한국어 (번역)",
+    "errorSupported": "이 브라우저는 음성 인식을 지원하지 않습니다.",
+    "description": "일본어로 말하면 실시간으로 한국어 번역과 함께 텍스트가 표시됩니다.",
+    "micDescription": "사용자의 마이크 소리를 듣고 실시간으로 한국어로 번역합니다. 발음 연습이나 대화에 최적화되어 있습니다.",
+    "systemDescription": "유튜브나 화상 회의 등, PC에서 흘러나오는 소리를 캐치하여 한국어로 번역합니다. 영상 시청이나 회의에 편리합니다.",
+    "waiting": "음성을 기다리는 중...",
+    "idle": "버튼을 눌러 시작해 주세요",
+    "emptyHistory": "번역된 문장들이 여기에 쌓여 하나의 이야기가 됩니다."
+  },
+  "Platform": {
+    "title": "플랫폼 선택",
+    "subTitle": "번역할 플랫폼을 선택해주세요.",
+    "searchPlaceholder": "검색 키워드를 입력해주세요.",
+    "search": "검색",
+    "searchSuffix": "에서 검색",
+    "genreTitle": "장르별 보기",
+    "backToTop": "플랫폼 다시 선택하기"
+  },
+  "Ranking": {
+    "title": "장르별 랭킹"
+  }
+}

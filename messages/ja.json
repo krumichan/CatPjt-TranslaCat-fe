@@ -1,0 +1,56 @@
+{
+  "Common": {
+    "noData": "データが存在しません。"
+  },
+  "Login": {
+    "title": "ログイン",
+    "googleButton": "Continue with Google",
+    "loading": "少々お待ちください...",
+    "description" : "言葉の壁を越える、一番かわいい方法"
+  },
+  "Navigation": {
+    "home": "ホーム",
+    "platform": "Web小説",
+    "voice": "音声翻訳",
+    "login": "ログイン",
+    "logout": "ログアウト",
+    "welcome": "様 ようこそ!"
+  },
+  "ServiceSelect": {
+    "title": "TranslaCat",
+    "description": "翻訳方式を選択してください。",
+    "novelTitle": "Web小説翻訳",
+    "novelDesc": "ウェブ小説の感動을そのままに、リアルタイム翻訳ビューアー",
+    "voiceTitle": "リアルタイム音声翻訳",
+    "voiceDesc": "聞こえるまま、話すままに。リアルタイム音声翻訳",
+    "start": "始める"
+  },
+  "Voice": {
+    "title": "リアルタイム音声翻訳",
+    "micMode": "マイク翻訳",
+    "systemMode": "システム翻訳",
+    "startListening": "音声認識開始",
+    "stopListening": "認識中断",
+    "original": "日本語 (原文)",
+    "translated": "韓国語 (翻訳)",
+    "errorSupported": "このブラウザは音声認識をサポートしていません。",
+    "description": "日本語で話すとリアルタイムで韓国語翻訳とともにテキストが表示されます。",
+    "micDescription": "あなたのマイクの声を聞き取って、リアルタイムで韓国語に翻訳します。発音の練習や会話に最適です。",
+    "systemDescription": "YouTubeやビデオ会議など、PCから流れる音声をキャプチャして韓国語に翻訳します。動画の視聴や会議に便利です。",
+    "waiting": "音声を待っています...",
+    "idle": "ボタンを押して開始してください",
+    "emptyHistory": "翻訳された文章がここに積み重なり、物語になります。"
+  },
+  "Platform": {
+    "title": "プラットフォーム選択",
+    "subTitle": "翻訳するプラットフォームを選択してください。",
+    "search": "検索",
+    "searchSuffix": "で検索",
+    "searchPlaceholder": "検索キーワードを入力してください。",
+    "genreTitle": "ジャンル別に見る。",
+    "backToTop": "プラットフォーム選択に戻る"
+  },
+  "Ranking": {
+    "title": "ジャンル別ランキング"
+  }
+}

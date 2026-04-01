@@ -9,9 +9,9 @@ import {getRecentViewLink} from "@/utils/routerHelper";
 import {useLocalizedName} from "@/hooks/useLocalizedName";
 import {BookOpen, Home, Menu, Mic} from "lucide-react";
 import {ROUTES} from "@/constants/routes";
-import RecentHistorySection from "@/components/header/RecentHistorySection";
+import RecentHistorySection from "@/components/layout/header/RecentHistorySection";
 import NavLink from "@/components/navigation/NavLink";
-import UserAuthSection from "@/components/header/UserAuthSection";
+import UserAuthSection from "@/components/layout/header/UserAuthSection";
 
 export default function UserMenu() {
     const {data: session, status} = useSession();

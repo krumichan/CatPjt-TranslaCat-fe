@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import {ArrowRight, BookOpen, Mic} from "lucide-react";
+import {ArrowRight, BookOpen, MessageSquare, Mic} from "lucide-react";
 
 export default function ServiceSelectPage() {
     const t = useTranslations('ServiceSelect');
@@ -24,6 +24,14 @@ export default function ServiceSelectPage() {
             icon: <Mic className="w-12 h-12 text-green-500 group-hover:scale-110 transition-transform duration-300" />,
             href: '/voice',
             color: 'hover:border-green-400'
+        },
+        {
+            id: 'chat',
+            title: t('chatTitle'),
+            description: t('chatDesc'),
+            icon: <MessageSquare className="w-12 h-12 text-purple-500 group-hover:scale-110 transition-transform duration-300" />,
+            href: '/chat',
+            color: 'hover:border-purple-400'
         }
     ];
 

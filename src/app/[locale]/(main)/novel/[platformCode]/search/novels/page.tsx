@@ -8,11 +8,11 @@ import {PageNumber} from "@/types/common";
 import {useRequestDedupe} from "@/hooks/useRequestOnce";
 import {searchService} from "@/services/searchService";
 import {scrollToTop} from "@/utils/scroll";
-import NovelList from "@/components/ranking/NovelList";
+import NovelList from "@/components/novel/ranking/NovelList";
 import SearchForm from "@/components/common/SearchForm";
 import {useTranslations} from "next-intl";
 import ListPager from "@/components/common/ListPager";
-import SpinLoader from "@/components/common/SpinLoader";
+import SpinLoader from "@/components/common/loader/SpinLoader";
 import {useAppRouter} from "@/hooks/useAppRouter";
 import {ROUTES, to} from "@/constants/routes";
 

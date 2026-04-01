@@ -6,7 +6,7 @@ import {useEffect} from "react";
 import GoogleLoginButton from "@/components/auth/GoogleLoginButton";
 import {useTranslations} from "next-intl";
 import Image from "next/image";
-import FullPageLoader from "@/components/common/FullPageLoader";
+import FullPageLoader from "@/components/common/loader/FullPageLoader";
 
 export default function LoginPage() {
     const {data: session, status} = useSession();

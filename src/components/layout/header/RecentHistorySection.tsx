@@ -1,6 +1,6 @@
 "use client"
 
-import SpinLoader from "@/components/common/SpinLoader";
+import SpinLoader from "@/components/common/loader/SpinLoader";
 import {Book, FileText, History} from "lucide-react";
 import RubyText from "@/components/common/RubyText";
 import {RecentView} from "@/services/recentViewService";

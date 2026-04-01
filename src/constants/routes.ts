@@ -1,11 +1,17 @@
 export const ROUTES = {
     HOME: '/',
+
     NOVEL_SELECT: '/novel',
-    VOICE_SELECT: '/voice',
     NOVEL_DETAIL: '/novel/[platformCode]/novels/[identifier]',
     NOVEL_SEARCH: '/novel/[platformCode]/search/novels',
     NOVEL_GENRE: '/novel/[platformCode]/genres/[genreId]',
     EPISODE_VIEWER: '/novel/[platformCode]/novels/[identifier]/episode/[episodeId]',
+
+    VOICE_SELECT: '/voice',
+
+    CHAT_SELECT: '/chat',
+    CHAT_ENTER_ROOM: '/chat/[roomId]',
+
 } as const;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

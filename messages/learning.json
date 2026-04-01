@@ -20,10 +20,11 @@
   "ServiceSelect": {
     "title": "TranslaCat",
     "description": "원하시는 번역 방식을 선택해 주세요.",
-    "novelTitle": "웹소설 번역",
-    "novelDesc": "웹소설 플랫폼별 실시간 번역 및 뷰어",
+    "novelDesc": "웹소설의 감동을 그대로, 실시간 번역 뷰어",
     "voiceTitle": "실시간 음성 번역",
-    "voiceDesc": "마이크 및 시스템 오디오 실시간 음성 번역",
+    "voiceDesc": "들리는 대로, 말하는 대로. 실시간 음성 번역",
+    "chatTitle": "실시간 번역 채팅",
+    "chatDesc": "언어의 장벽을 넘어 소통하세요. 실시간 채팅 번역 기능",
     "start": "시작하기"
   },
   "Voice": {

@@ -6,7 +6,6 @@ import { Mic, Monitor, MessageSquareQuote } from "lucide-react";
 import SpeechToText from "@/components/voice/SpeechToText";
 import {useState} from "react";
 import {useLocalizedName} from "@/hooks/useLocalizedName";
-import {cn} from "@/lib/utils";
 
 export default function VoicePage() {
     const t = useTranslations('Voice');

@@ -2,7 +2,7 @@
 
 import {useState} from "react";
 import {BookPlus, List, X} from "lucide-react";
-import DictRegistrationModal from "@/components/dictionary/DictRegistrationModal";
+import DictRegistrationModal from "@/components/novel/dictionary/DictRegistrationModal";
 
 interface ReaderPagerProps {
     prevIdentifier: string | null;

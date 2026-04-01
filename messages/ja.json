@@ -20,9 +20,11 @@
     "title": "TranslaCat",
     "description": "翻訳方式を選択してください。",
     "novelTitle": "Web小説翻訳",
-    "novelDesc": "ウェブ小説の感動을そのままに、リアルタイム翻訳ビューアー",
+    "novelDesc": "ウェブ小説の感動をそのままに、リアルタイム翻訳ビューアー",
     "voiceTitle": "リアルタイム音声翻訳",
     "voiceDesc": "聞こえるまま、話すままに。リアルタイム音声翻訳",
+    "chatTitle": "リアルタイム翻訳チャット",
+    "chatDesc": "言葉の壁を越えてつながる。リアルタイム翻訳チャット機能",
     "start": "始める"
   },
   "Voice": {

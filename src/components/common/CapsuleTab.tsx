@@ -1,6 +1,6 @@
 "use client";
 
-import SpinLoader from "@/components/common/SpinLoader";
+import SpinLoader from "@/components/common/loader/SpinLoader";
 
 interface Option<T> {
     code: T;

@@ -1,6 +1,6 @@
 "use client";
 
-import SpinLoader from "@/components/common/SpinLoader";
+import SpinLoader from "@/components/common/loader/SpinLoader";
 import {useTranslations} from "next-intl";
 import RubyText from "@/components/common/RubyText";
 

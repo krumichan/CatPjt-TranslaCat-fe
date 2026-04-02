@@ -11,6 +11,7 @@ export const ROUTES = {
 
     CHAT_SELECT: '/chat',
     CHAT_ENTER_ROOM: '/chat/[roomId]',
+    CHAT_PROFILE_SETUP: '/chat/setup/profile'
 
 } as const;
 

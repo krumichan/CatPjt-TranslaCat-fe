@@ -1,6 +1,8 @@
 import {BasicSpeechProps} from "@/components/voice/types";
 import {useCallback, useEffect, useRef, useState} from "react";
 import {useSpeechBase} from "@/components/voice/hooks/useSpeechBase";
+import {encodeWAV} from "@/utils/audioUtils";
+import {voiceService} from "@/services/voiceService";
 
 export const useSystemSpeech = (props: BasicSpeechProps) => {
     const base = useSpeechBase(props);
@@ -149,7 +151,11 @@ export const useSystemSpeech = (props: BasicSpeechProps) => {
 
             // 버퍼 전송 함수 내부 분리
             const sendBufferToWorker = () => {
-                if (totalSamplesRef.current < 8000) return; // 너무 짧으면(0.5초 미만) 무시
+
+                // 너무 짧으면(0.5초 미만) 무시
+                if (totalSamplesRef.current < 8000) {
+                    return;
+                }
 
                 const mergedBuffer = new Float32Array(totalSamplesRef.current);
                 let offset = 0;
@@ -163,12 +169,12 @@ export const useSystemSpeech = (props: BasicSpeechProps) => {
                     language: 'japanese'
                 });
 
+                const audioBlob = encodeWAV(mergedBuffer, 16000);
+                voiceService.TranslateSoundAndSave(audioBlob, props.groupId)
+                    .catch(err => console.error("Failed to translate sound:", err));
+
                 audioBufferRef.current = [];
                 totalSamplesRef.current = 0;
-                if (silenceTimerRef.current) {
-                    clearTimeout(silenceTimerRef.current);
-                    silenceTimerRef.current = null;
-                }
             };
 
             source.connect(workletNode);

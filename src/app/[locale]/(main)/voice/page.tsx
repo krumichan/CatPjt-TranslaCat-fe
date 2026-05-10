@@ -28,30 +28,30 @@ export default function VoicePage() {
             />
 
             {/* 모드 선택 스위치 */}
-            {/*<div className="flex justify-center">*/}
-            {/*    <div className="inline-flex p-1 bg-zinc-100 dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700">*/}
-            {/*        <button*/}
-            {/*            onClick={() => setMode('mic')}*/}
-            {/*            className={cn(*/}
-            {/*                "flex items-center gap-2 px-6 py-2 rounded-xl text-sm font-medium transition-all",*/}
-            {/*                mode === 'mic' ? "bg-white dark:bg-zinc-700 shadow-sm text-red-500" : "text-zinc-500"*/}
-            {/*            )}*/}
-            {/*        >*/}
-            {/*            <Mic size={18} />*/}
-            {/*            {t('micMode')}*/}
-            {/*        </button>*/}
-            {/*        <button*/}
-            {/*            onClick={() => setMode('system')}*/}
-            {/*            className={cn(*/}
-            {/*                "flex items-center gap-2 px-6 py-2 rounded-xl text-sm font-medium transition-all",*/}
-            {/*                mode === 'system' ? "bg-white dark:bg-zinc-700 shadow-sm text-blue-500" : "text-zinc-500"*/}
-            {/*            )}*/}
-            {/*        >*/}
-            {/*            <Monitor size={18} />*/}
-            {/*            {t('systemMode')}*/}
-            {/*        </button>*/}
-            {/*    </div>*/}
-            {/*</div>*/}
+            <div className="flex justify-center">
+                <div className="inline-flex p-1 bg-zinc-100 dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700">
+                    <button
+                        onClick={() => setMode('mic')}
+                        className={cn(
+                            "flex items-center gap-2 px-6 py-2 rounded-xl text-sm font-medium transition-all",
+                            mode === 'mic' ? "bg-white dark:bg-zinc-700 shadow-sm text-red-500" : "text-zinc-500"
+                        )}
+                    >
+                        <Mic size={18} />
+                        {t('micMode')}
+                    </button>
+                    <button
+                        onClick={() => setMode('system')}
+                        className={cn(
+                            "flex items-center gap-2 px-6 py-2 rounded-xl text-sm font-medium transition-all",
+                            mode === 'system' ? "bg-white dark:bg-zinc-700 shadow-sm text-blue-500" : "text-zinc-500"
+                        )}
+                    >
+                        <Monitor size={18} />
+                        {t('systemMode')}
+                    </button>
+                </div>
+            </div>
 
             {/* 메인 번역 영역 - mode를 props로 전달 */}
             <div className="w-full">

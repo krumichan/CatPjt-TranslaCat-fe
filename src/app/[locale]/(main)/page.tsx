@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import {ArrowRight, BookOpen, Mic} from "lucide-react";
+import {ArrowRight, BookOpen, Mic, WalletCards} from "lucide-react";
 
 export default function ServiceSelectPage() {
     const t = useTranslations('ServiceSelect');
@@ -24,6 +24,14 @@ export default function ServiceSelectPage() {
             icon: <Mic className="w-12 h-12 text-green-500 group-hover:scale-110 transition-transform duration-300" />,
             href: '/voice',
             color: 'hover:border-green-400'
+        },
+        {
+            id: 'accountBook',
+            title: t('accountBookTitle'),
+            description: t('accountBookDesc'),
+            icon: <WalletCards className="w-12 h-12 text-orange-500 group-hover:scale-110 transition-transform duration-300" />,
+            href: '/account-books',
+            color: 'hover:border-orange-400'
         }
     ];
 
@@ -38,7 +46,7 @@ export default function ServiceSelectPage() {
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl">
                 {services.map((service) => (
                     <Link
                         key={service.id}

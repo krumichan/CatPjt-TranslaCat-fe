@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     title: 'TranslaCat',
     description: '언어의 벽을 넘는 가장 귀여운 방법',
     type: 'website',
-    images: ['/images/opengraph-image-new.png'],
+    images: ['/images/opengraph-image-groups.png'],
   },
 };
 

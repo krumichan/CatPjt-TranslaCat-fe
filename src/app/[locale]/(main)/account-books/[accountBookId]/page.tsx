@@ -25,6 +25,7 @@ import AccountBookExpenseGoalCard from "@/components/account-book/detail/Account
 import MonthlyExpenseChart from "@/components/account-book/analytics/MonthlyExpenseChart";
 import {mockMonthlyAnalytics} from "@/data/account-book/mockAccountBookAnalytics";
 import FixedExpenseSection from "@/components/account-book/detail/FixedExpenseSection";
+import ExpenseBreakdownPieChart, {buildExpenseBreakdownData} from "@/components/account-book/analytics/ExpenseBreakdownPieChart";
 
 function createClientId(prefix: string) {
     if (typeof crypto !== "undefined" && crypto.randomUUID) {
@@ -55,13 +56,21 @@ function buildAccountBookSummary(
     };
 }
 
+function getCurrentMonthValue() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+
+    return `${year}-${month}`;
+}
+
 export default function AccountBookDetailPage() {
     const params = useParams<{ accountBookId: string }>();
 
     const [keyword, setKeyword] = useState("");
     const [filterType, setFilterType] =
         useState<TransactionFilterType>("ALL");
-    const [selectedMonth, setSelectedMonth] = useState("ALL");
+    const [selectedMonth, setSelectedMonth] = useState(getCurrentMonthValue);
 
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isFixedExpenseModalOpen, setIsFixedExpenseModalOpen] = useState(false);
@@ -111,6 +120,40 @@ export default function AccountBookDetailPage() {
             );
         });
     }, [transactions, keyword, filterType, selectedMonth, params.accountBookId]);
+
+    const analyticsTransactions = useMemo(() => {
+        return transactions.filter((transaction) => {
+            const matchedAccountBook =
+                transaction.accountBookId === mockAccountBookDetail.id ||
+                transaction.accountBookId === params.accountBookId;
+
+            const matchedMonth =
+                selectedMonth === "ALL" ||
+                transaction.transactionDate.startsWith(selectedMonth);
+
+            return (
+                matchedAccountBook &&
+                matchedMonth &&
+                transaction.type === "EXPENSE"
+            );
+        });
+    }, [transactions, selectedMonth, params.accountBookId]);
+
+    const categoryExpenseData = useMemo(() => {
+        return buildExpenseBreakdownData(
+            analyticsTransactions,
+            (transaction) => transaction.categoryName || "未分類",
+            5
+        );
+    }, [analyticsTransactions]);
+
+    const storeExpenseData = useMemo(() => {
+        return buildExpenseBreakdownData(
+            analyticsTransactions,
+            (transaction) => transaction.storeName || "店名未設定",
+            5
+        );
+    }, [analyticsTransactions]);
 
     const handleCreateFixedExpense = (values: CreateFixedExpenseFormValues) => {
         const newFixedExpense: AccountBookFixedExpense = {
@@ -187,6 +230,22 @@ export default function AccountBookDetailPage() {
                         data={mockMonthlyAnalytics}
                         currencyCode="JPY"
                     />
+
+                    <div className="mt-6 mb-6 grid gap-6 lg:grid-cols-2">
+                        <ExpenseBreakdownPieChart
+                            title="カテゴリ別支出"
+                            description="支出額が多いカテゴリを上位から表示します。"
+                            data={categoryExpenseData}
+                            currencyCode={accountBookSummary.currencyCode}
+                        />
+
+                        <ExpenseBreakdownPieChart
+                            title="店舗別支出"
+                            description="支出額が多い店舗を上位から表示します。"
+                            data={storeExpenseData}
+                            currencyCode={accountBookSummary.currencyCode}
+                        />
+                    </div>
 
                     <TransactionFilterPanel
                         keyword={keyword}

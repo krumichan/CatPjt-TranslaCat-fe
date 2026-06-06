@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ArrowDownCircle, ArrowUpCircle } from "lucide-react";
 import { AccountBookTransaction, CurrencyCode } from "@/types/accountBook";
 import { formatAmount } from "@/utils/account-book/formatAmount";
@@ -6,6 +7,38 @@ type TransactionListItemProps = {
     transaction: AccountBookTransaction;
     currencyCode: CurrencyCode;
 };
+
+function TransactionMemoText({ memo }: { memo?: string }) {
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    if (!memo) {
+        return null;
+    }
+
+    return (
+        <button
+            type="button"
+            onClick={() => setIsExpanded((prev) => !prev)}
+            className="mt-1 block w-full text-left text-xs text-slate-400 transition hover:text-orange-500 dark:text-slate-500 dark:hover:text-orange-400"
+        >
+            <span
+                className={
+                    isExpanded
+                        ? "block whitespace-pre-wrap wrap-break-word"
+                        : "block truncate"
+                }
+            >
+                {memo}
+            </span>
+
+            {memo.length > 30 && (
+                <span className="mt-1 block text-[11px] font-medium text-slate-400 dark:text-slate-500">
+                    {isExpanded ? "접기" : "더보기"}
+                </span>
+            )}
+        </button>
+    );
+}
 
 export default function TransactionListItem({
     transaction,
@@ -47,11 +80,7 @@ export default function TransactionListItem({
                         </p>
                     )}
 
-                    {transaction.memo && (
-                        <p className="mt-1 truncate text-xs text-slate-400 dark:text-slate-500">
-                            {transaction.memo}
-                        </p>
-                    )}
+                    <TransactionMemoText memo={transaction.memo} />
                 </div>
             </div>
 

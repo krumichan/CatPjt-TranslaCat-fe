@@ -54,7 +54,7 @@ export const mockTransactions: AccountBookTransaction[] = [
         storeName: "이마트",
         categoryName: "식비",
         amount: 3240,
-        memo: "저녁 장보기",
+        memo: "저녁 장보기@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",
         transactionDate: "2026-06-01",
     },
     {

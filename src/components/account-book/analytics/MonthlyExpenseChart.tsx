@@ -33,6 +33,28 @@ type CustomTooltipProps = {
     currencyCode: CurrencyCode;
 };
 
+type BudgetDotProps = {
+    cx?: number;
+    cy?: number;
+};
+
+function BudgetDot({ cx, cy }: BudgetDotProps) {
+    if (cx == null || cy == null) {
+        return null;
+    }
+
+    return (
+        <circle
+            cx={cx}
+            cy={cy}
+            r={4}
+            stroke="#60a5fa"
+            strokeWidth={3}
+            fill="#ffffff"
+        />
+    );
+}
+
 function formatMonthLabel(month: string) {
     const [, monthPart] = month.split("-");
     return `${Number(monthPart)}월`;
@@ -95,8 +117,19 @@ function CustomTooltip({
                           目標との差額
                         </span>
 
-                        <span className="font-semibold text-slate-900 dark:text-slate-100">
-                          {budgetDiffLabel}
+                        <span
+                            className={[
+                                "font-semibold",
+                                budgetDiff == null
+                                    ? "text-slate-500 dark:text-slate-400"
+                                    : budgetDiff > 0
+                                        ? "text-red-600 dark:text-red-400"
+                                        : budgetDiff < 0
+                                            ? "text-emerald-600 dark:text-emerald-400"
+                                            : "text-orange-600 dark:text-orange-400",
+                            ].join(" ")}
+                        >
+                            {budgetDiffLabel}
                         </span>
                     </div>
                 </div>
@@ -223,6 +256,23 @@ export default function MonthlyExpenseChart({
 
                         <Line
                             type="monotone"
+                            dataKey="budgetAmount"
+                            name="目標金額"
+                            stroke="#60a5fa"
+                            strokeWidth={2.5}
+                            strokeDasharray="6 4"
+                            dot={<BudgetDot />}
+                            activeDot={{
+                                r: 5.5,
+                                stroke: "#60a5fa",
+                                strokeWidth: 2,
+                                fill: "#60a5fa",
+                            }}
+                            connectNulls={false}
+                        />
+
+                        <Line
+                            type="monotone"
                             dataKey="expenseAmount"
                             name="支出額"
                             stroke="#f97316"
@@ -233,19 +283,6 @@ export default function MonthlyExpenseChart({
                             activeDot={{
                                 r: 6,
                             }}
-                        />
-
-                        <Line
-                            type="monotone"
-                            dataKey="budgetAmount"
-                            name="目標金額"
-                            stroke="#64748b"
-                            strokeWidth={2}
-                            strokeDasharray="5 5"
-                            dot={{
-                                r: 4,
-                            }}
-                            connectNulls={false}
                         />
                     </LineChart>
                 </ResponsiveContainer>

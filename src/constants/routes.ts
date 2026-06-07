@@ -2,6 +2,8 @@ export const ROUTES = {
     HOME: '/',
     NOVEL_SELECT: '/novel',
     VOICE_SELECT: '/voice',
+    ACCOUNT_BOOKS: "/account-books",
+    SETTINGS: "/settings",
     NOVEL_DETAIL: '/novel/[platformCode]/novels/[identifier]',
     NOVEL_SEARCH: '/novel/[platformCode]/search/novels',
     NOVEL_GENRE: '/novel/[platformCode]/genres/[genreId]',

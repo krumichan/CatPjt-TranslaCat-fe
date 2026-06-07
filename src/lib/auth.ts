@@ -12,16 +12,7 @@ export const authOptions: NextAuthOptions = {
     ],
     callbacks: {
         async signIn({account}) {
-            if (account?.id_token) {
-                try {
-                    await authService.authenticateWithGoogle(account.id_token);
-                    return true;
-                } catch (error) {
-                    console.error("Backend whitelist validation failed:", error);
-                    throw new Error("AccessDenied");
-                }
-            }
-            return false;
+            return !!account?.id_token;
         },
         async jwt({token, user, account}) {
             // 1. 최초 로그인 시 (account와 user가 존재할 때)
@@ -34,6 +25,7 @@ export const authOptions: NextAuthOptions = {
                     token.accessToken = body.accessToken;
                     token.refreshToken = body.refreshToken;
                     token.accessTokenExpires = Date.now() + (body.accessTokenExpiresIn * 1000);
+                    token.role = body.role;
 
                     return token;
                 } catch (error) {
@@ -54,6 +46,12 @@ export const authOptions: NextAuthOptions = {
         async session({session, token}) {
             session.accessToken = token.accessToken;
             session.refreshToken = token.refreshToken;
+
+            session.user.accessToken = token.accessToken;
+            session.user.refreshToken = token.refreshToken;
+            session.user.accessTokenExpires = token.accessTokenExpires;
+            session.user.role = token.role;
+
             return session;
         },
     },

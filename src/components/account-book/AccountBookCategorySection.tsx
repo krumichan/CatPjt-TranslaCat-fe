@@ -1,33 +1,40 @@
 import { Folder } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { AccountBookCategory } from "@/types/accountBook";
 import AccountBookListItem from "@/components/account-book/AccountBookListItem";
 
 type AccountBookCategorySectionProps = {
     category: AccountBookCategory;
-    onDeleteAccountBook: (accountBookId: string) => void;
+    onDeleteAccountBook: (accountBookId: number) => void;
 };
 
 export default function AccountBookCategorySection({
-                                                       category,
-                                                       onDeleteAccountBook,
-                                                   }: AccountBookCategorySectionProps) {
+    category,
+    onDeleteAccountBook,
+}: AccountBookCategorySectionProps) {
+    const t = useTranslations("AccountBook.category");
+
     return (
-        <div className="rounded-2xl border border-slate-200 bg-white/95 p-5 shadow-[0_14px_34px_rgba(15,23,42,0.14)] backdrop-blur-md dark:border-white/10 dark:bg-zinc-800/80 dark:shadow-xl">
-            <div className="mb-4 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-100 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400">
-                        <Folder size={18} />
-                    </div>
+        <section className="rounded-3xl border border-white/70 bg-white/85 p-5 shadow-lg shadow-orange-100/50 backdrop-blur dark:border-white/10 dark:bg-slate-950/60 dark:shadow-black/30">
+            <div className="mb-4 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-orange-100 text-orange-500 dark:bg-orange-500/10 dark:text-orange-300">
+                        <Folder className="h-5 w-5" />
+                    </span>
                     <div>
-                        <h2 className="text-lg font-bold">{category.name}</h2>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
-                            {category.accountBooks.length}개 가계부
+                        <h2 className="text-lg font-black text-slate-900 dark:text-white">
+                            {category.name}
+                        </h2>
+                        <p className="text-xs font-semibold text-slate-400 dark:text-slate-500">
+                            {t("count", {
+                                count: category.accountBooks.length,
+                            })}
                         </p>
                     </div>
                 </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="grid gap-4 md:grid-cols-2">
                 {category.accountBooks.map((accountBook) => (
                     <AccountBookListItem
                         key={accountBook.id}
@@ -36,6 +43,6 @@ export default function AccountBookCategorySection({
                     />
                 ))}
             </div>
-        </div>
+        </section>
     );
 }

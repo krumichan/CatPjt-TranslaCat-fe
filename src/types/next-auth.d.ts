@@ -1,5 +1,7 @@
 import { DefaultSession } from "next-auth";
 
+export type UserRole = "USER" | "ADMIN";
+
 declare module "next-auth" {
     // session 확장.
     interface Session {
@@ -9,6 +11,7 @@ declare module "next-auth" {
             accessToken?: string;
             refreshToken?: string;
             accessTokenExpires?: number;
+            role?: UserRole;
         } & DefaultSession["user"];
     }
 
@@ -16,6 +19,7 @@ declare module "next-auth" {
         accessToken?: string;
         refreshToken?: string;
         accessTokenExpires?: number;
+        role?: UserRole;
     }
 }
 
@@ -24,6 +28,7 @@ declare module "next-auth/jwt" {
         accessToken?: string;
         refreshToken?: string;
         accessTokenExpires?: number;
+        role?: UserRole;
         error?: string;
     }
 }

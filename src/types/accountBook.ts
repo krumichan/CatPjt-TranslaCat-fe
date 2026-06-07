@@ -1,15 +1,17 @@
-export type CurrencyCode = "JPY" | "KRW";
+export type CurrencyCode = string;
 export type TransactionType = "INCOME" | "EXPENSE";
 
 export type AccountBook = {
-    id: string;
+    id: number;
     name: string;
-    description?: string;
+    description?: string | null;
+    category: string;
     currencyCode: CurrencyCode;
+    currencySymbol?: string | null;
     incomeAmount: number;
     expenseAmount: number;
     balance: number;
-    transactionCount: number;
+    transactionCount?: number;
     expenseGoalAmount?: number | null;
 };
 
@@ -22,16 +24,26 @@ export type AccountBookCategory = {
 export type AccountBookFixedExpense = {
     id: string;
     accountBookId: string;
-
     title: string;
     storeName?: string;
     categoryName: string;
     amount: number;
-
     paymentDay: number;
     memo?: string;
-
     isActive: boolean;
+};
+
+export type AccountBookSearchCondition = {
+    keyword?: string;
+    category?: string;
+};
+
+export type CreateAccountBookRequest = {
+    name: string;
+    description?: string;
+    category: string;
+    currencyCode: CurrencyCode;
+    expenseGoalAmount?: number | null;
 };
 
 export type AccountBookTransaction = {
@@ -46,6 +58,15 @@ export type AccountBookTransaction = {
     transactionDate: string;
 };
 
+export type Currency = {
+    id: number;
+    code: CurrencyCode;
+    name: string;
+    symbol: string;
+    decimalPlaces: number;
+    baseCurrency: boolean;
+};
+
 export type CreateAccountBookFormValues = {
     name: string;
     description?: string;
@@ -53,6 +74,7 @@ export type CreateAccountBookFormValues = {
     expenseGoalAmount?: number | null;
     categoryMode: "EXISTING" | "NEW";
     categoryId?: string;
+    categoryName?: string;
     newCategoryName?: string;
 };
 

@@ -1,59 +1,220 @@
 {
   "Common": {
-    "noData": "데이터가 존재하지 않습니다.",
-    "loading": "불러오는 중..."
+    "noData": "データが存在しません。"
   },
   "Login": {
-    "title": "로그인",
+    "title": "ログイン",
     "googleButton": "Continue with Google",
-    "loading": "잠시만 기다려주세요...",
-    "description": "언어의 벽을 넘는 가장 귀여운 방법"
+    "loading": "少々お待ちください...",
+    "description" : "言葉の壁を越える、一番かわいい方法"
   },
   "Navigation": {
-    "home": "홈",
-    "platform": "웹소설",
-    "voice": "음성 번역",
-    "login": "로그인",
-    "logout": "로그아웃",
-    "welcome": "님, 환영합니다!"
+    "home": "ホーム",
+    "platform": "Web小説",
+    "voice": "音声翻訳",
+    "accountBook": "家計簿",
+    "settings": "設定",
+    "login": "ログイン",
+    "logout": "ログアウト",
+    "welcome": "様 ようこそ!"
   },
   "ServiceSelect": {
-    "accountBookDesc": "카테고리별로 가계부를 관리하고 지출과 수입 내역을 기록합니다.",
-    "accountBookTitle": "가계부",
-    "description": "원하시는 번역 방식을 선택해 주세요.",
-    "novelDesc": "웹소설 플랫폼별 실시간 번역 및 뷰어",
-    "novelTitle": "웹소설 번역",
-    "start": "시작하기",
+    "accountBookDesc": "カテゴリ別に家計簿を管理し、支出・収入の履歴を記録します。",
+    "accountBookTitle": "家計簿",
+    "description": "翻訳方式を選択してください。",
+    "novelDesc": "ウェブ小説の感動をそのままに、リアルタイム翻訳ビューアー",
+    "novelTitle": "Web小説翻訳",
+    "start": "始める",
     "title": "TranslaCat",
-    "voiceDesc": "마이크 및 시스템 오디오 실시간 음성 번역",
-    "voiceTitle": "실시간 음성 번역"
+    "voiceDesc": "聞こえるまま、話すままに。リアルタイム音声翻訳",
+    "voiceTitle": "リアルタイム音声翻訳"
   },
   "Voice": {
-    "title": "실시간 음성 번역",
-    "micMode": "마이크 번역",
-    "systemMode": "시스템 번역",
-    "startListening": "음성 인식 시작",
-    "stopListening": "인식 중단",
-    "original": "일본어 (원문)",
-    "translated": "한국어 (번역)",
-    "errorSupported": "이 브라우저는 음성 인식을 지원하지 않습니다.",
-    "description": "일본어로 말하면 실시간으로 한국어 번역과 함께 텍스트가 표시됩니다.",
-    "micDescription": "사용자의 마이크 소리를 듣고 실시간으로 한국어로 번역합니다. 발음 연습이나 대화에 최적화되어 있습니다.",
-    "systemDescription": "유튜브나 화상 회의 등, PC에서 흘러나오는 소리를 캐치하여 한국어로 번역합니다. 영상 시청이나 회의에 편리합니다.",
-    "waiting": "음성을 기다리는 중...",
-    "idle": "버튼을 눌러 시작해 주세요",
-    "emptyHistory": "번역된 문장들이 여기에 쌓여 하나의 이야기가 됩니다."
+    "title": "リアルタイム音声翻訳",
+    "micMode": "マイク翻訳",
+    "systemMode": "システム翻訳",
+    "startListening": "音声認識開始",
+    "stopListening": "認識中断",
+    "original": "日本語 (原文)",
+    "translated": "韓国語 (翻訳)",
+    "errorSupported": "このブラウザは音声認識をサポートしていません。",
+    "description": "日本語で話すとリアルタイムで韓国語翻訳とともにテキストが表示されます。",
+    "micDescription": "あなたのマイクの声を聞き取って、リアルタイムで韓国語に翻訳します。発音の練習や会話に最適です。",
+    "systemDescription": "YouTubeやビデオ会議など、PCから流れる音声をキャプチャして韓国語に翻訳します。動画の視聴や会議に便利です。",
+    "waiting": "音声を待っています...",
+    "idle": "ボタンを押して開始してください",
+    "emptyHistory": "翻訳された文章がここに積み重なり、物語になります。"
   },
   "Platform": {
-    "title": "플랫폼 선택",
-    "subTitle": "번역할 플랫폼을 선택해주세요.",
-    "searchPlaceholder": "검색 키워드를 입력해주세요.",
-    "search": "검색",
-    "searchSuffix": "에서 검색",
-    "genreTitle": "장르별 보기",
-    "backToTop": "플랫폼 다시 선택하기"
+    "title": "プラットフォーム選択",
+    "subTitle": "翻訳するプラットフォームを選択してください。",
+    "search": "検索",
+    "searchSuffix": "で検索",
+    "searchPlaceholder": "検索キーワードを入力してください。",
+    "genreTitle": "ジャンル別に見る。",
+    "backToTop": "プラットフォーム選択に戻る"
   },
   "Ranking": {
-    "title": "장르별 랭킹"
+    "title": "ジャンル別ランキング"
+  },
+  "AccountBook": {
+    "eyebrow": "Account Book",
+    "title": "家計簿",
+    "description": "カテゴリ別に家計簿を管理し、支出・収入の履歴を確認します。",
+    "actions": {
+      "create": "新規家計簿を作成"
+    },
+    "messages": {
+      "loading": "家計簿を読み込み中...",
+      "loadFailed": "家計簿一覧の取得に失敗しました。",
+      "createFailed": "家計簿の登録に失敗しました。",
+      "deleteNotReady": "削除機能はまだ準備中です。"
+    },
+    "search": {
+      "placeholder": "家計簿名または説明で検索",
+      "allCategories": "すべてのカテゴリ",
+      "total": "合計 {count}件の家計簿"
+    },
+    "category": {
+      "count": "{count}件の家計簿"
+    },
+    "item": {
+      "income": "収入",
+      "expense": "支出",
+      "balance": "残高",
+      "transactions": "取引",
+      "transactionCount": "{count}件",
+      "deleteAria": "{name}を削除"
+    },
+    "empty": {
+      "title": "検索結果がありません。",
+      "description": "別のキーワードで検索するか、新規家計簿を作成してください。"
+    },
+    "createModal": {
+      "eyebrow": "New Account Book",
+      "title": "新規家計簿を作成",
+      "description": "既存カテゴリに追加するか、新しいカテゴリを直接入力できます。",
+      "fields": {
+        "name": "家計簿名",
+        "category": "カテゴリ",
+        "directInput": "直接入力",
+        "currency": "基準通貨",
+        "goalAmount": "月間支出目標額",
+        "description": "説明"
+      },
+      "placeholders": {
+        "name": "例: 日本生活費",
+        "category": "新しいカテゴリ名を入力",
+        "goalAmount": "例: 100000",
+        "description": "例: 家賃、食費、交通費の管理"
+      },
+      "helps": {
+        "goalAmount": "任意項目です。設定しない場合は、あとから詳細画面で登録できます。"
+      },
+      "actions": {
+        "close": "閉じる",
+        "cancel": "キャンセル",
+        "submit": "登録"
+      }
+    }
+  },
+  "Settings": {
+    "common": {
+      "back": "戻る"
+    },
+    "eyebrow": "Settings",
+    "title": "設定",
+    "description": "TranslaCatで提供する各サービスの設定を一か所で管理します。",
+    "badges": {
+      "admin": "管理者"
+    },
+    "status": {
+      "available": "利用可能",
+      "preparing": "準備中",
+      "future": "予定"
+    },
+    "general": {
+      "title": "一般設定",
+      "description": "言語、テーマ、プロフィール、通知などの共通設定を管理します。"
+    },
+    "voiceTranslation": {
+      "title": "音声翻訳設定",
+      "description": "音声認識、翻訳先言語、自動保存オプションなどを管理します。"
+    },
+    "novel": {
+      "title": "小説設定",
+      "description": "小説翻訳、最近見た作品、基本表示オプションを管理します。"
+    },
+    "chat": {
+      "title": "チャット設定",
+      "description": "チャットルーム、連携サービス、通知関連の設定を管理します。"
+    },
+    "accountBook": {
+      "title": "家計簿設定",
+      "description": "基本通貨、基本カテゴリ、月間目標の表示方式を管理します。"
+    },
+    "currency": {
+      "title": "通貨管理",
+      "description": "家計簿で使用する通貨コード、シンボル、小数点桁数、基本通貨を管理します。"
+    },
+    "admin": {
+      "title": "管理者設定",
+      "description": "サービス有効化、許可ユーザー、システムマスターデータを管理します。"
+    },
+    "aiVoice": {
+      "title": "AI音声読み上げ設定",
+      "description": "今後提供予定のAI音声読み上げサービスの基本オプションを管理します。"
+    },
+    "currencyPage": {
+      "eyebrow": "Admin Settings",
+      "title": "通貨管理",
+      "description": "家計簿で使用する通貨情報を登録し、基本通貨と利用状態を管理します。",
+      "messages": {
+        "loading": "通貨一覧を読み込み中...",
+        "loadFailed": "通貨一覧の取得に失敗しました。",
+        "createFailed": "通貨の登録に失敗しました。",
+        "updateFailed": "通貨情報の変更に失敗しました。",
+        "disabledBaseCurrency": "無効化された通貨は基本通貨に設定できません。",
+        "forbidden": "管理者のみアクセスできるページです。"
+      },
+      "form": {
+        "title": "新規通貨登録",
+        "description": "ISO通貨コードを基準に登録することをおすすめします。",
+        "fields": {
+          "code": "通貨コード",
+          "name": "通貨名",
+          "symbol": "シンボル",
+          "decimalPlaces": "小数点桁数",
+          "baseCurrency": "基本通貨に設定"
+        },
+        "placeholders": {
+          "code": "例: USD",
+          "name": "例: US Dollar",
+          "symbol": "例: $"
+        },
+        "actions": {
+          "submit": "登録",
+          "submitting": "登録中..."
+        }
+      },
+      "list": {
+        "title": "通貨一覧",
+        "count": "合計 {count}件",
+        "searchPlaceholder": "コード、名前、シンボルで検索",
+        "headers": {
+          "code": "コード",
+          "name": "名前",
+          "symbol": "シンボル",
+          "base": "基本通貨",
+          "status": "状態"
+        },
+        "decimalPlaces": "小数点 {count} 桁",
+        "base": "基本",
+        "setBase": "基本に設定",
+        "enabled": "利用中",
+        "disabled": "無効",
+        "empty": "検索結果がありません。"
+      }
+    }
   }
 }

@@ -7,7 +7,7 @@ import {useRouter} from "@/navigation";
 import { RecentView, recentViewService } from "@/services/recentViewService";
 import {getRecentViewLink} from "@/utils/routerHelper";
 import {useLocalizedName} from "@/hooks/useLocalizedName";
-import {BookOpen, Home, Menu, Mic} from "lucide-react";
+import {BookOpen, Home, Menu, Mic, Settings, WalletCards} from "lucide-react";
 import {ROUTES} from "@/constants/routes";
 import RecentHistorySection from "@/components/header/RecentHistorySection";
 import NavLink from "@/components/navigation/NavLink";
@@ -101,12 +101,45 @@ export default function UserMenu() {
 
                     {/* [섹션 2] 메인 서비스 링크 */}
                     <nav className="flex flex-col">
-                        <NavLink href={ROUTES.HOME} icon={Home} label={t('home')} onClick={() => setIsOpen(false)} />
-                        <NavLink href={ROUTES.NOVEL_SELECT} icon={BookOpen} label={t('platform')} onClick={() => setIsOpen(false)} />
-                        <NavLink href={ROUTES.VOICE_SELECT} icon={Mic} label={t('voice')} onClick={() => setIsOpen(false)} />
+                        <nav className="flex flex-col">
+                            <NavLink
+                                href={ROUTES.HOME}
+                                icon={Home}
+                                label={t("home")}
+                                onClick={() => setIsOpen(false)}
+                            />
+                            <NavLink
+                                href={ROUTES.NOVEL_SELECT}
+                                icon={BookOpen}
+                                label={t("platform")}
+                                onClick={() => setIsOpen(false)}
+                            />
+                            <NavLink
+                                href={ROUTES.VOICE_SELECT}
+                                icon={Mic}
+                                label={t("voice")}
+                                onClick={() => setIsOpen(false)}
+                            />
+                            <NavLink
+                                href={ROUTES.ACCOUNT_BOOKS}
+                                icon={WalletCards}
+                                label={t("accountBook")}
+                                onClick={() => setIsOpen(false)}
+                            />
+                        </nav>
                     </nav>
 
-                    {/* [섹션 3] 사용자 인증 상태 영역 */}
+                    {/* [섹션 3] 설정 */}
+                    <nav className="flex flex-col border-t border-gray-100 pt-2 mt-2 dark:border-zinc-800">
+                        <NavLink
+                            href={ROUTES.SETTINGS}
+                            icon={Settings}
+                            label={t("settings")}
+                            onClick={() => setIsOpen(false)}
+                        />
+                    </nav>
+
+                    {/* [섹션 4] 사용자 인증 상태 영역 */}
                     <UserAuthSection
                         status={status}
                         userName={session?.user?.name}

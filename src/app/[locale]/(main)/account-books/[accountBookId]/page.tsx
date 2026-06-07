@@ -232,7 +232,7 @@ export default function AccountBookDetailPage() {
 
     return (
         <>
-            <main className="min-h-[calc(100vh-60px)] px-4 pt-20 pb-12 text-gray-800 dark:text-white sm:px-6 lg:px-8">
+            <main className="min-h-[calc(100vh-60px)] px-4 pt-24 pb-12 text-gray-800 dark:text-white sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-5xl">
                     <AccountBookDetailHeader
                         accountBook={accountBookSummary}

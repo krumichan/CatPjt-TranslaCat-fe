@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { ArrowDownCircle, ArrowUpCircle } from "lucide-react";
+import { ArrowDownCircle, ArrowUpCircle, Pencil } from "lucide-react";
 import { AccountBookTransaction, CurrencyCode } from "@/types/accountBook";
 import { formatAmount } from "@/utils/account-book/formatAmount";
 
 type TransactionListItemProps = {
     transaction: AccountBookTransaction;
     currencyCode: CurrencyCode;
+    onClickEdit?: (transaction: AccountBookTransaction) => void;
 };
 
 function TransactionMemoText({ memo }: { memo?: string }) {
@@ -43,6 +44,7 @@ function TransactionMemoText({ memo }: { memo?: string }) {
 export default function TransactionListItem({
     transaction,
     currencyCode,
+    onClickEdit,
 }: TransactionListItemProps) {
     const isIncome = transaction.type === "INCOME";
 
@@ -84,16 +86,29 @@ export default function TransactionListItem({
                 </div>
             </div>
 
-            <p
-                className={`shrink-0 text-right text-sm font-bold ${
-                    isIncome
-                        ? "text-blue-600 dark:text-blue-400"
-                        : "text-red-500 dark:text-red-400"
-                }`}
-            >
-                {isIncome ? "+" : "-"}
-                {formatAmount(transaction.amount, currencyCode)}
-            </p>
+            <div className="flex shrink-0 items-center gap-2">
+                <p
+                    className={`shrink-0 text-right text-sm font-bold ${
+                        isIncome
+                            ? "text-blue-600 dark:text-blue-400"
+                            : "text-red-500 dark:text-red-400"
+                    }`}
+                >
+                    {isIncome ? "+" : "-"}
+                    {formatAmount(transaction.amount, currencyCode)}
+                </p>
+
+                {onClickEdit && (
+                    <button
+                        type="button"
+                        onClick={() => onClickEdit(transaction)}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-200 hover:text-orange-500 dark:hover:bg-white/10 dark:hover:text-orange-400"
+                        aria-label="거래 수정"
+                    >
+                        <Pencil size={15} />
+                    </button>
+                )}
+            </div>
         </div>
     );
 }

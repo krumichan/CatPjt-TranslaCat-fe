@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { LayoutGrid, Table2, X } from "lucide-react";
@@ -18,6 +16,7 @@ type MemoPopoverPosition = {
 type TransactionListProps = {
     transactions: AccountBookTransaction[];
     currencyCode: CurrencyCode;
+    onClickEditTransaction: (transaction: AccountBookTransaction) => void;
 };
 
 type TransactionViewMode = "CARD" | "TABLE";
@@ -88,6 +87,7 @@ function TransactionViewToggle({
 function TransactionCardView({
     transactions,
     currencyCode,
+    onClickEditTransaction,
 }: TransactionListProps) {
     const groupedTransactions = groupTransactionsByDate(transactions);
     const dates = Object.keys(groupedTransactions).sort((a, b) =>
@@ -111,6 +111,7 @@ function TransactionCardView({
                                 key={transaction.id}
                                 transaction={transaction}
                                 currencyCode={currencyCode}
+                                onClickEdit={onClickEditTransaction}
                             />
                         ))}
                     </div>
@@ -261,6 +262,7 @@ function TransactionTableMemoCell({ memo }: { memo?: string }) {
 function TransactionTableView({
     transactions,
     currencyCode,
+    onClickEditTransaction,
 }: TransactionListProps) {
     const sortedTransactions = [...transactions].sort((a, b) =>
         b.transactionDate.localeCompare(a.transactionDate)
@@ -269,31 +271,34 @@ function TransactionTableView({
     return (
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white/95 shadow-[0_14px_34px_rgba(15,23,42,0.14)] backdrop-blur-md dark:border-white/10 dark:bg-zinc-800/80 dark:shadow-xl">
             <div className="overflow-x-auto">
-                <table className="min-w-220 w-full border-collapse text-sm">
+                <table className="min-w-240 w-full border-collapse text-sm">
                     <thead className="bg-slate-100 text-xs text-slate-500 dark:bg-white/5 dark:text-slate-400">
-                    <tr>
-                        <th className="px-4 py-3 text-left font-semibold">
-                            날짜
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold">
-                            구분
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold">
-                            거래명
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold">
-                            카테고리
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold">
-                            점포
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold">
-                            메모
-                        </th>
-                        <th className="px-4 py-3 text-right font-semibold">
-                            금액
-                        </th>
-                    </tr>
+                        <tr>
+                            <th className="px-4 py-3 text-left font-semibold">
+                                날짜
+                            </th>
+                            <th className="px-4 py-3 text-left font-semibold">
+                                구분
+                            </th>
+                            <th className="px-4 py-3 text-left font-semibold">
+                                거래명
+                            </th>
+                            <th className="px-4 py-3 text-left font-semibold">
+                                카테고리
+                            </th>
+                            <th className="px-4 py-3 text-left font-semibold">
+                                점포
+                            </th>
+                            <th className="px-4 py-3 text-left font-semibold">
+                                메모
+                            </th>
+                            <th className="px-4 py-3 text-right font-semibold">
+                                금액
+                            </th>
+                            <th className="px-4 py-3 text-right font-semibold">
+                                관리
+                            </th>
+                        </tr>
                     </thead>
 
                     <tbody className="divide-y divide-slate-200 dark:divide-white/10">
@@ -348,6 +353,16 @@ function TransactionTableView({
                                         currencyCode
                                     )}
                                 </td>
+
+                                <td className="whitespace-nowrap px-4 py-3 text-right">
+                                    <button
+                                        type="button"
+                                        onClick={() => onClickEditTransaction(transaction)}
+                                        className="inline-flex items-center justify-center rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-500 transition hover:border-orange-300 hover:bg-orange-50 hover:text-orange-500 dark:border-white/10 dark:text-slate-400 dark:hover:border-orange-400/60 dark:hover:bg-orange-500/10 dark:hover:text-orange-400"
+                                    >
+                                        수정
+                                    </button>
+                                </td>
                             </tr>
                         );
                     })}
@@ -361,6 +376,7 @@ function TransactionTableView({
 export default function TransactionList({
     transactions,
     currencyCode,
+    onClickEditTransaction
 }: TransactionListProps) {
     const [viewMode, setViewMode] =
         useState<TransactionViewMode>("TABLE");
@@ -398,11 +414,13 @@ export default function TransactionList({
                 <TransactionCardView
                     transactions={transactions}
                     currencyCode={currencyCode}
+                    onClickEditTransaction={onClickEditTransaction}
                 />
             ) : (
                 <TransactionTableView
                     transactions={transactions}
                     currencyCode={currencyCode}
+                    onClickEditTransaction={onClickEditTransaction}
                 />
             )}
         </section>

@@ -26,6 +26,7 @@ import MonthlyExpenseChart from "@/components/account-book/analytics/MonthlyExpe
 import {mockMonthlyAnalytics} from "@/data/account-book/mockAccountBookAnalytics";
 import FixedExpenseSection from "@/components/account-book/detail/FixedExpenseSection";
 import ExpenseBreakdownPieChart, {buildExpenseBreakdownData} from "@/components/account-book/analytics/ExpenseBreakdownPieChart";
+import TransactionEditModal from "@/components/account-book/detail/modal/TransactionEditModal";
 
 function createClientId(prefix: string) {
     if (typeof crypto !== "undefined" && crypto.randomUUID) {
@@ -77,6 +78,9 @@ export default function AccountBookDetailPage() {
 
     const [transactions, setTransactions] =
         useState<AccountBookTransaction[]>(mockTransactions);
+
+    const [editingTransaction, setEditingTransaction] =
+        useState<AccountBookTransaction | null>(null);
 
     const [fixedExpenses, setFixedExpenses] =
         useState<AccountBookFixedExpense[]>([]);
@@ -204,6 +208,28 @@ export default function AccountBookDetailPage() {
         setExpenseGoalAmount(goalAmount);
     };
 
+    const handleUpdateTransaction = (
+        transactionId: string,
+        values: CreateTransactionFormValues
+    ) => {
+        setTransactions((prevTransactions) =>
+            prevTransactions.map((transaction) =>
+                transaction.id === transactionId
+                    ? {
+                        ...transaction,
+                        type: values.type,
+                        title: values.title,
+                        storeName: values.storeName,
+                        categoryName: values.categoryName,
+                        amount: values.amount,
+                        transactionDate: values.transactionDate,
+                        memo: values.memo,
+                    }
+                    : transaction
+            )
+        );
+    };
+
     return (
         <>
             <main className="min-h-[calc(100vh-60px)] px-4 pt-20 pb-12 text-gray-800 dark:text-white sm:px-6 lg:px-8">
@@ -259,6 +285,7 @@ export default function AccountBookDetailPage() {
                     <TransactionList
                         transactions={filteredTransactions}
                         currencyCode={accountBookSummary.currencyCode}
+                        onClickEditTransaction={setEditingTransaction}
                     />
                 </div>
             </main>
@@ -268,6 +295,17 @@ export default function AccountBookDetailPage() {
                 currencyCode={accountBookSummary.currencyCode}
                 onClose={() => setIsCreateModalOpen(false)}
                 onSubmit={handleCreateTransaction}
+            />
+
+            <TransactionEditModal
+                isOpen={editingTransaction !== null}
+                transaction={editingTransaction}
+                currencyCode={accountBookSummary.currencyCode}
+                onClose={() => setEditingTransaction(null)}
+                onSubmit={(transactionId, values) => {
+                    handleUpdateTransaction(transactionId, values);
+                    setEditingTransaction(null);
+                }}
             />
 
             <FixedExpenseCreateModal

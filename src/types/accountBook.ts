@@ -97,3 +97,5 @@ export type ReceiptAnalysisResult = {
     memo?: string;
     confidence?: number;
 };
+
+export type UpdateTransactionFormValues = CreateTransactionFormValues;

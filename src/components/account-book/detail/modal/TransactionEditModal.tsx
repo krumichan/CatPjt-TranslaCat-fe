@@ -15,7 +15,7 @@ type TransactionEditModalProps = {
     currencyCode: CurrencyCode;
     onClose: () => void;
     onSubmit: (
-        transactionId: string,
+        transactionId: number,
         values: CreateTransactionFormValues
     ) => void;
 };
@@ -25,7 +25,7 @@ type TransactionEditFormProps = {
     currencyCode: CurrencyCode;
     onClose: () => void;
     onSubmit: (
-        transactionId: string,
+        transactionId: number,
         values: CreateTransactionFormValues
     ) => void;
 };
@@ -78,19 +78,19 @@ function getInitialDirectStoreName(transaction: AccountBookTransaction) {
 }
 
 function getInitialCategoryValue(transaction: AccountBookTransaction) {
-    if (transactionCategories.includes(transaction.categoryName)) {
-        return transaction.categoryName;
+    if (transactionCategories.includes(transaction.category)) {
+        return transaction.category;
     }
 
     return DIRECT_INPUT_VALUE;
 }
 
-function getInitialDirectCategoryName(transaction: AccountBookTransaction) {
-    if (transactionCategories.includes(transaction.categoryName)) {
+function getInitialDirectCategory(transaction: AccountBookTransaction) {
+    if (transactionCategories.includes(transaction.category)) {
         return "";
     }
 
-    return transaction.categoryName;
+    return transaction.category;
 }
 
 function TransactionEditForm({
@@ -111,7 +111,7 @@ function TransactionEditForm({
         getInitialCategoryValue(transaction)
     );
     const [directCategoryName, setDirectCategoryName] = useState(() =>
-        getInitialDirectCategoryName(transaction)
+        getInitialDirectCategory(transaction)
     );
     const [amount, setAmount] = useState(String(transaction.amount));
     const [transactionDate, setTransactionDate] = useState(

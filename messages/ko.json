@@ -117,6 +117,129 @@
         "cancel": "취소",
         "submit": "등록"
       }
+    },
+    "detail": {
+      "expenseGoal": {
+        "title": "이번 달 지출 목표",
+        "notSet": "목표 미설정",
+        "selectMonthGuide": "목표 금액을 설정할 월을 선택해 주세요.",
+        "emptyGuide": "지출 목표를 설정하면 사용 현황을 확인할 수 있어요.",
+        "remaining": "목표까지 {amount} 남았어요.",
+        "exceeded": "목표보다 {amount} 초과했어요.",
+        "usageRate": "사용률",
+        "currentExpense": "현재 지출",
+        "remainingAmount": "남은 금액",
+        "exceededAmount": "초과 금액",
+        "noGoalMessage": "아직 목표 금액이 없습니다. 우측 버튼에서 목표를 설정해보세요.",
+        "selectMonthMessage": "월을 선택하면 목표 금액을 설정할 수 있어요.",
+        "messages": {
+          "loadFailed": "목표 금액을 불러오지 못했습니다.",
+          "saveFailed": "목표 금액 저장에 실패했습니다."
+        },
+        "actions": {
+          "open": "목표 금액 설정",
+          "openList": "월별 목표 목록 열기",
+          "close": "닫기"
+        },
+        "modal": {
+          "fields": {
+            "targetMonth": "대상 년월",
+            "yearSuffix": "년",
+            "monthSuffix": "월",
+            "goalAmount": "목표 금액"
+          },
+          "title": "지출 목표 설정",
+          "description": "{year}년 {month}월의 지출 목표를 설정합니다.",
+          "placeholders": {
+            "goalAmount": "목표 금액 입력"
+          },
+          "validation": {
+            "targetYearRequired": "대상 연도를 4자리로 입력해 주세요.",
+            "targetMonthRequired": "대상 월을 1~12 사이로 입력해 주세요.",
+            "required": "목표 금액을 입력해 주세요.",
+            "positiveNumber": "목표 금액은 0보다 큰 숫자로 입력해 주세요."
+          },
+          "actions": {
+            "close": "모달 닫기",
+            "cancel": "취소",
+            "save": "저장",
+            "saving": "저장 중..."
+          }
+        },
+        "listModal": {
+          "title": "월별 목표 목록",
+          "description": "등록된 월별 지출 목표와 실제 지출 현황을 확인할 수 있습니다.",
+          "messages": {
+            "loading": "월별 목표를 불러오는 중...",
+            "loadFailed": "월별 목표 목록을 불러오지 못했습니다."
+          },
+          "empty": {
+            "title": "월별 목표가 없습니다.",
+            "description": "목표 금액을 등록하면 여기에 목록으로 표시됩니다."
+          },
+          "table": {
+            "month": "월",
+            "goalAmount": "목표 금액",
+            "expenseAmount": "지출",
+            "remainingAmount": "남은 금액",
+            "usageRate": "사용률",
+            "manage": "관리"
+          },
+          "actions": {
+            "close": "닫기",
+            "edit": "수정"
+          }
+        }
+      },
+      "header": {
+        "backToList": "가계부 목록으로",
+        "eyebrow": "Account Book Detail",
+        "createTransaction": "거래 등록"
+      },
+      "chart": {
+        "categoryExpenseTitle": "카테고리별 지출",
+        "categoryExpenseDescription": "지출액이 많은 카테고리를 상위부터 표시합니다.",
+        "storeExpenseTitle": "점포별 지출",
+        "storeExpenseDescription": "지출액이 많은 점포를 상위부터 표시합니다.",
+        "uncategorized": "미분류",
+        "storeNotSet": "점포명 미설정"
+      },
+      "transaction": {
+        "loadError": "거래 내역을 불러오지 못했습니다.",
+        "loading": "거래 내역을 불러오는 중입니다.",
+        "previous": "이전",
+        "next": "다음"
+      }
+    },
+    "transactionList": {
+      "title": "거래 내역",
+      "count": "총 {count}건의 거래가 있습니다.",
+      "view": {
+        "card": "카드",
+        "table": "표"
+      },
+      "type": {
+        "income": "수입",
+        "expense": "지출"
+      },
+      "table": {
+        "date": "날짜",
+        "type": "구분",
+        "title": "거래명",
+        "category": "카테고리",
+        "store": "점포",
+        "memo": "메모",
+        "amount": "금액",
+        "manage": "관리"
+      },
+      "actions": {
+        "edit": "수정",
+        "close": "닫기"
+      },
+      "empty": {
+        "title": "거래 내역이 없습니다.",
+        "description": "다른 조건으로 검색하거나 새 거래를 등록해 주세요."
+      }
     }
   },
   "Settings": {

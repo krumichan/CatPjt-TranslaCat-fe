@@ -8,7 +8,7 @@ import {
     CreateAccountBookFormValues,
     Currency,
 } from "@/types/accountBook";
-import {formatNumberWithCommas, onlyDigits} from "@/utils/number/formatNumberInput";
+import {formatNumberWithComma, onlyDigits} from "@/utils/number/formatNumberInput";
 
 type AccountBookCreateModalProps = {
     isOpen: boolean;
@@ -238,7 +238,7 @@ export default function AccountBookCreateModal({
                                 {selectedCurrency?.symbol ?? effectiveCurrencyCode}
                             </span>
                             <input
-                                value={formatNumberWithCommas(expenseGoalAmount)}
+                                value={formatNumberWithComma(expenseGoalAmount)}
                                 onChange={(event) => {
                                     setExpenseGoalAmount(onlyDigits(event.target.value));
                                 }}

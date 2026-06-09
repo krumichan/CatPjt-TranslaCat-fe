@@ -116,6 +116,129 @@
         "cancel": "キャンセル",
         "submit": "登録"
       }
+    },
+    "detail": {
+      "expenseGoal": {
+        "title": "今月の支出目標",
+        "notSet": "目標未設定",
+        "selectMonthGuide": "目標金額を設定する月を選択してください。",
+        "emptyGuide": "支出目標を設定すると、利用状況を確認できます。",
+        "remaining": "目標まで {amount} 残っています。",
+        "exceeded": "目標より {amount} 超過しています。",
+        "usageRate": "使用率",
+        "currentExpense": "現在の支出",
+        "remainingAmount": "残り金額",
+        "exceededAmount": "超過金額",
+        "noGoalMessage": "まだ目標金額がありません。右側のボタンから目標を設定してください。",
+        "selectMonthMessage": "月を選択すると、目標金額を設定できます。",
+        "messages": {
+          "loadFailed": "目標金額の取得に失敗しました。",
+          "saveFailed": "目標金額の保存に失敗しました。"
+        },
+        "actions": {
+          "open": "目標金額を設定",
+          "openList": "月別目標一覧を開く",
+          "close": "閉じる"
+        },
+        "modal": {
+          "fields": {
+            "targetMonth": "対象年月",
+            "yearSuffix": "年",
+            "monthSuffix": "月",
+            "goalAmount": "目標金額"
+          },
+          "title": "支出目標設定",
+          "description": "{year}年{month}月の支出目標を設定します。",
+          "placeholders": {
+            "goalAmount": "目標金額を入力"
+          },
+          "validation": {
+            "targetYearRequired": "対象年を4桁で入力してください。",
+            "targetMonthRequired": "対象月を1〜12の範囲で入力してください。",
+            "required": "目標金額を入力してください。",
+            "positiveNumber": "目標金額は0より大きい数字で入力してください。"
+          },
+          "actions": {
+            "close": "モーダルを閉じる",
+            "cancel": "キャンセル",
+            "save": "保存",
+            "saving": "保存中..."
+          }
+        },
+        "listModal": {
+          "title": "月別目標一覧",
+          "description": "登録済みの月別支出目標と実際の支出状況を確認できます。",
+          "messages": {
+            "loading": "月別目標を読み込み中...",
+            "loadFailed": "月別目標一覧の取得に失敗しました。"
+          },
+          "empty": {
+            "title": "月別目標がありません。",
+            "description": "目標金額を登録すると、ここに一覧で表示されます。"
+          },
+          "table": {
+            "month": "月",
+            "goalAmount": "目標金額",
+            "expenseAmount": "支出",
+            "remainingAmount": "残り金額",
+            "usageRate": "使用率",
+            "manage": "管理"
+          },
+          "actions": {
+            "close": "閉じる",
+            "edit": "修正"
+          }
+        }
+      },
+      "header": {
+        "backToList": "家計簿一覧へ",
+        "eyebrow": "Account Book Detail",
+        "createTransaction": "取引を登録"
+      },
+      "chart": {
+        "categoryExpenseTitle": "カテゴリ別支出",
+        "categoryExpenseDescription": "支出額が多いカテゴリを上位から表示します。",
+        "storeExpenseTitle": "店舗別支出",
+        "storeExpenseDescription": "支出額が多い店舗を上位から表示します。",
+        "uncategorized": "未分類",
+        "storeNotSet": "店名未設定"
+      },
+      "transaction": {
+        "loadError": "取引履歴の取得に失敗しました。",
+        "loading": "取引履歴を読み込み中...",
+        "previous": "前へ",
+        "next": "次へ"
+      },
+      "transactionList": {
+        "title": "取引履歴",
+        "count": "合計 {count}件の取引があります。",
+        "view": {
+          "card": "カード",
+          "table": "表"
+        },
+        "type": {
+          "income": "収入",
+          "expense": "支出"
+        },
+        "table": {
+          "date": "日付",
+          "type": "区分",
+          "title": "取引名",
+          "category": "カテゴリ",
+          "store": "店舗",
+          "memo": "メモ",
+          "amount": "金額",
+          "manage": "管理"
+        },
+        "actions": {
+          "edit": "修正",
+          "close": "閉じる"
+        },
+        "empty": {
+          "title": "取引履歴がありません。",
+          "description": "別の条件で検索するか、新しい取引を登録してください。"
+        }
+      }
     }
   },
   "Settings": {

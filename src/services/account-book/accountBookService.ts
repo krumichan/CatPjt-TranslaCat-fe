@@ -2,6 +2,8 @@ import { apiClient } from "@/lib/apiClient";
 import {
     AccountBook,
     AccountBookSearchCondition,
+    AccountBookTransactionListRequest,
+    AccountBookTransactionListResponse,
     CreateAccountBookRequest,
 } from "@/types/accountBook";
 import { ResponseDto } from "@/types/common";
@@ -51,4 +53,21 @@ export const accountBookService = {
         const data = (await response.json()) as ResponseDto<AccountBook>;
         return data.body;
     },
+
+    async listTransactions(
+        accountBookId: number | string,
+        request: AccountBookTransactionListRequest
+    ): Promise<AccountBookTransactionListResponse> {
+        const response = await apiClient(`/account-books/${accountBookId}/transactions`, {
+            method: "POST",
+            body: JSON.stringify(request),
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to create account book.");
+        }
+
+        const data = (await response.json()) as ResponseDto<AccountBookTransactionListResponse>;
+        return data.body;
+    }
 };

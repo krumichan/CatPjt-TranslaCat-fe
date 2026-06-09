@@ -1,3 +1,5 @@
+import {PagedModel} from "@/types/common";
+
 export type CurrencyCode = string;
 export type TransactionType = "INCOME" | "EXPENSE";
 
@@ -22,11 +24,11 @@ export type AccountBookCategory = {
 };
 
 export type AccountBookFixedExpense = {
-    id: string;
-    accountBookId: string;
+    id: number;
+    accountBookId: number;
     title: string;
     storeName?: string;
-    categoryName: string;
+    category: string;
     amount: number;
     paymentDay: number;
     memo?: string;
@@ -46,16 +48,58 @@ export type CreateAccountBookRequest = {
     expenseGoalAmount?: number | null;
 };
 
+export type AccountBookMonthlyGoal = {
+    id: number | null;
+    accountBookId: number;
+    year: number;
+    month: number;
+    goalAmount: number | null;
+};
+
+export type AccountBookMonthlyGoalListItem = {
+    id: number;
+    accountBookId: number;
+    year: number;
+    month: number;
+    goalAmount: number;
+    expenseAmount: number;
+    remainingAmount: number;
+    usageRate: number;
+    exceeded: boolean;
+};
+
+export type AccountBookMonthlyGoalListResponse =
+    AccountBookMonthlyGoalListItem[];
+
+export type AccountBookMonthlyGoalRequest = {
+    year: number;
+    month: number;
+    goalAmount: number;
+};
+
 export type AccountBookTransaction = {
-    id: string;
-    accountBookId: string;
+    id: number;
+    accountBookId?: number;
     type: TransactionType;
     title: string;
-    storeName?: string;
-    categoryName: string;
+    storeName?: string | null;
+    category: string;
     amount: number;
-    memo?: string;
     transactionDate: string;
+    memo?: string | null;
+    createdAt?: string;
+};
+
+export type AccountBookTransactionListRequest = {
+    year?: number;
+    month?: number;
+    page?: number;
+    size?: number;
+};
+
+export type AccountBookTransactionListResponse = {
+    page: PagedModel<AccountBookTransaction>;
+    currencyName: string;
 };
 
 export type Currency = {

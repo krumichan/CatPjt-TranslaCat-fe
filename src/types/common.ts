@@ -23,6 +23,16 @@ export type ResponseDto<T> = {
     createDate?: string;
 };
 
+export type PagedModel<T> = {
+    content: T[];
+    page: {
+        size: number;
+        number: number;
+        totalElements: number;
+        totalPages: number;
+    };
+};
+
 export const RECENT_VIEW_TYPE = {
     NOVEL: "NOVEL",
     EPISODE: "EPISODE",

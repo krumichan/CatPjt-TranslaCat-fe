@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { AccountBook } from "@/types/accountBook";
 
 type AccountBookDetailHeaderProps = {
@@ -11,6 +12,8 @@ export default function AccountBookDetailHeader({
     accountBook,
     onClickCreateTransaction,
 }: AccountBookDetailHeaderProps) {
+    const t = useTranslations("AccountBook.detail.header");
+
     return (
         <div className="mb-6">
             <Link
@@ -18,13 +21,13 @@ export default function AccountBookDetailHeader({
                 className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-orange-500 dark:text-slate-400 dark:hover:text-orange-400"
             >
                 <ArrowLeft size={18} />
-                가계부 목록으로
+                {t("backToList")}
             </Link>
 
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                     <p className="mb-2 text-sm font-medium text-orange-500">
-                        Account Book Detail
+                        {t("eyebrow")}
                     </p>
 
                     <div className="flex flex-wrap items-center gap-3">
@@ -50,7 +53,7 @@ export default function AccountBookDetailHeader({
                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-[0_10px_20px_rgba(249,115,22,0.28)] transition hover:bg-orange-600 hover:shadow-[0_14px_28px_rgba(249,115,22,0.34)]"
                 >
                     <Plus size={18} />
-                    거래 등록
+                    {t("createTransaction")}
                 </button>
             </div>
         </div>

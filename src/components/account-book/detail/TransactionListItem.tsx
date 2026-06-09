@@ -9,7 +9,7 @@ type TransactionListItemProps = {
     onClickEdit?: (transaction: AccountBookTransaction) => void;
 };
 
-function TransactionMemoText({ memo }: { memo?: string }) {
+function TransactionMemoText({ memo }: { memo?: string | null }) {
     const [isExpanded, setIsExpanded] = useState(false);
 
     if (!memo) {
@@ -72,7 +72,7 @@ export default function TransactionListItem({
                         </p>
 
                         <span className="shrink-0 rounded-full bg-slate-200 px-2 py-0.5 text-[11px] font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-                            {transaction.categoryName}
+                            {transaction.category}
                         </span>
                     </div>
 

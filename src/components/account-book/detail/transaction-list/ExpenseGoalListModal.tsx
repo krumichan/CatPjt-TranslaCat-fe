@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Pencil, X } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -8,6 +7,7 @@ import {
 } from "@/types/accountBook";
 import { accountBookMonthlyGoalService } from "@/services/account-book/accountBookMonthlyGoalService";
 import { formatAmount } from "@/utils/account-book/formatAmount";
+import {useQuery} from "@/hooks/useQuery";
 
 type ExpenseGoalListModalProps = {
     accountBookId: number;
@@ -34,34 +34,24 @@ export default function ExpenseGoalListModal({
 }: ExpenseGoalListModalProps) {
     const t = useTranslations("AccountBook.detail.expenseGoal.listModal");
 
-    const [monthlyGoals, setMonthlyGoals] = useState<
-        AccountBookMonthlyGoalListItem[]
-    >([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const {
+        data: monthlyGoals = [],
+        isLoading,
+        isError,
+    } = useQuery<
+        AccountBookMonthlyGoalListItem[],
+        readonly ["account-book-monthly-goal-list", number]
+    >({
+        keys: ["account-book-monthly-goal-list", accountBookId] as const,
+        fetcher: (_, id) => accountBookMonthlyGoalService.listMonthlyGoals(id),
+        config: {
+            revalidateOnMount: true,
+            revalidateIfStale: true,
+            dedupingInterval: 2000,
+        },
+    });
 
-    useEffect(() => {
-        const loadMonthlyGoals = async () => {
-            try {
-                setIsLoading(true);
-                setErrorMessage(null);
-
-                const response =
-                    await accountBookMonthlyGoalService.listMonthlyGoals(
-                        accountBookId
-                    );
-
-                setMonthlyGoals(response);
-            } catch (error) {
-                console.error(error);
-                setErrorMessage(t("messages.loadFailed"));
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        void loadMonthlyGoals();
-    }, [accountBookId, t]);
+    const errorMessage = isError ? t("messages.loadFailed") : null;
 
     return createPortal(
         <div className="fixed inset-0 z-9999 overflow-y-auto px-4 py-16 sm:py-20">

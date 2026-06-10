@@ -1,7 +1,6 @@
 {
   "Common": {
-    "noData": "데이터가 존재하지 않습니다.",
-    "loading": "불러오는 중..."
+    "noData": "데이터가 존재하지 않습니다."
   },
   "Login": {
     "title": "로그인",
@@ -204,41 +203,66 @@
         "uncategorized": "미분류",
         "storeNotSet": "점포명 미설정"
       },
+      "summaryCards": {
+        "income": "수입",
+        "expense": "지출",
+        "balance": "잔액",
+        "transactions": "거래",
+        "transactionCount": "{count}건",
+        "messages": {
+          "loadFailed": "가계부 요약 정보를 불러오지 못했습니다."
+        }
+      },
       "transaction": {
         "loadError": "거래 내역을 불러오지 못했습니다.",
         "loading": "거래 내역을 불러오는 중입니다.",
         "previous": "이전",
         "next": "다음"
-      }
-    },
-    "transactionList": {
-      "title": "거래 내역",
-      "count": "총 {count}건의 거래가 있습니다.",
-      "view": {
-        "card": "카드",
-        "table": "표"
       },
-      "type": {
-        "income": "수입",
-        "expense": "지출"
+      "transactionList": {
+        "title": "거래 내역",
+        "count": "총 {count}건의 거래가 있습니다.",
+        "view": {
+          "card": "카드",
+          "table": "표"
+        },
+        "type": {
+          "income": "수입",
+          "expense": "지출"
+        },
+        "table": {
+          "date": "날짜",
+          "type": "구분",
+          "title": "거래명",
+          "category": "카테고리",
+          "store": "점포",
+          "memo": "메모",
+          "amount": "금액",
+          "manage": "관리"
+        },
+        "empty": {
+          "title": "거래 내역이 없습니다.",
+          "description": "다른 조건으로 검색하거나 새 거래를 등록해 주세요."
+        }
       },
-      "table": {
-        "date": "날짜",
-        "type": "구분",
-        "title": "거래명",
-        "category": "카테고리",
-        "store": "점포",
-        "memo": "메모",
-        "amount": "금액",
-        "manage": "관리"
+      "transactionFilter": {
+        "keywordPlaceholder": "거래명, 메모, 카테고리로 검색",
+        "type": {
+          "all": "전체",
+          "income": "수입",
+          "expense": "지출"
+        },
+        "period": {
+          "all": "전체 기간"
+        }
+      },
+      "pagination": {
+        "previous": "이전",
+        "next": "다음"
       },
       "actions": {
         "edit": "수정",
         "close": "닫기"
-      },
-      "empty": {
-        "title": "거래 내역이 없습니다.",
-        "description": "다른 조건으로 검색하거나 새 거래를 등록해 주세요."
       }
     }
   },

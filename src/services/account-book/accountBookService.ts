@@ -1,9 +1,9 @@
 import { apiClient } from "@/lib/apiClient";
 import {
     AccountBook,
-    AccountBookSearchCondition,
+    AccountBookSearchCondition, AccountBookSummaryResponse,
     AccountBookTransactionListRequest,
-    AccountBookTransactionListResponse,
+    AccountBookTransactionListResponse, AccountBookTransactionMonthOption,
     CreateAccountBookRequest,
 } from "@/types/accountBook";
 import { ResponseDto } from "@/types/common";
@@ -68,6 +68,58 @@ export const accountBookService = {
         }
 
         const data = (await response.json()) as ResponseDto<AccountBookTransactionListResponse>;
+        return data.body;
+    },
+
+    async listTransactionMonths(
+        accountBookId: number | string
+    ): Promise<AccountBookTransactionMonthOption[]> {
+        const response = await apiClient(
+            `/account-books/${accountBookId}/transactions/months`,
+            {
+                method: "GET",
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to get transaction months.");
+        }
+
+        const data = await response.json() as ResponseDto<AccountBookTransactionMonthOption[]>;
+        return data.body;
+    },
+
+    async getSummary(
+        accountBookId: number | string,
+        condition?: {
+            year: number;
+            month: number;
+        }
+    ): Promise<AccountBookSummaryResponse> {
+        const searchParams = new URLSearchParams();
+
+        if (condition) {
+            searchParams.set("year", String(condition.year));
+            searchParams.set("month", String(condition.month));
+        }
+
+        const queryString = searchParams.toString();
+
+        const response = await apiClient(
+            `/account-books/${accountBookId}/summary${
+                queryString ? `?${queryString}` : ""
+            }`,
+            {
+                method: "GET",
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to get account book summary.");
+        }
+
+        const data = (await response.json()) as ResponseDto<AccountBookSummaryResponse>;
+
         return data.body;
     }
 };

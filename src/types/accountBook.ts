@@ -1,4 +1,5 @@
 import {PagedModel} from "@/types/common";
+import {TransactionFilterType} from "@/components/account-book/detail/TransactionFilterPanel";
 
 export type CurrencyCode = string;
 export type TransactionType = "INCOME" | "EXPENSE";
@@ -54,6 +55,10 @@ export type AccountBookMonthlyGoal = {
     year: number;
     month: number;
     goalAmount: number | null;
+    expenseAmount: number;
+    remainingAmount: number;
+    usageRate: number;
+    exceeded: boolean;
 };
 
 export type AccountBookMonthlyGoalListItem = {
@@ -77,6 +82,15 @@ export type AccountBookMonthlyGoalRequest = {
     goalAmount: number;
 };
 
+export type AccountBookSummaryResponse = {
+    accountBookId: number;
+    currencyCode: CurrencyCode;
+    incomeAmount: number;
+    expenseAmount: number;
+    balance: number;
+    transactionCount: number;
+};
+
 export type AccountBookTransaction = {
     id: number;
     accountBookId?: number;
@@ -93,13 +107,23 @@ export type AccountBookTransaction = {
 export type AccountBookTransactionListRequest = {
     year?: number;
     month?: number;
-    page?: number;
-    size?: number;
+    page: number;
+    size: number;
+    type?: TransactionType;
+    keyword?: string;
 };
 
 export type AccountBookTransactionListResponse = {
     page: PagedModel<AccountBookTransaction>;
     currencyName: string;
+};
+
+export type AccountBookTransactionMonthOption = {
+    value: string;
+    label: string;
+    year: number;
+    month: number;
+    currentMonth: boolean;
 };
 
 export type Currency = {

@@ -15,9 +15,10 @@ export function useQuery<T, P  extends readonly unknown[]>({
 }: UseQueryProps<T, P>) {
 
     // 1. 유효성 검사 (P가 배열이므로 every 사용 가능)
-    const isValid = !!keys && enabled && keys.every(key =>
-        key !== undefined && key !== null && (key as unknown) !== ""
-    );
+    const isValid =
+        !!keys &&
+        enabled &&
+        keys.every((key) => key !== undefined && key !== null);
 
     const swrKey = isValid ? keys : null;
 

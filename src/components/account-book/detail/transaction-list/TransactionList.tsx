@@ -9,12 +9,17 @@ import TransactionTableView from "@/components/account-book/detail/transaction-l
 import TransactionViewToggle, {
     TransactionViewMode,
 } from "@/components/account-book/detail/transaction-list/TransactionViewToggle";
+import TransactionPagination from "@/components/account-book/detail/transaction-list/TransactionPagination";
 
 type TransactionListProps = {
     transactions: AccountBookTransaction[];
     currencyCode: CurrencyCode;
     onClickEditTransaction: (transaction: AccountBookTransaction) => void;
     isLoading?: boolean;
+
+    page: number;
+    totalPages: number;
+    onChangePage: (page: number) => void;
 };
 
 export default function TransactionList({
@@ -22,6 +27,9 @@ export default function TransactionList({
     currencyCode,
     onClickEditTransaction,
     isLoading = false,
+    page,
+    totalPages,
+    onChangePage,
 }: TransactionListProps) {
     const t = useTranslations("AccountBook.detail.transactionList");
 
@@ -80,6 +88,15 @@ export default function TransactionList({
                     t={t}
                 />
             )}
+
+            <TransactionPagination
+                page={page}
+                totalPages={totalPages}
+                isLoading={isLoading}
+                previousLabel={t("pagination.previous")}
+                nextLabel={t("pagination.next")}
+                onChangePage={onChangePage}
+            />
         </section>
     );
 }

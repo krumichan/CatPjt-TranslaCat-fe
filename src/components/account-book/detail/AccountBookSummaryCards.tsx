@@ -4,38 +4,55 @@ import {
     ReceiptText,
     Wallet,
 } from "lucide-react";
-import { AccountBook } from "@/types/accountBook";
+import { useTranslations } from "next-intl";
+import { AccountBookSummaryResponse } from "@/types/accountBook";
 import { formatAmount } from "@/utils/account-book/formatAmount";
 
 type AccountBookSummaryCardsProps = {
-    accountBook: AccountBook;
+    accountBookSummary?: AccountBookSummaryResponse;
+    isLoading?: boolean;
 };
 
 export default function AccountBookSummaryCards({
-    accountBook,
+    accountBookSummary,
+    isLoading = false,
 }: AccountBookSummaryCardsProps) {
+    const t = useTranslations("AccountBook.detail.summaryCards");
+
+    const currencyCode = accountBookSummary?.currencyCode ?? "JPY";
+
     const items = [
         {
-            label: "수입",
-            value: formatAmount(accountBook.incomeAmount, accountBook.currencyCode),
+            label: t("income"),
+            value: accountBookSummary
+                ? formatAmount(accountBookSummary.incomeAmount, currencyCode)
+                : "-",
             icon: <ArrowUpCircle size={20} />,
             valueClassName: "text-blue-600 dark:text-blue-400",
         },
         {
-            label: "지출",
-            value: formatAmount(accountBook.expenseAmount, accountBook.currencyCode),
+            label: t("expense"),
+            value: accountBookSummary
+                ? formatAmount(accountBookSummary.expenseAmount, currencyCode)
+                : "-",
             icon: <ArrowDownCircle size={20} />,
             valueClassName: "text-red-500 dark:text-red-400",
         },
         {
-            label: "잔액",
-            value: formatAmount(accountBook.balance, accountBook.currencyCode),
+            label: t("balance"),
+            value: accountBookSummary
+                ? formatAmount(accountBookSummary.balance, currencyCode)
+                : "-",
             icon: <Wallet size={20} />,
             valueClassName: "text-slate-900 dark:text-white",
         },
         {
-            label: "거래",
-            value: `${accountBook.transactionCount}건`,
+            label: t("transactions"),
+            value: accountBookSummary
+                ? t("transactionCount", {
+                    count: accountBookSummary.transactionCount,
+                })
+                : "-",
             icon: <ReceiptText size={20} />,
             valueClassName: "text-slate-900 dark:text-white",
         },
@@ -55,8 +72,12 @@ export default function AccountBookSummaryCards({
                         {item.icon}
                     </div>
 
-                    <p className={`truncate text-lg font-bold ${item.valueClassName}`}>
-                        {item.value}
+                    <p
+                        className={`truncate text-lg font-bold ${
+                            isLoading ? "animate-pulse text-slate-300" : item.valueClassName
+                        }`}
+                    >
+                        {isLoading ? "..." : item.value}
                     </p>
                 </div>
             ))}

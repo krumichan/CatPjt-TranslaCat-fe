@@ -1,7 +1,7 @@
 import { apiClient } from "@/lib/apiClient";
 import {
     AccountBook,
-    AccountBookSearchCondition, AccountBookSummaryResponse,
+    AccountBookSearchCondition, AccountBookStoreSuggestion, AccountBookSummaryResponse,
     AccountBookTransactionListRequest,
     AccountBookTransactionListResponse, AccountBookTransactionMonthOption,
     CreateAccountBookRequest,
@@ -51,6 +51,31 @@ export const accountBookService = {
         }
 
         const data = (await response.json()) as ResponseDto<AccountBook>;
+        return data.body;
+    },
+
+    async listStoreSuggestions(
+        accountBookId: number | string,
+        keyword?: string
+    ): Promise<AccountBookStoreSuggestion[]> {
+        const searchParams = new URLSearchParams();
+
+        if (keyword?.trim()) {
+            searchParams.set("keyword", keyword.trim());
+        }
+
+        const queryString = searchParams.toString();
+
+        const response = await apiClient(
+            `/account-books/${accountBookId}/transactions/stores/suggestions${queryString ? `?${queryString}` : ""}`,
+            { method: "GET" }
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to get store suggestions.");
+        }
+
+        const data = await response.json() as ResponseDto<AccountBookStoreSuggestion[]>;
         return data.body;
     },
 

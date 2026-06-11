@@ -1,6 +1,12 @@
 {
   "Common": {
-    "noData": "データが存在しません。"
+    "noData": "データが存在しません。",
+    "confirmModal": {
+      "close": "確認モーダルを閉じる",
+      "cancel": "キャンセル",
+      "confirm": "確認",
+      "processing": "処理中..."
+    }
   },
   "Login": {
     "title": "ログイン",
@@ -187,6 +193,107 @@
           "actions": {
             "close": "閉じる",
             "edit": "修正"
+          }
+        }
+      },
+      "fixedCost": {
+        "eyebrow": "Fixed Cost",
+        "title": "毎月繰り返される支出を登録できます。",
+        "count": "登録済みの固定費 {count}件",
+        "paymentDay": "毎月 {day}日",
+        "period": "{start} ～ {end}",
+        "ongoing": "継続",
+        "memoBadge": "メモ",
+        "status": {
+          "active": "有効",
+          "inactive": "無効"
+        },
+        "deleteConfirm": {
+          "title": "固定費を削除しますか？",
+          "description": "「{title}」の固定費が一覧から削除されます。\n既に作成された取引履歴は削除されません。",
+          "confirm": "削除"
+        },
+        "detail": {
+          "fields": {
+            "amount": "金額",
+            "category": "カテゴリ",
+            "storeName": "店舗名",
+            "paymentDay": "支払日",
+            "period": "期間",
+            "status": "状態",
+            "memo": "メモ"
+          },
+          "empty": {
+            "storeName": "未設定",
+            "memo": "登録されたメモはありません。"
+          },
+          "actions": {
+            "close": "詳細モーダルを閉じる",
+            "closeButton": "閉じる"
+          }
+        },
+        "messages": {
+          "loading": "固定費一覧を読み込み中...",
+          "loadFailed": "固定費一覧の取得に失敗しました。",
+          "createFailed": "固定費の登録に失敗しました。",
+          "updateFailed": "固定費の更新に失敗しました。",
+          "deleteFailed": "固定費の削除に失敗しました。"
+        },
+        "actions": {
+          "create": "固定費を登録",
+          "menu": "固定費メニュー",
+          "detail": "詳細",
+          "edit": "修正",
+          "delete": "削除",
+          "activate": "有効化",
+          "deactivate": "無効化"
+        },
+        "empty": {
+          "title": "固定費がありません。",
+          "description": "毎月発生する家賃、通信費、サブスクなどを登録できます。"
+        },
+        "modal": {
+          "title": "固定費登録",
+          "editTitle": "固定費修正",
+          "description": "毎月繰り返し発生する支出テンプレートを登録します。",
+          "editDescription": "登録済みの固定費情報を修正します。",
+          "displayAmount": "表示金額:",
+          "fields": {
+            "title": "固定費名",
+            "storeName": "店舗名",
+            "category": "カテゴリ",
+            "amount": "金額",
+            "paymentDay": "毎月の支払日",
+            "startYear": "開始年",
+            "startMonth": "開始月",
+            "endYear": "終了年",
+            "endMonth": "終了月",
+            "memo": "メモ"
+          },
+          "options": {
+            "none": "なし",
+            "directInput": "直接入力"
+          },
+          "placeholders": {
+            "title": "例: 家賃、携帯料金",
+            "storeName": "新しい店舗名を入力",
+            "category": "新しいカテゴリ名を入力",
+            "optional": "任意入力",
+            "memo": "例: 毎月自動引き落とし"
+          },
+          "helps": {
+            "endMonth": "終了年月は任意項目です。入力しない場合、継続する固定費として登録されます。"
+          },
+          "validation": {
+            "endBeforeStart": "終了年月は開始年月以降で入力してください。"
+          },
+          "actions": {
+            "close": "モーダルを閉じる",
+            "cancel": "キャンセル",
+            "submit": "登録",
+            "submitting": "登録中...",
+            "update": "修正",
+            "updating": "修正中..."
           }
         }
       },

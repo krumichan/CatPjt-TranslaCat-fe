@@ -1,6 +1,12 @@
 {
   "Common": {
-    "noData": "데이터가 존재하지 않습니다."
+    "noData": "데이터가 존재하지 않습니다.",
+    "confirmModal": {
+      "close": "확인 모달 닫기",
+      "cancel": "취소",
+      "confirm": "확인",
+      "processing": "처리 중..."
+    }
   },
   "Login": {
     "title": "로그인",
@@ -187,6 +193,107 @@
           "actions": {
             "close": "닫기",
             "edit": "수정"
+          }
+        }
+      },
+      "fixedCost": {
+        "eyebrow": "Fixed Cost",
+        "title": "매월 반복되는 지출을 등록해둘 수 있어요.",
+        "count": "등록된 고정비 {count}건",
+        "paymentDay": "매월 {day}일",
+        "period": "{start} ~ {end}",
+        "ongoing": "계속",
+        "memoBadge": "메모",
+        "deleteConfirm": {
+          "title": "고정비를 삭제할까요?",
+          "description": "'{title}' 고정비가 목록에서 삭제됩니다.\n이미 생성된 거래 내역은 삭제되지 않습니다.",
+          "confirm": "삭제"
+        },
+        "detail": {
+          "fields": {
+            "amount": "금액",
+            "category": "카테고리",
+            "storeName": "점포명",
+            "paymentDay": "결제일",
+            "period": "기간",
+            "status": "상태",
+            "memo": "메모"
+          },
+          "empty": {
+            "storeName": "미설정",
+            "memo": "등록된 메모가 없습니다."
+          },
+          "actions": {
+            "close": "상세 모달 닫기",
+            "closeButton": "닫기"
+          }
+        },
+        "status": {
+          "active": "활성",
+          "inactive": "비활성"
+        },
+        "messages": {
+          "loading": "고정비 목록을 불러오는 중...",
+          "loadFailed": "고정비 목록을 불러오지 못했습니다.",
+          "createFailed": "고정비 등록에 실패했습니다.",
+          "updateFailed": "고정비 수정에 실패했습니다.",
+          "deleteFailed": "고정비 삭제에 실패했습니다."
+        },
+        "actions": {
+          "create": "고정비 등록",
+          "menu": "고정비 메뉴",
+          "detail": "상세",
+          "edit": "수정",
+          "delete": "삭제",
+          "activate": "활성화",
+          "deactivate": "비활성화"
+        },
+        "empty": {
+          "title": "등록된 고정비가 없습니다.",
+          "description": "월세, 통신비, 구독료처럼 매월 반복되는 지출을 등록할 수 있어요."
+        },
+        "modal": {
+          "title": "고정비 등록",
+          "editTitle": "고정비 수정",
+          "description": "매월 반복적으로 발생하는 지출 템플릿을 등록합니다.",
+          "editDescription": "등록된 고정비 정보를 수정합니다.",
+          "displayAmount": "표시 금액:",
+          "fields": {
+            "title": "고정비명",
+            "storeName": "점포명",
+            "category": "카테고리",
+            "amount": "금액",
+            "paymentDay": "매월 결제일",
+            "startYear": "시작 연도",
+            "startMonth": "시작 월",
+            "endYear": "종료 연도",
+            "endMonth": "종료 월",
+            "memo": "메모"
+          },
+          "options": {
+            "none": "없음",
+            "directInput": "직접 입력"
+          },
+          "placeholders": {
+            "title": "예: 월세, 휴대폰 요금",
+            "storeName": "새 점포명 입력",
+            "category": "새 카테고리명 입력",
+            "optional": "선택 입력",
+            "memo": "예: 매월 자동이체"
+          },
+          "helps": {
+            "endMonth": "종료 연월은 선택 입력입니다. 입력하지 않으면 계속 반복되는 고정비로 등록됩니다."
+          },
+          "validation": {
+            "endBeforeStart": "종료 연월은 시작 연월 이후로 입력해 주세요."
+          },
+          "actions": {
+            "close": "모달 닫기",
+            "cancel": "취소",
+            "submit": "등록",
+            "submitting": "등록 중...",
+            "update": "수정",
+            "updating": "수정 중..."
           }
         }
       },

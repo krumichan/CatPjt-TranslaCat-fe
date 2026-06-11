@@ -11,18 +11,18 @@ import TransactionList from "@/components/account-book/detail/transaction-list/T
 import {
     mockAccountBookDetail,
 } from "@/data/account-book/mockAccountBookDetail";
-import FixedExpenseCreateModal from "@/components/account-book/detail/modal/FixedExpenseCreateModal";
 import TransactionCreateModal from "@/components/account-book/detail/modal/TransactionCreateModal";
+import FixedCostFormModal from "@/components/account-book/detail/modal/FixedCostFormModal";
+import FixedCostSection from "@/components/account-book/detail/FixedCostSection";
 import {
     AccountBookTransaction,
     CreateTransactionFormValues,
-    AccountBookFixedExpense,
-    CreateFixedExpenseFormValues,
+    AccountBookFixedCostRequest,
+    AccountBookFixedCost,
 } from "@/types/accountBook";
 import AccountBookExpenseGoalCard from "@/components/account-book/detail/AccountBookExpenseGoalCard";
 import MonthlyExpenseChart from "@/components/account-book/analytics/MonthlyExpenseChart";
 import {mockMonthlyAnalytics} from "@/data/account-book/mockAccountBookAnalytics";
-import FixedExpenseSection from "@/components/account-book/detail/FixedExpenseSection";
 import ExpenseBreakdownPieChart, {buildExpenseBreakdownData} from "@/components/account-book/analytics/ExpenseBreakdownPieChart";
 import TransactionEditModal from "@/components/account-book/detail/modal/TransactionEditModal";
 import {accountBookService} from "@/services/account-book/accountBookService";
@@ -30,6 +30,9 @@ import {useTranslations} from "next-intl";
 import SpinLoader from "@/components/common/SpinLoader";
 import {accountBookMonthlyGoalService} from "@/services/account-book/accountBookMonthlyGoalService";
 import {useQuery} from "@/hooks/useQuery";
+import {accountBookFixedCostService} from "@/services/account-book/accountBookFixedCostService";
+import {accountBookCategoryService} from "@/services/account-book/accountBookCategoryService";
+import ConfirmModal from "@/components/common/ConfirmModal";
 
 function createClientId(): number {
     return Date.now();
@@ -56,6 +59,20 @@ function parseSelectedMonthValue(selectedMonth: string) {
     };
 }
 
+function sortFixedCosts(fixedCosts: AccountBookFixedCost[]) {
+    return [...fixedCosts].sort((a, b) => {
+        if (a.active !== b.active) {
+            return a.active ? -1 : 1;
+        }
+
+        if (a.paymentDay !== b.paymentDay) {
+            return a.paymentDay - b.paymentDay;
+        }
+
+        return b.id - a.id;
+    });
+}
+
 export default function AccountBookDetailPage() {
     const t = useTranslations("AccountBook.detail");
     const params = useParams<{ accountBookId: string }>();
@@ -70,6 +87,12 @@ export default function AccountBookDetailPage() {
     }, [selectedMonth]);
 
     const [transactionPage, setTransactionPage] = useState(0);
+
+    const [editingFixedCost, setEditingFixedCost] =
+        useState<AccountBookFixedCost | null>(null);
+
+    const [deletingFixedCost, setDeletingFixedCost] =
+        useState<AccountBookFixedCost | null>(null);
 
     const {
         data: monthlyGoal,
@@ -172,12 +195,67 @@ export default function AccountBookDetailPage() {
         },
     });
 
+    const {
+        data: fixedCosts = [],
+        isLoading: isFixedCostsLoading,
+        isError: fixedCostsQueryError,
+        mutate: mutateFixedCosts,
+    } = useQuery({
+        keys: [
+            "account-book-fixed-costs",
+            Number(params.accountBookId),
+        ] as const,
+        fetcher: (_, accountBookId) =>
+            accountBookFixedCostService.listFixedCosts(accountBookId),
+        config: {
+            revalidateOnMount: true,
+            revalidateIfStale: true,
+            dedupingInterval: 2000,
+        },
+    });
+
+    const {
+        data: fixedCostCategoryOptions = [],
+        mutate: mutateFixedCostCategoryOptions,
+    } = useQuery({
+        keys: [
+            "account-book-categories",
+            Number(params.accountBookId),
+        ] as const,
+        fetcher: (_, accountBookId) =>
+            accountBookCategoryService.listCategories(accountBookId),
+        config: {
+            revalidateOnMount: true,
+            revalidateIfStale: true,
+        },
+    });
+
+    const {
+        data: fixedCostStoreOptions = [],
+        mutate: mutateFixedCostStoreOptions,
+    } = useQuery({
+        keys: [
+            "account-book-store-suggestions",
+            Number(params.accountBookId),
+        ] as const,
+        fetcher: (_, accountBookId) =>
+            accountBookService.listStoreSuggestions(accountBookId),
+        config: {
+            revalidateOnMount: true,
+            revalidateIfStale: true,
+        },
+    });
+
     const currencyCode = accountBookSummary?.currencyCode ?? "JPY";
 
     const monthlyGoalAmount = monthlyGoal?.goalAmount ?? null;
 
     const monthlyGoalError = monthlyGoalQueryError
         ? t("expenseGoal.messages.loadFailed")
+        : null;
+
+    const fixedCostsError = fixedCostsQueryError
+        ? t("fixedCost.messages.loadFailed")
         : null;
 
     const transactions = useMemo(() => {
@@ -192,13 +270,10 @@ export default function AccountBookDetailPage() {
         : null;
 
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const [isFixedExpenseModalOpen, setIsFixedExpenseModalOpen] = useState(false);
+    const [isCreateFixedCostModalOpen, setIsCreateFixedCostModalOpen] = useState(false);
 
     const [editingTransaction, setEditingTransaction] =
         useState<AccountBookTransaction | null>(null);
-
-    const [fixedExpenses, setFixedExpenses] =
-        useState<AccountBookFixedExpense[]>([]);
 
     const analyticsTransactions = useMemo(() => {
         return transactions.filter((transaction) => {
@@ -226,23 +301,31 @@ export default function AccountBookDetailPage() {
         );
     }, [analyticsTransactions, t]);
 
-    const handleCreateFixedExpense = (values: CreateFixedExpenseFormValues) => {
-        const newFixedExpense: AccountBookFixedExpense = {
-            id: createClientId(),
-            accountBookId: mockAccountBookDetail.id,
-            title: values.title,
-            storeName: values.storeName,
-            category: values.categoryName,
-            amount: values.amount,
-            paymentDay: values.paymentDay,
-            memo: values.memo,
-            isActive: true,
-        };
+    const handleCreateFixedCost = async (
+        values: AccountBookFixedCostRequest
+    ) => {
+        try {
+            const createdFixedCost =
+                await accountBookFixedCostService.createFixedCost(
+                    Number(params.accountBookId),
+                    values
+                );
 
-        setFixedExpenses((prevFixedExpenses) => [
-            newFixedExpense,
-            ...prevFixedExpenses,
-        ]);
+            await mutateFixedCosts((currentData) => {
+                const nextData = currentData
+                    ? [createdFixedCost, ...currentData]
+                    : [createdFixedCost];
+
+                return sortFixedCosts(nextData);
+            }, false);
+
+            await mutateFixedCostCategoryOptions();
+            await mutateFixedCostStoreOptions();
+        } catch (error) {
+            console.error(error);
+            alert(t("fixedCost.messages.createFailed"));
+            throw error;
+        }
     };
 
     const handleCreateTransaction = (values: CreateTransactionFormValues) => {
@@ -283,6 +366,37 @@ export default function AccountBookDetailPage() {
         setTransactionPage(0);
     };
 
+    const handleChangeFixedCostActive = async (
+        fixedCostId: number,
+        active: boolean
+    ) => {
+        try {
+            const updatedFixedCost =
+                await accountBookFixedCostService.updateActive(
+                    Number(params.accountBookId),
+                    fixedCostId,
+                    { active }
+                );
+
+            await mutateFixedCosts((currentData) => {
+                if (!currentData) {
+                    return [updatedFixedCost];
+                }
+
+                return sortFixedCosts(
+                    currentData.map((fixedCost) =>
+                        fixedCost.id === fixedCostId
+                            ? updatedFixedCost
+                            : fixedCost
+                    )
+                );
+            }, false);
+        } catch (error) {
+            console.error(error);
+            alert(t("fixedCost.messages.updateFailed"));
+        }
+    };
+
     const handleChangeKeyword = (value: string) => {
         setKeyword(value);
         setTransactionPage(0);
@@ -291,6 +405,41 @@ export default function AccountBookDetailPage() {
     const handleChangeSelectedMonth = (value: string) => {
         setSelectedMonth(value);
         setTransactionPage(0);
+    };
+
+    const handleCloseFixedCostModal = () => {
+        setIsCreateFixedCostModalOpen(false);
+        setEditingFixedCost(null);
+    };
+
+    const handleDeleteFixedCost = async () => {
+        if (!deletingFixedCost) {
+            return;
+        }
+
+        try {
+            await accountBookFixedCostService.deleteFixedCost(
+                Number(params.accountBookId),
+                deletingFixedCost.id
+            );
+
+            await mutateFixedCosts((currentData) => {
+                if (!currentData) {
+                    return [];
+                }
+
+                return currentData.filter(
+                    (fixedCost) => fixedCost.id !== deletingFixedCost.id
+                );
+            }, false);
+
+            await mutateFixedCostCategoryOptions();
+            await mutateFixedCostStoreOptions();
+        } catch (error) {
+            console.error(error);
+            alert(t("fixedCost.messages.deleteFailed"));
+            throw error;
+        }
     };
 
     const handleSaveExpenseGoalAmount = async (
@@ -318,6 +467,52 @@ export default function AccountBookDetailPage() {
         } catch (error) {
             console.error(error);
             alert(t("expenseGoal.messages.saveFailed"));
+        }
+    };
+
+    const handleSubmitFixedCost = async (
+        values: AccountBookFixedCostRequest
+    ) => {
+        if (editingFixedCost) {
+            await handleUpdateFixedCost(editingFixedCost.id, values);
+            return;
+        }
+
+        await handleCreateFixedCost(values);
+    };
+
+    const handleUpdateFixedCost = async (
+        fixedCostId: number,
+        values: AccountBookFixedCostRequest
+    ) => {
+        try {
+            const updatedFixedCost =
+                await accountBookFixedCostService.updateFixedCost(
+                    Number(params.accountBookId),
+                    fixedCostId,
+                    values
+                );
+
+            await mutateFixedCosts((currentData) => {
+                if (!currentData) {
+                    return [updatedFixedCost];
+                }
+
+                return sortFixedCosts(
+                    currentData.map((fixedCost) =>
+                        fixedCost.id === fixedCostId
+                            ? updatedFixedCost
+                            : fixedCost
+                    )
+                );
+            }, false);
+
+            await mutateFixedCostCategoryOptions();
+            await mutateFixedCostStoreOptions();
+        } catch (error) {
+            console.error(error);
+            alert(t("fixedCost.messages.updateFailed"));
+            throw error;
         }
     };
 
@@ -391,10 +586,15 @@ export default function AccountBookDetailPage() {
                         onSaveGoalAmount={handleSaveExpenseGoalAmount}
                     />
 
-                    <FixedExpenseSection
-                        fixedExpenses={fixedExpenses}
+                    <FixedCostSection
+                        fixedCosts={fixedCosts}
                         currencyCode={currencyCode}
-                        onClickCreateFixedExpense={() => setIsFixedExpenseModalOpen(true)}
+                        isLoading={isFixedCostsLoading}
+                        errorMessage={fixedCostsError}
+                        onClickCreateFixedCost={() => setIsCreateFixedCostModalOpen(true)}
+                        onClickEditFixedCost={setEditingFixedCost}
+                        onClickDeleteFixedCost={setDeletingFixedCost}
+                        onChangeActive={handleChangeFixedCostActive}
                     />
 
                     <MonthlyExpenseChart
@@ -468,11 +668,26 @@ export default function AccountBookDetailPage() {
                 }}
             />
 
-            <FixedExpenseCreateModal
-                isOpen={isFixedExpenseModalOpen}
+            <FixedCostFormModal
+                isOpen={isCreateFixedCostModalOpen || editingFixedCost !== null}
+                fixedCost={editingFixedCost}
                 currencyCode={currencyCode}
-                onClose={() => setIsFixedExpenseModalOpen(false)}
-                onSubmit={handleCreateFixedExpense}
+                categoryOptions={fixedCostCategoryOptions}
+                storeOptions={fixedCostStoreOptions}
+                onClose={handleCloseFixedCostModal}
+                onSubmit={handleSubmitFixedCost}
+            />
+
+            <ConfirmModal
+                isOpen={deletingFixedCost !== null}
+                title={t("fixedCost.deleteConfirm.title")}
+                description={t("fixedCost.deleteConfirm.description", {
+                    title: deletingFixedCost?.title ?? "",
+                })}
+                confirmLabel={t("fixedCost.deleteConfirm.confirm")}
+                variant="danger"
+                onClose={() => setDeletingFixedCost(null)}
+                onConfirm={handleDeleteFixedCost}
             />
         </>
     );

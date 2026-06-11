@@ -1,5 +1,4 @@
 import {PagedModel} from "@/types/common";
-import {TransactionFilterType} from "@/components/account-book/detail/TransactionFilterPanel";
 
 export type CurrencyCode = string;
 export type TransactionType = "INCOME" | "EXPENSE";
@@ -19,26 +18,55 @@ export type AccountBook = {
 };
 
 export type AccountBookCategory = {
-    id: string;
+    id: number;
+    accountBookId: number;
     name: string;
-    accountBooks: AccountBook[];
+    displayOrder: number;
+    active: boolean;
 };
 
-export type AccountBookFixedExpense = {
+export type AccountBookFixedCost = {
     id: number;
     accountBookId: number;
     title: string;
-    storeName?: string;
+    storeName: string | null;
     category: string;
     amount: number;
     paymentDay: number;
-    memo?: string;
-    isActive: boolean;
+    startYear: number;
+    startMonth: number;
+    endYear: number | null;
+    endMonth: number | null;
+    lastGeneratedYear: number | null;
+    lastGeneratedMonth: number | null;
+    memo: string | null;
+    active: boolean;
+};
+
+export type AccountBookFixedCostRequest = {
+    title: string;
+    storeName?: string | null;
+    category: string;
+    amount: number;
+    paymentDay: number;
+    startYear: number;
+    startMonth: number;
+    endYear?: number | null;
+    endMonth?: number | null;
+    memo?: string | null;
+};
+
+export type AccountBookFixedCostActiveRequest = {
+    active: boolean;
 };
 
 export type AccountBookSearchCondition = {
     keyword?: string;
     category?: string;
+};
+
+export type AccountBookStoreSuggestion = {
+    storeName: string;
 };
 
 export type CreateAccountBookRequest = {
@@ -144,15 +172,6 @@ export type CreateAccountBookFormValues = {
     categoryId?: string;
     categoryName?: string;
     newCategoryName?: string;
-};
-
-export type CreateFixedExpenseFormValues = {
-    title: string;
-    storeName?: string;
-    categoryName: string;
-    amount: number;
-    paymentDay: number;
-    memo?: string;
 };
 
 export type CreateTransactionFormValues = {

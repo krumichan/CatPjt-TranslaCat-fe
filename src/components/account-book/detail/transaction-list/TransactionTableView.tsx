@@ -11,6 +11,7 @@ type TransactionTableViewProps = {
     transactions: AccountBookTransaction[];
     currencyCode: CurrencyCode;
     onClickEditTransaction: (transaction: AccountBookTransaction) => void;
+    onClickDeleteTransaction: (transaction: AccountBookTransaction) => void;
     t: ReturnType<typeof useTranslations>;
 };
 
@@ -18,6 +19,7 @@ export default function TransactionTableView({
     transactions,
     currencyCode,
     onClickEditTransaction,
+    onClickDeleteTransaction,
     t,
 }: TransactionTableViewProps) {
     const sortedTransactions = [...transactions].sort((a, b) =>
@@ -87,7 +89,17 @@ export default function TransactionTableView({
                                 </td>
 
                                 <td className="max-w-45 truncate px-4 py-3 font-semibold text-slate-900 dark:text-white">
-                                    {transaction.title}
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className="font-semibold text-slate-800 dark:text-slate-100">
+                                            {transaction.title}
+                                        </span>
+
+                                        {transaction.sourceType === "FIXED_COST" && (
+                                            <span className="shrink-0 rounded-full bg-orange-100 px-2 py-0.5 text-[11px] font-semibold text-orange-600 dark:bg-orange-500/10 dark:text-orange-300">
+                                                {t("badges.fixedCost")}
+                                            </span>
+                                        )}
+                                    </div>
                                 </td>
 
                                 <td className="whitespace-nowrap px-4 py-3 text-slate-600 dark:text-slate-300">
@@ -118,17 +130,23 @@ export default function TransactionTableView({
                                 </td>
 
                                 <td className="whitespace-nowrap px-4 py-3 text-right">
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            onClickEditTransaction(
-                                                transaction
-                                            )
-                                        }
-                                        className="inline-flex items-center justify-center rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-500 transition hover:border-orange-300 hover:bg-orange-50 hover:text-orange-500 dark:border-white/10 dark:text-slate-400 dark:hover:border-orange-400/60 dark:hover:bg-orange-500/10 dark:hover:text-orange-400"
-                                    >
-                                        {t("actions.edit")}
-                                    </button>
+                                    <div className="flex justify-end gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => onClickEditTransaction(transaction)}
+                                            className="inline-flex items-center justify-center rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-500 transition hover:border-orange-300 hover:bg-orange-50 hover:text-orange-500 dark:border-white/10 dark:text-slate-400 dark:hover:border-orange-400/60 dark:hover:bg-orange-500/10 dark:hover:text-orange-400"
+                                        >
+                                            {t("actions.edit")}
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => onClickDeleteTransaction(transaction)}
+                                            className="inline-flex items-center justify-center rounded-lg border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs font-semibold text-red-500 transition hover:border-red-300 hover:bg-red-100 hover:text-red-600 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300 dark:hover:border-red-400/60 dark:hover:bg-red-500/20 dark:hover:text-red-200"
+                                        >
+                                            {t("actions.delete")}
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         );

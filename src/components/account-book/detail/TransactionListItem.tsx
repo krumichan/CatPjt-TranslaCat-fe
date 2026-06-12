@@ -2,11 +2,13 @@ import { useState } from "react";
 import { ArrowDownCircle, ArrowUpCircle, Pencil } from "lucide-react";
 import { AccountBookTransaction, CurrencyCode } from "@/types/accountBook";
 import { formatAmount } from "@/utils/account-book/formatAmount";
+import {useTranslations} from "next-intl";
 
 type TransactionListItemProps = {
     transaction: AccountBookTransaction;
     currencyCode: CurrencyCode;
-    onClickEdit?: (transaction: AccountBookTransaction) => void;
+    onClickEditTransaction?: (transaction: AccountBookTransaction) => void;
+    onClickDeleteTransaction: (transaction: AccountBookTransaction) => void;
 };
 
 function TransactionMemoText({ memo }: { memo?: string | null }) {
@@ -44,8 +46,11 @@ function TransactionMemoText({ memo }: { memo?: string | null }) {
 export default function TransactionListItem({
     transaction,
     currencyCode,
-    onClickEdit,
+    onClickEditTransaction,
+    onClickDeleteTransaction,
 }: TransactionListItemProps) {
+    const t = useTranslations("AccountBook.detail.transactionList");
+    const isFixedCostTransaction = transaction.sourceType === "FIXED_COST";
     const isIncome = transaction.type === "INCOME";
 
     return (
@@ -67,9 +72,17 @@ export default function TransactionListItem({
 
                 <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                        <p className="truncate font-semibold text-slate-900 dark:text-white">
-                            {transaction.title}
-                        </p>
+                        <div className="flex flex-wrap items-center gap-2">
+                            <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
+                                {transaction.title}
+                            </p>
+
+                            {isFixedCostTransaction && (
+                                <span className="shrink-0 rounded-full bg-orange-100 px-2 py-0.5 text-[11px] font-semibold text-orange-600 dark:bg-orange-500/10 dark:text-orange-300">
+                                    {t("badges.fixedCost")}
+                                </span>
+                            )}
+                        </div>
 
                         <span className="shrink-0 rounded-full bg-slate-200 px-2 py-0.5 text-[11px] font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                             {transaction.category}
@@ -98,10 +111,10 @@ export default function TransactionListItem({
                     {formatAmount(transaction.amount, currencyCode)}
                 </p>
 
-                {onClickEdit && (
+                {onClickEditTransaction && (
                     <button
                         type="button"
-                        onClick={() => onClickEdit(transaction)}
+                        onClick={() => onClickEditTransaction(transaction)}
                         className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-200 hover:text-orange-500 dark:hover:bg-white/10 dark:hover:text-orange-400"
                         aria-label="거래 수정"
                     >

@@ -2,6 +2,8 @@ import { apiClient } from "@/lib/apiClient";
 import {
     AccountBookFixedCost,
     AccountBookFixedCostActiveRequest,
+    AccountBookFixedCostGenerateRequest,
+    AccountBookFixedCostGenerateResponse, AccountBookFixedCostGenerationTargetsResponse,
     AccountBookFixedCostRequest,
 } from "@/types/accountBook";
 import {ResponseDto} from "@/types/common";
@@ -110,4 +112,52 @@ export const accountBookFixedCostService = {
         }
     },
 
+    async getGenerationTargets(
+        accountBookId: number | string,
+        year: number,
+        month: number
+    ): Promise<AccountBookFixedCostGenerationTargetsResponse> {
+        const searchParams = new URLSearchParams();
+
+        searchParams.set("year", String(year));
+        searchParams.set("month", String(month));
+
+        const response = await apiClient(
+            `/account-books/${accountBookId}/fixed-costs/generation-targets?${searchParams.toString()}`,
+            {
+                method: "GET",
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to get fixed cost generation targets.");
+        }
+
+        const data =
+            (await response.json()) as ResponseDto<AccountBookFixedCostGenerationTargetsResponse>;
+
+        return data.body;
+    },
+
+    async generateTransactions(
+        accountBookId: number | string,
+        request: AccountBookFixedCostGenerateRequest
+    ): Promise<AccountBookFixedCostGenerateResponse> {
+        const response = await apiClient(
+            `/account-books/${accountBookId}/fixed-costs/generate-transactions`,
+            {
+                method: "POST",
+                body: JSON.stringify(request),
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to generate fixed cost transactions.");
+        }
+
+        const data =
+            (await response.json()) as ResponseDto<AccountBookFixedCostGenerateResponse>;
+
+        return data.body;
+    },
 };

@@ -33,6 +33,8 @@ import {useQuery} from "@/hooks/useQuery";
 import {accountBookFixedCostService} from "@/services/account-book/accountBookFixedCostService";
 import {accountBookCategoryService} from "@/services/account-book/accountBookCategoryService";
 import ConfirmModal from "@/components/common/ConfirmModal";
+import FixedCostGenerationBanner from "@/components/account-book/detail/fixed-cost/FixedCostGenerationBanner";
+import {toNullableText} from "@/utils/text/normalizeText";
 
 function createClientId(): number {
     return Date.now();
@@ -94,6 +96,9 @@ export default function AccountBookDetailPage() {
     const [deletingFixedCost, setDeletingFixedCost] =
         useState<AccountBookFixedCost | null>(null);
 
+    const [deletingTransaction, setDeletingTransaction] =
+        useState<AccountBookTransaction | null>(null);
+
     const {
         data: monthlyGoal,
         isLoading: isMonthlyGoalLoading,
@@ -152,6 +157,7 @@ export default function AccountBookDetailPage() {
 
     const {
         data: transactionMonthOptions = [],
+        mutate: mutateTransactionMonthOptions,
     } = useQuery({
         keys: [
             "account-book-transaction-months",
@@ -169,6 +175,7 @@ export default function AccountBookDetailPage() {
         data: accountBookSummary,
         isLoading: isAccountBookSummaryLoading,
         isError: accountBookSummaryQueryError,
+        mutate: mutateAccountBookSummary,
     } = useQuery({
         keys: [
             "account-book-summary",
@@ -246,6 +253,31 @@ export default function AccountBookDetailPage() {
         },
     });
 
+    const {
+        data: fixedCostGenerationTargets,
+        mutate: mutateFixedCostGenerationTargets,
+    } = useQuery({
+        keys: selectedYearMonth
+            ? [
+                "account-book-fixed-cost-generation-targets",
+                Number(params.accountBookId),
+                selectedYearMonth.year,
+                selectedYearMonth.month,
+            ] as const
+            : null,
+        fetcher: (_, accountBookId, year, month) =>
+            accountBookFixedCostService.getGenerationTargets(
+                accountBookId,
+                year,
+                month
+            ),
+        config: {
+            revalidateOnMount: true,
+            revalidateIfStale: true,
+            dedupingInterval: 2000,
+        },
+    });
+
     const currencyCode = accountBookSummary?.currencyCode ?? "JPY";
 
     const monthlyGoalAmount = monthlyGoal?.goalAmount ?? null;
@@ -271,6 +303,9 @@ export default function AccountBookDetailPage() {
 
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isCreateFixedCostModalOpen, setIsCreateFixedCostModalOpen] = useState(false);
+
+    const [isGeneratingFixedCostTransactions, setIsGeneratingFixedCostTransactions] =
+        useState(false);
 
     const [editingTransaction, setEditingTransaction] =
         useState<AccountBookTransaction | null>(null);
@@ -301,6 +336,17 @@ export default function AccountBookDetailPage() {
         );
     }, [analyticsTransactions, t]);
 
+    const revalidateFixedCostGenerationTargets = async () => {
+        if (!selectedYearMonth) {
+            return;
+        }
+
+        await mutateFixedCostGenerationTargets(
+            (currentData) => currentData,
+            true
+        );
+    };
+
     const handleCreateFixedCost = async (
         values: AccountBookFixedCostRequest
     ) => {
@@ -321,6 +367,7 @@ export default function AccountBookDetailPage() {
 
             await mutateFixedCostCategoryOptions();
             await mutateFixedCostStoreOptions();
+            await revalidateFixedCostGenerationTargets();
         } catch (error) {
             console.error(error);
             alert(t("fixedCost.messages.createFailed"));
@@ -334,11 +381,16 @@ export default function AccountBookDetailPage() {
             accountBookId: mockAccountBookDetail.id,
             type: values.type,
             title: values.title,
-            storeName: values.storeName,
+            storeName: values.storeName?.trim() || null,
             category: values.categoryName,
             amount: values.amount,
             transactionDate: values.transactionDate,
-            memo: values.memo,
+            memo: values.memo?.trim() || null,
+
+            sourceType: null,
+            sourceId: null,
+            sourceYear: null,
+            sourceMonth: null,
         };
 
         void mutateTransactions((currentData) => {
@@ -391,6 +443,8 @@ export default function AccountBookDetailPage() {
                     )
                 );
             }, false);
+
+            await revalidateFixedCostGenerationTargets();
         } catch (error) {
             console.error(error);
             alert(t("fixedCost.messages.updateFailed"));
@@ -435,10 +489,100 @@ export default function AccountBookDetailPage() {
 
             await mutateFixedCostCategoryOptions();
             await mutateFixedCostStoreOptions();
+            await revalidateFixedCostGenerationTargets();
         } catch (error) {
             console.error(error);
             alert(t("fixedCost.messages.deleteFailed"));
             throw error;
+        }
+    };
+
+    const handleDeleteTransaction = async () => {
+        if (!deletingTransaction) {
+            return;
+        }
+
+        try {
+            await accountBookService.deleteTransaction(
+                Number(params.accountBookId),
+                deletingTransaction.id
+            );
+
+            await mutateTransactions((currentData) => {
+                if (!currentData) {
+                    return currentData;
+                }
+
+                return {
+                    ...currentData,
+                    page: {
+                        ...currentData.page,
+                        content: currentData.page.content.filter(
+                            (transaction) =>
+                                transaction.id !== deletingTransaction.id
+                        ),
+                        page: {
+                            ...currentData.page.page,
+                            totalElements:
+                                currentData.page.page.totalElements - 1,
+                        },
+                    },
+                };
+            }, false);
+
+            await mutateAccountBookSummary((currentData) => currentData, true);
+            await mutateMonthlyGoal((currentData) => currentData, true);
+
+            if (deletingTransaction.sourceType === "FIXED_COST") {
+                await revalidateFixedCostGenerationTargets();
+            }
+        } catch (error) {
+            console.error(error);
+            alert(t("transaction.messages.deleteFailed"));
+            throw error;
+        }
+    };
+
+    const handleGenerateFixedCostTransactions = async () => {
+        if (!selectedYearMonth || isGeneratingFixedCostTransactions) {
+            return;
+        }
+
+        try {
+            setIsGeneratingFixedCostTransactions(true);
+
+            await accountBookFixedCostService.generateTransactions(
+                Number(params.accountBookId),
+                {
+                    year: selectedYearMonth.year,
+                    month: selectedYearMonth.month,
+                }
+            );
+
+            await mutateFixedCostGenerationTargets(
+                (currentData) =>
+                    currentData
+                        ? {
+                            ...currentData,
+                            count: 0,
+                            targets: [],
+                        }
+                        : currentData,
+                false
+            );
+
+            await mutateTransactions((currentData) => currentData, true);
+            await mutateAccountBookSummary((currentData) => currentData, true);
+            await mutateMonthlyGoal((currentData) => currentData, true);
+            await mutateTransactionMonthOptions(
+                (currentData) => currentData,
+                true
+            );
+        } catch (error) {
+            console.error(error);
+            alert(t("fixedCost.generation.messages.generateFailed"));
+        } finally {
+            setIsGeneratingFixedCostTransactions(false);
         }
     };
 
@@ -509,6 +653,7 @@ export default function AccountBookDetailPage() {
 
             await mutateFixedCostCategoryOptions();
             await mutateFixedCostStoreOptions();
+            await revalidateFixedCostGenerationTargets();
         } catch (error) {
             console.error(error);
             alert(t("fixedCost.messages.updateFailed"));
@@ -535,11 +680,11 @@ export default function AccountBookDetailPage() {
                                 ...transaction,
                                 type: values.type,
                                 title: values.title,
-                                storeName: values.storeName,
+                                storeName: toNullableText(values.storeName),
                                 category: values.categoryName,
                                 amount: values.amount,
                                 transactionDate: values.transactionDate,
-                                memo: values.memo,
+                                memo: toNullableText(values.memo),
                             }
                             : transaction
                     ),
@@ -584,6 +729,13 @@ export default function AccountBookDetailPage() {
                         isLoading={isMonthlyGoalLoading}
                         errorMessage={monthlyGoalError}
                         onSaveGoalAmount={handleSaveExpenseGoalAmount}
+                    />
+
+                    <FixedCostGenerationBanner
+                        generationTargets={fixedCostGenerationTargets}
+                        currencyCode={currencyCode}
+                        isLoading={isGeneratingFixedCostTransactions}
+                        onClickGenerate={handleGenerateFixedCostTransactions}
                     />
 
                     <FixedCostSection
@@ -641,6 +793,7 @@ export default function AccountBookDetailPage() {
                             transactions={transactions}
                             currencyCode={currencyCode}
                             onClickEditTransaction={setEditingTransaction}
+                            onClickDeleteTransaction={setDeletingTransaction}
                             isLoading={isTransactionLoading}
                             page={transactionPage}
                             totalPages={transactionTotalPages}
@@ -688,6 +841,28 @@ export default function AccountBookDetailPage() {
                 variant="danger"
                 onClose={() => setDeletingFixedCost(null)}
                 onConfirm={handleDeleteFixedCost}
+            />
+
+            <ConfirmModal
+                isOpen={deletingTransaction !== null}
+                title={
+                    deletingTransaction?.sourceType === "FIXED_COST"
+                        ? t("transaction.deleteConfirm.fixedCostTitle")
+                        : t("transaction.deleteConfirm.title")
+                }
+                description={
+                    deletingTransaction?.sourceType === "FIXED_COST"
+                        ? t("transaction.deleteConfirm.fixedCostDescription", {
+                            title: deletingTransaction?.title ?? "",
+                        })
+                        : t("transaction.deleteConfirm.description", {
+                            title: deletingTransaction?.title ?? "",
+                        })
+                }
+                confirmLabel={t("transaction.deleteConfirm.confirm")}
+                variant="danger"
+                onClose={() => setDeletingTransaction(null)}
+                onConfirm={handleDeleteTransaction}
             />
         </>
     );

@@ -146,5 +146,25 @@ export const accountBookService = {
         const data = (await response.json()) as ResponseDto<AccountBookSummaryResponse>;
 
         return data.body;
+    },
+
+    async deleteTransaction(
+        accountBookId: number | string,
+        transactionId: number | string
+    ): Promise<boolean> {
+        const response = await apiClient(
+            `/account-books/${accountBookId}/transactions/${transactionId}`,
+            {
+                method: "DELETE",
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to delete transaction.");
+        }
+
+        const data = await response.json() as ResponseDto<boolean>;
+
+        return data.body;
     }
 };

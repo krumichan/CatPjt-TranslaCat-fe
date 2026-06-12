@@ -228,6 +228,18 @@
             "closeButton": "닫기"
           }
         },
+        "generation": {
+          "title": "{year}년 {month}월에 반영되지 않은 고정비 {count}건이 있습니다.",
+          "description": "총 {amount}의 고정비를 거래 내역으로 반영할 수 있어요.",
+          "actions": {
+            "generate": "고정비 반영",
+            "generating": "반영 중..."
+          },
+          "messages": {
+            "generating": "고정비를 거래 내역으로 반영하고 있습니다.",
+            "generateFailed": "고정비를 거래 내역으로 반영하지 못했습니다."
+          }
+        },
         "status": {
           "active": "활성",
           "inactive": "비활성"
@@ -324,11 +336,24 @@
         "loadError": "거래 내역을 불러오지 못했습니다.",
         "loading": "거래 내역을 불러오는 중입니다.",
         "previous": "이전",
-        "next": "다음"
+        "next": "다음",
+        "deleteConfirm": {
+          "title": "거래를 삭제할까요?",
+          "fixedCostTitle": "고정비로 생성된 거래를 삭제할까요?",
+          "description": "'{title}' 거래가 삭제됩니다.",
+          "fixedCostDescription": "'{title}' 거래가 삭제됩니다.\n고정비로 생성된 거래이므로, 삭제 후 해당 월의 고정비 반영 대상에 다시 표시될 수 있습니다.",
+          "confirm": "삭제"
+        },
+        "messages": {
+          "deleteFailed": "거래 삭제에 실패했습니다."
+        }
       },
       "transactionList": {
         "title": "거래 내역",
         "count": "총 {count}건의 거래가 있습니다.",
+        "badges": {
+          "fixedCost": "고정비"
+        },
         "view": {
           "card": "카드",
           "table": "표"
@@ -346,6 +371,11 @@
           "memo": "메모",
           "amount": "금액",
           "manage": "관리"
+        },
+        "actions": {
+          "edit": "수정",
+          "delete": "삭제",
+          "close": "닫기"
         },
         "empty": {
           "title": "거래 내역이 없습니다.",
@@ -366,10 +396,6 @@
       "pagination": {
         "previous": "이전",
         "next": "다음"
-      },
-      "actions": {
-        "edit": "수정",
-        "close": "닫기"
       }
     }
   },

@@ -204,10 +204,6 @@
         "period": "{start} ～ {end}",
         "ongoing": "継続",
         "memoBadge": "メモ",
-        "status": {
-          "active": "有効",
-          "inactive": "無効"
-        },
         "deleteConfirm": {
           "title": "固定費を削除しますか？",
           "description": "「{title}」の固定費が一覧から削除されます。\n既に作成された取引履歴は削除されません。",
@@ -231,6 +227,22 @@
             "close": "詳細モーダルを閉じる",
             "closeButton": "閉じる"
           }
+        },
+        "generation": {
+          "title": "{year}年{month}月に未反映の固定費が{count}件あります。",
+          "description": "合計{amount}の固定費を取引履歴として反映できます。",
+          "actions": {
+            "generate": "固定費を反映",
+            "generating": "反映中..."
+          },
+          "messages": {
+            "generating": "固定費を取引履歴に反映しています。",
+            "generateFailed": "固定費を取引履歴に反映できませんでした。"
+          }
+        },
+        "status": {
+          "active": "有効",
+          "inactive": "無効"
         },
         "messages": {
           "loading": "固定費一覧を読み込み中...",
@@ -324,11 +336,24 @@
         "loadError": "取引履歴の取得に失敗しました。",
         "loading": "取引履歴を読み込み中...",
         "previous": "前へ",
-        "next": "次へ"
+        "next": "次へ",
+        "deleteConfirm": {
+          "title": "取引を削除しますか？",
+          "fixedCostTitle": "固定費から作成された取引を削除しますか？",
+          "description": "「{title}」の取引が削除されます。",
+          "fixedCostDescription": "「{title}」の取引が削除されます。\n固定費から作成された取引のため、削除後に該当月の固定費反映対象として再表示される場合があります。",
+          "confirm": "削除"
+        },
+        "messages": {
+          "deleteFailed": "取引の削除に失敗しました。"
+        }
       },
       "transactionList": {
         "title": "取引履歴",
         "count": "合計 {count}件の取引があります。",
+        "badges": {
+          "fixedCost": "固定費"
+        },
         "view": {
           "card": "カード",
           "table": "表"
@@ -353,6 +378,7 @@
         },
         "actions": {
           "edit": "修正",
+          "delete": "削除",
           "close": "閉じる"
         },
         "empty": {

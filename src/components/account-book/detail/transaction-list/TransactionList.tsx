@@ -15,6 +15,7 @@ type TransactionListProps = {
     transactions: AccountBookTransaction[];
     currencyCode: CurrencyCode;
     onClickEditTransaction: (transaction: AccountBookTransaction) => void;
+    onClickDeleteTransaction: (transaction: AccountBookTransaction) => void;
     isLoading?: boolean;
 
     page: number;
@@ -26,6 +27,7 @@ export default function TransactionList({
     transactions,
     currencyCode,
     onClickEditTransaction,
+    onClickDeleteTransaction,
     isLoading = false,
     page,
     totalPages,
@@ -79,12 +81,14 @@ export default function TransactionList({
                     transactions={transactions}
                     currencyCode={currencyCode}
                     onClickEditTransaction={onClickEditTransaction}
+                    onClickDeleteTransaction={onClickDeleteTransaction}
                 />
             ) : (
                 <TransactionTableView
                     transactions={transactions}
                     currencyCode={currencyCode}
                     onClickEditTransaction={onClickEditTransaction}
+                    onClickDeleteTransaction={onClickDeleteTransaction}
                     t={t}
                 />
             )}

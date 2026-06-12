@@ -1,5 +1,6 @@
 import {PagedModel} from "@/types/common";
 
+export type AccountBookTransactionSourceType = "FIXED_COST";
 export type CurrencyCode = string;
 export type TransactionType = "INCOME" | "EXPENSE";
 
@@ -43,6 +44,39 @@ export type AccountBookFixedCost = {
     active: boolean;
 };
 
+export type AccountBookFixedCostActiveRequest = {
+    active: boolean;
+};
+
+export type AccountBookFixedCostGenerateRequest = {
+    year: number;
+    month: number;
+};
+
+export type AccountBookFixedCostGenerateResponse = {
+    year: number;
+    month: number;
+    generatedCount: number;
+};
+
+export type AccountBookFixedCostGenerationTarget = {
+    fixedCostId: number;
+    title: string;
+    storeName: string | null;
+    category: string;
+    amount: number;
+    paymentDay: number;
+    transactionDate: string;
+    memo: string | null;
+};
+
+export type AccountBookFixedCostGenerationTargetsResponse = {
+    year: number;
+    month: number;
+    count: number;
+    targets: AccountBookFixedCostGenerationTarget[];
+};
+
 export type AccountBookFixedCostRequest = {
     title: string;
     storeName?: string | null;
@@ -54,10 +88,6 @@ export type AccountBookFixedCostRequest = {
     endYear?: number | null;
     endMonth?: number | null;
     memo?: string | null;
-};
-
-export type AccountBookFixedCostActiveRequest = {
-    active: boolean;
 };
 
 export type AccountBookSearchCondition = {
@@ -121,15 +151,20 @@ export type AccountBookSummaryResponse = {
 
 export type AccountBookTransaction = {
     id: number;
-    accountBookId?: number;
+    accountBookId: number;
     type: TransactionType;
     title: string;
-    storeName?: string | null;
+    storeName: string | null;
     category: string;
     amount: number;
     transactionDate: string;
-    memo?: string | null;
+    memo: string | null;
     createdAt?: string;
+
+    sourceType: AccountBookTransactionSourceType | null;
+    sourceId: number | null;
+    sourceYear: number | null;
+    sourceMonth: number | null;
 };
 
 export type AccountBookTransactionListRequest = {

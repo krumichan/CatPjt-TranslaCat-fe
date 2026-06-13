@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { SyntheticEvent } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
-    AccountBookCategory,
     CreateAccountBookFormValues,
     Currency,
 } from "@/types/accountBook";
@@ -12,7 +11,7 @@ import {formatNumberWithComma, onlyDigits} from "@/utils/number/formatNumberInpu
 
 type AccountBookCreateModalProps = {
     isOpen: boolean;
-    categories: AccountBookCategory[];
+    categoryOptions: string[];
     currencies: Currency[];
     isCurrencyLoading: boolean;
     onClose: () => void;
@@ -22,16 +21,24 @@ type AccountBookCreateModalProps = {
 const DIRECT_INPUT_VALUE = "__DIRECT_INPUT__";
 
 export default function AccountBookCreateModal({
-    isOpen,
-    categories,
-    currencies,
-    isCurrencyLoading,
-    onClose,
-    onSubmit,
+   isOpen,
+   categoryOptions,
+   currencies,
+   isCurrencyLoading,
+   onClose,
+   onSubmit,
 }: AccountBookCreateModalProps) {
     const t = useTranslations("AccountBook.createModal");
 
-    const firstCategoryId = categories[0]?.id ?? "";
+    const firstCategoryName = categoryOptions[0] ?? "";
+
+    const [selectedCategoryName, setSelectedCategoryName] = useState("");
+    const [newCategoryName, setNewCategoryName] = useState("");
+
+    const effectiveSelectedCategoryName =
+        selectedCategoryName || firstCategoryName || DIRECT_INPUT_VALUE;
+
+    const isDirectInput = effectiveSelectedCategoryName === DIRECT_INPUT_VALUE;
     const defaultCurrencyCode =
         currencies.find((currency) => currency.baseCurrency)?.code ??
         currencies[0]?.code ??
@@ -41,17 +48,8 @@ export default function AccountBookCreateModal({
     const [description, setDescription] = useState("");
     const [currencyCode, setCurrencyCode] = useState(defaultCurrencyCode);
     const [expenseGoalAmount, setExpenseGoalAmount] = useState("");
-    const [selectedCategoryId, setSelectedCategoryId] = useState(
-        firstCategoryId || DIRECT_INPUT_VALUE
-    );
-    const [newCategoryName, setNewCategoryName] = useState("");
 
     const effectiveCurrencyCode = currencyCode || defaultCurrencyCode;
-
-    const effectiveSelectedCategoryId =
-        selectedCategoryId || firstCategoryId || DIRECT_INPUT_VALUE;
-
-    const isDirectInput = selectedCategoryId === DIRECT_INPUT_VALUE;
 
     const canSubmit = useMemo(() => {
         if (!name.trim()) {
@@ -66,13 +64,13 @@ export default function AccountBookCreateModal({
             return !!newCategoryName.trim();
         }
 
-        return !!effectiveSelectedCategoryId;
+        return !!effectiveSelectedCategoryName;
     }, [
         name,
         effectiveCurrencyCode,
         isDirectInput,
         newCategoryName,
-        effectiveSelectedCategoryId,
+        effectiveSelectedCategoryName,
     ]);
 
     if (!isOpen || typeof document === "undefined") {
@@ -83,7 +81,7 @@ export default function AccountBookCreateModal({
         setName("");
         setDescription("");
         setCurrencyCode("");
-        setSelectedCategoryId("");
+        setSelectedCategoryName("");
         setNewCategoryName("");
         setExpenseGoalAmount("");
     };
@@ -100,10 +98,6 @@ export default function AccountBookCreateModal({
             return;
         }
 
-        const selectedCategory = categories.find(
-            (category) => category.id === effectiveSelectedCategoryId
-        );
-
         await onSubmit({
             name: name.trim(),
             description: description.trim() || undefined,
@@ -112,8 +106,8 @@ export default function AccountBookCreateModal({
                 ? Number(expenseGoalAmount)
                 : null,
             categoryMode: isDirectInput ? "NEW" : "EXISTING",
-            categoryId: isDirectInput ? undefined : effectiveSelectedCategoryId,
-            categoryName: isDirectInput ? undefined : selectedCategory?.name,
+            categoryId: undefined,
+            categoryName: isDirectInput ? undefined : effectiveSelectedCategoryName,
             newCategoryName: isDirectInput
                 ? newCategoryName.trim()
                 : undefined,
@@ -171,15 +165,15 @@ export default function AccountBookCreateModal({
                             {t("fields.category")} *
                         </span>
                         <select
-                            value={effectiveSelectedCategoryId}
+                            value={effectiveSelectedCategoryName}
                             onChange={(event) =>
-                                setSelectedCategoryId(event.target.value)
+                                setSelectedCategoryName(event.target.value)
                             }
                             className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-gray-800 outline-none transition focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-200 dark:border-white/10 dark:bg-black/30 dark:text-white dark:focus:bg-black/40 dark:focus:ring-orange-500/20 dark:scheme-dark [&>option]:bg-white [&>option]:text-gray-800 dark:[&>option]:bg-zinc-900 dark:[&>option]:text-white"
                         >
-                            {categories.map((category) => (
-                                <option key={category.id} value={category.id}>
-                                    {category.name}
+                            {categoryOptions.map((categoryName) => (
+                                <option key={categoryName} value={categoryName}>
+                                    {categoryName}
                                 </option>
                             ))}
                             <option value={DIRECT_INPUT_VALUE}>

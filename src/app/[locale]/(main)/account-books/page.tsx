@@ -5,7 +5,7 @@ import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
     AccountBook,
-    AccountBookCategory,
+    AccountBookCategoryGroup,
     CreateAccountBookFormValues,
     Currency,
 } from "@/types/accountBook";
@@ -18,7 +18,7 @@ import { currencyService } from "@/services/currency/currencyService";
 
 function groupAccountBooksByCategory(
     accountBooks: AccountBook[]
-): AccountBookCategory[] {
+): AccountBookCategoryGroup[] {
     const categoryMap = new Map<string, AccountBook[]>();
 
     accountBooks.forEach((accountBook) => {
@@ -194,7 +194,7 @@ export default function AccountBooksPage() {
 
             <AccountBookCreateModal
                 isOpen={isCreateModalOpen}
-                categories={categories}
+                categoryOptions={categoryOptions}
                 currencies={currencies}
                 isCurrencyLoading={isCurrencyLoading}
                 onClose={() => setIsCreateModalOpen(false)}

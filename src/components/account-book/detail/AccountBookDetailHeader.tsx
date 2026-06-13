@@ -1,10 +1,17 @@
 import Link from "next/link";
 import { ArrowLeft, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { AccountBook } from "@/types/accountBook";
+import { CurrencyCode } from "@/types/accountBook";
+
+type AccountBookDetailHeaderData = {
+    id: number;
+    name: string;
+    description?: string | null;
+    currencyCode: CurrencyCode;
+};
 
 type AccountBookDetailHeaderProps = {
-    accountBook: AccountBook;
+    accountBook: AccountBookDetailHeaderData;
     onClickCreateTransaction: () => void;
 };
 

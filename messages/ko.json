@@ -124,6 +124,10 @@
       }
     },
     "detail": {
+      "messages": {
+        "loading": "가계부 정보를 불러오는 중입니다.",
+        "loadFailed": "가계부 정보를 불러오지 못했습니다."
+      },
       "expenseGoal": {
         "title": "이번 달 지출 목표",
         "notSet": "목표 미설정",
@@ -322,6 +326,61 @@
         "uncategorized": "미분류",
         "storeNotSet": "점포명 미설정"
       },
+      "monthlyChart": {
+        "title": "월별 지출",
+        "description": "{year}년 월별 지출액과 목표금액을 비교합니다.",
+        "loading": "월별 차트를 불러오는 중입니다.",
+        "empty": "표시할 월별 차트 데이터가 없습니다.",
+        "monthLabel": "{month}월",
+        "series": {
+          "expenseAmount": "지출액",
+          "expenseGoalAmount": "목표금액"
+        },
+        "tooltip": {
+          "unset": "미설정",
+          "goalUnset": "목표 미설정",
+          "goalDiff": "목표와의 차액",
+          "over": "{amount} 초과",
+          "remaining": "{amount} 여유",
+          "just": "목표와 동일"
+        },
+        "status": {
+          "unsetLabel": "목표 미설정",
+          "unsetDescription": "이 월의 목표금액은 설정되어 있지 않습니다.",
+          "overLabel": "목표 초과",
+          "withinLabel": "목표 내",
+          "justLabel": "목표 동일",
+          "overDescription": "목표를 {amount} 초과했습니다.",
+          "remainingDescription": "목표까지 {amount} 남았습니다.",
+          "justDescription": "목표금액과 지출액이 동일합니다."
+        }
+      },
+      "rankingChart": {
+        "period": {
+          "all": "전체 기간",
+          "month": "{year}년 {month}월"
+        },
+        "loading": "차트를 불러오는 중입니다.",
+        "empty": "표시할 지출 데이터가 없습니다.",
+        "total": "총 지출",
+        "others": "기타",
+        "series": {
+          "amount": "지출액"
+        },
+        "category": {
+          "title": "카테고리별 지출",
+          "description": "{period} 기준 카테고리별 지출 비율입니다."
+        },
+        "store": {
+          "title": "점포별 지출",
+          "description": "{period} 기준 점포별 지출 비율입니다."
+        },
+        "tooltip": {
+          "amount": "지출액",
+          "percentage": "비율",
+          "transactionCount": "거래 수"
+        }
+      },
       "summaryCards": {
         "income": "수입",
         "expense": "지출",
@@ -345,7 +404,63 @@
           "confirm": "삭제"
         },
         "messages": {
+          "createFailed": "거래 등록에 실패했습니다.",
+          "updateFailed": "거래 수정에 실패했습니다.",
           "deleteFailed": "거래 삭제에 실패했습니다."
+        }
+      },
+      "transactionModal": {
+        "badge": {
+          "create": "New Transaction",
+          "edit": "Edit Transaction"
+        },
+        "title": {
+          "create": "거래 등록",
+          "edit": "거래 수정"
+        },
+        "description": {
+          "create": "직접 입력하거나 영수증 사진 분석 결과를 이용해 거래를 등록합니다.",
+          "edit": "기존 거래 정보를 수정합니다."
+        },
+        "inputMode": {
+          "manual": "직접 입력",
+          "receipt": "영수증 분석"
+        },
+        "receipt": {
+          "title": "영수증 사진 분석",
+          "description": "영수증 사진을 통한 AI 분석은 추후 지원 예정입니다. 현재는 직접 입력으로 거래를 등록해 주세요.",
+          "action": "AI 분석 준비 중"
+        },
+        "type": {
+          "expense": "지출",
+          "income": "수입"
+        },
+        "fields": {
+          "type": "거래 유형",
+          "title": "거래명",
+          "storeName": "점포명",
+          "category": "카테고리",
+          "amount": "금액",
+          "displayAmount": "표시 금액: {amount}",
+          "transactionDate": "거래일",
+          "memo": "메모"
+        },
+        "options": {
+          "storeNotSet": "미설정",
+          "directInput": "직접 입력"
+        },
+        "placeholders": {
+          "title": "예: 편의점",
+          "directStoreName": "새 점포명 입력",
+          "directCategoryName": "새 카테고리명 입력",
+          "memo": "예: 점심 도시락"
+        },
+        "actions": {
+          "close": "모달 닫기",
+          "cancel": "취소",
+          "create": "등록",
+          "save": "저장",
+          "submitting": "저장 중..."
         }
       },
       "transactionList": {

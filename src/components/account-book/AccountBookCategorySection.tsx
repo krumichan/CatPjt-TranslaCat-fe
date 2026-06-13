@@ -1,16 +1,16 @@
 import { Folder } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { AccountBookCategory } from "@/types/accountBook";
 import AccountBookListItem from "@/components/account-book/AccountBookListItem";
+import { AccountBookCategoryGroup } from "@/types/accountBook";
 
 type AccountBookCategorySectionProps = {
-    category: AccountBookCategory;
+    category: AccountBookCategoryGroup;
     onDeleteAccountBook: (accountBookId: number) => void;
 };
 
 export default function AccountBookCategorySection({
-    category,
-    onDeleteAccountBook,
+   category,
+   onDeleteAccountBook,
 }: AccountBookCategorySectionProps) {
     const t = useTranslations("AccountBook.category");
 
@@ -21,6 +21,7 @@ export default function AccountBookCategorySection({
                     <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-orange-100 text-orange-500 dark:bg-orange-500/10 dark:text-orange-300">
                         <Folder className="h-5 w-5" />
                     </span>
+
                     <div>
                         <h2 className="text-lg font-black text-slate-900 dark:text-white">
                             {category.name}
@@ -34,7 +35,7 @@ export default function AccountBookCategorySection({
                 </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4">
                 {category.accountBooks.map((accountBook) => (
                     <AccountBookListItem
                         key={accountBook.id}

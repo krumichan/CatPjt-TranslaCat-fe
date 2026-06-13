@@ -8,10 +8,6 @@ import TransactionFilterPanel, {
     TransactionFilterType,
 } from "@/components/account-book/detail/TransactionFilterPanel";
 import TransactionList from "@/components/account-book/detail/transaction-list/TransactionList";
-import {
-    mockAccountBookDetail,
-} from "@/data/account-book/mockAccountBookDetail";
-import TransactionCreateModal from "@/components/account-book/detail/modal/TransactionCreateModal";
 import FixedCostFormModal from "@/components/account-book/detail/modal/FixedCostFormModal";
 import FixedCostSection from "@/components/account-book/detail/FixedCostSection";
 import {
@@ -19,12 +15,12 @@ import {
     CreateTransactionFormValues,
     AccountBookFixedCostRequest,
     AccountBookFixedCost,
+    AccountBookTransactionUpdateRequest,
+    AccountBookTransactionCreateRequest,
 } from "@/types/accountBook";
 import AccountBookExpenseGoalCard from "@/components/account-book/detail/AccountBookExpenseGoalCard";
-import MonthlyExpenseChart from "@/components/account-book/analytics/MonthlyExpenseChart";
-import {mockMonthlyAnalytics} from "@/data/account-book/mockAccountBookAnalytics";
-import ExpenseBreakdownPieChart, {buildExpenseBreakdownData} from "@/components/account-book/analytics/ExpenseBreakdownPieChart";
-import TransactionEditModal from "@/components/account-book/detail/modal/TransactionEditModal";
+import MonthlyExpenseChart from "@/components/account-book/detail/monthly-chart/MonthlyExpenseChart";
+import ExpenseRankingChart from "@/components/account-book/detail/ranking-chart/ExpenseRankingChart";
 import {accountBookService} from "@/services/account-book/accountBookService";
 import {useTranslations} from "next-intl";
 import SpinLoader from "@/components/common/SpinLoader";
@@ -35,10 +31,8 @@ import {accountBookCategoryService} from "@/services/account-book/accountBookCat
 import ConfirmModal from "@/components/common/ConfirmModal";
 import FixedCostGenerationBanner from "@/components/account-book/detail/fixed-cost/FixedCostGenerationBanner";
 import {toNullableText} from "@/utils/text/normalizeText";
-
-function createClientId(): number {
-    return Date.now();
-}
+import {accountBookChartService} from "@/services/account-book/accountBookChartService";
+import TransactionFormModal from "@/components/account-book/detail/modal/TransactionFormModal";
 
 function getCurrentMonthValue() {
     const now = new Date();
@@ -79,6 +73,9 @@ export default function AccountBookDetailPage() {
     const t = useTranslations("AccountBook.detail");
     const params = useParams<{ accountBookId: string }>();
 
+    const accountBookId = Number(params.accountBookId);
+    const isValidAccountBookId = Number.isFinite(accountBookId);
+
     const [keyword, setKeyword] = useState("");
     const [filterType, setFilterType] =
         useState<TransactionFilterType>("ALL");
@@ -100,6 +97,21 @@ export default function AccountBookDetailPage() {
         useState<AccountBookTransaction | null>(null);
 
     const {
+        data: accountBookDetail,
+        isLoading: isAccountBookDetailLoading,
+    } = useQuery({
+        keys: isValidAccountBookId
+            ? ["account-book-detail", accountBookId] as const
+            : null,
+        fetcher: (_, accountBookId) => accountBookService.get(accountBookId),
+        config: {
+            revalidateOnMount: true,
+            revalidateIfStale: true,
+            dedupingInterval: 2000,
+        },
+    });
+
+    const {
         data: monthlyGoal,
         isLoading: isMonthlyGoalLoading,
         isError: monthlyGoalQueryError,
@@ -107,7 +119,7 @@ export default function AccountBookDetailPage() {
     } = useQuery({
         keys: selectedYearMonth
             ? [
-                Number(params.accountBookId),
+                accountBookId,
                 selectedYearMonth.year,
                 selectedYearMonth.month,
             ] as const
@@ -120,6 +132,103 @@ export default function AccountBookDetailPage() {
             ),
     });
 
+    const {
+        data: transactionMonthOptions = [],
+        mutate: mutateTransactionMonthOptions,
+    } = useQuery({
+        keys: [
+            "account-book-transaction-months",
+            accountBookId,
+        ] as const,
+        fetcher: (_, accountBookId) =>
+            accountBookService.listTransactionMonths(accountBookId),
+        config: {
+            revalidateOnMount: true,
+            revalidateIfStale: true,
+        },
+    });
+
+    const chartYear =
+        selectedYearMonth?.year ??
+        transactionMonthOptions[0]?.year ??
+        new Date().getFullYear();
+
+    const {
+        data: monthlyChart,
+        isLoading: isMonthlyChartLoading,
+        mutate: mutateMonthlyChart,
+    } = useQuery({
+        keys: isValidAccountBookId
+            ? ["account-book-monthly-chart", accountBookId, chartYear] as const
+            : null,
+        fetcher: (_, accountBookId, year) =>
+            accountBookChartService.getMonthlyChart(accountBookId, year),
+        config: {
+            revalidateOnMount: true,
+            revalidateIfStale: true,
+            dedupingInterval: 2000,
+        },
+    });
+
+    const rankingChartPeriod = selectedYearMonth
+        ? {
+            year: selectedYearMonth.year,
+            month: selectedYearMonth.month,
+        }
+        : undefined;
+
+    const rankingChartPeriodKey = selectedYearMonth
+        ? `${selectedYearMonth.year}-${selectedYearMonth.month}`
+        : "ALL";
+
+    const {
+        data: categoryChart,
+        isLoading: isCategoryChartLoading,
+        mutate: mutateCategoryChart,
+    } = useQuery({
+        keys: isValidAccountBookId
+            ? [
+                "account-book-category-ranking-chart",
+                accountBookId,
+                rankingChartPeriodKey,
+            ] as const
+            : null,
+        fetcher: (_, accountBookId) =>
+            accountBookChartService.getCategoryChart(
+                accountBookId,
+                rankingChartPeriod
+            ),
+        config: {
+            revalidateOnMount: true,
+            revalidateIfStale: true,
+            dedupingInterval: 2000,
+        },
+    });
+
+    const {
+        data: storeChart,
+        isLoading: isStoreChartLoading,
+        mutate: mutateStoreChart,
+    } = useQuery({
+        keys: isValidAccountBookId
+            ? [
+                "account-book-store-ranking-chart",
+                accountBookId,
+                rankingChartPeriodKey,
+            ] as const
+            : null,
+        fetcher: (_, accountBookId) =>
+            accountBookChartService.getStoreChart(
+                accountBookId,
+                rankingChartPeriod
+            ),
+        config: {
+            revalidateOnMount: true,
+            revalidateIfStale: true,
+            dedupingInterval: 2000,
+        },
+    });
+
     const transactionKeyword = keyword.trim();
 
     const {
@@ -128,15 +237,24 @@ export default function AccountBookDetailPage() {
         isError: transactionQueryError,
         mutate: mutateTransactions,
     } = useQuery({
-        keys: [
-            "account-book-transactions",
-            params.accountBookId,
-            selectedMonth,
-            transactionPage,
-            filterType,
-            transactionKeyword,
-        ] as const,
-        fetcher: (_, accountBookId, selectedMonthValue, page, type, keywordValue) => {
+        keys: isValidAccountBookId
+            ? [
+                "account-book-transactions",
+                accountBookId,
+                selectedMonth,
+                transactionPage,
+                filterType,
+                transactionKeyword,
+            ] as const
+            : null,
+        fetcher: (
+            _,
+            accountBookId,
+            selectedMonthValue,
+            page,
+            type,
+            keywordValue
+        ) => {
             const parsedMonth = parseSelectedMonthValue(selectedMonthValue);
 
             return accountBookService.listTransactions(accountBookId, {
@@ -156,22 +274,6 @@ export default function AccountBookDetailPage() {
     });
 
     const {
-        data: transactionMonthOptions = [],
-        mutate: mutateTransactionMonthOptions,
-    } = useQuery({
-        keys: [
-            "account-book-transaction-months",
-            Number(params.accountBookId),
-        ] as const,
-        fetcher: (_, accountBookId) =>
-            accountBookService.listTransactionMonths(accountBookId),
-        config: {
-            revalidateOnMount: true,
-            revalidateIfStale: true,
-        },
-    });
-
-    const {
         data: accountBookSummary,
         isLoading: isAccountBookSummaryLoading,
         isError: accountBookSummaryQueryError,
@@ -179,7 +281,7 @@ export default function AccountBookDetailPage() {
     } = useQuery({
         keys: [
             "account-book-summary",
-            Number(params.accountBookId),
+            accountBookId,
             selectedMonth,
         ] as const,
         fetcher: (_, accountBookId, selectedMonthValue) => {
@@ -210,7 +312,7 @@ export default function AccountBookDetailPage() {
     } = useQuery({
         keys: [
             "account-book-fixed-costs",
-            Number(params.accountBookId),
+            accountBookId,
         ] as const,
         fetcher: (_, accountBookId) =>
             accountBookFixedCostService.listFixedCosts(accountBookId),
@@ -222,12 +324,12 @@ export default function AccountBookDetailPage() {
     });
 
     const {
-        data: fixedCostCategoryOptions = [],
-        mutate: mutateFixedCostCategoryOptions,
+        data: categoryOptions = [],
+        mutate: mutateCategoryOptions,
     } = useQuery({
         keys: [
             "account-book-categories",
-            Number(params.accountBookId),
+            accountBookId,
         ] as const,
         fetcher: (_, accountBookId) =>
             accountBookCategoryService.listCategories(accountBookId),
@@ -238,12 +340,12 @@ export default function AccountBookDetailPage() {
     });
 
     const {
-        data: fixedCostStoreOptions = [],
-        mutate: mutateFixedCostStoreOptions,
+        data: storeOptions = [],
+        mutate: mutateStoreOptions,
     } = useQuery({
         keys: [
             "account-book-store-suggestions",
-            Number(params.accountBookId),
+            accountBookId,
         ] as const,
         fetcher: (_, accountBookId) =>
             accountBookService.listStoreSuggestions(accountBookId),
@@ -260,7 +362,7 @@ export default function AccountBookDetailPage() {
         keys: selectedYearMonth
             ? [
                 "account-book-fixed-cost-generation-targets",
-                Number(params.accountBookId),
+                accountBookId,
                 selectedYearMonth.year,
                 selectedYearMonth.month,
             ] as const
@@ -310,32 +412,6 @@ export default function AccountBookDetailPage() {
     const [editingTransaction, setEditingTransaction] =
         useState<AccountBookTransaction | null>(null);
 
-    const analyticsTransactions = useMemo(() => {
-        return transactions.filter((transaction) => {
-            const matchedMonth =
-                selectedMonth === "ALL" ||
-                transaction.transactionDate.startsWith(selectedMonth);
-
-            return matchedMonth && transaction.type === "EXPENSE";
-        });
-    }, [transactions, selectedMonth]);
-
-    const categoryExpenseData = useMemo(() => {
-        return buildExpenseBreakdownData(
-            analyticsTransactions,
-            (transaction) => transaction.category || t("chart.uncategorized"),
-            5
-        );
-    }, [analyticsTransactions, t]);
-
-    const storeExpenseData = useMemo(() => {
-        return buildExpenseBreakdownData(
-            analyticsTransactions,
-            (transaction) => transaction.storeName || t("chart.storeNotSet"),
-            5
-        );
-    }, [analyticsTransactions, t]);
-
     const revalidateFixedCostGenerationTargets = async () => {
         if (!selectedYearMonth) {
             return;
@@ -353,7 +429,7 @@ export default function AccountBookDetailPage() {
         try {
             const createdFixedCost =
                 await accountBookFixedCostService.createFixedCost(
-                    Number(params.accountBookId),
+                    accountBookId,
                     values
                 );
 
@@ -365,8 +441,8 @@ export default function AccountBookDetailPage() {
                 return sortFixedCosts(nextData);
             }, false);
 
-            await mutateFixedCostCategoryOptions();
-            await mutateFixedCostStoreOptions();
+            await mutateCategoryOptions();
+            await mutateStoreOptions();
             await revalidateFixedCostGenerationTargets();
         } catch (error) {
             console.error(error);
@@ -375,42 +451,41 @@ export default function AccountBookDetailPage() {
         }
     };
 
-    const handleCreateTransaction = (values: CreateTransactionFormValues) => {
-        const newTransaction: AccountBookTransaction = {
-            id: createClientId(),
-            accountBookId: mockAccountBookDetail.id,
-            type: values.type,
-            title: values.title,
-            storeName: values.storeName?.trim() || null,
-            category: values.categoryName,
-            amount: values.amount,
-            transactionDate: values.transactionDate,
-            memo: values.memo?.trim() || null,
+    const toTransactionCreateRequest = (
+        values: CreateTransactionFormValues
+    ): AccountBookTransactionCreateRequest => ({
+        type: values.type,
+        title: values.title.trim(),
+        storeName: toNullableText(values.storeName),
+        category: values.categoryName.trim(),
+        amount: values.amount,
+        transactionDate: values.transactionDate,
+        memo: toNullableText(values.memo),
+    });
 
-            sourceType: null,
-            sourceId: null,
-            sourceYear: null,
-            sourceMonth: null,
-        };
+    const handleCreateTransaction = async (
+        values: CreateTransactionFormValues
+    ) => {
+        try {
+            await accountBookService.createTransaction(
+                accountBookId,
+                toTransactionCreateRequest(values)
+            );
 
-        void mutateTransactions((currentData) => {
-            if (!currentData) {
-                return currentData;
-            }
-
-            return {
-                ...currentData,
-                page: {
-                    ...currentData.page,
-                    content: [newTransaction, ...currentData.page.content],
-                    page: {
-                        ...currentData.page.page,
-                        totalElements:
-                            currentData.page.page.totalElements + 1,
-                    },
-                },
-            };
-        }, false);
+            await mutateTransactions((currentData) => currentData, true);
+            await mutateAccountBookSummary((currentData) => currentData, true);
+            await mutateMonthlyGoal((currentData) => currentData, true);
+            await mutateTransactionMonthOptions((currentData) => currentData, true);
+            await mutateCategoryOptions((currentData) => currentData, true);
+            await mutateStoreOptions((currentData) => currentData, true);
+            await mutateMonthlyChart((currentData) => currentData, true);
+            await mutateCategoryChart((currentData) => currentData, true);
+            await mutateStoreChart((currentData) => currentData, true);
+        } catch (error) {
+            console.error(error);
+            alert(t("transaction.messages.createFailed"));
+            throw error;
+        }
     };
 
     const handleChangeFilterType = (value: TransactionFilterType) => {
@@ -425,7 +500,7 @@ export default function AccountBookDetailPage() {
         try {
             const updatedFixedCost =
                 await accountBookFixedCostService.updateActive(
-                    Number(params.accountBookId),
+                    accountBookId,
                     fixedCostId,
                     { active }
                 );
@@ -473,7 +548,7 @@ export default function AccountBookDetailPage() {
 
         try {
             await accountBookFixedCostService.deleteFixedCost(
-                Number(params.accountBookId),
+                accountBookId,
                 deletingFixedCost.id
             );
 
@@ -487,8 +562,8 @@ export default function AccountBookDetailPage() {
                 );
             }, false);
 
-            await mutateFixedCostCategoryOptions();
-            await mutateFixedCostStoreOptions();
+            await mutateCategoryOptions();
+            await mutateStoreOptions();
             await revalidateFixedCostGenerationTargets();
         } catch (error) {
             console.error(error);
@@ -502,10 +577,12 @@ export default function AccountBookDetailPage() {
             return;
         }
 
+        const targetTransaction = deletingTransaction;
+
         try {
             await accountBookService.deleteTransaction(
-                Number(params.accountBookId),
-                deletingTransaction.id
+                accountBookId,
+                targetTransaction.id
             );
 
             await mutateTransactions((currentData) => {
@@ -518,22 +595,28 @@ export default function AccountBookDetailPage() {
                     page: {
                         ...currentData.page,
                         content: currentData.page.content.filter(
-                            (transaction) =>
-                                transaction.id !== deletingTransaction.id
+                            (transaction) => transaction.id !== targetTransaction.id
                         ),
                         page: {
                             ...currentData.page.page,
-                            totalElements:
+                            totalElements: Math.max(
                                 currentData.page.page.totalElements - 1,
+                                0
+                            ),
                         },
                     },
                 };
             }, false);
 
+            await mutateTransactions((currentData) => currentData, true);
             await mutateAccountBookSummary((currentData) => currentData, true);
             await mutateMonthlyGoal((currentData) => currentData, true);
+            await mutateTransactionMonthOptions((currentData) => currentData, true);
+            await mutateMonthlyChart((currentData) => currentData, true);
+            await mutateCategoryChart((currentData) => currentData, true);
+            await mutateStoreChart((currentData) => currentData, true);
 
-            if (deletingTransaction.sourceType === "FIXED_COST") {
+            if (targetTransaction.sourceType === "FIXED_COST") {
                 await revalidateFixedCostGenerationTargets();
             }
         } catch (error) {
@@ -552,7 +635,7 @@ export default function AccountBookDetailPage() {
             setIsGeneratingFixedCostTransactions(true);
 
             await accountBookFixedCostService.generateTransactions(
-                Number(params.accountBookId),
+                accountBookId,
                 {
                     year: selectedYearMonth.year,
                     month: selectedYearMonth.month,
@@ -578,6 +661,9 @@ export default function AccountBookDetailPage() {
                 (currentData) => currentData,
                 true
             );
+            await mutateMonthlyChart((currentData) => currentData, true);
+            await mutateCategoryChart((currentData) => currentData, true);
+            await mutateStoreChart((currentData) => currentData, true);
         } catch (error) {
             console.error(error);
             alert(t("fixedCost.generation.messages.generateFailed"));
@@ -593,7 +679,7 @@ export default function AccountBookDetailPage() {
     ) => {
         try {
             const response = await accountBookMonthlyGoalService.saveMonthlyGoal(
-                Number(params.accountBookId),
+                accountBookId,
                 {
                     year,
                     month,
@@ -607,6 +693,7 @@ export default function AccountBookDetailPage() {
                 selectedYearMonth.month === month
             ) {
                 await mutateMonthlyGoal(response, false);
+                await mutateMonthlyChart((currentData) => currentData, true);
             }
         } catch (error) {
             console.error(error);
@@ -632,7 +719,7 @@ export default function AccountBookDetailPage() {
         try {
             const updatedFixedCost =
                 await accountBookFixedCostService.updateFixedCost(
-                    Number(params.accountBookId),
+                    accountBookId,
                     fixedCostId,
                     values
                 );
@@ -651,8 +738,8 @@ export default function AccountBookDetailPage() {
                 );
             }, false);
 
-            await mutateFixedCostCategoryOptions();
-            await mutateFixedCostStoreOptions();
+            await mutateCategoryOptions();
+            await mutateStoreOptions();
             await revalidateFixedCostGenerationTargets();
         } catch (error) {
             console.error(error);
@@ -661,53 +748,79 @@ export default function AccountBookDetailPage() {
         }
     };
 
-    const handleUpdateTransaction = (
+    const toTransactionUpdateRequest = (
+        values: CreateTransactionFormValues
+    ): AccountBookTransactionUpdateRequest => ({
+        type: values.type,
+        title: values.title.trim(),
+        storeName: toNullableText(values.storeName),
+        category: values.categoryName.trim(),
+        amount: values.amount,
+        transactionDate: values.transactionDate,
+        memo: toNullableText(values.memo),
+    });
+
+    const handleUpdateTransaction = async (
         transactionId: number,
         values: CreateTransactionFormValues
     ) => {
-        void mutateTransactions((currentData) => {
-            if (!currentData) {
-                return currentData;
-            }
+        try {
+            const updatedTransaction = await accountBookService.updateTransaction(
+                accountBookId,
+                transactionId,
+                toTransactionUpdateRequest(values)
+            );
 
-            return {
-                ...currentData,
-                page: {
-                    ...currentData.page,
-                    content: currentData.page.content.map((transaction) =>
-                        transaction.id === transactionId
-                            ? {
-                                ...transaction,
-                                type: values.type,
-                                title: values.title,
-                                storeName: toNullableText(values.storeName),
-                                category: values.categoryName,
-                                amount: values.amount,
-                                transactionDate: values.transactionDate,
-                                memo: toNullableText(values.memo),
-                            }
-                            : transaction
-                    ),
-                },
-            };
-        }, false);
+            await mutateTransactions((currentData) => {
+                if (!currentData) {
+                    return currentData;
+                }
+
+                return {
+                    ...currentData,
+                    page: {
+                        ...currentData.page,
+                        content: currentData.page.content.map((transaction) =>
+                            transaction.id === updatedTransaction.id
+                                ? updatedTransaction
+                                : transaction
+                        ),
+                    },
+                };
+            }, false);
+
+            await mutateTransactions((currentData) => currentData, true);
+            await mutateAccountBookSummary((currentData) => currentData, true);
+            await mutateMonthlyGoal((currentData) => currentData, true);
+            await mutateTransactionMonthOptions((currentData) => currentData, true);
+            await mutateMonthlyChart((currentData) => currentData, true);
+            await mutateCategoryChart((currentData) => currentData, true);
+            await mutateStoreChart((currentData) => currentData, true);
+        } catch (error) {
+            console.error(error);
+            alert(t("transaction.messages.updateFailed"));
+            throw error;
+        }
     };
 
     return (
         <>
             <main className="min-h-[calc(100vh-60px)] px-4 pt-24 pb-12 text-gray-800 dark:text-white sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-5xl">
-                    <AccountBookDetailHeader
-                        accountBook={{
-                            ...mockAccountBookDetail,
-                            currencyCode,
-                            incomeAmount: accountBookSummary?.incomeAmount ?? 0,
-                            expenseAmount: accountBookSummary?.expenseAmount ?? 0,
-                            balance: accountBookSummary?.balance ?? 0,
-                            transactionCount: accountBookSummary?.transactionCount ?? 0,
-                        }}
-                        onClickCreateTransaction={() => setIsCreateModalOpen(true)}
-                    />
+                    {isAccountBookDetailLoading ? (
+                        <div className="mb-6 rounded-2xl border border-white/70 bg-white/80 p-6 text-sm font-semibold text-slate-500 shadow-lg dark:border-white/10 dark:bg-slate-950/60 dark:text-slate-300">
+                            {t("messages.loading")}
+                        </div>
+                    ) : accountBookDetail ? (
+                        <AccountBookDetailHeader
+                            accountBook={accountBookDetail}
+                            onClickCreateTransaction={() => setIsCreateModalOpen(true)}
+                        />
+                    ) : (
+                        <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-6 text-sm font-semibold text-red-600 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
+                            {t("messages.loadFailed")}
+                        </div>
+                    )}
 
                     {accountBookSummaryQueryError && (
                         <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
@@ -721,7 +834,7 @@ export default function AccountBookDetailPage() {
                     />
 
                     <AccountBookExpenseGoalCard
-                        accountBookId={Number(params.accountBookId)}
+                        accountBookId={accountBookId}
                         selectedMonth={selectedMonth}
                         currencyCode={currencyCode}
                         goalAmount={monthlyGoalAmount}
@@ -750,23 +863,24 @@ export default function AccountBookDetailPage() {
                     />
 
                     <MonthlyExpenseChart
-                        data={mockMonthlyAnalytics}
-                        currencyCode="JPY"
+                        chartItems={monthlyChart?.months ?? []}
+                        currencyCode={currencyCode}
+                        isLoading={isMonthlyChartLoading}
                     />
 
                     <div className="mt-6 mb-6 grid gap-6 lg:grid-cols-2">
-                        <ExpenseBreakdownPieChart
-                            title={t("chart.categoryExpenseTitle")}
-                            description={t("chart.categoryExpenseDescription")}
-                            data={categoryExpenseData}
+                        <ExpenseRankingChart
+                            type="CATEGORY"
+                            chart={categoryChart}
                             currencyCode={currencyCode}
+                            isLoading={isCategoryChartLoading}
                         />
 
-                        <ExpenseBreakdownPieChart
-                            title={t("chart.storeExpenseTitle")}
-                            description={t("chart.storeExpenseDescription")}
-                            data={storeExpenseData}
+                        <ExpenseRankingChart
+                            type="STORE"
+                            chart={storeChart}
                             currencyCode={currencyCode}
+                            isLoading={isStoreChartLoading}
                         />
                     </div>
 
@@ -803,21 +917,27 @@ export default function AccountBookDetailPage() {
                 </div>
             </main>
 
-            <TransactionCreateModal
-                isOpen={isCreateModalOpen}
-                currencyCode={currencyCode}
-                onClose={() => setIsCreateModalOpen(false)}
-                onSubmit={handleCreateTransaction}
-            />
-
-            <TransactionEditModal
-                isOpen={editingTransaction !== null}
+            <TransactionFormModal
+                key={editingTransaction ? `edit-${editingTransaction.id}` : "create"}
+                isOpen={isCreateModalOpen || editingTransaction !== null}
+                mode={editingTransaction ? "EDIT" : "CREATE"}
                 transaction={editingTransaction}
                 currencyCode={currencyCode}
-                onClose={() => setEditingTransaction(null)}
-                onSubmit={(transactionId, values) => {
-                    handleUpdateTransaction(transactionId, values);
+                categoryOptions={categoryOptions}
+                storeOptions={storeOptions}
+                onClose={() => {
+                    setIsCreateModalOpen(false);
                     setEditingTransaction(null);
+                }}
+                onSubmit={async (values, transactionId) => {
+                    if (editingTransaction && transactionId) {
+                        await handleUpdateTransaction(transactionId, values);
+                        setEditingTransaction(null);
+                        return;
+                    }
+
+                    await handleCreateTransaction(values);
+                    setIsCreateModalOpen(false);
                 }}
             />
 
@@ -825,8 +945,8 @@ export default function AccountBookDetailPage() {
                 isOpen={isCreateFixedCostModalOpen || editingFixedCost !== null}
                 fixedCost={editingFixedCost}
                 currencyCode={currencyCode}
-                categoryOptions={fixedCostCategoryOptions}
-                storeOptions={fixedCostStoreOptions}
+                categoryOptions={categoryOptions}
+                storeOptions={storeOptions}
                 onClose={handleCloseFixedCostModal}
                 onSubmit={handleSubmitFixedCost}
             />

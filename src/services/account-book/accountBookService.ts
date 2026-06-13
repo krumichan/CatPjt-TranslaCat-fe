@@ -1,9 +1,10 @@
 import { apiClient } from "@/lib/apiClient";
 import {
     AccountBook,
-    AccountBookSearchCondition, AccountBookStoreSuggestion, AccountBookSummaryResponse,
+    AccountBookSearchCondition, AccountBookStoreSuggestion, AccountBookSummaryResponse, AccountBookTransaction,
+    AccountBookTransactionCreateRequest,
     AccountBookTransactionListRequest,
-    AccountBookTransactionListResponse, AccountBookTransactionMonthOption,
+    AccountBookTransactionListResponse, AccountBookTransactionMonthOption, AccountBookTransactionUpdateRequest,
     CreateAccountBookRequest,
 } from "@/types/accountBook";
 import { ResponseDto } from "@/types/common";
@@ -24,98 +25,21 @@ function buildSearchParams(condition?: AccountBookSearchCondition) {
 }
 
 export const accountBookService = {
-    async list(condition?: AccountBookSearchCondition): Promise<AccountBook[]> {
-        const response = await apiClient(
-            `/account-books${buildSearchParams(condition)}`,
-            {
-                method: "GET",
-            }
-        );
-
-        if (!response.ok) {
-            throw new Error("Failed to load account books.");
-        }
-
-        const data = (await response.json()) as ResponseDto<AccountBook[]>;
-        return data.body ?? [];
-    },
-
-    async register(request: CreateAccountBookRequest): Promise<AccountBook> {
-        const response = await apiClient("/account-books", {
-            method: "POST",
-            body: JSON.stringify(request),
+    async get(accountBookId: number): Promise<AccountBook> {
+        const response = await apiClient(`/account-books/${accountBookId}`, {
+            method: "GET",
         });
 
         if (!response.ok) {
-            throw new Error("Failed to create account book.");
+            throw new Error("Failed to get account book.");
         }
 
         const data = (await response.json()) as ResponseDto<AccountBook>;
         return data.body;
     },
 
-    async listStoreSuggestions(
-        accountBookId: number | string,
-        keyword?: string
-    ): Promise<AccountBookStoreSuggestion[]> {
-        const searchParams = new URLSearchParams();
-
-        if (keyword?.trim()) {
-            searchParams.set("keyword", keyword.trim());
-        }
-
-        const queryString = searchParams.toString();
-
-        const response = await apiClient(
-            `/account-books/${accountBookId}/transactions/stores/suggestions${queryString ? `?${queryString}` : ""}`,
-            { method: "GET" }
-        );
-
-        if (!response.ok) {
-            throw new Error("Failed to get store suggestions.");
-        }
-
-        const data = await response.json() as ResponseDto<AccountBookStoreSuggestion[]>;
-        return data.body;
-    },
-
-    async listTransactions(
-        accountBookId: number | string,
-        request: AccountBookTransactionListRequest
-    ): Promise<AccountBookTransactionListResponse> {
-        const response = await apiClient(`/account-books/${accountBookId}/transactions`, {
-            method: "POST",
-            body: JSON.stringify(request),
-        });
-
-        if (!response.ok) {
-            throw new Error("Failed to create account book.");
-        }
-
-        const data = (await response.json()) as ResponseDto<AccountBookTransactionListResponse>;
-        return data.body;
-    },
-
-    async listTransactionMonths(
-        accountBookId: number | string
-    ): Promise<AccountBookTransactionMonthOption[]> {
-        const response = await apiClient(
-            `/account-books/${accountBookId}/transactions/months`,
-            {
-                method: "GET",
-            }
-        );
-
-        if (!response.ok) {
-            throw new Error("Failed to get transaction months.");
-        }
-
-        const data = await response.json() as ResponseDto<AccountBookTransactionMonthOption[]>;
-        return data.body;
-    },
-
     async getSummary(
-        accountBookId: number | string,
+        accountBookId: number,
         condition?: {
             year: number;
             month: number;
@@ -148,9 +72,140 @@ export const accountBookService = {
         return data.body;
     },
 
+    async list(condition?: AccountBookSearchCondition): Promise<AccountBook[]> {
+        const response = await apiClient(
+            `/account-books${buildSearchParams(condition)}`,
+            {
+                method: "GET",
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to load account books.");
+        }
+
+        const data = (await response.json()) as ResponseDto<AccountBook[]>;
+        return data.body ?? [];
+    },
+
+    async register(request: CreateAccountBookRequest): Promise<AccountBook> {
+        const response = await apiClient("/account-books", {
+            method: "POST",
+            body: JSON.stringify(request),
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to create account book.");
+        }
+
+        const data = (await response.json()) as ResponseDto<AccountBook>;
+        return data.body;
+    },
+
+    async listStoreSuggestions(
+        accountBookId: number,
+        keyword?: string
+    ): Promise<AccountBookStoreSuggestion[]> {
+        const searchParams = new URLSearchParams();
+
+        if (keyword?.trim()) {
+            searchParams.set("keyword", keyword.trim());
+        }
+
+        const queryString = searchParams.toString();
+
+        const response = await apiClient(
+            `/account-books/${accountBookId}/transactions/stores/suggestions${queryString ? `?${queryString}` : ""}`,
+            { method: "GET" }
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to get store suggestions.");
+        }
+
+        const data = await response.json() as ResponseDto<AccountBookStoreSuggestion[]>;
+        return data.body;
+    },
+
+    async listTransactions(
+        accountBookId: number,
+        request: AccountBookTransactionListRequest
+    ): Promise<AccountBookTransactionListResponse> {
+        const response = await apiClient(`/account-books/${accountBookId}/transactions`, {
+            method: "POST",
+            body: JSON.stringify(request),
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to create account book.");
+        }
+
+        const data = (await response.json()) as ResponseDto<AccountBookTransactionListResponse>;
+        return data.body;
+    },
+
+    async listTransactionMonths(
+        accountBookId: number
+    ): Promise<AccountBookTransactionMonthOption[]> {
+        const response = await apiClient(
+            `/account-books/${accountBookId}/transactions/months`,
+            {
+                method: "GET",
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to get transaction months.");
+        }
+
+        const data = await response.json() as ResponseDto<AccountBookTransactionMonthOption[]>;
+        return data.body;
+    },
+
+    async createTransaction(
+        accountBookId: number,
+        request: AccountBookTransactionCreateRequest
+    ): Promise<AccountBookTransaction> {
+        const response = await apiClient(
+            `/account-books/${accountBookId}/transactions/register`,
+            {
+                method: "POST",
+                body: JSON.stringify(request),
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to create transaction.");
+        }
+
+        const data = (await response.json()) as ResponseDto<AccountBookTransaction>;
+        return data.body;
+    },
+
+    async updateTransaction(
+        accountBookId: number,
+        transactionId: number,
+        request: AccountBookTransactionUpdateRequest
+    ): Promise<AccountBookTransaction> {
+        const response = await apiClient(
+            `/account-books/${accountBookId}/transactions/${transactionId}`,
+            {
+                method: "PUT",
+                body: JSON.stringify(request),
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to update transaction.");
+        }
+
+        const data = (await response.json()) as ResponseDto<AccountBookTransaction>;
+        return data.body;
+    },
+
     async deleteTransaction(
-        accountBookId: number | string,
-        transactionId: number | string
+        accountBookId: number,
+        transactionId: number
     ): Promise<boolean> {
         const response = await apiClient(
             `/account-books/${accountBookId}/transactions/${transactionId}`,
@@ -163,8 +218,7 @@ export const accountBookService = {
             throw new Error("Failed to delete transaction.");
         }
 
-        const data = await response.json() as ResponseDto<boolean>;
-
+        const data = (await response.json()) as ResponseDto<boolean>;
         return data.body;
-    }
+    },
 };

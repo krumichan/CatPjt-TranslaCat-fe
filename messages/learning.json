@@ -124,6 +124,10 @@
       }
     },
     "detail": {
+      "messages": {
+        "loading": "家計簿情報を読み込み中...",
+        "loadFailed": "家計簿情報の取得に失敗しました。"
+      },
       "expenseGoal": {
         "title": "今月の支出目標",
         "notSet": "目標未設定",
@@ -322,6 +326,61 @@
         "uncategorized": "未分類",
         "storeNotSet": "店名未設定"
       },
+      "monthlyChart": {
+        "title": "月別支出",
+        "description": "{year}年の月別支出額と目標金額を比較します。",
+        "loading": "月別チャートを読み込んでいます。",
+        "empty": "表示できる月別チャートデータがありません。",
+        "monthLabel": "{month}月",
+        "series": {
+          "expenseAmount": "支出額",
+          "expenseGoalAmount": "目標金額"
+        },
+        "tooltip": {
+          "unset": "未設定",
+          "goalUnset": "目標未設定",
+          "goalDiff": "目標との差額",
+          "over": "{amount} 超過",
+          "remaining": "{amount} 余裕あり",
+          "just": "目標と同額"
+        },
+        "status": {
+          "unsetLabel": "目標未設定",
+          "unsetDescription": "この月の目標金額は設定されていません。",
+          "overLabel": "目標超過",
+          "withinLabel": "目標内",
+          "justLabel": "目標同額",
+          "overDescription": "目標を{amount}超過しています。",
+          "remainingDescription": "目標まで{amount}残っています。",
+          "justDescription": "目標金額と支出額が同額です。"
+        }
+      },
+      "rankingChart": {
+        "period": {
+          "all": "全期間",
+          "month": "{year}年{month}月"
+        },
+        "loading": "チャートを読み込んでいます。",
+        "empty": "表示できる支出データがありません。",
+        "total": "総支出",
+        "others": "その他",
+        "series": {
+          "amount": "支出額"
+        },
+        "category": {
+          "title": "カテゴリ別支出",
+          "description": "{period}基準のカテゴリ別支出割合です。"
+        },
+        "store": {
+          "title": "店舗別支出",
+          "description": "{period}基準の店舗別支出割合です。"
+        },
+        "tooltip": {
+          "amount": "支出額",
+          "percentage": "割合",
+          "transactionCount": "取引数"
+        }
+      },
       "summaryCards": {
         "income": "収入",
         "expense": "支出",
@@ -345,7 +404,63 @@
           "confirm": "削除"
         },
         "messages": {
+          "createFailed": "取引の登録に失敗しました。",
+          "updateFailed": "取引の修正に失敗しました。",
           "deleteFailed": "取引の削除に失敗しました。"
+        }
+      },
+      "transactionModal": {
+        "badge": {
+          "create": "New Transaction",
+          "edit": "Edit Transaction"
+        },
+        "title": {
+          "create": "取引登録",
+          "edit": "取引修正"
+        },
+        "description": {
+          "create": "手入力またはレシート画像の分析結果を利用して取引を登録します。",
+          "edit": "既存の取引情報を修正します。"
+        },
+        "inputMode": {
+          "manual": "手入力",
+          "receipt": "レシート分析"
+        },
+        "receipt": {
+          "title": "レシート画像分析",
+          "description": "レシート画像によるAI分析は今後対応予定です。現在は手入力で取引を登録してください。",
+          "action": "AI分析準備中"
+        },
+        "type": {
+          "expense": "支出",
+          "income": "収入"
+        },
+        "fields": {
+          "type": "取引種別",
+          "title": "取引名",
+          "storeName": "店舗名",
+          "category": "カテゴリ",
+          "amount": "金額",
+          "displayAmount": "表示金額: {amount}",
+          "transactionDate": "取引日",
+          "memo": "メモ"
+        },
+        "options": {
+          "storeNotSet": "未設定",
+          "directInput": "直接入力"
+        },
+        "placeholders": {
+          "title": "例: コンビニ",
+          "directStoreName": "新しい店舗名を入力",
+          "directCategoryName": "新しいカテゴリ名を入力",
+          "memo": "例: 昼食のお弁当"
+        },
+        "actions": {
+          "close": "モーダルを閉じる",
+          "cancel": "キャンセル",
+          "create": "登録",
+          "save": "保存",
+          "submitting": "保存中..."
         }
       },
       "transactionList": {

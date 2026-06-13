@@ -26,6 +26,12 @@ export type AccountBookCategory = {
     active: boolean;
 };
 
+export type AccountBookCategoryGroup = {
+    id: string;
+    name: string;
+    accountBooks: AccountBook[];
+};
+
 export type AccountBookFixedCost = {
     id: number;
     accountBookId: number;
@@ -107,6 +113,20 @@ export type CreateAccountBookRequest = {
     expenseGoalAmount?: number | null;
 };
 
+export type AccountBookMonthlyChartItem = {
+    year: number;
+    month: number;
+    incomeAmount: number;
+    expenseAmount: number;
+    balance: number;
+    expenseGoalAmount: number | null;
+};
+
+export type AccountBookMonthlyChartResponse = {
+    year: number;
+    months: AccountBookMonthlyChartItem[];
+};
+
 export type AccountBookMonthlyGoal = {
     id: number | null;
     accountBookId: number;
@@ -138,6 +158,20 @@ export type AccountBookMonthlyGoalRequest = {
     year: number;
     month: number;
     goalAmount: number;
+};
+
+export type AccountBookRankingChartItem = {
+    name: string;
+    amount: number;
+    transactionCount: number;
+    percentage: number;
+};
+
+export type AccountBookRankingChartResponse = {
+    year: number | null;
+    month: number | null;
+    totalAmount: number;
+    items: AccountBookRankingChartItem[];
 };
 
 export type AccountBookSummaryResponse = {
@@ -187,6 +221,26 @@ export type AccountBookTransactionMonthOption = {
     year: number;
     month: number;
     currentMonth: boolean;
+};
+
+export type AccountBookTransactionCreateRequest = {
+    type: TransactionType;
+    title: string;
+    storeName?: string | null;
+    category: string;
+    amount: number;
+    transactionDate: string;
+    memo?: string | null;
+};
+
+export type AccountBookTransactionUpdateRequest = {
+    type: TransactionType;
+    title: string;
+    storeName?: string | null;
+    category: string;
+    amount: number;
+    transactionDate: string;
+    memo?: string | null;
 };
 
 export type Currency = {

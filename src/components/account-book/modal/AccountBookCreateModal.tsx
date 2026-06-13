@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import {useMemo, useRef, useState} from "react";
 import type { SyntheticEvent } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
@@ -8,6 +8,7 @@ import {
     Currency,
 } from "@/types/accountBook";
 import {formatNumberWithComma, onlyDigits} from "@/utils/number/formatNumberInput";
+import AccountBookBasicFields, {DIRECT_INPUT_VALUE} from "@/components/account-book/modal/AccountBookBasicFields";
 
 type AccountBookCreateModalProps = {
     isOpen: boolean;
@@ -17,8 +18,6 @@ type AccountBookCreateModalProps = {
     onClose: () => void;
     onSubmit: (values: CreateAccountBookFormValues) => void | Promise<void>;
 };
-
-const DIRECT_INPUT_VALUE = "__DIRECT_INPUT__";
 
 export default function AccountBookCreateModal({
    isOpen,
@@ -49,6 +48,9 @@ export default function AccountBookCreateModal({
     const [currencyCode, setCurrencyCode] = useState(defaultCurrencyCode);
     const [expenseGoalAmount, setExpenseGoalAmount] = useState("");
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const isSubmittingRef = useRef(false);
+
     const effectiveCurrencyCode = currencyCode || defaultCurrencyCode;
 
     const canSubmit = useMemo(() => {
@@ -73,6 +75,8 @@ export default function AccountBookCreateModal({
         effectiveSelectedCategoryName,
     ]);
 
+    const isSubmitDisabled = !canSubmit || isSubmitting;
+
     if (!isOpen || typeof document === "undefined") {
         return null;
     }
@@ -87,6 +91,10 @@ export default function AccountBookCreateModal({
     };
 
     const handleClose = () => {
+        if (isSubmitting) {
+            return;
+        }
+
         resetForm();
         onClose();
     };
@@ -94,27 +102,37 @@ export default function AccountBookCreateModal({
     const handleSubmit = async (event: SyntheticEvent) => {
         event.preventDefault();
 
-        if (!canSubmit) {
+        if (!canSubmit || isSubmittingRef.current) {
             return;
         }
 
-        await onSubmit({
-            name: name.trim(),
-            description: description.trim() || undefined,
-            currencyCode: effectiveCurrencyCode,
-            expenseGoalAmount: expenseGoalAmount.trim()
-                ? Number(expenseGoalAmount)
-                : null,
-            categoryMode: isDirectInput ? "NEW" : "EXISTING",
-            categoryId: undefined,
-            categoryName: isDirectInput ? undefined : effectiveSelectedCategoryName,
-            newCategoryName: isDirectInput
-                ? newCategoryName.trim()
-                : undefined,
-        });
+        isSubmittingRef.current = true;
+        setIsSubmitting(true);
 
-        resetForm();
-        onClose();
+        try {
+            await onSubmit({
+                name: name.trim(),
+                description: description.trim() || undefined,
+                currencyCode: effectiveCurrencyCode,
+                expenseGoalAmount: expenseGoalAmount.trim()
+                    ? Number(expenseGoalAmount)
+                    : null,
+                categoryMode: isDirectInput ? "NEW" : "EXISTING",
+                categoryId: undefined,
+                categoryName: isDirectInput ? undefined : effectiveSelectedCategoryName,
+                newCategoryName: isDirectInput
+                    ? newCategoryName.trim()
+                    : undefined,
+            });
+
+            resetForm();
+            onClose();
+        } catch (error) {
+            console.error(error);
+        } finally {
+            isSubmittingRef.current = false;
+            setIsSubmitting(false);
+        }
     };
 
     const selectedCurrency = currencies.find(
@@ -140,7 +158,8 @@ export default function AccountBookCreateModal({
                     <button
                         type="button"
                         onClick={handleClose}
-                        className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-white/10 dark:hover:text-white"
+                        disabled={isSubmitting}
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-white/10 dark:hover:text-white"
                         aria-label={t("actions.close")}
                     >
                         <X className="h-5 w-5" />
@@ -148,61 +167,31 @@ export default function AccountBookCreateModal({
                 </div>
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-                    <label className="block">
-                        <span className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
-                            {t("fields.name")} *
-                        </span>
-                        <input
-                            value={name}
-                            onChange={(event) => setName(event.target.value)}
-                            placeholder={t("placeholders.name")}
-                            className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-gray-800 outline-none transition placeholder:text-slate-400 focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-200 dark:border-white/10 dark:bg-black/30 dark:text-white dark:placeholder:text-gray-500 dark:focus:bg-black/40 dark:focus:ring-orange-500/20"
-                        />
-                    </label>
+                    <AccountBookBasicFields
+                        translationKey="AccountBook.createModal"
+                        name={name}
+                        description={description}
+                        categoryOptions={categoryOptions}
+                        categorySelectValue={effectiveSelectedCategoryName}
+                        isDirectInput={isDirectInput}
+                        newCategoryName={newCategoryName}
+                        onChangeName={setName}
+                        onChangeDescription={setDescription}
+                        onChangeCategorySelectValue={setSelectedCategoryName}
+                        onChangeNewCategoryName={setNewCategoryName}
+                    />
 
                     <label className="block">
                         <span className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
-                            {t("fields.category")} *
-                        </span>
-                        <select
-                            value={effectiveSelectedCategoryName}
-                            onChange={(event) =>
-                                setSelectedCategoryName(event.target.value)
-                            }
-                            className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-gray-800 outline-none transition focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-200 dark:border-white/10 dark:bg-black/30 dark:text-white dark:focus:bg-black/40 dark:focus:ring-orange-500/20 dark:scheme-dark [&>option]:bg-white [&>option]:text-gray-800 dark:[&>option]:bg-zinc-900 dark:[&>option]:text-white"
-                        >
-                            {categoryOptions.map((categoryName) => (
-                                <option key={categoryName} value={categoryName}>
-                                    {categoryName}
-                                </option>
-                            ))}
-                            <option value={DIRECT_INPUT_VALUE}>
-                                {t("fields.directInput")}
-                            </option>
-                        </select>
-
-                        {isDirectInput && (
-                            <input
-                                value={newCategoryName}
-                                onChange={(event) =>
-                                    setNewCategoryName(event.target.value)
-                                }
-                                placeholder={t("placeholders.category")}
-                                className="mt-3 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-gray-800 outline-none transition placeholder:text-slate-400 focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-200 dark:border-white/10 dark:bg-black/30 dark:text-white dark:placeholder:text-gray-500 dark:focus:bg-black/40 dark:focus:ring-orange-500/20"
-                            />
-                        )}
-                    </label>
-
-                    <label className="block">
-                        <span className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
-                            {t("fields.currency")} *
+                            {t("fields.currency")}
+                            <span className="text-orange-500">*</span>
                         </span>
                         <select
                             value={effectiveCurrencyCode}
                             onChange={(event) =>
                                 setCurrencyCode(event.target.value)
                             }
-                            disabled={isCurrencyLoading || currencies.length === 0}
+                            disabled={isCurrencyLoading || currencies.length === 0 || isSubmitting}
                             className="
                                 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-gray-800
                                 outline-none transition
@@ -236,10 +225,11 @@ export default function AccountBookCreateModal({
                                 onChange={(event) => {
                                     setExpenseGoalAmount(onlyDigits(event.target.value));
                                 }}
+                                disabled={isSubmitting}
                                 type="text"
                                 inputMode="numeric"
                                 placeholder={t("placeholders.goalAmount")}
-                                className="w-full bg-transparent px-4 py-3 text-sm text-gray-800 outline-none placeholder:text-slate-400 dark:text-white dark:placeholder:text-gray-500"
+                                className="w-full bg-transparent px-4 py-3 text-sm text-gray-800 outline-none placeholder:text-slate-400 disabled:cursor-not-allowed disabled:opacity-60 dark:text-white dark:placeholder:text-gray-500"
                             />
                         </div>
                         <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
@@ -247,35 +237,23 @@ export default function AccountBookCreateModal({
                         </p>
                     </label>
 
-                    <label className="block">
-                        <span className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
-                            {t("fields.description")}
-                        </span>
-                        <textarea
-                            value={description}
-                            onChange={(event) =>
-                                setDescription(event.target.value)
-                            }
-                            placeholder={t("placeholders.description")}
-                            rows={3}
-                            className="w-full resize-none rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-gray-800 outline-none transition placeholder:text-slate-400 focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-200 dark:border-white/10 dark:bg-black/30 dark:text-white dark:placeholder:text-gray-500 dark:focus:bg-black/40 dark:focus:ring-orange-500/20"
-                        />
-                    </label>
-
                     <div className="flex justify-end gap-3 pt-2">
                         <button
                             type="button"
                             onClick={handleClose}
-                            className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
+                            disabled={isSubmitting}
+                            className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
                         >
                             {t("actions.cancel")}
                         </button>
+
                         <button
                             type="submit"
-                            disabled={!canSubmit}
+                            disabled={isSubmitDisabled}
+                            aria-busy={isSubmitting}
                             className="rounded-xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white shadow-[0_10px_20px_rgba(249,115,22,0.28)] transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none dark:disabled:bg-slate-700"
                         >
-                            {t("actions.submit")}
+                            {isSubmitting ? t("actions.submitting") : t("actions.submit")}
                         </button>
                     </div>
                 </form>

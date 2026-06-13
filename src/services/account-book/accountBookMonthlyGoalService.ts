@@ -66,4 +66,21 @@ export const accountBookMonthlyGoalService = {
         const data = (await response.json()) as ResponseDto<AccountBookMonthlyGoal>;
         return data.body;
     },
+
+    async deleteMonthlyGoal(
+        accountBookId: number,
+        year: number,
+        month: number
+    ): Promise<void> {
+        const response = await apiClient(
+            `/account-books/${accountBookId}/monthly-goals?year=${year}&month=${month}`,
+            {
+                method: "DELETE",
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to delete monthly goal.");
+        }
+    },
 }

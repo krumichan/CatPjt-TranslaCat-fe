@@ -1,20 +1,24 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
     AccountBook,
     AccountBookCategoryGroup,
-    CreateAccountBookFormValues,
-    Currency,
+    AccountBookEditFormValues,
+    CreateAccountBookFormValues, Currency,
 } from "@/types/accountBook";
 import AccountBookSearchPanel from "@/components/account-book/AccountBookSearchPanel";
 import AccountBookCategorySection from "@/components/account-book/AccountBookCategorySection";
 import EmptyAccountBookList from "@/components/account-book/EmptyAccountBookList";
 import AccountBookCreateModal from "@/components/account-book/modal/AccountBookCreateModal";
+import AccountBookEditModal from "@/components/account-book/modal/AccountBookEditModal";
 import { accountBookService } from "@/services/account-book/accountBookService";
 import { currencyService } from "@/services/currency/currencyService";
+import { useQuery } from "@/hooks/useQuery";
+import {accountBookMonthlyGoalService} from "@/services/account-book/accountBookMonthlyGoalService";
+import {getCurrentYearMonth} from "@/utils/dateUtils";
 
 function groupAccountBooksByCategory(
     accountBooks: AccountBook[]
@@ -24,6 +28,7 @@ function groupAccountBooksByCategory(
     accountBooks.forEach((accountBook) => {
         const categoryName = accountBook.category || "기타";
         const currentItems = categoryMap.get(categoryName) ?? [];
+
         categoryMap.set(categoryName, [...currentItems, accountBook]);
     });
 
@@ -40,50 +45,47 @@ export default function AccountBooksPage() {
     const [searchKeyword, setSearchKeyword] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("");
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const [accountBooks, setAccountBooks] = useState<AccountBook[]>([]);
-    const [currencies, setCurrencies] = useState<Currency[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isCurrencyLoading, setIsCurrencyLoading] = useState(true);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [editingAccountBook, setEditingAccountBook] =
+        useState<AccountBook | null>(null);
 
-    const loadAccountBooks = useCallback(async () => {
-        try {
-            setIsLoading(true);
-            setErrorMessage(null);
+    const [editingLoadingAccountBookId, setEditingLoadingAccountBookId] =
+        useState<number | null>(null);
 
-            const items = await accountBookService.list({
-                keyword: searchKeyword,
-                category: selectedCategory,
-            });
+    const {
+        data: accountBooks = [],
+        isLoading,
+        isError: accountBooksQueryError,
+        mutate: mutateAccountBooks,
+    } = useQuery({
+        keys: ["account-books", searchKeyword, selectedCategory] as const,
+        fetcher: (_, keyword, category) =>
+            accountBookService.list({
+                keyword,
+                category,
+            }),
+        config: {
+            revalidateOnMount: true,
+            revalidateIfStale: true,
+            dedupingInterval: 2000,
+        },
+    });
 
-            setAccountBooks(items);
-        } catch (error) {
-            console.error(error);
-            setErrorMessage(t("messages.loadFailed"));
-        } finally {
-            setIsLoading(false);
-        }
-    }, [searchKeyword, selectedCategory, t]);
+    const {
+        data: currenciesData,
+        isLoading: isCurrencyLoading,
+    } = useQuery({
+        keys: ["currencies"] as const,
+        fetcher: async (_key): Promise<Currency[]> => {
+            return currencyService.list();
+        },
+        config: {
+            revalidateOnMount: true,
+            revalidateIfStale: true,
+            dedupingInterval: 5000,
+        },
+    });
 
-    const loadCurrencies = useCallback(async () => {
-        try {
-            setIsCurrencyLoading(true);
-            const items = await currencyService.list();
-            setCurrencies(items);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setIsCurrencyLoading(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        void loadCurrencies();
-    }, [loadCurrencies]);
-
-    useEffect(() => {
-        void loadAccountBooks();
-    }, [loadAccountBooks]);
+    const currencies = currenciesData ?? [];
 
     const categories = useMemo(
         () => groupAccountBooksByCategory(accountBooks),
@@ -96,6 +98,10 @@ export default function AccountBooksPage() {
     );
 
     const totalAccountBookCount = accountBooks.length;
+
+    const handleRevalidateAccountBooks = async () => {
+        await mutateAccountBooks((currentData) => currentData, true);
+    };
 
     const handleCreateAccountBook = async (
         values: CreateAccountBookFormValues
@@ -110,24 +116,138 @@ export default function AccountBooksPage() {
         }
 
         try {
-            await accountBookService.register({
+            const createdAccountBook = await accountBookService.register({
                 name: values.name,
                 description: values.description,
                 category,
                 currencyCode: values.currencyCode,
-                expenseGoalAmount: values.expenseGoalAmount,
             });
 
-            await loadAccountBooks();
+            if (values.expenseGoalAmount && values.expenseGoalAmount > 0) {
+                const { year, month } = getCurrentYearMonth();
+
+                await accountBookMonthlyGoalService.saveMonthlyGoal(createdAccountBook.id, {
+                    year,
+                    month,
+                    goalAmount: values.expenseGoalAmount,
+                });
+            }
+
+            await handleRevalidateAccountBooks();
         } catch (error) {
             console.error(error);
             window.alert(t("messages.createFailed"));
+            throw error;
         }
     };
 
-    const handleDelete = (accountBookId: number) => {
-        window.alert(t("messages.deleteNotReady"));
-        console.log("delete target:", accountBookId);
+    const handleDelete = async (accountBookId: number) => {
+        const confirmed = window.confirm(t("messages.deleteConfirm"));
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            await accountBookService.remove(accountBookId);
+
+            await mutateAccountBooks((currentData) => {
+                if (!currentData) {
+                    return currentData;
+                }
+
+                return currentData.filter(
+                    (accountBook) => accountBook.id !== accountBookId
+                );
+            }, false);
+
+            await handleRevalidateAccountBooks();
+        } catch (error) {
+            console.error(error);
+            window.alert(t("messages.deleteFailed"));
+        }
+    };
+
+    const handleEdit = async (accountBook: AccountBook) => {
+        const { year, month } = getCurrentYearMonth();
+
+        try {
+            setEditingLoadingAccountBookId(accountBook.id);
+
+            const monthlyGoal =
+                await accountBookMonthlyGoalService.getMonthlyGoal(
+                    accountBook.id,
+                    year,
+                    month
+                );
+
+            setEditingAccountBook({
+                ...accountBook,
+                expenseGoalAmount: monthlyGoal.goalAmount ?? null,
+            });
+        } catch (error) {
+            console.error(error);
+            window.alert(t("messages.loadGoalFailed"));
+        } finally {
+            setEditingLoadingAccountBookId(null);
+        }
+    };
+
+    const handleUpdateAccountBook = async (
+        accountBookId: number,
+        values: AccountBookEditFormValues
+    ) => {
+        const {
+            expenseGoalAmount,
+            shouldDeleteMonthlyGoal,
+            ...accountBookUpdateRequest
+        } = values;
+
+        try {
+            const updatedAccountBook = await accountBookService.update(
+                accountBookId,
+                accountBookUpdateRequest
+            );
+
+            const { year, month } = getCurrentYearMonth();
+
+            if (expenseGoalAmount && expenseGoalAmount > 0) {
+                await accountBookMonthlyGoalService.saveMonthlyGoal(accountBookId, {
+                    year,
+                    month,
+                    goalAmount: expenseGoalAmount,
+                });
+            } else if (shouldDeleteMonthlyGoal) {
+                await accountBookMonthlyGoalService.deleteMonthlyGoal(
+                    accountBookId,
+                    year,
+                    month
+                );
+            }
+
+            await mutateAccountBooks((currentData) => {
+                if (!currentData) {
+                    return [updatedAccountBook];
+                }
+
+                return currentData.map((accountBook) =>
+                    accountBook.id === accountBookId
+                        ? {
+                            ...updatedAccountBook,
+                            expenseGoalAmount,
+                        }
+                        : accountBook
+                );
+            }, false);
+
+            setEditingAccountBook(null);
+
+            await handleRevalidateAccountBooks();
+        } catch (error) {
+            console.error(error);
+            window.alert(t("messages.updateFailed"));
+            throw error;
+        }
     };
 
     return (
@@ -167,9 +287,9 @@ export default function AccountBooksPage() {
                     />
                 </section>
 
-                {errorMessage && (
+                {accountBooksQueryError && (
                     <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-semibold text-red-600 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
-                        {errorMessage}
+                        {t("messages.loadFailed")}
                     </div>
                 )}
 
@@ -185,6 +305,7 @@ export default function AccountBooksPage() {
                             <AccountBookCategorySection
                                 key={category.id}
                                 category={category}
+                                onEditAccountBook={handleEdit}
                                 onDeleteAccountBook={handleDelete}
                             />
                         ))}
@@ -199,6 +320,15 @@ export default function AccountBooksPage() {
                 isCurrencyLoading={isCurrencyLoading}
                 onClose={() => setIsCreateModalOpen(false)}
                 onSubmit={handleCreateAccountBook}
+            />
+
+            <AccountBookEditModal
+                isOpen={editingAccountBook !== null}
+                accountBook={editingAccountBook}
+                categoryOptions={categoryOptions}
+                isMonthlyGoalLoading={editingLoadingAccountBookId !== null}
+                onClose={() => setEditingAccountBook(null)}
+                onSubmit={handleUpdateAccountBook}
             />
         </>
     );

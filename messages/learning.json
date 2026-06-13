@@ -70,11 +70,40 @@
     "actions": {
       "create": "新規家計簿を作成"
     },
+    "editModal": {
+      "eyebrow": "Edit Account Book",
+      "title": "家計簿の修正",
+      "description": "家計簿名、カテゴリ、説明と今月の目標金額を修正します。",
+      "fields": {
+        "name": "家計簿名",
+        "category": "カテゴリ",
+        "directInput": "直接入力",
+        "description": "説明",
+        "goalAmount": "今月の目標金額"
+      },
+      "placeholders": {
+        "name": "例：日本の生活費",
+        "category": "新しいカテゴリ名を入力",
+        "description": "例：家賃、食費、交通費の管理",
+        "goalAmount": "例：100,000"
+      },
+      "helps": {
+        "goalAmount": "空欄のまま保存すると、今月の目標金額が削除されます。"
+      },
+      "actions": {
+        "close": "閉じる",
+        "cancel": "キャンセル",
+        "submit": "登録",
+        "submitting": "登録中..."
+      }
+    },
     "messages": {
       "loading": "家計簿を読み込み中...",
       "loadFailed": "家計簿一覧の取得に失敗しました。",
       "createFailed": "家計簿の登録に失敗しました。",
-      "deleteNotReady": "削除機能はまだ準備中です。"
+      "updateFailed": "家計簿の修正に失敗しました。",
+      "deleteConfirm": "この家計簿を削除しますか？",
+      "deleteFailed": "家計簿の削除に失敗しました。"
     },
     "search": {
       "placeholder": "家計簿名または説明で検索",
@@ -90,7 +119,8 @@
       "balance": "残高",
       "transactions": "取引",
       "transactionCount": "{count}件",
-      "deleteAria": "{name}を削除"
+      "deleteAria": "{name}を削除",
+      "editAria": "{name}を修正"
     },
     "empty": {
       "title": "検索結果がありません。",
@@ -105,22 +135,23 @@
         "category": "カテゴリ",
         "directInput": "直接入力",
         "currency": "基準通貨",
-        "goalAmount": "月間支出目標額",
+        "goalAmount": "今月の目標金額",
         "description": "説明"
       },
       "placeholders": {
         "name": "例: 日本生活費",
         "category": "新しいカテゴリ名を入力",
-        "goalAmount": "例: 100000",
+        "goalAmount": "例：100,000",
         "description": "例: 家賃、食費、交通費の管理"
       },
       "helps": {
-        "goalAmount": "任意項目です。設定しない場合は、あとから詳細画面で登録できます。"
+        "goalAmount": "入力すると、作成後に今月の目標金額として登録されます。未入力の場合は、目標なしで開始します。"
       },
       "actions": {
         "close": "閉じる",
         "cancel": "キャンセル",
-        "submit": "登録"
+        "submit": "登録",
+        "submitting": "登録中..."
       }
     },
     "detail": {

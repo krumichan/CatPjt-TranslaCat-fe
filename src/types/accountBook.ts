@@ -1,5 +1,6 @@
 import {PagedModel} from "@/types/common";
 
+export type AccountBookMemberRole = "OWNER" | "MEMBER";
 export type AccountBookTransactionSourceType = "FIXED_COST";
 export type CurrencyCode = string;
 export type TransactionType = "INCOME" | "EXPENSE";
@@ -16,6 +17,7 @@ export type AccountBook = {
     balance: number;
     transactionCount?: number;
     expenseGoalAmount?: number | null;
+    myRole: AccountBookMemberRole;
 };
 
 export type AccountBookCategory = {
@@ -30,6 +32,11 @@ export type AccountBookCategoryGroup = {
     id: string;
     name: string;
     accountBooks: AccountBook[];
+};
+
+export type AccountBookEditFormValues = AccountBookUpdateRequest & {
+    expenseGoalAmount: number | null;
+    shouldDeleteMonthlyGoal: boolean;
 };
 
 export type AccountBookFixedCost = {
@@ -103,6 +110,12 @@ export type AccountBookSearchCondition = {
 
 export type AccountBookStoreSuggestion = {
     storeName: string;
+};
+
+export type AccountBookUpdateRequest = {
+    name: string;
+    description?: string;
+    category: string;
 };
 
 export type CreateAccountBookRequest = {

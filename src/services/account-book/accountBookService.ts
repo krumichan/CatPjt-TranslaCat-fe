@@ -5,6 +5,7 @@ import {
     AccountBookTransactionCreateRequest,
     AccountBookTransactionListRequest,
     AccountBookTransactionListResponse, AccountBookTransactionMonthOption, AccountBookTransactionUpdateRequest,
+    AccountBookUpdateRequest,
     CreateAccountBookRequest,
 } from "@/types/accountBook";
 import { ResponseDto } from "@/types/common";
@@ -99,6 +100,36 @@ export const accountBookService = {
         }
 
         const data = (await response.json()) as ResponseDto<AccountBook>;
+        return data.body;
+    },
+
+    async update(
+        accountBookId: number,
+        request: AccountBookUpdateRequest
+    ): Promise<AccountBook> {
+        const response = await apiClient(`/account-books/${accountBookId}`, {
+            method: "PUT",
+            body: JSON.stringify(request),
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to update account book.");
+        }
+
+        const data = (await response.json()) as ResponseDto<AccountBook>;
+        return data.body;
+    },
+
+    async remove(accountBookId: number): Promise<boolean> {
+        const response = await apiClient(`/account-books/${accountBookId}`, {
+            method: "DELETE",
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to delete account book.");
+        }
+
+        const data = (await response.json()) as ResponseDto<boolean>;
         return data.body;
     },
 

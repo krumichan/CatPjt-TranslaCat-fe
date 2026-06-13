@@ -70,11 +70,40 @@
     "actions": {
       "create": "신규 가계부 작성"
     },
+    "editModal": {
+      "eyebrow": "Edit Account Book",
+      "title": "가계부 수정",
+      "description": "가계부명, 카테고리, 설명과 이번 달 목표 금액을 수정합니다.",
+      "fields": {
+        "name": "가계부명",
+        "category": "카테고리",
+        "directInput": "직접 입력",
+        "description": "설명",
+        "goalAmount": "이번 달 목표 금액"
+      },
+      "placeholders": {
+        "name": "예: 일본 생활비",
+        "category": "새 카테고리명 입력",
+        "description": "예: 월세, 식비, 교통비 관리",
+        "goalAmount": "예: 100,000"
+      },
+      "helps": {
+        "goalAmount": "비워두고 저장하면 이번 달 목표 금액이 삭제됩니다."
+      },
+      "actions": {
+        "close": "닫기",
+        "cancel": "취소",
+        "submit": "등록",
+        "submitting": "등록 중..."
+      }
+    },
     "messages": {
       "loading": "가계부를 불러오는 중...",
       "loadFailed": "가계부 목록을 불러오지 못했습니다.",
       "createFailed": "가계부 등록에 실패했습니다.",
-      "deleteNotReady": "삭제 기능은 아직 준비 중입니다."
+      "updateFailed": "가계부 수정에 실패했습니다.",
+      "deleteConfirm": "이 가계부를 삭제할까요?",
+      "deleteFailed": "가계부 삭제에 실패했습니다."
     },
     "search": {
       "placeholder": "가계부명 또는 설명으로 검색",
@@ -90,7 +119,8 @@
       "balance": "잔액",
       "transactions": "거래",
       "transactionCount": "{count}건",
-      "deleteAria": "{name} 삭제"
+      "deleteAria": "{name} 삭제",
+      "editAria": "{name} 수정"
     },
     "empty": {
       "title": "검색 결과가 없습니다.",
@@ -105,22 +135,23 @@
         "category": "카테고리",
         "directInput": "직접 입력",
         "currency": "기준 통화",
-        "goalAmount": "월 지출 목표금액",
+        "goalAmount": "이번 달 목표 금액",
         "description": "설명"
       },
       "placeholders": {
         "name": "예: 일본 생활비",
         "category": "새 카테고리명 입력",
-        "goalAmount": "예: 100000",
+        "goalAmount": "예: 100,000",
         "description": "예: 월세, 식비, 교통비 관리"
       },
       "helps": {
-        "goalAmount": "선택 입력입니다. 설정하지 않으면 나중에 상세 화면에서 등록할 수 있습니다."
+        "goalAmount": "입력하면 생성 후 이번 달 목표 금액으로 등록됩니다. 입력하지 않으면 목표 없이 시작합니다."
       },
       "actions": {
         "close": "닫기",
         "cancel": "취소",
-        "submit": "등록"
+        "submit": "등록",
+        "submitting": "등록 중..."
       }
     },
     "detail": {

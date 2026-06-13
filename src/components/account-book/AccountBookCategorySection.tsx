@@ -1,15 +1,17 @@
 import { Folder } from "lucide-react";
 import { useTranslations } from "next-intl";
 import AccountBookListItem from "@/components/account-book/AccountBookListItem";
-import { AccountBookCategoryGroup } from "@/types/accountBook";
+import {AccountBook, AccountBookCategoryGroup} from "@/types/accountBook";
 
 type AccountBookCategorySectionProps = {
     category: AccountBookCategoryGroup;
+    onEditAccountBook: (accountBook: AccountBook) => void;
     onDeleteAccountBook: (accountBookId: number) => void;
 };
 
 export default function AccountBookCategorySection({
    category,
+   onEditAccountBook,
    onDeleteAccountBook,
 }: AccountBookCategorySectionProps) {
     const t = useTranslations("AccountBook.category");
@@ -40,6 +42,7 @@ export default function AccountBookCategorySection({
                     <AccountBookListItem
                         key={accountBook.id}
                         accountBook={accountBook}
+                        onEdit={onEditAccountBook}
                         onDelete={onDeleteAccountBook}
                     />
                 ))}

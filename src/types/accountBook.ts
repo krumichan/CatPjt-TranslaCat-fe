@@ -116,6 +116,19 @@ export type AccountBookMemberInviteRequest = {
     publicId: string;
 };
 
+export type AccountBookReceiptAnalysisResponse = {
+    title: string | null;
+    storeName: string | null;
+    amount: number | null;
+    transactionDate: string | null;
+    categoryName: string | null;
+    memo: string | null;
+    confidence: number | null;
+    rawText: string | null;
+    ocrEngine: string | null;
+    usedAi: boolean;
+};
+
 export type AccountBookSearchCondition = {
     keyword?: string;
     category?: string;
@@ -296,14 +309,4 @@ export type CreateTransactionFormValues = {
     amount: number;
     transactionDate: string;
     memo?: string;
-};
-
-export type ReceiptAnalysisResult = {
-    title?: string;
-    storeName?: string;
-    amount?: number;
-    transactionDate?: string;
-    categoryName?: string;
-    memo?: string;
-    confidence?: number;
 };

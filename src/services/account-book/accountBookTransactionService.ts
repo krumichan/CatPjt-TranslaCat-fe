@@ -1,5 +1,6 @@
 import { apiClient } from "@/lib/apiClient";
 import {
+    AccountBookReceiptAnalysisResponse,
     AccountBookStoreSuggestion,
     AccountBookTransaction,
     AccountBookTransactionCreateRequest,
@@ -9,8 +10,40 @@ import {
     AccountBookTransactionUpdateRequest,
 } from "@/types/accountBook";
 import { ResponseDto } from "@/types/common";
+import {resizeReceiptImage} from "@/utils/account-book/resizeReceiptImage";
 
 export const accountBookTransactionService = {
+    async analyzeReceipt(
+        accountBookId: number,
+        file: File
+    ): Promise<AccountBookReceiptAnalysisResponse> {
+        const resizedFile = await resizeReceiptImage(file);
+
+        if (resizedFile.size > 5 * 1024 * 1024) {
+            throw new Error("Receipt image is too large.");
+        }
+
+        const formData = new FormData();
+        formData.append("file", resizedFile);
+
+        const response = await apiClient(
+            `/account-books/${accountBookId}/transactions/receipt-analysis`,
+            {
+                method: "POST",
+                body: formData,
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to analyze receipt.");
+        }
+
+        const data =
+            (await response.json()) as ResponseDto<AccountBookReceiptAnalysisResponse>;
+
+        return data.body;
+    },
+
     async listStoreSuggestions(
         accountBookId: number,
         keyword?: string

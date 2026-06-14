@@ -425,7 +425,8 @@
         "messages": {
           "createFailed": "거래 등록에 실패했습니다.",
           "updateFailed": "거래 수정에 실패했습니다.",
-          "deleteFailed": "거래 삭제에 실패했습니다."
+          "deleteFailed": "거래 삭제에 실패했습니다.",
+          "receiptAnalysisFailed": "영수증 분석에 실패했습니다."
         }
       },
       "transactionModal": {
@@ -447,8 +448,14 @@
         },
         "receipt": {
           "title": "영수증 사진 분석",
-          "description": "영수증 사진을 통한 AI 분석은 추후 지원 예정입니다. 현재는 직접 입력으로 거래를 등록해 주세요.",
-          "action": "AI 분석 준비 중"
+          "description": "영수증 사진을 업로드하면 AI가 거래 정보를 분석해 입력폼에 자동으로 채워줍니다. 저장 전 내용을 확인해 주세요.",
+          "file": "영수증 이미지",
+          "selectedFile": "선택된 파일: {filename}",
+          "action": "AI로 영수증 분석",
+          "analyzing": "분석 중...",
+          "analysisCompleted": "분석 결과를 입력폼에 반영했습니다. 저장 전 내용을 확인해 주세요.",
+          "analysisCompletedWithConfidence": "분석 결과를 입력폼에 반영했습니다. 신뢰도: {confidence}. 저장 전 내용을 확인해 주세요.",
+          "analysisFailed": "영수증 분석에 실패했습니다. 이미지를 확인하거나 직접 입력해 주세요."
         },
         "type": {
           "expense": "지출",

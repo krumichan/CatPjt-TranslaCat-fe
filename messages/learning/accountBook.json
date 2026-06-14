@@ -425,7 +425,8 @@
         "messages": {
           "createFailed": "取引の登録に失敗しました。",
           "updateFailed": "取引の修正に失敗しました。",
-          "deleteFailed": "取引の削除に失敗しました。"
+          "deleteFailed": "取引の削除に失敗しました。",
+          "receiptAnalysisFailed": "レシート分析に失敗しました。"
         }
       },
       "transactionModal": {
@@ -447,8 +448,14 @@
         },
         "receipt": {
           "title": "レシート画像分析",
-          "description": "レシート画像によるAI分析は今後対応予定です。現在は手入力で取引を登録してください。",
-          "action": "AI分析準備中"
+          "description": "レシート画像をアップロードすると、AIが取引情報を分析して入力フォームに自動反映します。保存前に内容をご確認ください。",
+          "file": "レシート画像",
+          "selectedFile": "選択中のファイル: {filename}",
+          "action": "AIでレシートを分析",
+          "analyzing": "分析中...",
+          "analysisCompleted": "分析結果を入力フォームに反映しました。保存前に内容をご確認ください。",
+          "analysisCompletedWithConfidence": "分析結果を入力フォームに反映しました。信頼度: {confidence}。保存前に内容をご確認ください。",
+          "analysisFailed": "レシート分析に失敗しました。画像を確認するか、手入力してください。"
         },
         "type": {
           "expense": "支出",

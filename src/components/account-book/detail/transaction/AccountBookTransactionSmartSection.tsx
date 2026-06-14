@@ -176,6 +176,19 @@ export default function AccountBookTransactionSmartSection({
         memo: toNullableText(values.memo),
     });
 
+    const handleAnalyzeReceipt = async (file: File) => {
+        try {
+            return await accountBookTransactionService.analyzeReceipt(
+                accountBookId,
+                file
+            );
+        } catch (error) {
+            console.error(error);
+            alert(t("transaction.messages.receiptAnalysisFailed"));
+            throw error;
+        }
+    };
+
     const handleCreateTransaction = async (
         values: CreateTransactionFormValues
     ) => {
@@ -316,12 +329,13 @@ export default function AccountBookTransactionSmartSection({
             {(isCreateModalOpen || editingTransaction !== null) && (
                 <TransactionFormModal
                     key={editingTransaction ? `edit-${editingTransaction.id}` : "create"}
-                    isOpen={true}
+                    isOpen={isCreateModalOpen || editingTransaction !== null}
                     mode={editingTransaction ? "EDIT" : "CREATE"}
                     transaction={editingTransaction}
                     currencyCode={currencyCode}
                     categoryOptions={categoryOptions}
                     storeOptions={storeOptions}
+                    onAnalyzeReceipt={handleAnalyzeReceipt}
                     onClose={() => {
                         onCloseCreateModal();
                         setEditingTransaction(null);

@@ -11,3 +11,7 @@ export function toRequiredText(value: string, fallbackMessage = "Required value 
 
     return normalizedValue;
 }
+
+export function normalizeCandidateName(value: string) {
+    return value.trim().toLowerCase().replace(/\s+/g, " ");
+}

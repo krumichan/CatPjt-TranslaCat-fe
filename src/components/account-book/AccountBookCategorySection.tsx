@@ -6,13 +6,15 @@ import {AccountBook, AccountBookCategoryGroup} from "@/types/accountBook";
 type AccountBookCategorySectionProps = {
     category: AccountBookCategoryGroup;
     onEditAccountBook: (accountBook: AccountBook) => void;
-    onDeleteAccountBook: (accountBookId: number) => void;
+    onDeleteAccountBook: (accountBook: AccountBook) => void;
+    onManageMembers: (accountBook: AccountBook) => void;
 };
 
 export default function AccountBookCategorySection({
-   category,
-   onEditAccountBook,
-   onDeleteAccountBook,
+    category,
+    onEditAccountBook,
+    onDeleteAccountBook,
+    onManageMembers,
 }: AccountBookCategorySectionProps) {
     const t = useTranslations("AccountBook.category");
 
@@ -44,6 +46,7 @@ export default function AccountBookCategorySection({
                         accountBook={accountBook}
                         onEdit={onEditAccountBook}
                         onDelete={onDeleteAccountBook}
+                        onManageMembers={onManageMembers}
                     />
                 ))}
             </div>

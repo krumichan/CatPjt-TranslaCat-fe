@@ -19,6 +19,8 @@ import { currencyService } from "@/services/currency/currencyService";
 import { useQuery } from "@/hooks/useQuery";
 import {accountBookMonthlyGoalService} from "@/services/account-book/accountBookMonthlyGoalService";
 import {getCurrentYearMonth} from "@/utils/dateUtils";
+import ConfirmModal from "@/components/common/ConfirmModal";
+import AccountBookMemberManageModal from "@/components/account-book/detail/member/modal/AccountBookMemberManageModal";
 
 function groupAccountBooksByCategory(
     accountBooks: AccountBook[]
@@ -45,11 +47,16 @@ export default function AccountBooksPage() {
     const [searchKeyword, setSearchKeyword] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("");
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
     const [editingAccountBook, setEditingAccountBook] =
         useState<AccountBook | null>(null);
 
-    const [editingLoadingAccountBookId, setEditingLoadingAccountBookId] =
-        useState<number | null>(null);
+    const [deleteTargetAccountBook, setDeleteTargetAccountBook] =
+        useState<AccountBook | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const [memberTargetAccountBook, setMemberTargetAccountBook] =
+        useState<AccountBook | null>(null);
 
     const {
         data: accountBooks = [],
@@ -99,8 +106,28 @@ export default function AccountBooksPage() {
 
     const totalAccountBookCount = accountBooks.length;
 
+    const handleCloseMemberModal = () => {
+        setMemberTargetAccountBook(null);
+    };
+
+    const handleManageMembers = (accountBook: AccountBook) => {
+        setMemberTargetAccountBook(accountBook);
+    };
+
+    const handleRequestDelete = (accountBook: AccountBook) => {
+        setDeleteTargetAccountBook(accountBook);
+    };
+
     const handleRevalidateAccountBooks = async () => {
         await mutateAccountBooks((currentData) => currentData, true);
+    };
+
+    const handleCloseDeleteConfirm = () => {
+        if (isDeleting) {
+            return;
+        }
+
+        setDeleteTargetAccountBook(null);
     };
 
     const handleCreateAccountBook = async (
@@ -141,14 +168,16 @@ export default function AccountBooksPage() {
         }
     };
 
-    const handleDelete = async (accountBookId: number) => {
-        const confirmed = window.confirm(t("messages.deleteConfirm"));
-
-        if (!confirmed) {
+    const handleConfirmDelete = async () => {
+        if (!deleteTargetAccountBook || isDeleting) {
             return;
         }
 
+        const accountBookId = deleteTargetAccountBook.id;
+
         try {
+            setIsDeleting(true);
+
             await accountBookService.remove(accountBookId);
 
             await mutateAccountBooks((currentData) => {
@@ -161,10 +190,14 @@ export default function AccountBooksPage() {
                 );
             }, false);
 
+            setDeleteTargetAccountBook(null);
+
             await handleRevalidateAccountBooks();
         } catch (error) {
             console.error(error);
             window.alert(t("messages.deleteFailed"));
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -172,8 +205,6 @@ export default function AccountBooksPage() {
         const { year, month } = getCurrentYearMonth();
 
         try {
-            setEditingLoadingAccountBookId(accountBook.id);
-
             const monthlyGoal =
                 await accountBookMonthlyGoalService.getMonthlyGoal(
                     accountBook.id,
@@ -187,9 +218,11 @@ export default function AccountBooksPage() {
             });
         } catch (error) {
             console.error(error);
-            window.alert(t("messages.loadGoalFailed"));
-        } finally {
-            setEditingLoadingAccountBookId(null);
+            window.alert(t("messages.loadMonthlyGoalFailed"));
+            setEditingAccountBook({
+                ...accountBook,
+                expenseGoalAmount: null,
+            });
         }
     };
 
@@ -306,7 +339,8 @@ export default function AccountBooksPage() {
                                 key={category.id}
                                 category={category}
                                 onEditAccountBook={handleEdit}
-                                onDeleteAccountBook={handleDelete}
+                                onDeleteAccountBook={handleRequestDelete}
+                                onManageMembers={handleManageMembers}
                             />
                         ))}
                     </section>
@@ -326,9 +360,35 @@ export default function AccountBooksPage() {
                 isOpen={editingAccountBook !== null}
                 accountBook={editingAccountBook}
                 categoryOptions={categoryOptions}
-                isMonthlyGoalLoading={editingLoadingAccountBookId !== null}
                 onClose={() => setEditingAccountBook(null)}
                 onSubmit={handleUpdateAccountBook}
+            />
+
+            {memberTargetAccountBook && (
+                <AccountBookMemberManageModal
+                    isOpen={memberTargetAccountBook !== null}
+                    accountBookId={memberTargetAccountBook.id}
+                    accountBookName={memberTargetAccountBook.name}
+                    onClose={handleCloseMemberModal}
+                />
+            )}
+
+            <ConfirmModal
+                isOpen={deleteTargetAccountBook !== null}
+                title={t("deleteConfirmModal.title")}
+                description={t("deleteConfirmModal.description", {
+                    name: deleteTargetAccountBook?.name ?? "",
+                })}
+                confirmLabel={
+                    isDeleting
+                        ? t("deleteConfirmModal.deleting")
+                        : t("deleteConfirmModal.confirm")
+                }
+                cancelLabel={t("deleteConfirmModal.cancel")}
+                variant="danger"
+                isLoading={isDeleting}
+                onClose={handleCloseDeleteConfirm}
+                onConfirm={handleConfirmDelete}
             />
         </>
     );

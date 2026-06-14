@@ -17,7 +17,7 @@ export type AccountBook = {
     balance: number;
     transactionCount?: number;
     expenseGoalAmount?: number | null;
-    myRole: AccountBookMemberRole;
+    myRole?: AccountBookMemberRole | null;
 };
 
 export type AccountBookCategory = {
@@ -101,6 +101,18 @@ export type AccountBookFixedCostRequest = {
     endYear?: number | null;
     endMonth?: number | null;
     memo?: string | null;
+};
+
+export type AccountBookMember = {
+    id: number;
+    userId: number;
+    publicId: string;
+    username: string | null;
+    role: AccountBookMemberRole;
+};
+
+export type AccountBookMemberInviteRequest = {
+    publicId: string;
 };
 
 export type AccountBookSearchCondition = {

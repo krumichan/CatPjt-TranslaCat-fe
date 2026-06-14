@@ -9,7 +9,6 @@ type AccountBookEditModalProps = {
     isOpen: boolean;
     accountBook: AccountBook | null;
     categoryOptions: string[];
-    isMonthlyGoalLoading: boolean;
     onClose: () => void;
     onSubmit: (
         accountBookId: number,
@@ -21,7 +20,6 @@ export default function AccountBookEditModal({
     isOpen,
     accountBook,
     categoryOptions,
-    isMonthlyGoalLoading,
     onClose,
     onSubmit,
 }: AccountBookEditModalProps) {
@@ -34,7 +32,6 @@ export default function AccountBookEditModal({
             key={accountBook.id}
             accountBook={accountBook}
             categoryOptions={categoryOptions}
-            isMonthlyGoalLoading={isMonthlyGoalLoading}
             onClose={onClose}
             onSubmit={onSubmit}
         />,

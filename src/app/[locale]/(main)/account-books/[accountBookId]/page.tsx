@@ -33,6 +33,7 @@ import FixedCostGenerationBanner from "@/components/account-book/detail/fixed-co
 import {toNullableText} from "@/utils/text/normalizeText";
 import {accountBookChartService} from "@/services/account-book/accountBookChartService";
 import TransactionFormModal from "@/components/account-book/detail/modal/TransactionFormModal";
+import AccountBookMemberManageModal from "@/components/account-book/detail/member/modal/AccountBookMemberManageModal";
 
 function getCurrentMonthValue() {
     const now = new Date();
@@ -96,6 +97,8 @@ export default function AccountBookDetailPage() {
     const [deletingTransaction, setDeletingTransaction] =
         useState<AccountBookTransaction | null>(null);
 
+    const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+
     const {
         data: accountBookDetail,
         isLoading: isAccountBookDetailLoading,
@@ -110,6 +113,8 @@ export default function AccountBookDetailPage() {
             dedupingInterval: 2000,
         },
     });
+
+    const canManageMembers = accountBookDetail?.myRole === "OWNER";
 
     const {
         data: monthlyGoal,
@@ -815,6 +820,8 @@ export default function AccountBookDetailPage() {
                         <AccountBookDetailHeader
                             accountBook={accountBookDetail}
                             onClickCreateTransaction={() => setIsCreateModalOpen(true)}
+                            canManageMembers={canManageMembers}
+                            onClickManageMembers={() => setIsMemberModalOpen(true)}
                         />
                     ) : (
                         <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-6 text-sm font-semibold text-red-600 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
@@ -984,6 +991,15 @@ export default function AccountBookDetailPage() {
                 onClose={() => setDeletingTransaction(null)}
                 onConfirm={handleDeleteTransaction}
             />
+
+            {accountBookDetail && (
+                <AccountBookMemberManageModal
+                    isOpen={isMemberModalOpen}
+                    accountBookId={accountBookId}
+                    accountBookName={accountBookDetail.name}
+                    onClose={() => setIsMemberModalOpen(false)}
+                />
+            )}
         </>
     );
 }

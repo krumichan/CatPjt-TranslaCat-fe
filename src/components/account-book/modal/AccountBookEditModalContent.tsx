@@ -11,7 +11,6 @@ import {formatNumberWithComma, onlyDigits} from "@/utils/number/formatNumberInpu
 type AccountBookEditModalContentProps = {
     accountBook: AccountBook;
     categoryOptions: string[];
-    isMonthlyGoalLoading: boolean;
     onClose: () => void;
     onSubmit: (
         accountBookId: number,
@@ -22,7 +21,6 @@ type AccountBookEditModalContentProps = {
 export function AccountBookEditModalContent({
     accountBook,
     categoryOptions,
-    isMonthlyGoalLoading,
     onClose,
     onSubmit,
 }: AccountBookEditModalContentProps) {
@@ -38,7 +36,7 @@ export function AccountBookEditModalContent({
     const [newCategoryName, setNewCategoryName] = useState("");
 
     const [expenseGoalAmount, setExpenseGoalAmount] = useState(
-        accountBook.expenseGoalAmount
+        accountBook.expenseGoalAmount != null
             ? String(accountBook.expenseGoalAmount)
             : ""
     );
@@ -188,7 +186,7 @@ export function AccountBookEditModalContent({
 
                         <button
                             type="submit"
-                            disabled={isSubmitDisabled || isMonthlyGoalLoading}
+                            disabled={isSubmitDisabled}
                             aria-busy={isSubmitting}
                             className="rounded-xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white shadow-[0_10px_20px_rgba(249,115,22,0.28)] transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none dark:disabled:bg-slate-700"
                         >

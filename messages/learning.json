@@ -70,6 +70,13 @@
     "actions": {
       "create": "新規家計簿を作成"
     },
+    "deleteConfirmModal": {
+      "title": "家計簿を削除しますか？",
+      "description": "「{name}」の家計簿を削除します。削除後は一覧に表示されなくなります。",
+      "cancel": "キャンセル",
+      "confirm": "削除",
+      "deleting": "削除中..."
+    },
     "editModal": {
       "eyebrow": "Edit Account Book",
       "title": "家計簿の修正",
@@ -103,7 +110,8 @@
       "createFailed": "家計簿の登録に失敗しました。",
       "updateFailed": "家計簿の修正に失敗しました。",
       "deleteConfirm": "この家計簿を削除しますか？",
-      "deleteFailed": "家計簿の削除に失敗しました。"
+      "deleteFailed": "家計簿の削除に失敗しました。",
+      "loadMonthlyGoalFailed": "今月の目標金額の取得に失敗しました。"
     },
     "search": {
       "placeholder": "家計簿名または説明で検索",
@@ -120,7 +128,8 @@
       "transactions": "取引",
       "transactionCount": "{count}件",
       "deleteAria": "{name}を削除",
-      "editAria": "{name}を修正"
+      "editAria": "{name}を修正",
+      "manageMembersAria": "{name}のメンバー管理"
     },
     "empty": {
       "title": "検索結果がありません。",
@@ -152,6 +161,49 @@
         "cancel": "キャンセル",
         "submit": "登録",
         "submitting": "登録中..."
+      }
+    },
+
+    "memberModal": {
+      "eyebrow": "Members",
+      "title": "メンバー管理",
+      "description": "家計簿を一緒に利用するメンバーを管理します。",
+      "descriptionWithName": "「{name}」の家計簿を一緒に利用するメンバーを管理します。",
+      "fields": {
+        "publicId": "Public ID"
+      },
+      "placeholders": {
+        "publicId": "例：TC-H6VR-9KQD"
+      },
+      "helps": {
+        "publicId": "追加するユーザーのPublic IDを入力してください。"
+      },
+      "roles": {
+        "OWNER": "オーナー",
+        "MEMBER": "メンバー"
+      },
+      "memberList": {
+        "title": "現在のメンバー",
+        "count": "{count}人",
+        "empty": "登録されているメンバーはいません。"
+      },
+      "actions": {
+        "close": "閉じる",
+        "invite": "追加",
+        "inviting": "追加中...",
+        "removeMemberAria": "{name}をメンバーから削除"
+      },
+      "messages": {
+        "loading": "メンバーを読み込み中です。",
+        "loadFailed": "メンバー一覧の取得に失敗しました。",
+        "inviteFailed": "メンバーの追加に失敗しました。",
+        "removeFailed": "メンバーの削除に失敗しました。"
+      },
+      "removeConfirm": {
+        "title": "メンバーを削除しますか？",
+        "description": "「{name}」をこの家計簿のメンバーから削除します。",
+        "cancel": "キャンセル",
+        "confirm": "削除"
       }
     },
     "detail": {
@@ -347,7 +399,8 @@
       "header": {
         "backToList": "家計簿一覧へ",
         "eyebrow": "Account Book Detail",
-        "createTransaction": "取引を登録"
+        "createTransaction": "取引を登録",
+        "manageMembers": "メンバー管理"
       },
       "chart": {
         "categoryExpenseTitle": "カテゴリ別支出",

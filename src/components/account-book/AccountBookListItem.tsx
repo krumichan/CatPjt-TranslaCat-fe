@@ -1,45 +1,111 @@
 import Link from "next/link";
-import { ChevronRight, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { AccountBook } from "@/types/accountBook";
 import { formatAmount } from "@/utils/account-book/formatAmount";
-import {canDeleteAccountBook, canEditAccountBook} from "@/utils/account-book/accountBookPermission";
+import {
+    canDeleteAccountBook,
+    canEditAccountBook,
+    canManageAccountBookMembers,
+} from "@/utils/account-book/accountBookPermission";
 
 type AccountBookListItemProps = {
     accountBook: AccountBook;
-    onEdit: (accountBook: AccountBook) => void;
-    onDelete: (accountBookId: number) => void;
+    onEdit: (accountBook: AccountBook) => void | Promise<void>;
+    onDelete: (accountBook: AccountBook) => void;
+    onManageMembers: (accountBook: AccountBook) => void;
 };
 
 export default function AccountBookListItem({
     accountBook,
     onEdit,
     onDelete,
+    onManageMembers,
 }: AccountBookListItemProps) {
     const t = useTranslations("AccountBook.item");
 
     const canEdit = canEditAccountBook(accountBook);
     const canDelete = canDeleteAccountBook(accountBook);
+    const canManageMembers = canManageAccountBookMembers(accountBook);
+
+    const hasActions = canManageMembers || canEdit || canDelete;
 
     return (
-        <article className="group flex items-stretch justify-between rounded-2xl border border-slate-200 bg-slate-50/90 p-4 transition hover:-translate-y-0.5 hover:border-orange-300 hover:bg-orange-50/80 hover:shadow-md dark:border-white/10 dark:bg-white/3 dark:hover:border-orange-400/60 dark:hover:bg-orange-500/10">
+        <article className="group relative rounded-2xl border border-slate-200 bg-slate-50/90 p-4 transition hover:-translate-y-0.5 hover:border-orange-300 hover:bg-orange-50/80 hover:shadow-md dark:border-white/10 dark:bg-white/3 dark:hover:border-orange-400/60 dark:hover:bg-orange-500/10">
+            {hasActions && (
+                <div className="absolute right-3 top-3 z-10 flex items-center gap-1 rounded-xl bg-slate-100/70 p-1 backdrop-blur-sm dark:bg-white/5">
+                    {canManageMembers && (
+                        <button
+                            type="button"
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                onManageMembers(accountBook);
+                            }}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-white hover:text-orange-500 dark:text-slate-500 dark:hover:bg-white/10 dark:hover:text-orange-300"
+                            aria-label={t("manageMembersAria", {
+                                name: accountBook.name,
+                            })}
+                            title={t("manageMembersAria", {
+                                name: accountBook.name,
+                            })}
+                        >
+                            <Users className="h-4 w-4" />
+                        </button>
+                    )}
+
+                    {canEdit && (
+                        <button
+                            type="button"
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                void onEdit(accountBook);
+                            }}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-white hover:text-orange-500 dark:text-slate-500 dark:hover:bg-white/10 dark:hover:text-orange-300"
+                            aria-label={t("editAria", {
+                                name: accountBook.name,
+                            })}
+                            title={t("editAria", {
+                                name: accountBook.name,
+                            })}
+                        >
+                            <Pencil className="h-4 w-4" />
+                        </button>
+                    )}
+
+                    {canDelete && (
+                        <button
+                            type="button"
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                onDelete(accountBook);
+                            }}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-500 ring-1 ring-red-100 transition hover:bg-red-100 hover:text-red-600 dark:bg-red-500/10 dark:text-red-300 dark:ring-red-500/20 dark:hover:bg-red-500/20"
+                            aria-label={t("deleteAria", {
+                                name: accountBook.name,
+                            })}
+                            title={t("deleteAria", {
+                                name: accountBook.name,
+                            })}
+                        >
+                            <Trash2 className="h-4 w-4" />
+                        </button>
+                    )}
+                </div>
+            )}
+
             <Link
                 href={`/account-books/${accountBook.id}`}
-                className="min-w-0 flex-1"
+                className="block min-w-0 cursor-pointer"
             >
-                <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                        <h3 className="truncate text-lg font-black text-slate-900 dark:text-white">
-                            {accountBook.name}
-                        </h3>
-                        <p className="mt-1 text-xs font-semibold text-orange-500">
-                            {accountBook.currencySymbol
-                                ? `${accountBook.currencyCode} ${accountBook.currencySymbol}`
-                                : accountBook.currencyCode}
-                        </p>
-                    </div>
-
-                    <ChevronRight className="mt-1 h-5 w-5 shrink-0 text-slate-300 transition group-hover:text-orange-400" />
+                <div className={hasActions ? "pr-28" : undefined}>
+                    <h3 className="truncate text-lg font-black text-slate-900 dark:text-white">
+                        {accountBook.name}
+                    </h3>
+                    <p className="mt-1 text-xs font-semibold text-orange-500">
+                        {accountBook.currencySymbol
+                            ? `${accountBook.currencyCode} ${accountBook.currencySymbol}`
+                            : accountBook.currencyCode}
+                    </p>
                 </div>
 
                 {accountBook.description && (
@@ -89,40 +155,6 @@ export default function AccountBookListItem({
                     </div>
                 </div>
             </Link>
-
-            {(canEdit || canDelete) && (
-                <div className="ml-3 flex shrink-0 items-center gap-2">
-                    {canEdit && (
-                        <button
-                            type="button"
-                            onClick={(event) => {
-                                event.preventDefault();
-                                event.stopPropagation();
-                                onEdit(accountBook);
-                            }}
-                            className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-slate-400 transition hover:bg-orange-50 hover:text-orange-500 dark:hover:bg-orange-500/10"
-                            aria-label={t("editAria", { name: accountBook.name })}
-                        >
-                            <Pencil className="h-4 w-4" />
-                        </button>
-                    )}
-
-                    {canDelete && (
-                        <button
-                            type="button"
-                            onClick={(event) => {
-                                event.preventDefault();
-                                event.stopPropagation();
-                                onDelete(accountBook.id);
-                            }}
-                            className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-slate-400 transition hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
-                            aria-label={t("deleteAria", { name: accountBook.name })}
-                        >
-                            <Trash2 className="h-4 w-4" />
-                        </button>
-                    )}
-                </div>
-            )}
         </article>
     );
 }

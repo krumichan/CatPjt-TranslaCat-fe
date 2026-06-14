@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { CurrencyCode } from "@/types/accountBook";
 
@@ -13,11 +13,15 @@ type AccountBookDetailHeaderData = {
 type AccountBookDetailHeaderProps = {
     accountBook: AccountBookDetailHeaderData;
     onClickCreateTransaction: () => void;
+    canManageMembers?: boolean;
+    onClickManageMembers?: () => void;
 };
 
 export default function AccountBookDetailHeader({
     accountBook,
     onClickCreateTransaction,
+    canManageMembers = false,
+    onClickManageMembers,
 }: AccountBookDetailHeaderProps) {
     const t = useTranslations("AccountBook.detail.header");
 
@@ -54,14 +58,31 @@ export default function AccountBookDetailHeader({
                     )}
                 </div>
 
-                <button
-                    type="button"
-                    onClick={onClickCreateTransaction}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-[0_10px_20px_rgba(249,115,22,0.28)] transition hover:bg-orange-600 hover:shadow-[0_14px_28px_rgba(249,115,22,0.34)]"
-                >
-                    <Plus size={18} />
-                    {t("createTransaction")}
-                </button>
+                <div className="flex w-full items-center gap-2 md:w-auto md:justify-end">
+                    <button
+                        type="button"
+                        onClick={onClickCreateTransaction}
+                        className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 text-sm font-semibold text-white shadow-[0_10px_20px_rgba(249,115,22,0.28)] transition hover:bg-orange-600 hover:shadow-[0_14px_28px_rgba(249,115,22,0.34)] md:flex-none"
+                    >
+                        <Plus className="h-4 w-4" />
+                        {t("createTransaction")}
+                    </button>
+
+                    {canManageMembers && onClickManageMembers && (
+                        <button
+                            type="button"
+                            onClick={onClickManageMembers}
+                            className="inline-flex h-11 w-11 items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 text-white/80 backdrop-blur transition hover:border-orange-300/60 hover:bg-orange-500/15 hover:text-orange-200 md:w-auto md:px-4 dark:border-white/10 dark:bg-white/5"
+                            aria-label={t("manageMembers")}
+                            title={t("manageMembers")}
+                        >
+                            <Users className="h-4 w-4" />
+                            <span className="hidden md:inline">
+                                {t("manageMembers")}
+                            </span>
+                        </button>
+                    )}
+                </div>
             </div>
         </div>
     );

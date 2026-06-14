@@ -1,10 +1,10 @@
 "use client";
 
 import {
-    Cell,
     Pie,
     PieChart,
     ResponsiveContainer,
+    Sector,
     Tooltip,
 } from "recharts";
 import { useTranslations } from "next-intl";
@@ -182,14 +182,17 @@ export default function ExpenseRankingChart({
                                 paddingAngle={3}
                                 cornerRadius={6}
                                 stroke="none"
-                            >
-                                {chartItems.map((item) => (
-                                    <Cell
-                                        key={item.name}
-                                        fill={item.color}
-                                    />
-                                ))}
-                            </Pie>
+                                shape={(props) => {
+                                    const payload = props.payload as PieChartItem | undefined;
+
+                                    return (
+                                        <Sector
+                                            {...props}
+                                            fill={payload?.color ?? PIE_COLORS[0]}
+                                        />
+                                    );
+                                }}
+                            />
                         </PieChart>
                     </ResponsiveContainer>
 

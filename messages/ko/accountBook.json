@@ -1,68 +1,4 @@
 {
-  "Common": {
-    "noData": "데이터가 존재하지 않습니다.",
-    "confirmModal": {
-      "close": "확인 모달 닫기",
-      "cancel": "취소",
-      "confirm": "확인",
-      "processing": "처리 중..."
-    }
-  },
-  "Login": {
-    "title": "로그인",
-    "googleButton": "Continue with Google",
-    "loading": "잠시만 기다려주세요...",
-    "description": "언어의 벽을 넘는 가장 귀여운 방법"
-  },
-  "Navigation": {
-    "home": "홈",
-    "platform": "웹소설",
-    "voice": "음성 번역",
-    "accountBook": "가계부",
-    "settings": "설정",
-    "login": "로그인",
-    "logout": "로그아웃",
-    "welcome": "님, 환영합니다!"
-  },
-  "ServiceSelect": {
-    "accountBookDesc": "카테고리별로 가계부를 관리하고 지출과 수입 내역을 기록합니다.",
-    "accountBookTitle": "가계부",
-    "description": "원하시는 번역 방식을 선택해 주세요.",
-    "novelDesc": "웹소설 플랫폼별 실시간 번역 및 뷰어",
-    "novelTitle": "웹소설 번역",
-    "start": "시작하기",
-    "title": "TranslaCat",
-    "voiceDesc": "마이크 및 시스템 오디오 실시간 음성 번역",
-    "voiceTitle": "실시간 음성 번역"
-  },
-  "Voice": {
-    "title": "실시간 음성 번역",
-    "micMode": "마이크 번역",
-    "systemMode": "시스템 번역",
-    "startListening": "음성 인식 시작",
-    "stopListening": "인식 중단",
-    "original": "일본어 (원문)",
-    "translated": "한국어 (번역)",
-    "errorSupported": "이 브라우저는 음성 인식을 지원하지 않습니다.",
-    "description": "일본어로 말하면 실시간으로 한국어 번역과 함께 텍스트가 표시됩니다.",
-    "micDescription": "사용자의 마이크 소리를 듣고 실시간으로 한국어로 번역합니다. 발음 연습이나 대화에 최적화되어 있습니다.",
-    "systemDescription": "유튜브나 화상 회의 등, PC에서 흘러나오는 소리를 캐치하여 한국어로 번역합니다. 영상 시청이나 회의에 편리합니다.",
-    "waiting": "음성을 기다리는 중...",
-    "idle": "버튼을 눌러 시작해 주세요",
-    "emptyHistory": "번역된 문장들이 여기에 쌓여 하나의 이야기가 됩니다."
-  },
-  "Platform": {
-    "title": "플랫폼 선택",
-    "subTitle": "번역할 플랫폼을 선택해주세요.",
-    "searchPlaceholder": "검색 키워드를 입력해주세요.",
-    "search": "검색",
-    "searchSuffix": "에서 검색",
-    "genreTitle": "장르별 보기",
-    "backToTop": "플랫폼 다시 선택하기"
-  },
-  "Ranking": {
-    "title": "장르별 랭킹"
-  },
   "AccountBook": {
     "eyebrow": "Account Book",
     "title": "가계부",
@@ -552,6 +488,10 @@
         "badges": {
           "fixedCost": "고정비"
         },
+        "memo": {
+          "expand": "더보기",
+          "collapse": "접기"
+        },
         "view": {
           "card": "카드",
           "table": "표"
@@ -573,7 +513,9 @@
         "actions": {
           "edit": "수정",
           "delete": "삭제",
-          "close": "닫기"
+          "close": "닫기",
+          "editAria": "거래 수정",
+          "deleteAria": "거래 삭제"
         },
         "empty": {
           "title": "거래 내역이 없습니다.",
@@ -594,105 +536,6 @@
       "pagination": {
         "previous": "이전",
         "next": "다음"
-      }
-    }
-  },
-  "Settings": {
-    "common": {
-      "back": "뒤로가기"
-    },
-    "eyebrow": "Settings",
-    "title": "설정",
-    "description": "TranslaCat에서 제공하는 여러 서비스의 설정을 한 곳에서 관리합니다.",
-    "badges": {
-      "admin": "관리자"
-    },
-    "status": {
-      "available": "사용 가능",
-      "preparing": "준비 중",
-      "future": "예정"
-    },
-    "general": {
-      "title": "일반 설정",
-      "description": "언어, 테마, 프로필, 알림 등 계정 공통 설정을 관리합니다."
-    },
-    "voiceTranslation": {
-      "title": "음성 번역 설정",
-      "description": "음성 인식, 번역 대상 언어, 자동 저장 옵션 등을 관리합니다."
-    },
-    "novel": {
-      "title": "소설 설정",
-      "description": "소설 번역, 최근 본 작품, 기본 표시 옵션을 관리합니다."
-    },
-    "chat": {
-      "title": "채팅 설정",
-      "description": "채팅방, 연결 서비스, 알림 관련 설정을 관리합니다."
-    },
-    "accountBook": {
-      "title": "가계부 설정",
-      "description": "기본 통화, 기본 카테고리, 월별 목표 표시 방식을 관리합니다."
-    },
-    "currency": {
-      "title": "통화 관리",
-      "description": "가계부에서 사용할 통화 코드, 심볼, 소수점 자릿수, 기본 통화를 관리합니다."
-    },
-    "admin": {
-      "title": "관리자 설정",
-      "description": "서비스 활성화, 허용 유저, 시스템 마스터 데이터를 관리합니다."
-    },
-    "aiVoice": {
-      "title": "AI 음성 읽기 설정",
-      "description": "향후 제공 예정인 AI 음성 읽기 서비스의 기본 옵션을 관리합니다."
-    },
-    "currencyPage": {
-      "eyebrow": "Admin Settings",
-      "title": "통화 관리",
-      "description": "가계부에서 사용할 통화 정보를 등록하고, 기본 통화와 사용 여부를 관리합니다.",
-      "messages": {
-        "loading": "통화 목록을 불러오는 중...",
-        "loadFailed": "통화 목록을 불러오지 못했습니다.",
-        "createFailed": "통화 등록에 실패했습니다.",
-        "updateFailed": "통화 정보 변경에 실패했습니다.",
-        "disabledBaseCurrency": "비활성화된 통화는 기본 통화로 설정할 수 없습니다.",
-        "forbidden": "관리자만 접근할 수 있는 페이지입니다."
-      },
-      "form": {
-        "title": "신규 통화 등록",
-        "description": "ISO 통화 코드 기준으로 등록하는 것을 권장합니다.",
-        "fields": {
-          "code": "통화 코드",
-          "name": "통화명",
-          "symbol": "심볼",
-          "decimalPlaces": "소수점 자릿수",
-          "baseCurrency": "기본 통화로 설정"
-        },
-        "placeholders": {
-          "code": "예: USD",
-          "name": "예: US Dollar",
-          "symbol": "예: $"
-        },
-        "actions": {
-          "submit": "등록",
-          "submitting": "등록 중..."
-        }
-      },
-      "list": {
-        "title": "통화 목록",
-        "count": "총 {count}개",
-        "searchPlaceholder": "코드, 이름, 심볼로 검색",
-        "headers": {
-          "code": "코드",
-          "name": "이름",
-          "symbol": "심볼",
-          "base": "기본 통화",
-          "status": "상태"
-        },
-        "decimalPlaces": "소수점 {count}자리",
-        "base": "기본",
-        "setBase": "기본 설정",
-        "enabled": "사용 중",
-        "disabled": "비활성",
-        "empty": "검색 결과가 없습니다."
       }
     }
   }

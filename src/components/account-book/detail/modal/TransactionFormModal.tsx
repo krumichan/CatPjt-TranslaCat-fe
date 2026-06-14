@@ -382,7 +382,7 @@ export default function TransactionFormModal({
                                         ? "bg-red-500 text-white shadow-[0_10px_20px_rgba(239,68,68,0.25)]"
                                         : "border border-slate-200 bg-slate-50 text-slate-500 hover:border-red-300 hover:bg-red-50 dark:border-white/10 dark:bg-black/30 dark:text-slate-300"
                                 }`}
-                            >
+                            >`
                                 {t("type.expense")}
                             </button>
 

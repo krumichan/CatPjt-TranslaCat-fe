@@ -2,12 +2,12 @@ import { createPortal } from "react-dom";
 import { Pencil, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
-    AccountBookMonthlyGoalListItem,
     CurrencyCode,
 } from "@/types/accountBook";
 import { accountBookMonthlyGoalService } from "@/services/account-book/accountBookMonthlyGoalService";
 import { formatAmount } from "@/utils/account-book/formatAmount";
 import {useQuery} from "@/hooks/useQuery";
+import {accountBookDetailQueryKeys} from "@/hooks/account-book/detail/accountBookDetailQueryKeys";
 
 type ExpenseGoalListModalProps = {
     accountBookId: number;
@@ -38,11 +38,8 @@ export default function ExpenseGoalListModal({
         data: monthlyGoals = [],
         isLoading,
         isError,
-    } = useQuery<
-        AccountBookMonthlyGoalListItem[],
-        readonly ["account-book-monthly-goal-list", number]
-    >({
-        keys: ["account-book-monthly-goal-list", accountBookId] as const,
+    } = useQuery({
+        keys: accountBookDetailQueryKeys.monthlyGoalList(accountBookId),
         fetcher: (_, id) => accountBookMonthlyGoalService.listMonthlyGoals(id),
         config: {
             revalidateOnMount: true,

@@ -1,0 +1,13 @@
+{
+  "ServiceSelect": {
+    "accountBookDesc": "카테고리별로 가계부를 관리하고 지출과 수입 내역을 기록합니다.",
+    "accountBookTitle": "가계부",
+    "description": "원하시는 번역 방식을 선택해 주세요.",
+    "novelDesc": "웹소설 플랫폼별 실시간 번역 및 뷰어",
+    "novelTitle": "웹소설 번역",
+    "start": "시작하기",
+    "title": "TranslaCat",
+    "voiceDesc": "마이크 및 시스템 오디오 실시간 음성 번역",
+    "voiceTitle": "실시간 음성 번역"
+  }
+}

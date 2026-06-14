@@ -1,0 +1,11 @@
+{
+  "Common": {
+    "noData": "データが存在しません。",
+    "confirmModal": {
+      "close": "確認モーダルを閉じる",
+      "cancel": "キャンセル",
+      "confirm": "確認",
+      "processing": "処理中..."
+    }
+  }
+}

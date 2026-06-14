@@ -1,8 +1,6 @@
 import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { TransactionType } from "@/types/accountBook";
-
-export type TransactionFilterType = "ALL" | TransactionType;
+import {TransactionFilterType} from "@/types/accountBook";
 
 type MonthOption = {
     value: string;

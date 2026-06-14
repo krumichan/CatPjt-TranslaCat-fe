@@ -1,46 +1,55 @@
-import useSWR, {SWRConfiguration} from "swr";
+import useSWR, { Key, SWRConfiguration } from "swr";
 
-interface UseQueryProps<T, P extends readonly unknown[]> {
-    keys: P | undefined | null;
-    fetcher: (...args: [...P]) => Promise<T>;
-    config?: SWRConfiguration;
+export type UseQueryMutate<T> = (
+    data?: T | ((currentData: T | undefined) => T | undefined),
+    shouldRevalidate?: boolean
+) => Promise<T | undefined>;
+
+type MutableTuple<T extends readonly unknown[]> = {
+    -readonly [K in keyof T]: T[K];
+};
+
+interface UseQueryProps<TData, TKeys extends readonly unknown[]> {
+    keys: TKeys | undefined | null;
+    fetcher: (...args: MutableTuple<TKeys>) => Promise<TData>;
+    config?: SWRConfiguration<TData>;
     enabled?: boolean;
 }
 
-export function useQuery<T, P  extends readonly unknown[]>({
+export function useQuery<TData, const TKeys extends readonly unknown[]>({
     keys,
     fetcher,
     config,
-    enabled = true
-}: UseQueryProps<T, P>) {
-
-    // 1. 유효성 검사 (P가 배열이므로 every 사용 가능)
+    enabled = true,
+}: UseQueryProps<TData, TKeys>) {
     const isValid =
         !!keys &&
         enabled &&
         keys.every((key) => key !== undefined && key !== null);
 
-    const swrKey = isValid ? keys : null;
+    const swrKey: Key = isValid ? keys : null;
 
-    const { data, error, isLoading, mutate: swrMutate } = useSWR<T>(
+    const { data, error, isLoading, mutate: swrMutate } = useSWR<TData>(
         swrKey,
-        // 2. keys가 유효할 때만 실행됨을 보장
         () => {
-            if (!keys) throw new Error("Keys are required");
-            return fetcher(...(keys as unknown as P));
+            if (!keys) {
+                throw new Error("Keys are required");
+            }
+
+            return fetcher(...(keys as unknown as MutableTuple<TKeys>));
         },
         {
             revalidateIfStale: false,
             revalidateOnFocus: false,
             shouldRetryOnError: true,
             errorRetryCount: 3,
-            ...config
+            ...config,
         }
     );
 
-    const mutate = async (
-        data?: T | ((currentData: T | undefined) => T | undefined),
-        shouldRevalidate: boolean = true // 기본값은 서버 재요청
+    const mutate: UseQueryMutate<TData> = async (
+        data,
+        shouldRevalidate = true
     ) => {
         return await swrMutate(data, {
             revalidate: shouldRevalidate,
@@ -52,6 +61,6 @@ export function useQuery<T, P  extends readonly unknown[]>({
         data,
         isLoading,
         isError: error,
-        mutate
+        mutate,
     };
 }

@@ -1,0 +1,11 @@
+{
+  "Platform": {
+    "title": "플랫폼 선택",
+    "subTitle": "번역할 플랫폼을 선택해주세요.",
+    "searchPlaceholder": "검색 키워드를 입력해주세요.",
+    "search": "검색",
+    "searchSuffix": "에서 검색",
+    "genreTitle": "장르별 보기",
+    "backToTop": "플랫폼 다시 선택하기"
+  }
+}

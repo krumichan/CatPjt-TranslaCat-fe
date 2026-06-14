@@ -4,6 +4,7 @@ export type AccountBookMemberRole = "OWNER" | "MEMBER";
 export type AccountBookTransactionSourceType = "FIXED_COST";
 export type CurrencyCode = string;
 export type TransactionType = "INCOME" | "EXPENSE";
+export type TransactionFilterType = "ALL" | TransactionType;
 
 export type AccountBook = {
     id: number;
@@ -135,7 +136,6 @@ export type CreateAccountBookRequest = {
     description?: string;
     category: string;
     currencyCode: CurrencyCode;
-    expenseGoalAmount?: number | null;
 };
 
 export type AccountBookMonthlyChartItem = {
@@ -298,19 +298,6 @@ export type CreateTransactionFormValues = {
     memo?: string;
 };
 
-export type MonthlyAnalyticsItem = {
-    month: string;
-    incomeAmount: number;
-    expenseAmount: number;
-    budgetAmount: number | null;
-    balanceAmount: number;
-};
-
-export type MonthlyExpenseChartProps = {
-    data: MonthlyAnalyticsItem[];
-    currencyCode: CurrencyCode;
-};
-
 export type ReceiptAnalysisResult = {
     title?: string;
     storeName?: string;
@@ -320,5 +307,3 @@ export type ReceiptAnalysisResult = {
     memo?: string;
     confidence?: number;
 };
-
-export type UpdateTransactionFormValues = CreateTransactionFormValues;

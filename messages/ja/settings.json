@@ -1,0 +1,101 @@
+{
+  "Settings": {
+    "common": {
+      "back": "戻る"
+    },
+    "eyebrow": "Settings",
+    "title": "設定",
+    "description": "TranslaCatで提供する各サービスの設定を一か所で管理します。",
+    "badges": {
+      "admin": "管理者"
+    },
+    "status": {
+      "available": "利用可能",
+      "preparing": "準備中",
+      "future": "予定"
+    },
+    "general": {
+      "title": "一般設定",
+      "description": "言語、テーマ、プロフィール、通知などの共通設定を管理します。"
+    },
+    "voiceTranslation": {
+      "title": "音声翻訳設定",
+      "description": "音声認識、翻訳先言語、自動保存オプションなどを管理します。"
+    },
+    "novel": {
+      "title": "小説設定",
+      "description": "小説翻訳、最近見た作品、基本表示オプションを管理します。"
+    },
+    "chat": {
+      "title": "チャット設定",
+      "description": "チャットルーム、連携サービス、通知関連の設定を管理します。"
+    },
+    "accountBook": {
+      "title": "家計簿設定",
+      "description": "基本通貨、基本カテゴリ、月間目標の表示方式を管理します。"
+    },
+    "currency": {
+      "title": "通貨管理",
+      "description": "家計簿で使用する通貨コード、シンボル、小数点桁数、基本通貨を管理します。"
+    },
+    "admin": {
+      "title": "管理者設定",
+      "description": "サービス有効化、許可ユーザー、システムマスターデータを管理します。"
+    },
+    "aiVoice": {
+      "title": "AI音声読み上げ設定",
+      "description": "今後提供予定のAI音声読み上げサービスの基本オプションを管理します。"
+    },
+    "currencyPage": {
+      "eyebrow": "Admin Settings",
+      "title": "通貨管理",
+      "description": "家計簿で使用する通貨情報を登録し、基本通貨と利用状態を管理します。",
+      "messages": {
+        "loading": "通貨一覧を読み込み中...",
+        "loadFailed": "通貨一覧の取得に失敗しました。",
+        "createFailed": "通貨の登録に失敗しました。",
+        "updateFailed": "通貨情報の変更に失敗しました。",
+        "disabledBaseCurrency": "無効化された通貨は基本通貨に設定できません。",
+        "forbidden": "管理者のみアクセスできるページです。"
+      },
+      "form": {
+        "title": "新規通貨登録",
+        "description": "ISO通貨コードを基準に登録することをおすすめします。",
+        "fields": {
+          "code": "通貨コード",
+          "name": "通貨名",
+          "symbol": "シンボル",
+          "decimalPlaces": "小数点桁数",
+          "baseCurrency": "基本通貨に設定"
+        },
+        "placeholders": {
+          "code": "例: USD",
+          "name": "例: US Dollar",
+          "symbol": "例: $"
+        },
+        "actions": {
+          "submit": "登録",
+          "submitting": "登録中..."
+        }
+      },
+      "list": {
+        "title": "通貨一覧",
+        "count": "合計 {count}件",
+        "searchPlaceholder": "コード、名前、シンボルで検索",
+        "headers": {
+          "code": "コード",
+          "name": "名前",
+          "symbol": "シンボル",
+          "base": "基本通貨",
+          "status": "状態"
+        },
+        "decimalPlaces": "小数点 {count} 桁",
+        "base": "基本",
+        "setBase": "基本に設定",
+        "enabled": "利用中",
+        "disabled": "無効",
+        "empty": "検索結果がありません。"
+      }
+    }
+  }
+}

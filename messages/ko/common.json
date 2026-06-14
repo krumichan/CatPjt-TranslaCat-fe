@@ -1,0 +1,11 @@
+{
+  "Common": {
+    "noData": "데이터가 존재하지 않습니다.",
+    "confirmModal": {
+      "close": "확인 모달 닫기",
+      "cancel": "취소",
+      "confirm": "확인",
+      "processing": "처리 중..."
+    }
+  }
+}

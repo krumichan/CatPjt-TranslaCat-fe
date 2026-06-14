@@ -1,0 +1,101 @@
+{
+  "Settings": {
+    "common": {
+      "back": "뒤로가기"
+    },
+    "eyebrow": "Settings",
+    "title": "설정",
+    "description": "TranslaCat에서 제공하는 여러 서비스의 설정을 한 곳에서 관리합니다.",
+    "badges": {
+      "admin": "관리자"
+    },
+    "status": {
+      "available": "사용 가능",
+      "preparing": "준비 중",
+      "future": "예정"
+    },
+    "general": {
+      "title": "일반 설정",
+      "description": "언어, 테마, 프로필, 알림 등 계정 공통 설정을 관리합니다."
+    },
+    "voiceTranslation": {
+      "title": "음성 번역 설정",
+      "description": "음성 인식, 번역 대상 언어, 자동 저장 옵션 등을 관리합니다."
+    },
+    "novel": {
+      "title": "소설 설정",
+      "description": "소설 번역, 최근 본 작품, 기본 표시 옵션을 관리합니다."
+    },
+    "chat": {
+      "title": "채팅 설정",
+      "description": "채팅방, 연결 서비스, 알림 관련 설정을 관리합니다."
+    },
+    "accountBook": {
+      "title": "가계부 설정",
+      "description": "기본 통화, 기본 카테고리, 월별 목표 표시 방식을 관리합니다."
+    },
+    "currency": {
+      "title": "통화 관리",
+      "description": "가계부에서 사용할 통화 코드, 심볼, 소수점 자릿수, 기본 통화를 관리합니다."
+    },
+    "admin": {
+      "title": "관리자 설정",
+      "description": "서비스 활성화, 허용 유저, 시스템 마스터 데이터를 관리합니다."
+    },
+    "aiVoice": {
+      "title": "AI 음성 읽기 설정",
+      "description": "향후 제공 예정인 AI 음성 읽기 서비스의 기본 옵션을 관리합니다."
+    },
+    "currencyPage": {
+      "eyebrow": "Admin Settings",
+      "title": "통화 관리",
+      "description": "가계부에서 사용할 통화 정보를 등록하고, 기본 통화와 사용 여부를 관리합니다.",
+      "messages": {
+        "loading": "통화 목록을 불러오는 중...",
+        "loadFailed": "통화 목록을 불러오지 못했습니다.",
+        "createFailed": "통화 등록에 실패했습니다.",
+        "updateFailed": "통화 정보 변경에 실패했습니다.",
+        "disabledBaseCurrency": "비활성화된 통화는 기본 통화로 설정할 수 없습니다.",
+        "forbidden": "관리자만 접근할 수 있는 페이지입니다."
+      },
+      "form": {
+        "title": "신규 통화 등록",
+        "description": "ISO 통화 코드 기준으로 등록하는 것을 권장합니다.",
+        "fields": {
+          "code": "통화 코드",
+          "name": "통화명",
+          "symbol": "심볼",
+          "decimalPlaces": "소수점 자릿수",
+          "baseCurrency": "기본 통화로 설정"
+        },
+        "placeholders": {
+          "code": "예: USD",
+          "name": "예: US Dollar",
+          "symbol": "예: $"
+        },
+        "actions": {
+          "submit": "등록",
+          "submitting": "등록 중..."
+        }
+      },
+      "list": {
+        "title": "통화 목록",
+        "count": "총 {count}개",
+        "searchPlaceholder": "코드, 이름, 심볼로 검색",
+        "headers": {
+          "code": "코드",
+          "name": "이름",
+          "symbol": "심볼",
+          "base": "기본 통화",
+          "status": "상태"
+        },
+        "decimalPlaces": "소수점 {count}자리",
+        "base": "기본",
+        "setBase": "기본 설정",
+        "enabled": "사용 중",
+        "disabled": "비활성",
+        "empty": "검색 결과가 없습니다."
+      }
+    }
+  }
+}

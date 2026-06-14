@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { BookPlus, Save, X, RotateCcw } from "lucide-react";
+import { BookPlus, Save, RotateCcw } from "lucide-react";
 import {dictionaryService} from "@/services/dictionaryService";
 
 interface DictRegistrationModalProps {

@@ -1,0 +1,11 @@
+{
+  "Platform": {
+    "title": "プラットフォーム選択",
+    "subTitle": "翻訳するプラットフォームを選択してください。",
+    "search": "検索",
+    "searchSuffix": "で検索",
+    "searchPlaceholder": "検索キーワードを入力してください。",
+    "genreTitle": "ジャンル別に見る。",
+    "backToTop": "プラットフォーム選択に戻る"
+  }
+}

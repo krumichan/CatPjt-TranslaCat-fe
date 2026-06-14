@@ -1,8 +1,16 @@
-import { useState } from "react";
-import { ArrowDownCircle, ArrowUpCircle, Pencil } from "lucide-react";
-import { AccountBookTransaction, CurrencyCode } from "@/types/accountBook";
+import {
+    ArrowDownCircle,
+    ArrowUpCircle,
+    Pencil,
+    Trash2,
+} from "lucide-react";
+import {
+    AccountBookTransaction,
+    CurrencyCode,
+} from "@/types/accountBook";
 import { formatAmount } from "@/utils/account-book/formatAmount";
-import {useTranslations} from "next-intl";
+import { useTranslations } from "next-intl";
+import TransactionMemoText from "@/components/account-book/detail/TransactionMemoText";
 
 type TransactionListItemProps = {
     transaction: AccountBookTransaction;
@@ -10,38 +18,6 @@ type TransactionListItemProps = {
     onClickEditTransaction?: (transaction: AccountBookTransaction) => void;
     onClickDeleteTransaction: (transaction: AccountBookTransaction) => void;
 };
-
-function TransactionMemoText({ memo }: { memo?: string | null }) {
-    const [isExpanded, setIsExpanded] = useState(false);
-
-    if (!memo) {
-        return null;
-    }
-
-    return (
-        <button
-            type="button"
-            onClick={() => setIsExpanded((prev) => !prev)}
-            className="mt-1 block w-full text-left text-xs text-slate-400 transition hover:text-orange-500 dark:text-slate-500 dark:hover:text-orange-400"
-        >
-            <span
-                className={
-                    isExpanded
-                        ? "block whitespace-pre-wrap wrap-break-word"
-                        : "block truncate"
-                }
-            >
-                {memo}
-            </span>
-
-            {memo.length > 30 && (
-                <span className="mt-1 block text-[11px] font-medium text-slate-400 dark:text-slate-500">
-                    {isExpanded ? "접기" : "더보기"}
-                </span>
-            )}
-        </button>
-    );
-}
 
 export default function TransactionListItem({
     transaction,
@@ -116,11 +92,20 @@ export default function TransactionListItem({
                         type="button"
                         onClick={() => onClickEditTransaction(transaction)}
                         className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-200 hover:text-orange-500 dark:hover:bg-white/10 dark:hover:text-orange-400"
-                        aria-label="거래 수정"
+                        aria-label={t("actions.editAria")}
                     >
                         <Pencil size={15} />
                     </button>
                 )}
+
+                <button
+                    type="button"
+                    onClick={() => onClickDeleteTransaction(transaction)}
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10 dark:hover:text-red-300"
+                    aria-label={t("actions.deleteAria")}
+                >
+                    <Trash2 size={15} />
+                </button>
             </div>
         </div>
     );

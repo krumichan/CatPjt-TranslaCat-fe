@@ -1,0 +1,12 @@
+{
+  "Navigation": {
+    "home": "ホーム",
+    "platform": "Web小説",
+    "voice": "音声翻訳",
+    "accountBook": "家計簿",
+    "settings": "設定",
+    "login": "ログイン",
+    "logout": "ログアウト",
+    "welcome": "様 ようこそ!"
+  }
+}

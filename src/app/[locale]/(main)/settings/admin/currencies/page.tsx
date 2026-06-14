@@ -6,7 +6,6 @@ import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { AdminCurrency } from "@/types/currency";
 import { adminCurrencyService } from "@/services/currency/adminCurrencyService";
-import SettingsBackButton from "@/components/settings/SettingsBackButton";
 import CurrencySettingsHeader from "@/components/settings/currency/CurrencySettingsHeader";
 import CurrencyCreateForm from "@/components/settings/currency/CurrencyCreateForm";
 import CurrencyListSection from "@/components/settings/currency/CurrencyListSection";

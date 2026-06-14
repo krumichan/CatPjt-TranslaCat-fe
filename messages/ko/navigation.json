@@ -1,0 +1,12 @@
+{
+  "Navigation": {
+    "home": "홈",
+    "platform": "웹소설",
+    "voice": "음성 번역",
+    "accountBook": "가계부",
+    "settings": "설정",
+    "login": "로그인",
+    "logout": "로그아웃",
+    "welcome": "님, 환영합니다!"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "ServiceSelect": {
+    "accountBookDesc": "カテゴリ別に家計簿を管理し、支出・収入の履歴を記録します。",
+    "accountBookTitle": "家計簿",
+    "description": "翻訳方式を選択してください。",
+    "novelDesc": "ウェブ小説の感動をそのままに、リアルタイム翻訳ビューアー",
+    "novelTitle": "Web小説翻訳",
+    "start": "始める",
+    "title": "TranslaCat",
+    "voiceDesc": "聞こえるまま、話すままに。リアルタイム音声翻訳",
+    "voiceTitle": "リアルタイム音声翻訳"
+  }
+}

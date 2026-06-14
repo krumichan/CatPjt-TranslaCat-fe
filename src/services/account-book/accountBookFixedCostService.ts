@@ -26,7 +26,7 @@ export const accountBookFixedCostService = {
         const data =
             (await response.json()) as ResponseDto<AccountBookFixedCost[]>;
 
-        return data.body;
+        return data.body ?? [];
     },
 
     async createFixedCost(

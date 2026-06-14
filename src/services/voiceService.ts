@@ -29,7 +29,7 @@ export const voiceService = {
 
         console.log("@@@@@@@@@@@@");
 // FormDataの中身をループで展開して確認する
-        for (let pair of body.entries()) {
+        for (const pair of body.entries()) {
             console.log(pair[0] + ': ', pair[1]);
         }
 

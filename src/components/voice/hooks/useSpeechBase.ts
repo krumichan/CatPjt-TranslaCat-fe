@@ -3,7 +3,7 @@ import {useCallback, useRef, useState} from "react";
 import {BasicSpeechProps, SpeechRecognition, SpeechRecognitionEvent} from "@/components/voice/types";
 import {TranslationUnit} from "@/types/common";
 
-export const useSpeechBase = ({ groupId, mounted }: BasicSpeechProps) => {
+export const useSpeechBase = ({ groupId, mounted: _mounted }: BasicSpeechProps) => {
     const [isListening, setIsListening] = useState(false);
     const [japaneseText, setJapaneseText] = useState("");
     const [units, setUnits] = useState<TranslationUnit[]>([]);

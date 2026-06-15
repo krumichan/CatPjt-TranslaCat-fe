@@ -1,20 +1,27 @@
 import { ImagePlus, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { ReceiptAnalysisMode } from "@/types/accountBook";
+import {selectClassName} from "@/components/account-book/detail/modal/transaction-form/constants";
+
 type ReceiptAnalysisPanelProps = {
     receiptFile: File | null;
+    receiptAnalysisMode: ReceiptAnalysisMode;
     receiptAnalysisMessage: string | null;
     isAnalyzingReceipt: boolean;
     canAnalyzeReceipt: boolean;
+    onAnalysisModeChange: (mode: ReceiptAnalysisMode) => void;
     onFileChange: (file: File | null) => void;
     onAnalyzeReceipt: () => void;
 };
 
 export default function ReceiptAnalysisPanel({
     receiptFile,
+    receiptAnalysisMode,
     receiptAnalysisMessage,
     isAnalyzingReceipt,
     canAnalyzeReceipt,
+    onAnalysisModeChange,
     onFileChange,
     onAnalyzeReceipt,
 }: ReceiptAnalysisPanelProps) {
@@ -30,6 +37,36 @@ export default function ReceiptAnalysisPanel({
             <p className="rounded-xl bg-orange-50 px-3 py-2 text-xs text-orange-700 dark:bg-orange-500/10 dark:text-orange-300">
                 {t("receipt.description")}
             </p>
+
+            <label className="mt-4 block">
+                <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                    {t("receipt.analysisMode")}
+                </span>
+
+                <select
+                    value={receiptAnalysisMode}
+                    disabled={isAnalyzingReceipt}
+                    onChange={(event) =>
+                        onAnalysisModeChange(
+                            event.target.value as ReceiptAnalysisMode,
+                        )
+                    }
+                    className={selectClassName}
+                >
+                    <option value="OCR_WITH_AI">
+                        {t("receipt.analysisModes.ocrWithAi")}
+                    </option>
+                    <option value="VISION_ONLY">
+                        {t("receipt.analysisModes.visionOnly")}
+                    </option>
+                    <option value="VISION_FIRST">
+                        {t("receipt.analysisModes.visionFirst")}
+                    </option>
+                    <option value="OCR_ONLY">
+                        {t("receipt.analysisModes.ocrOnly")}
+                    </option>
+                </select>
+            </label>
 
             <label className="mt-4 block">
                 <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
@@ -49,7 +86,11 @@ export default function ReceiptAnalysisPanel({
             {receiptFile && (
                 <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
                     {t("receipt.selectedFile", {
-                        filename: `${receiptFile.name} (${(receiptFile.size / 1024 / 1024).toFixed(2)} MB)`,
+                        filename: `${receiptFile.name} (${(
+                            receiptFile.size /
+                            1024 /
+                            1024
+                        ).toFixed(2)} MB)`,
                     })}
                 </p>
             )}

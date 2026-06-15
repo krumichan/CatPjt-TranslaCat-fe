@@ -5,6 +5,7 @@ import {
     AccountBookTransaction,
     CreateTransactionFormValues,
     CurrencyCode,
+    ReceiptAnalysisMode,
 } from "@/types/accountBook";
 
 export type TransactionFormMode = "CREATE" | "EDIT";
@@ -23,6 +24,7 @@ export type TransactionFormModalProps = {
         transactionId?: number
     ) => void | Promise<void>;
     onAnalyzeReceipt?: (
-        file: File
+        file: File,
+        analysisMode: ReceiptAnalysisMode,
     ) => Promise<AccountBookReceiptAnalysisResponse>;
 };

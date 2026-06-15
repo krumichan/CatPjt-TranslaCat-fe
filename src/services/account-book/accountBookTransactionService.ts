@@ -8,6 +8,7 @@ import {
     AccountBookTransactionListResponse,
     AccountBookTransactionMonthOption,
     AccountBookTransactionUpdateRequest,
+    ReceiptAnalysisMode,
 } from "@/types/accountBook";
 import { ResponseDto } from "@/types/common";
 import {resizeReceiptImage} from "@/utils/account-book/resizeReceiptImage";
@@ -15,7 +16,8 @@ import {resizeReceiptImage} from "@/utils/account-book/resizeReceiptImage";
 export const accountBookTransactionService = {
     async analyzeReceipt(
         accountBookId: number,
-        file: File
+        file: File,
+        analysisMode: ReceiptAnalysisMode = "OCR_WITH_AI",
     ): Promise<AccountBookReceiptAnalysisResponse> {
         const resizedFile = await resizeReceiptImage(file);
 
@@ -25,22 +27,21 @@ export const accountBookTransactionService = {
 
         const formData = new FormData();
         formData.append("file", resizedFile);
+        formData.append("analysisMode", analysisMode);
 
         const response = await apiClient(
             `/account-books/${accountBookId}/transactions/receipt-analysis`,
             {
                 method: "POST",
                 body: formData,
-            }
+            },
         );
 
         if (!response.ok) {
             throw new Error("Failed to analyze receipt.");
         }
 
-        const data =
-            (await response.json()) as ResponseDto<AccountBookReceiptAnalysisResponse>;
-
+        const data = (await response.json()) as ResponseDto<AccountBookReceiptAnalysisResponse>;
         return data.body;
     },
 

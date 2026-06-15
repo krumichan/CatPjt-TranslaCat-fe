@@ -3,6 +3,11 @@ import {PagedModel} from "@/types/common";
 export type AccountBookMemberRole = "OWNER" | "MEMBER";
 export type AccountBookTransactionSourceType = "FIXED_COST";
 export type CurrencyCode = string;
+export type ReceiptAnalysisMode =
+    | "OCR_WITH_AI"
+    | "VISION_ONLY"
+    | "VISION_FIRST"
+    | "OCR_ONLY";
 export type TransactionType = "INCOME" | "EXPENSE";
 export type TransactionFilterType = "ALL" | TransactionType;
 
@@ -114,6 +119,10 @@ export type AccountBookMember = {
 
 export type AccountBookMemberInviteRequest = {
     publicId: string;
+};
+
+export type AccountBookReceiptAnalysisRequest = {
+    analysisMode?: ReceiptAnalysisMode;
 };
 
 export type AccountBookReceiptAnalysisResponse = {
@@ -309,4 +318,17 @@ export type CreateTransactionFormValues = {
     amount: number;
     transactionDate: string;
     memo?: string;
+};
+
+export type ReceiptAnalysisResult = {
+    title?: string;
+    storeName?: string;
+    amount?: number;
+    transactionDate?: string;
+    categoryName?: string;
+    memo?: string;
+    confidence?: number;
+    rawText?: string | null;
+    ocrEngine?: string;
+    usedAi?: boolean;
 };

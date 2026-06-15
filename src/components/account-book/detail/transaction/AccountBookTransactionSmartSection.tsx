@@ -16,7 +16,7 @@ import {
     AccountBookTransactionCreateRequest,
     AccountBookTransactionUpdateRequest,
     CreateTransactionFormValues,
-    CurrencyCode, TransactionFilterType,
+    CurrencyCode, ReceiptAnalysisMode, TransactionFilterType,
 } from "@/types/accountBook";
 import TransactionFilterPanel from "@/components/account-book/detail/TransactionFilterPanel";
 
@@ -176,11 +176,12 @@ export default function AccountBookTransactionSmartSection({
         memo: toNullableText(values.memo),
     });
 
-    const handleAnalyzeReceipt = async (file: File) => {
+    const handleAnalyzeReceipt = async (file: File, analysisMode: ReceiptAnalysisMode) => {
         try {
             return await accountBookTransactionService.analyzeReceipt(
                 accountBookId,
-                file
+                file,
+                analysisMode,
             );
         } catch (error) {
             console.error(error);

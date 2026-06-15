@@ -447,15 +447,23 @@
           "receipt": "영수증 분석"
         },
         "receipt": {
-          "title": "영수증 사진 분석",
-          "description": "영수증 사진을 업로드하면 AI가 거래 정보를 분석해 입력폼에 자동으로 채워줍니다. 저장 전 내용을 확인해 주세요.",
+          "title": "영수증 분석",
+          "description": "영수증 이미지를 업로드하면 AI가 거래 내용을 자동으로 입력합니다.",
           "file": "영수증 이미지",
-          "selectedFile": "선택된 파일: {filename}",
-          "action": "AI로 영수증 분석",
+          "selectedFile": "선택 중: {filename}",
+          "analysisMode": "분석 방식",
+          "analysisModes": {
+            "ocrWithAi": "OCR + AI 비용 절약",
+            "visionOnly": "AI Vision 빠른 분석",
+            "visionFirst": "AI Vision 우선",
+            "ocrOnly": "OCR만 사용 최저 비용"
+          },
           "analyzing": "분석 중...",
-          "analysisCompleted": "분석 결과를 입력폼에 반영했습니다. 저장 전 내용을 확인해 주세요.",
-          "analysisCompletedWithConfidence": "분석 결과를 입력폼에 반영했습니다. 신뢰도: {confidence}. 저장 전 내용을 확인해 주세요.",
-          "analysisFailed": "영수증 분석에 실패했습니다. 이미지를 확인하거나 직접 입력해 주세요."
+          "action": "영수증 분석",
+          "analysisCompleted": "영수증 분석이 완료되었습니다.",
+          "analysisCompletedWithConfidence": "영수증 분석이 완료되었습니다. 신뢰도: {confidence}",
+          "analysisFailed": "영수증 분석에 실패했습니다.",
+          "analyzingDescription": "영수증 이미지를 분석하고 있습니다. 완료될 때까지 화면을 조작하지 말아 주세요."
         },
         "type": {
           "expense": "지출",

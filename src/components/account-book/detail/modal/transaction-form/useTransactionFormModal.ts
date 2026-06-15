@@ -2,6 +2,7 @@ import { SyntheticEvent, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
     AccountBookReceiptAnalysisResponse,
+    ReceiptAnalysisMode,
     TransactionType,
 } from "@/types/accountBook";
 import { DIRECT_INPUT_VALUE } from "./constants";
@@ -84,7 +85,12 @@ export function useTransactionFormModal({
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [receiptFile, setReceiptFile] = useState<File | null>(null);
+
+    const [receiptAnalysisMode, setReceiptAnalysisMode] =
+        useState<ReceiptAnalysisMode>("OCR_WITH_AI");
+
     const [isAnalyzingReceipt, setIsAnalyzingReceipt] = useState(false);
+
     const [receiptAnalysisMessage, setReceiptAnalysisMessage] =
         useState<string | null>(null);
 
@@ -195,7 +201,7 @@ export function useTransactionFormModal({
             setIsAnalyzingReceipt(true);
             setReceiptAnalysisMessage(null);
 
-            const result = await onAnalyzeReceipt(receiptFile);
+            const result = await onAnalyzeReceipt(receiptFile, receiptAnalysisMode);
 
             applyReceiptAnalysisResult(result);
 
@@ -271,11 +277,13 @@ export function useTransactionFormModal({
 
         storeName,
         setStoreName,
+
         directStoreName,
         setDirectStoreName,
 
         categoryName,
         setCategoryName,
+
         directCategoryName,
         setDirectCategoryName,
 
@@ -290,14 +298,21 @@ export function useTransactionFormModal({
 
         receiptFile,
         setReceiptFile,
+
+        receiptAnalysisMode,
+        setReceiptAnalysisMode,
+
         receiptAnalysisMessage,
         setReceiptAnalysisMessage,
+
         isAnalyzingReceipt,
 
         isCreateMode,
         isEditMode,
+
         isDirectStoreInput,
         isDirectCategoryInput,
+
         isSubmitting,
         canSubmit,
 

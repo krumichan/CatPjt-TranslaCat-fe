@@ -1,5 +1,5 @@
 import { createPortal } from "react-dom";
-import { X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { TransactionFormModalProps } from "./transaction-form/types";
 import { useTransactionFormModal } from "./transaction-form/useTransactionFormModal";
@@ -41,12 +41,18 @@ export default function TransactionFormModal(props: TransactionFormModalProps) {
         ? t("actions.create")
         : t("actions.save");
 
+    const isBlockingModal = form.isAnalyzingReceipt;
+
     return createPortal(
         <div className="fixed inset-0 z-9999 overflow-y-auto px-4 py-16 sm:py-20">
             <button
                 type="button"
                 aria-label={t("actions.close")}
-                onClick={onClose}
+                onClick={() => {
+                    if (!isBlockingModal) {
+                        onClose();
+                    }
+                }}
                 className="fixed inset-0 bg-black/50 backdrop-blur-sm"
             />
 
@@ -67,7 +73,8 @@ export default function TransactionFormModal(props: TransactionFormModalProps) {
                     <button
                         type="button"
                         onClick={onClose}
-                        className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-white/10 dark:hover:text-white"
+                        disabled={isBlockingModal}
+                        className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-white/10 dark:hover:text-white"
                     >
                         <X size={20} />
                     </button>
@@ -83,11 +90,11 @@ export default function TransactionFormModal(props: TransactionFormModalProps) {
                 {isCreateMode && form.inputMode === "RECEIPT" && (
                     <ReceiptAnalysisPanel
                         receiptFile={form.receiptFile}
+                        receiptAnalysisMode={form.receiptAnalysisMode}
                         receiptAnalysisMessage={form.receiptAnalysisMessage}
                         isAnalyzingReceipt={form.isAnalyzingReceipt}
-                        canAnalyzeReceipt={
-                            !!form.receiptFile && !!onAnalyzeReceipt
-                        }
+                        canAnalyzeReceipt={!!form.receiptFile && !!onAnalyzeReceipt}
+                        onAnalysisModeChange={form.setReceiptAnalysisMode}
                         onFileChange={(file) => {
                             form.setReceiptFile(file);
                             form.setReceiptAnalysisMessage(null);
@@ -96,7 +103,11 @@ export default function TransactionFormModal(props: TransactionFormModalProps) {
                     />
                 )}
 
-                <form onSubmit={form.handleSubmit} className="space-y-5">
+                <form
+                    onSubmit={form.handleSubmit}
+                    className="space-y-5"
+                    aria-busy={form.isAnalyzingReceipt}
+                >
                     <TransactionTypeSelector
                         type={form.type}
                         onChange={form.setType}
@@ -134,6 +145,25 @@ export default function TransactionFormModal(props: TransactionFormModalProps) {
                         onClose={onClose}
                     />
                 </form>
+
+                {form.isAnalyzingReceipt && (
+                    <div className="absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-white/75 backdrop-blur-sm dark:bg-zinc-950/70">
+                        <div className="mx-6 flex max-w-sm flex-col items-center gap-3 rounded-2xl border border-orange-200 bg-white px-6 py-5 text-center shadow-[0_20px_50px_rgba(15,23,42,0.2)] dark:border-orange-500/20 dark:bg-zinc-900">
+                            <Loader2
+                                size={30}
+                                className="animate-spin text-orange-500"
+                            />
+
+                            <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                                {t("receipt.analyzing")}
+                            </p>
+
+                            <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+                                {t("receipt.analyzingDescription")}
+                            </p>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>,
         document.body

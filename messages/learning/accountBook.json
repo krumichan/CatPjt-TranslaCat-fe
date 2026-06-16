@@ -124,15 +124,29 @@
       },
       "actions": {
         "close": "閉じる",
-        "invite": "追加",
-        "inviting": "追加中...",
-        "removeMemberAria": "{name}をメンバーから削除"
+        "invite": "招待",
+        "inviting": "招待中...",
+        "remove": "削除",
+        "cancelInvitationAria": "{name}さんへの招待をキャンセル"
       },
       "messages": {
         "loading": "メンバーを読み込み中です。",
         "loadFailed": "メンバー一覧の取得に失敗しました。",
         "inviteFailed": "メンバーの追加に失敗しました。",
-        "removeFailed": "メンバーの削除に失敗しました。"
+        "removeFailed": "メンバーの削除に失敗しました。",
+        "cancelInvitationFailed": "招待のキャンセルに失敗しました。"
+      },
+      "pendingInvitations": {
+        "title": "招待中",
+        "count": "{count}件",
+        "empty": "現在、承認待ちの招待はありません。",
+        "loadFailed": "招待一覧の取得に失敗しました。"
+      },
+      "invitationStatus": {
+        "PENDING": "承認待ち",
+        "ACCEPTED": "承認済み",
+        "REJECTED": "拒否済み",
+        "CANCELED": "キャンセル済み"
       },
       "removeConfirm": {
         "title": "メンバーを削除しますか？",

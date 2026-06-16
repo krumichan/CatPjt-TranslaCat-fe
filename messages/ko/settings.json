@@ -3,6 +3,15 @@
     "common": {
       "back": "뒤로가기"
     },
+    "accountInfo": {
+      "eyebrow": "Account",
+      "unknownName": "사용자",
+      "description": "TranslaCat ID는 가계부 초대 및 향후 채팅 친구 추가에 사용됩니다.",
+      "publicIdLabel": "TranslaCat ID",
+      "emptyPublicId": "미발급",
+      "copy": "TranslaCat ID 복사",
+      "copied": "복사했습니다."
+    },
     "eyebrow": "Settings",
     "title": "설정",
     "description": "TranslaCat에서 제공하는 여러 서비스의 설정을 한 곳에서 관리합니다.",

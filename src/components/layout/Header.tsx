@@ -5,6 +5,7 @@ import UserMenu from "@/components/layout/UserMenu";
 import Logo from "@/components/layout/Logo";
 import ThemeSwitcher from "@/components/layout/ThemeSwitcher";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
+import NotificationBell from "@/components/notification/NotificationBell";
 
 export default function Header() {
     const pathname = usePathname();
@@ -30,6 +31,7 @@ export default function Header() {
 
                 <LanguageSwitcher/>
 
+                {!isLoginPage && <NotificationBell />}
                 {!isLoginPage && <UserMenu />}
             </div>
         </header>

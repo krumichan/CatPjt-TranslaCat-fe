@@ -1,5 +1,10 @@
 import {PagedModel} from "@/types/common";
 
+export type AccountBookInvitationStatus =
+    | "PENDING"
+    | "ACCEPTED"
+    | "REJECTED"
+    | "CANCELED";
 export type AccountBookMemberRole = "OWNER" | "MEMBER";
 export type AccountBookTransactionSourceType = "FIXED_COST";
 export type CurrencyCode = string;
@@ -107,6 +112,24 @@ export type AccountBookFixedCostRequest = {
     endYear?: number | null;
     endMonth?: number | null;
     memo?: string | null;
+};
+
+export type AccountBookInvitation = {
+    id: number;
+    accountBookId: number;
+    accountBookName: string;
+    inviterUserId: number;
+    inviterPublicId: string;
+    inviterUsername: string | null;
+    inviteeUserId: number;
+    inviteePublicId: string;
+    inviteeUsername: string | null;
+    role: AccountBookMemberRole;
+    status: AccountBookInvitationStatus;
+};
+
+export type AccountBookInvitationCreateRequest = {
+    publicId: string;
 };
 
 export type AccountBookMember = {

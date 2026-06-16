@@ -53,11 +53,11 @@ export default function ReceiptAnalysisPanel({
                     }
                     className={selectClassName}
                 >
-                    <option value="OCR_WITH_AI">
-                        {t("receipt.analysisModes.ocrWithAi")}
-                    </option>
                     <option value="VISION_ONLY">
                         {t("receipt.analysisModes.visionOnly")}
+                    </option>
+                    <option value="OCR_WITH_AI">
+                        {t("receipt.analysisModes.ocrWithAi")}
                     </option>
                     <option value="VISION_FIRST">
                         {t("receipt.analysisModes.visionFirst")}

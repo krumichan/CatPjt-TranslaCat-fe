@@ -8,6 +8,7 @@ const MESSAGE_FILE_NAMES = [
     "common",
     "login",
     "navigation",
+    "notification",
     "serviceSelect",
     "voice",
     "platform",

@@ -124,15 +124,29 @@
       },
       "actions": {
         "close": "닫기",
-        "invite": "추가",
-        "inviting": "추가 중...",
-        "removeMemberAria": "{name} 멤버 삭제"
+        "invite": "초대",
+        "inviting": "초대 중...",
+        "remove": "삭제",
+        "cancelInvitationAria": "{name}님 초대 취소"
       },
       "messages": {
         "loading": "멤버를 불러오는 중입니다.",
         "loadFailed": "멤버 목록 조회에 실패했습니다.",
         "inviteFailed": "멤버 추가에 실패했습니다.",
-        "removeFailed": "멤버 삭제에 실패했습니다."
+        "removeFailed": "멤버 삭제에 실패했습니다.",
+        "cancelInvitationFailed": "초대 취소에 실패했습니다."
+      },
+      "pendingInvitations": {
+        "title": "초대 대기",
+        "count": "{count}건",
+        "empty": "현재 수락 대기 중인 초대가 없습니다.",
+        "loadFailed": "초대 목록을 불러오지 못했습니다."
+      },
+      "invitationStatus": {
+        "PENDING": "대기 중",
+        "ACCEPTED": "수락됨",
+        "REJECTED": "거절됨",
+        "CANCELED": "취소됨"
       },
       "removeConfirm": {
         "title": "멤버를 삭제할까요?",

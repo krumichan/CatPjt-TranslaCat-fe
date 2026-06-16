@@ -1,0 +1,38 @@
+{
+  "Notifications": {
+    "button": "알림",
+    "close": "닫기",
+    "description": "お知らせ、招待、個人通知をまとめて確認できます。",
+    "eyebrow": "Notifications",
+    "title": "알림 센터",
+    "tabs": {
+      "notice": "공지",
+      "invitation": "초대",
+      "personal": "개인 알림"
+    },
+    "notice": {
+      "emptyTitle": "공지 알림이 없습니다",
+      "emptyDescription": "시스템 공지가 있을 경우 여기에 표시됩니다."
+    },
+    "invitation": {
+      "emptyTitle": "받은 초대가 없습니다",
+      "emptyDescription": "가계부나 채팅방 초대가 있을 경우 여기에 표시됩니다.",
+      "accountBookInviteTitle": "가계부 초대",
+      "accountBookInviteDescription": "{inviterName}님이 「{accountBookName}」에 초대했습니다."
+    },
+    "personal": {
+      "emptyTitle": "개인 알림이 없습니다",
+      "emptyDescription": "메시지나 친구 추가 등의 알림이 있을 경우 여기에 표시됩니다."
+    },
+    "actions": {
+      "accept": "수락",
+      "reject": "거절"
+    },
+    "messages": {
+      "loading": "불러오는 중...",
+      "loadFailed": "알림을 불러오지 못했습니다.",
+      "acceptFailed": "초대 수락에 실패했습니다.",
+      "rejectFailed": "초대 거절에 실패했습니다."
+    }
+  }
+}

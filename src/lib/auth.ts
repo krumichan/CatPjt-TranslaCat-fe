@@ -26,6 +26,7 @@ export const authOptions: NextAuthOptions = {
                     token.refreshToken = body.refreshToken;
                     token.accessTokenExpires = Date.now() + (body.accessTokenExpiresIn * 1000);
                     token.role = body.role;
+                    token.publicId = body.publicId;
 
                     return token;
                 } catch (error) {
@@ -51,6 +52,7 @@ export const authOptions: NextAuthOptions = {
             session.user.refreshToken = token.refreshToken;
             session.user.accessTokenExpires = token.accessTokenExpires;
             session.user.role = token.role;
+            session.user.publicId = token.publicId;
 
             return session;
         },
@@ -76,6 +78,8 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
             accessToken: body.accessToken,
             refreshToken: body.refreshToken ?? token.refreshToken,
             accessTokenExpires: Date.now() + (body.accessTokenExpiresIn * 1000),
+            role: body.role ?? token.role,
+            publicId: body.publicId ?? token.publicId,
         };
     } catch (error) {
         console.error("Refresh Error: ", error);

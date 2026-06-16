@@ -3,6 +3,15 @@
     "common": {
       "back": "戻る"
     },
+    "accountInfo": {
+      "eyebrow": "Account",
+      "unknownName": "ユーザー",
+      "description": "TranslaCat IDは、家計簿への招待や今後のチャット機能で友だち追加に使用されます。",
+      "publicIdLabel": "TranslaCat ID",
+      "emptyPublicId": "未発行",
+      "copy": "TranslaCat IDをコピー",
+      "copied": "コピーしました。"
+    },
     "eyebrow": "Settings",
     "title": "設定",
     "description": "TranslaCatで提供する各サービスの設定を一か所で管理します。",

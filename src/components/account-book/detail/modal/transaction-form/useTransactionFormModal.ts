@@ -87,7 +87,7 @@ export function useTransactionFormModal({
     const [receiptFile, setReceiptFile] = useState<File | null>(null);
 
     const [receiptAnalysisMode, setReceiptAnalysisMode] =
-        useState<ReceiptAnalysisMode>("OCR_WITH_AI");
+        useState<ReceiptAnalysisMode>("VISION_ONLY");
 
     const [isAnalyzingReceipt, setIsAnalyzingReceipt] = useState(false);
 

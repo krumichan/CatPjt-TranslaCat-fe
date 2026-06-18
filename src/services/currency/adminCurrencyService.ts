@@ -1,6 +1,6 @@
 import { apiClient } from "@/lib/apiClient";
 import { ResponseDto } from "@/types/common";
-import { AdminCurrency, CurrencyCreateRequest } from "@/types/currency";
+import {AdminCurrency, CurrencyCreateRequest, CurrencyUpdateRequest} from "@/types/currency";
 
 export const adminCurrencyService = {
     async list(): Promise<AdminCurrency[]> {
@@ -27,6 +27,36 @@ export const adminCurrencyService = {
         }
 
         const data = (await response.json()) as ResponseDto<AdminCurrency>;
+        return data.body;
+    },
+
+    async update(
+        currencyId: number,
+        request: CurrencyUpdateRequest,
+    ): Promise<AdminCurrency> {
+        const response = await apiClient(`/admin/currencies/${currencyId}`, {
+            method: "PUT",
+            body: JSON.stringify(request),
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to update currency.");
+        }
+
+        const data = (await response.json()) as ResponseDto<AdminCurrency>;
+        return data.body;
+    },
+
+    async delete(currencyId: number): Promise<boolean> {
+        const response = await apiClient(`/admin/currencies/${currencyId}`, {
+            method: "DELETE",
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to delete currency.");
+        }
+
+        const data = (await response.json()) as ResponseDto<boolean>;
         return data.body;
     },
 

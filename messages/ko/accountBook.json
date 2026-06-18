@@ -158,7 +158,8 @@
     "detail": {
       "messages": {
         "loading": "가계부 정보를 불러오는 중입니다.",
-        "loadFailed": "가계부 정보를 불러오지 못했습니다."
+        "loadFailed": "가계부 정보를 불러오지 못했습니다.",
+        "leaveFailed": "가계부 나가기에 실패했습니다."
       },
       "expenseGoal": {
         "title": "이번 달 지출 목표",
@@ -349,7 +350,8 @@
         "backToList": "가계부 목록으로",
         "eyebrow": "Account Book Detail",
         "createTransaction": "거래 등록",
-        "manageMembers": "멤버 관리"
+        "manageMembers": "멤버 관리",
+        "leaveAccountBook": "가계부 나가기"
       },
       "chart": {
         "categoryExpenseTitle": "카테고리별 지출",
@@ -358,6 +360,11 @@
         "storeExpenseDescription": "지출액이 많은 점포를 상위부터 표시합니다.",
         "uncategorized": "미분류",
         "storeNotSet": "점포명 미설정"
+      },
+      "leaveConfirm": {
+        "title": "이 가계부에서 나갈까요?",
+        "description": "「{name}」에서 나가면 더 이상 이 가계부를 볼 수 없습니다.",
+        "confirm": "나가기"
       },
       "monthlyChart": {
         "title": "월별 지출",

@@ -158,7 +158,8 @@
     "detail": {
       "messages": {
         "loading": "家計簿情報を読み込み中...",
-        "loadFailed": "家計簿情報の取得に失敗しました。"
+        "loadFailed": "家計簿情報の取得に失敗しました。",
+        "leaveFailed": "家計簿からの退出に失敗しました。"
       },
       "expenseGoal": {
         "title": "今月の支出目標",
@@ -349,7 +350,8 @@
         "backToList": "家計簿一覧へ",
         "eyebrow": "Account Book Detail",
         "createTransaction": "取引を登録",
-        "manageMembers": "メンバー管理"
+        "manageMembers": "メンバー管理",
+        "leaveAccountBook": "家計簿から退出"
       },
       "chart": {
         "categoryExpenseTitle": "カテゴリ別支出",
@@ -358,6 +360,11 @@
         "storeExpenseDescription": "支出額が多い店舗を上位から表示します。",
         "uncategorized": "未分類",
         "storeNotSet": "店名未設定"
+      },
+      "leaveConfirm": {
+        "title": "この家計簿から退出しますか？",
+        "description": "「{name}」から退出すると、この家計簿を閲覧できなくなります。",
+        "confirm": "退出する"
       },
       "monthlyChart": {
         "title": "月別支出",

@@ -60,4 +60,20 @@ export const accountBookMemberService = {
         const data = (await response.json()) as ResponseDto<boolean>;
         return data.body;
     },
+
+    async leaveAccountBook(accountBookId: number): Promise<boolean> {
+        const response = await apiClient(
+            `/account-books/${accountBookId}/members/me`,
+            {
+                method: "DELETE",
+            },
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to leave account book.");
+        }
+
+        const data = (await response.json()) as ResponseDto<boolean>;
+        return data.body;
+    },
 };

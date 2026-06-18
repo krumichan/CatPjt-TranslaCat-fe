@@ -1,7 +1,8 @@
 {
   "Settings": {
     "common": {
-      "back": "뒤로가기"
+      "back": "뒤로가기",
+      "backToSettings": "설정으로 돌아가기"
     },
     "accountInfo": {
       "eyebrow": "Account",
@@ -65,7 +66,26 @@
         "createFailed": "통화 등록에 실패했습니다.",
         "updateFailed": "통화 정보 변경에 실패했습니다.",
         "disabledBaseCurrency": "비활성화된 통화는 기본 통화로 설정할 수 없습니다.",
-        "forbidden": "관리자만 접근할 수 있는 페이지입니다."
+        "forbidden": "관리자만 접근할 수 있는 페이지입니다.",
+        "deleteFailed": "통화 삭제에 실패했습니다."
+      },
+      "editModal": {
+        "title": "통화 수정",
+        "description": "통화명, 심볼, 소수점 자릿수를 수정합니다. 통화 코드는 변경할 수 없습니다.",
+        "close": "닫기",
+        "fields": {
+          "name": "통화명",
+          "symbol": "심볼",
+          "decimalPlaces": "소수점 자릿수"
+        },
+        "cancel": "취소",
+        "save": "저장",
+        "saving": "저장 중..."
+      },
+      "deleteModal": {
+        "title": "통화를 삭제할까요?",
+        "description": "{code} 통화를 삭제합니다. 이미 가계부에서 사용 중인 통화는 삭제할 수 없습니다.",
+        "confirm": "삭제"
       },
       "form": {
         "title": "신규 통화 등록",
@@ -98,12 +118,92 @@
           "base": "기본 통화",
           "status": "상태"
         },
+        "description": "등록된 통화를 확인하고, 사용 여부와 기본 통화를 관리할 수 있습니다.",
+        "symbol": "심볼",
+        "decimalPlacesLabel": "소수점 자릿수",
+        "baseCurrency": "기본 통화",
+        "setBaseCurrency": "기본 통화로 설정",
+        "enable": "활성화",
+        "disable": "비활성화",
         "decimalPlaces": "소수점 {count}자리",
         "base": "기본",
         "setBase": "기본 설정",
         "enabled": "사용 중",
         "disabled": "비활성",
-        "empty": "검색 결과가 없습니다."
+        "empty": "검색 결과가 없습니다.",
+        "edit": "수정",
+        "delete": "삭제"
+      }
+    },
+    "receiptAi": {
+      "title": "영수증 AI 설정",
+      "description": "영수증 분석에 사용할 OCR 언어와 키워드를 관리합니다."
+    },
+    "receiptAiPage": {
+      "eyebrow": "Admin",
+      "title": "영수증 AI 설정",
+      "description": "영수증 이미지 OCR/AI 분석에 사용할 언어 설정과 키워드를 관리합니다.",
+      "ocr": {
+        "title": "OCR 언어 설정",
+        "description": "통화별로 사용할 OCR 언어를 설정합니다.",
+        "columns": {
+          "currency": "통화",
+          "language": "OCR 언어",
+          "enabled": "활성",
+          "status": "상태"
+        },
+        "languages": {
+          "japan": "일본어",
+          "korean": "한국어",
+          "en": "영어"
+        },
+        "enabled": "활성",
+        "disabled": "비활성",
+        "saving": "저장 중...",
+        "saved": "저장됨",
+        "messages": {
+          "loading": "불러오는 중...",
+          "loadFailed": "OCR 설정을 불러오지 못했습니다.",
+          "updateFailed": "OCR 설정 변경에 실패했습니다."
+        }
+      },
+      "keyword": {
+        "title": "키워드 설정",
+        "description": "영수증 분석 시 사용할 보조 키워드를 관리합니다.",
+        "types": {
+          "STOP_AFTER": "제외 시작",
+          "IMPORTANT": "중요",
+          "EXCLUDE_ITEM": "상품 제외"
+        },
+        "placeholders": {
+          "keyword": "키워드를 입력",
+          "currencyCode": "통화 선택사항"
+        },
+        "ocrLanguages": {
+          "japan": "일본어",
+          "korean": "한국어",
+          "en": "영어"
+        },
+        "deleteModal": {
+          "title": "키워드를 삭제할까요?",
+          "description": "「{keyword}」 키워드를 삭제합니다. 삭제 후에는 영수증 분석에 사용되지 않습니다.",
+          "confirm": "삭제"
+        },
+        "add": "추가",
+        "creating": "추가 중...",
+        "enabled": "활성",
+        "disabled": "비활성",
+        "allCurrencies": "전체 통화 공통",
+        "empty": "해당 키워드가 없습니다.",
+        "delete": "삭제",
+        "deleteConfirm": "이 키워드를 삭제할까요?",
+        "messages": {
+          "loading": "불러오는 중...",
+          "loadFailed": "키워드를 불러오지 못했습니다.",
+          "createFailed": "키워드 추가에 실패했습니다.",
+          "updateFailed": "키워드 변경에 실패했습니다.",
+          "deleteFailed": "키워드 삭제에 실패했습니다."
+        }
       }
     }
   }

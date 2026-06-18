@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, Plus, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { CurrencyCode } from "@/types/accountBook";
+import {ReactNode} from "react";
 
 type AccountBookDetailHeaderData = {
     id: number;
@@ -15,6 +16,7 @@ type AccountBookDetailHeaderProps = {
     onClickCreateTransaction: () => void;
     canManageMembers?: boolean;
     onClickManageMembers?: () => void;
+    actionSlot?: ReactNode;
 };
 
 export default function AccountBookDetailHeader({
@@ -22,6 +24,7 @@ export default function AccountBookDetailHeader({
     onClickCreateTransaction,
     canManageMembers = false,
     onClickManageMembers,
+    actionSlot,
 }: AccountBookDetailHeaderProps) {
     const t = useTranslations("AccountBook.detail.header");
 
@@ -58,13 +61,15 @@ export default function AccountBookDetailHeader({
                     )}
                 </div>
 
-                <div className="flex w-full items-center gap-2 md:w-auto md:justify-end">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    {actionSlot}
+
                     <button
                         type="button"
                         onClick={onClickCreateTransaction}
-                        className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 text-sm font-semibold text-white shadow-[0_10px_20px_rgba(249,115,22,0.28)] transition hover:bg-orange-600 hover:shadow-[0_14px_28px_rgba(249,115,22,0.34)] md:flex-none"
+                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-[0_10px_20px_rgba(249,115,22,0.28)] transition hover:bg-orange-600 hover:shadow-[0_14px_28px_rgba(249,115,22,0.34)]"
                     >
-                        <Plus className="h-4 w-4" />
+                        <Plus size={18} />
                         {t("createTransaction")}
                     </button>
 
@@ -72,14 +77,10 @@ export default function AccountBookDetailHeader({
                         <button
                             type="button"
                             onClick={onClickManageMembers}
-                            className="inline-flex h-11 w-11 items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 text-white/80 backdrop-blur transition hover:border-orange-300/60 hover:bg-orange-500/15 hover:text-orange-200 md:w-auto md:px-4 dark:border-white/10 dark:bg-white/5"
-                            aria-label={t("manageMembers")}
-                            title={t("manageMembers")}
+                            className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-orange-300 hover:text-orange-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:border-orange-500/40 dark:hover:text-orange-300"
                         >
-                            <Users className="h-4 w-4" />
-                            <span className="hidden md:inline">
-                                {t("manageMembers")}
-                            </span>
+                            <Users size={18} />
+                            {t("manageMembers")}
                         </button>
                     )}
                 </div>

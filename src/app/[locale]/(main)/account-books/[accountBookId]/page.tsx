@@ -13,6 +13,7 @@ import { accountBookService } from "@/services/account-book/accountBookService";
 import { accountBookDetailQueryKeys } from "@/hooks/account-book/detail/accountBookDetailQueryKeys";
 import { getCurrentMonthValue } from "@/utils/account-book/detail/month";
 import { canManageAccountBookMembers } from "@/utils/account-book/accountBookPermission";
+import AccountBookLeaveSmartAction from "@/components/account-book/detail/leave/AccountBookLeaveSmartAction";
 
 export default function AccountBookDetailPage() {
     const t = useTranslations("AccountBook.detail");
@@ -59,8 +60,13 @@ export default function AccountBookDetailPage() {
                                 setIsCreateTransactionModalOpen(true)
                             }
                             canManageMembers={canManageMembers}
-                            onClickManageMembers={() =>
-                                setIsMemberModalOpen(true)
+                            onClickManageMembers={() => setIsMemberModalOpen(true)}
+                            actionSlot={
+                                <AccountBookLeaveSmartAction
+                                    accountBookId={accountBookId}
+                                    accountBookName={accountBookDetail.name}
+                                    myRole={accountBookDetail.myRole}
+                                />
                             }
                         />
                     ) : (

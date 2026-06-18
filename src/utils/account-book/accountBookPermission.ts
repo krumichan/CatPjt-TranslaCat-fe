@@ -10,6 +10,12 @@ export function isAccountBookOwner(
     return accountBook?.myRole === "OWNER";
 }
 
+export function canLeaveAccountBook(
+    accountBook?: AccountBookRoleHolder | null,
+): boolean {
+    return accountBook?.myRole === "MEMBER";
+}
+
 export function canEditAccountBook(
     accountBook?: AccountBookRoleHolder | null
 ): boolean {

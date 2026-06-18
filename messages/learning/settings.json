@@ -1,7 +1,8 @@
 {
   "Settings": {
     "common": {
-      "back": "戻る"
+      "back": "戻る",
+      "backToSettings": "設定へ戻る"
     },
     "accountInfo": {
       "eyebrow": "Account",
@@ -65,7 +66,26 @@
         "createFailed": "通貨の登録に失敗しました。",
         "updateFailed": "通貨情報の変更に失敗しました。",
         "disabledBaseCurrency": "無効化された通貨は基本通貨に設定できません。",
-        "forbidden": "管理者のみアクセスできるページです。"
+        "forbidden": "管理者のみアクセスできるページです。",
+        "deleteFailed": "通貨の削除に失敗しました。"
+      },
+      "editModal": {
+        "title": "通貨編集",
+        "description": "通貨名、シンボル、小数点桁数を編集します。通貨コードは変更できません。",
+        "close": "閉じる",
+        "fields": {
+          "name": "通貨名",
+          "symbol": "シンボル",
+          "decimalPlaces": "小数点桁数"
+        },
+        "cancel": "キャンセル",
+        "save": "保存",
+        "saving": "保存中..."
+      },
+      "deleteModal": {
+        "title": "通貨を削除しますか？",
+        "description": "{code} 通貨を削除します。家計簿で使用中の通貨は削除できません。",
+        "confirm": "削除"
       },
       "form": {
         "title": "新規通貨登録",
@@ -98,12 +118,92 @@
           "base": "基本通貨",
           "status": "状態"
         },
+        "description": "登録済みの通貨を確認し、利用状態や基本通貨を管理できます。",
+        "symbol": "シンボル",
+        "decimalPlacesLabel": "小数点桁数",
+        "baseCurrency": "基本通貨",
+        "setBaseCurrency": "基本通貨に設定",
+        "enable": "有効化",
+        "disable": "無効化",
         "decimalPlaces": "小数点 {count} 桁",
         "base": "基本",
         "setBase": "基本に設定",
         "enabled": "利用中",
         "disabled": "無効",
-        "empty": "検索結果がありません。"
+        "empty": "検索結果がありません。",
+        "edit": "編集",
+        "delete": "削除"
+      }
+    },
+    "receiptAi": {
+      "title": "レシートAI設定",
+      "description": "レシート分析に使用するOCR言語とキーワードを管理します。"
+    },
+    "receiptAiPage": {
+      "eyebrow": "Admin",
+      "title": "レシートAI設定",
+      "description": "レシート画像のOCR・AI分析に使用する言語設定とキーワードを管理します。",
+      "ocr": {
+        "title": "OCR言語設定",
+        "description": "通貨ごとに使用するOCR言語を設定します。",
+        "columns": {
+          "currency": "通貨",
+          "language": "OCR言語",
+          "enabled": "有効",
+          "status": "状態"
+        },
+        "languages": {
+          "japan": "日本語",
+          "korean": "韓国語",
+          "en": "英語"
+        },
+        "enabled": "有効",
+        "disabled": "無効",
+        "saving": "保存中...",
+        "saved": "保存済み",
+        "messages": {
+          "loading": "読み込み中...",
+          "loadFailed": "OCR設定の取得に失敗しました。",
+          "updateFailed": "OCR設定の更新に失敗しました。"
+        }
+      },
+      "keyword": {
+        "title": "キーワード設定",
+        "description": "レシート分析時に使用する補助キーワードを管理します。",
+        "types": {
+          "STOP_AFTER": "除外開始",
+          "IMPORTANT": "重要",
+          "EXCLUDE_ITEM": "商品除外"
+        },
+        "placeholders": {
+          "keyword": "キーワードを入力",
+          "currencyCode": "通貨 任意"
+        },
+        "ocrLanguages": {
+          "japan": "日本語",
+          "korean": "韓国語",
+          "en": "英語"
+        },
+        "deleteModal": {
+          "title": "キーワードを削除しますか？",
+          "description": "「{keyword}」キーワードを削除します。削除後はレシート分析に使用されません。",
+          "confirm": "削除"
+        },
+        "add": "追加",
+        "creating": "追加中...",
+        "enabled": "有効",
+        "disabled": "無効",
+        "allCurrencies": "全通貨共通",
+        "empty": "該当するキーワードはありません。",
+        "delete": "削除",
+        "deleteConfirm": "このキーワードを削除しますか？",
+        "messages": {
+          "loading": "読み込み中...",
+          "loadFailed": "キーワードの取得に失敗しました。",
+          "createFailed": "キーワードの追加に失敗しました。",
+          "updateFailed": "キーワードの更新に失敗しました。",
+          "deleteFailed": "キーワードの削除に失敗しました。"
+        }
       }
     }
   }

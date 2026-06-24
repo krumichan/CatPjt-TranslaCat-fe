@@ -22,9 +22,13 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
         messages,
         isLoading,
         isSending,
+        isLoadingMore,
+        hasNext,
         loadErrorCode,
         sendErrorCode,
+        loadMoreErrorCode,
         reload,
+        loadMoreMessages,
         sendMessage,
     } = useChatRoom(roomId);
 
@@ -76,14 +80,18 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
             <ChatMessageList
                 messages={messages}
                 currentUserEmail={currentUserEmail}
+                hasNext={hasNext}
+                isLoadingMore={isLoadingMore}
+                loadMoreErrorMessage={
+                    loadMoreErrorCode ? t("pagination.loadFailed") : null
+                }
+                onLoadMore={loadMoreMessages}
             />
 
             <ChatMessageInput
                 onSend={sendMessage}
                 disabled={isSending}
-                sendErrorMessage={
-                    sendErrorCode ? t("input.sendFailed") : null
-                }
+                sendErrorMessage={sendErrorCode ? t("input.sendFailed") : null}
             />
         </div>
     );

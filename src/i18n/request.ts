@@ -15,6 +15,7 @@ const MESSAGE_FILE_NAMES = [
     "ranking",
     "accountBook",
     "settings",
+    "chat",
 ] as const;
 
 function isObject(value: unknown): value is Messages {

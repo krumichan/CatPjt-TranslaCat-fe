@@ -63,3 +63,35 @@ export const setScrollLock = (lock: boolean) => {
         container.style.overflow = 'auto';
     }
 };
+
+/**
+ * 특정 스크롤 컨테이너를 맨 아래로 이동시킵니다.
+ * 채팅 메시지 리스트처럼 컴포넌트 내부 스크롤 영역에 사용합니다.
+ */
+export const scrollElementToBottom = (
+    element: HTMLElement | null,
+    behavior: ScrollBehavior = "smooth",
+) => {
+    if (!element) return;
+
+    element.scrollTo({
+        top: element.scrollHeight,
+        behavior,
+    });
+};
+
+/**
+ * 현재 스크롤 위치가 하단에 가까운지 확인합니다.
+ * 사용자가 과거 메시지를 보고 있을 때 자동으로 맨 아래로 끌려가는 것을 방지할 때 사용합니다.
+ */
+export const isElementNearBottom = (
+    element: HTMLElement | null,
+    threshold: number = 120,
+) => {
+    if (!element) return true;
+
+    const distanceFromBottom =
+        element.scrollHeight - element.scrollTop - element.clientHeight;
+
+    return distanceFromBottom <= threshold;
+};

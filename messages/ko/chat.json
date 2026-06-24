@@ -1,0 +1,27 @@
+{
+  "ChatRoom": {
+    "loading": "채팅방을 불러오는 중...",
+    "date": {
+      "today": "오늘"
+    },
+    "error": {
+      "title": "채팅방을 표시할 수 없습니다",
+      "loadFailed": "채팅방 정보를 불러오지 못했습니다.",
+      "notFound": "채팅방 정보가 존재하지 않습니다.",
+      "retry": "다시 시도"
+    },
+    "empty": {
+      "title": "아직 메시지가 없습니다",
+      "description": "첫 메시지를 보내 대화를 시작해보세요."
+    },
+    "input": {
+      "placeholder": "메시지를 입력하세요",
+      "send": "메시지 전송",
+      "sendFailed": "메시지 전송에 실패했습니다."
+    },
+    "translation": {
+      "pending": "번역 중...",
+      "failed": "번역 실패 · 원문을 표시합니다"
+    }
+  }
+}

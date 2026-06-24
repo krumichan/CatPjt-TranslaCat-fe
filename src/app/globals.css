@@ -103,3 +103,15 @@ body[data-menu-visible="false"] .bg-layer-instance {
   scrollbar-width: none;
   -ms-overflow-style: none; /* IE, Edge */
 }
+
+.dark .custom-scrollbar {
+  scrollbar-color: rgba(100, 116, 139, 0.6) transparent;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 116, 139, 0.45);
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(148, 163, 184, 0.7);
+}

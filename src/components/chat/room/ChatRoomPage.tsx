@@ -8,6 +8,9 @@ import { ChatMessageInput } from "@/components/chat/room/ChatMessageInput";
 import { ChatMessageList } from "@/components/chat/room/ChatMessageList";
 import { ChatRoomHeader } from "@/components/chat/room/ChatRoomHeader";
 import { useChatRoom } from "@/hooks/chat/useChatRoom";
+import {ChatMessage} from "@/types/chat";
+import {useCallback} from "react";
+import {useChatRoomWebSocket} from "@/hooks/chat/useChatRoomWebSocket";
 
 interface ChatRoomPageProps {
     roomId: string;
@@ -27,12 +30,42 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
         loadErrorCode,
         sendErrorCode,
         loadMoreErrorCode,
+        appendMessage,
         reload,
         loadMoreMessages,
-        sendMessage,
+        sendMessage: sendRestMessage
     } = useChatRoom(roomId);
 
     const currentUserEmail = session?.user?.email ?? null;
+    const accessToken = session?.accessToken ?? null;
+
+    const handleMessageCreated = useCallback(
+        (message: ChatMessage) => {
+            appendMessage(message);
+        },
+        [appendMessage],
+    );
+
+    const {
+        connectionStatus,
+        isConnected,
+        sendMessage: sendWebSocketMessage,
+    } = useChatRoomWebSocket({
+        roomId,
+        accessToken,
+        onMessageCreated: handleMessageCreated,
+    });
+
+    const sendMessage = useCallback(
+        async (content: string) => {
+            if (isConnected) {
+                return sendWebSocketMessage(content);
+            }
+
+            return sendRestMessage(content);
+        },
+        [isConnected, sendRestMessage, sendWebSocketMessage],
+    );
 
     if (isLoading) {
         return (
@@ -75,7 +108,7 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
 
     return (
         <div className="fixed inset-x-0 bottom-0 top-15 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950">
-            <ChatRoomHeader room={room} />
+            <ChatRoomHeader room={room} connectionStatus={connectionStatus} />
 
             <ChatMessageList
                 messages={messages}

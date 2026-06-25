@@ -109,7 +109,7 @@ export function ChatMessageList({
                     void tryLoadMore();
                 }
             }}
-            className="custom-scrollbar mx-auto flex min-h-0 w-full max-w-4xl flex-1 flex-col gap-4 overflow-y-auto px-4 py-6"
+            className="custom-scroll mx-auto flex min-h-0 w-full max-w-4xl flex-1 flex-col gap-4 overflow-y-auto px-4 py-6"
         >
             <div className="flex min-h-8 items-center justify-center">
                 {isLoadingMore && (

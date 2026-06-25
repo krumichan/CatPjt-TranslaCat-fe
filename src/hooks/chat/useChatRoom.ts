@@ -20,6 +20,7 @@ interface UseChatRoomResult {
     loadErrorCode: ChatRoomLoadErrorCode | null;
     sendErrorCode: ChatRoomSendErrorCode | null;
     loadMoreErrorCode: ChatRoomLoadMoreErrorCode | null;
+    appendMessage: (message: ChatMessage) => void;
     reload: () => Promise<void>;
     loadMoreMessages: () => Promise<boolean>;
     sendMessage: (content: string) => Promise<boolean>;
@@ -31,31 +32,27 @@ function sortMessagesByCreatedAt(messages: ChatMessage[]) {
     );
 }
 
-function mergeMessagesWithoutDuplicates(
-    nextMessages: ChatMessage[],
-    currentMessages: ChatMessage[],
-) {
+function mergeMessagesWithoutDuplicates(messages: ChatMessage[]) {
     const seenIds = new Set<number>();
-    const mergedMessages: ChatMessage[] = [];
 
-    for (const message of [...nextMessages, ...currentMessages]) {
+    return sortMessagesByCreatedAt(messages).filter((message) => {
         if (seenIds.has(message.id)) {
-            continue;
+            return false;
         }
 
         seenIds.add(message.id);
-        mergedMessages.push(message);
-    }
-
-    return sortMessagesByCreatedAt(mergedMessages);
+        return true;
+    });
 }
 
 export function useChatRoom(roomId: string): UseChatRoomResult {
     const [room, setRoom] = useState<ChatRoom | null>(null);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
+
     const [isLoading, setIsLoading] = useState(true);
     const [isSending, setIsSending] = useState(false);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
+
     const [hasNext, setHasNext] = useState(false);
     const [nextCursorId, setNextCursorId] = useState<number | null>(null);
 
@@ -65,6 +62,12 @@ export function useChatRoom(roomId: string): UseChatRoomResult {
         useState<ChatRoomSendErrorCode | null>(null);
     const [loadMoreErrorCode, setLoadMoreErrorCode] =
         useState<ChatRoomLoadMoreErrorCode | null>(null);
+
+    const appendMessage = useCallback((message: ChatMessage) => {
+        setMessages((currentMessages) =>
+            mergeMessagesWithoutDuplicates([...currentMessages, message]),
+        );
+    }, []);
 
     const load = useCallback(async () => {
         setIsLoading(true);
@@ -103,12 +106,11 @@ export function useChatRoom(roomId: string): UseChatRoomResult {
                 nextCursorId,
             );
 
-            const previousMessages = sortMessagesByCreatedAt(
-                messageResponse.messages,
-            );
-
             setMessages((currentMessages) =>
-                mergeMessagesWithoutDuplicates(previousMessages, currentMessages),
+                mergeMessagesWithoutDuplicates([
+                    ...messageResponse.messages,
+                    ...currentMessages,
+                ]),
             );
 
             setNextCursorId(messageResponse.nextCursorId);
@@ -141,8 +143,8 @@ export function useChatRoom(roomId: string): UseChatRoomResult {
                     content: trimmedContent,
                 });
 
-                setMessages((prev) =>
-                    mergeMessagesWithoutDuplicates([], [...prev, createdMessage]),
+                setMessages((currentMessages) =>
+                    mergeMessagesWithoutDuplicates([...currentMessages, createdMessage]),
                 );
 
                 return true;
@@ -173,6 +175,7 @@ export function useChatRoom(roomId: string): UseChatRoomResult {
         loadErrorCode,
         sendErrorCode,
         loadMoreErrorCode,
+        appendMessage,
         reload: load,
         loadMoreMessages,
         sendMessage,

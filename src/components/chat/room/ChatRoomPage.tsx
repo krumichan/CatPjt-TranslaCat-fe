@@ -24,20 +24,21 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
         room,
         messages,
         isLoading,
-        isSending,
+        isSending: isRestSending,
         isLoadingMore,
         hasNext,
         loadErrorCode,
-        sendErrorCode,
+        sendErrorCode: restSendErrorCode,
         loadMoreErrorCode,
-        appendMessage,
         reload,
         loadMoreMessages,
-        sendMessage: sendRestMessage
+        sendMessage: sendRestMessage,
+        appendMessage,
+        syncLatestMessages,
     } = useChatRoom(roomId);
 
-    const currentUserEmail = session?.user?.email ?? null;
     const accessToken = session?.accessToken ?? null;
+    const currentUserEmail = session?.user?.email ?? null;
 
     const handleMessageCreated = useCallback(
         (message: ChatMessage) => {
@@ -49,11 +50,14 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
     const {
         connectionStatus,
         isConnected,
+        isSending: isWebSocketSending,
+        sendErrorCode: webSocketSendErrorCode,
         sendMessage: sendWebSocketMessage,
     } = useChatRoomWebSocket({
         roomId,
         accessToken,
         onMessageCreated: handleMessageCreated,
+        onReconnectSyncRequested: syncLatestMessages,
     });
 
     const sendMessage = useCallback(
@@ -66,6 +70,13 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
         },
         [isConnected, sendRestMessage, sendWebSocketMessage],
     );
+
+    const isMessageSending = isConnected ? isWebSocketSending : isRestSending;
+
+    const sendErrorMessage =
+        webSocketSendErrorCode || restSendErrorCode
+            ? t("input.sendFailed")
+            : null;
 
     if (isLoading) {
         return (
@@ -123,8 +134,8 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
 
             <ChatMessageInput
                 onSend={sendMessage}
-                disabled={isSending}
-                sendErrorMessage={sendErrorCode ? t("input.sendFailed") : null}
+                disabled={isMessageSending}
+                sendErrorMessage={sendErrorMessage}
             />
         </div>
     );

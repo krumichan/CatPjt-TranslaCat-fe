@@ -11,31 +11,42 @@ import type {
 import { extractChatMessageFromEvent } from "@/types/chatWebSocket";
 import { getChatWebSocketUrl } from "@/utils/websocket";
 
+type ChatWebSocketSendErrorCode = "NOT_CONNECTED" | "SEND_FAILED";
+
 interface UseChatRoomWebSocketParams {
     roomId: string;
     accessToken: string | null;
     onMessageCreated: (message: ChatMessage) => void;
+    onReconnectSyncRequested?: () => Promise<void> | void;
 }
 
 interface UseChatRoomWebSocketResult {
     connectionStatus: ChatWebSocketConnectionStatus;
     isConnected: boolean;
-    sendMessage: (content: string) => boolean;
+    isSending: boolean;
+    sendErrorCode: ChatWebSocketSendErrorCode | null;
+    sendMessage: (content: string) => Promise<boolean>;
 }
 
 export function useChatRoomWebSocket({
     roomId,
     accessToken,
     onMessageCreated,
+    onReconnectSyncRequested,
 }: UseChatRoomWebSocketParams): UseChatRoomWebSocketResult {
     const clientRef = useRef<Client | null>(null);
     const connectionKeyRef = useRef<string | null>(null);
+    const hasConnectedOnceRef = useRef(false);
 
     const [rawConnectionStatus, setRawConnectionStatus] =
         useState<ChatWebSocketConnectionStatus>("IDLE");
 
     const [connectedConnectionKey, setConnectedConnectionKey] =
         useState<string | null>(null);
+
+    const [isSending, setIsSending] = useState(false);
+    const [sendErrorCode, setSendErrorCode] =
+        useState<ChatWebSocketSendErrorCode | null>(null);
 
     const connectionKey = useMemo(() => {
         if (!roomId || !accessToken) {
@@ -92,6 +103,7 @@ export function useChatRoomWebSocket({
         if (!connectionKey || !accessToken) {
             clientRef.current = null;
             connectionKeyRef.current = null;
+            hasConnectedOnceRef.current = false;
             return;
         }
 
@@ -115,6 +127,9 @@ export function useChatRoomWebSocket({
                     return;
                 }
 
+                const shouldSyncAfterReconnect = hasConnectedOnceRef.current;
+
+                hasConnectedOnceRef.current = true;
                 setConnectedConnectionKey(connectionKey);
                 setRawConnectionStatus("CONNECTED");
 
@@ -125,6 +140,10 @@ export function useChatRoomWebSocket({
                         Authorization: `Bearer ${accessToken}`,
                     },
                 );
+
+                if (shouldSyncAfterReconnect) {
+                    void onReconnectSyncRequested?.();
+                }
             },
             onDisconnect: () => {
                 if (connectionKeyRef.current !== connectionKey) {
@@ -165,28 +184,50 @@ export function useChatRoomWebSocket({
             clientRef.current = null;
             void client.deactivate();
         };
-    }, [accessToken, connectionKey, handleStompMessage, roomId]);
+    }, [
+        accessToken,
+        connectionKey,
+        handleStompMessage,
+        onReconnectSyncRequested,
+        roomId,
+    ]);
 
     const sendMessage = useCallback(
-        (content: string) => {
+        async (content: string) => {
             const client = clientRef.current;
             const trimmedContent = content.trim();
 
-            if (!client || !client.connected || !accessToken || !trimmedContent) {
+            if (!trimmedContent) {
                 return false;
             }
 
-            client.publish({
-                destination: `/app/chat/rooms/${roomId}/messages`,
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-                body: JSON.stringify({
-                    content: trimmedContent,
-                }),
-            });
+            if (!client || !client.connected || !accessToken) {
+                setSendErrorCode("NOT_CONNECTED");
+                return false;
+            }
 
-            return true;
+            setIsSending(true);
+            setSendErrorCode(null);
+
+            try {
+                client.publish({
+                    destination: `/app/chat/rooms/${roomId}/messages`,
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify({
+                        content: trimmedContent,
+                    }),
+                });
+
+                return true;
+            } catch (error) {
+                console.error("Failed to send chat websocket message.", error);
+                setSendErrorCode("SEND_FAILED");
+                return false;
+            } finally {
+                setIsSending(false);
+            }
         },
         [accessToken, roomId],
     );
@@ -194,6 +235,8 @@ export function useChatRoomWebSocket({
     return {
         connectionStatus,
         isConnected: connectionStatus === "CONNECTED",
+        isSending,
+        sendErrorCode,
         sendMessage,
     };
 }

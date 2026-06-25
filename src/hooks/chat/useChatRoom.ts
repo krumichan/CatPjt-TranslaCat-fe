@@ -20,10 +20,11 @@ interface UseChatRoomResult {
     loadErrorCode: ChatRoomLoadErrorCode | null;
     sendErrorCode: ChatRoomSendErrorCode | null;
     loadMoreErrorCode: ChatRoomLoadMoreErrorCode | null;
-    appendMessage: (message: ChatMessage) => void;
     reload: () => Promise<void>;
     loadMoreMessages: () => Promise<boolean>;
     sendMessage: (content: string) => Promise<boolean>;
+    appendMessage: (message: ChatMessage) => void;
+    syncLatestMessages: () => Promise<void>;
 }
 
 function sortMessagesByCreatedAt(messages: ChatMessage[]) {
@@ -62,12 +63,6 @@ export function useChatRoom(roomId: string): UseChatRoomResult {
         useState<ChatRoomSendErrorCode | null>(null);
     const [loadMoreErrorCode, setLoadMoreErrorCode] =
         useState<ChatRoomLoadMoreErrorCode | null>(null);
-
-    const appendMessage = useCallback((message: ChatMessage) => {
-        setMessages((currentMessages) =>
-            mergeMessagesWithoutDuplicates([...currentMessages, message]),
-        );
-    }, []);
 
     const load = useCallback(async () => {
         setIsLoading(true);
@@ -160,6 +155,27 @@ export function useChatRoom(roomId: string): UseChatRoomResult {
         [isSending, roomId],
     );
 
+    const appendMessage = useCallback((message: ChatMessage) => {
+        setMessages((currentMessages) =>
+            mergeMessagesWithoutDuplicates([message, ...currentMessages]),
+        );
+    }, []);
+
+    const syncLatestMessages = useCallback(async () => {
+        try {
+            const messageResponse = await chatService.getMessages(roomId);
+
+            setMessages((currentMessages) =>
+                mergeMessagesWithoutDuplicates([
+                    ...messageResponse.messages,
+                    ...currentMessages,
+                ]),
+            );
+        } catch (error) {
+            console.error("Failed to sync latest chat messages.", error);
+        }
+    }, [roomId]);
+
     useEffect(() => {
         void load();
     }, [load]);
@@ -175,9 +191,10 @@ export function useChatRoom(roomId: string): UseChatRoomResult {
         loadErrorCode,
         sendErrorCode,
         loadMoreErrorCode,
-        appendMessage,
         reload: load,
         loadMoreMessages,
         sendMessage,
+        appendMessage,
+        syncLatestMessages,
     };
 }

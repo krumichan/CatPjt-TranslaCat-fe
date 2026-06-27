@@ -14,7 +14,8 @@ export type ChatWebSocketConnectionStatus =
 export type ChatWebSocketEventType =
     | "chat.message.created"
     | "chat.translation.completed"
-    | "chat.translation.failed";
+    | "chat.translation.failed"
+    | "chat.error";
 
 export interface ChatWebSocketEvent<T = unknown> {
     eventType?: ChatWebSocketEventType;
@@ -30,12 +31,15 @@ export interface ChatTranslationResultPayload {
     roomId?: number;
     chatRoomId?: number;
     messageId?: unknown;
+    translationId?: unknown;
+    id?: unknown;
     languageCode?: unknown;
     translatedText?: string | null;
     translatedContent?: string | null;
     status?: ChatMessageTranslationStatus;
     failureReason?: string | null;
     completedAt?: string | null;
+    occurredAt?: string | null;
     translation?: ChatMessageTranslation;
 }
 
@@ -49,7 +53,10 @@ export const getChatWebSocketEventType = (
 ): ChatWebSocketEventType | null => event.eventType ?? event.type ?? null;
 
 const extractPayload = <T>(event: ChatWebSocketEvent<T>): T | null =>
-    event.payload ?? event.data ?? event.message ?? null;
+    event.payload ??
+    event.data ??
+    event.message ??
+    ((event as unknown) as T);
 
 export const extractChatMessageFromEvent = (
     event: ChatWebSocketEvent<ChatMessage>,
@@ -74,16 +81,30 @@ export const extractTranslationResultFromEvent = (
         return null;
     }
 
+    const translationId =
+        typeof payload.translation?.id === "number"
+            ? payload.translation.id
+            : typeof payload.translationId === "number"
+                ? payload.translationId
+                : typeof payload.id === "number"
+                    ? payload.id
+                    : 0;
+
+    const completedAt =
+        payload.completedAt ??
+        payload.occurredAt ??
+        (fallbackStatus === "COMPLETED" ? new Date().toISOString() : null);
+
     const translation: ChatMessageTranslation =
         payload.translation ??
         {
-            id: 0,
+            id: translationId,
             languageCode,
             translatedContent:
-                payload.translatedContent ?? payload.translatedText ?? "",
+                payload.translatedContent ?? payload.translatedText ?? null,
             status: payload.status ?? fallbackStatus,
             failureReason: payload.failureReason ?? null,
-            completedAt: payload.completedAt ?? new Date().toISOString(),
+            completedAt,
         };
 
     return {

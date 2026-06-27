@@ -19,6 +19,22 @@
       "send": "メッセージ送信",
       "sendFailed": "メッセージの送信に失敗しました。"
     },
+    "languageSettings": {
+      "title": "言語設定",
+      "description": "このチャットルームで使用する原文基準言語と受信翻訳言語を設定します。",
+      "originalLanguage": "原文基準言語",
+      "translationLanguage": "受信翻訳言語",
+      "showOriginal": "原文を表示",
+      "showTranslation": "翻訳を表示",
+      "loading": "言語設定を読み込み中...",
+      "loadFailed": "言語設定を読み込めませんでした。",
+      "saveFailed": "言語設定の保存に失敗しました。",
+      "retry": "再試行",
+      "cancel": "キャンセル",
+      "save": "保存",
+      "saving": "保存中...",
+      "close": "閉じる"
+    },
     "pagination": {
       "loadingPrevious": "以前のメッセージを読み込み中...",
       "loadFailed": "以前のメッセージを読み込めませんでした。",

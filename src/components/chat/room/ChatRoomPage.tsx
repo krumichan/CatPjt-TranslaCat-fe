@@ -12,8 +12,10 @@ import type {
     ChatMessage,
     ChatMessageTranslation,
 } from "@/types/chat";
-import {useCallback} from "react";
+import {useCallback, useState} from "react";
 import {useChatRoomWebSocket} from "@/hooks/chat/useChatRoomWebSocket";
+import {useChatLanguageSettings} from "@/hooks/chat/useChatLanguageSettings";
+import {ChatLanguageSettingsModal} from "@/components/chat/room/modal/ChatLanguageSettingsModal";
 
 interface ChatRoomPageProps {
     roomId: number;
@@ -23,6 +25,8 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
     const t = useTranslations("ChatRoom");
     const { data: session } = useSession();
 
+    const [isLanguageSettingsOpen, setIsLanguageSettingsOpen] = useState(false);
+    
     const {
         room,
         messages,
@@ -40,6 +44,16 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
         applyTranslationCompleted,
         syncLatestMessages,
     } = useChatRoom(roomId);
+
+    const {
+        settings: languageSettings,
+        isLoading: isLanguageSettingsLoading,
+        isSaving: isLanguageSettingsSaving,
+        loadErrorCode: languageSettingsLoadErrorCode,
+        saveErrorCode: languageSettingsSaveErrorCode,
+        reload: reloadLanguageSettings,
+        saveSettings: saveLanguageSettings,
+    } = useChatLanguageSettings(roomId);
 
     const accessToken = session?.accessToken ?? null;
     const currentUserEmail = session?.user?.email ?? null;
@@ -130,25 +144,51 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
     }
 
     return (
-        <div className="fixed inset-x-0 bottom-0 top-15 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950">
-            <ChatRoomHeader room={room} connectionStatus={connectionStatus} />
+        <>
+            <div className="fixed inset-x-0 bottom-0 top-15 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950">
+                <ChatRoomHeader
+                    room={room}
+                    connectionStatus={connectionStatus}
+                    onLanguageSettingsClick={() => setIsLanguageSettingsOpen(true)}
+                />
 
-            <ChatMessageList
-                messages={messages}
-                currentUserEmail={currentUserEmail}
-                hasNext={hasNext}
-                isLoadingMore={isLoadingMore}
-                loadMoreErrorMessage={
-                    loadMoreErrorCode ? t("pagination.loadFailed") : null
+                <ChatMessageList
+                    messages={messages}
+                    currentUserEmail={currentUserEmail}
+                    hasNext={hasNext}
+                    isLoadingMore={isLoadingMore}
+                    loadMoreErrorMessage={
+                        loadMoreErrorCode ? t("pagination.loadFailed") : null
+                    }
+                    onLoadMore={loadMoreMessages}
+                />
+
+                <ChatMessageInput
+                    onSend={sendMessage}
+                    disabled={isMessageSending}
+                    sendErrorMessage={sendErrorMessage}
+                />
+            </div>
+
+            <ChatLanguageSettingsModal
+                open={isLanguageSettingsOpen}
+                settings={languageSettings}
+                isLoading={isLanguageSettingsLoading}
+                isSaving={isLanguageSettingsSaving}
+                loadErrorMessage={
+                    languageSettingsLoadErrorCode
+                        ? t("languageSettings.loadFailed")
+                        : null
                 }
-                onLoadMore={loadMoreMessages}
+                saveErrorMessage={
+                    languageSettingsSaveErrorCode
+                        ? t("languageSettings.saveFailed")
+                        : null
+                }
+                onClose={() => setIsLanguageSettingsOpen(false)}
+                onSave={saveLanguageSettings}
+                onReload={reloadLanguageSettings}
             />
-
-            <ChatMessageInput
-                onSend={sendMessage}
-                disabled={isMessageSending}
-                sendErrorMessage={sendErrorMessage}
-            />
-        </div>
+        </>
     );
 }

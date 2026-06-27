@@ -52,6 +52,7 @@
     "cancel": "キャンセル",
     "create": "作成",
     "creating": "作成中...",
+    "modalDescription": "1:1チャットルームまたはグループチャットルームを作成します。",
     "roomType": {
       "label": "チャットルームタイプ",
       "direct": "1:1チャット",

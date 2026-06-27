@@ -1,49 +1,56 @@
 import { useTranslations } from "next-intl";
 
-import type { ChatMessageTranslation } from "@/types/chat";
+import type {ChatLanguageSettings, ChatMessageTranslation} from "@/types/chat";
+import {getVisibleTranslations} from "@/utils/chat/chatTranslations";
 
 interface ChatTranslationBlockProps {
     translations: ChatMessageTranslation[];
     isMine: boolean;
+    languageSettings: ChatLanguageSettings | null;
 }
 
 export function ChatTranslationBlock({
     translations,
     isMine,
+    languageSettings,
 }: ChatTranslationBlockProps) {
     const t = useTranslations("ChatRoom");
 
-    if (translations.length === 0) {
+    const visibleTranslations = getVisibleTranslations(
+        translations,
+        languageSettings,
+        isMine,
+    );
+
+    if (visibleTranslations.length === 0) {
         return null;
     }
 
     return (
-        <div className={`space-y-1 ${isMine ? "text-right" : "text-left"}`}>
-            {translations.map((translation) => (
+        <div className="mt-2 space-y-1">
+            {visibleTranslations.map((translation) => (
                 <div
-                    key={translation.id}
-                    className={`inline-block max-w-full rounded-xl border px-3 py-2 text-xs ${
-                        isMine
-                            ? "border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-100"
-                            : "border-slate-200 bg-slate-50 text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
-                    }`}
+                    key={`${translation.languageCode}-${translation.id}`}
+                    className="rounded-xl bg-slate-50 px-3 py-2 text-xs text-slate-600 dark:bg-slate-800/80 dark:text-slate-300"
                 >
-                    <p className="mb-1 text-[10px] font-medium uppercase opacity-70">
+                    <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
                         {translation.languageCode}
-                    </p>
+                    </div>
 
                     {translation.status === "COMPLETED" && (
-                        <p className="whitespace-pre-wrap break-words">
+                        <p className="whitespace-pre-wrap wrap-break-word">
                             {translation.translatedContent}
                         </p>
                     )}
 
                     {translation.status === "PENDING" && (
-                        <p className="animate-pulse">{t("translation.pending")}</p>
+                        <p className="text-slate-400 dark:text-slate-500">
+                            {t("translation.pending")}
+                        </p>
                     )}
 
                     {translation.status === "FAILED" && (
-                        <p title={translation.failureReason ?? undefined}>
+                        <p className="text-red-500 dark:text-red-300">
                             {t("translation.failed")}
                         </p>
                     )}

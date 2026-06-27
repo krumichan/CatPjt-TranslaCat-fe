@@ -55,7 +55,7 @@ export default function ServiceSelectPage() {
             icon: (
                 <MessageCircle className="h-12 w-12 text-purple-500 transition-transform duration-300 group-hover:scale-110" />
             ),
-            href: "/chat/rooms/1",
+            href: "/chat",
             color: "hover:border-purple-400",
             titleHoverColor: "group-hover:text-purple-500",
         },

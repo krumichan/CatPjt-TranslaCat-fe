@@ -22,7 +22,7 @@ export function ChatRoomListPage() {
 
     return (
         <main className="min-h-[calc(100vh-3.75rem)] bg-slate-50 px-4 py-6 dark:bg-slate-950">
-            <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
+            <div className="mx-auto pt-20 flex w-full max-w-5xl flex-col gap-6">
                 <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>

@@ -1,11 +1,12 @@
 import { useLocale } from "next-intl";
 
 import { ChatTranslationBlock } from "@/components/chat/room/ChatTranslationBlock";
-import type { ChatMessage } from "@/types/chat";
+import type {ChatLanguageSettings, ChatMessage} from "@/types/chat";
 
 interface ChatMessageItemProps {
     message: ChatMessage;
     isMine: boolean;
+    languageSettings: ChatLanguageSettings | null;
 }
 
 function formatMessageTime(value: string, locale: string) {
@@ -19,8 +20,18 @@ function formatMessageTime(value: string, locale: string) {
     }
 }
 
-export function ChatMessageItem({ message, isMine }: ChatMessageItemProps) {
+export function ChatMessageItem({
+    message,
+    isMine,
+    languageSettings,
+}: ChatMessageItemProps) {
     const locale = useLocale();
+
+    const showOriginalContent = shouldShowOriginalMessageContent(
+        message.translations,
+        languageSettings,
+        isMine,
+    );
 
     return (
         <div className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
@@ -42,14 +53,17 @@ export function ChatMessageItem({ message, isMine }: ChatMessageItemProps) {
                             : "rounded-bl-sm bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100"
                     }`}
                 >
-                    <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
-                        {message.content}
-                    </p>
+                    {showOriginalContent && (
+                        <p className="whitespace-pre-wrap wrap-break-word text-sm">
+                            {message.content}
+                        </p>
+                    )}
                 </div>
 
                 <ChatTranslationBlock
                     translations={message.translations}
                     isMine={isMine}
+                    languageSettings={languageSettings}
                 />
 
                 <p

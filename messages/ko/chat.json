@@ -52,6 +52,7 @@
     "cancel": "취소",
     "create": "생성",
     "creating": "생성 중...",
+    "modalDescription": "1:1 채팅방 또는 그룹 채팅방을 생성합니다.",
     "roomType": {
       "label": "채팅방 타입",
       "direct": "1:1 채팅",

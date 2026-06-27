@@ -155,6 +155,7 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
                 <ChatMessageList
                     messages={messages}
                     currentUserEmail={currentUserEmail}
+                    languageSettings={languageSettings}
                     hasNext={hasNext}
                     isLoadingMore={isLoadingMore}
                     loadMoreErrorMessage={

@@ -62,7 +62,7 @@ export function ChatRoomCreateModal({
                         </h2>
 
                         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                            {t("description")}
+                            {t("modalDescription")}
                         </p>
                     </div>
 

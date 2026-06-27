@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef } from "react";
 
 import { ChatMessageItem } from "@/components/chat/room/ChatMessageItem";
-import type { ChatMessage } from "@/types/chat";
+import type {ChatLanguageSettings, ChatMessage} from "@/types/chat";
 import {
     isElementNearBottom,
     scrollElementToBottom,
@@ -14,6 +14,7 @@ import {
 interface ChatMessageListProps {
     messages: ChatMessage[];
     currentUserEmail: string | null;
+    languageSettings: ChatLanguageSettings | null;
     hasNext: boolean;
     isLoadingMore: boolean;
     loadMoreErrorMessage: string | null;
@@ -25,6 +26,7 @@ const LOAD_MORE_SCROLL_THRESHOLD = 80;
 export function ChatMessageList({
     messages,
     currentUserEmail,
+    languageSettings,
     hasNext,
     isLoadingMore,
     loadMoreErrorMessage,
@@ -144,9 +146,8 @@ export function ChatMessageList({
                 <ChatMessageItem
                     key={message.id}
                     message={message}
-                    isMine={
-                        currentUserEmail != null && message.senderEmail === currentUserEmail
-                    }
+                    isMine={message.senderEmail === currentUserEmail}
+                    languageSettings={languageSettings}
                 />
             ))}
         </main>

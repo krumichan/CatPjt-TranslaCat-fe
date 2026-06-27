@@ -3,21 +3,31 @@
 import { Client, type IMessage } from "@stomp/stompjs";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import type { ChatMessage } from "@/types/chat";
 import type {
-    ChatWebSocketConnectionStatus,
-    ChatWebSocketEvent,
+    ChatMessage,
+    ChatMessageTranslation,
+} from "@/types/chat";
+import {
+    extractChatMessageFromEvent,
+    extractTranslationCompletedFromEvent,
+    getChatWebSocketEventType,
+    type ChatTranslationCompletedPayload,
+    type ChatWebSocketEvent,
+    type ChatWebSocketConnectionStatus,
 } from "@/types/chatWebSocket";
-import { extractChatMessageFromEvent } from "@/types/chatWebSocket";
 import { getChatWebSocketUrl } from "@/utils/websocket";
 
 type ChatWebSocketSendErrorCode = "NOT_CONNECTED" | "SEND_FAILED";
 
 interface UseChatRoomWebSocketParams {
-    roomId: string;
+    roomId: number;
     accessToken: string | null;
     onMessageCreated: (message: ChatMessage) => void;
-    onReconnectSyncRequested?: () => Promise<void> | void;
+    onTranslationCompleted?: (
+        messageId: number,
+        translation: ChatMessageTranslation,
+    ) => void;
+    onReconnectSyncRequested?: () => Promise<void>;
 }
 
 interface UseChatRoomWebSocketResult {
@@ -28,12 +38,13 @@ interface UseChatRoomWebSocketResult {
     sendMessage: (content: string) => Promise<boolean>;
 }
 
-export function useChatRoomWebSocket({
+export const useChatRoomWebSocket = ({
     roomId,
     accessToken,
     onMessageCreated,
+    onTranslationCompleted,
     onReconnectSyncRequested,
-}: UseChatRoomWebSocketParams): UseChatRoomWebSocketResult {
+}: UseChatRoomWebSocketParams): UseChatRoomWebSocketResult => {
     const clientRef = useRef<Client | null>(null);
     const connectionKeyRef = useRef<string | null>(null);
     const hasConnectedOnceRef = useRef(false);
@@ -75,28 +86,41 @@ export function useChatRoomWebSocket({
     const handleStompMessage = useCallback(
         (message: IMessage) => {
             try {
-                const parsed = JSON.parse(
-                    message.body,
-                ) as ChatWebSocketEvent<ChatMessage>;
+                const parsed = JSON.parse(message.body) as ChatWebSocketEvent<unknown>;
+                const eventType = getChatWebSocketEventType(parsed);
 
-                const eventType = parsed.eventType ?? parsed.type;
+                if (!eventType || eventType === "chat.message.created") {
+                    const chatMessage = extractChatMessageFromEvent(
+                        parsed as ChatWebSocketEvent<ChatMessage>,
+                    );
 
-                if (eventType && eventType !== "chat.message.created") {
+                    if (!chatMessage) {
+                        return;
+                    }
+
+                    onMessageCreated(chatMessage);
                     return;
                 }
 
-                const createdMessage = extractChatMessageFromEvent(parsed);
+                if (eventType === "chat.translation.completed") {
+                    const completed = extractTranslationCompletedFromEvent(
+                        parsed as ChatWebSocketEvent<ChatTranslationCompletedPayload>,
+                    );
 
-                if (!createdMessage) {
-                    return;
+                    if (!completed) {
+                        return;
+                    }
+
+                    onTranslationCompleted?.(
+                        completed.messageId,
+                        completed.translation,
+                    );
                 }
-
-                onMessageCreated(createdMessage);
             } catch (error) {
-                console.error("Failed to parse chat websocket message.", error);
+                console.error("Failed to parse chat websocket message", error);
             }
         },
-        [onMessageCreated],
+        [onMessageCreated, onTranslationCompleted],
     );
 
     useEffect(() => {

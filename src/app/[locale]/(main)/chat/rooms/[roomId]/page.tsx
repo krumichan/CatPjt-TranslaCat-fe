@@ -1,4 +1,5 @@
 import { ChatRoomPage } from "@/components/chat/room/ChatRoomPage";
+import {notFound} from "next/navigation";
 
 interface PageProps {
     params: Promise<{
@@ -7,8 +8,14 @@ interface PageProps {
     }>;
 }
 
-export default async function Page({ params }: PageProps) {
-    const { roomId } = await params;
+export default async function ChatRoomRoutePage({ params }: PageProps) {
+    const { roomId: roomIdParam } = await params;
+
+    const roomId = Number(roomIdParam);
+
+    if (!Number.isSafeInteger(roomId) || roomId <= 0) {
+        notFound();
+    }
 
     return <ChatRoomPage roomId={roomId} />;
 }

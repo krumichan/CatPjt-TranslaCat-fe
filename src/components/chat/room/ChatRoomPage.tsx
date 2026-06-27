@@ -8,12 +8,15 @@ import { ChatMessageInput } from "@/components/chat/room/ChatMessageInput";
 import { ChatMessageList } from "@/components/chat/room/ChatMessageList";
 import { ChatRoomHeader } from "@/components/chat/room/ChatRoomHeader";
 import { useChatRoom } from "@/hooks/chat/useChatRoom";
-import {ChatMessage} from "@/types/chat";
+import type {
+    ChatMessage,
+    ChatMessageTranslation,
+} from "@/types/chat";
 import {useCallback} from "react";
 import {useChatRoomWebSocket} from "@/hooks/chat/useChatRoomWebSocket";
 
 interface ChatRoomPageProps {
-    roomId: string;
+    roomId: number;
 }
 
 export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
@@ -34,6 +37,7 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
         loadMoreMessages,
         sendMessage: sendRestMessage,
         appendMessage,
+        applyTranslationCompleted,
         syncLatestMessages,
     } = useChatRoom(roomId);
 
@@ -47,6 +51,13 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
         [appendMessage],
     );
 
+    const handleTranslationCompleted = useCallback(
+        (messageId: number, translation: ChatMessageTranslation) => {
+            applyTranslationCompleted(messageId, translation);
+        },
+        [applyTranslationCompleted],
+    );
+
     const {
         connectionStatus,
         isConnected,
@@ -57,6 +68,7 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
         roomId,
         accessToken,
         onMessageCreated: handleMessageCreated,
+        onTranslationCompleted: handleTranslationCompleted,
         onReconnectSyncRequested: syncLatestMessages,
     });
 

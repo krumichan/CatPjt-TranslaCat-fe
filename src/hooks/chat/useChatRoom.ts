@@ -3,7 +3,11 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { chatService } from "@/services/chat/chatService";
-import type { ChatMessage, ChatRoom } from "@/types/chat";
+import type {
+    ChatMessage,
+    ChatMessageTranslation,
+    ChatRoom,
+} from "@/types/chat";
 
 type ChatRoomLoadErrorCode = "LOAD_FAILED";
 type ChatRoomSendErrorCode = "SEND_FAILED";
@@ -24,6 +28,10 @@ interface UseChatRoomResult {
     loadMoreMessages: () => Promise<boolean>;
     sendMessage: (content: string) => Promise<boolean>;
     appendMessage: (message: ChatMessage) => void;
+    applyTranslationCompleted: (
+        messageId: number,
+        translation: ChatMessageTranslation,
+    ) => void;
     syncLatestMessages: () => Promise<void>;
 }
 
@@ -33,20 +41,70 @@ function sortMessagesByCreatedAt(messages: ChatMessage[]) {
     );
 }
 
-function mergeMessagesWithoutDuplicates(messages: ChatMessage[]) {
-    const seenIds = new Set<number>();
+const mergeMessagesWithoutDuplicates = (
+    messages: ChatMessage[],
+): ChatMessage[] => {
+    const messageById = new Map<number, ChatMessage>();
 
-    return sortMessagesByCreatedAt(messages).filter((message) => {
-        if (seenIds.has(message.id)) {
-            return false;
+    for (const message of sortMessagesByCreatedAt(messages)) {
+        const previous = messageById.get(message.id);
+
+        messageById.set(
+            message.id,
+            previous
+                ? {
+                    ...previous,
+                    ...message,
+                    translations: mergeTranslationsWithoutDuplicates([
+                        ...previous.translations,
+                        ...message.translations,
+                    ]),
+                }
+                : message,
+        );
+    }
+
+    return Array.from(messageById.values());
+};
+
+const mergeTranslationsWithoutDuplicates = (
+    translations: ChatMessageTranslation[],
+): ChatMessageTranslation[] => {
+    const translationByLanguageCode = new Map<string, ChatMessageTranslation>();
+
+    for (const translation of translations) {
+        const previous = translationByLanguageCode.get(translation.languageCode);
+
+        translationByLanguageCode.set(translation.languageCode, {
+            ...previous,
+            ...translation,
+        });
+    }
+
+    return Array.from(translationByLanguageCode.values());
+};
+
+const mergeMessageTranslation = (
+    messages: ChatMessage[],
+    messageId: number,
+    translation: ChatMessageTranslation,
+): ChatMessage[] =>
+    messages.map((message) => {
+        if (message.id !== messageId) {
+            return message;
         }
 
-        seenIds.add(message.id);
-        return true;
+        return {
+            ...message,
+            translations: mergeTranslationsWithoutDuplicates([
+                ...message.translations,
+                translation,
+            ]),
+            updatedAt: translation.completedAt ?? message.updatedAt,
+        };
     });
-}
 
-export function useChatRoom(roomId: string): UseChatRoomResult {
+export function useChatRoom(roomId: number): UseChatRoomResult {
     const [room, setRoom] = useState<ChatRoom | null>(null);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
 
@@ -161,6 +219,15 @@ export function useChatRoom(roomId: string): UseChatRoomResult {
         );
     }, []);
 
+    const applyTranslationCompleted = useCallback(
+        (messageId: number, translation: ChatMessageTranslation) => {
+            setMessages((currentMessages) =>
+                mergeMessageTranslation(currentMessages, messageId, translation),
+            );
+        },
+        [],
+    );
+
     const syncLatestMessages = useCallback(async () => {
         try {
             const messageResponse = await chatService.getMessages(roomId);
@@ -195,6 +262,7 @@ export function useChatRoom(roomId: string): UseChatRoomResult {
         loadMoreMessages,
         sendMessage,
         appendMessage,
+        applyTranslationCompleted,
         syncLatestMessages,
     };
 }

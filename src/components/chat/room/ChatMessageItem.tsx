@@ -2,6 +2,7 @@ import { useLocale } from "next-intl";
 
 import { ChatTranslationBlock } from "@/components/chat/room/ChatTranslationBlock";
 import type {ChatLanguageSettings, ChatMessage} from "@/types/chat";
+import {shouldShowOriginalMessageContent} from "@/utils/chat/chatTranslations";
 
 interface ChatMessageItemProps {
     message: ChatMessage;

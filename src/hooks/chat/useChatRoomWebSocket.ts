@@ -9,11 +9,11 @@ import type {
 } from "@/types/chat";
 import {
     extractChatMessageFromEvent,
-    extractTranslationCompletedFromEvent,
+    extractTranslationResultFromEvent,
     getChatWebSocketEventType,
-    type ChatTranslationCompletedPayload,
-    type ChatWebSocketEvent,
+    type ChatTranslationResultPayload,
     type ChatWebSocketConnectionStatus,
+    type ChatWebSocketEvent,
 } from "@/types/chatWebSocket";
 import { getChatWebSocketUrl } from "@/utils/websocket";
 
@@ -102,9 +102,13 @@ export const useChatRoomWebSocket = ({
                     return;
                 }
 
-                if (eventType === "chat.translation.completed") {
-                    const completed = extractTranslationCompletedFromEvent(
-                        parsed as ChatWebSocketEvent<ChatTranslationCompletedPayload>,
+                if (
+                    eventType === "chat.translation.completed" ||
+                    eventType === "chat.translation.failed"
+                ) {
+                    const completed = extractTranslationResultFromEvent(
+                        parsed as ChatWebSocketEvent<ChatTranslationResultPayload>,
+                        eventType === "chat.translation.failed" ? "FAILED" : "COMPLETED",
                     );
 
                     if (!completed) {

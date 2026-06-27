@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { ChatRoomEmptyState } from "@/components/chat/list/ChatRoomEmptyState";
 import { ChatRoomList } from "@/components/chat/list/ChatRoomList";
 import { useChatRooms } from "@/hooks/chat/useChatRooms";
+import {ChatRoomCreateModal} from "@/components/chat/list/modal/ChatRoomCreateModal";
 
 export function ChatRoomListPage() {
     const t = useTranslations("ChatRoomList");
@@ -13,6 +14,8 @@ export function ChatRoomListPage() {
     const {
         rooms,
         isLoading,
+        isCreateModalOpen,
+        setIsCreateModalOpen,
         loadErrorCode,
         reload,
     } = useChatRooms();
@@ -39,9 +42,8 @@ export function ChatRoomListPage() {
 
                         <button
                             type="button"
-                            disabled
-                            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-                            title={t("create.comingSoon")}
+                            onClick={() => setIsCreateModalOpen(true)}
+                            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
                         >
                             <Plus className="h-4 w-4" />
                             {t("create.button")}
@@ -81,11 +83,17 @@ export function ChatRoomListPage() {
                         </div>
                     </section>
                 ) : rooms.length === 0 ? (
-                    <ChatRoomEmptyState />
+                    <ChatRoomEmptyState onCreateClick={() => setIsCreateModalOpen(true)} />
                 ) : (
                     <ChatRoomList rooms={rooms} />
                 )}
             </div>
+
+            <ChatRoomCreateModal
+                open={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
+                onCreated={reload}
+            />
         </main>
     );
 }

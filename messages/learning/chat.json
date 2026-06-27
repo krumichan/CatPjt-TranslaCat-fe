@@ -46,6 +46,43 @@
       "failed": "翻訳失敗 · 原文を表示します"
     }
   },
+  "ChatRoomCreate": {
+    "title": "チャットルーム作成",
+    "close": "閉じる",
+    "cancel": "キャンセル",
+    "create": "作成",
+    "creating": "作成中...",
+    "roomType": {
+      "label": "チャットルームタイプ",
+      "direct": "1:1チャット",
+      "group": "グループチャット"
+    },
+    "name": {
+      "label": "チャットルーム名",
+      "placeholder": "グループチャットルーム名を入力してください"
+    },
+    "members": {
+      "directLabel": "相手ユーザーID",
+      "groupLabel": "招待するユーザーID",
+      "directPlaceholder": "例: 2",
+      "groupPlaceholder": "例: 2, 3, 4",
+      "directHelp": "1:1チャットでは相手ユーザーIDを1件だけ入力します。",
+      "groupHelp": "グループチャットではユーザーIDをカンマまたは空白で区切って入力します。"
+    },
+    "description": {
+      "label": "説明",
+      "placeholder": "チャットルームの説明を入力してください"
+    },
+    "validation": {
+      "MEMBER_REQUIRED": "招待するユーザーIDを入力してください。",
+      "DIRECT_MEMBER_COUNT_INVALID": "1:1チャットでは相手ユーザーIDを1件だけ入力してください。",
+      "GROUP_MEMBER_REQUIRED": "グループチャットでは1人以上のユーザーを追加してください。",
+      "INVALID_MEMBER_ID": "ユーザーIDは1以上の数字で入力してください。"
+    },
+    "error": {
+      "createFailed": "チャットルームの作成に失敗しました。"
+    }
+  },
   "ChatRoomList": {
     "badge": "TranslaCat Chat",
     "title": "チャット",

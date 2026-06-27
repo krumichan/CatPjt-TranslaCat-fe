@@ -46,6 +46,47 @@
       "failed": "번역 실패 · 원문을 표시합니다"
     }
   },
+  "ChatRoomCreate": {
+    "title": "채팅방 만들기",
+    "close": "닫기",
+    "cancel": "취소",
+    "create": "생성",
+    "creating": "생성 중...",
+    "roomType": {
+      "label": "채팅방 타입",
+      "direct": "1:1 채팅",
+      "group": "그룹 채팅"
+    },
+    "name": {
+      "label": "채팅방 이름",
+      "placeholder": "그룹 채팅방 이름을 입력하세요"
+    },
+    "members": {
+      "directLabel": "상대 사용자 ID",
+      "groupLabel": "초대할 사용자 ID",
+      "directPlaceholder": "예: 2",
+      "groupPlaceholder": "예: 2, 3, 4",
+      "directHelp": "1:1 채팅은 상대 사용자 ID를 1개만 입력합니다.",
+      "groupHelp": "그룹 채팅은 사용자 ID를 쉼표 또는 공백으로 구분해서 입력합니다."
+    },
+    "descriptionField": {
+      "label": "설명",
+      "placeholder": "채팅방 설명을 입력하세요"
+    },
+    "description": {
+      "label": "설명",
+      "placeholder": "채팅방 설명을 입력하세요"
+    },
+    "validation": {
+      "MEMBER_REQUIRED": "초대할 사용자 ID를 입력해주세요.",
+      "DIRECT_MEMBER_COUNT_INVALID": "1:1 채팅은 상대 사용자 ID를 1개만 입력해야 합니다.",
+      "GROUP_MEMBER_REQUIRED": "그룹 채팅은 1명 이상의 사용자를 추가해야 합니다.",
+      "INVALID_MEMBER_ID": "사용자 ID는 1 이상의 숫자로 입력해주세요."
+    },
+    "error": {
+      "createFailed": "채팅방 생성에 실패했습니다."
+    }
+  },
   "ChatRoomList": {
     "badge": "TranslaCat Chat",
     "title": "채팅",

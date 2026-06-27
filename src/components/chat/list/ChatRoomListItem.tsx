@@ -60,6 +60,11 @@ export function ChatRoomListItem({ room }: ChatRoomListItemProps) {
                                     {t(getRoomTypeTranslationKey(room.roomType))}
                                 </span>
 
+                                <span className="inline-flex items-center gap-1">
+                                    <Users className="h-3.5 w-3.5" />
+                                    {t("members.count", { count: room.memberCount })}
+                                </span>
+
                                 <span>Room #{room.id}</span>
 
                                 <span>{formatUpdatedAt(room.updatedAt)}</span>

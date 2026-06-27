@@ -20,6 +20,7 @@ export interface ChatRoom {
     originalLanguageCode: string;
     translationLanguageCode: string;
     roomLanguageSettingApplied: boolean;
+    memberCount: number;
     createdAt: string;
     updatedAt: string;
 }

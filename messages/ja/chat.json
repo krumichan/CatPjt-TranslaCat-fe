@@ -93,6 +93,9 @@
       "button": "チャットルーム作成",
       "comingSoon": "チャットルーム作成は次のステップで実装します。"
     },
+    "members": {
+      "count": "{count}人"
+    },
     "roomType": {
       "direct": "1:1",
       "group": "グループ",

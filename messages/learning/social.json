@@ -1,0 +1,61 @@
+{
+  "Social": {
+    "profileEntry": {
+      "manage": "プロフィール管理"
+    },
+    "profilePage": {
+      "eyebrow": "Profile",
+      "title": "自分のプロフィール",
+      "description": "TranslaCatで使用するニックネーム、プロフィール画像、自己紹介を管理します。",
+      "actions": {
+        "reload": "再読み込み"
+      },
+      "messages": {
+        "loadFailedTitle": "プロフィールの取得に失敗しました。",
+        "loadFailedDescription": "しばらくしてから再度お試しください。ログイン状態が切れている場合は再ログインが必要です。",
+        "saveFailed": "プロフィールの保存に失敗しました。",
+        "saved": "プロフィールを保存しました。"
+      },
+      "validation": {
+        "nicknameRequired": "ニックネームを入力してください。",
+        "nicknameTooLong": "ニックネームは30文字以内で入力してください。",
+        "profileImageUrlTooLong": "プロフィール画像URLは500文字以内で入力してください。",
+        "profileImageUrlInvalid": "httpまたはhttpsで始まる正しいURLを入力してください。",
+        "bioTooLong": "自己紹介は200文字以内で入力してください。"
+      },
+      "info": {
+        "eyebrow": "Preview",
+        "publicId": "TranslaCat ID",
+        "copyPublicId": "TranslaCat IDをコピー",
+        "copied": "コピーしました。",
+        "emptyBio": "自己紹介はまだ登録されていません。",
+        "profileImageUrl": "Profile Image URL",
+        "emptyProfileImageUrl": "プロフィール画像は登録されていません。"
+      },
+      "form": {
+        "eyebrow": "Edit",
+        "title": "プロフィール編集",
+        "description": "publicIdは変更できません。ニックネーム、プロフィール画像URL、自己紹介のみ編集できます。",
+        "fields": {
+          "publicId": "TranslaCat ID",
+          "nickname": "ニックネーム",
+          "profileImageUrl": "プロフィール画像URL",
+          "bio": "自己紹介"
+        },
+        "hints": {
+          "publicIdReadonly": "友だち追加に使用する固有IDのため変更できません。"
+        },
+        "placeholders": {
+          "nickname": "表示するニックネームを入力",
+          "profileImageUrl": "https://example.com/profile.png",
+          "bio": "自己紹介またはステータスメッセージを入力"
+        },
+        "actions": {
+          "cancel": "キャンセル",
+          "save": "保存",
+          "saving": "保存中..."
+        }
+      }
+    }
+  }
+}

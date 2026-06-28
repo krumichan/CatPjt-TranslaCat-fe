@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getRequestConfig } from "next-intl/server";
+
 import { Locale, locales } from "@/i18n/config";
 
 type Messages = Record<string, unknown>;
@@ -16,6 +17,7 @@ const MESSAGE_FILE_NAMES = [
     "accountBook",
     "settings",
     "chat",
+    "social",
 ] as const;
 
 function isObject(value: unknown): value is Messages {
@@ -56,20 +58,19 @@ async function loadMessageFile(locale: Locale, fileName: string) {
 async function loadMessages(locale: Locale) {
     const messageFiles = await Promise.all(
         MESSAGE_FILE_NAMES.map((fileName) =>
-            loadMessageFile(locale, fileName)
-        )
+            loadMessageFile(locale, fileName),
+        ),
     );
 
-    return messageFiles.reduce<Messages>(
+    return messageFiles.reduce(
         (mergedMessages, messageFile) =>
             mergeMessages(mergedMessages, messageFile),
-        {}
+        {},
     );
 }
 
 export default getRequestConfig(async ({ requestLocale }) => {
     const locale = await requestLocale;
-
     const isValidLocale = locales.includes(locale as Locale);
 
     if (!locale || !isValidLocale) {

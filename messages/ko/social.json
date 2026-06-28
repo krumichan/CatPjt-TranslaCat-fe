@@ -1,0 +1,61 @@
+{
+  "Social": {
+    "profileEntry": {
+      "manage": "프로필 관리"
+    },
+    "profilePage": {
+      "eyebrow": "Profile",
+      "title": "내 프로필",
+      "description": "TranslaCat에서 사용할 닉네임, 프로필 이미지, 자기소개를 관리합니다.",
+      "actions": {
+        "reload": "다시 불러오기"
+      },
+      "messages": {
+        "loadFailedTitle": "프로필을 불러오지 못했습니다.",
+        "loadFailedDescription": "잠시 후 다시 시도해 주세요. 로그인 상태가 만료된 경우 다시 로그인해야 합니다.",
+        "saveFailed": "프로필 저장에 실패했습니다.",
+        "saved": "프로필을 저장했습니다."
+      },
+      "validation": {
+        "nicknameRequired": "닉네임을 입력해 주세요.",
+        "nicknameTooLong": "닉네임은 30자 이내로 입력해 주세요.",
+        "profileImageUrlTooLong": "프로필 이미지 URL은 500자 이내로 입력해 주세요.",
+        "profileImageUrlInvalid": "http 또는 https로 시작하는 올바른 URL을 입력해 주세요.",
+        "bioTooLong": "자기소개는 200자 이내로 입력해 주세요."
+      },
+      "info": {
+        "eyebrow": "Preview",
+        "publicId": "TranslaCat ID",
+        "copyPublicId": "TranslaCat ID 복사",
+        "copied": "복사했습니다.",
+        "emptyBio": "아직 자기소개가 없습니다.",
+        "profileImageUrl": "Profile Image URL",
+        "emptyProfileImageUrl": "등록된 프로필 이미지가 없습니다."
+      },
+      "form": {
+        "eyebrow": "Edit",
+        "title": "프로필 수정",
+        "description": "publicId는 변경할 수 없습니다. 닉네임, 프로필 이미지 URL, 자기소개만 수정할 수 있습니다.",
+        "fields": {
+          "publicId": "TranslaCat ID",
+          "nickname": "닉네임",
+          "profileImageUrl": "프로필 이미지 URL",
+          "bio": "자기소개"
+        },
+        "hints": {
+          "publicIdReadonly": "친구 추가에 사용하는 고유 ID이므로 수정할 수 없습니다."
+        },
+        "placeholders": {
+          "nickname": "표시할 닉네임을 입력",
+          "profileImageUrl": "https://example.com/profile.png",
+          "bio": "자기소개 또는 상태 메시지를 입력"
+        },
+        "actions": {
+          "cancel": "취소",
+          "save": "저장",
+          "saving": "저장 중..."
+        }
+      }
+    }
+  }
+}

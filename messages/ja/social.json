@@ -56,6 +56,97 @@
           "saving": "保存中..."
         }
       }
+    },
+    "userSearchPage": {
+      "eyebrow": "Find friends",
+      "title": "publicIdでユーザー検索",
+      "description": "TranslaCat IDを入力してユーザーを探し、友だちリクエストまたは友だちチャットを開始します。",
+      "form": {
+        "eyebrow": "Search",
+        "title": "ユーザーを探す",
+        "description": "友だちから受け取ったTranslaCat IDを入力して検索してください。",
+        "fields": {
+          "publicId": "TranslaCat ID"
+        },
+        "placeholders": {
+          "publicId": "例: TCAT-00000001"
+        },
+        "actions": {
+          "search": "検索",
+          "searching": "検索中...",
+          "clear": "検索語をクリア"
+        }
+      },
+      "state": {
+        "initialTitle": "検索するpublicIdを入力してください。",
+        "initialDescription": "検索結果にはユーザー概要プロフィールと現在の友だち状態が表示されます。",
+        "searchingTitle": "ユーザーを検索しています。",
+        "searchingDescription": "しばらくお待ちください。",
+        "notFoundTitle": "検索結果がありません。",
+        "notFoundDescription": "publicIdを再度確認してください。",
+        "emptyTitle": "表示するユーザーがいません。",
+        "emptyDescription": "別のpublicIdで再検索してください。",
+        "failedTitle": "検索に失敗しました。",
+        "failedDescription": "しばらくしてから再度お試しください。"
+      },
+      "result": {
+        "eyebrow": "Search result",
+        "statusDescriptions": {
+          "NONE": "まだ友だちではありません。友だちリクエストを送信できます。",
+          "FRIEND": "すでに友だちです。すぐに1:1チャットを開始できます。",
+          "REQUEST_SENT": "すでに友だちリクエストを送信済みです。相手の応答をお待ちください。",
+          "REQUEST_RECEIVED": "相手からの友だちリクエストがあります。受信リクエスト一覧で処理できます。",
+          "BLOCKED": "ブロック関係のため、友だちリクエストとチャット開始はできません。",
+          "SELF": "自分自身です。友だちリクエストは送信できません。"
+        }
+      },
+      "status": {
+        "NONE": "友だちではない",
+        "FRIEND": "友だち",
+        "REQUEST_SENT": "送信済み",
+        "REQUEST_RECEIVED": "受信済み",
+        "BLOCKED": "ブロック",
+        "SELF": "自分"
+      },
+      "actions": {
+        "sendRequest": "友だちリクエストを送信",
+        "sendingRequest": "送信中...",
+        "startChat": "1:1チャット開始",
+        "startingChat": "チャットルーム準備中...",
+        "requestSent": "友だちリクエスト送信済み",
+        "requestReceived": "受信リクエストで処理",
+        "blocked": "ブロック関係",
+        "self": "自分自身"
+      },
+      "messages": {
+        "publicIdRequired": "検索するpublicIdを入力してください。",
+        "requestSent": "友だちリクエストを送信しました。",
+        "sendRequestFailed": "友だちリクエストの送信に失敗しました。",
+        "startChatFailed": "1:1チャット開始に失敗しました。"
+      },
+      "guide": {
+        "eyebrow": "Guide",
+        "title": "検索状態の基準",
+        "description": "検索結果の友だち状態によって可能なアクションが変わります。",
+        "items": {
+          "publicId": {
+            "title": "publicIdで検索",
+            "description": "TranslaCat IDは友だち追加に使用する固有IDです。"
+          },
+          "request": {
+            "title": "友だちリクエスト",
+            "description": "まだ友だちではないユーザーには友だちリクエストを送信できます。"
+          },
+          "chat": {
+            "title": "友だちチャット",
+            "description": "すでに友だちのユーザーとは1:1チャットを開始できます。"
+          },
+          "block": {
+            "title": "ブロック状態",
+            "description": "ブロック関係では友だちリクエストとチャット開始が制限されます。"
+          }
+        }
+      }
     }
   }
 }

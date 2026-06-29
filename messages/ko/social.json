@@ -56,6 +56,97 @@
           "saving": "저장 중..."
         }
       }
+    },
+    "userSearchPage": {
+      "eyebrow": "Find friends",
+      "title": "publicId로 사용자 검색",
+      "description": "TranslaCat ID를 입력해 사용자를 찾고, 친구 요청 또는 친구 채팅을 시작합니다.",
+      "form": {
+        "eyebrow": "Search",
+        "title": "사용자 찾기",
+        "description": "친구에게 받은 TranslaCat ID를 입력해 검색하세요.",
+        "fields": {
+          "publicId": "TranslaCat ID"
+        },
+        "placeholders": {
+          "publicId": "예: TCAT-00000001"
+        },
+        "actions": {
+          "search": "검색",
+          "searching": "검색 중...",
+          "clear": "검색어 지우기"
+        }
+      },
+      "state": {
+        "initialTitle": "검색할 publicId를 입력해 주세요.",
+        "initialDescription": "검색 결과에는 사용자 요약 프로필과 현재 친구 상태가 표시됩니다.",
+        "searchingTitle": "사용자를 검색하고 있습니다.",
+        "searchingDescription": "잠시만 기다려 주세요.",
+        "notFoundTitle": "검색 결과가 없습니다.",
+        "notFoundDescription": "publicId를 다시 확인해 주세요.",
+        "emptyTitle": "표시할 사용자가 없습니다.",
+        "emptyDescription": "다른 publicId로 다시 검색해 주세요.",
+        "failedTitle": "검색에 실패했습니다.",
+        "failedDescription": "잠시 후 다시 시도해 주세요."
+      },
+      "result": {
+        "eyebrow": "Search result",
+        "statusDescriptions": {
+          "NONE": "아직 친구가 아닙니다. 친구 요청을 보낼 수 있습니다.",
+          "FRIEND": "이미 친구입니다. 바로 1:1 채팅을 시작할 수 있습니다.",
+          "REQUEST_SENT": "이미 친구 요청을 보냈습니다. 상대방의 응답을 기다려 주세요.",
+          "REQUEST_RECEIVED": "상대방이 보낸 친구 요청이 있습니다. 받은 요청 목록에서 처리할 수 있습니다.",
+          "BLOCKED": "차단 관계가 있어 친구 요청과 채팅을 시작할 수 없습니다.",
+          "SELF": "자기 자신입니다. 친구 요청을 보낼 수 없습니다."
+        }
+      },
+      "status": {
+        "NONE": "친구 아님",
+        "FRIEND": "친구",
+        "REQUEST_SENT": "요청 보냄",
+        "REQUEST_RECEIVED": "요청 받음",
+        "BLOCKED": "차단",
+        "SELF": "나"
+      },
+      "actions": {
+        "sendRequest": "친구 요청 보내기",
+        "sendingRequest": "요청 전송 중...",
+        "startChat": "1:1 채팅 시작",
+        "startingChat": "채팅방 준비 중...",
+        "requestSent": "친구 요청 전송 완료",
+        "requestReceived": "받은 요청에서 처리",
+        "blocked": "차단 관계",
+        "self": "자기 자신"
+      },
+      "messages": {
+        "publicIdRequired": "검색할 publicId를 입력해 주세요.",
+        "requestSent": "친구 요청을 보냈습니다.",
+        "sendRequestFailed": "친구 요청 전송에 실패했습니다.",
+        "startChatFailed": "1:1 채팅 시작에 실패했습니다."
+      },
+      "guide": {
+        "eyebrow": "Guide",
+        "title": "검색 상태 기준",
+        "description": "검색 결과의 친구 상태에 따라 가능한 액션이 달라집니다.",
+        "items": {
+          "publicId": {
+            "title": "publicId로 검색",
+            "description": "TranslaCat ID는 친구 추가에 사용하는 고유 ID입니다."
+          },
+          "request": {
+            "title": "친구 요청",
+            "description": "아직 친구가 아닌 사용자는 친구 요청을 보낼 수 있습니다."
+          },
+          "chat": {
+            "title": "친구 채팅",
+            "description": "이미 친구인 사용자는 1:1 채팅을 시작할 수 있습니다."
+          },
+          "block": {
+            "title": "차단 상태",
+            "description": "차단 관계에서는 친구 요청과 채팅 시작이 제한됩니다."
+          }
+        }
+      }
     }
   }
 }

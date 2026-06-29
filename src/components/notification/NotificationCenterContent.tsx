@@ -1,28 +1,58 @@
 import { useTranslations } from "next-intl";
 
-import { AccountBookInvitation } from "@/types/accountBook";
-import { NotificationTab } from "@/components/notification/useNotificationCenter";
 import NotificationEmptyState from "@/components/notification/NotificationEmptyState";
-import InvitationNotificationList from "@/components/notification/InvitationNotificationList";
+import NotificationInvitationPanel from "@/components/notification/NotificationInvitationPanel";
+import type {
+    FriendRequestAction,
+    NotificationTab,
+} from "@/components/notification/useNotificationCenter";
+import type { AccountBookInvitation } from "@/types/accountBook";
+import type { FriendRequest } from "@/types/social";
 
 type NotificationCenterContentProps = {
     activeTab: NotificationTab;
-    invitations: AccountBookInvitation[];
-    isInvitationLoading: boolean;
-    isInvitationError: unknown;
-    processingInvitationId: number | null;
-    onAcceptInvitation: (invitationId: number) => void;
-    onRejectInvitation: (invitationId: number) => void;
+
+    accountBookInvitations: AccountBookInvitation[];
+    isAccountBookInvitationLoading: boolean;
+    isAccountBookInvitationError: unknown;
+    processingAccountBookInvitationId: number | null;
+    onAcceptAccountBookInvitation: (invitationId: number) => void;
+    onRejectAccountBookInvitation: (invitationId: number) => void;
+
+    receivedFriendRequests: FriendRequest[];
+    sentFriendRequests: FriendRequest[];
+    isReceivedFriendRequestLoading: boolean;
+    isReceivedFriendRequestError: unknown;
+    isSentFriendRequestLoading: boolean;
+    isSentFriendRequestError: unknown;
+    processingFriendRequestId: number | null;
+    processingFriendRequestAction: FriendRequestAction | null;
+    onAcceptFriendRequest: (requestId: number) => void;
+    onRejectFriendRequest: (requestId: number) => void;
+    onCancelFriendRequest: (requestId: number) => void;
 };
 
 export default function NotificationCenterContent({
     activeTab,
-    invitations,
-    isInvitationLoading,
-    isInvitationError,
-    processingInvitationId,
-    onAcceptInvitation,
-    onRejectInvitation,
+
+    accountBookInvitations,
+    isAccountBookInvitationLoading,
+    isAccountBookInvitationError,
+    processingAccountBookInvitationId,
+    onAcceptAccountBookInvitation,
+    onRejectAccountBookInvitation,
+
+    receivedFriendRequests,
+    sentFriendRequests,
+    isReceivedFriendRequestLoading,
+    isReceivedFriendRequestError,
+    isSentFriendRequestLoading,
+    isSentFriendRequestError,
+    processingFriendRequestId,
+    processingFriendRequestAction,
+    onAcceptFriendRequest,
+    onRejectFriendRequest,
+    onCancelFriendRequest,
 }: NotificationCenterContentProps) {
     const t = useTranslations("Notifications");
 
@@ -45,13 +75,28 @@ export default function NotificationCenterContent({
     }
 
     return (
-        <InvitationNotificationList
-            invitations={invitations}
-            isLoading={isInvitationLoading}
-            isError={isInvitationError}
-            processingInvitationId={processingInvitationId}
-            onAccept={onAcceptInvitation}
-            onReject={onRejectInvitation}
+        <NotificationInvitationPanel
+            accountBookInvitations={accountBookInvitations}
+            isAccountBookInvitationLoading={isAccountBookInvitationLoading}
+            isAccountBookInvitationError={isAccountBookInvitationError}
+            processingAccountBookInvitationId={
+                processingAccountBookInvitationId
+            }
+            onAcceptAccountBookInvitation={onAcceptAccountBookInvitation}
+            onRejectAccountBookInvitation={onRejectAccountBookInvitation}
+            receivedFriendRequests={receivedFriendRequests}
+            sentFriendRequests={sentFriendRequests}
+            isReceivedFriendRequestLoading={
+                isReceivedFriendRequestLoading
+            }
+            isReceivedFriendRequestError={isReceivedFriendRequestError}
+            isSentFriendRequestLoading={isSentFriendRequestLoading}
+            isSentFriendRequestError={isSentFriendRequestError}
+            processingFriendRequestId={processingFriendRequestId}
+            processingFriendRequestAction={processingFriendRequestAction}
+            onAcceptFriendRequest={onAcceptFriendRequest}
+            onRejectFriendRequest={onRejectFriendRequest}
+            onCancelFriendRequest={onCancelFriendRequest}
         />
     );
 }

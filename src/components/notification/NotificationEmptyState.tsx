@@ -8,12 +8,11 @@ export default function NotificationEmptyState({
     description,
 }: NotificationEmptyStateProps) {
     return (
-        <div className="rounded-2xl bg-slate-50 px-5 py-10 text-center dark:bg-black/25">
-            <p className="text-base font-bold text-slate-700 dark:text-slate-200">
+        <div className="rounded-2xl bg-slate-50 px-4 py-8 text-center ring-1 ring-slate-200 dark:bg-black/20 dark:ring-0">
+            <p className="text-sm font-black text-slate-900 dark:text-white">
                 {title}
             </p>
-
-            <p className="mt-2 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+            <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
                 {description}
             </p>
         </div>

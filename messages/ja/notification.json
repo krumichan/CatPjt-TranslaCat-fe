@@ -16,9 +16,31 @@
     },
     "invitation": {
       "emptyTitle": "招待はありません",
-      "emptyDescription": "家計簿やチャットルームへの招待がある場合はこちらに表示されます。",
+      "emptyDescription": "家計簿、チャットルーム、友だちリクエストがある場合はこちらに表示されます。",
       "accountBookInviteTitle": "家計簿への招待",
       "accountBookInviteDescription": "{inviterName}さんから「{accountBookName}」に招待されています。"
+    },
+    "unified": {
+      "title": "招待一覧",
+      "description": "友だちリクエスト、家計簿招待、チャット招待を1つの一覧で確認します。",
+      "filteredEmpty": "選択した種類の招待はありません。",
+      "friendRequestReceivedTitle": "友だちリクエスト",
+      "friendRequestReceivedDescription": "{requesterName}さんから友だちリクエストが届いています。",
+      "friendRequestSentTitle": "送信済み友だちリクエスト",
+      "friendRequestSentDescription": "{receiverName}さんに友だちリクエストを送信しました。",
+      "accountBookInvitationTitle": "家計簿への招待",
+      "accountBookInvitationDescription": "{inviterName}さんから「{accountBookName}」に招待されています。"
+    },
+    "filters": {
+      "all": "すべて",
+      "friend": "友だち",
+      "accountBook": "家計簿",
+      "groupChat": "グループチャット"
+    },
+    "type": {
+      "friend": "友だち",
+      "friendSent": "送信済み",
+      "accountBook": "家計簿"
     },
     "personal": {
       "emptyTitle": "個人通知はありません",
@@ -26,13 +48,18 @@
     },
     "actions": {
       "accept": "承認",
-      "reject": "拒否"
+      "reject": "拒否",
+      "cancel": "取消",
+      "processing": "処理中..."
     },
     "messages": {
       "loading": "読み込み中...",
       "loadFailed": "通知の取得に失敗しました。",
       "acceptFailed": "招待の承認に失敗しました。",
-      "rejectFailed": "招待の拒否に失敗しました。"
+      "rejectFailed": "招待の拒否に失敗しました。",
+      "acceptFriendRequestFailed": "友だちリクエストの承認に失敗しました。",
+      "rejectFriendRequestFailed": "友だちリクエストの拒否に失敗しました。",
+      "cancelFriendRequestFailed": "友だちリクエストの取消に失敗しました。"
     }
   }
 }

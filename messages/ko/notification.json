@@ -2,7 +2,7 @@
   "Notifications": {
     "button": "알림",
     "close": "닫기",
-    "description": "お知らせ、招待、個人通知をまとめて確認できます。",
+    "description": "공지, 초대, 개인 알림을 한 곳에서 확인할 수 있습니다.",
     "eyebrow": "Notifications",
     "title": "알림 센터",
     "tabs": {
@@ -16,9 +16,31 @@
     },
     "invitation": {
       "emptyTitle": "받은 초대가 없습니다",
-      "emptyDescription": "가계부나 채팅방 초대가 있을 경우 여기에 표시됩니다.",
+      "emptyDescription": "가계부, 채팅방, 친구 요청이 있을 경우 여기에 표시됩니다.",
       "accountBookInviteTitle": "가계부 초대",
       "accountBookInviteDescription": "{inviterName}님이 「{accountBookName}」에 초대했습니다."
+    },
+    "unified": {
+      "title": "초대 목록",
+      "description": "친구 요청, 가계부 초대, 채팅 초대를 하나의 목록에서 확인합니다.",
+      "filteredEmpty": "선택한 종류의 초대가 없습니다.",
+      "friendRequestReceivedTitle": "친구 요청",
+      "friendRequestReceivedDescription": "{requesterName}님이 친구 요청을 보냈습니다.",
+      "friendRequestSentTitle": "보낸 친구 요청",
+      "friendRequestSentDescription": "{receiverName}님에게 친구 요청을 보냈습니다.",
+      "accountBookInvitationTitle": "가계부 초대",
+      "accountBookInvitationDescription": "{inviterName}님이 「{accountBookName}」에 초대했습니다."
+    },
+    "filters": {
+      "all": "전체",
+      "friend": "친구",
+      "accountBook": "가계부",
+      "groupChat": "그룹 채팅"
+    },
+    "type": {
+      "friend": "친구",
+      "friendSent": "보낸 요청",
+      "accountBook": "가계부"
     },
     "personal": {
       "emptyTitle": "개인 알림이 없습니다",
@@ -26,13 +48,18 @@
     },
     "actions": {
       "accept": "수락",
-      "reject": "거절"
+      "reject": "거절",
+      "cancel": "취소",
+      "processing": "처리 중..."
     },
     "messages": {
       "loading": "불러오는 중...",
       "loadFailed": "알림을 불러오지 못했습니다.",
       "acceptFailed": "초대 수락에 실패했습니다.",
-      "rejectFailed": "초대 거절에 실패했습니다."
+      "rejectFailed": "초대 거절에 실패했습니다.",
+      "acceptFriendRequestFailed": "친구 요청 수락에 실패했습니다.",
+      "rejectFriendRequestFailed": "친구 요청 거절에 실패했습니다.",
+      "cancelFriendRequestFailed": "친구 요청 취소에 실패했습니다."
     }
   }
 }

@@ -1,9 +1,11 @@
+"use client";
+
 import { createPortal } from "react-dom";
 import { useEffect } from "react";
 
-import { useNotificationCenter } from "@/components/notification/useNotificationCenter";
-import NotificationCenterHeader from "@/components/notification/NotificationCenterHeader";
 import NotificationCenterContent from "@/components/notification/NotificationCenterContent";
+import NotificationCenterHeader from "@/components/notification/NotificationCenterHeader";
+import { useNotificationCenter } from "@/components/notification/useNotificationCenter";
 
 type NotificationCenterModalProps = {
     isOpen: boolean;
@@ -39,48 +41,80 @@ export default function NotificationCenterModal({
     }
 
     return createPortal(
-        <>
-            <div
-                className="fixed inset-0 z-120 bg-black/50 backdrop-blur-sm"
-                onMouseDown={onClose}
-            />
+        <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4 py-6 backdrop-blur-sm dark:bg-black/60"
+            role="presentation"
+            onClick={onClose}
+        >
+            <section
+                role="dialog"
+                aria-modal="true"
+                className="max-h-[min(760px,calc(100vh-48px))] w-full max-w-3xl overflow-hidden rounded-[2rem] border border-slate-200 bg-white text-slate-950 shadow-2xl dark:border-white/10 dark:bg-slate-950 dark:text-white"
+                onMouseDown={(event) => event.stopPropagation()}
+                onClick={(event) => event.stopPropagation()}
+            >
+                <NotificationCenterHeader
+                    activeTab={notification.activeTab}
+                    onTabChange={notification.setActiveTab}
+                    onClose={onClose}
+                />
 
-            <div className="fixed inset-0 z-[121] flex items-center justify-center px-3 py-4 sm:px-6">
-                <section
-                    className="flex max-h-[calc(100dvh-2rem)] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl dark:border-white/10 dark:bg-zinc-900"
-                    onMouseDown={(event) => event.stopPropagation()}
-                    onClick={(event) => event.stopPropagation()}
-                >
-                    <NotificationCenterHeader
+                <div className="max-h-[calc(100vh-260px)] overflow-y-auto border-t border-slate-200 p-5 dark:border-white/10">
+                    <NotificationCenterContent
                         activeTab={notification.activeTab}
-                        onTabChange={notification.setActiveTab}
-                        onClose={onClose}
+                        accountBookInvitations={
+                            notification.accountBookInvitations
+                        }
+                        isAccountBookInvitationLoading={
+                            notification.isAccountBookInvitationLoading
+                        }
+                        isAccountBookInvitationError={
+                            notification.isAccountBookInvitationError
+                        }
+                        processingAccountBookInvitationId={
+                            notification.processingAccountBookInvitationId
+                        }
+                        onAcceptAccountBookInvitation={
+                            notification.handleAcceptInvitation
+                        }
+                        onRejectAccountBookInvitation={
+                            notification.handleRejectInvitation
+                        }
+                        receivedFriendRequests={
+                            notification.receivedFriendRequests
+                        }
+                        sentFriendRequests={notification.sentFriendRequests}
+                        isReceivedFriendRequestLoading={
+                            notification.isReceivedFriendRequestLoading
+                        }
+                        isReceivedFriendRequestError={
+                            notification.isReceivedFriendRequestError
+                        }
+                        isSentFriendRequestLoading={
+                            notification.isSentFriendRequestLoading
+                        }
+                        isSentFriendRequestError={
+                            notification.isSentFriendRequestError
+                        }
+                        processingFriendRequestId={
+                            notification.processingFriendRequestId
+                        }
+                        processingFriendRequestAction={
+                            notification.processingFriendRequestAction
+                        }
+                        onAcceptFriendRequest={
+                            notification.handleAcceptFriendRequest
+                        }
+                        onRejectFriendRequest={
+                            notification.handleRejectFriendRequest
+                        }
+                        onCancelFriendRequest={
+                            notification.handleCancelFriendRequest
+                        }
                     />
-
-                    <div className="min-h-0 flex-1 overflow-y-auto p-5 sm:p-6">
-                        <NotificationCenterContent
-                            activeTab={notification.activeTab}
-                            invitations={notification.invitations}
-                            isInvitationLoading={
-                                notification.isInvitationLoading
-                            }
-                            isInvitationError={
-                                notification.isInvitationError
-                            }
-                            processingInvitationId={
-                                notification.processingInvitationId
-                            }
-                            onAcceptInvitation={
-                                notification.handleAcceptInvitation
-                            }
-                            onRejectInvitation={
-                                notification.handleRejectInvitation
-                            }
-                        />
-                    </div>
-                </section>
-            </div>
-        </>,
+                </div>
+            </section>
+        </div>,
         document.body,
     );
 }

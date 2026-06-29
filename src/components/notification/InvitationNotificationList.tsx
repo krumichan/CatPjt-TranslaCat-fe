@@ -1,8 +1,9 @@
+"use client";
+
 import { useTranslations } from "next-intl";
 
-import { AccountBookInvitation } from "@/types/accountBook";
-import NotificationEmptyState from "@/components/notification/NotificationEmptyState";
 import InvitationNotificationItem from "@/components/notification/InvitationNotificationItem";
+import type { AccountBookInvitation } from "@/types/accountBook";
 
 type InvitationNotificationListProps = {
     invitations: AccountBookInvitation[];
@@ -23,33 +24,32 @@ export default function InvitationNotificationList({
 }: InvitationNotificationListProps) {
     const t = useTranslations("Notifications");
 
-    if (isLoading) {
+    if (isLoading && invitations.length === 0) {
         return (
-            <p className="rounded-2xl bg-slate-50 px-4 py-5 text-sm text-slate-500 dark:bg-black/25 dark:text-slate-400">
+            <div className="rounded-2xl bg-black/20 px-4 py-5 text-center text-sm font-bold text-slate-400">
                 {t("messages.loading")}
-            </p>
+            </div>
         );
     }
 
-    if (isError) {
+    if (isError && invitations.length === 0) {
         return (
-            <p className="rounded-2xl bg-red-50 px-4 py-5 text-sm text-red-500 dark:bg-red-500/10 dark:text-red-300">
+            <div className="rounded-2xl border border-rose-400/30 bg-rose-500/10 px-4 py-5 text-center text-sm font-bold text-rose-200">
                 {t("messages.loadFailed")}
-            </p>
+            </div>
         );
     }
 
     if (invitations.length === 0) {
         return (
-            <NotificationEmptyState
-                title={t("invitation.emptyTitle")}
-                description={t("invitation.emptyDescription")}
-            />
+            <div className="rounded-2xl bg-black/20 px-4 py-5 text-center text-sm text-slate-400">
+                {t("accountBookInvitation.empty")}
+            </div>
         );
     }
 
     return (
-        <div className="grid gap-3">
+        <div className="space-y-3">
             {invitations.map((invitation) => (
                 <InvitationNotificationItem
                     key={invitation.id}

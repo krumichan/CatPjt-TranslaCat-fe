@@ -68,6 +68,18 @@
         "fields": {
           "publicId": "TranslaCat ID"
         },
+        "messages": {
+          "requestSent": "友だちリクエストを送信しました。",
+          "actionErrors": {
+            "SEND_REQUEST_FAILED": "友だちリクエストの送信に失敗しました。しばらくしてから再度お試しください。",
+            "REQUEST_ALREADY_PENDING": "すでに友だちリクエストを送信済みのユーザーです。",
+            "ALREADY_FRIEND": "すでに友だちのユーザーです。",
+            "BLOCKED": "ブロック関係のため、友だちリクエストを送信できません。",
+            "SELF": "自分自身には友だちリクエストを送信できません。",
+            "TARGET_NOT_FOUND": "リクエスト対象のユーザーが見つかりません。",
+            "START_CHAT_FAILED": "1:1チャット開始に失敗しました。"
+          }
+        },
         "placeholders": {
           "publicId": "例: TCAT-00000001"
         },

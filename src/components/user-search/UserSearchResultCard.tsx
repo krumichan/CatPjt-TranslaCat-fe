@@ -38,6 +38,7 @@ export default function UserSearchResultCard({
             <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
                 <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-3xl border border-orange-200 bg-orange-50 text-orange-500 dark:border-orange-400/30 dark:bg-orange-500/10 dark:text-orange-200">
                     {result.profileImageUrl ? (
+                        // TODO: 최종 오픈 전 TranslaCat 이미지 업로드 방식으로 전환 시 next/image 적용 검토
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                             src={result.profileImageUrl}
@@ -90,15 +91,9 @@ export default function UserSearchResultCard({
                 </div>
             )}
 
-            {actionErrorCode === "SEND_REQUEST_FAILED" && (
+            {actionErrorCode && (
                 <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-600 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-200">
-                    {tMessages("sendRequestFailed")}
-                </div>
-            )}
-
-            {actionErrorCode === "START_CHAT_FAILED" && (
-                <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-600 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-200">
-                    {tMessages("startChatFailed")}
+                    {tMessages(`actionErrors.${actionErrorCode}`)}
                 </div>
             )}
         </article>

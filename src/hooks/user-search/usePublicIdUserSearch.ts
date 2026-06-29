@@ -4,10 +4,13 @@ import { useCallback, useState } from "react";
 
 import { useRouter } from "@/navigation";
 import { friendChatService } from "@/services/chat/friendChatService";
-import { friendRequestService } from "@/services/friend/friendRequestService";
 import { getApiErrorCode } from "@/services/common/responseParser";
+import { friendRequestService } from "@/services/friend/friendRequestService";
 import { userSearchService } from "@/services/user/userSearchService";
-import type { UserSearchResult } from "@/types/social";
+import type {
+    UserSearchFriendStatus,
+    UserSearchResult,
+} from "@/types/social";
 
 export type UserSearchErrorCode =
     | "PUBLIC_ID_REQUIRED"
@@ -16,6 +19,11 @@ export type UserSearchErrorCode =
 
 export type UserSearchActionErrorCode =
     | "SEND_REQUEST_FAILED"
+    | "REQUEST_ALREADY_PENDING"
+    | "ALREADY_FRIEND"
+    | "BLOCKED"
+    | "SELF"
+    | "TARGET_NOT_FOUND"
     | "START_CHAT_FAILED";
 
 export type UserSearchActionSuccessCode =
@@ -50,6 +58,59 @@ function toSearchErrorCode(error: unknown): UserSearchErrorCode {
     }
 
     return "SEARCH_FAILED";
+}
+
+function toFriendRequestActionErrorCode(
+    error: unknown,
+): UserSearchActionErrorCode {
+    const errorCode = getApiErrorCode(error);
+
+    if (errorCode === "FRIEND_REQUEST_ALREADY_PENDING") {
+        return "REQUEST_ALREADY_PENDING";
+    }
+
+    if (errorCode === "FRIEND_ALREADY_EXISTS") {
+        return "ALREADY_FRIEND";
+    }
+
+    if (errorCode === "USER_BLOCKED_BETWEEN") {
+        return "BLOCKED";
+    }
+
+    if (errorCode === "FRIEND_REQUEST_SELF_NOT_ALLOWED") {
+        return "SELF";
+    }
+
+    if (
+        errorCode === "PUBLIC_ID_NOT_FOUND" ||
+        errorCode === "USER_NOT_FOUND"
+    ) {
+        return "TARGET_NOT_FOUND";
+    }
+
+    return "SEND_REQUEST_FAILED";
+}
+
+function toFriendStatusByActionError(
+    actionErrorCode: UserSearchActionErrorCode,
+): UserSearchFriendStatus | null {
+    if (actionErrorCode === "REQUEST_ALREADY_PENDING") {
+        return "REQUEST_SENT";
+    }
+
+    if (actionErrorCode === "ALREADY_FRIEND") {
+        return "FRIEND";
+    }
+
+    if (actionErrorCode === "BLOCKED") {
+        return "BLOCKED";
+    }
+
+    if (actionErrorCode === "SELF") {
+        return "SELF";
+    }
+
+    return null;
 }
 
 export function usePublicIdUserSearch(): UsePublicIdUserSearchResult {
@@ -116,7 +177,7 @@ export function usePublicIdUserSearch(): UsePublicIdUserSearchResult {
     }, [publicId]);
 
     const sendFriendRequest = useCallback(async () => {
-        if (!result) {
+        if (!result || isSendingRequest) {
             return false;
         }
 
@@ -137,15 +198,28 @@ export function usePublicIdUserSearch(): UsePublicIdUserSearchResult {
             return true;
         } catch (error) {
             console.error("Failed to send friend request.", error);
-            setActionErrorCode("SEND_REQUEST_FAILED");
+
+            const nextActionErrorCode =
+                toFriendRequestActionErrorCode(error);
+            const nextFriendStatus =
+                toFriendStatusByActionError(nextActionErrorCode);
+
+            if (nextFriendStatus) {
+                setResult({
+                    ...result,
+                    friendStatus: nextFriendStatus,
+                });
+            }
+
+            setActionErrorCode(nextActionErrorCode);
             return false;
         } finally {
             setIsSendingRequest(false);
         }
-    }, [result]);
+    }, [isSendingRequest, result]);
 
     const startDirectChat = useCallback(async () => {
-        if (!result) {
+        if (!result || isStartingChat) {
             return false;
         }
 
@@ -167,7 +241,7 @@ export function usePublicIdUserSearch(): UsePublicIdUserSearchResult {
         } finally {
             setIsStartingChat(false);
         }
-    }, [result, router]);
+    }, [isStartingChat, result, router]);
 
     return {
         publicId,

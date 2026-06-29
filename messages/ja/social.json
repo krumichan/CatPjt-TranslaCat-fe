@@ -159,6 +159,107 @@
           }
         }
       }
+    },
+    "friendListPage": {
+      "eyebrow": "Friends",
+      "title": "友だち一覧",
+      "description": "友だち一覧を確認し、1:1チャットまたはグループチャット作成を開始します。",
+      "fields": {
+        "search": "友だち検索"
+      },
+      "placeholders": {
+        "search": "ニックネームまたはTranslaCat IDで検索"
+      },
+      "list": {
+        "eyebrow": "Friend list",
+        "title": "友だち",
+        "count": "全{totalCount}人 / 表示{filteredCount}人",
+        "friendSince": "友だちになった日: {date}"
+      },
+      "actions": {
+        "closeHelpModal": "ヘルプを閉じる",
+        "closeSearchModal": "友だち検索を閉じる",
+        "findFriend": "友だちを探す",
+        "groupSelection": "グループ選択",
+        "groupSelectionOn": "選択中",
+        "createGroup": "グループ作成 ({count})",
+        "clearSelection": "選択解除",
+        "clearSearch": "検索語をクリア",
+        "reload": "再読み込み",
+        "startChat": "1:1チャット",
+        "startingChat": "準備中...",
+        "more": "友だちメニュー",
+        "openHelp": "ヘルプを開く",
+        "selectFriend": "{nickname}を選択",
+        "unselectFriend": "{nickname}の選択を解除",
+        "deleteFriendFuture": "友だち削除（#23で実装）",
+        "blockFriendFuture": "ブロック（#24で実装）"
+      },
+      "state": {
+        "loadingTitle": "友だち一覧を読み込んでいます。",
+        "loadingDescription": "しばらくお待ちください。",
+        "loadFailedTitle": "友だち一覧の取得に失敗しました。",
+        "loadFailedDescription": "しばらくしてから再度お試しください。",
+        "filteredEmptyTitle": "検索結果がありません。",
+        "filteredEmptyDescription": "別の検索語で再度確認してください。"
+      },
+      "empty": {
+        "title": "まだ友だちがいません。",
+        "description": "TranslaCat IDでユーザーを検索し、友だちリクエストを送信してみましょう。",
+        "action": "友だちを探す"
+      },
+      "messages": {
+        "startChatFailed": "1:1チャット開始に失敗しました。しばらくしてから再度お試しください。",
+        "groupEntryFailed": "グループチャット作成画面へ移動する準備に失敗しました。"
+      },
+      "searchModal": {
+        "initialHint": "TranslaCat IDを入力して検索ボタンを押すと、ユーザーを検索できます。使い方を確認する場合は右上の？ボタンを押してください。"
+      },
+      "help": {
+        "eyebrow": "Help",
+        "close": "ヘルプを閉じる",
+        "list": {
+          "title": "友だち一覧の使い方",
+          "description": "友だち一覧画面で利用できる主な機能です。",
+          "items": {
+            "find": {
+              "title": "友だちを探す",
+              "description": "TranslaCat IDでユーザーを検索し、友だちリクエストを送信できます。"
+            },
+            "direct": {
+              "title": "1:1チャット",
+              "description": "友だち項目のボタンからすぐに1:1チャットを開始します。"
+            },
+            "group": {
+              "title": "グループチャット",
+              "description": "複数の友だちを選択し、グループチャット作成画面へ移動します。"
+            },
+            "manage": {
+              "title": "友だち管理",
+              "description": "友だち削除とブロック機能は後続Issueで実際の動作を連携します。"
+            }
+          }
+        },
+        "search": {
+          "title": "友だち検索ヘルプ",
+          "description": "publicId検索結果の友だち状態によって、可能な操作が変わります。",
+          "initialHint": "TranslaCat IDを入力して検索ボタンを押すと、ユーザーを検索できます。検索結果から友だちリクエストを送信したり、すでに友だちの場合は1:1チャットを開始できます。",
+          "items": {
+            "publicId": {
+              "title": "publicIdで検索",
+              "description": "友だちから受け取ったTranslaCat IDを入力してユーザーを検索します。"
+            },
+            "request": {
+              "title": "友だちリクエスト",
+              "description": "まだ友だちではないユーザーに友だちリクエストを送信できます。"
+            },
+            "friend": {
+              "title": "すでに友だちの場合",
+              "description": "すでに友だちのユーザーは検索結果からすぐに1:1チャットを開始できます。"
+            }
+          }
+        }
+      }
     }
   }
 }

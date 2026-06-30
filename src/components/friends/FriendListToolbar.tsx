@@ -1,15 +1,17 @@
-import { CircleHelp, Search, UserPlus, UsersRound, X } from "lucide-react";
+import { Ban, CircleHelp, Search, UserPlus, UsersRound, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 type FriendListToolbarProps = {
     totalCount: number;
     filteredCount: number;
     selectedCount: number;
+    blockedCount: number;
     searchKeyword: string;
     isGroupSelectionMode: boolean;
     onSearchChange: (value: string) => void;
     onClearSearch: () => void;
     onOpenFriendSearch: () => void;
+    onOpenBlockList: () => void;
     onOpenHelp: () => void;
     onToggleGroupSelectionMode: () => void;
     onClearSelection: () => void;
@@ -20,11 +22,13 @@ export default function FriendListToolbar({
     totalCount,
     filteredCount,
     selectedCount,
+    blockedCount,
     searchKeyword,
     isGroupSelectionMode,
     onSearchChange,
     onClearSearch,
     onOpenFriendSearch,
+    onOpenBlockList,
     onOpenHelp,
     onToggleGroupSelectionMode,
     onClearSelection,
@@ -71,6 +75,17 @@ export default function FriendListToolbar({
                     >
                         <UserPlus className="h-4 w-4" aria-hidden="true" />
                         {t("actions.findFriend")}
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={onOpenBlockList}
+                        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-100 px-4 py-3 text-sm font-black text-slate-600 transition hover:bg-slate-200 dark:bg-white/10 dark:text-slate-200 dark:hover:bg-white/15"
+                    >
+                        <Ban className="h-4 w-4" aria-hidden="true" />
+                        {t("actions.openBlockList", {
+                            count: blockedCount,
+                        })}
                     </button>
 
                     <button

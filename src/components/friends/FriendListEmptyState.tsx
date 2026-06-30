@@ -1,5 +1,3 @@
-"use client";
-
 import { UserPlus, UsersRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 

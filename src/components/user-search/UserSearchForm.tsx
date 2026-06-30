@@ -2,7 +2,7 @@
 
 import { Search, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import type { FormEvent } from "react";
+import type { SyntheticEvent } from "react";
 
 import type { UserSearchErrorCode } from "@/hooks/user-search/usePublicIdUserSearch";
 
@@ -26,7 +26,7 @@ export default function UserSearchForm({
     const t = useTranslations("Social.userSearchPage.form");
     const tMessages = useTranslations("Social.userSearchPage.messages");
 
-    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: SyntheticEvent<HTMLFormElement>) => {
         event.preventDefault();
         await onSubmit();
     };

@@ -12,17 +12,24 @@ import { useTranslations } from "next-intl";
 
 import type { UserSearchFriendStatus } from "@/types/social";
 
+type StatusConfig = {
+    icon: typeof UserRound;
+    className: string;
+};
+
 interface UserSearchStatusBadgeProps {
-    status: UserSearchFriendStatus;
+    /**
+     * 기존 prop.
+     */
+    status?: UserSearchFriendStatus;
+    /**
+     * 일부 호출부에서 friendStatus 이름으로 넘겨도 깨지지 않도록 허용한다.
+     * 신규 호출부는 status 사용을 권장한다.
+     */
+    friendStatus?: UserSearchFriendStatus;
 }
 
-const STATUS_CONFIG: Record<
-    UserSearchFriendStatus,
-    {
-        icon: typeof UserRound;
-        className: string;
-    }
-> = {
+const STATUS_CONFIG: Record<UserSearchFriendStatus, StatusConfig> = {
     NONE: {
         icon: UserRound,
         className:
@@ -55,19 +62,28 @@ const STATUS_CONFIG: Record<
     },
 };
 
+function resolveStatus(
+    status?: UserSearchFriendStatus,
+    friendStatus?: UserSearchFriendStatus,
+): UserSearchFriendStatus {
+    return status ?? friendStatus ?? "NONE";
+}
+
 export default function UserSearchStatusBadge({
     status,
+    friendStatus,
 }: UserSearchStatusBadgeProps) {
     const t = useTranslations("Social.userSearchPage.status");
-    const config = STATUS_CONFIG[status];
+    const resolvedStatus = resolveStatus(status, friendStatus);
+    const config = STATUS_CONFIG[resolvedStatus];
     const Icon = config.icon;
 
     return (
         <span
-            className={`inline-flex shrink-0 items-center justify-center gap-2 rounded-full border px-3 py-2 text-xs font-black ${config.className}`}
+            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-black ${config.className}`}
         >
-            <Icon className="h-4 w-4" aria-hidden="true" />
-            {t(status)}
+            <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+            {t(resolvedStatus)}
         </span>
     );
 }

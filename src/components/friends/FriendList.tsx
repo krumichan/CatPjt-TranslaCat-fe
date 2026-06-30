@@ -1,5 +1,3 @@
-"use client";
-
 import FriendListItem from "@/components/friends/FriendListItem";
 import type { Friend } from "@/types/social";
 
@@ -9,10 +7,12 @@ type FriendListProps = {
     isGroupSelectionMode: boolean;
     startingChatFriendUserId: number | null;
     deletingFriendUserId: number | null;
+    blockingFriendUserId: number | null;
     isStartingChat: boolean;
     onStartDirectChat: (friendUserId: number) => Promise<boolean>;
     onToggleFriendSelection: (friendUserId: number) => void;
     onOpenDeleteConfirmModal: (friend: Friend) => void;
+    onOpenBlockConfirmModal: (friend: Friend) => void;
 };
 
 export default function FriendList({
@@ -21,10 +21,12 @@ export default function FriendList({
     isGroupSelectionMode,
     startingChatFriendUserId,
     deletingFriendUserId,
+    blockingFriendUserId,
     isStartingChat,
     onStartDirectChat,
     onToggleFriendSelection,
     onOpenDeleteConfirmModal,
+    onOpenBlockConfirmModal,
 }: FriendListProps) {
     return (
         <div className="grid gap-3">
@@ -42,12 +44,18 @@ export default function FriendList({
                     isDeleting={
                         deletingFriendUserId === friend.friendUserId
                     }
+                    isBlocking={
+                        blockingFriendUserId === friend.friendUserId
+                    }
                     isActionBusy={
-                        isStartingChat || deletingFriendUserId !== null
+                        isStartingChat ||
+                        deletingFriendUserId !== null ||
+                        blockingFriendUserId !== null
                     }
                     onStartDirectChat={onStartDirectChat}
                     onToggleFriendSelection={onToggleFriendSelection}
                     onOpenDeleteConfirmModal={onOpenDeleteConfirmModal}
+                    onOpenBlockConfirmModal={onOpenBlockConfirmModal}
                 />
             ))}
         </div>

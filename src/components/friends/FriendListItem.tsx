@@ -1,10 +1,9 @@
-"use client";
-
 import {
     Check,
     Loader2,
     MessageCircle,
     MoreVertical,
+    ShieldAlert,
     Trash2,
     UserRound,
 } from "lucide-react";
@@ -19,10 +18,12 @@ type FriendListItemProps = {
     isGroupSelectionMode: boolean;
     isStartingChat: boolean;
     isDeleting: boolean;
+    isBlocking: boolean;
     isActionBusy: boolean;
     onStartDirectChat: (friendUserId: number) => Promise<boolean>;
     onToggleFriendSelection: (friendUserId: number) => void;
     onOpenDeleteConfirmModal: (friend: Friend) => void;
+    onOpenBlockConfirmModal: (friend: Friend) => void;
 };
 
 export default function FriendListItem({
@@ -31,10 +32,12 @@ export default function FriendListItem({
     isGroupSelectionMode,
     isStartingChat,
     isDeleting,
+    isBlocking,
     isActionBusy,
     onStartDirectChat,
     onToggleFriendSelection,
     onOpenDeleteConfirmModal,
+    onOpenBlockConfirmModal,
 }: FriendListItemProps) {
     const t = useTranslations("Social.friendListPage");
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -63,14 +66,15 @@ export default function FriendListItem({
         onOpenDeleteConfirmModal(friend);
     };
 
+    const handleOpenBlockConfirmModal = () => {
+        setIsMenuOpen(false);
+        onOpenBlockConfirmModal(friend);
+    };
+
+    const isCurrentItemProcessing = isDeleting || isBlocking;
+
     return (
-        <article
-            className={`rounded-3xl border p-4 transition ${
-                isSelected
-                    ? "border-orange-300 bg-orange-50 dark:border-orange-400/40 dark:bg-orange-500/10"
-                    : "border-slate-200 bg-slate-50 hover:bg-slate-100 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
-            }`}
-        >
+        <article className="rounded-3xl border border-slate-200 bg-slate-50 p-4 transition hover:bg-slate-100 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex min-w-0 items-center gap-3">
                     {isGroupSelectionMode && (
@@ -171,7 +175,7 @@ export default function FriendListItem({
                             disabled={isActionBusy}
                             className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-slate-500 ring-1 ring-slate-200 transition hover:bg-slate-100 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white/10 dark:text-slate-300 dark:ring-white/10 dark:hover:bg-white/15 dark:hover:text-white"
                         >
-                            {isDeleting ? (
+                            {isCurrentItemProcessing ? (
                                 <Loader2
                                     className="h-5 w-5 animate-spin"
                                     aria-hidden="true"
@@ -197,12 +201,17 @@ export default function FriendListItem({
                                     />
                                     {t("actions.deleteFriend")}
                                 </button>
+
                                 <button
                                     type="button"
-                                    disabled
-                                    className="w-full rounded-xl px-3 py-2 text-left text-sm font-bold text-slate-400 disabled:cursor-not-allowed dark:text-slate-500"
+                                    onClick={handleOpenBlockConfirmModal}
+                                    className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-bold text-slate-600 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-white/10"
                                 >
-                                    {t("actions.blockFriendFuture")}
+                                    <ShieldAlert
+                                        className="h-4 w-4"
+                                        aria-hidden="true"
+                                    />
+                                    {t("actions.blockFriend")}
                                 </button>
                             </div>
                         )}

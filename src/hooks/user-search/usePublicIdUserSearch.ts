@@ -6,6 +6,7 @@ import { useRouter } from "@/navigation";
 import { friendChatService } from "@/services/chat/friendChatService";
 import { getApiErrorCode } from "@/services/common/responseParser";
 import { friendRequestService } from "@/services/friend/friendRequestService";
+import { userBlockService } from "@/services/block/userBlockService";
 import { userSearchService } from "@/services/user/userSearchService";
 import type {
     UserSearchFriendStatus,
@@ -24,10 +25,12 @@ export type UserSearchActionErrorCode =
     | "BLOCKED"
     | "SELF"
     | "TARGET_NOT_FOUND"
-    | "START_CHAT_FAILED";
+    | "START_CHAT_FAILED"
+    | "BLOCK_USER_FAILED";
 
 export type UserSearchActionSuccessCode =
-    | "REQUEST_SENT";
+    | "REQUEST_SENT"
+    | "USER_BLOCKED";
 
 interface UsePublicIdUserSearchResult {
     publicId: string;
@@ -35,6 +38,7 @@ interface UsePublicIdUserSearchResult {
     isSearching: boolean;
     isSendingRequest: boolean;
     isStartingChat: boolean;
+    isBlockingUser: boolean;
     hasSearched: boolean;
     searchErrorCode: UserSearchErrorCode | null;
     actionErrorCode: UserSearchActionErrorCode | null;
@@ -43,6 +47,7 @@ interface UsePublicIdUserSearchResult {
     search: () => Promise<boolean>;
     sendFriendRequest: () => Promise<boolean>;
     startDirectChat: () => Promise<boolean>;
+    blockUser: () => Promise<boolean>;
     clearResult: () => void;
 }
 
@@ -121,6 +126,7 @@ export function usePublicIdUserSearch(): UsePublicIdUserSearchResult {
     const [isSearching, setIsSearching] = useState(false);
     const [isSendingRequest, setIsSendingRequest] = useState(false);
     const [isStartingChat, setIsStartingChat] = useState(false);
+    const [isBlockingUser, setIsBlockingUser] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
     const [searchErrorCode, setSearchErrorCode] =
         useState<UserSearchErrorCode | null>(null);
@@ -243,12 +249,47 @@ export function usePublicIdUserSearch(): UsePublicIdUserSearchResult {
         }
     }, [isStartingChat, result, router]);
 
+    const blockUser = useCallback(async () => {
+        if (
+            !result ||
+            isBlockingUser ||
+            result.friendStatus === "SELF" ||
+            result.friendStatus === "BLOCKED"
+        ) {
+            return false;
+        }
+
+        setIsBlockingUser(true);
+        setActionErrorCode(null);
+        setActionSuccessCode(null);
+
+        try {
+            await userBlockService.blockUser({
+                blockedPublicId: result.publicId,
+            });
+
+            setResult({
+                ...result,
+                friendStatus: "BLOCKED",
+            });
+            setActionSuccessCode("USER_BLOCKED");
+            return true;
+        } catch (error) {
+            console.error("Failed to block user.", error);
+            setActionErrorCode("BLOCK_USER_FAILED");
+            return false;
+        } finally {
+            setIsBlockingUser(false);
+        }
+    }, [isBlockingUser, result]);
+
     return {
         publicId,
         result,
         isSearching,
         isSendingRequest,
         isStartingChat,
+        isBlockingUser,
         hasSearched,
         searchErrorCode,
         actionErrorCode,
@@ -257,6 +298,7 @@ export function usePublicIdUserSearch(): UsePublicIdUserSearchResult {
         search,
         sendFriendRequest,
         startDirectChat,
+        blockUser,
         clearResult,
     };
 }

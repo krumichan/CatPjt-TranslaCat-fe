@@ -128,13 +128,19 @@
         "requestSent": "友だちリクエスト送信済み",
         "requestReceived": "受信リクエストで処理",
         "blocked": "ブロック関係",
-        "self": "自分自身"
+        "self": "自分自身",
+        "block": "ブロック",
+        "blocking": "ブロック中..."
       },
       "messages": {
         "publicIdRequired": "検索するpublicIdを入力してください。",
         "requestSent": "友だちリクエストを送信しました。",
         "sendRequestFailed": "友だちリクエストの送信に失敗しました。",
-        "startChatFailed": "1:1チャット開始に失敗しました。"
+        "startChatFailed": "1:1チャット開始に失敗しました。",
+        "userBlocked": "ユーザーをブロックしました。",
+        "actionErrors": {
+          "BLOCK_USER_FAILED": "ユーザーブロックに失敗しました。しばらくしてから再度お試しください。"
+        }
       },
       "guide": {
         "eyebrow": "Guide",
@@ -174,7 +180,8 @@
         "eyebrow": "Friend list",
         "title": "友だち",
         "count": "全{totalCount}人 / 表示{filteredCount}人",
-        "friendSince": "友だちになった日: {date}"
+        "friendSince": "友だちになった日: {date}",
+        "blockedDescription": "ブロック中のユーザーです。チャット開始とグループ選択が制限されます。"
       },
       "actions": {
         "closeHelpModal": "ヘルプを閉じる",
@@ -194,7 +201,38 @@
         "openHelp": "ヘルプを開く",
         "selectFriend": "{nickname}を選択",
         "unselectFriend": "{nickname}の選択を解除",
-        "blockFriendFuture": "ブロック（#24で実装）"
+        "blockFriend": "ブロック",
+        "unblockFriend": "ブロック解除",
+        "blocked": "ブロック中",
+        "openBlockList": "ブロック一覧 ({count})"
+      },
+      "blockModal": {
+        "title": "ユーザーをブロックしますか？",
+        "description": "{nickname}さんをブロックします。",
+        "helpButton": "ブロックヘルプ",
+        "help": "ブロックすると、友だちリクエスト、1:1チャット開始、グループチャット選択が制限されます。既存のチャットルームは自動削除されず、自動友だち削除ポリシーは本Issueの範囲に含めません。",
+        "cancel": "キャンセル",
+        "confirm": "ブロック"
+      },
+      "blockListModal": {
+        "eyebrow": "Blocked users",
+        "title": "ブロック一覧",
+        "description": "ブロックしたユーザーは友だち一覧に表示されず、ここで確認してブロック解除できます。",
+        "close": "ブロック一覧を閉じる",
+        "loading": "ブロック一覧を読み込んでいます。",
+        "emptyTitle": "ブロック中のユーザーはいません。",
+        "emptyDescription": "ユーザーをブロックすると、この一覧に表示されます。",
+        "blockedAt": "ブロックした日: {date}",
+        "unblock": "ブロック解除",
+        "unblocking": "解除中..."
+      },
+      "unblockModal": {
+        "title": "ブロックを解除しますか？",
+        "description": "{nickname}さんのブロックを解除します。",
+        "helpButton": "ブロック解除ヘルプ",
+        "help": "ブロックを解除すると、友だちリクエスト、チャット開始、グループチャット選択が再び可能になる場合があります。ただし、友だち関係自体が削除されている場合は再度友だちリクエストが必要になる場合があります。",
+        "cancel": "キャンセル",
+        "confirm": "解除"
       },
       "deleteModal": {
         "title": "友だちを削除しますか？",
@@ -213,6 +251,9 @@
         "filteredEmptyTitle": "検索結果がありません。",
         "filteredEmptyDescription": "別の検索語で再度確認してください。"
       },
+      "status": {
+        "blocked": "ブロック中"
+      },
       "empty": {
         "title": "まだ友だちがいません。",
         "description": "TranslaCat IDでユーザーを検索し、友だちリクエストを送信してみましょう。",
@@ -221,7 +262,10 @@
       "messages": {
         "startChatFailed": "1:1チャット開始に失敗しました。しばらくしてから再度お試しください。",
         "groupEntryFailed": "グループチャット作成画面へ移動する準備に失敗しました。",
-        "deleteFriendFailed": "友だち削除に失敗しました。しばらくしてから再度お試しください。"
+        "deleteFriendFailed": "友だち削除に失敗しました。しばらくしてから再度お試しください。",
+        "blockFriendFailed": "ユーザーブロックに失敗しました。しばらくしてから再度お試しください。",
+        "unblockFriendFailed": "ブロック解除に失敗しました。しばらくしてから再度お試しください。",
+        "blockedUserActionDenied": "ブロック中のユーザーはチャット開始またはグループ選択ができません。"
       },
       "searchModal": {
         "initialHint": "TranslaCat IDを入力して検索ボタンを押すと、ユーザーを検索できます。使い方を確認する場合は右上の？ボタンを押してください。"

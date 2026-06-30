@@ -2,6 +2,7 @@
 
 import type React from "react";
 import {
+    Ban,
     MessageCircle,
     Send,
     ShieldAlert,
@@ -16,69 +17,114 @@ interface UserSearchActionPanelProps {
     result: UserSearchResult;
     isSendingRequest: boolean;
     isStartingChat: boolean;
+    isBlockingUser?: boolean;
     onSendFriendRequest: () => Promise<boolean>;
     onStartDirectChat: () => Promise<boolean>;
+    onBlockUser?: () => Promise<boolean>;
 }
 
 export default function UserSearchActionPanel({
     result,
     isSendingRequest,
     isStartingChat,
+    isBlockingUser = false,
     onSendFriendRequest,
     onStartDirectChat,
+    onBlockUser,
 }: UserSearchActionPanelProps) {
     const t = useTranslations("Social.userSearchPage.actions");
+    const canBlock =
+        result.friendStatus !== "SELF" &&
+        result.friendStatus !== "BLOCKED" &&
+        !!onBlockUser;
 
     if (result.friendStatus === "NONE") {
         return (
-            <button
-                type="button"
-                onClick={onSendFriendRequest}
-                disabled={isSendingRequest}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-orange-500 px-5 py-3 text-sm font-black text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto dark:bg-orange-400 dark:text-slate-950 dark:hover:bg-orange-300"
-            >
-                <Send className="h-4 w-4" aria-hidden="true" />
-                {isSendingRequest ? t("sendingRequest") : t("sendRequest")}
-            </button>
+            <div className="flex shrink-0 flex-col gap-2">
+                <button
+                    type="button"
+                    onClick={onSendFriendRequest}
+                    disabled={isSendingRequest || isBlockingUser}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-orange-500 px-5 py-3 text-sm font-black text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-700"
+                >
+                    <Send className="h-4 w-4" aria-hidden="true" />
+                    {isSendingRequest
+                        ? t("sendingRequest")
+                        : t("sendRequest")}
+                </button>
+                {canBlock && (
+                    <BlockButton
+                        isBlocking={isBlockingUser}
+                        onBlockUser={onBlockUser}
+                    />
+                )}
+            </div>
         );
     }
 
     if (result.friendStatus === "FRIEND") {
         return (
-            <button
-                type="button"
-                onClick={onStartDirectChat}
-                disabled={isStartingChat}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-black text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
-            >
-                <MessageCircle className="h-4 w-4" aria-hidden="true" />
-                {isStartingChat ? t("startingChat") : t("startChat")}
-            </button>
+            <div className="flex shrink-0 flex-col gap-2">
+                <button
+                    type="button"
+                    onClick={onStartDirectChat}
+                    disabled={isStartingChat || isBlockingUser}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-orange-500 px-5 py-3 text-sm font-black text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-700"
+                >
+                    <MessageCircle
+                        className="h-4 w-4"
+                        aria-hidden="true"
+                    />
+                    {isStartingChat ? t("startingChat") : t("startChat")}
+                </button>
+                {canBlock && (
+                    <BlockButton
+                        isBlocking={isBlockingUser}
+                        onBlockUser={onBlockUser}
+                    />
+                )}
+            </div>
         );
     }
 
     if (result.friendStatus === "REQUEST_SENT") {
         return (
-            <DisabledAction
-                icon={<Send className="h-4 w-4" aria-hidden="true" />}
-                label={t("requestSent")}
-            />
+            <div className="flex shrink-0 flex-col gap-2">
+                <DisabledAction
+                    icon={<UserCheck className="h-4 w-4" />}
+                    label={t("requestSent")}
+                />
+                {canBlock && (
+                    <BlockButton
+                        isBlocking={isBlockingUser}
+                        onBlockUser={onBlockUser}
+                    />
+                )}
+            </div>
         );
     }
 
     if (result.friendStatus === "REQUEST_RECEIVED") {
         return (
-            <DisabledAction
-                icon={<UserCheck className="h-4 w-4" aria-hidden="true" />}
-                label={t("requestReceived")}
-            />
+            <div className="flex shrink-0 flex-col gap-2">
+                <DisabledAction
+                    icon={<UserMinus className="h-4 w-4" />}
+                    label={t("requestReceived")}
+                />
+                {canBlock && (
+                    <BlockButton
+                        isBlocking={isBlockingUser}
+                        onBlockUser={onBlockUser}
+                    />
+                )}
+            </div>
         );
     }
 
     if (result.friendStatus === "BLOCKED") {
         return (
             <DisabledAction
-                icon={<ShieldAlert className="h-4 w-4" aria-hidden="true" />}
+                icon={<Ban className="h-4 w-4" />}
                 label={t("blocked")}
                 danger
             />
@@ -87,9 +133,31 @@ export default function UserSearchActionPanel({
 
     return (
         <DisabledAction
-            icon={<UserMinus className="h-4 w-4" aria-hidden="true" />}
+            icon={<UserCheck className="h-4 w-4" />}
             label={t("self")}
         />
+    );
+}
+
+function BlockButton({
+    isBlocking,
+    onBlockUser,
+}: {
+    isBlocking: boolean;
+    onBlockUser: () => Promise<boolean>;
+}) {
+    const t = useTranslations("Social.userSearchPage.actions");
+
+    return (
+        <button
+            type="button"
+            onClick={onBlockUser}
+            disabled={isBlocking}
+            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-100 px-5 py-3 text-sm font-black text-slate-600 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white/10 dark:text-slate-200 dark:hover:bg-white/15"
+        >
+            <ShieldAlert className="h-4 w-4" aria-hidden="true" />
+            {isBlocking ? t("blocking") : t("block")}
+        </button>
     );
 }
 
@@ -106,10 +174,10 @@ function DisabledAction({
 }: DisabledActionProps) {
     return (
         <div
-            className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl border px-5 py-3 text-sm font-black sm:w-auto ${
+            className={`inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-black ${
                 danger
-                    ? "border-rose-200 bg-rose-50 text-rose-600 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-200"
-                    : "border-slate-200 bg-white text-slate-500 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300"
+                    ? "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-200"
+                    : "bg-slate-100 text-slate-500 dark:bg-white/10 dark:text-slate-300"
             }`}
         >
             {icon}

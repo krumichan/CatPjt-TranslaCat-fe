@@ -128,13 +128,19 @@
         "requestSent": "친구 요청 전송 완료",
         "requestReceived": "받은 요청에서 처리",
         "blocked": "차단 관계",
-        "self": "자기 자신"
+        "self": "자기 자신",
+        "block": "차단",
+        "blocking": "차단 중..."
       },
       "messages": {
         "publicIdRequired": "검색할 publicId를 입력해 주세요.",
         "requestSent": "친구 요청을 보냈습니다.",
         "sendRequestFailed": "친구 요청 전송에 실패했습니다.",
-        "startChatFailed": "1:1 채팅 시작에 실패했습니다."
+        "startChatFailed": "1:1 채팅 시작에 실패했습니다.",
+        "userBlocked": "사용자를 차단했습니다.",
+        "actionErrors": {
+          "BLOCK_USER_FAILED": "사용자 차단에 실패했습니다. 잠시 후 다시 시도해 주세요."
+        }
       },
       "guide": {
         "eyebrow": "Guide",
@@ -174,7 +180,8 @@
         "eyebrow": "Friend list",
         "title": "친구",
         "count": "전체 {totalCount}명 / 표시 {filteredCount}명",
-        "friendSince": "친구가 된 날짜: {date}"
+        "friendSince": "친구가 된 날짜: {date}",
+        "blockedDescription": "차단한 사용자입니다. 채팅 시작과 그룹 선택이 제한됩니다."
       },
       "actions": {
         "closeSearchModal": "친구 찾기 닫기",
@@ -194,7 +201,39 @@
         "unselectFriend": "{nickname} 선택 해제",
         "blockFriendFuture": "차단 (#24에서 구현)",
         "openHelp": "도움말 열기",
-        "closeHelpModal": "도움말 닫기"
+        "closeHelpModal": "도움말 닫기",
+        "blockFriend": "차단",
+        "unblockFriend": "차단 해제",
+        "blocked": "차단됨",
+        "openBlockList": "차단 목록 ({count})"
+      },
+      "blockModal": {
+        "title": "사용자를 차단할까요?",
+        "description": "{nickname}님을 차단합니다.",
+        "helpButton": "차단 도움말",
+        "help": "차단하면 친구 요청, 1:1 채팅 시작, 그룹 채팅 선택이 제한됩니다. 기존 채팅방은 자동으로 삭제되지 않으며, 자동 친구 삭제 정책은 본 이슈 범위에 포함하지 않습니다.",
+        "cancel": "취소",
+        "confirm": "차단"
+      },
+      "blockListModal": {
+        "eyebrow": "Blocked users",
+        "title": "차단 목록",
+        "description": "차단한 사용자는 친구 목록에 표시되지 않으며, 여기에서 확인하고 차단 해제할 수 있습니다.",
+        "close": "차단 목록 닫기",
+        "loading": "차단 목록을 불러오고 있습니다.",
+        "emptyTitle": "차단한 사용자가 없습니다.",
+        "emptyDescription": "사용자를 차단하면 이 목록에 표시됩니다.",
+        "blockedAt": "차단한 날짜: {date}",
+        "unblock": "차단 해제",
+        "unblocking": "해제 중..."
+      },
+      "unblockModal": {
+        "title": "차단을 해제할까요?",
+        "description": "{nickname}님의 차단을 해제합니다.",
+        "helpButton": "차단 해제 도움말",
+        "help": "차단을 해제하면 다시 친구 요청, 채팅 시작, 그룹 채팅 선택이 가능해질 수 있습니다. 단, 친구 관계 자체가 삭제된 경우에는 다시 친구 요청이 필요할 수 있습니다.",
+        "cancel": "취소",
+        "confirm": "해제"
       },
       "deleteModal": {
         "title": "친구를 삭제할까요?",
@@ -213,6 +252,9 @@
         "filteredEmptyTitle": "검색 결과가 없습니다.",
         "filteredEmptyDescription": "다른 검색어로 다시 확인해 주세요."
       },
+      "status": {
+        "blocked": "차단됨"
+      },
       "empty": {
         "title": "아직 친구가 없습니다.",
         "description": "TranslaCat ID로 사용자를 검색하고 친구 요청을 보내보세요.",
@@ -221,7 +263,10 @@
       "messages": {
         "startChatFailed": "1:1 채팅 시작에 실패했습니다. 잠시 후 다시 시도해 주세요.",
         "groupEntryFailed": "그룹 채팅 생성 화면으로 이동할 준비에 실패했습니다.",
-        "deleteFriendFailed": "친구 삭제에 실패했습니다. 잠시 후 다시 시도해 주세요."
+        "deleteFriendFailed": "친구 삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+        "blockFriendFailed": "사용자 차단에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+        "unblockFriendFailed": "차단 해제에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+        "blockedUserActionDenied": "차단한 사용자는 채팅 시작 또는 그룹 선택을 할 수 없습니다."
       },
       "guide": {
         "eyebrow": "Guide",

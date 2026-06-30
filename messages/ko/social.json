@@ -139,7 +139,11 @@
         "startChatFailed": "1:1 채팅 시작에 실패했습니다.",
         "userBlocked": "사용자를 차단했습니다.",
         "actionErrors": {
-          "BLOCK_USER_FAILED": "사용자 차단에 실패했습니다. 잠시 후 다시 시도해 주세요."
+          "BLOCK_USER_FAILED": "사용자 차단에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+          "START_CHAT_BLOCKED": "차단 관계가 있는 사용자와는 1:1 채팅을 시작할 수 없습니다.",
+          "START_CHAT_RELATION_REQUIRED": "친구 관계인 사용자와만 1:1 채팅을 시작할 수 있습니다.",
+          "START_CHAT_SELF_NOT_ALLOWED": "자기 자신과는 1:1 채팅을 시작할 수 없습니다.",
+          "START_CHAT_INVALID_RESPONSE": "채팅방 이동 정보를 확인할 수 없습니다. 잠시 후 다시 시도해 주세요."
         }
       },
       "guide": {
@@ -266,7 +270,11 @@
         "deleteFriendFailed": "친구 삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.",
         "blockFriendFailed": "사용자 차단에 실패했습니다. 잠시 후 다시 시도해 주세요.",
         "unblockFriendFailed": "차단 해제에 실패했습니다. 잠시 후 다시 시도해 주세요.",
-        "blockedUserActionDenied": "차단한 사용자는 채팅 시작 또는 그룹 선택을 할 수 없습니다."
+        "blockedUserActionDenied": "차단한 사용자는 채팅 시작 또는 그룹 선택을 할 수 없습니다.",
+        "startChatBlocked": "차단 관계가 있는 사용자와는 1:1 채팅을 시작할 수 없습니다.",
+        "startChatRelationRequired": "친구 관계인 사용자와만 1:1 채팅을 시작할 수 있습니다.",
+        "startChatSelfNotAllowed": "자기 자신과는 1:1 채팅을 시작할 수 없습니다.",
+        "startChatInvalidResponse": "채팅방 이동 정보를 확인할 수 없습니다. 잠시 후 다시 시도해 주세요."
       },
       "guide": {
         "eyebrow": "Guide",

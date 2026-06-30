@@ -3,19 +3,19 @@
 import { AlertCircle, Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
+import { useCallback, useState } from "react";
 
 import { ChatMessageInput } from "@/components/chat/room/ChatMessageInput";
 import { ChatMessageList } from "@/components/chat/room/ChatMessageList";
 import { ChatRoomHeader } from "@/components/chat/room/ChatRoomHeader";
+import { ChatLanguageSettingsModal } from "@/components/chat/room/modal/ChatLanguageSettingsModal";
+import { useChatLanguageSettings } from "@/hooks/chat/useChatLanguageSettings";
 import { useChatRoom } from "@/hooks/chat/useChatRoom";
+import { useChatRoomWebSocket } from "@/hooks/chat/useChatRoomWebSocket";
 import type {
     ChatMessage,
     ChatMessageTranslation,
 } from "@/types/chat";
-import {useCallback, useState} from "react";
-import {useChatRoomWebSocket} from "@/hooks/chat/useChatRoomWebSocket";
-import {useChatLanguageSettings} from "@/hooks/chat/useChatLanguageSettings";
-import {ChatLanguageSettingsModal} from "@/components/chat/room/modal/ChatLanguageSettingsModal";
 
 interface ChatRoomPageProps {
     roomId: number;
@@ -24,9 +24,9 @@ interface ChatRoomPageProps {
 export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
     const t = useTranslations("ChatRoom");
     const { data: session } = useSession();
+    const [isLanguageSettingsOpen, setIsLanguageSettingsOpen] =
+        useState(false);
 
-    const [isLanguageSettingsOpen, setIsLanguageSettingsOpen] = useState(false);
-    
     const {
         room,
         messages,
@@ -37,12 +37,15 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
         loadErrorCode,
         sendErrorCode: restSendErrorCode,
         loadMoreErrorCode,
+        retryingTranslationKeys,
+        retryTranslationErrorKeys,
         reload,
         loadMoreMessages,
         sendMessage: sendRestMessage,
         appendMessage,
         applyTranslationCompleted,
         syncLatestMessages,
+        retryTranslation,
     } = useChatRoom(roomId);
 
     const {
@@ -72,13 +75,15 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
         [applyTranslationCompleted],
     );
 
-    const {
-        connectionStatus,
-        isConnected,
-        isSending: isWebSocketSending,
-        sendErrorCode: webSocketSendErrorCode,
-        sendMessage: sendWebSocketMessage,
-    } = useChatRoomWebSocket({
+    /*
+     * 현재 STOMP ERROR가 남아 있는 상태에서는 WebSocket publish가 "전송 성공"처럼
+     * 보이더라도 서버 SEND 처리 실패 후 메시지가 저장되지 않을 수 있다.
+     *
+     * 그래서 메시지 송신은 우선 REST로 고정한다.
+     * WebSocket은 수신/번역 이벤트 구독 용도로만 유지하고, STOMP가 안정화된 뒤
+     * 다시 WS 송신으로 전환한다.
+     */
+    const { connectionStatus } = useChatRoomWebSocket({
         roomId,
         accessToken,
         onMessageCreated: handleMessageCreated,
@@ -88,57 +93,37 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
 
     const sendMessage = useCallback(
         async (content: string) => {
-            if (isConnected) {
-                return sendWebSocketMessage(content);
-            }
-
             return sendRestMessage(content);
         },
-        [isConnected, sendRestMessage, sendWebSocketMessage],
+        [sendRestMessage],
     );
 
-    const isMessageSending = isConnected ? isWebSocketSending : isRestSending;
-
-    const sendErrorMessage =
-        webSocketSendErrorCode || restSendErrorCode
-            ? t("input.sendFailed")
-            : null;
+    const sendErrorMessage = restSendErrorCode ? t("input.sendFailed") : null;
 
     if (isLoading) {
         return (
-            <div className="fixed inset-x-0 bottom-0 top-15 flex items-center justify-center bg-slate-50 dark:bg-slate-950">
-                <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    <span>{t("loading")}</span>
-                </div>
+            <div className="flex min-h-[60vh] items-center justify-center text-slate-500 dark:text-slate-300">
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                {t("loading")}
             </div>
         );
     }
 
     if (loadErrorCode || !room) {
         return (
-            <div className="fixed inset-x-0 bottom-0 top-15 flex items-center justify-center bg-slate-50 px-4 dark:bg-slate-950">
-                <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                    <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500 dark:bg-red-950/40">
-                        <AlertCircle className="h-6 w-6" />
-                    </div>
-
-                    <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
-                        {t("error.title")}
-                    </h2>
-
-                    <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                        {loadErrorCode ? t("error.loadFailed") : t("error.notFound")}
-                    </p>
-
-                    <button
-                        type="button"
-                        onClick={() => void reload()}
-                        className="mt-5 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
-                    >
-                        {t("error.retry")}
-                    </button>
-                </div>
+            <div className="mx-auto mt-16 max-w-lg rounded-3xl border border-red-100 bg-red-50 p-8 text-center text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300">
+                <AlertCircle className="mx-auto mb-3 h-8 w-8" />
+                <h2 className="text-lg font-bold">{t("error.title")}</h2>
+                <p className="mt-2 text-sm">
+                    {loadErrorCode ? t("error.loadFailed") : t("error.notFound")}
+                </p>
+                <button
+                    type="button"
+                    onClick={() => void reload()}
+                    className="mt-5 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+                >
+                    {t("error.retry")}
+                </button>
             </div>
         );
     }
@@ -149,7 +134,12 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
                 <ChatRoomHeader
                     room={room}
                     connectionStatus={connectionStatus}
-                    onLanguageSettingsClick={() => setIsLanguageSettingsOpen(true)}
+                    languageSettings={languageSettings}
+                    isLanguageSettingsLoading={isLanguageSettingsLoading}
+                    languageSettingsLoadErrorCode={languageSettingsLoadErrorCode}
+                    onOpenLanguageSettings={() =>
+                        setIsLanguageSettingsOpen(true)
+                    }
                 />
 
                 <ChatMessageList
@@ -161,31 +151,27 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
                     loadMoreErrorMessage={
                         loadMoreErrorCode ? t("pagination.loadFailed") : null
                     }
+                    retryingTranslationKeys={retryingTranslationKeys}
+                    retryTranslationErrorKeys={retryTranslationErrorKeys}
                     onLoadMore={loadMoreMessages}
+                    onRetryTranslation={retryTranslation}
+                    onRefreshMessages={syncLatestMessages}
                 />
 
                 <ChatMessageInput
-                    onSend={sendMessage}
-                    disabled={isMessageSending}
+                    isSending={isRestSending}
                     sendErrorMessage={sendErrorMessage}
+                    onSend={sendMessage}
                 />
             </div>
 
             <ChatLanguageSettingsModal
-                open={isLanguageSettingsOpen}
+                isOpen={isLanguageSettingsOpen}
                 settings={languageSettings}
                 isLoading={isLanguageSettingsLoading}
                 isSaving={isLanguageSettingsSaving}
-                loadErrorMessage={
-                    languageSettingsLoadErrorCode
-                        ? t("languageSettings.loadFailed")
-                        : null
-                }
-                saveErrorMessage={
-                    languageSettingsSaveErrorCode
-                        ? t("languageSettings.saveFailed")
-                        : null
-                }
+                loadErrorCode={languageSettingsLoadErrorCode}
+                saveErrorCode={languageSettingsSaveErrorCode}
                 onClose={() => setIsLanguageSettingsOpen(false)}
                 onSave={saveLanguageSettings}
                 onReload={reloadLanguageSettings}

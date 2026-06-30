@@ -139,7 +139,11 @@
         "startChatFailed": "1:1チャット開始に失敗しました。",
         "userBlocked": "ユーザーをブロックしました。",
         "actionErrors": {
-          "BLOCK_USER_FAILED": "ユーザーブロックに失敗しました。しばらくしてから再度お試しください。"
+          "BLOCK_USER_FAILED": "ユーザーブロックに失敗しました。しばらくしてから再度お試しください。",
+          "START_CHAT_BLOCKED": "ブロック関係があるユーザーとは1:1チャットを開始できません。",
+          "START_CHAT_RELATION_REQUIRED": "友だち関係のユーザーとのみ1:1チャットを開始できます。",
+          "START_CHAT_SELF_NOT_ALLOWED": "自分自身とは1:1チャットを開始できません。",
+          "START_CHAT_INVALID_RESPONSE": "チャットルーム遷移情報を確認できません。しばらくしてから再度お試しください。"
         }
       },
       "guide": {
@@ -265,7 +269,11 @@
         "deleteFriendFailed": "友だち削除に失敗しました。しばらくしてから再度お試しください。",
         "blockFriendFailed": "ユーザーブロックに失敗しました。しばらくしてから再度お試しください。",
         "unblockFriendFailed": "ブロック解除に失敗しました。しばらくしてから再度お試しください。",
-        "blockedUserActionDenied": "ブロック中のユーザーはチャット開始またはグループ選択ができません。"
+        "blockedUserActionDenied": "ブロック中のユーザーはチャット開始またはグループ選択ができません。",
+        "startChatBlocked": "ブロック関係があるユーザーとは1:1チャットを開始できません。",
+        "startChatRelationRequired": "友だち関係のユーザーとのみ1:1チャットを開始できます。",
+        "startChatSelfNotAllowed": "自分自身とは1:1チャットを開始できません。",
+        "startChatInvalidResponse": "チャットルーム遷移情報を確認できません。しばらくしてから再度お試しください。"
       },
       "searchModal": {
         "initialHint": "TranslaCat IDを入力して検索ボタンを押すと、ユーザーを検索できます。使い方を確認する場合は右上の？ボタンを押してください。"

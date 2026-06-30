@@ -4,6 +4,11 @@ import { useCallback, useState } from "react";
 
 import { useRouter } from "@/navigation";
 import { friendChatService } from "@/services/chat/friendChatService";
+import {
+    getFriendDirectChatRoomId,
+    toFriendDirectChatStartErrorCode,
+    type FriendDirectChatStartErrorCode,
+} from "@/services/chat/friendDirectChatHelper";
 import { getApiErrorCode } from "@/services/common/responseParser";
 import { friendRequestService } from "@/services/friend/friendRequestService";
 import { userBlockService } from "@/services/block/userBlockService";
@@ -25,7 +30,7 @@ export type UserSearchActionErrorCode =
     | "BLOCKED"
     | "SELF"
     | "TARGET_NOT_FOUND"
-    | "START_CHAT_FAILED"
+    | FriendDirectChatStartErrorCode
     | "BLOCK_USER_FAILED";
 
 export type UserSearchActionSuccessCode =
@@ -237,12 +242,13 @@ export function usePublicIdUserSearch(): UsePublicIdUserSearchResult {
             const room = await friendChatService.createOrGetDirectRoom(
                 result.userId,
             );
+            const roomId = getFriendDirectChatRoomId(room);
 
-            router.push(`/chat/rooms/${room.id}`);
+            router.push(`/chat/rooms/${roomId}`);
             return true;
         } catch (error) {
             console.error("Failed to start friend direct chat.", error);
-            setActionErrorCode("START_CHAT_FAILED");
+            setActionErrorCode(toFriendDirectChatStartErrorCode(error));
             return false;
         } finally {
             setIsStartingChat(false);

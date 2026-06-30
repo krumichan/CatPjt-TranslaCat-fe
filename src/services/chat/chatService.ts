@@ -5,6 +5,7 @@ import type {
     ChatMessage,
     ChatMessageCreateRequest,
     ChatMessageListResponse,
+    ChatMessageTranslation,
     ChatRoom,
     ChatRoomCreateRequest,
     ChatRoomListResponse,
@@ -18,7 +19,6 @@ async function parseBody<T>(response: Response): Promise<T> {
     }
 
     const data = (await response.json()) as ResponseDto<T>;
-
     return data.body;
 }
 
@@ -61,9 +61,12 @@ export const chatService = {
     getMyLanguageSettings: async (
         roomId: string | number,
     ): Promise<ChatLanguageSettings> => {
-        const response = await apiClient(`/chat/rooms/${roomId}/members/me/language`, {
-            method: "GET",
-        });
+        const response = await apiClient(
+            `/chat/rooms/${roomId}/members/me/language`,
+            {
+                method: "GET",
+            },
+        );
 
         return parseBody<ChatLanguageSettings>(response);
     },
@@ -72,10 +75,13 @@ export const chatService = {
         roomId: string | number,
         request: ChatLanguageSettingsUpdateRequest,
     ): Promise<ChatLanguageSettings> => {
-        const response = await apiClient(`/chat/rooms/${roomId}/members/me/language`, {
-            method: "PATCH",
-            body: JSON.stringify(request),
-        });
+        const response = await apiClient(
+            `/chat/rooms/${roomId}/members/me/language`,
+            {
+                method: "PATCH",
+                body: JSON.stringify(request),
+            },
+        );
 
         return parseBody<ChatLanguageSettings>(response);
     },
@@ -83,9 +89,12 @@ export const chatService = {
     resetMyLanguageSettings: async (
         roomId: string | number,
     ): Promise<ChatLanguageSettings> => {
-        const response = await apiClient(`/chat/rooms/${roomId}/members/me/language`, {
-            method: "DELETE",
-        });
+        const response = await apiClient(
+            `/chat/rooms/${roomId}/members/me/language`,
+            {
+                method: "DELETE",
+            },
+        );
 
         return parseBody<ChatLanguageSettings>(response);
     },
@@ -122,5 +131,20 @@ export const chatService = {
         });
 
         return parseBody<ChatMessage>(response);
+    },
+
+    retryMessageTranslation: async (
+        roomId: string | number,
+        messageId: string | number,
+        languageCode: string,
+    ): Promise<ChatMessageTranslation> => {
+        const response = await apiClient(
+            `/chat/rooms/${roomId}/messages/${messageId}/translations/${languageCode}/retry`,
+            {
+                method: "POST",
+            },
+        );
+
+        return parseBody<ChatMessageTranslation>(response);
     },
 };

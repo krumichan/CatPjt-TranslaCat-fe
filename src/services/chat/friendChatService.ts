@@ -1,10 +1,10 @@
 import { apiClient } from "@/lib/apiClient";
+import { parseResponseBody } from "@/services/common/responseParser";
 import type {
     FriendDirectChatRoomResponse,
     FriendGroupChatRoomCreateRequest,
     FriendGroupChatRoomResponse,
 } from "@/types/social";
-import { parseResponseBody } from "@/services/common/responseParser";
 
 export const friendChatService = {
     createOrGetDirectRoom: async (

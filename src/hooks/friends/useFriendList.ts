@@ -5,13 +5,18 @@ import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "@/navigation";
 import { useQuery } from "@/hooks/useQuery";
 import { friendChatService } from "@/services/chat/friendChatService";
+import {
+    getFriendDirectChatRoomId,
+    toFriendDirectChatStartErrorCode,
+    type FriendDirectChatStartErrorCode,
+} from "@/services/chat/friendDirectChatHelper";
 import { friendService } from "@/services/friend/friendService";
 import { userBlockService } from "@/services/block/userBlockService";
 import type { Friend, UserBlock } from "@/types/social";
 
 export type FriendListActionErrorCode =
     | "LOAD_FAILED"
-    | "START_CHAT_FAILED"
+    | FriendDirectChatStartErrorCode
     | "GROUP_ENTRY_FAILED"
     | "DELETE_FRIEND_FAILED"
     | "BLOCK_FRIEND_FAILED"
@@ -167,7 +172,7 @@ export function useFriendList(): UseFriendListResult {
             }
 
             if (blockedUserIdSet.has(friendUserId)) {
-                setActionErrorCode("BLOCKED_USER_ACTION_DENIED");
+                setActionErrorCode("START_CHAT_BLOCKED");
                 return false;
             }
 
@@ -179,12 +184,13 @@ export function useFriendList(): UseFriendListResult {
                     await friendChatService.createOrGetDirectRoom(
                         friendUserId,
                     );
+                const roomId = getFriendDirectChatRoomId(room);
 
-                router.push(`/chat/rooms/${room.id}`);
+                router.push(`/chat/rooms/${roomId}`);
                 return true;
             } catch (error) {
                 console.error("Failed to start direct chat.", error);
-                setActionErrorCode("START_CHAT_FAILED");
+                setActionErrorCode(toFriendDirectChatStartErrorCode(error));
                 return false;
             } finally {
                 setStartingChatFriendUserId(null);

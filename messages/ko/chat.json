@@ -43,7 +43,12 @@
     },
     "translation": {
       "pending": "번역 중...",
-      "failed": "번역 실패 · 원문을 표시합니다"
+      "failed": "번역에 실패했습니다.",
+      "retry": "재번역",
+      "retrying": "재번역 요청 중...",
+      "retryFailed": "재번역 요청에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+      "refresh": "메시지 새로고침",
+      "refreshShort": "새로고침"
     }
   },
   "ChatRoomCreate": {

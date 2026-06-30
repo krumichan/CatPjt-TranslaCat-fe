@@ -43,7 +43,12 @@
     },
     "translation": {
       "pending": "翻訳中...",
-      "failed": "翻訳失敗 · 原文を表示します"
+      "failed": "翻訳に失敗しました。",
+      "retry": "再翻訳",
+      "retrying": "再翻訳をリクエスト中...",
+      "retryFailed": "再翻訳リクエストに失敗しました。しばらくしてから再度お試しください。",
+      "refresh": "メッセージを更新",
+      "refreshShort": "更新"
     }
   },
   "ChatRoomCreate": {

@@ -10,41 +10,44 @@ import type {
 } from "@/types/chat";
 
 interface ChatLanguageSettingsModalProps {
-    open: boolean;
+    isOpen: boolean;
     settings: ChatLanguageSettings | null;
     isLoading: boolean;
     isSaving: boolean;
-    loadErrorMessage: string | null;
-    saveErrorMessage: string | null;
+    loadErrorCode: string | null;
+    saveErrorCode: string | null;
     onClose: () => void;
     onSave: (request: ChatLanguageSettingsUpdateRequest) => Promise<boolean>;
     onReload: () => Promise<void>;
 }
 
 export function ChatLanguageSettingsModal({
-    open,
+    isOpen,
     settings,
     isLoading,
     isSaving,
-    loadErrorMessage,
-    saveErrorMessage,
+    loadErrorCode,
+    saveErrorCode,
     onClose,
     onSave,
     onReload,
 }: ChatLanguageSettingsModalProps) {
     const t = useTranslations("ChatRoom.languageSettings");
 
-    if (!open) {
+    if (!isOpen) {
         return null;
     }
 
+    const loadErrorMessage = loadErrorCode ? t("loadFailed") : null;
+    const saveErrorMessage = saveErrorCode ? t("saveFailed") : null;
+
     const settingsKey = settings
         ? [
-            settings.originalLanguageCode,
-            settings.translationLanguageCode,
-            String(settings.showOriginal),
-            String(settings.showTranslation),
-        ].join(":")
+              settings.originalLanguageCode,
+              settings.translationLanguageCode,
+              String(settings.showOriginal),
+              String(settings.showTranslation),
+          ].join(":")
         : "empty";
 
     return (

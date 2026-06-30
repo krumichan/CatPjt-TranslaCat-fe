@@ -8,29 +8,38 @@ const normalizeLanguageCode = (languageCode: string | null | undefined) =>
 
 export const getPreferredTranslationLanguageCode = (
     languageSettings: ChatLanguageSettings | null,
-    isMine: boolean,
 ): string | null => {
     if (!languageSettings) {
         return null;
     }
 
-    return isMine
-        ? languageSettings.originalLanguageCode
-        : languageSettings.translationLanguageCode;
+    /*
+     * 기존 로직은 내 메시지일 때 originalLanguageCode를 우선했다.
+     * 하지만 실제 번역 레코드는 "내가 쓴 원문 → 상대 언어"로 생성되므로,
+     * 예: KO → JA 설정에서 내가 한국어로 보낸 메시지의 translation.languageCode는 "ja"가 된다.
+     *
+     * 따라서 화면에 표시할 번역은 기본적으로 translationLanguageCode를 우선한다.
+     */
+    return (
+        normalizeLanguageCode(languageSettings.translationLanguageCode) ||
+        normalizeLanguageCode(languageSettings.originalLanguageCode) ||
+        null
+    );
 };
 
 export const getPreferredTranslation = (
     translations: ChatMessageTranslation[],
     languageSettings: ChatLanguageSettings | null,
-    isMine: boolean,
 ): ChatMessageTranslation | null => {
-    const preferredLanguageCode = getPreferredTranslationLanguageCode(
-        languageSettings,
-        isMine,
-    );
+    if (translations.length === 0) {
+        return null;
+    }
+
+    const preferredLanguageCode =
+        getPreferredTranslationLanguageCode(languageSettings);
 
     if (!preferredLanguageCode) {
-        return null;
+        return translations[0];
     }
 
     const normalizedPreferredLanguageCode =
@@ -41,27 +50,27 @@ export const getPreferredTranslation = (
             (translation) =>
                 normalizeLanguageCode(translation.languageCode) ===
                 normalizedPreferredLanguageCode,
-        ) ?? null
+        ) ??
+        translations[0] ??
+        null
     );
 };
 
 export const getVisibleTranslations = (
     translations: ChatMessageTranslation[],
     languageSettings: ChatLanguageSettings | null,
-    isMine: boolean,
 ): ChatMessageTranslation[] => {
-    if (!languageSettings) {
-        return translations;
+    if (translations.length === 0) {
+        return [];
     }
 
-    if (!languageSettings.showTranslation) {
+    if (languageSettings && !languageSettings.showTranslation) {
         return [];
     }
 
     const preferredTranslation = getPreferredTranslation(
         translations,
         languageSettings,
-        isMine,
     );
 
     return preferredTranslation ? [preferredTranslation] : [];
@@ -70,7 +79,6 @@ export const getVisibleTranslations = (
 export const shouldShowOriginalMessageContent = (
     translations: ChatMessageTranslation[],
     languageSettings: ChatLanguageSettings | null,
-    isMine: boolean,
 ): boolean => {
     if (!languageSettings) {
         return true;
@@ -87,7 +95,6 @@ export const shouldShowOriginalMessageContent = (
     const preferredTranslation = getPreferredTranslation(
         translations,
         languageSettings,
-        isMine,
     );
 
     return (

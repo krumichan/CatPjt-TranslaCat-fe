@@ -11,7 +11,6 @@ import {
     extractChatMessageFromEvent,
     extractTranslationResultFromEvent,
     getChatWebSocketEventType,
-    type ChatTranslationResultPayload,
     type ChatWebSocketConnectionStatus,
     type ChatWebSocketEvent,
 } from "@/types/chatWebSocket";
@@ -48,13 +47,12 @@ export const useChatRoomWebSocket = ({
     const clientRef = useRef<Client | null>(null);
     const connectionKeyRef = useRef<string | null>(null);
     const hasConnectedOnceRef = useRef(false);
+    const stoppedByStompErrorRef = useRef(false);
 
     const [rawConnectionStatus, setRawConnectionStatus] =
         useState<ChatWebSocketConnectionStatus>("IDLE");
-
     const [connectedConnectionKey, setConnectedConnectionKey] =
         useState<string | null>(null);
-
     const [isSending, setIsSending] = useState(false);
     const [sendErrorCode, setSendErrorCode] =
         useState<ChatWebSocketSendErrorCode | null>(null);
@@ -86,13 +84,11 @@ export const useChatRoomWebSocket = ({
     const handleStompMessage = useCallback(
         (message: IMessage) => {
             try {
-                const parsed = JSON.parse(message.body) as ChatWebSocketEvent<unknown>;
+                const parsed = JSON.parse(message.body) as ChatWebSocketEvent;
                 const eventType = getChatWebSocketEventType(parsed);
 
                 if (!eventType || eventType === "chat.message.created") {
-                    const chatMessage = extractChatMessageFromEvent(
-                        parsed as ChatWebSocketEvent<ChatMessage>,
-                    );
+                    const chatMessage = extractChatMessageFromEvent(parsed);
 
                     if (!chatMessage) {
                         return;
@@ -107,8 +103,10 @@ export const useChatRoomWebSocket = ({
                     eventType === "chat.translation.failed"
                 ) {
                     const completed = extractTranslationResultFromEvent(
-                        parsed as ChatWebSocketEvent<ChatTranslationResultPayload>,
-                        eventType === "chat.translation.failed" ? "FAILED" : "COMPLETED",
+                        parsed,
+                        eventType === "chat.translation.failed"
+                            ? "FAILED"
+                            : "COMPLETED",
                     );
 
                     if (!completed) {
@@ -132,10 +130,12 @@ export const useChatRoomWebSocket = ({
             clientRef.current = null;
             connectionKeyRef.current = null;
             hasConnectedOnceRef.current = false;
+            stoppedByStompErrorRef.current = false;
             return;
         }
 
         connectionKeyRef.current = connectionKey;
+        stoppedByStompErrorRef.current = false;
 
         const client = new Client({
             brokerURL: getChatWebSocketUrl(),
@@ -187,6 +187,16 @@ export const useChatRoomWebSocket = ({
 
                 console.error("Chat websocket STOMP error.", frame);
                 setRawConnectionStatus("ERROR");
+                stoppedByStompErrorRef.current = true;
+
+                /*
+                 * STOMP ERROR는 서버가 CONNECT/SUBSCRIBE/SEND 프레임 처리 중
+                 * 명시적으로 오류를 반환한 상태다.
+                 * 그대로 reconnectDelay에 맡기면 같은 ERROR가 3초마다 반복되므로,
+                 * 현재 세션에서는 자동 재연결을 멈추고 REST 송신 fallback을 사용한다.
+                 */
+                client.reconnectDelay = 0;
+                void client.deactivate();
             },
             onWebSocketError: (event) => {
                 if (connectionKeyRef.current !== connectionKey) {
@@ -198,6 +208,11 @@ export const useChatRoomWebSocket = ({
             },
             onWebSocketClose: () => {
                 if (connectionKeyRef.current !== connectionKey) {
+                    return;
+                }
+
+                if (stoppedByStompErrorRef.current) {
+                    setRawConnectionStatus("ERROR");
                     return;
                 }
 
@@ -267,4 +282,4 @@ export const useChatRoomWebSocket = ({
         sendErrorCode,
         sendMessage,
     };
-}
+};

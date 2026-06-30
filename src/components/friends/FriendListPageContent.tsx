@@ -191,6 +191,34 @@ export default function FriendListPageContent() {
                     )}
 
                     {friendList.actionErrorCode ===
+                        "START_CHAT_BLOCKED" && (
+                        <ErrorMessage>
+                            {t("messages.startChatBlocked")}
+                        </ErrorMessage>
+                    )}
+
+                    {friendList.actionErrorCode ===
+                        "START_CHAT_RELATION_REQUIRED" && (
+                        <ErrorMessage>
+                            {t("messages.startChatRelationRequired")}
+                        </ErrorMessage>
+                    )}
+
+                    {friendList.actionErrorCode ===
+                        "START_CHAT_SELF_NOT_ALLOWED" && (
+                        <ErrorMessage>
+                            {t("messages.startChatSelfNotAllowed")}
+                        </ErrorMessage>
+                    )}
+
+                    {friendList.actionErrorCode ===
+                        "START_CHAT_INVALID_RESPONSE" && (
+                        <ErrorMessage>
+                            {t("messages.startChatInvalidResponse")}
+                        </ErrorMessage>
+                    )}
+
+                    {friendList.actionErrorCode ===
                         "GROUP_ENTRY_FAILED" && (
                         <ErrorMessage>
                             {t("messages.groupEntryFailed")}

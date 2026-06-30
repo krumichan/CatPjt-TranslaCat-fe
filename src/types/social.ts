@@ -52,25 +52,36 @@ export interface FriendRequest {
     status: FriendRequestStatus;
     requestedAt: string;
     respondedAt: string | null;
-
     requester?: UserSummaryProfile;
     receiver?: UserSummaryProfile;
-
     requesterPublicId?: string;
     requesterNickname?: string;
     requesterProfileImageUrl?: string | null;
-
     receiverPublicId?: string;
     receiverNickname?: string;
     receiverProfileImageUrl?: string | null;
 }
 
+/**
+ * FE 친구 목록 화면에서 사용하는 평탄화된 타입.
+ *
+ * BE의 친구 목록 응답은 FriendResponseDto 형태이며,
+ * `{ id, friend: UserSummaryProfileResponseDto, createdAt }` 구조다.
+ * 화면에서는 사용하기 편하도록 friendService에서 아래 구조로 변환한다.
+ */
 export interface Friend {
+    id: number;
     friendUserId: number;
     publicId: string;
     nickname: string;
     profileImageUrl: string | null;
     friendSince: string;
+}
+
+export interface FriendApiResponse {
+    id: number;
+    friend: UserSummaryProfile;
+    createdAt: string;
 }
 
 export interface UserBlockCreateRequest {
@@ -84,7 +95,6 @@ export interface UserBlock {
     blockedNickname: string;
     blockedProfileImageUrl: string | null;
     blockedAt: string;
-
     blockedUser?: UserSummaryProfile;
 }
 

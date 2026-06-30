@@ -179,6 +179,8 @@
       "actions": {
         "closeHelpModal": "ヘルプを閉じる",
         "closeSearchModal": "友だち検索を閉じる",
+        "deleteFriend": "友だち削除",
+        "deleteFriendFuture": "友だち削除",
         "findFriend": "友だちを探す",
         "groupSelection": "グループ選択",
         "groupSelectionOn": "選択中",
@@ -192,8 +194,16 @@
         "openHelp": "ヘルプを開く",
         "selectFriend": "{nickname}を選択",
         "unselectFriend": "{nickname}の選択を解除",
-        "deleteFriendFuture": "友だち削除（#23で実装）",
         "blockFriendFuture": "ブロック（#24で実装）"
+      },
+      "deleteModal": {
+        "title": "友だちを削除しますか？",
+        "description": "{nickname}さんを友だち一覧から削除します。",
+        "notice": "友だちを削除しても既存のチャットルームは削除されません。削除後は友だち一覧、1:1チャット開始、グループチャット選択対象から除外されます。",
+        "cancel": "キャンセル",
+        "confirm": "削除",
+        "helpButton": "友だち削除ヘルプ",
+        "help": "友だちを削除しても既存のチャットルームは削除されません。削除後は友だち一覧、1:1チャット開始、グループチャット選択対象から除外されます。"
       },
       "state": {
         "loadingTitle": "友だち一覧を読み込んでいます。",
@@ -210,7 +220,8 @@
       },
       "messages": {
         "startChatFailed": "1:1チャット開始に失敗しました。しばらくしてから再度お試しください。",
-        "groupEntryFailed": "グループチャット作成画面へ移動する準備に失敗しました。"
+        "groupEntryFailed": "グループチャット作成画面へ移動する準備に失敗しました。",
+        "deleteFriendFailed": "友だち削除に失敗しました。しばらくしてから再度お試しください。"
       },
       "searchModal": {
         "initialHint": "TranslaCat IDを入力して検索ボタンを押すと、ユーザーを検索できます。使い方を確認する場合は右上の？ボタンを押してください。"

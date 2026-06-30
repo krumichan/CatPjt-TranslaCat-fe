@@ -178,6 +178,8 @@
       },
       "actions": {
         "closeSearchModal": "친구 찾기 닫기",
+        "deleteFriend": "친구 삭제",
+        "deleteFriendFuture": "친구 삭제",
         "findFriend": "친구 찾기",
         "groupSelection": "그룹 선택",
         "groupSelectionOn": "선택 중",
@@ -190,10 +192,18 @@
         "more": "친구 메뉴",
         "selectFriend": "{nickname} 선택",
         "unselectFriend": "{nickname} 선택 해제",
-        "deleteFriendFuture": "친구 삭제 (#23에서 구현)",
         "blockFriendFuture": "차단 (#24에서 구현)",
         "openHelp": "도움말 열기",
         "closeHelpModal": "도움말 닫기"
+      },
+      "deleteModal": {
+        "title": "친구를 삭제할까요?",
+        "description": "{nickname}님을 친구 목록에서 삭제합니다.",
+        "notice": "친구를 삭제해도 기존 채팅방은 삭제되지 않습니다. 삭제 후에는 친구 목록, 1:1 채팅 시작, 그룹 채팅 선택 대상에서 제외됩니다.",
+        "cancel": "취소",
+        "confirm": "삭제",
+        "helpButton": "친구 삭제 도움말",
+        "help": "친구를 삭제해도 기존 채팅방은 삭제되지 않습니다. 삭제 후에는 친구 목록, 1:1 채팅 시작, 그룹 채팅 선택 대상에서 제외됩니다."
       },
       "state": {
         "loadingTitle": "친구 목록을 불러오고 있습니다.",
@@ -210,7 +220,8 @@
       },
       "messages": {
         "startChatFailed": "1:1 채팅 시작에 실패했습니다. 잠시 후 다시 시도해 주세요.",
-        "groupEntryFailed": "그룹 채팅 생성 화면으로 이동할 준비에 실패했습니다."
+        "groupEntryFailed": "그룹 채팅 생성 화면으로 이동할 준비에 실패했습니다.",
+        "deleteFriendFailed": "친구 삭제에 실패했습니다. 잠시 후 다시 시도해 주세요."
       },
       "guide": {
         "eyebrow": "Guide",

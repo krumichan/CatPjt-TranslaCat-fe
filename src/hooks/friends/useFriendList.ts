@@ -11,7 +11,8 @@ import type { Friend } from "@/types/social";
 export type FriendListActionErrorCode =
     | "LOAD_FAILED"
     | "START_CHAT_FAILED"
-    | "GROUP_ENTRY_FAILED";
+    | "GROUP_ENTRY_FAILED"
+    | "DELETE_FRIEND_FAILED";
 
 const GROUP_SELECTED_MEMBER_IDS_STORAGE_KEY =
     "translacat.friend-group.selected-member-user-ids";
@@ -26,11 +27,13 @@ interface UseFriendListResult {
     isStartingChat: boolean;
     startingChatFriendUserId: number | null;
     isGroupSelectionMode: boolean;
+    deletingFriendUserId: number | null;
     actionErrorCode: FriendListActionErrorCode | null;
     updateSearchKeyword: (value: string) => void;
     clearSearchKeyword: () => void;
     reload: () => Promise<void>;
     startDirectChat: (friendUserId: number) => Promise<boolean>;
+    deleteFriend: (friendUserId: number) => Promise<boolean>;
     toggleGroupSelectionMode: () => void;
     toggleFriendSelection: (friendUserId: number) => void;
     clearFriendSelection: () => void;
@@ -61,6 +64,8 @@ export function useFriendList(): UseFriendListResult {
     >([]);
     const [isGroupSelectionMode, setIsGroupSelectionMode] = useState(false);
     const [startingChatFriendUserId, setStartingChatFriendUserId] =
+        useState<number | null>(null);
+    const [deletingFriendUserId, setDeletingFriendUserId] =
         useState<number | null>(null);
     const [actionErrorCode, setActionErrorCode] =
         useState<FriendListActionErrorCode | null>(null);
@@ -101,7 +106,10 @@ export function useFriendList(): UseFriendListResult {
 
     const startDirectChat = useCallback(
         async (friendUserId: number) => {
-            if (startingChatFriendUserId !== null) {
+            if (
+                startingChatFriendUserId !== null ||
+                deletingFriendUserId !== null
+            ) {
                 return false;
             }
 
@@ -124,7 +132,51 @@ export function useFriendList(): UseFriendListResult {
                 setStartingChatFriendUserId(null);
             }
         },
-        [router, startingChatFriendUserId],
+        [deletingFriendUserId, router, startingChatFriendUserId],
+    );
+
+    const deleteFriend = useCallback(
+        async (friendUserId: number) => {
+            if (
+                deletingFriendUserId !== null ||
+                startingChatFriendUserId !== null
+            ) {
+                return false;
+            }
+
+            setDeletingFriendUserId(friendUserId);
+            setActionErrorCode(null);
+
+            try {
+                await friendService.deleteFriend(friendUserId);
+
+                await mutate((currentData) => {
+                    if (!currentData) {
+                        return currentData;
+                    }
+
+                    return currentData.filter(
+                        (friend: Friend) =>
+                            friend.friendUserId !== friendUserId,
+                    );
+                }, false);
+
+                setSelectedFriendUserIds((current) =>
+                    current.filter((id) => id !== friendUserId),
+                );
+
+                await mutate((currentData) => currentData, true);
+
+                return true;
+            } catch (error) {
+                console.error("Failed to delete friend.", error);
+                setActionErrorCode("DELETE_FRIEND_FAILED");
+                return false;
+            } finally {
+                setDeletingFriendUserId(null);
+            }
+        },
+        [deletingFriendUserId, mutate, startingChatFriendUserId],
     );
 
     const toggleGroupSelectionMode = useCallback(() => {
@@ -180,11 +232,13 @@ export function useFriendList(): UseFriendListResult {
         isStartingChat: startingChatFriendUserId !== null,
         startingChatFriendUserId,
         isGroupSelectionMode,
+        deletingFriendUserId,
         actionErrorCode: isError ? "LOAD_FAILED" : actionErrorCode,
         updateSearchKeyword,
         clearSearchKeyword,
         reload,
         startDirectChat,
+        deleteFriend,
         toggleGroupSelectionMode,
         toggleFriendSelection,
         clearFriendSelection,

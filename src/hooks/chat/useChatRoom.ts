@@ -14,8 +14,6 @@ type ChatRoomSendErrorCode = "SEND_FAILED";
 type ChatRoomLoadMoreErrorCode = "LOAD_MORE_FAILED";
 type ChatRoomTranslationRetryErrorCode = "RETRY_TRANSLATION_FAILED";
 
-const PENDING_TRANSLATION_SYNC_INTERVAL_MS = 2000;
-
 export const getChatTranslationKey = (
     messageId: number,
     languageCode: string,
@@ -57,13 +55,6 @@ function sortMessagesByCreatedAt(messages: ChatMessage[]) {
     );
 }
 
-const hasPendingTranslation = (messages: ChatMessage[]) =>
-    messages.some((message) =>
-        message.translations.some(
-            (translation) => translation.status === "PENDING",
-        ),
-    );
-
 const mergeTranslation = (
     previous: ChatMessageTranslation | undefined,
     incoming: ChatMessageTranslation,
@@ -73,11 +64,8 @@ const mergeTranslation = (
     }
 
     /*
-     * 가장 중요한 방어 로직.
-     *
-     * 현재 화면에는 PENDING이 남아 있고,
-     * REST 재조회 결과에는 COMPLETED/FAILED가 내려올 수 있다.
-     * 이때 기존 PENDING이 최신 COMPLETED를 다시 덮어쓰면 화면이 계속 "번역 중..."에 머문다.
+     * WebSocket 이벤트와 REST 수동 동기화가 섞여도
+     * COMPLETED/FAILED 상태가 오래된 PENDING에 의해 되돌아가지 않도록 한다.
      */
     if (previous.status === "PENDING" && incoming.status !== "PENDING") {
         return {
@@ -86,9 +74,6 @@ const mergeTranslation = (
         };
     }
 
-    /*
-     * 이미 COMPLETED/FAILED인 번역을 오래된 PENDING 응답이 덮어쓰지 못하게 한다.
-     */
     if (previous.status !== "PENDING" && incoming.status === "PENDING") {
         return previous;
     }
@@ -373,6 +358,11 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
                     ),
                 );
 
+                /*
+                 * 수동 재번역 API는 PENDING을 반환할 수 있다.
+                 * 이후 완료/실패 반영은 WebSocket translation event가 담당한다.
+                 * 단, 버튼 클릭 직후 서버 상태가 이미 COMPLETED일 수 있으므로 1회만 동기화한다.
+                 */
                 await syncLatestMessages();
 
                 return true;
@@ -399,30 +389,6 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
     useEffect(() => {
         void load();
     }, [load]);
-
-    useEffect(() => {
-        if (isLoading || messages.length === 0) {
-            return;
-        }
-
-        if (!hasPendingTranslation(messages)) {
-            return;
-        }
-
-        /*
-         * PENDING이 생긴 직후 2초를 기다리지 않고 즉시 한 번 재조회한다.
-         * 그 뒤에도 남아 있으면 2초마다 fallback polling한다.
-         */
-        void syncLatestMessages();
-
-        const intervalId = window.setInterval(() => {
-            void syncLatestMessages();
-        }, PENDING_TRANSLATION_SYNC_INTERVAL_MS);
-
-        return () => {
-            window.clearInterval(intervalId);
-        };
-    }, [isLoading, messages, syncLatestMessages]);
 
     return {
         room,

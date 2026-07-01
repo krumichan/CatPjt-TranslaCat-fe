@@ -5,6 +5,14 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --font-translacat-sans:
+    "Noto Sans JP",
+    "Hiragino Sans",
+    "Yu Gothic",
+    "Meiryo",
+    "Apple SD Gothic Neo",
+    "Malgun Gothic",
+    sans-serif;
 }
 
 .dark {
@@ -15,12 +23,35 @@
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --font-sans:
+    "Noto Sans JP",
+    "Hiragino Sans",
+    "Yu Gothic",
+    "Meiryo",
+    "Apple SD Gothic Neo",
+    "Malgun Gothic",
+    sans-serif;
+}
+
+html,
+body {
+  font-family: var(--font-translacat-sans), sans-serif;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
   transition: background-color 0.3s, color 0.3s;
+}
+
+
+.font-ja {
+  font-family:
+    "Noto Sans JP",
+    "Hiragino Sans",
+    "Yu Gothic",
+    "Meiryo",
+    sans-serif !important;
 }
 
 /* 루비 태그(한자)와 rt(후리가나) 사이의 간격과 스타일을 정의합니다 */

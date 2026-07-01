@@ -75,15 +75,13 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
         [applyTranslationCompleted],
     );
 
-    /*
-     * 현재 STOMP ERROR가 남아 있는 상태에서는 WebSocket publish가 "전송 성공"처럼
-     * 보이더라도 서버 SEND 처리 실패 후 메시지가 저장되지 않을 수 있다.
-     *
-     * 그래서 메시지 송신은 우선 REST로 고정한다.
-     * WebSocket은 수신/번역 이벤트 구독 용도로만 유지하고, STOMP가 안정화된 뒤
-     * 다시 WS 송신으로 전환한다.
-     */
-    const { connectionStatus } = useChatRoomWebSocket({
+    const {
+        connectionStatus,
+        isConnected,
+        isSending: isWebSocketSending,
+        sendErrorCode: webSocketSendErrorCode,
+        sendMessage: sendWebSocketMessage,
+    } = useChatRoomWebSocket({
         roomId,
         accessToken,
         onMessageCreated: handleMessageCreated,
@@ -93,12 +91,20 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
 
     const sendMessage = useCallback(
         async (content: string) => {
+            if (isConnected) {
+                return sendWebSocketMessage(content);
+            }
+
             return sendRestMessage(content);
         },
-        [sendRestMessage],
+        [isConnected, sendRestMessage, sendWebSocketMessage],
     );
 
-    const sendErrorMessage = restSendErrorCode ? t("input.sendFailed") : null;
+    const isMessageSending = isConnected ? isWebSocketSending : isRestSending;
+    const sendErrorMessage =
+        webSocketSendErrorCode || restSendErrorCode
+            ? t("input.sendFailed")
+            : null;
 
     if (isLoading) {
         return (
@@ -159,7 +165,7 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
                 />
 
                 <ChatMessageInput
-                    isSending={isRestSending}
+                    isSending={isMessageSending}
                     sendErrorMessage={sendErrorMessage}
                     onSend={sendMessage}
                 />

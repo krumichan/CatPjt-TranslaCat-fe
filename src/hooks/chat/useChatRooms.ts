@@ -10,8 +10,6 @@ type ChatRoomsLoadErrorCode = "LOAD_FAILED";
 interface UseChatRoomsResult {
     rooms: ChatRoomListItem[];
     isLoading: boolean;
-    isCreateModalOpen: boolean;
-    setIsCreateModalOpen: (open: boolean) => void;
     loadErrorCode: ChatRoomsLoadErrorCode | null;
     reload: () => Promise<void>;
 }
@@ -36,7 +34,6 @@ export function useChatRooms(): UseChatRoomsResult {
     const [isLoading, setIsLoading] = useState(true);
     const [loadErrorCode, setLoadErrorCode] =
         useState<ChatRoomsLoadErrorCode | null>(null);
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
     const reload = useCallback(async () => {
         setIsLoading(true);
@@ -64,8 +61,6 @@ export function useChatRooms(): UseChatRoomsResult {
     return {
         rooms,
         isLoading,
-        isCreateModalOpen,
-        setIsCreateModalOpen,
         loadErrorCode,
         reload,
     };

@@ -6,23 +6,21 @@ import { useTranslations } from "next-intl";
 import { ChatRoomEmptyState } from "@/components/chat/list/ChatRoomEmptyState";
 import { ChatRoomList } from "@/components/chat/list/ChatRoomList";
 import { useChatRooms } from "@/hooks/chat/useChatRooms";
-import {ChatRoomCreateModal} from "@/components/chat/list/modal/ChatRoomCreateModal";
+import { useRouter } from "@/navigation";
 
 export function ChatRoomListPage() {
     const t = useTranslations("ChatRoomList");
+    const router = useRouter();
 
-    const {
-        rooms,
-        isLoading,
-        isCreateModalOpen,
-        setIsCreateModalOpen,
-        loadErrorCode,
-        reload,
-    } = useChatRooms();
+    const { rooms, isLoading, loadErrorCode, reload } = useChatRooms();
+
+    const handleStartFriendChat = () => {
+        router.push("/friends");
+    };
 
     return (
         <main className="min-h-screen bg-slate-50 px-4 py-6 dark:bg-slate-950">
-            <div className="mx-auto pt-20 flex w-full max-w-5xl flex-col gap-6">
+            <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 pt-20">
                 <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
@@ -42,11 +40,11 @@ export function ChatRoomListPage() {
 
                         <button
                             type="button"
-                            onClick={() => setIsCreateModalOpen(true)}
+                            onClick={handleStartFriendChat}
                             className="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
                         >
                             <Plus className="h-4 w-4" />
-                            {t("create.button")}
+                            {t("create.friendChatButton")}
                         </button>
                     </div>
                 </section>
@@ -83,17 +81,13 @@ export function ChatRoomListPage() {
                         </div>
                     </section>
                 ) : rooms.length === 0 ? (
-                    <ChatRoomEmptyState onCreateClick={() => setIsCreateModalOpen(true)} />
+                    <ChatRoomEmptyState
+                        onStartChatClick={handleStartFriendChat}
+                    />
                 ) : (
                     <ChatRoomList rooms={rooms} />
                 )}
             </div>
-
-            <ChatRoomCreateModal
-                open={isCreateModalOpen}
-                onClose={() => setIsCreateModalOpen(false)}
-                onCreated={reload}
-            />
         </main>
     );
 }

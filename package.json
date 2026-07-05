@@ -8,10 +8,14 @@
     "start": "next start",
     "lint": "eslint",
     "check:i18n": "node scripts/check-i18n-keys.mjs",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
-    "test:e2e:headed": "playwright test --headed",
-    "test:e2e:report": "playwright show-report"
+    "test:e2e:gate": "playwright test --project=mock-chromium --grep \"SOCIAL-01|FRIEND-09|ROOM-01|CHAT-01\"",
+    "test:e2e": "playwright test --project=mock-chromium",
+    "test:e2e:all": "playwright test",
+    "test:e2e:ui": "playwright test --project=mock-chromium --ui",
+    "test:e2e:headed": "playwright test --project=mock-chromium --headed",
+    "test:e2e:report": "playwright show-report",
+    "e2e:auth": "node scripts/setup-playwright-auth.mjs",
+    "test:e2e:integration": "node scripts/run-integration-e2e.mjs"
   },
   "dependencies": {
     "@fontsource/noto-sans-jp": "^5.2.9",

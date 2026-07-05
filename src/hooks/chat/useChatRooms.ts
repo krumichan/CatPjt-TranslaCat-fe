@@ -3,12 +3,12 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { chatService } from "@/services/chat/chatService";
-import type { ChatRoom } from "@/types/chat";
+import type { ChatRoomListItem } from "@/types/chat";
 
 type ChatRoomsLoadErrorCode = "LOAD_FAILED";
 
 interface UseChatRoomsResult {
-    rooms: ChatRoom[];
+    rooms: ChatRoomListItem[];
     isLoading: boolean;
     isCreateModalOpen: boolean;
     setIsCreateModalOpen: (open: boolean) => void;
@@ -16,25 +16,26 @@ interface UseChatRoomsResult {
     reload: () => Promise<void>;
 }
 
-const filterPhaseOneChatRooms = (rooms: ChatRoom[]): ChatRoom[] =>
+const filterPhaseOneChatRooms = (
+    rooms: ChatRoomListItem[],
+): ChatRoomListItem[] =>
     rooms.filter(
-        (room) =>
-            room.active &&
-            (room.roomType === "DIRECT" || room.roomType === "GROUP"),
+        (room) => room.roomType === "DIRECT" || room.roomType === "GROUP",
     );
 
-const sortRoomsByUpdatedAtDesc = (rooms: ChatRoom[]): ChatRoom[] =>
+const sortRoomsByUpdatedAtDesc = (
+    rooms: ChatRoomListItem[],
+): ChatRoomListItem[] =>
     [...rooms].sort(
         (a, b) =>
             new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
     );
 
 export function useChatRooms(): UseChatRoomsResult {
-    const [rooms, setRooms] = useState<ChatRoom[]>([]);
+    const [rooms, setRooms] = useState<ChatRoomListItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [loadErrorCode, setLoadErrorCode] =
         useState<ChatRoomsLoadErrorCode | null>(null);
-
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
     const reload = useCallback(async () => {

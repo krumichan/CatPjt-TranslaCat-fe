@@ -1,15 +1,10 @@
 export type ChatRoomType = "DIRECT" | "GROUP" | "OPEN";
-
 export type ChatRoomMemberRole = "OWNER" | "ADMIN" | "MEMBER";
-
 export type ChatRoomSourceType = "MANUAL" | "FRIEND" | "OPEN" | "AI";
 
 export type ChatMessageSenderType = "USER" | "AI" | "SYSTEM";
-
 export type ChatMessageType = "TEXT" | "SYSTEM";
-
 export type ChatMessageStatus = "SENT" | "DELETED";
-
 export type ChatMessageTranslationStatus = "PENDING" | "COMPLETED" | "FAILED";
 
 export interface ChatRoom {
@@ -28,8 +23,20 @@ export interface ChatRoom {
     updatedAt: string;
 }
 
+export interface ChatRoomListItem {
+    id: number;
+    roomType: ChatRoomType;
+    sourceType: ChatRoomSourceType;
+    name: string | null;
+    description: string | null;
+    ownerId: number | null;
+    memberCount: number;
+    createdAt: string;
+    updatedAt: string;
+}
+
 export interface ChatRoomListResponse {
-    chatRooms: ChatRoom[];
+    chatRooms: ChatRoomListItem[];
 }
 
 export interface ChatRoomCreateRequest {

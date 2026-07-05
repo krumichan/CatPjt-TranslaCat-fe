@@ -1,10 +1,10 @@
 "use client";
 
 import { ChatRoomListItem } from "@/components/chat/list/ChatRoomListItem";
-import type { ChatRoom } from "@/types/chat";
+import type { ChatRoomListItem as ChatRoomListItemType } from "@/types/chat";
 
 interface ChatRoomListProps {
-    rooms: ChatRoom[];
+    rooms: ChatRoomListItemType[];
 }
 
 export function ChatRoomList({ rooms }: ChatRoomListProps) {

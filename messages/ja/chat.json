@@ -1,125 +1,159 @@
 {
-  "ChatRoom": {
-    "loading": "チャットルームを読み込み中...",
-    "date": {
-      "today": "今日"
+    "ChatRoom": {
+        "loading": "チャットルームを読み込み中...",
+        "date": {
+            "today": "今日"
+        },
+        "header": {
+            "friendDirectTitle": "友達との1:1チャット",
+            "untitledRoom": "チャットルーム #{id}",
+            "roomId": "Room #{id}",
+            "members": "{count}人",
+            "roomType": {
+                "direct": "1:1",
+                "group": "グループ",
+                "open": "オープン",
+                "unknown": "不明"
+            },
+            "sourceType": {
+                "friend": "友達チャット",
+                "manual": "一般チャット",
+                "open": "オープンチャット",
+                "ai": "AIチャット",
+                "unknown": "不明"
+            },
+            "language": {
+                "button": "言語",
+                "loading": "読み込み中",
+                "error": "言語設定エラー"
+            }
+        },
+        "error": {
+            "title": "チャットルームを表示できません",
+            "loadFailed": "チャットルーム情報の取得に失敗しました。",
+            "notFound": "チャットルーム情報が存在しません。",
+            "retry": "再試行"
+        },
+        "empty": {
+            "title": "まだメッセージがありません",
+            "description": "最初のメッセージを送信して会話を始めましょう。"
+        },
+        "input": {
+            "placeholder": "メッセージを入力してください",
+            "send": "メッセージ送信",
+            "sendFailed": "メッセージの送信に失敗しました。"
+        },
+        "languageSettings": {
+            "title": "言語設定",
+            "description": "このチャットルームで使用する原文基準言語と受信翻訳言語を設定します。",
+            "originalLanguage": "原文基準言語",
+            "translationLanguage": "受信翻訳言語",
+            "showOriginal": "原文を表示",
+            "showTranslation": "翻訳を表示",
+            "loading": "言語設定を読み込み中...",
+            "loadFailed": "言語設定を読み込めませんでした。",
+            "saveFailed": "言語設定の保存に失敗しました。",
+            "retry": "再試行",
+            "cancel": "キャンセル",
+            "save": "保存",
+            "saving": "保存中...",
+            "close": "閉じる"
+        },
+        "pagination": {
+            "loadingPrevious": "以前のメッセージを読み込み中...",
+            "loadFailed": "以前のメッセージを読み込めませんでした。",
+            "retry": "再試行",
+            "noMoreMessages": "会話の始まりです"
+        },
+        "translation": {
+            "pending": "翻訳中...",
+            "failed": "翻訳に失敗しました。",
+            "retry": "再翻訳",
+            "retrying": "再翻訳をリクエスト中...",
+            "retryFailed": "再翻訳リクエストに失敗しました。しばらくしてから再度お試しください。",
+            "refresh": "メッセージを更新",
+            "refreshShort": "更新"
+        }
     },
-    "error": {
-      "title": "チャットルームを表示できません",
-      "loadFailed": "チャットルーム情報の取得に失敗しました。",
-      "notFound": "チャットルーム情報が存在しません。",
-      "retry": "再試行"
+    "ChatRoomCreate": {
+        "title": "チャットルーム作成",
+        "close": "閉じる",
+        "cancel": "キャンセル",
+        "create": "作成",
+        "creating": "作成中...",
+        "modalDescription": "1:1チャットルームまたはグループチャットルームを作成します。",
+        "roomType": {
+            "label": "チャットルームタイプ",
+            "direct": "1:1チャット",
+            "group": "グループチャット"
+        },
+        "name": {
+            "label": "チャットルーム名",
+            "placeholder": "グループチャットルーム名を入力してください"
+        },
+        "members": {
+            "directLabel": "相手ユーザーID",
+            "groupLabel": "招待するユーザーID",
+            "directPlaceholder": "例: 2",
+            "groupPlaceholder": "例: 2, 3, 4",
+            "directHelp": "1:1チャットでは相手ユーザーIDを1件だけ入力します。",
+            "groupHelp": "グループチャットではユーザーIDをカンマまたは空白で区切って入力します。"
+        },
+        "description": {
+            "label": "説明",
+            "placeholder": "チャットルームの説明を入力してください"
+        },
+        "validation": {
+            "MEMBER_REQUIRED": "招待するユーザーIDを入力してください。",
+            "DIRECT_MEMBER_COUNT_INVALID": "1:1チャットでは相手ユーザーIDを1件だけ入力してください。",
+            "GROUP_MEMBER_REQUIRED": "グループチャットでは1人以上のユーザーを追加してください。",
+            "INVALID_MEMBER_ID": "ユーザーIDは1以上の数字で入力してください。"
+        },
+        "error": {
+            "createFailed": "チャットルームの作成に失敗しました。"
+        }
     },
-    "empty": {
-      "title": "まだメッセージがありません",
-      "description": "最初のメッセージを送信して会話を始めましょう。"
-    },
-    "input": {
-      "placeholder": "メッセージを入力してください",
-      "send": "メッセージ送信",
-      "sendFailed": "メッセージの送信に失敗しました。"
-    },
-    "languageSettings": {
-      "title": "言語設定",
-      "description": "このチャットルームで使用する原文基準言語と受信翻訳言語を設定します。",
-      "originalLanguage": "原文基準言語",
-      "translationLanguage": "受信翻訳言語",
-      "showOriginal": "原文を表示",
-      "showTranslation": "翻訳を表示",
-      "loading": "言語設定を読み込み中...",
-      "loadFailed": "言語設定を読み込めませんでした。",
-      "saveFailed": "言語設定の保存に失敗しました。",
-      "retry": "再試行",
-      "cancel": "キャンセル",
-      "save": "保存",
-      "saving": "保存中...",
-      "close": "閉じる"
-    },
-    "pagination": {
-      "loadingPrevious": "以前のメッセージを読み込み中...",
-      "loadFailed": "以前のメッセージを読み込めませんでした。",
-      "retry": "再試行",
-      "noMoreMessages": "会話の始まりです"
-    },
-    "translation": {
-      "pending": "翻訳中...",
-      "failed": "翻訳に失敗しました。",
-      "retry": "再翻訳",
-      "retrying": "再翻訳をリクエスト中...",
-      "retryFailed": "再翻訳リクエストに失敗しました。しばらくしてから再度お試しください。",
-      "refresh": "メッセージを更新",
-      "refreshShort": "更新"
+    "ChatRoomList": {
+        "badge": "TranslaCat Chat",
+        "title": "チャット",
+        "description": "参加中の1:1チャットルームとグループチャットルームを確認できます。",
+        "loading": "チャットルーム一覧を読み込み中...",
+        "untitledRoom": "名称未設定のチャットルーム",
+        "friend": {
+            "directTitle": "友達との1:1チャット"
+        },
+        "create": {
+            "button": "チャットルーム作成",
+            "comingSoon": "チャットルーム作成は次のステップで実装します。"
+        },
+        "members": {
+            "count": "{count}人"
+        },
+        "roomType": {
+            "direct": "1:1",
+            "group": "グループ",
+            "open": "オープン",
+            "unknown": "不明"
+        },
+        "sourceType": {
+            "friend": "友達",
+            "manual": "一般",
+            "open": "オープン",
+            "ai": "AI",
+            "unknown": "不明"
+        },
+        "latestMessage": {
+            "placeholder": "最新メッセージ情報は後続対応で表示します。"
+        },
+        "empty": {
+            "title": "参加中のチャットルームはまだありません",
+            "description": "チャットルームを作成するか招待されると、ここに表示されます。",
+            "createButton": "チャットルーム作成"
+        },
+        "error": {
+            "title": "チャットルーム一覧を表示できません",
+            "loadFailed": "チャットルーム一覧の取得に失敗しました。",
+            "retry": "再試行"
+        }
     }
-  },
-  "ChatRoomCreate": {
-    "title": "チャットルーム作成",
-    "close": "閉じる",
-    "cancel": "キャンセル",
-    "create": "作成",
-    "creating": "作成中...",
-    "modalDescription": "1:1チャットルームまたはグループチャットルームを作成します。",
-    "roomType": {
-      "label": "チャットルームタイプ",
-      "direct": "1:1チャット",
-      "group": "グループチャット"
-    },
-    "name": {
-      "label": "チャットルーム名",
-      "placeholder": "グループチャットルーム名を入力してください"
-    },
-    "members": {
-      "directLabel": "相手ユーザーID",
-      "groupLabel": "招待するユーザーID",
-      "directPlaceholder": "例: 2",
-      "groupPlaceholder": "例: 2, 3, 4",
-      "directHelp": "1:1チャットでは相手ユーザーIDを1件だけ入力します。",
-      "groupHelp": "グループチャットではユーザーIDをカンマまたは空白で区切って入力します。"
-    },
-    "description": {
-      "label": "説明",
-      "placeholder": "チャットルームの説明を入力してください"
-    },
-    "validation": {
-      "MEMBER_REQUIRED": "招待するユーザーIDを入力してください。",
-      "DIRECT_MEMBER_COUNT_INVALID": "1:1チャットでは相手ユーザーIDを1件だけ入力してください。",
-      "GROUP_MEMBER_REQUIRED": "グループチャットでは1人以上のユーザーを追加してください。",
-      "INVALID_MEMBER_ID": "ユーザーIDは1以上の数字で入力してください。"
-    },
-    "error": {
-      "createFailed": "チャットルームの作成に失敗しました。"
-    }
-  },
-  "ChatRoomList": {
-    "badge": "TranslaCat Chat",
-    "title": "チャット",
-    "description": "参加中の1:1チャットルームとグループチャットルームを確認できます。",
-    "loading": "チャットルーム一覧を読み込み中...",
-    "untitledRoom": "名称未設定のチャットルーム",
-    "create": {
-      "button": "チャットルーム作成",
-      "comingSoon": "チャットルーム作成は次のステップで実装します。"
-    },
-    "members": {
-      "count": "{count}人"
-    },
-    "roomType": {
-      "direct": "1:1",
-      "group": "グループ",
-      "open": "オープン",
-      "unknown": "不明"
-    },
-    "latestMessage": {
-      "placeholder": "最新メッセージ情報は後続対応で表示します。"
-    },
-    "empty": {
-      "title": "参加中のチャットルームはまだありません",
-      "description": "チャットルームを作成するか招待されると、ここに表示されます。",
-      "createButton": "チャットルーム作成"
-    },
-    "error": {
-      "title": "チャットルーム一覧を表示できません",
-      "loadFailed": "チャットルーム一覧の取得に失敗しました。",
-      "retry": "再試行"
-    }
-  }
 }

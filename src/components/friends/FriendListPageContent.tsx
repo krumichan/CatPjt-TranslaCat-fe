@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+
 import { UserRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import BlockListModal from "@/components/friends/BlockListModal";
 import ConfirmModal from "@/components/common/ConfirmModal";
+import FeedbackMessage from "@/components/common/FeedbackMessage";
+import BlockListModal from "@/components/friends/BlockListModal";
 import FriendHelpModal from "@/components/friends/FriendHelpModal";
 import FriendList from "@/components/friends/FriendList";
 import FriendListEmptyState from "@/components/friends/FriendListEmptyState";
@@ -13,6 +15,7 @@ import FriendListStatePanel from "@/components/friends/FriendListStatePanel";
 import FriendListToolbar from "@/components/friends/FriendListToolbar";
 import FriendSearchModal from "@/components/friends/FriendSearchModal";
 import SettingsSubPageHeader from "@/components/settings/SettingsSubPageHeader";
+import { FRIEND_LIST_ACTION_ERROR_MESSAGE_KEYS } from "@/constants/friends/friendListMessage";
 import { useFriendList } from "@/hooks/friends/useFriendList";
 import type { Friend } from "@/types/social";
 
@@ -27,6 +30,7 @@ export default function FriendListPageContent() {
     const t = useTranslations("Social.friendListPage");
     const tDeleteModal = useTranslations("Social.friendListPage.deleteModal");
     const tBlockModal = useTranslations("Social.friendListPage.blockModal");
+
     const friendList = useFriendList();
 
     const [isFriendSearchModalOpen, setIsFriendSearchModalOpen] =
@@ -37,6 +41,10 @@ export default function FriendListPageContent() {
 
     const hasFriends = friendList.visibleFriends.length > 0;
     const hasFilteredFriends = friendList.filteredFriends.length > 0;
+    const actionErrorMessageKey =
+        friendList.actionErrorCode && friendList.actionErrorCode !== "LOAD_FAILED"
+            ? FRIEND_LIST_ACTION_ERROR_MESSAGE_KEYS[friendList.actionErrorCode]
+            : null;
 
     const openFriendSearchModal = () => {
         setIsFriendSearchModalOpen(true);
@@ -89,7 +97,7 @@ export default function FriendListPageContent() {
     );
 
     return (
-        <main className="mx-auto pt-24 max-w-5xl space-y-8 px-4 py-10 sm:px-6 lg:px-8">
+        <main className="mx-auto max-w-5xl space-y-8 px-4 py-10 pt-24 sm:px-6 lg:px-8">
             <SettingsSubPageHeader
                 eyebrow={t("eyebrow")}
                 title={t("title")}
@@ -139,9 +147,7 @@ export default function FriendListPageContent() {
                         <FriendListStatePanel
                             variant="empty"
                             title={t("state.filteredEmptyTitle")}
-                            description={t(
-                                "state.filteredEmptyDescription",
-                            )}
+                            description={t("state.filteredEmptyDescription")}
                             actionLabel={t("actions.clearSearch")}
                             onAction={friendList.clearSearchKeyword}
                         />
@@ -183,67 +189,10 @@ export default function FriendListPageContent() {
                         />
                     )}
 
-                    {friendList.actionErrorCode ===
-                        "START_CHAT_FAILED" && (
-                        <ErrorMessage>
-                            {t("messages.startChatFailed")}
-                        </ErrorMessage>
-                    )}
-
-                    {friendList.actionErrorCode ===
-                        "START_CHAT_BLOCKED" && (
-                        <ErrorMessage>
-                            {t("messages.startChatBlocked")}
-                        </ErrorMessage>
-                    )}
-
-                    {friendList.actionErrorCode ===
-                        "START_CHAT_RELATION_REQUIRED" && (
-                        <ErrorMessage>
-                            {t("messages.startChatRelationRequired")}
-                        </ErrorMessage>
-                    )}
-
-                    {friendList.actionErrorCode ===
-                        "START_CHAT_SELF_NOT_ALLOWED" && (
-                        <ErrorMessage>
-                            {t("messages.startChatSelfNotAllowed")}
-                        </ErrorMessage>
-                    )}
-
-                    {friendList.actionErrorCode ===
-                        "START_CHAT_INVALID_RESPONSE" && (
-                        <ErrorMessage>
-                            {t("messages.startChatInvalidResponse")}
-                        </ErrorMessage>
-                    )}
-
-                    {friendList.actionErrorCode ===
-                        "GROUP_ENTRY_FAILED" && (
-                        <ErrorMessage>
-                            {t("messages.groupEntryFailed")}
-                        </ErrorMessage>
-                    )}
-
-                    {friendList.actionErrorCode ===
-                        "DELETE_FRIEND_FAILED" && (
-                        <ErrorMessage>
-                            {t("messages.deleteFriendFailed")}
-                        </ErrorMessage>
-                    )}
-
-                    {friendList.actionErrorCode ===
-                        "BLOCK_FRIEND_FAILED" && (
-                        <ErrorMessage>
-                            {t("messages.blockFriendFailed")}
-                        </ErrorMessage>
-                    )}
-
-                    {friendList.actionErrorCode ===
-                        "UNBLOCK_FRIEND_FAILED" && (
-                        <ErrorMessage>
-                            {t("messages.unblockFriendFailed")}
-                        </ErrorMessage>
+                    {actionErrorMessageKey && (
+                        <FeedbackMessage variant="error" className="mt-4">
+                            {t(actionErrorMessageKey)}
+                        </FeedbackMessage>
                     )}
                 </div>
             </section>
@@ -295,14 +244,6 @@ export default function FriendListPageContent() {
     );
 }
 
-function ErrorMessage({ children }: { children: React.ReactNode }) {
-    return (
-        <p className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-600 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-200">
-            {children}
-        </p>
-    );
-}
-
 function FriendSummaryForConfirm({ friend }: { friend: Friend }) {
     return (
         <div className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200 dark:bg-white/5 dark:ring-white/10">
@@ -317,10 +258,7 @@ function FriendSummaryForConfirm({ friend }: { friend: Friend }) {
                             className="h-full w-full object-cover"
                         />
                     ) : (
-                        <UserRound
-                            className="h-7 w-7"
-                            aria-hidden="true"
-                        />
+                        <UserRound className="h-7 w-7" aria-hidden="true" />
                     )}
                 </div>
 

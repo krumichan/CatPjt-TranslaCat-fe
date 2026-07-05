@@ -84,7 +84,9 @@ export const useChatRoomWebSocket = ({
     const handleStompMessage = useCallback(
         (message: IMessage) => {
             try {
-                const parsed = JSON.parse(message.body) as ChatWebSocketEvent;
+                const parsed = JSON.parse(
+                    message.body,
+                ) as ChatWebSocketEvent<unknown>;
                 const eventType = getChatWebSocketEventType(parsed);
 
                 if (!eventType || eventType === "chat.message.created") {

@@ -99,10 +99,6 @@
       "directHelp": "1:1 채팅은 상대 사용자 ID를 1개만 입력합니다.",
       "groupHelp": "그룹 채팅은 사용자 ID를 쉼표 또는 공백으로 구분해서 입력합니다."
     },
-    "descriptionField": {
-      "label": "설명",
-      "placeholder": "채팅방 설명을 입력하세요"
-    },
     "description": {
       "label": "설명",
       "placeholder": "채팅방 설명을 입력하세요"

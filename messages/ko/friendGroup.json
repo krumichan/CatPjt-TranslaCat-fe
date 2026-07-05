@@ -1,0 +1,53 @@
+{
+  "Social": {
+    "friendGroupCreatePage": {
+      "eyebrow": "Group chat",
+      "title": "그룹 채팅 만들기",
+      "description": "선택한 친구를 확인하고 그룹명과 설명을 입력해 새 그룹 채팅을 만듭니다.",
+      "selected": {
+        "eyebrow": "Selected friends",
+        "title": "선택한 친구",
+        "count": "{count}명을 선택했습니다.",
+        "remove": "{nickname} 선택 해제"
+      },
+      "form": {
+        "eyebrow": "Group information",
+        "title": "그룹 정보",
+        "description": "그룹명은 필수이며, 설명은 선택 사항입니다.",
+        "fields": {
+          "name": "그룹명",
+          "description": "설명"
+        },
+        "placeholders": {
+          "name": "예: 주말 일본어 공부방",
+          "description": "그룹의 목적이나 대화 주제를 입력해 주세요."
+        },
+        "hints": {
+          "descriptionOptional": "설명은 입력하지 않아도 됩니다."
+        }
+      },
+      "actions": {
+        "backToFriends": "친구 목록으로 돌아가기",
+        "changeSelection": "친구 선택 변경",
+        "reload": "다시 불러오기",
+        "cancel": "취소",
+        "create": "그룹 채팅 만들기",
+        "creating": "만드는 중..."
+      },
+      "state": {
+        "loadingTitle": "선택한 친구를 확인하고 있습니다.",
+        "loadingDescription": "현재 친구 관계와 차단 상태를 확인하고 있습니다. 잠시만 기다려 주세요.",
+        "loadFailedTitle": "선택한 친구 정보를 불러오지 못했습니다.",
+        "loadFailedDescription": "잠시 후 다시 시도해 주세요.",
+        "selectionRequiredTitle": "선택한 친구가 없습니다.",
+        "selectionRequiredDescription": "친구 목록으로 돌아가 그룹 채팅에 초대할 친구를 한 명 이상 선택해 주세요."
+      },
+      "messages": {
+        "selectionRequired": "그룹 채팅에 초대할 친구를 한 명 이상 선택해 주세요.",
+        "nameRequired": "그룹명을 입력해 주세요.",
+        "selectionAdjusted": "현재 친구 관계와 차단 상태를 반영해 일부 사용자를 선택에서 제외했습니다.",
+        "createFailed": "그룹 채팅 생성에 실패했습니다. 잠시 후 다시 시도해 주세요."
+      }
+    }
+  }
+}

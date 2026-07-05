@@ -1,0 +1,53 @@
+{
+  "Social": {
+    "friendGroupCreatePage": {
+      "eyebrow": "Group chat",
+      "title": "グループチャットを作成",
+      "description": "選択した友だちを確認し、グループ名と説明を入力して新しいグループチャットを作成します。",
+      "selected": {
+        "eyebrow": "Selected friends",
+        "title": "選択した友だち",
+        "count": "{count}人を選択しています。",
+        "remove": "{nickname}の選択を解除"
+      },
+      "form": {
+        "eyebrow": "Group information",
+        "title": "グループ情報",
+        "description": "グループ名は必須です。説明は任意で入力できます。",
+        "fields": {
+          "name": "グループ名",
+          "description": "説明"
+        },
+        "placeholders": {
+          "name": "例：週末の日本語勉強会",
+          "description": "グループの目的や会話のテーマを入力してください。"
+        },
+        "hints": {
+          "descriptionOptional": "説明は入力しなくても構いません。"
+        }
+      },
+      "actions": {
+        "backToFriends": "友だち一覧に戻る",
+        "changeSelection": "友だちの選択を変更",
+        "reload": "再読み込み",
+        "cancel": "キャンセル",
+        "create": "グループチャットを作成",
+        "creating": "作成中..."
+      },
+      "state": {
+        "loadingTitle": "選択した友だちを確認しています。",
+        "loadingDescription": "現在の友だち関係とブロック状態を確認しています。しばらくお待ちください。",
+        "loadFailedTitle": "選択した友だちの情報を読み込めませんでした。",
+        "loadFailedDescription": "しばらくしてからもう一度お試しください。",
+        "selectionRequiredTitle": "友だちが選択されていません。",
+        "selectionRequiredDescription": "友だち一覧に戻り、グループチャットに招待する友だちを1人以上選択してください。"
+      },
+      "messages": {
+        "selectionRequired": "グループチャットに招待する友だちを1人以上選択してください。",
+        "nameRequired": "グループ名を入力してください。",
+        "selectionAdjusted": "現在の友だち関係とブロック状態を反映し、一部のユーザーを選択から除外しました。",
+        "createFailed": "グループチャットの作成に失敗しました。しばらくしてからもう一度お試しください。"
+      }
+    }
+  }
+}

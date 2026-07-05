@@ -99,8 +99,8 @@ export interface UserBlock {
 }
 
 export interface FriendGroupChatRoomCreateRequest {
-    name?: string | null;
-    description?: string | null;
+    name: string;
+    description?: string;
     memberUserIds: number[];
 }
 

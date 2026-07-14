@@ -8,13 +8,13 @@ import type {
     UserProfileUpdateRequest,
 } from "@/types/social";
 
-interface ProfileFormState {
+export interface ProfileFormState {
     nickname: string;
-    profileImageUrl: string;
     bio: string;
 }
 
 type ProfileLoadErrorCode = "LOAD_FAILED";
+
 type ProfileSaveErrorCode =
     | "VALIDATION_FAILED"
     | "SAVE_FAILED";
@@ -36,11 +36,11 @@ interface UseMyProfileResult {
     ) => void;
     resetForm: () => void;
     saveProfile: () => Promise<boolean>;
+    applyImageProfileUpdate: (profile: UserProfile) => void;
 }
 
 const DEFAULT_FORM: ProfileFormState = {
     nickname: "",
-    profileImageUrl: "",
     bio: "",
 };
 
@@ -51,7 +51,6 @@ function toFormState(profile: UserProfile | null): ProfileFormState {
 
     return {
         nickname: profile.nickname ?? "",
-        profileImageUrl: profile.profileImageUrl ?? "",
         bio: profile.bio ?? "",
     };
 }
@@ -59,19 +58,6 @@ function toFormState(profile: UserProfile | null): ProfileFormState {
 function normalizeNullable(value: string): string | null {
     const trimmed = value.trim();
     return trimmed.length > 0 ? trimmed : null;
-}
-
-function isValidUrl(value: string): boolean {
-    if (!value.trim()) {
-        return true;
-    }
-
-    try {
-        const url = new URL(value);
-        return url.protocol === "http:" || url.protocol === "https:";
-    } catch {
-        return false;
-    }
 }
 
 export function useMyProfile(): UseMyProfileResult {
@@ -96,7 +82,9 @@ export function useMyProfile(): UseMyProfileResult {
         setIsSaved(false);
 
         try {
-            const loadedProfile = await userProfileService.getMyProfile();
+            const loadedProfile =
+                await userProfileService.getMyProfile();
+
             setProfile(loadedProfile);
             setForm(toFormState(loadedProfile));
         } catch (error) {
@@ -120,6 +108,7 @@ export function useMyProfile(): UseMyProfileResult {
                 ...current,
                 [key]: value,
             }));
+
             setValidationErrors((current) => {
                 if (!current[key]) {
                     return current;
@@ -129,6 +118,7 @@ export function useMyProfile(): UseMyProfileResult {
                 delete next[key];
                 return next;
             });
+
             setSaveErrorCode(null);
             setIsSaved(false);
         },
@@ -147,13 +137,14 @@ export function useMyProfile(): UseMyProfileResult {
 
         return (
             original.nickname !== form.nickname ||
-            original.profileImageUrl !== form.profileImageUrl ||
             original.bio !== form.bio
         );
     }, [form, profile]);
 
     const validate = useCallback(() => {
-        const errors: Partial<Record<keyof ProfileFormState, string>> = {};
+        const errors: Partial<
+            Record<keyof ProfileFormState, string>
+        > = {};
 
         if (!form.nickname.trim()) {
             errors.nickname = "nicknameRequired";
@@ -161,14 +152,6 @@ export function useMyProfile(): UseMyProfileResult {
 
         if (form.nickname.trim().length > 30) {
             errors.nickname = "nicknameTooLong";
-        }
-
-        if (form.profileImageUrl.trim().length > 500) {
-            errors.profileImageUrl = "profileImageUrlTooLong";
-        }
-
-        if (!isValidUrl(form.profileImageUrl)) {
-            errors.profileImageUrl = "profileImageUrlInvalid";
         }
 
         if (form.bio.length > 200) {
@@ -190,7 +173,6 @@ export function useMyProfile(): UseMyProfileResult {
 
         const request: UserProfileUpdateRequest = {
             nickname: form.nickname.trim(),
-            profileImageUrl: normalizeNullable(form.profileImageUrl),
             bio: normalizeNullable(form.bio),
         };
 
@@ -203,6 +185,7 @@ export function useMyProfile(): UseMyProfileResult {
             setProfile(updatedProfile);
             setForm(toFormState(updatedProfile));
             setIsSaved(true);
+
             return true;
         } catch (error) {
             console.error("Failed to save my profile.", error);
@@ -212,6 +195,15 @@ export function useMyProfile(): UseMyProfileResult {
             setIsSaving(false);
         }
     }, [form, validate]);
+
+    const applyImageProfileUpdate = useCallback(
+        (updatedProfile: UserProfile) => {
+            // 이미지 업로드/삭제가 텍스트 폼의 미저장 입력값을 덮어쓰지 않도록
+            // profile만 갱신하고 form은 유지한다.
+            setProfile(updatedProfile);
+        },
+        [],
+    );
 
     return {
         profile,
@@ -227,5 +219,6 @@ export function useMyProfile(): UseMyProfileResult {
         updateField,
         resetForm,
         saveProfile,
+        applyImageProfileUpdate,
     };
 }

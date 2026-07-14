@@ -4,13 +4,8 @@ import { RotateCcw, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { SyntheticEvent } from "react";
 
+import type { ProfileFormState } from "@/hooks/profile/useMyProfile";
 import type { UserProfile } from "@/types/social";
-
-interface ProfileFormState {
-    nickname: string;
-    profileImageUrl: string;
-    bio: string;
-}
 
 interface ProfileEditFormProps {
     form: ProfileFormState;
@@ -42,9 +37,13 @@ export default function ProfileEditForm({
 }: ProfileEditFormProps) {
     const t = useTranslations("Social.profilePage.form");
     const tMessage = useTranslations("Social.profilePage.messages");
-    const tValidation = useTranslations("Social.profilePage.validation");
+    const tValidation = useTranslations(
+        "Social.profilePage.validation",
+    );
 
-    const handleSubmit = async (event: SyntheticEvent<HTMLFormElement>) => {
+    const handleSubmit = async (
+        event: SyntheticEvent<HTMLFormElement>,
+    ) => {
         event.preventDefault();
         await onSave();
     };
@@ -66,7 +65,7 @@ export default function ProfileEditForm({
                 <h2 className="mt-2 text-2xl font-black text-slate-900 dark:text-white">
                     {t("title")}
                 </h2>
-                <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-300">
+                <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-500 dark:text-slate-300">
                     {t("description")}
                 </p>
             </div>
@@ -111,37 +110,14 @@ export default function ProfileEditForm({
                     />
                     <div className="mt-2 flex items-center justify-between gap-3">
                         <p className="text-xs text-rose-500">
-                            {getValidationMessage(validationErrors.nickname)}
+                            {getValidationMessage(
+                                validationErrors.nickname,
+                            )}
                         </p>
                         <p className="text-xs text-slate-400">
                             {form.nickname.trim().length}/30
                         </p>
                     </div>
-                </div>
-
-                <div>
-                    <label
-                        htmlFor="profileImageUrl"
-                        className="text-sm font-bold text-slate-700 dark:text-slate-200"
-                    >
-                        {t("fields.profileImageUrl")}
-                    </label>
-                    <input
-                        id="profileImageUrl"
-                        type="url"
-                        value={form.profileImageUrl}
-                        maxLength={500}
-                        onChange={(event) =>
-                            onChange("profileImageUrl", event.target.value)
-                        }
-                        className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-orange-300 focus:ring-4 focus:ring-orange-100 dark:border-white/10 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-orange-400/60 dark:focus:ring-orange-500/10"
-                        placeholder={t("placeholders.profileImageUrl")}
-                    />
-                    <p className="mt-2 text-xs text-rose-500">
-                        {getValidationMessage(
-                            validationErrors.profileImageUrl,
-                        )}
-                    </p>
                 </div>
 
                 <div>
@@ -191,7 +167,10 @@ export default function ProfileEditForm({
                         disabled={isSaving || !hasChanges}
                         className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 px-5 py-3 text-sm font-black text-slate-500 transition hover:border-orange-300 hover:text-orange-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:text-slate-300 dark:hover:border-orange-400/60 dark:hover:text-orange-200"
                     >
-                        <RotateCcw className="h-4 w-4" aria-hidden="true" />
+                        <RotateCcw
+                            className="h-4 w-4"
+                            aria-hidden="true"
+                        />
                         {t("actions.cancel")}
                     </button>
 
@@ -200,8 +179,13 @@ export default function ProfileEditForm({
                         disabled={isSaving || !hasChanges}
                         className="inline-flex items-center justify-center gap-2 rounded-2xl bg-orange-500 px-5 py-3 text-sm font-black text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-orange-400 dark:text-slate-950 dark:hover:bg-orange-300"
                     >
-                        <Save className="h-4 w-4" aria-hidden="true" />
-                        {isSaving ? t("actions.saving") : t("actions.save")}
+                        <Save
+                            className="h-4 w-4"
+                            aria-hidden="true"
+                        />
+                        {isSaving
+                            ? t("actions.saving")
+                            : t("actions.save")}
                     </button>
                 </div>
             </form>

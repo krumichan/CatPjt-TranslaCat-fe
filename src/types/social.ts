@@ -22,6 +22,7 @@ export interface UserSummaryProfile {
 }
 
 export interface UserProfile extends UserSummaryProfile {
+    profileBackgroundImageUrl: string | null;
     bio: string | null;
     createdAt: string;
     updatedAt: string;
@@ -29,7 +30,6 @@ export interface UserProfile extends UserSummaryProfile {
 
 export interface UserProfileUpdateRequest {
     nickname: string;
-    profileImageUrl?: string | null;
     bio?: string | null;
 }
 

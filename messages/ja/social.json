@@ -6,7 +6,7 @@
     "profilePage": {
       "eyebrow": "Profile",
       "title": "自分のプロフィール",
-      "description": "TranslaCatで使用するニックネーム、プロフィール画像、自己紹介を管理します。",
+      "description": "TranslaCatで使用するニックネーム、プロフィール画像、背景画像、自己紹介を管理します。",
       "actions": {
         "reload": "再読み込み"
       },
@@ -19,8 +19,6 @@
       "validation": {
         "nicknameRequired": "ニックネームを入力してください。",
         "nicknameTooLong": "ニックネームは30文字以内で入力してください。",
-        "profileImageUrlTooLong": "プロフィール画像URLは500文字以内で入力してください。",
-        "profileImageUrlInvalid": "httpまたはhttpsで始まる正しいURLを入力してください。",
         "bioTooLong": "自己紹介は200文字以内で入力してください。"
       },
       "info": {
@@ -29,17 +27,16 @@
         "copyPublicId": "TranslaCat IDをコピー",
         "copied": "コピーしました。",
         "emptyBio": "自己紹介はまだ登録されていません。",
-        "profileImageUrl": "Profile Image URL",
-        "emptyProfileImageUrl": "プロフィール画像は登録されていません。"
+        "profileAlt": "プロフィール画像",
+        "backgroundAlt": "プロフィール背景画像"
       },
       "form": {
         "eyebrow": "Edit",
         "title": "プロフィール編集",
-        "description": "publicIdは変更できません。ニックネーム、プロフィール画像URL、自己紹介のみ編集できます。",
+        "description": "publicIdは変更できません。\nニックネームと自己紹介を編集できます。画像は下の画像管理エリアからアップロードします。",
         "fields": {
           "publicId": "TranslaCat ID",
           "nickname": "ニックネーム",
-          "profileImageUrl": "プロフィール画像URL",
           "bio": "自己紹介"
         },
         "hints": {
@@ -47,13 +44,51 @@
         },
         "placeholders": {
           "nickname": "表示するニックネームを入力",
-          "profileImageUrl": "https://example.com/profile.png",
           "bio": "自己紹介またはステータスメッセージを入力"
         },
         "actions": {
           "cancel": "キャンセル",
           "save": "保存",
           "saving": "保存中..."
+        }
+      },
+      "image": {
+        "eyebrow": "Images",
+        "title": "プロフィール画像管理",
+        "description": "プロフィール画像と背景画像をそれぞれ1枚ずつ管理します。新しい画像をアップロードすると既存画像が置き換えられます。",
+        "previewBadge": "アップロード前プレビュー",
+        "profile": {
+          "eyebrow": "Profile image",
+          "title": "プロフィール画像",
+          "description": "友達一覧、ユーザー検索、プロフィール、チャット画面で自分を表す画像です。",
+          "rule": "JPEG, PNG, WEBP · 最大5 MB",
+          "previewAlt": "プロフィール画像プレビュー"
+        },
+        "background": {
+          "eyebrow": "Background image",
+          "title": "プロフィール背景画像",
+          "description": "プロフィール上部に表示される横長の背景画像です。",
+          "rule": "JPEG, PNG, WEBP · 最大10 MB",
+          "previewAlt": "プロフィール背景画像プレビュー"
+        },
+        "actions": {
+          "choose": "画像を選択",
+          "replace": "画像を変更",
+          "upload": "アップロード",
+          "uploading": "アップロード中...",
+          "delete": "削除",
+          "deleting": "削除中...",
+          "cancelPreview": "選択をキャンセル"
+        },
+        "errors": {
+          "UNSUPPORTED_TYPE": "JPEG、PNG、WEBP形式の画像のみ選択できます。",
+          "FILE_TOO_LARGE": "画像ファイルのサイズが許容範囲を超えています。",
+          "UPLOAD_FAILED": "画像のアップロードに失敗しました。しばらくしてから再度お試しください。",
+          "DELETE_FAILED": "画像の削除に失敗しました。しばらくしてから再度お試しください。"
+        },
+        "success": {
+          "UPLOADED": "画像をアップロードしました。",
+          "DELETED": "画像を削除しました。"
         }
       }
     },

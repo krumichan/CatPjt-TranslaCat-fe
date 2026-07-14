@@ -9,8 +9,14 @@ export type ChatMessageTranslationStatus =
     | "COMPLETED"
     | "FAILED";
 
+export type ChatLanguageSettingsSource =
+    | "ROOM_OVERRIDE"
+    | "DEFAULT"
+    | "SYSTEM";
+
 export interface DirectPartnerProfile {
     userId: number;
+    publicId: string;
     displayName: string;
     profileImageUrl: string | null;
 }
@@ -27,9 +33,12 @@ export interface ChatRoom {
     translationLanguageCode: string;
     roomLanguageSettingApplied: boolean;
     memberCount: number;
-    directPartner?: DirectPartnerProfile | null;
     createdAt: string;
     updatedAt: string;
+    /**
+     * BE #37: FRIEND DIRECT 방에서만 현재 로그인 사용자를 제외한 상대 사용자 정보.
+     */
+    directPartner?: DirectPartnerProfile | null;
 }
 
 export interface ChatRoomListItem {
@@ -40,9 +49,12 @@ export interface ChatRoomListItem {
     description: string | null;
     ownerId: number | null;
     memberCount: number;
-    directPartner?: DirectPartnerProfile | null;
     createdAt: string;
     updatedAt: string;
+    /**
+     * BE #37: FRIEND DIRECT 방에서만 현재 로그인 사용자를 제외한 상대 사용자 정보.
+     */
+    directPartner?: DirectPartnerProfile | null;
 }
 
 export interface ChatRoomListResponse {
@@ -72,6 +84,21 @@ export interface ChatRoomMemberListResponse {
     members: ChatRoomMember[];
 }
 
+export interface ChatDefaultLanguageSettings {
+    userId: number;
+    originalLanguageCode: string;
+    translationLanguageCode: string;
+    showOriginal: boolean;
+    showTranslation: boolean;
+}
+
+export interface ChatDefaultLanguageSettingsUpdateRequest {
+    originalLanguageCode: string;
+    translationLanguageCode: string;
+    showOriginal: boolean;
+    showTranslation: boolean;
+}
+
 export interface ChatLanguageSettings {
     chatRoomId: number;
     userId: number;
@@ -80,6 +107,11 @@ export interface ChatLanguageSettings {
     showOriginal: boolean;
     showTranslation: boolean;
     roomLanguageSettingApplied: boolean;
+    /**
+     * FE #35: 화면에서 적용 근거를 구분하기 위한 FE 전용 메타값.
+     * BE 응답에는 없어도 되므로 optional로 둔다.
+     */
+    source?: ChatLanguageSettingsSource;
 }
 
 export interface ChatLanguageSettingsUpdateRequest {

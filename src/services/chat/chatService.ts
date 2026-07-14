@@ -1,5 +1,8 @@
 import { apiClient } from "@/lib/apiClient";
+
 import type {
+    ChatDefaultLanguageSettings,
+    ChatDefaultLanguageSettingsUpdateRequest,
     ChatLanguageSettings,
     ChatLanguageSettingsUpdateRequest,
     ChatMessage,
@@ -13,13 +16,41 @@ import type {
 } from "@/types/chat";
 import type { ResponseDto } from "@/types/common";
 
+export class ChatApiError extends Error {
+    status: number;
+
+    constructor(status: number) {
+        super(`Chat API request failed. status=${status}`);
+        this.name = "ChatApiError";
+        this.status = status;
+    }
+}
+
+export const isChatApiNotFoundError = (error: unknown) =>
+    error instanceof ChatApiError && error.status === 404;
+
 async function parseBody<T>(response: Response): Promise<T> {
     if (!response.ok) {
-        throw new Error(`Chat API request failed. status=${response.status}`);
+        throw new ChatApiError(response.status);
     }
 
     const data = (await response.json()) as ResponseDto<T>;
     return data.body;
+}
+
+async function requestWithLegacyFallback<T>(
+    primaryRequest: () => Promise<T>,
+    legacyRequest: () => Promise<T>,
+): Promise<T> {
+    try {
+        return await primaryRequest();
+    } catch (error) {
+        if (isChatApiNotFoundError(error)) {
+            return legacyRequest();
+        }
+
+        throw error;
+    }
 }
 
 export const chatService = {
@@ -28,7 +59,6 @@ export const chatService = {
             method: "POST",
             body: JSON.stringify(request),
         });
-
         return parseBody<ChatRoom>(response);
     },
 
@@ -36,7 +66,6 @@ export const chatService = {
         const response = await apiClient("/chat/rooms", {
             method: "GET",
         });
-
         return parseBody<ChatRoomListResponse>(response);
     },
 
@@ -44,7 +73,6 @@ export const chatService = {
         const response = await apiClient(`/chat/rooms/${roomId}`, {
             method: "GET",
         });
-
         return parseBody<ChatRoom>(response);
     },
 
@@ -54,49 +82,106 @@ export const chatService = {
         const response = await apiClient(`/chat/rooms/${roomId}/members`, {
             method: "GET",
         });
-
         return parseBody<ChatRoomMemberListResponse>(response);
+    },
+
+    getMyDefaultLanguageSettings:
+        async (): Promise<ChatDefaultLanguageSettings> => {
+            const response = await apiClient(
+                "/users/me/chat-language-settings",
+                {
+                    method: "GET",
+                },
+            );
+            return parseBody<ChatDefaultLanguageSettings>(response);
+        },
+
+    updateMyDefaultLanguageSettings: async (
+        request: ChatDefaultLanguageSettingsUpdateRequest,
+    ): Promise<ChatDefaultLanguageSettings> => {
+        const response = await apiClient("/users/me/chat-language-settings", {
+            method: "PATCH",
+            body: JSON.stringify(request),
+        });
+        return parseBody<ChatDefaultLanguageSettings>(response);
     },
 
     getMyLanguageSettings: async (
         roomId: string | number,
     ): Promise<ChatLanguageSettings> => {
-        const response = await apiClient(
-            `/chat/rooms/${roomId}/members/me/language`,
-            {
-                method: "GET",
+        return requestWithLegacyFallback(
+            async () => {
+                const response = await apiClient(
+                    `/chat/rooms/${roomId}/language-settings`,
+                    {
+                        method: "GET",
+                    },
+                );
+                return parseBody<ChatLanguageSettings>(response);
+            },
+            async () => {
+                const response = await apiClient(
+                    `/chat/rooms/${roomId}/members/me/language`,
+                    {
+                        method: "GET",
+                    },
+                );
+                return parseBody<ChatLanguageSettings>(response);
             },
         );
-
-        return parseBody<ChatLanguageSettings>(response);
     },
 
     updateMyLanguageSettings: async (
         roomId: string | number,
         request: ChatLanguageSettingsUpdateRequest,
     ): Promise<ChatLanguageSettings> => {
-        const response = await apiClient(
-            `/chat/rooms/${roomId}/members/me/language`,
-            {
-                method: "PATCH",
-                body: JSON.stringify(request),
+        return requestWithLegacyFallback(
+            async () => {
+                const response = await apiClient(
+                    `/chat/rooms/${roomId}/language-settings`,
+                    {
+                        method: "PATCH",
+                        body: JSON.stringify(request),
+                    },
+                );
+                return parseBody<ChatLanguageSettings>(response);
+            },
+            async () => {
+                const response = await apiClient(
+                    `/chat/rooms/${roomId}/members/me/language`,
+                    {
+                        method: "PATCH",
+                        body: JSON.stringify(request),
+                    },
+                );
+                return parseBody<ChatLanguageSettings>(response);
             },
         );
-
-        return parseBody<ChatLanguageSettings>(response);
     },
 
     resetMyLanguageSettings: async (
         roomId: string | number,
     ): Promise<ChatLanguageSettings> => {
-        const response = await apiClient(
-            `/chat/rooms/${roomId}/members/me/language`,
-            {
-                method: "DELETE",
+        return requestWithLegacyFallback(
+            async () => {
+                const response = await apiClient(
+                    `/chat/rooms/${roomId}/language-settings`,
+                    {
+                        method: "DELETE",
+                    },
+                );
+                return parseBody<ChatLanguageSettings>(response);
+            },
+            async () => {
+                const response = await apiClient(
+                    `/chat/rooms/${roomId}/members/me/language`,
+                    {
+                        method: "DELETE",
+                    },
+                );
+                return parseBody<ChatLanguageSettings>(response);
             },
         );
-
-        return parseBody<ChatLanguageSettings>(response);
     },
 
     getMessages: async (
@@ -104,7 +189,6 @@ export const chatService = {
         cursorId?: number | null,
     ): Promise<ChatMessageListResponse> => {
         const searchParams = new URLSearchParams();
-
         if (cursorId != null) {
             searchParams.set("cursorId", String(cursorId));
         }
@@ -113,11 +197,9 @@ export const chatService = {
         const endpoint = query
             ? `/chat/rooms/${roomId}/messages?${query}`
             : `/chat/rooms/${roomId}/messages`;
-
         const response = await apiClient(endpoint, {
             method: "GET",
         });
-
         return parseBody<ChatMessageListResponse>(response);
     },
 
@@ -129,7 +211,6 @@ export const chatService = {
             method: "POST",
             body: JSON.stringify(request),
         });
-
         return parseBody<ChatMessage>(response);
     },
 
@@ -138,13 +219,17 @@ export const chatService = {
         messageId: string | number,
         languageCode: string,
     ): Promise<ChatMessageTranslation> => {
+        const normalizedLanguageCode = languageCode.trim().toLowerCase();
+        if (!normalizedLanguageCode) {
+            throw new Error("languageCode is required to retry translation.");
+        }
+
         const response = await apiClient(
-            `/chat/rooms/${roomId}/messages/${messageId}/translations/${languageCode}/retry`,
+            `/chat/rooms/${roomId}/messages/${messageId}/translations/${normalizedLanguageCode}/retry`,
             {
                 method: "POST",
             },
         );
-
         return parseBody<ChatMessageTranslation>(response);
     },
 };

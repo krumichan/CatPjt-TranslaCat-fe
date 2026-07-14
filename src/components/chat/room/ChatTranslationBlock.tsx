@@ -45,21 +45,26 @@ export function ChatTranslationBlock({
     return (
         <div className="mt-3 space-y-2 border-t border-white/20 pt-3 dark:border-white/10">
             {visibleTranslations.map((translation) => {
+                const languageCode = translation.languageCode.trim();
+                const normalizedLanguageCode = languageCode.toLowerCase();
                 const translatedContent =
                     translation.translatedContent?.trim() ?? "";
                 const translationKey = getChatTranslationKey(
                     messageId,
-                    translation.languageCode,
+                    normalizedLanguageCode,
                 );
                 const isRetrying =
                     translation.status === "PENDING" ||
                     retryingTranslationKeys.includes(translationKey);
                 const hasRetryError =
                     retryTranslationErrorKeys.includes(translationKey);
+                const canRetry =
+                    translation.status === "FAILED" &&
+                    normalizedLanguageCode.length > 0;
 
                 return (
                     <div
-                        key={translation.languageCode}
+                        key={translation.id || normalizedLanguageCode}
                         className={`rounded-2xl px-3 py-2 text-xs ${
                             isMine
                                 ? "bg-white/10 text-blue-50"
@@ -74,16 +79,16 @@ export function ChatTranslationBlock({
                                         : "bg-white text-slate-400 ring-1 ring-slate-200 dark:bg-slate-950 dark:text-slate-400 dark:ring-white/10"
                                 }`}
                             >
-                                {translation.languageCode}
+                                {normalizedLanguageCode || "-"}
                             </span>
 
-                            {translation.status === "FAILED" && (
+                            {canRetry && (
                                 <button
                                     type="button"
                                     onClick={() =>
                                         void onRetryTranslation(
                                             messageId,
-                                            translation.languageCode,
+                                            normalizedLanguageCode,
                                         )
                                     }
                                     disabled={isRetrying}
@@ -113,7 +118,7 @@ export function ChatTranslationBlock({
 
                         {translation.status === "COMPLETED" &&
                             translatedContent && (
-                                <p className="whitespace-pre-wrap break-words leading-5">
+                                <p className="whitespace-pre-wrap wrap-break-word leading-5">
                                     {translatedContent}
                                 </p>
                             )}

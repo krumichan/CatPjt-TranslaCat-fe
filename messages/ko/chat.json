@@ -120,7 +120,8 @@
     "loading": "채팅방 목록을 불러오는 중...",
     "untitledRoom": "이름 없는 채팅방",
     "friend": {
-      "directTitle": "친구와의 1:1 채팅"
+      "directTitle": "친구와의 1:1 채팅",
+      "directSubtitle": "1:1 · 친구 채팅"
     },
     "create": {
       "friendChatButton": "친구와 채팅 시작",

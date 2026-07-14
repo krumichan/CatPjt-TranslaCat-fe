@@ -3,6 +3,7 @@
 import { Languages, Loader2, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { ChatRoomAvatar } from "@/components/chat/common/ChatRoomAvatar";
 import type {
     ChatLanguageSettings,
     ChatRoom,
@@ -10,6 +11,7 @@ import type {
     ChatRoomType,
 } from "@/types/chat";
 import type { ChatWebSocketConnectionStatus } from "@/types/chatWebSocket";
+import { resolveChatRoomDisplay } from "@/utils/chatRoomDisplay";
 
 interface ChatRoomHeaderProps {
     room: ChatRoom;
@@ -94,49 +96,60 @@ export function ChatRoomHeader({
 }: ChatRoomHeaderProps) {
     const t = useTranslations("ChatRoom");
     const connectionStatusLabel = getConnectionStatusLabel(connectionStatus);
-    const isFriendDirectRoom =
-        room.sourceType === "FRIEND" && room.roomType === "DIRECT";
-    const roomTitle = isFriendDirectRoom
-        ? room.name?.trim() || t("header.friendDirectTitle")
-        : room.name?.trim() || t("header.untitledRoom", { id: room.id });
+    const display = resolveChatRoomDisplay(room, {
+        friendDirectTitle: t("header.friendDirectTitle"),
+        untitledTitle: t("header.untitledRoom", { id: room.id }),
+    });
     const languageLabel = resolveLanguageLabel(room, languageSettings);
 
     return (
-        <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
-            <div className="min-w-0">
-                <h1 className="truncate text-base font-semibold text-slate-900 dark:text-slate-100">
-                    {roomTitle}
-                </h1>
+        <header className="flex items-center justify-between gap-3 border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
+                {display.isFriendDirectRoom && (
+                    <ChatRoomAvatar
+                        profileImageUrl={display.profileImageUrl}
+                        alt={display.title}
+                    />
+                )}
 
-                <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                    <span className="inline-flex items-center gap-1">
-                        <Users className="h-3.5 w-3.5" aria-hidden="true" />
-                        {t("header.roomId", { id: room.id })} ·{" "}
-                        {t(getRoomTypeTranslationKey(room.roomType))} ·{" "}
-                        {t(getSourceTypeTranslationKey(room.sourceType))} ·{" "}
-                        {t("header.members", { count: room.memberCount })}
-                    </span>
-
-                    {connectionStatusLabel && (
-                        <span>{connectionStatusLabel}</span>
-                    )}
-
-                    <span className="inline-flex items-center gap-1">
-                        <Languages className="h-3.5 w-3.5" aria-hidden="true" />
-                        {isLanguageSettingsLoading ? (
-                            <>
-                                <Loader2
-                                    className="h-3.5 w-3.5 animate-spin"
-                                    aria-hidden="true"
-                                />
-                                {t("header.language.loading")}
-                            </>
-                        ) : languageSettingsLoadErrorCode ? (
-                            t("header.language.error")
-                        ) : (
-                            (languageLabel ?? "-")
+                <div className="min-w-0">
+                    <h1 className="truncate text-base font-semibold text-slate-900 dark:text-slate-100">
+                        {display.title}
+                    </h1>
+                    <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                        <span className="inline-flex items-center gap-1">
+                            <Users
+                                className="h-3.5 w-3.5"
+                                aria-hidden="true"
+                            />
+                            {t("header.roomId", { id: room.id })} ·{" "}
+                            {t(getRoomTypeTranslationKey(room.roomType))} ·{" "}
+                            {t(getSourceTypeTranslationKey(room.sourceType))} ·{" "}
+                            {t("header.members", { count: room.memberCount })}
+                        </span>
+                        {connectionStatusLabel && (
+                            <span>{connectionStatusLabel}</span>
                         )}
-                    </span>
+                        <span className="inline-flex items-center gap-1">
+                            <Languages
+                                className="h-3.5 w-3.5"
+                                aria-hidden="true"
+                            />
+                            {isLanguageSettingsLoading ? (
+                                <>
+                                    <Loader2
+                                        className="h-3.5 w-3.5 animate-spin"
+                                        aria-hidden="true"
+                                    />
+                                    {t("header.language.loading")}
+                                </>
+                            ) : languageSettingsLoadErrorCode ? (
+                                t("header.language.error")
+                            ) : (
+                                (languageLabel ?? "-")
+                            )}
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -144,7 +157,7 @@ export function ChatRoomHeader({
                 type="button"
                 onClick={onOpenLanguageSettings}
                 disabled={!onOpenLanguageSettings}
-                className="ml-3 rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                className="shrink-0 rounded-xl border border-slate-200 px-2.5 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 sm:px-3 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
             >
                 <Languages className="mr-1 inline h-4 w-4" aria-hidden="true" />
                 {t("header.language.button")}

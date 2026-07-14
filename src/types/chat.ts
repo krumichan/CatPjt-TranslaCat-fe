@@ -11,7 +11,6 @@ export type ChatMessageTranslationStatus =
 
 export interface DirectPartnerProfile {
     userId: number;
-    publicId: string;
     displayName: string;
     profileImageUrl: string | null;
 }
@@ -28,12 +27,9 @@ export interface ChatRoom {
     translationLanguageCode: string;
     roomLanguageSettingApplied: boolean;
     memberCount: number;
+    directPartner?: DirectPartnerProfile | null;
     createdAt: string;
     updatedAt: string;
-    /**
-     * BE #37: FRIEND DIRECT 방에서만 현재 로그인 사용자를 제외한 상대 사용자 정보.
-     */
-    directPartner?: DirectPartnerProfile | null;
 }
 
 export interface ChatRoomListItem {
@@ -44,12 +40,9 @@ export interface ChatRoomListItem {
     description: string | null;
     ownerId: number | null;
     memberCount: number;
+    directPartner?: DirectPartnerProfile | null;
     createdAt: string;
     updatedAt: string;
-    /**
-     * BE #37: FRIEND DIRECT 방에서만 현재 로그인 사용자를 제외한 상대 사용자 정보.
-     */
-    directPartner?: DirectPartnerProfile | null;
 }
 
 export interface ChatRoomListResponse {

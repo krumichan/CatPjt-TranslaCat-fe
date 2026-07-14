@@ -4,6 +4,7 @@ import {
     mockCommonPageDependencies,
     mockIdleWebSocket,
 } from "../support/api-mocks";
+import { mockChatLanguageSettings } from "../support/chat-mocks";
 import {
     makeLanguageSettings,
     makeMessage,
@@ -22,10 +23,10 @@ test.describe("Message history pagination", () => {
         await page.route(/\/chat\/rooms\/501$/, (route) =>
             fulfillApiJson(route, responseDto(room)),
         );
-        await page.route(
-            /\/chat\/rooms\/501\/members\/me\/language$/,
-            (route) => fulfillApiJson(route, responseDto(makeLanguageSettings())),
-        );
+        await mockChatLanguageSettings(page, {
+            roomId: 501,
+            languageSettings: makeLanguageSettings({ chatRoomId: 501 }),
+        });
 
         let cursorCalls = 0;
         await page.route(
@@ -78,10 +79,10 @@ test.describe("Message history pagination", () => {
         await page.route(/\/chat\/rooms\/501$/, (route) =>
             fulfillApiJson(route, responseDto(room)),
         );
-        await page.route(
-            /\/chat\/rooms\/501\/members\/me\/language$/,
-            (route) => fulfillApiJson(route, responseDto(makeLanguageSettings())),
-        );
+        await mockChatLanguageSettings(page, {
+            roomId: 501,
+            languageSettings: makeLanguageSettings({ chatRoomId: 501 }),
+        });
         await page.route(
             /\/chat\/rooms\/501\/messages(?:\?.*)?$/,
             (route) => {

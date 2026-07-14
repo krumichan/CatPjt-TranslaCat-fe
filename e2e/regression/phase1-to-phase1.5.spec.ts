@@ -73,7 +73,7 @@ test.describe("Phase 1 -> Phase 1.5 transition regression", () => {
             page.getByPlaceholder("메시지를 입력하세요"),
         ).toBeVisible();
         await expect(
-            page.getByRole("button", { name: "언어", exact: true }),
+            page.getByTestId("chat-language-settings-button"),
         ).toBeVisible();
     });
 });

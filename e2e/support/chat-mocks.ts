@@ -1,10 +1,116 @@
-import type { Page } from "@playwright/test";
+import type { Page, Route } from "@playwright/test";
+
 import { fulfillApiJson } from "./api-mocks";
 import {
+    makeDefaultLanguageSettings,
     makeLanguageSettings,
     makeRoom,
     responseDto,
 } from "./mock-data";
+
+type MockChatRoomBaseOptions = {
+    room?: ReturnType<typeof makeRoom>;
+    messages?: unknown[];
+    hasNext?: boolean;
+    nextCursorId?: number | null;
+    languageSettings?: ReturnType<typeof makeLanguageSettings>;
+    defaultLanguageSettings?: ReturnType<typeof makeDefaultLanguageSettings>;
+};
+
+function getRoomIdFromPath(url: string, fallbackRoomId: number): number {
+    const pathname = new URL(url).pathname;
+    const match = pathname.match(/\/chat\/rooms\/(\d+)/);
+    return match ? Number(match[1]) : fallbackRoomId;
+}
+
+function readRequestJson(route: Route): Record<string, unknown> {
+    const raw = route.request().postData();
+
+    if (!raw) {
+        return {};
+    }
+
+    try {
+        return JSON.parse(raw) as Record<string, unknown>;
+    } catch {
+        return {};
+    }
+}
+
+export async function mockChatLanguageSettings(
+    page: Page,
+    {
+        roomId = 501,
+        languageSettings,
+        defaultLanguageSettings = makeDefaultLanguageSettings(),
+    }: {
+        roomId?: number;
+        languageSettings?: ReturnType<typeof makeLanguageSettings>;
+        defaultLanguageSettings?: ReturnType<typeof makeDefaultLanguageSettings>;
+    } = {},
+): Promise<void> {
+    const roomLanguageSettings =
+        languageSettings ?? makeLanguageSettings({ chatRoomId: roomId });
+
+    await page.route(/.*\/users\/me\/chat-language-settings$/, (route) => {
+        const method = route.request().method();
+
+        if (method !== "GET" && method !== "PATCH") {
+            return route.fallback();
+        }
+
+        const body = method === "PATCH" ? readRequestJson(route) : {};
+
+        return fulfillApiJson(
+            route,
+            responseDto({
+                ...defaultLanguageSettings,
+                ...body,
+            }),
+        );
+    });
+
+    await page.route(
+        /.*\/chat\/rooms\/\d+\/(?:language-settings|members\/me\/language)$/,
+        (route) => {
+            const method = route.request().method();
+
+            if (method !== "GET" && method !== "PATCH" && method !== "DELETE") {
+                return route.fallback();
+            }
+
+            const requestedRoomId = getRoomIdFromPath(
+                route.request().url(),
+                roomId,
+            );
+
+            if (method === "DELETE") {
+                return fulfillApiJson(
+                    route,
+                    responseDto({
+                        ...roomLanguageSettings,
+                        chatRoomId: requestedRoomId,
+                        roomLanguageSettingApplied: false,
+                        source: "DEFAULT",
+                    }),
+                );
+            }
+
+            const body = method === "PATCH" ? readRequestJson(route) : {};
+
+            return fulfillApiJson(
+                route,
+                responseDto({
+                    ...roomLanguageSettings,
+                    chatRoomId: requestedRoomId,
+                    source: "ROOM_OVERRIDE",
+                    roomLanguageSettingApplied: true,
+                    ...body,
+                }),
+            );
+        },
+    );
+}
 
 export async function mockChatRoomBase(
     page: Page,
@@ -13,31 +119,48 @@ export async function mockChatRoomBase(
         messages = [],
         hasNext = false,
         nextCursorId = null,
-        languageSettings = makeLanguageSettings(),
-    }: {
-        room?: ReturnType<typeof makeRoom>;
-        messages?: unknown[];
-        hasNext?: boolean;
-        nextCursorId?: number | null;
-        languageSettings?: ReturnType<typeof makeLanguageSettings>;
-    } = {},
+        languageSettings,
+        defaultLanguageSettings = makeDefaultLanguageSettings(),
+    }: MockChatRoomBaseOptions = {},
 ): Promise<void> {
     const roomId = room.id;
+    const roomLanguageSettings =
+        languageSettings ?? makeLanguageSettings({ chatRoomId: roomId });
 
-    await page.route(new RegExp(`/chat/rooms/${roomId}$`), (route) =>
-        fulfillApiJson(route, responseDto(room)),
-    );
+    await mockChatLanguageSettings(page, {
+        roomId,
+        languageSettings: roomLanguageSettings,
+        defaultLanguageSettings,
+    });
 
-    await page.route(new RegExp(`/chat/rooms/${roomId}/messages(?:\\?.*)?$`), (route) => {
-        if (route.request().method() !== "GET") return route.fallback();
+    await page.route(/.*\/chat\/rooms\/\d+$/, (route) => {
+        if (route.request().method() !== "GET") {
+            return route.fallback();
+        }
+
+        const requestedRoomId = getRoomIdFromPath(route.request().url(), roomId);
+
         return fulfillApiJson(
             route,
-            responseDto({ messages, hasNext, nextCursorId }),
+            responseDto({
+                ...room,
+                id: requestedRoomId,
+            }),
         );
     });
 
-    await page.route(
-        new RegExp(`/chat/rooms/${roomId}/members/me/language$`),
-        (route) => fulfillApiJson(route, responseDto(languageSettings)),
-    );
+    await page.route(/.*\/chat\/rooms\/\d+\/messages(?:\?.*)?$/, (route) => {
+        if (route.request().method() !== "GET") {
+            return route.fallback();
+        }
+
+        return fulfillApiJson(
+            route,
+            responseDto({
+                messages,
+                hasNext,
+                nextCursorId,
+            }),
+        );
+    });
 }

@@ -124,6 +124,18 @@ export const makeRoom = ({
     updatedAt: LATER,
 });
 
+export const makeDefaultLanguageSettings = (
+    overrides: Record<string, unknown> = {},
+) => ({
+    userId: TEST_USERS.A.userId,
+    originalLanguageCode: "ko",
+    translationLanguageCode: "ja",
+    showOriginal: true,
+    showTranslation: true,
+    source: "DEFAULT",
+    ...overrides,
+});
+
 export const makeLanguageSettings = (overrides: Record<string, unknown> = {}) => ({
     chatRoomId: 501,
     userId: TEST_USERS.A.userId,

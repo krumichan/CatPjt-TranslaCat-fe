@@ -31,7 +31,7 @@ export default function ProfilePageContent() {
     } = useMyProfile();
 
     return (
-        <main className="space-y-6">
+        <main className="space-y-6 pt-24">
             <SettingsSubPageHeader
                 eyebrow={t("eyebrow")}
                 title={t("title")}

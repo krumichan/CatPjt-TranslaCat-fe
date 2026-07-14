@@ -11,7 +11,7 @@ export default function FriendListEmptyState({
     const t = useTranslations("Social.friendListPage.empty");
 
     return (
-        <div className="rounded-[2rem] border border-dashed border-slate-300 bg-slate-50 px-5 py-12 text-center dark:border-white/10 dark:bg-white/5">
+        <div className="rounded-4xl border border-dashed border-slate-300 bg-slate-50 px-5 py-12 text-center dark:border-white/10 dark:bg-white/5">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-orange-50 text-orange-500 dark:bg-orange-500/10 dark:text-orange-200">
                 <UsersRound className="h-8 w-8" aria-hidden="true" />
             </div>

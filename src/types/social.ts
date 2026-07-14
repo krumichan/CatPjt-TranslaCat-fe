@@ -19,12 +19,11 @@ export interface UserSummaryProfile {
     publicId: string;
     nickname: string;
     profileImageUrl: string | null;
-    bio?: string | null;
+    bio: string | null;
 }
 
 export interface UserProfile extends UserSummaryProfile {
     profileBackgroundImageUrl: string | null;
-    bio: string | null;
     createdAt: string;
     updatedAt: string;
 }
@@ -107,4 +106,5 @@ export interface FriendGroupChatRoomCreateRequest {
 }
 
 export type FriendDirectChatRoomResponse = ChatRoom;
+
 export type FriendGroupChatRoomResponse = ChatRoom;

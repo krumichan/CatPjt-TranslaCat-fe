@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 import { useMemo, useState } from "react";
 import { BookOpen, MessageCircle, UsersRound } from "lucide-react";
@@ -11,8 +9,8 @@ import type { FriendRequestAction } from "@/components/notification/useNotificat
 import type { AccountBookInvitation } from "@/types/accountBook";
 import type {
     FriendRequest,
-    UserSummaryProfile,
 } from "@/types/social";
+import {getReceiverProfile, getRequesterProfile} from "@/components/notification/friendRequestProfile";
 
 type InvitationFilterType = "FRIEND" | "ACCOUNT_BOOK";
 
@@ -53,34 +51,6 @@ type NotificationInvitationPanelProps = {
     onRejectFriendRequest: (requestId: number) => void;
     onCancelFriendRequest: (requestId: number) => void;
 };
-
-function getRequesterProfile(request: FriendRequest): UserSummaryProfile {
-    return (
-        request.requester ?? {
-            userId: request.requesterUserId,
-            publicId: request.requesterPublicId ?? "-",
-            nickname:
-                request.requesterNickname ??
-                request.requesterPublicId ??
-                "-",
-            profileImageUrl: request.requesterProfileImageUrl ?? null,
-        }
-    );
-}
-
-function getReceiverProfile(request: FriendRequest): UserSummaryProfile {
-    return (
-        request.receiver ?? {
-            userId: request.receiverUserId,
-            publicId: request.receiverPublicId ?? "-",
-            nickname:
-                request.receiverNickname ??
-                request.receiverPublicId ??
-                "-",
-            profileImageUrl: request.receiverProfileImageUrl ?? null,
-        }
-    );
-}
 
 const DEFAULT_ACTIVE_FILTERS: Record<InvitationFilterType, boolean> = {
     FRIEND: true,

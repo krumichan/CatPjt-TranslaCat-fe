@@ -1,10 +1,9 @@
-"use client";
-
 import { Check, UserRound, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type { FriendRequestAction } from "@/components/notification/useNotificationCenter";
-import type { FriendRequest, UserSummaryProfile } from "@/types/social";
+import type { FriendRequest } from "@/types/social";
+import {getReceiverProfile, getRequesterProfile} from "@/components/notification/friendRequestProfile";
 
 type FriendRequestDirection = "RECEIVED" | "SENT";
 
@@ -18,34 +17,6 @@ type FriendRequestNotificationItemProps = {
     onReject: (requestId: number) => void;
     onCancel: (requestId: number) => void;
 };
-
-function getRequesterProfile(request: FriendRequest): UserSummaryProfile {
-    return (
-        request.requester ?? {
-            userId: request.requesterUserId,
-            publicId: request.requesterPublicId ?? "-",
-            nickname:
-                request.requesterNickname ??
-                request.requesterPublicId ??
-                "-",
-            profileImageUrl: request.requesterProfileImageUrl ?? null,
-        }
-    );
-}
-
-function getReceiverProfile(request: FriendRequest): UserSummaryProfile {
-    return (
-        request.receiver ?? {
-            userId: request.receiverUserId,
-            publicId: request.receiverPublicId ?? "-",
-            nickname:
-                request.receiverNickname ??
-                request.receiverPublicId ??
-                "-",
-            profileImageUrl: request.receiverProfileImageUrl ?? null,
-        }
-    );
-}
 
 export default function FriendRequestNotificationItem({
     request,

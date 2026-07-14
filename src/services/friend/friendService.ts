@@ -1,6 +1,6 @@
 import { apiClient } from "@/lib/apiClient";
-import type { Friend, FriendApiResponse } from "@/types/social";
 import { parseResponseBody } from "@/services/common/responseParser";
+import type { Friend, FriendApiResponse } from "@/types/social";
 
 function toFriend(apiResponse: FriendApiResponse): Friend {
     return {
@@ -9,6 +9,7 @@ function toFriend(apiResponse: FriendApiResponse): Friend {
         publicId: apiResponse.friend.publicId,
         nickname: apiResponse.friend.nickname,
         profileImageUrl: apiResponse.friend.profileImageUrl,
+        bio: apiResponse.friend.bio ?? null,
         friendSince: apiResponse.createdAt,
     };
 }
@@ -18,6 +19,7 @@ export const friendService = {
         const response = await apiClient("/friends", {
             method: "GET",
         });
+
         const body = await parseResponseBody<FriendApiResponse[]>(
             response,
             "Friend",
@@ -26,11 +28,11 @@ export const friendService = {
         return body.map(toFriend);
     },
 
-    deleteFriend: async (friendUserId: number): Promise<boolean> => {
+    deleteFriend: async (friendUserId: number): Promise<Friend> => {
         const response = await apiClient(`/friends/${friendUserId}`, {
             method: "DELETE",
         });
 
-        return parseResponseBody<boolean>(response, "Friend");
+        return parseResponseBody<Friend>(response, "Friend");
     },
 };

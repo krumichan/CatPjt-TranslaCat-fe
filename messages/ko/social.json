@@ -220,7 +220,8 @@
         "title": "친구",
         "count": "전체 {totalCount}명 / 표시 {filteredCount}명",
         "friendSince": "친구가 된 날짜: {date}",
-        "blockedDescription": "차단한 사용자입니다. 채팅 시작과 그룹 선택이 제한됩니다."
+        "blockedDescription": "차단한 사용자입니다. 채팅 시작과 그룹 선택이 제한됩니다.",
+        "emptyBio": "상태 메시지가 없습니다."
       },
       "actions": {
         "closeSearchModal": "친구 찾기 닫기",
@@ -243,7 +244,8 @@
         "blockFriend": "차단",
         "unblockFriend": "차단 해제",
         "blocked": "차단됨",
-        "openBlockList": "차단 목록 ({count})"
+        "openBlockList": "차단 목록 ({count})",
+        "openProfilePreview": "{nickname} 프로필 미리보기"
       },
       "blockModal": {
         "title": "사용자를 차단할까요?",
@@ -357,6 +359,16 @@
             }
           }
         }
+      },
+      "profilePreview": {
+        "close": "프로필 미리보기 닫기",
+        "profileAlt": "{nickname}님의 프로필 이미지",
+        "publicId": "TranslaCat ID",
+        "bio": "상태 메시지",
+        "emptyBio": "상태 메시지가 없습니다.",
+        "friendSince": "친구가 된 날짜: {date}",
+        "startChat": "1:1 채팅 시작",
+        "startingChat": "채팅방 준비 중..."
       }
     }
   }

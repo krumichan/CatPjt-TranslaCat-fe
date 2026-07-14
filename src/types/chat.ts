@@ -1,11 +1,20 @@
 export type ChatRoomType = "DIRECT" | "GROUP" | "OPEN";
 export type ChatRoomMemberRole = "OWNER" | "ADMIN" | "MEMBER";
 export type ChatRoomSourceType = "MANUAL" | "FRIEND" | "OPEN" | "AI";
-
 export type ChatMessageSenderType = "USER" | "AI" | "SYSTEM";
 export type ChatMessageType = "TEXT" | "SYSTEM";
 export type ChatMessageStatus = "SENT" | "DELETED";
-export type ChatMessageTranslationStatus = "PENDING" | "COMPLETED" | "FAILED";
+export type ChatMessageTranslationStatus =
+    | "PENDING"
+    | "COMPLETED"
+    | "FAILED";
+
+export interface DirectPartnerProfile {
+    userId: number;
+    publicId: string;
+    displayName: string;
+    profileImageUrl: string | null;
+}
 
 export interface ChatRoom {
     id: number;
@@ -21,6 +30,10 @@ export interface ChatRoom {
     memberCount: number;
     createdAt: string;
     updatedAt: string;
+    /**
+     * BE #37: FRIEND DIRECT 방에서만 현재 로그인 사용자를 제외한 상대 사용자 정보.
+     */
+    directPartner?: DirectPartnerProfile | null;
 }
 
 export interface ChatRoomListItem {
@@ -33,6 +46,10 @@ export interface ChatRoomListItem {
     memberCount: number;
     createdAt: string;
     updatedAt: string;
+    /**
+     * BE #37: FRIEND DIRECT 방에서만 현재 로그인 사용자를 제외한 상대 사용자 정보.
+     */
+    directPartner?: DirectPartnerProfile | null;
 }
 
 export interface ChatRoomListResponse {

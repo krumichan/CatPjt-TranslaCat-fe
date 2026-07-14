@@ -220,7 +220,8 @@
         "title": "友だち",
         "count": "全{totalCount}人 / 表示{filteredCount}人",
         "friendSince": "友だちになった日: {date}",
-        "blockedDescription": "ブロック中のユーザーです。チャット開始とグループ選択が制限されます。"
+        "blockedDescription": "ブロック中のユーザーです。チャット開始とグループ選択が制限されます。",
+        "emptyBio": "ステータスメッセージがありません。"
       },
       "actions": {
         "closeHelpModal": "ヘルプを閉じる",
@@ -243,7 +244,8 @@
         "blockFriend": "ブロック",
         "unblockFriend": "ブロック解除",
         "blocked": "ブロック中",
-        "openBlockList": "ブロック一覧 ({count})"
+        "openBlockList": "ブロック一覧 ({count})",
+        "openProfilePreview": "{nickname}のプロフィールプレビュー"
       },
       "blockModal": {
         "title": "ユーザーをブロックしますか？",
@@ -357,6 +359,16 @@
             }
           }
         }
+      },
+      "profilePreview": {
+        "close": "プロフィールプレビューを閉じる",
+        "profileAlt": "{nickname}さんのプロフィール画像",
+        "publicId": "TranslaCat ID",
+        "bio": "ステータスメッセージ",
+        "emptyBio": "ステータスメッセージがありません。",
+        "friendSince": "友だちになった日: {date}",
+        "startChat": "1:1チャットを開始",
+        "startingChat": "チャットルーム準備中..."
       }
     }
   }

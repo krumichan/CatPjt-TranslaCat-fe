@@ -11,6 +11,7 @@ type FriendListProps = {
     isStartingChat: boolean;
     onStartDirectChat: (friendUserId: number) => Promise<boolean>;
     onToggleFriendSelection: (friendUserId: number) => void;
+    onOpenProfilePreview: (friend: Friend) => void;
     onOpenDeleteConfirmModal: (friend: Friend) => void;
     onOpenBlockConfirmModal: (friend: Friend) => void;
 };
@@ -25,11 +26,12 @@ export default function FriendList({
     isStartingChat,
     onStartDirectChat,
     onToggleFriendSelection,
+    onOpenProfilePreview,
     onOpenDeleteConfirmModal,
     onOpenBlockConfirmModal,
 }: FriendListProps) {
     return (
-        <div className="grid gap-3">
+        <div className="space-y-3">
             {friends.map((friend) => (
                 <FriendListItem
                     key={friend.friendUserId}
@@ -39,7 +41,9 @@ export default function FriendList({
                     )}
                     isGroupSelectionMode={isGroupSelectionMode}
                     isStartingChat={
-                        startingChatFriendUserId === friend.friendUserId
+                        isStartingChat &&
+                        startingChatFriendUserId ===
+                            friend.friendUserId
                     }
                     isDeleting={
                         deletingFriendUserId === friend.friendUserId
@@ -48,14 +52,21 @@ export default function FriendList({
                         blockingFriendUserId === friend.friendUserId
                     }
                     isActionBusy={
-                        isStartingChat ||
                         deletingFriendUserId !== null ||
-                        blockingFriendUserId !== null
+                        blockingFriendUserId !== null ||
+                        startingChatFriendUserId !== null
                     }
                     onStartDirectChat={onStartDirectChat}
-                    onToggleFriendSelection={onToggleFriendSelection}
-                    onOpenDeleteConfirmModal={onOpenDeleteConfirmModal}
-                    onOpenBlockConfirmModal={onOpenBlockConfirmModal}
+                    onToggleFriendSelection={
+                        onToggleFriendSelection
+                    }
+                    onOpenProfilePreview={onOpenProfilePreview}
+                    onOpenDeleteConfirmModal={
+                        onOpenDeleteConfirmModal
+                    }
+                    onOpenBlockConfirmModal={
+                        onOpenBlockConfirmModal
+                    }
                 />
             ))}
         </div>

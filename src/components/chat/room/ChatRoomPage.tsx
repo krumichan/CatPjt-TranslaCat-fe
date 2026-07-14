@@ -3,7 +3,7 @@
 import { AlertCircle, Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { ChatMessageInput } from "@/components/chat/room/ChatMessageInput";
 import { ChatMessageList } from "@/components/chat/room/ChatMessageList";
@@ -18,11 +18,17 @@ interface ChatRoomPageProps {
     roomId: number;
 }
 
+const CHAT_ROOM_TOP_OFFSET_CLASS_NAME = "top-[68px]";
+const AUTO_SCROLL_THRESHOLD_PX = 120;
+
 export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
     const t = useTranslations("ChatRoom");
     const { data: session } = useSession();
     const [isLanguageSettingsOpen, setIsLanguageSettingsOpen] =
         useState(false);
+    const messageScrollContainerRef = useRef<HTMLDivElement | null>(null);
+    const didInitialScrollToBottomRef = useRef(false);
+    const previousMessageCountRef = useRef(0);
 
     const {
         room,
@@ -88,6 +94,77 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
         onReconnectSyncRequested: syncLatestMessages,
     });
 
+    const scrollToBottom = useCallback(
+        (behavior: ScrollBehavior = "auto") => {
+            const container = messageScrollContainerRef.current;
+
+            if (!container) {
+                return;
+            }
+
+            container.scrollTo({
+                top: container.scrollHeight,
+                behavior,
+            });
+        },
+        [],
+    );
+
+    const isNearBottom = useCallback(() => {
+        const container = messageScrollContainerRef.current;
+
+        if (!container) {
+            return true;
+        }
+
+        return (
+            container.scrollHeight -
+                container.scrollTop -
+                container.clientHeight <=
+            AUTO_SCROLL_THRESHOLD_PX
+        );
+    }, []);
+
+    useEffect(() => {
+        didInitialScrollToBottomRef.current = false;
+        previousMessageCountRef.current = 0;
+    }, [roomId]);
+
+    useEffect(() => {
+        if (isLoading || isLoadingMore || messages.length === 0) {
+            previousMessageCountRef.current = messages.length;
+            return;
+        }
+
+        const previousMessageCount = previousMessageCountRef.current;
+        const shouldScrollToBottom =
+            !didInitialScrollToBottomRef.current ||
+            (messages.length > previousMessageCount && isNearBottom());
+
+        previousMessageCountRef.current = messages.length;
+
+        if (!shouldScrollToBottom) {
+            return;
+        }
+
+        if (!didInitialScrollToBottomRef.current) {
+            didInitialScrollToBottomRef.current = true;
+        }
+
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                scrollToBottom("auto");
+            });
+        });
+    }, [
+        isLoading,
+        isLoadingMore,
+        isNearBottom,
+        messages.length,
+        roomId,
+        scrollToBottom,
+    ]);
+
     const sendMessage = useCallback(
         async (content: string) => {
             if (isConnected) {
@@ -139,39 +216,50 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
 
     return (
         <>
-            <div className="flex h-[calc(100vh-4rem)] min-h-0 flex-col bg-slate-50 pt-16 dark:bg-slate-950">
-                <ChatRoomHeader
-                    room={room}
-                    connectionStatus={connectionStatus}
-                    languageSettings={languageSettings}
-                    isLanguageSettingsLoading={isLanguageSettingsLoading}
-                    languageSettingsLoadErrorCode={
-                        languageSettingsLoadErrorCode
-                    }
-                    onOpenLanguageSettings={() =>
-                        setIsLanguageSettingsOpen(true)
-                    }
-                />
+            <div
+                className={`fixed inset-x-0 bottom-0 ${CHAT_ROOM_TOP_OFFSET_CLASS_NAME} flex min-h-0 flex-col overflow-hidden bg-slate-950`}
+            >
+                <div className="shrink-0">
+                    <ChatRoomHeader
+                        room={room}
+                        connectionStatus={connectionStatus}
+                        languageSettings={languageSettings}
+                        isLanguageSettingsLoading={isLanguageSettingsLoading}
+                        languageSettingsLoadErrorCode={
+                            languageSettingsLoadErrorCode
+                        }
+                        onOpenLanguageSettings={() =>
+                            setIsLanguageSettingsOpen(true)
+                        }
+                    />
+                </div>
 
-                <ChatMessageList
-                    messages={messages}
-                    currentUserEmail={currentUserEmail}
-                    languageSettings={languageSettings}
-                    hasNext={hasNext}
-                    isLoadingMore={isLoadingMore}
-                    loadMoreErrorMessage={loadMoreErrorMessage}
-                    retryingTranslationKeys={retryingTranslationKeys}
-                    retryTranslationErrorKeys={retryTranslationErrorKeys}
-                    onLoadMore={loadMoreMessages}
-                    onRetryTranslation={retryTranslation}
-                    onRefreshMessages={syncLatestMessages}
-                />
+                <div
+                    ref={messageScrollContainerRef}
+                    className="min-h-0 flex-1 overflow-y-auto overscroll-contain"
+                >
+                    <ChatMessageList
+                        messages={messages}
+                        currentUserEmail={currentUserEmail}
+                        languageSettings={languageSettings}
+                        hasNext={hasNext}
+                        isLoadingMore={isLoadingMore}
+                        loadMoreErrorMessage={loadMoreErrorMessage}
+                        retryingTranslationKeys={retryingTranslationKeys}
+                        retryTranslationErrorKeys={retryTranslationErrorKeys}
+                        onLoadMore={loadMoreMessages}
+                        onRetryTranslation={retryTranslation}
+                        onRefreshMessages={syncLatestMessages}
+                    />
+                </div>
 
-                <ChatMessageInput
-                    onSend={sendMessage}
-                    isSending={isMessageSending}
-                    sendErrorMessage={sendErrorMessage}
-                />
+                <div className="shrink-0">
+                    <ChatMessageInput
+                        onSend={sendMessage}
+                        isSending={isMessageSending}
+                        sendErrorMessage={sendErrorMessage}
+                    />
+                </div>
             </div>
 
             <ChatLanguageSettingsModal

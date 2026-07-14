@@ -50,9 +50,9 @@ export const settingCards: SettingCard[] = [
         href: "/settings/chat",
         titleKey: "chat.title",
         descriptionKey: "chat.description",
-        statusKey: "status.preparing",
+        statusKey: "status.available",
         icon: MessageCircle,
-        enabled: false,
+        enabled: true,
     },
     {
         href: "/settings/account-book",

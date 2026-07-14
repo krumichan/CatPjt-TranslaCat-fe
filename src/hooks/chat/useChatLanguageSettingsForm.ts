@@ -1,21 +1,19 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-import type {
-    ChatLanguageSettings,
-    ChatLanguageSettingsUpdateRequest,
-} from "@/types/chat";
+import type { ChatLanguageSettingsUpdateRequest } from "@/types/chat";
+import { normalizeChatLanguageSettingsRequest } from "@/utils/chat/chatLanguageSettings";
 
-interface UseChatLanguageSettingsFormParams {
-    settings: ChatLanguageSettings;
-    onSave: (request: ChatLanguageSettingsUpdateRequest) => Promise<boolean>;
-    onClose: () => void;
-}
-
-interface ChatLanguageSettingsFormState {
+export interface ChatLanguageSettingsFormValue {
     originalLanguageCode: string;
     translationLanguageCode: string;
     showOriginal: boolean;
     showTranslation: boolean;
+}
+
+interface UseChatLanguageSettingsFormParams {
+    settings: ChatLanguageSettingsFormValue;
+    onSave: (request: ChatLanguageSettingsUpdateRequest) => Promise<boolean>;
+    onClose?: () => void;
 }
 
 export function useChatLanguageSettingsForm({
@@ -23,12 +21,26 @@ export function useChatLanguageSettingsForm({
     onSave,
     onClose,
 }: UseChatLanguageSettingsFormParams) {
-    const [form, setForm] = useState<ChatLanguageSettingsFormState>(() => ({
+    const [form, setForm] = useState<ChatLanguageSettingsFormValue>(() => ({
         originalLanguageCode: settings.originalLanguageCode,
         translationLanguageCode: settings.translationLanguageCode,
         showOriginal: settings.showOriginal,
         showTranslation: settings.showTranslation,
     }));
+
+    useEffect(() => {
+        setForm({
+            originalLanguageCode: settings.originalLanguageCode,
+            translationLanguageCode: settings.translationLanguageCode,
+            showOriginal: settings.showOriginal,
+            showTranslation: settings.showTranslation,
+        });
+    }, [
+        settings.originalLanguageCode,
+        settings.showOriginal,
+        settings.showTranslation,
+        settings.translationLanguageCode,
+    ]);
 
     const setOriginalLanguageCode = useCallback((value: string) => {
         setForm((current) => ({
@@ -59,16 +71,20 @@ export function useChatLanguageSettingsForm({
     }, []);
 
     const handleSubmit = useCallback(async () => {
-        const saved = await onSave({
-            originalLanguageCode: form.originalLanguageCode,
-            translationLanguageCode: form.translationLanguageCode,
-            showOriginal: form.showOriginal,
-            showTranslation: form.showTranslation,
-        });
+        const saved = await onSave(
+            normalizeChatLanguageSettingsRequest({
+                originalLanguageCode: form.originalLanguageCode,
+                translationLanguageCode: form.translationLanguageCode,
+                showOriginal: form.showOriginal,
+                showTranslation: form.showTranslation,
+            }),
+        );
 
         if (saved) {
-            onClose();
+            onClose?.();
         }
+
+        return saved;
     }, [form, onClose, onSave]);
 
     return {

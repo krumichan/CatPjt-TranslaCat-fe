@@ -10,16 +10,16 @@ import type {
     ChatLanguageSettingsSource,
     ChatLanguageSettingsUpdateRequest,
 } from "@/types/chat";
+import {
+    normalizeChatLanguageSettingsRequest,
+    toRoomScopedLanguageSettings,
+    toSystemDefaultChatLanguageSettings,
+    withDefaultLanguageSettingsSource,
+    withRoomLanguageSettingsSource,
+} from "@/utils/chat/chatLanguageSettings";
 
 type ChatLanguageSettingsLoadErrorCode = "LOAD_FAILED";
 type ChatLanguageSettingsSaveErrorCode = "SAVE_FAILED";
-
-const SYSTEM_DEFAULT_LANGUAGE_SETTINGS = {
-    originalLanguageCode: "ko",
-    translationLanguageCode: "ja",
-    showOriginal: true,
-    showTranslation: true,
-} as const;
 
 interface UseChatLanguageSettingsResult {
     settings: ChatLanguageSettings | null;
@@ -33,31 +33,6 @@ interface UseChatLanguageSettingsResult {
     saveSettings: (
         request: ChatLanguageSettingsUpdateRequest,
     ) => Promise<boolean>;
-}
-
-function toRoomScopedSettings(
-    roomId: number,
-    defaultSettings: ChatDefaultLanguageSettings | null,
-    source: ChatLanguageSettingsSource,
-): ChatLanguageSettings {
-    return {
-        chatRoomId: roomId,
-        userId: defaultSettings?.userId ?? 0,
-        originalLanguageCode:
-            defaultSettings?.originalLanguageCode ??
-            SYSTEM_DEFAULT_LANGUAGE_SETTINGS.originalLanguageCode,
-        translationLanguageCode:
-            defaultSettings?.translationLanguageCode ??
-            SYSTEM_DEFAULT_LANGUAGE_SETTINGS.translationLanguageCode,
-        showOriginal:
-            defaultSettings?.showOriginal ??
-            SYSTEM_DEFAULT_LANGUAGE_SETTINGS.showOriginal,
-        showTranslation:
-            defaultSettings?.showTranslation ??
-            SYSTEM_DEFAULT_LANGUAGE_SETTINGS.showTranslation,
-        roomLanguageSettingApplied: source === "ROOM_OVERRIDE",
-        source,
-    };
 }
 
 export function useChatLanguageSettings(
@@ -81,12 +56,16 @@ export function useChatLanguageSettings(
         setIsLoading(true);
         setLoadErrorCode(null);
 
-        let loadedDefaultSettings: ChatDefaultLanguageSettings | null = null;
+        let loadedDefaultSettings: ChatDefaultLanguageSettings | null;
         let fallbackSource: ChatLanguageSettingsSource = "SYSTEM";
 
         try {
-            loadedDefaultSettings =
+            const defaultResponse =
                 await chatService.getMyDefaultLanguageSettings();
+            loadedDefaultSettings = withDefaultLanguageSettingsSource(
+                defaultResponse,
+                "DEFAULT",
+            );
             fallbackSource = "DEFAULT";
         } catch (error) {
             if (!isChatApiNotFoundError(error)) {
@@ -95,9 +74,10 @@ export function useChatLanguageSettings(
                     error,
                 );
             }
+            loadedDefaultSettings = toSystemDefaultChatLanguageSettings();
         }
 
-        const fallbackSettings = toRoomScopedSettings(
+        const fallbackSettings = toRoomScopedLanguageSettings(
             roomId,
             loadedDefaultSettings,
             fallbackSource,
@@ -107,15 +87,18 @@ export function useChatLanguageSettings(
             const roomSettings = await chatService.getMyLanguageSettings(
                 roomId,
             );
-            const resolvedRoomSettings: ChatLanguageSettings = {
-                ...roomSettings,
-                source: "ROOM_OVERRIDE",
-                roomLanguageSettingApplied: true,
-            };
+            const roomSettingsSource: ChatLanguageSettingsSource =
+                roomSettings.roomLanguageSettingApplied
+                    ? "ROOM_OVERRIDE"
+                    : fallbackSource;
+            const resolvedRoomSettings = withRoomLanguageSettingsSource(
+                roomSettings,
+                roomSettingsSource,
+            );
 
             setDefaultSettings(loadedDefaultSettings);
             setSettings(resolvedRoomSettings);
-            setResolvedSource("ROOM_OVERRIDE");
+            setResolvedSource(roomSettingsSource);
         } catch (error) {
             if (!isChatApiNotFoundError(error)) {
                 console.error("Failed to load chat language settings", error);
@@ -138,13 +121,12 @@ export function useChatLanguageSettings(
             try {
                 const response = await chatService.updateMyLanguageSettings(
                     roomId,
-                    request,
+                    normalizeChatLanguageSettingsRequest(request),
                 );
-                const resolvedRoomSettings: ChatLanguageSettings = {
-                    ...response,
-                    source: "ROOM_OVERRIDE",
-                    roomLanguageSettingApplied: true,
-                };
+                const resolvedRoomSettings = withRoomLanguageSettingsSource(
+                    response,
+                    "ROOM_OVERRIDE",
+                );
                 setSettings(resolvedRoomSettings);
                 setResolvedSource("ROOM_OVERRIDE");
                 return true;

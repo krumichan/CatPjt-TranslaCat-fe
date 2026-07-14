@@ -12,10 +12,7 @@ import { ChatLanguageSettingsModal } from "@/components/chat/room/modal/ChatLang
 import { useChatLanguageSettings } from "@/hooks/chat/useChatLanguageSettings";
 import { useChatRoom } from "@/hooks/chat/useChatRoom";
 import { useChatRoomWebSocket } from "@/hooks/chat/useChatRoomWebSocket";
-import type {
-    ChatMessage,
-    ChatMessageTranslation,
-} from "@/types/chat";
+import type { ChatMessage, ChatMessageTranslation } from "@/types/chat";
 
 interface ChatRoomPageProps {
     roomId: number;
@@ -50,6 +47,8 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
 
     const {
         settings: languageSettings,
+        defaultSettings,
+        resolvedSource: languageSettingsSource,
         isLoading: isLanguageSettingsLoading,
         isSaving: isLanguageSettingsSaving,
         loadErrorCode: languageSettingsLoadErrorCode,
@@ -94,7 +93,6 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
             if (isConnected) {
                 return sendWebSocketMessage(content);
             }
-
             return sendRestMessage(content);
         },
         [isConnected, sendRestMessage, sendWebSocketMessage],
@@ -105,10 +103,13 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
         webSocketSendErrorCode || restSendErrorCode
             ? t("input.sendFailed")
             : null;
+    const loadMoreErrorMessage = loadMoreErrorCode
+        ? t("pagination.loadFailed")
+        : null;
 
     if (isLoading) {
         return (
-            <div className="flex min-h-[60vh] items-center justify-center text-slate-500 dark:text-slate-300">
+            <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center text-slate-500 dark:text-slate-400">
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                 {t("loading")}
             </div>
@@ -117,10 +118,12 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
 
     if (loadErrorCode || !room) {
         return (
-            <div className="mx-auto mt-16 max-w-lg rounded-3xl border border-red-100 bg-red-50 p-8 text-center text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300">
-                <AlertCircle className="mx-auto mb-3 h-8 w-8" />
-                <h2 className="text-lg font-bold">{t("error.title")}</h2>
-                <p className="mt-2 text-sm">
+            <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-xl flex-col items-center justify-center px-4 text-center">
+                <AlertCircle className="h-10 w-10 text-red-500" />
+                <h1 className="mt-4 text-xl font-bold text-slate-900 dark:text-slate-100">
+                    {t("error.title")}
+                </h1>
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                     {loadErrorCode ? t("error.loadFailed") : t("error.notFound")}
                 </p>
                 <button
@@ -136,13 +139,15 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
 
     return (
         <>
-            <div className="fixed inset-x-0 bottom-0 top-15 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950">
+            <div className="flex h-[calc(100vh-4rem)] min-h-0 flex-col bg-slate-50 pt-16 dark:bg-slate-950">
                 <ChatRoomHeader
                     room={room}
                     connectionStatus={connectionStatus}
                     languageSettings={languageSettings}
                     isLanguageSettingsLoading={isLanguageSettingsLoading}
-                    languageSettingsLoadErrorCode={languageSettingsLoadErrorCode}
+                    languageSettingsLoadErrorCode={
+                        languageSettingsLoadErrorCode
+                    }
                     onOpenLanguageSettings={() =>
                         setIsLanguageSettingsOpen(true)
                     }
@@ -154,9 +159,7 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
                     languageSettings={languageSettings}
                     hasNext={hasNext}
                     isLoadingMore={isLoadingMore}
-                    loadMoreErrorMessage={
-                        loadMoreErrorCode ? t("pagination.loadFailed") : null
-                    }
+                    loadMoreErrorMessage={loadMoreErrorMessage}
                     retryingTranslationKeys={retryingTranslationKeys}
                     retryTranslationErrorKeys={retryTranslationErrorKeys}
                     onLoadMore={loadMoreMessages}
@@ -165,15 +168,17 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
                 />
 
                 <ChatMessageInput
+                    onSend={sendMessage}
                     isSending={isMessageSending}
                     sendErrorMessage={sendErrorMessage}
-                    onSend={sendMessage}
                 />
             </div>
 
             <ChatLanguageSettingsModal
                 isOpen={isLanguageSettingsOpen}
                 settings={languageSettings}
+                defaultSettings={defaultSettings}
+                resolvedSource={languageSettingsSource}
                 isLoading={isLanguageSettingsLoading}
                 isSaving={isLanguageSettingsSaving}
                 loadErrorCode={languageSettingsLoadErrorCode}

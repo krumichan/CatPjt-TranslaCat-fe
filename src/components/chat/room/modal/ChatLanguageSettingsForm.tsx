@@ -4,13 +4,18 @@ import { useTranslations } from "next-intl";
 
 import { CHAT_LANGUAGE_OPTIONS } from "@/constants/chatLanguages";
 import { useChatLanguageSettingsForm } from "@/hooks/chat/useChatLanguageSettingsForm";
+
 import type {
+    ChatDefaultLanguageSettings,
     ChatLanguageSettings,
+    ChatLanguageSettingsSource,
     ChatLanguageSettingsUpdateRequest,
 } from "@/types/chat";
 
 interface ChatLanguageSettingsFormProps {
     settings: ChatLanguageSettings;
+    defaultSettings: ChatDefaultLanguageSettings | null;
+    resolvedSource: ChatLanguageSettingsSource | null;
     isSaving: boolean;
     saveErrorMessage: string | null;
     onClose: () => void;
@@ -19,13 +24,14 @@ interface ChatLanguageSettingsFormProps {
 
 export function ChatLanguageSettingsForm({
     settings,
+    defaultSettings,
+    resolvedSource,
     isSaving,
     saveErrorMessage,
     onClose,
     onSave,
 }: ChatLanguageSettingsFormProps) {
     const t = useTranslations("ChatRoom.languageSettings");
-
     const {
         form,
         setOriginalLanguageCode,
@@ -39,14 +45,31 @@ export function ChatLanguageSettingsForm({
         onClose,
     });
 
+    const sourceLabel = resolvedSource
+        ? t(`source.${resolvedSource}`)
+        : t("source.UNKNOWN");
+
     return (
         <>
             <div className="space-y-5 p-5">
+                <div className="rounded-2xl border border-orange-200 bg-orange-50 p-4 text-sm leading-relaxed text-orange-900 dark:border-orange-400/30 dark:bg-orange-500/10 dark:text-orange-100">
+                    <p className="font-black">{t("scopeTitle")}</p>
+                    <p className="mt-1">{t("scopeDescription")}</p>
+                    <p className="mt-3 text-xs font-bold uppercase tracking-[0.18em] text-orange-600 dark:text-orange-200">
+                        {sourceLabel}
+                    </p>
+                </div>
+
+                {defaultSettings && resolvedSource !== "ROOM_OVERRIDE" && (
+                    <p className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs leading-relaxed text-slate-500 dark:border-white/10 dark:bg-slate-950 dark:text-slate-400">
+                        {t("defaultApplied")}
+                    </p>
+                )}
+
                 <label className="block">
                     <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
                         {t("originalLanguage")}
                     </span>
-
                     <select
                         value={form.originalLanguageCode}
                         onChange={(event) =>
@@ -66,7 +89,6 @@ export function ChatLanguageSettingsForm({
                     <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
                         {t("translationLanguage")}
                     </span>
-
                     <select
                         value={form.translationLanguageCode}
                         onChange={(event) =>
@@ -123,7 +145,6 @@ export function ChatLanguageSettingsForm({
                 >
                     {t("cancel")}
                 </button>
-
                 <button
                     type="button"
                     onClick={() => void handleSubmit()}

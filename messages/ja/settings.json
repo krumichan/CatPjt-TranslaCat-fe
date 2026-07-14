@@ -38,7 +38,7 @@
     },
     "chat": {
       "title": "チャット設定",
-      "description": "チャットルーム、連携サービス、通知関連の設定を管理します。"
+      "description": "個人デフォルトのチャット言語とチャットルーム別の表示基準を管理します。"
     },
     "accountBook": {
       "title": "家計簿設定",
@@ -204,6 +204,29 @@
           "updateFailed": "キーワードの更新に失敗しました。",
           "deleteFailed": "キーワードの削除に失敗しました。"
         }
+      }
+    },
+    "chatPage": {
+      "eyebrow": "Chat Settings",
+      "title": "チャット設定",
+      "description": "個人デフォルトのチャット言語設定を管理します。チャットルーム内で変更した設定は、そのルームにのみ適用されます。",
+      "defaultLanguage": {
+        "eyebrow": "Default Language",
+        "title": "個人デフォルトのチャット言語設定",
+        "description": "新規チャットルーム、またはルーム別設定がまだないチャットルームで初期値として使用する自分の基本言語設定です。",
+        "originalLanguage": "自分の言語",
+        "translationLanguage": "相手の言語 / 受信翻訳言語",
+        "showOriginal": "原文を表示",
+        "showTranslation": "翻訳文を表示",
+        "defaultNotice": "保存したデフォルト値は、今後新しく入室する、またはルーム別設定がないチャットルームの初期値として使用されます。",
+        "systemFallbackNotice": "個人デフォルト設定APIがまだない、または基本値が保存されていないため、システムデフォルト値を表示しています。",
+        "loading": "個人デフォルトのチャット言語設定を読み込み中...",
+        "loadFailed": "個人デフォルトのチャット言語設定を読み込めませんでした。",
+        "saveFailed": "個人デフォルトのチャット言語設定の保存に失敗しました。",
+        "saved": "個人デフォルトのチャット言語設定を保存しました。",
+        "reload": "再読み込み",
+        "save": "保存",
+        "saving": "保存中..."
       }
     }
   }

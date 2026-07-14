@@ -15,6 +15,7 @@ import type {
     ChatRoomMemberListResponse,
 } from "@/types/chat";
 import type { ResponseDto } from "@/types/common";
+import { normalizeChatLanguageSettingsRequest } from "@/utils/chat/chatLanguageSettings";
 
 export class ChatApiError extends Error {
     status: number;
@@ -101,7 +102,9 @@ export const chatService = {
     ): Promise<ChatDefaultLanguageSettings> => {
         const response = await apiClient("/users/me/chat-language-settings", {
             method: "PATCH",
-            body: JSON.stringify(request),
+            body: JSON.stringify(
+                normalizeChatLanguageSettingsRequest(request),
+            ),
         });
         return parseBody<ChatDefaultLanguageSettings>(response);
     },
@@ -135,13 +138,15 @@ export const chatService = {
         roomId: string | number,
         request: ChatLanguageSettingsUpdateRequest,
     ): Promise<ChatLanguageSettings> => {
+        const normalizedRequest = normalizeChatLanguageSettingsRequest(request);
+
         return requestWithLegacyFallback(
             async () => {
                 const response = await apiClient(
                     `/chat/rooms/${roomId}/language-settings`,
                     {
                         method: "PATCH",
-                        body: JSON.stringify(request),
+                        body: JSON.stringify(normalizedRequest),
                     },
                 );
                 return parseBody<ChatLanguageSettings>(response);
@@ -151,7 +156,7 @@ export const chatService = {
                     `/chat/rooms/${roomId}/members/me/language`,
                     {
                         method: "PATCH",
-                        body: JSON.stringify(request),
+                        body: JSON.stringify(normalizedRequest),
                     },
                 );
                 return parseBody<ChatLanguageSettings>(response);

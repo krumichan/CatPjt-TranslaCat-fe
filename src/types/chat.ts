@@ -29,6 +29,10 @@ export interface ChatRoom {
     description: string | null;
     ownerId: number | null;
     active: boolean;
+    /**
+     * Legacy room-wide language fields.
+     * FE #35부터 화면 로직에서는 채팅방별 내 언어 설정을 우선 사용한다.
+     */
     originalLanguageCode: string;
     translationLanguageCode: string;
     roomLanguageSettingApplied: boolean;
@@ -36,7 +40,7 @@ export interface ChatRoom {
     createdAt: string;
     updatedAt: string;
     /**
-     * BE #37: FRIEND DIRECT 방에서만 현재 로그인 사용자를 제외한 상대 사용자 정보.
+     * FRIEND DIRECT 방에서만 현재 로그인 사용자를 제외한 상대 사용자 정보.
      */
     directPartner?: DirectPartnerProfile | null;
 }
@@ -52,7 +56,7 @@ export interface ChatRoomListItem {
     createdAt: string;
     updatedAt: string;
     /**
-     * BE #37: FRIEND DIRECT 방에서만 현재 로그인 사용자를 제외한 상대 사용자 정보.
+     * FRIEND DIRECT 방에서만 현재 로그인 사용자를 제외한 상대 사용자 정보.
      */
     directPartner?: DirectPartnerProfile | null;
 }
@@ -84,19 +88,26 @@ export interface ChatRoomMemberListResponse {
     members: ChatRoomMember[];
 }
 
-export interface ChatDefaultLanguageSettings {
-    userId: number;
+export interface ChatLanguageSettingsUpdateRequest {
     originalLanguageCode: string;
     translationLanguageCode: string;
     showOriginal: boolean;
     showTranslation: boolean;
 }
 
-export interface ChatDefaultLanguageSettingsUpdateRequest {
+export type ChatDefaultLanguageSettingsUpdateRequest =
+    ChatLanguageSettingsUpdateRequest;
+
+export interface ChatDefaultLanguageSettings {
+    userId: number;
     originalLanguageCode: string;
     translationLanguageCode: string;
     showOriginal: boolean;
     showTranslation: boolean;
+    /**
+     * FE #35: 화면 표시용 적용 근거. BE 응답에는 없어도 된다.
+     */
+    source?: ChatLanguageSettingsSource;
 }
 
 export interface ChatLanguageSettings {
@@ -106,19 +117,14 @@ export interface ChatLanguageSettings {
     translationLanguageCode: string;
     showOriginal: boolean;
     showTranslation: boolean;
+    /**
+     * true면 채팅방별 내 override 설정이 저장되어 있다는 의미다.
+     */
     roomLanguageSettingApplied: boolean;
     /**
-     * FE #35: 화면에서 적용 근거를 구분하기 위한 FE 전용 메타값.
-     * BE 응답에는 없어도 되므로 optional로 둔다.
+     * FE #35: 화면 표시용 적용 근거. BE 응답에는 없어도 된다.
      */
     source?: ChatLanguageSettingsSource;
-}
-
-export interface ChatLanguageSettingsUpdateRequest {
-    originalLanguageCode: string;
-    translationLanguageCode: string;
-    showOriginal: boolean;
-    showTranslation: boolean;
 }
 
 export interface ChatMessageTranslation {

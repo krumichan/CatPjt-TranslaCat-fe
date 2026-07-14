@@ -38,7 +38,7 @@
     },
     "chat": {
       "title": "채팅 설정",
-      "description": "채팅방, 연결 서비스, 알림 관련 설정을 관리합니다."
+      "description": "개인 기본 채팅 언어와 채팅방별 표시 기준을 관리합니다."
     },
     "accountBook": {
       "title": "가계부 설정",
@@ -204,6 +204,29 @@
           "updateFailed": "키워드 변경에 실패했습니다.",
           "deleteFailed": "키워드 삭제에 실패했습니다."
         }
+      }
+    },
+    "chatPage": {
+      "eyebrow": "Chat Settings",
+      "title": "채팅 설정",
+      "description": "개인 기본 채팅 언어 설정을 관리합니다. 채팅방 안에서 변경한 설정은 해당 방에만 적용됩니다.",
+      "defaultLanguage": {
+        "eyebrow": "Default Language",
+        "title": "개인 기본 채팅 언어 설정",
+        "description": "신규 채팅방 또는 아직 방별 설정이 없는 채팅방에서 초기값처럼 사용할 내 기본 언어 설정입니다.",
+        "originalLanguage": "내 언어",
+        "translationLanguage": "상대 언어 / 수신 번역 언어",
+        "showOriginal": "원문 표시",
+        "showTranslation": "번역문 표시",
+        "defaultNotice": "저장한 기본값은 이후 새로 입장하거나 방별 설정이 없는 채팅방의 초기값으로 사용됩니다.",
+        "systemFallbackNotice": "개인 기본 설정 API가 아직 없거나 기본값이 저장되지 않아 시스템 기본값을 표시하고 있습니다.",
+        "loading": "개인 기본 채팅 언어 설정을 불러오는 중...",
+        "loadFailed": "개인 기본 채팅 언어 설정을 불러오지 못했습니다.",
+        "saveFailed": "개인 기본 채팅 언어 설정 저장에 실패했습니다.",
+        "saved": "개인 기본 채팅 언어 설정을 저장했습니다.",
+        "reload": "다시 불러오기",
+        "save": "저장",
+        "saving": "저장 중..."
       }
     }
   }

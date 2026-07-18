@@ -19,11 +19,11 @@ export interface UserSummaryProfile {
     publicId: string;
     nickname: string;
     profileImageUrl: string | null;
+    profileBackgroundImageUrl: string | null;
     bio: string | null;
 }
 
 export interface UserProfile extends UserSummaryProfile {
-    profileBackgroundImageUrl: string | null;
     createdAt: string;
     updatedAt: string;
 }
@@ -75,6 +75,7 @@ export interface Friend {
     publicId: string;
     nickname: string;
     profileImageUrl: string | null;
+    profileBackgroundImageUrl: string | null;
     bio: string | null;
     friendSince: string;
 }

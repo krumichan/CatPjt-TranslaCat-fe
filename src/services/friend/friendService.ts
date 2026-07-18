@@ -9,6 +9,8 @@ function toFriend(apiResponse: FriendApiResponse): Friend {
         publicId: apiResponse.friend.publicId,
         nickname: apiResponse.friend.nickname,
         profileImageUrl: apiResponse.friend.profileImageUrl,
+        profileBackgroundImageUrl:
+            apiResponse.friend.profileBackgroundImageUrl,
         bio: apiResponse.friend.bio ?? null,
         friendSince: apiResponse.createdAt,
     };

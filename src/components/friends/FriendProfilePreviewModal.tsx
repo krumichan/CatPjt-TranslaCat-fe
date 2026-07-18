@@ -24,7 +24,7 @@ export default function FriendProfilePreviewModal({
     friend,
     isStartingChat,
     onClose,
-    onStartDirectChat,
+onStartDirectChat,
 }: FriendProfilePreviewModalProps) {
     const t = useTranslations("Social.friendListPage.profilePreview");
 
@@ -53,51 +53,65 @@ export default function FriendProfilePreviewModal({
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="friend-profile-preview-title"
-                className="relative w-full max-w-md max-h-[calc(100dvh-3rem)] overflow-y-auto overflow-x-hidden rounded-4xl border border-white/20 bg-white shadow-2xl dark:border-white/10 dark:bg-slate-950 sm:max-h-[calc(100dvh-5rem)]"
+                className="relative flex w-full max-w-md flex-col overflow-hidden rounded-4xl border border-white/20 bg-white shadow-2xl dark:border-white/10 dark:bg-slate-950"
                 onMouseDown={(event) => event.stopPropagation()}
                 onClick={(event) => event.stopPropagation()}
             >
-                <div className="relative h-36 bg-linear-to-br from-orange-100 via-amber-50 to-slate-100 dark:from-orange-500/20 dark:via-slate-900 dark:to-slate-950">
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        disabled={isStartingChat}
-                        aria-label={t("close")}
-                        className="absolute right-4 top-4 z-20 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-slate-500 shadow-sm transition hover:bg-white hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-950/80 dark:text-slate-300 dark:hover:text-white"
-                    >
-                        <X className="h-5 w-5" aria-hidden="true" />
-                    </button>
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-112 overflow-hidden bg-linear-to-br from-orange-100 via-amber-50 to-slate-100 dark:from-orange-500/20 dark:via-slate-900 dark:to-slate-950">
+                    {friend.profileBackgroundImageUrl ? (
+                        // TODO: 실제 Storage public domain 확정 후 next/image 적용 재검토
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                            src={friend.profileBackgroundImageUrl}
+                            alt=""
+                            className="absolute inset-0 h-full w-full object-cover object-center"
+                        />
+                    ) : (
+                        <div className="absolute inset-0 bg-linear-to-br from-orange-100 via-amber-50 to-slate-100 dark:from-orange-500/20 dark:via-slate-900 dark:to-slate-950" />
+                    )}
 
-                    <div className="absolute bottom-0 left-1/2 z-10 flex h-28 w-28 -translate-x-1/2 translate-y-1/2 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-linear-to-br from-orange-400 to-amber-300 text-white shadow-lg dark:border-slate-950">
-                        {friend.profileImageUrl ? (
-                            // TODO: 실제 Storage public domain 확정 후 next/image 적용 재검토
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                                src={friend.profileImageUrl}
-                                alt={t("profileAlt", {
-                                    nickname: friend.nickname,
-                                })}
-                                className="h-full w-full object-cover"
-                            />
-                        ) : (
-                            <UserRound
-                                className="h-12 w-12"
-                                aria-hidden="true"
-                            />
-                        )}
-                    </div>
+                    <div className="absolute inset-0 bg-linear-to-b from-black/5 via-slate-950/10 to-white dark:to-slate-950" />
                 </div>
 
-                <div className="px-6 pb-6 pt-16">
-                    <div className="text-center">
+                <button
+                    type="button"
+                    onClick={onClose}
+                    disabled={isStartingChat}
+                    aria-label={t("close")}
+                    className="absolute right-4 top-4 z-30 rounded-full bg-slate-950/60 p-2 text-white shadow-sm backdrop-blur-sm transition hover:bg-slate-950/80 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                    <X className="h-4 w-4" aria-hidden="true" />
+                </button>
+
+                <div className="relative z-10 flex flex-col overflow-x-hidden px-6 pb-6">
+                    <div className="flex flex-col items-center pt-[42%] sm:pt-[40%]">
+                        <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-linear-to-br from-orange-400 to-amber-300 text-white shadow-xl dark:border-slate-950">
+                            {friend.profileImageUrl ? (
+                                // TODO: 실제 Storage public domain 확정 후 next/image 적용 재검토
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                    src={friend.profileImageUrl}
+                                    alt={t("profileAlt", {
+                                        nickname: friend.nickname,
+                                    })}
+                                    className="h-full w-full object-cover object-center"
+                                />
+                            ) : (
+                                <UserRound
+                                    className="h-12 w-12"
+                                    aria-hidden="true"
+                                />
+                            )}
+                        </div>
+
                         <h2
                             id="friend-profile-preview-title"
-                            className="text-2xl font-black text-slate-900 dark:text-white"
+                            className="mt-4 text-center text-2xl font-black text-slate-900 dark:text-white"
                         >
                             {friend.nickname}
                         </h2>
 
-                        <div className="mt-3 inline-flex max-w-full items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-500 dark:bg-white/10 dark:text-slate-300">
+                        <div className="mt-3 inline-flex max-w-full items-center gap-2 rounded-full bg-slate-100/90 px-3 py-1.5 text-xs font-bold text-slate-500 backdrop-blur-sm dark:bg-white/10 dark:text-slate-300">
                             <IdCard
                                 className="h-3.5 w-3.5 shrink-0"
                                 aria-hidden="true"
@@ -108,7 +122,7 @@ export default function FriendProfilePreviewModal({
                         </div>
                     </div>
 
-                    <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
+                    <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50/90 p-4 backdrop-blur-sm dark:border-white/10 dark:bg-white/5">
                         <p className="text-xs font-black uppercase tracking-[0.24em] text-orange-500">
                             {t("bio")}
                         </p>

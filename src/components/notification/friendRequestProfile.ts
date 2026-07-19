@@ -18,6 +18,10 @@ export function getRequesterProfile(
             request.requester?.profileImageUrl ??
             request.requesterProfileImageUrl ??
             null,
+        profileBackgroundImageUrl:
+            request.requester?.profileBackgroundImageUrl ??
+            request.requesterProfileBackgroundImageUrl ??
+            null,
         bio: request.requester?.bio ?? null,
     };
 }
@@ -39,6 +43,10 @@ export function getReceiverProfile(
         profileImageUrl:
             request.receiver?.profileImageUrl ??
             request.receiverProfileImageUrl ??
+            null,
+        profileBackgroundImageUrl:
+            request.receiver?.profileBackgroundImageUrl ??
+            request.receiverProfileBackgroundImageUrl ??
             null,
         bio: request.receiver?.bio ?? null,
     };

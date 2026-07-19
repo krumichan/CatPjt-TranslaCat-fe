@@ -38,6 +38,7 @@ export interface UserSearchResult {
     publicId: string;
     nickname: string;
     profileImageUrl: string | null;
+    profileBackgroundImageUrl?: string | null;
     friendStatus: UserSearchFriendStatus;
 }
 
@@ -52,14 +53,24 @@ export interface FriendRequest {
     status: FriendRequestStatus;
     requestedAt: string;
     respondedAt: string | null;
-    requester?: UserSummaryProfile;
-    receiver?: UserSummaryProfile;
+
+    requester?: UserSummaryProfile | null;
+    receiver?: UserSummaryProfile | null;
+
+    /*
+     * 기존 평탄화 응답과의 호환을 위한 fallback 필드.
+     * requester/receiver 객체가 항상 제공되는 구조로 완전히 전환한 후
+     * 제거 여부를 검토할 수 있다.
+     */
     requesterPublicId?: string;
     requesterNickname?: string;
     requesterProfileImageUrl?: string | null;
+    requesterProfileBackgroundImageUrl?: string | null;
+
     receiverPublicId?: string;
     receiverNickname?: string;
     receiverProfileImageUrl?: string | null;
+    receiverProfileBackgroundImageUrl?: string | null;
 }
 
 /**
@@ -96,8 +107,9 @@ export interface UserBlock {
     blockedPublicId: string;
     blockedNickname: string;
     blockedProfileImageUrl: string | null;
+    blockedProfileBackgroundImageUrl?: string | null;
     blockedAt: string;
-    blockedUser?: UserSummaryProfile;
+    blockedUser?: UserSummaryProfile | null;
 }
 
 export interface FriendGroupChatRoomCreateRequest {

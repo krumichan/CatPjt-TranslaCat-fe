@@ -142,6 +142,7 @@ export interface ChatMessage {
     senderUserId: number | null;
     senderName: string | null;
     senderEmail: string | null;
+    senderProfileImageUrl: string | null;
     senderType: ChatMessageSenderType;
     messageType: ChatMessageType;
     content: string;

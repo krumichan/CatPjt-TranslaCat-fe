@@ -171,17 +171,20 @@ export const makeMessage = ({
     sender = TEST_USERS.B,
     content,
     translations = [],
+    senderProfileImageUrl = null,
 }: {
     id: number;
     sender?: E2ETestUser;
     content: string;
     translations?: ReturnType<typeof makeTranslation>[];
+    senderProfileImageUrl?: string | null;
 }) => ({
     id,
     chatRoomId: 501,
     senderUserId: sender.userId,
     senderName: sender.nickname,
     senderEmail: sender.email,
+    senderProfileImageUrl,
     senderType: "USER",
     messageType: "TEXT",
     content,

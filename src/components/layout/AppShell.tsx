@@ -48,7 +48,7 @@ export default function AppShell({
 
                 <div
                     id="bottom-ui-portal"
-                    className="pointer-events-none fixed bottom-0 left-0 right-0 z-[120]"
+                    className="pointer-events-none fixed bottom-0 left-0 right-0 z-120"
                 />
             </div>
         );
@@ -76,9 +76,9 @@ export default function AppShell({
             />
 
             <main
-                className={`relative z-10 flex-1 overflow-y-auto overflow-x-hidden pt-[60px] transition-[margin] duration-200 motion-reduce:transition-none ${
+                className={`relative z-10 flex-1 overflow-y-auto overflow-x-hidden transition-[margin] duration-200 motion-reduce:transition-none ${
                     isCollapsed
-                        ? "lg:ml-[72px]"
+                        ? "lg:ml-18"
                         : "lg:ml-64"
                 }`}
             >
@@ -95,9 +95,9 @@ export default function AppShell({
 
             <div
                 id="bottom-ui-portal"
-                className={`pointer-events-none fixed bottom-0 right-0 z-[120] transition-[left] duration-200 motion-reduce:transition-none ${
+                className={`pointer-events-none fixed bottom-0 right-0 z-120 transition-[left] duration-200 motion-reduce:transition-none ${
                     isCollapsed
-                        ? "left-0 lg:left-[72px]"
+                        ? "left-0 lg:left-18"
                         : "left-0 lg:left-64"
                 }`}
             />

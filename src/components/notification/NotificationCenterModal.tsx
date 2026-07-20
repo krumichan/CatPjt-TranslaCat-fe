@@ -1,5 +1,3 @@
-"use client";
-
 import { createPortal } from "react-dom";
 import { useEffect } from "react";
 
@@ -42,14 +40,14 @@ export default function NotificationCenterModal({
 
     return createPortal(
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4 py-6 backdrop-blur-sm dark:bg-black/60"
+            className="fixed inset-0 z-1200 flex items-center justify-center bg-slate-900/50 px-4 py-6 backdrop-blur-sm dark:bg-black/60"
             role="presentation"
             onClick={onClose}
         >
             <section
                 role="dialog"
                 aria-modal="true"
-                className="max-h-[min(760px,calc(100vh-48px))] w-full max-w-3xl overflow-hidden rounded-[2rem] border border-slate-200 bg-white text-slate-950 shadow-2xl dark:border-white/10 dark:bg-slate-950 dark:text-white"
+                className="max-h-[min(760px,calc(100vh-48px))] w-full max-w-3xl overflow-hidden rounded-4xl border border-slate-200 bg-white text-slate-950 shadow-2xl dark:border-white/10 dark:bg-slate-950 dark:text-white"
                 onMouseDown={(event) => event.stopPropagation()}
                 onClick={(event) => event.stopPropagation()}
             >

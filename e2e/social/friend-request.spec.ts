@@ -1,16 +1,15 @@
 import { expect, test } from "../fixtures/mock-test";
-import { fulfillApiJson, mockAuthenticatedSession } from "../support/api-mocks";
+import {
+    fulfillApiJson,
+    mockCommonPageDependencies,
+} from "../support/api-mocks";
 import { responseDto, toFriendRequest } from "../support/mock-data";
 import { TEST_USERS } from "../support/test-users";
 
-async function base(page: import("@playwright/test").Page) {
-    await mockAuthenticatedSession(page);
-    await page.route("**/account-book-invitations/received", (route) =>
-        fulfillApiJson(route, responseDto([])),
-    );
-    await page.route("**/recent-views**", (route) =>
-        fulfillApiJson(route, responseDto([])),
-    );
+async function base(
+    page: import("@playwright/test").Page,
+) {
+    await mockCommonPageDependencies(page);
 }
 
 async function openInvitations(page: import("@playwright/test").Page) {

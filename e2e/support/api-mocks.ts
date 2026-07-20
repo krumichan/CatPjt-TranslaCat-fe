@@ -72,8 +72,15 @@ export async function mockCommonPageDependencies(
     await mockAuthenticatedSession(page, user);
     await mockNotificationBackground(page);
 
-    // UserMenu를 열었을 때 조회하는 최근 본 기록이 다른 테스트를 방해하지 않게 한다.
-    await page.route("**/recent-views**", (route) =>
+    /*
+     * AppSidebarRecentHistory가 인증된 메인 화면 진입 시
+     * 자동으로 최근 활동을 조회한다.
+     *
+     * 공통 Mock이 없으면 실제 API 요청이 발생하고,
+     * 401/403 응답으로 apiClient가 signOut을 실행하여
+     * 전체 E2E가 로그인 화면으로 이동할 수 있다.
+     */
+    await page.route("**/recent/top10**", (route) =>
         fulfillJson(route, responseDto([])),
     );
 }

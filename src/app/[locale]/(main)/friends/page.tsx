@@ -1,7 +1,15 @@
-"use client";
+import { redirect } from "next/navigation";
 
-import FriendListPageContent from "@/components/friends/FriendListPageContent";
+interface FriendsPageProps {
+    params: Promise<{
+        locale: string;
+    }>;
+}
 
-export default function FriendsPage() {
-    return <FriendListPageContent />;
+export default async function FriendsPage({
+    params,
+}: FriendsPageProps) {
+    const { locale } = await params;
+
+    redirect(`/${locale}/chat?tab=friends`);
 }

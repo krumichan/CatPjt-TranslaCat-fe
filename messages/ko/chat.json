@@ -165,5 +165,15 @@
       "loadFailed": "채팅방 목록을 불러오지 못했습니다.",
       "retry": "다시 시도"
     }
+  },
+  "ChatHub": {
+    "badge": "TranslaCat Chat",
+    "title": "채팅",
+    "description": "친구를 관리하고 참여 중인 채팅방을 확인할 수 있습니다.",
+    "tabs": {
+      "ariaLabel": "채팅 페이지 보기 전환",
+      "chat": "채팅",
+      "friends": "친구"
+    }
   }
 }

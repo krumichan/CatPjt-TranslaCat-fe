@@ -165,5 +165,15 @@
       "loadFailed": "チャットルーム一覧の取得に失敗しました。",
       "retry": "再試行"
     }
+  },
+  "ChatHub": {
+    "badge": "TranslaCat Chat",
+    "title": "チャット",
+    "description": "友達を管理し、参加中のチャットルームを確認できます。",
+    "tabs": {
+      "ariaLabel": "チャットページ表示切替",
+      "chat": "チャット",
+      "friends": "友達"
+    }
   }
 }

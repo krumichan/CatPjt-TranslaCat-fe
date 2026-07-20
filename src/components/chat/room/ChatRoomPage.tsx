@@ -6,14 +6,16 @@ import {
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import { ChatMessageInput } from "@/components/chat/room/ChatMessageInput";
 import { ChatMessageList } from "@/components/chat/room/ChatMessageList";
 import { ChatRoomHeader } from "@/components/chat/room/ChatRoomHeader";
 import { ChatLanguageSettingsModal } from "@/components/chat/room/modal/ChatLanguageSettingsModal";
+import { ChatMemberProfilePreviewModal } from "@/components/chat/room/modal/ChatMemberProfilePreviewModal";
 import { ChatPartnerProfilePreviewModal } from "@/components/chat/room/modal/ChatPartnerProfilePreviewModal";
 import { useChatLanguageSettings } from "@/hooks/chat/useChatLanguageSettings";
+import { useChatMemberProfilePreview } from "@/hooks/chat/useChatMemberProfilePreview";
 import { useChatPartnerProfilePreview } from "@/hooks/chat/useChatPartnerProfilePreview";
 import { useChatRoom } from "@/hooks/chat/useChatRoom";
 import { useChatRoomRealtime } from "@/hooks/chat/useChatRoomRealtime";
@@ -35,6 +37,11 @@ export function ChatRoomPage({
 
     const partnerProfilePreview =
         useChatPartnerProfilePreview();
+
+    const memberProfilePreview =
+        useChatMemberProfilePreview({
+            roomId,
+        });
 
     const {
         room,
@@ -95,6 +102,73 @@ export function ChatRoomPage({
             ? t("pagination.loadFailed")
             : null;
 
+    const directPartner =
+        room?.directPartner ?? null;
+    const roomType =
+        room?.roomType ?? null;
+    const roomSourceType =
+        room?.sourceType ?? null;
+
+    const canOpenPartnerProfile =
+        roomType === "DIRECT" &&
+        roomSourceType === "FRIEND" &&
+        directPartner !== null;
+
+    const {
+        openProfilePreview:
+            openPartnerProfilePreview,
+    } = partnerProfilePreview;
+
+    const {
+        openProfile:
+            openMemberProfilePreview,
+    } = memberProfilePreview;
+
+    const openPartnerProfile = useCallback(() => {
+        if (!directPartner) {
+            return;
+        }
+
+        openPartnerProfilePreview(
+            directPartner,
+        );
+    }, [
+        directPartner,
+        openPartnerProfilePreview,
+    ]);
+
+    const openMessageSenderProfile = useCallback(
+        (senderUserId: number) => {
+            if (roomType === "GROUP") {
+                void openMemberProfilePreview(
+                    senderUserId,
+                );
+                return;
+            }
+
+            if (
+                canOpenPartnerProfile &&
+                directPartner?.userId ===
+                    senderUserId
+            ) {
+                openPartnerProfilePreview(
+                    directPartner,
+                );
+            }
+        },
+        [
+            canOpenPartnerProfile,
+            directPartner,
+            openMemberProfilePreview,
+            openPartnerProfilePreview,
+            roomType,
+        ],
+    );
+
+    const canOpenMessageSenderProfile =
+        roomType === "GROUP" ||
+        canOpenPartnerProfile;
+
     if (isLoading) {
         return (
             <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center text-slate-500 dark:text-slate-400">
@@ -129,24 +203,6 @@ export function ChatRoomPage({
             </div>
         );
     }
-
-    const directPartner =
-        room.directPartner ?? null;
-
-    const canOpenPartnerProfile =
-        room.roomType === "DIRECT" &&
-        room.sourceType === "FRIEND" &&
-        directPartner !== null;
-
-    const openPartnerProfile = () => {
-        if (!directPartner) {
-            return;
-        }
-
-        partnerProfilePreview.openProfilePreview(
-            directPartner,
-        );
-    };
 
     return (
         <>
@@ -199,13 +255,9 @@ export function ChatRoomPage({
                         retryTranslationErrorKeys={
                             retryTranslationErrorKeys
                         }
-                        partnerUserId={
-                            directPartner?.userId ??
-                            null
-                        }
-                        onOpenPartnerProfile={
-                            canOpenPartnerProfile
-                                ? openPartnerProfile
+                        onOpenSenderProfile={
+                            canOpenMessageSenderProfile
+                                ? openMessageSenderProfile
                                 : undefined
                         }
                         onLoadMore={
@@ -268,6 +320,30 @@ export function ChatRoomPage({
                 }
                 onClose={
                     partnerProfilePreview.closeProfilePreview
+                }
+            />
+
+            <ChatMemberProfilePreviewModal
+                isOpen={memberProfilePreview.isOpen}
+                profile={memberProfilePreview.profile}
+                isLoading={memberProfilePreview.isLoading}
+                isSendingFriendRequest={
+                    memberProfilePreview.isSendingFriendRequest
+                }
+                loadErrorCode={
+                    memberProfilePreview.loadErrorCode
+                }
+                friendRequestErrorCode={
+                    memberProfilePreview.friendRequestErrorCode
+                }
+                onRetry={
+                    memberProfilePreview.retryProfile
+                }
+                onSendFriendRequest={
+                    memberProfilePreview.sendFriendRequest
+                }
+                onClose={
+                    memberProfilePreview.closeProfile
                 }
             />
         </>

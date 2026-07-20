@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 import type { ChatLanguageSettingsUpdateRequest } from "@/types/chat";
 import { normalizeChatLanguageSettingsRequest } from "@/utils/chat/chatLanguageSettings";
@@ -28,19 +28,6 @@ export function useChatLanguageSettingsForm({
         showTranslation: settings.showTranslation,
     }));
 
-    useEffect(() => {
-        setForm({
-            originalLanguageCode: settings.originalLanguageCode,
-            translationLanguageCode: settings.translationLanguageCode,
-            showOriginal: settings.showOriginal,
-            showTranslation: settings.showTranslation,
-        });
-    }, [
-        settings.originalLanguageCode,
-        settings.showOriginal,
-        settings.showTranslation,
-        settings.translationLanguageCode,
-    ]);
 
     const setOriginalLanguageCode = useCallback((value: string) => {
         setForm((current) => ({

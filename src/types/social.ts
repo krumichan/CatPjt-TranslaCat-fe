@@ -1,12 +1,7 @@
 import type { ChatRoom } from "@/types/chat";
+import type { FriendRelationStatus } from "@/types/friendship";
 
-export type UserSearchFriendStatus =
-    | "NONE"
-    | "FRIEND"
-    | "REQUEST_SENT"
-    | "REQUEST_RECEIVED"
-    | "BLOCKED"
-    | "SELF";
+export type UserSearchFriendStatus = FriendRelationStatus;
 
 export type FriendRequestStatus =
     | "PENDING"

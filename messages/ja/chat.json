@@ -90,6 +90,27 @@
       "profileAlt": "{nickname}のプロフィール画像",
       "bio": "ステータスメッセージ",
       "emptyBio": "ステータスメッセージはありません。"
+    },
+    "memberProfile": {
+      "loading": "メンバープロフィールを読み込み中...",
+      "loadFailed": "メンバープロフィールを読み込めませんでした。",
+      "retry": "再試行",
+      "close": "プロフィールを閉じる",
+      "profileAlt": "{nickname}のプロフィール画像",
+      "bio": "ステータスメッセージ",
+      "emptyBio": "ステータスメッセージはありません。",
+      "openProfile": "{nickname}のプロフィールを表示",
+      "unknownUser": "不明なユーザー",
+      "friendAction": {
+        "send": "友達申請を送信",
+        "sending": "友達申請を送信中...",
+        "sent": "友達申請送信済み",
+        "received": "受信した友達申請があります",
+        "errors": {
+          "SEND_REQUEST_FAILED": "友達申請の送信に失敗しました。",
+          "TARGET_NOT_FOUND": "対象ユーザーが見つかりません。"
+        }
+      }
     }
   },
   "ChatRoomCreate": {

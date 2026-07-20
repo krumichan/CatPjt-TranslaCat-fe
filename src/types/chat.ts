@@ -1,3 +1,5 @@
+import type { FriendRelationStatus } from "@/types/friendship";
+
 export type ChatRoomType =
     | "DIRECT"
     | "GROUP"
@@ -44,6 +46,16 @@ export interface DirectPartnerProfile {
     profileImageUrl: string | null;
     profileBackgroundImageUrl: string | null;
     bio: string | null;
+}
+
+export interface ChatRoomMemberProfile {
+    userId: number;
+    publicId: string;
+    displayName: string;
+    profileImageUrl: string | null;
+    profileBackgroundImageUrl: string | null;
+    bio: string | null;
+    friendStatus: FriendRelationStatus;
 }
 
 export interface ChatRoom {

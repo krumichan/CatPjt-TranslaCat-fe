@@ -136,7 +136,7 @@ export default function UserProfilePreviewModal({
 
     return createPortal(
         <div
-            className="fixed inset-0 z-1200 flex items-start justify-center overflow-y-auto bg-slate-950/60 px-4 py-6 backdrop-blur-sm sm:items-center sm:py-10"
+            className="fixed inset-0 z-[1200] flex items-start justify-center overflow-y-auto bg-slate-950/60 px-4 py-6 backdrop-blur-sm sm:items-center sm:py-10"
             onMouseDown={() => {
                 if (!isProcessing) {
                     onClose();

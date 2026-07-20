@@ -20,8 +20,7 @@ interface ChatMessageListProps {
     loadMoreErrorMessage: string | null;
     retryingTranslationKeys: string[];
     retryTranslationErrorKeys: string[];
-    partnerUserId?: number | null;
-    onOpenPartnerProfile?: () => void;
+    onOpenSenderProfile?: (userId: number) => void;
     onLoadMore: () => Promise<boolean>;
     onRetryTranslation: (
         messageId: number,
@@ -41,8 +40,7 @@ export function ChatMessageList({
     loadMoreErrorMessage,
     retryingTranslationKeys,
     retryTranslationErrorKeys,
-    partnerUserId = null,
-    onOpenPartnerProfile,
+    onOpenSenderProfile,
     onLoadMore,
     onRetryTranslation,
     onRefreshMessages,
@@ -165,11 +163,8 @@ export function ChatMessageList({
                 const canOpenSenderProfile =
                     !isMine &&
                     message.senderType === "USER" &&
-                    partnerUserId !== null &&
-                    message.senderUserId ===
-                        partnerUserId &&
-                    onOpenPartnerProfile !==
-                        undefined;
+                    message.senderUserId !== null &&
+                    onOpenSenderProfile !== undefined;
 
                 return (
                     <ChatMessageItem
@@ -187,7 +182,10 @@ export function ChatMessageList({
                         }
                         onOpenSenderProfile={
                             canOpenSenderProfile
-                                ? onOpenPartnerProfile
+                                ? () =>
+                                      onOpenSenderProfile(
+                                          message.senderUserId!,
+                                      )
                                 : undefined
                         }
                         onRetryTranslation={

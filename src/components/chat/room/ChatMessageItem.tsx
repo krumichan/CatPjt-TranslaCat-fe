@@ -1,7 +1,7 @@
 "use client";
 
 import { UserRound } from "lucide-react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { ChatTranslationBlock } from "@/components/chat/room/ChatTranslationBlock";
 import type { ChatLanguageSettings, ChatMessage } from "@/types/chat";
@@ -43,6 +43,8 @@ export function ChatMessageItem({
     onRefreshMessages,
 }: ChatMessageItemProps) {
     const locale = useLocale();
+    const tMemberProfile =
+        useTranslations("ChatRoom.memberProfile");
     const showOriginalContent = shouldShowOriginalMessageContent(
         message.translations,
         languageSettings,
@@ -63,10 +65,16 @@ export function ChatMessageItem({
                         type="button"
                         onClick={onOpenSenderProfile}
                         data-testid={`chat-message-avatar-${message.id}`}
-                        aria-label={
-                            message.senderName ??
-                            "Unknown"
-                        }
+                        aria-label={tMemberProfile(
+                            "openProfile",
+                            {
+                                nickname:
+                                    message.senderName ??
+                                    tMemberProfile(
+                                        "unknownUser",
+                                    ),
+                            },
+                        )}
                         className="relative mt-0.5 flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-slate-200 text-slate-500 ring-1 ring-slate-300 transition hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 dark:bg-slate-700 dark:text-slate-300 dark:ring-white/10"
                     >
                         <UserRound

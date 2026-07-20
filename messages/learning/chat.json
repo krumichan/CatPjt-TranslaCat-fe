@@ -28,7 +28,8 @@
         "error": "自分の言語設定エラー"
       },
       "backToList": "チャットルーム一覧へ戻る",
-      "openPartnerProfile": "{nickname}のプロフィールを表示"
+      "openPartnerProfile": "{nickname}のプロフィールを表示",
+      "openRoomMenu": "チャットルームメニューを開く"
     },
     "error": {
       "title": "チャットルームを表示できません",
@@ -110,6 +111,91 @@
           "SEND_REQUEST_FAILED": "友達申請の送信に失敗しました。",
           "TARGET_NOT_FOUND": "対象ユーザーが見つかりません。"
         }
+      }
+    },
+    "menu": {
+      "eyebrow": "Room menu",
+      "title": "チャットルームメニュー",
+      "close": "チャットルームメニューを閉じる",
+      "roomInfo": "チャットルーム情報",
+      "fields": {
+        "name": "ルーム名",
+        "memberCount": "メンバー",
+        "myRole": "自分のロール"
+      }
+    },
+    "members": {
+      "title": "メンバー一覧",
+      "loading": "メンバー一覧を読み込み中...",
+      "loadFailed": "メンバー一覧を読み込めませんでした。",
+      "retry": "再試行",
+      "empty": "表示できるメンバーがいません。",
+      "openProfile": "{nickname}のプロフィールを表示",
+      "joinedAt": "{date} 参加",
+      "roles": {
+        "OWNER": "オーナー",
+        "ADMIN": "管理者",
+        "MEMBER": "メンバー"
+      }
+    },
+    "invitation": {
+      "eyebrow": "Invite members",
+      "open": "メンバー招待",
+      "close": "招待画面を閉じる",
+      "groupTitle": "グループチャットへメンバー招待",
+      "directTitle": "新しいグループチャットを作成",
+      "selectedCount": "{count}人選択",
+      "directNotice": {
+        "title": "新しいグループチャットルームが作成されます。",
+        "description": "現在の1対1チャットはそのまま維持され、既存相手と選択したユーザーが参加する新しいグループチャットルームが作成されます。既存の1対1メッセージはコピーされません。"
+      },
+      "fields": {
+        "groupName": "グループ名",
+        "groupDescription": "グループ説明"
+      },
+      "placeholders": {
+        "groupName": "新しいグループチャット名",
+        "groupDescription": "グループ説明を入力してください。（任意）",
+        "publicId": "TranslaCat IDを入力"
+      },
+      "friends": {
+        "title": "友達一覧から選択",
+        "description": "現在のチャットルームに参加していない友達を複数選択できます。",
+        "searchPlaceholder": "ニックネームまたはTranslaCat ID検索",
+        "loading": "友達一覧を読み込み中...",
+        "loadFailed": "友達一覧を読み込めませんでした。",
+        "retry": "再試行",
+        "empty": "招待できる友達がいません。"
+      },
+      "publicIds": {
+        "title": "TranslaCat IDを直接入力",
+        "description": "友達ではないユーザーもTranslaCat IDで招待できます。",
+        "add": "追加",
+        "remove": "{publicId}を削除"
+      },
+      "cancel": "キャンセル",
+      "invite": "招待する",
+      "createGroup": "グループを作成",
+      "submitting": "処理中...",
+      "success": {
+        "MEMBERS_INVITED": "メンバー招待が完了しました。",
+        "GROUP_CREATED": "新しいグループチャットルームが作成されました。",
+        "dismiss": "完了案内を閉じる"
+      },
+      "errors": {
+        "TARGET_REQUIRED": "招待するユーザーを1人以上選択または入力してください。",
+        "NOT_ALLOWED": "メンバーを招待する権限がありません。",
+        "UNSUPPORTED_ROOM_TYPE": "このチャットルームではメンバーを招待できません。",
+        "SELF_NOT_ALLOWED": "自分自身は招待できません。",
+        "TARGET_NOT_FOUND": "招待対象ユーザーが見つかりません。",
+        "TARGET_BLOCKED": "ブロック関係のユーザーは招待できません。",
+        "ALREADY_MEMBER": "すでにチャットルームへ参加しているユーザーです。",
+        "GROUP_NAME_REQUIRED": "新しいグループチャット名を入力してください。",
+        "GROUP_NAME_TOO_LONG": "グループ名は100文字以内で入力してください。",
+        "GROUP_DESCRIPTION_TOO_LONG": "グループ説明は500文字以内で入力してください。",
+        "INVALID_PUBLIC_ID": "正しいTranslaCat IDを入力してください。",
+        "FRIEND_LOAD_FAILED": "友達一覧を読み込めませんでした。",
+        "SUBMIT_FAILED": "メンバー招待処理に失敗しました。"
       }
     }
   },

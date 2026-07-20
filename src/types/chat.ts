@@ -80,6 +80,12 @@ export interface ChatRoom {
     updatedAt: string;
 
     /**
+     * 현재 로그인 사용자의 채팅방 역할.
+     * BE #40 이후 채팅방 메뉴의 초대 권한 판단에 사용한다.
+     */
+    myRole?: ChatRoomMemberRole | null;
+
+    /**
      * FRIEND DIRECT 방에서만 현재 로그인 사용자를 제외한 상대 사용자 정보.
      */
     directPartner?: DirectPartnerProfile | null;
@@ -117,16 +123,48 @@ export interface ChatRoomMember {
     id: number;
     chatRoomId: number;
     userId: number;
-    name: string;
-    email: string;
+    publicId: string | null;
+    displayName: string;
+    profileImageUrl: string | null;
     role: ChatRoomMemberRole;
     active: boolean;
     joinedAt: string;
     leftAt: string | null;
+
+    /**
+     * BE #40 이전 응답과의 과도기 호환 필드.
+     */
+    name?: string;
+    email?: string;
 }
 
 export interface ChatRoomMemberListResponse {
     members: ChatRoomMember[];
+}
+
+export interface ChatRoomMemberInvitationRequest {
+    targetUserIds: number[];
+    targetPublicIds: string[];
+}
+
+export interface ChatRoomGroupConversionRequest
+    extends ChatRoomMemberInvitationRequest {
+    name: string;
+    description?: string | null;
+}
+
+export interface ChatRoomInvitedMember {
+    userId: number;
+    publicId: string;
+    displayName: string;
+    profileImageUrl: string | null;
+    joinedAt: string;
+}
+
+export interface ChatRoomInvitationResponse {
+    roomId: number;
+    createdNewGroupRoom: boolean;
+    invitedMembers: ChatRoomInvitedMember[];
 }
 
 export interface ChatLanguageSettingsUpdateRequest {

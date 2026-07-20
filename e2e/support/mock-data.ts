@@ -1,10 +1,15 @@
 import type { E2ETestUser } from "./test-users";
+
 import { TEST_USERS } from "./test-users";
 
 export const NOW = "2026-07-05T12:00:00.000Z";
 export const LATER = "2026-07-05T12:05:00.000Z";
 
-export const responseDto = <T>(body: T, resultCode = 200, message = "OK") => ({
+export const responseDto = <T>(
+    body: T,
+    resultCode = 200,
+    message = "OK",
+) => ({
     resultCode,
     message,
     body,
@@ -12,7 +17,10 @@ export const responseDto = <T>(body: T, resultCode = 200, message = "OK") => ({
     createDate: NOW,
 });
 
-export const errorDto = (errorCode: string, message = "E2E error") => ({
+export const errorDto = (
+    errorCode: string,
+    message = "E2E error",
+) => ({
     resultCode: 400,
     message,
     body: {
@@ -23,21 +31,28 @@ export const errorDto = (errorCode: string, message = "E2E error") => ({
     createDate: NOW,
 });
 
-export const toSummaryProfile = (user: E2ETestUser) => ({
+export const toSummaryProfile = (
+    user: E2ETestUser,
+) => ({
     userId: user.userId,
     publicId: user.publicId,
     nickname: user.nickname,
     profileImageUrl: null,
 });
 
-export const toProfile = (user: E2ETestUser) => ({
+export const toProfile = (
+    user: E2ETestUser,
+) => ({
     ...toSummaryProfile(user),
     bio: `${user.nickname} bio`,
     createdAt: NOW,
     updatedAt: NOW,
 });
 
-export const toFriendApi = (user: E2ETestUser, relationId: number) => ({
+export const toFriendApi = (
+    user: E2ETestUser,
+    relationId: number,
+) => ({
     id: relationId,
     friend: toSummaryProfile(user),
     createdAt: NOW,
@@ -62,7 +77,10 @@ export const toFriendRequest = ({
     receiver: toSummaryProfile(receiver),
 });
 
-export const toBlockApi = (user: E2ETestUser, id = 9001) => ({
+export const toBlockApi = (
+    user: E2ETestUser,
+    id = 9001,
+) => ({
     id,
     blockedUser: toSummaryProfile(user),
     createdAt: NOW,
@@ -101,6 +119,7 @@ export const makeRoom = ({
     name = null,
     description = null,
     memberCount = 2,
+    myRole = null,
 }: {
     id?: number;
     roomType?: "DIRECT" | "GROUP";
@@ -108,6 +127,7 @@ export const makeRoom = ({
     name?: string | null;
     description?: string | null;
     memberCount?: number;
+    myRole?: "OWNER" | "ADMIN" | "MEMBER" | null;
 } = {}) => ({
     id,
     roomType,
@@ -120,6 +140,7 @@ export const makeRoom = ({
     translationLanguageCode: "ja",
     roomLanguageSettingApplied: true,
     memberCount,
+    myRole,
     createdAt: NOW,
     updatedAt: LATER,
 });
@@ -136,7 +157,9 @@ export const makeDefaultLanguageSettings = (
     ...overrides,
 });
 
-export const makeLanguageSettings = (overrides: Record<string, unknown> = {}) => ({
+export const makeLanguageSettings = (
+    overrides: Record<string, unknown> = {},
+) => ({
     chatRoomId: 501,
     userId: TEST_USERS.A.userId,
     originalLanguageCode: "ko",
@@ -162,8 +185,14 @@ export const makeTranslation = ({
     languageCode,
     translatedContent,
     status,
-    failureReason: status === "FAILED" ? "E2E_FAILED" : null,
-    completedAt: status === "COMPLETED" ? LATER : null,
+    failureReason:
+        status === "FAILED"
+            ? "E2E_FAILED"
+            : null,
+    completedAt:
+        status === "COMPLETED"
+            ? LATER
+            : null,
 });
 
 export const makeMessage = ({
@@ -176,7 +205,9 @@ export const makeMessage = ({
     id: number;
     sender?: E2ETestUser;
     content: string;
-    translations?: ReturnType<typeof makeTranslation>[];
+    translations?: ReturnType<
+        typeof makeTranslation
+    >[];
     senderProfileImageUrl?: string | null;
 }) => ({
     id,

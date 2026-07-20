@@ -11,11 +11,15 @@ import { useCallback, useState } from "react";
 import { ChatMessageInput } from "@/components/chat/room/ChatMessageInput";
 import { ChatMessageList } from "@/components/chat/room/ChatMessageList";
 import { ChatRoomHeader } from "@/components/chat/room/ChatRoomHeader";
+import { ChatRoomMenuDrawer } from "@/components/chat/room/menu/ChatRoomMenuDrawer";
 import { ChatLanguageSettingsModal } from "@/components/chat/room/modal/ChatLanguageSettingsModal";
 import { ChatMemberProfilePreviewModal } from "@/components/chat/room/modal/ChatMemberProfilePreviewModal";
 import { ChatPartnerProfilePreviewModal } from "@/components/chat/room/modal/ChatPartnerProfilePreviewModal";
+import { ChatRoomInvitationModal } from "@/components/chat/room/modal/ChatRoomInvitationModal";
 import { useChatLanguageSettings } from "@/hooks/chat/useChatLanguageSettings";
 import { useChatMemberProfilePreview } from "@/hooks/chat/useChatMemberProfilePreview";
+import { useChatRoomInvitation } from "@/hooks/chat/useChatRoomInvitation";
+import { useChatRoomMenu } from "@/hooks/chat/useChatRoomMenu";
 import { useChatPartnerProfilePreview } from "@/hooks/chat/useChatPartnerProfilePreview";
 import { useChatRoom } from "@/hooks/chat/useChatRoom";
 import { useChatRoomRealtime } from "@/hooks/chat/useChatRoomRealtime";
@@ -75,6 +79,19 @@ export function ChatRoomPage({
         reload: reloadLanguageSettings,
         saveSettings: saveLanguageSettings,
     } = useChatLanguageSettings(roomId);
+
+    const roomMenu = useChatRoomMenu({
+        roomId,
+    });
+
+    const roomInvitation =
+        useChatRoomInvitation({
+            room,
+            members: roomMenu.members,
+            reloadRoom: reload,
+            reloadMembers:
+                roomMenu.reloadMembers,
+        });
 
     const accessToken =
         session?.accessToken ?? null;
@@ -169,6 +186,33 @@ export function ChatRoomPage({
         roomType === "GROUP" ||
         canOpenPartnerProfile;
 
+    const canInviteMembers =
+        (roomType === "GROUP" &&
+            roomSourceType !== "OPEN" &&
+            roomSourceType !== "AI" &&
+            (room?.myRole === "OWNER" ||
+                room?.myRole === "ADMIN")) ||
+        (roomType === "DIRECT" &&
+            roomSourceType === "FRIEND");
+
+    const {
+        closeMenu,
+    } = roomMenu;
+
+    const openMemberProfileFromMenu =
+        useCallback(
+            (userId: number) => {
+                closeMenu();
+                void openMemberProfilePreview(
+                    userId,
+                );
+            },
+            [
+                closeMenu,
+                openMemberProfilePreview,
+            ],
+        );
+
     if (isLoading) {
         return (
             <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center text-slate-500 dark:text-slate-400">
@@ -232,6 +276,9 @@ export function ChatRoomPage({
                                 ? openPartnerProfile
                                 : undefined
                         }
+                        onOpenRoomMenu={
+                            roomMenu.openMenu
+                        }
                     />
                 </div>
 
@@ -284,6 +331,92 @@ export function ChatRoomPage({
                     />
                 </div>
             </div>
+
+            <ChatRoomMenuDrawer
+                isOpen={roomMenu.isOpen}
+                room={room}
+                members={roomMenu.members}
+                isLoading={roomMenu.isLoading}
+                loadErrorCode={
+                    roomMenu.loadErrorCode
+                }
+                canInvite={canInviteMembers}
+                successCode={
+                    roomInvitation.successCode
+                }
+                onClose={roomMenu.closeMenu}
+                onRetry={
+                    roomMenu.reloadMembers
+                }
+                onOpenMemberProfile={
+                    openMemberProfileFromMenu
+                }
+                onOpenInvitation={
+                    roomInvitation.openInvitation
+                }
+                onDismissSuccess={
+                    roomInvitation.clearSuccess
+                }
+            />
+
+            <ChatRoomInvitationModal
+                isOpen={roomInvitation.isOpen}
+                room={room}
+                friends={
+                    roomInvitation.availableFriends
+                }
+                selectedFriendUserIds={
+                    roomInvitation.selectedFriendUserIds
+                }
+                publicIdInput={
+                    roomInvitation.publicIdInput
+                }
+                targetPublicIds={
+                    roomInvitation.targetPublicIds
+                }
+                groupName={
+                    roomInvitation.groupName
+                }
+                groupDescription={
+                    roomInvitation.groupDescription
+                }
+                isFriendLoading={
+                    roomInvitation.isFriendLoading
+                }
+                isSubmitting={
+                    roomInvitation.isSubmitting
+                }
+                errorCode={
+                    roomInvitation.errorCode
+                }
+                onClose={
+                    roomInvitation.closeInvitation
+                }
+                onToggleFriend={
+                    roomInvitation.toggleFriend
+                }
+                onUpdatePublicIdInput={
+                    roomInvitation.updatePublicIdInput
+                }
+                onAddPublicId={
+                    roomInvitation.addPublicId
+                }
+                onRemovePublicId={
+                    roomInvitation.removePublicId
+                }
+                onUpdateGroupName={
+                    roomInvitation.updateGroupName
+                }
+                onUpdateGroupDescription={
+                    roomInvitation.updateGroupDescription
+                }
+                onSubmit={
+                    roomInvitation.submit
+                }
+                onReloadFriends={
+                    roomInvitation.reloadFriends
+                }
+            />
 
             <ChatLanguageSettingsModal
                 isOpen={isLanguageSettingsOpen}

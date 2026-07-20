@@ -4,6 +4,7 @@ import {
     ChevronLeft,
     Languages,
     Loader2,
+    MoreVertical,
     Users,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -27,6 +28,7 @@ interface ChatRoomHeaderProps {
     languageSettingsLoadErrorCode?: string | null;
     onOpenLanguageSettings?: () => void;
     onOpenPartnerProfile?: () => void;
+    onOpenRoomMenu?: () => void;
 }
 
 function getConnectionStatusLabel(
@@ -110,6 +112,7 @@ export function ChatRoomHeader({
     languageSettingsLoadErrorCode = null,
     onOpenLanguageSettings,
     onOpenPartnerProfile,
+    onOpenRoomMenu,
 }: ChatRoomHeaderProps) {
     const t = useTranslations("ChatRoom");
     const connectionStatusLabel =
@@ -251,21 +254,37 @@ export function ChatRoomHeader({
                 </div>
             </div>
 
-            <button
-                type="button"
-                data-testid="chat-language-settings-button"
-                onClick={onOpenLanguageSettings}
-                disabled={!onOpenLanguageSettings}
-                className="shrink-0 rounded-xl border border-slate-200 px-2.5 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 sm:px-3 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
-            >
-                <Languages
-                    className="mr-1 inline h-4 w-4"
-                    aria-hidden="true"
-                />
-                <span className="hidden sm:inline">
-                    {t("header.language.button")}
-                </span>
-            </button>
+            <div className="flex shrink-0 items-center gap-2">
+                <button
+                    type="button"
+                    data-testid="chat-language-settings-button"
+                    onClick={onOpenLanguageSettings}
+                    disabled={!onOpenLanguageSettings}
+                    className="rounded-xl border border-slate-200 px-2.5 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 sm:px-3 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                >
+                    <Languages
+                        className="mr-1 inline h-4 w-4"
+                        aria-hidden="true"
+                    />
+                    <span className="hidden sm:inline">
+                        {t("header.language.button")}
+                    </span>
+                </button>
+
+                <button
+                    type="button"
+                    data-testid="chat-room-menu-button"
+                    onClick={onOpenRoomMenu}
+                    disabled={!onOpenRoomMenu}
+                    aria-label={t("header.openRoomMenu")}
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+                >
+                    <MoreVertical
+                        className="h-5 w-5"
+                        aria-hidden="true"
+                    />
+                </button>
+            </div>
         </header>
     );
 }

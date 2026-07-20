@@ -26,7 +26,9 @@
         "button": "自分の言語設定",
         "loading": "言語設定を読み込み中",
         "error": "自分の言語設定エラー"
-      }
+      },
+      "backToList": "チャットルーム一覧へ戻る",
+      "openPartnerProfile": "{nickname}のプロフィールを表示"
     },
     "error": {
       "title": "チャットルームを表示できません",
@@ -82,6 +84,12 @@
       "retryFailed": "再翻訳リクエストに失敗しました。しばらくしてから再度お試しください。",
       "refresh": "メッセージを更新",
       "refreshShort": "更新"
+    },
+    "profilePreview": {
+      "close": "プロフィールを閉じる",
+      "profileAlt": "{nickname}のプロフィール画像",
+      "bio": "ステータスメッセージ",
+      "emptyBio": "ステータスメッセージはありません。"
     }
   },
   "ChatRoomCreate": {

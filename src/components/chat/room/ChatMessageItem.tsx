@@ -13,6 +13,7 @@ interface ChatMessageItemProps {
     languageSettings: ChatLanguageSettings | null;
     retryingTranslationKeys: string[];
     retryTranslationErrorKeys: string[];
+    onOpenSenderProfile?: () => void;
     onRetryTranslation: (
         messageId: number,
         languageCode: string,
@@ -37,6 +38,7 @@ export function ChatMessageItem({
     languageSettings,
     retryingTranslationKeys,
     retryTranslationErrorKeys,
+    onOpenSenderProfile,
     onRetryTranslation,
     onRefreshMessages,
 }: ChatMessageItemProps) {
@@ -55,32 +57,76 @@ export function ChatMessageItem({
                 isMine ? "justify-end" : "justify-start"
             }`}
         >
-            {showSenderProfile && (
-                <div
-                    data-testid={`chat-message-avatar-${message.id}`}
-                    aria-label={message.senderName ?? "Unknown"}
-                    className="relative mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-200 text-slate-500 ring-1 ring-slate-300 dark:bg-slate-700 dark:text-slate-300 dark:ring-white/10"
-                >
-                    <UserRound
-                        className="h-5 w-5"
-                        aria-hidden="true"
-                    />
-
-                    {message.senderProfileImageUrl && (
-                        // TODO: 실제 Storage custom domain 확정 후 next/image 적용 재검토
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                            src={message.senderProfileImageUrl}
-                            alt={message.senderName ?? ""}
-                            className="absolute inset-0 h-full w-full object-cover object-center"
-                            onError={(event) => {
-                                event.currentTarget.style.display =
-                                    "none";
-                            }}
+            {showSenderProfile &&
+                (onOpenSenderProfile ? (
+                    <button
+                        type="button"
+                        onClick={onOpenSenderProfile}
+                        data-testid={`chat-message-avatar-${message.id}`}
+                        aria-label={
+                            message.senderName ??
+                            "Unknown"
+                        }
+                        className="relative mt-0.5 flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-slate-200 text-slate-500 ring-1 ring-slate-300 transition hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 dark:bg-slate-700 dark:text-slate-300 dark:ring-white/10"
+                    >
+                        <UserRound
+                            className="h-5 w-5"
+                            aria-hidden="true"
                         />
-                    )}
-                </div>
-            )}
+
+                        {message.senderProfileImageUrl && (
+                            // TODO: 실제 Storage custom domain 확정 후 next/image 적용 재검토
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                                src={
+                                    message.senderProfileImageUrl
+                                }
+                                alt={
+                                    message.senderName ??
+                                    ""
+                                }
+                                className="absolute inset-0 h-full w-full object-cover object-center"
+                                onError={(event) => {
+                                    event.currentTarget.style.display =
+                                        "none";
+                                }}
+                            />
+                        )}
+                    </button>
+                ) : (
+                    <div
+                        data-testid={`chat-message-avatar-${message.id}`}
+                        aria-label={
+                            message.senderName ??
+                            "Unknown"
+                        }
+                        className="relative mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-200 text-slate-500 ring-1 ring-slate-300 dark:bg-slate-700 dark:text-slate-300 dark:ring-white/10"
+                    >
+                        <UserRound
+                            className="h-5 w-5"
+                            aria-hidden="true"
+                        />
+
+                        {message.senderProfileImageUrl && (
+                            // TODO: 실제 Storage custom domain 확정 후 next/image 적용 재검토
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                                src={
+                                    message.senderProfileImageUrl
+                                }
+                                alt={
+                                    message.senderName ??
+                                    ""
+                                }
+                                className="absolute inset-0 h-full w-full object-cover object-center"
+                                onError={(event) => {
+                                    event.currentTarget.style.display =
+                                        "none";
+                                }}
+                            />
+                        )}
+                    </div>
+                ))}
 
             <div
                 className={`flex min-w-0 flex-1 flex-col ${

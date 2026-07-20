@@ -1,9 +1,32 @@
-export type ChatRoomType = "DIRECT" | "GROUP" | "OPEN";
-export type ChatRoomMemberRole = "OWNER" | "ADMIN" | "MEMBER";
-export type ChatRoomSourceType = "MANUAL" | "FRIEND" | "OPEN" | "AI";
-export type ChatMessageSenderType = "USER" | "AI" | "SYSTEM";
-export type ChatMessageType = "TEXT" | "SYSTEM";
-export type ChatMessageStatus = "SENT" | "DELETED";
+export type ChatRoomType =
+    | "DIRECT"
+    | "GROUP"
+    | "OPEN";
+
+export type ChatRoomMemberRole =
+    | "OWNER"
+    | "ADMIN"
+    | "MEMBER";
+
+export type ChatRoomSourceType =
+    | "MANUAL"
+    | "FRIEND"
+    | "OPEN"
+    | "AI";
+
+export type ChatMessageSenderType =
+    | "USER"
+    | "AI"
+    | "SYSTEM";
+
+export type ChatMessageType =
+    | "TEXT"
+    | "SYSTEM";
+
+export type ChatMessageStatus =
+    | "SENT"
+    | "DELETED";
+
 export type ChatMessageTranslationStatus =
     | "PENDING"
     | "COMPLETED"
@@ -19,6 +42,8 @@ export interface DirectPartnerProfile {
     publicId: string;
     displayName: string;
     profileImageUrl: string | null;
+    profileBackgroundImageUrl: string | null;
+    bio: string | null;
 }
 
 export interface ChatRoom {
@@ -29,6 +54,7 @@ export interface ChatRoom {
     description: string | null;
     ownerId: number | null;
     active: boolean;
+
     /**
      * Legacy room-wide language fields.
      * FE #35부터 화면 로직에서는 채팅방별 내 언어 설정을 우선 사용한다.
@@ -36,9 +62,11 @@ export interface ChatRoom {
     originalLanguageCode: string;
     translationLanguageCode: string;
     roomLanguageSettingApplied: boolean;
+
     memberCount: number;
     createdAt: string;
     updatedAt: string;
+
     /**
      * FRIEND DIRECT 방에서만 현재 로그인 사용자를 제외한 상대 사용자 정보.
      */
@@ -55,6 +83,7 @@ export interface ChatRoomListItem {
     memberCount: number;
     createdAt: string;
     updatedAt: string;
+
     /**
      * FRIEND DIRECT 방에서만 현재 로그인 사용자를 제외한 상대 사용자 정보.
      */
@@ -104,8 +133,10 @@ export interface ChatDefaultLanguageSettings {
     translationLanguageCode: string;
     showOriginal: boolean;
     showTranslation: boolean;
+
     /**
-     * FE #35: 화면 표시용 적용 근거. BE 응답에는 없어도 된다.
+     * FE #35: 화면 표시용 적용 근거.
+     * BE 응답에는 없어도 된다.
      */
     source?: ChatLanguageSettingsSource;
 }
@@ -117,12 +148,15 @@ export interface ChatLanguageSettings {
     translationLanguageCode: string;
     showOriginal: boolean;
     showTranslation: boolean;
+
     /**
      * true면 채팅방별 내 override 설정이 저장되어 있다는 의미다.
      */
     roomLanguageSettingApplied: boolean;
+
     /**
-     * FE #35: 화면 표시용 적용 근거. BE 응답에는 없어도 된다.
+     * FE #35: 화면 표시용 적용 근거.
+     * BE 응답에는 없어도 된다.
      */
     source?: ChatLanguageSettingsSource;
 }

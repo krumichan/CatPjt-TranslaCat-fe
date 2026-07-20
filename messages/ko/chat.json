@@ -26,7 +26,9 @@
         "button": "내 언어 설정",
         "loading": "언어 설정 불러오는 중",
         "error": "내 언어 설정 오류"
-      }
+      },
+      "backToList": "채팅방 목록으로 돌아가기",
+      "openPartnerProfile": "{nickname} 프로필 보기"
     },
     "error": {
       "title": "채팅방을 표시할 수 없습니다",
@@ -82,6 +84,12 @@
       "retryFailed": "재번역 요청에 실패했습니다.\n잠시 후 다시 시도해 주세요.",
       "refresh": "메시지 새로고침",
       "refreshShort": "새로고침"
+    },
+    "profilePreview": {
+      "close": "프로필 닫기",
+      "profileAlt": "{nickname}님의 프로필 이미지",
+      "bio": "상태 메시지",
+      "emptyBio": "상태 메시지가 없습니다."
     }
   },
   "ChatRoomCreate": {

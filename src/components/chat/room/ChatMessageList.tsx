@@ -20,6 +20,8 @@ interface ChatMessageListProps {
     loadMoreErrorMessage: string | null;
     retryingTranslationKeys: string[];
     retryTranslationErrorKeys: string[];
+    partnerUserId?: number | null;
+    onOpenPartnerProfile?: () => void;
     onLoadMore: () => Promise<boolean>;
     onRetryTranslation: (
         messageId: number,
@@ -39,6 +41,8 @@ export function ChatMessageList({
     loadMoreErrorMessage,
     retryingTranslationKeys,
     retryTranslationErrorKeys,
+    partnerUserId = null,
+    onOpenPartnerProfile,
     onLoadMore,
     onRetryTranslation,
     onRefreshMessages,
@@ -152,21 +156,49 @@ export function ChatMessageList({
                 </span>
             </div>
 
-            {messages.map((message) => (
-                <ChatMessageItem
-                    key={message.id}
-                    message={message}
-                    isMine={
-                        !!currentUserEmail &&
-                        message.senderEmail === currentUserEmail
-                    }
-                    languageSettings={languageSettings}
-                    retryingTranslationKeys={retryingTranslationKeys}
-                    retryTranslationErrorKeys={retryTranslationErrorKeys}
-                    onRetryTranslation={onRetryTranslation}
-                    onRefreshMessages={onRefreshMessages}
-                />
-            ))}
+            {messages.map((message) => {
+                const isMine =
+                    !!currentUserEmail &&
+                    message.senderEmail ===
+                        currentUserEmail;
+
+                const canOpenSenderProfile =
+                    !isMine &&
+                    message.senderType === "USER" &&
+                    partnerUserId !== null &&
+                    message.senderUserId ===
+                        partnerUserId &&
+                    onOpenPartnerProfile !==
+                        undefined;
+
+                return (
+                    <ChatMessageItem
+                        key={message.id}
+                        message={message}
+                        isMine={isMine}
+                        languageSettings={
+                            languageSettings
+                        }
+                        retryingTranslationKeys={
+                            retryingTranslationKeys
+                        }
+                        retryTranslationErrorKeys={
+                            retryTranslationErrorKeys
+                        }
+                        onOpenSenderProfile={
+                            canOpenSenderProfile
+                                ? onOpenPartnerProfile
+                                : undefined
+                        }
+                        onRetryTranslation={
+                            onRetryTranslation
+                        }
+                        onRefreshMessages={
+                            onRefreshMessages
+                        }
+                    />
+                );
+            })}
         </div>
     );
 }

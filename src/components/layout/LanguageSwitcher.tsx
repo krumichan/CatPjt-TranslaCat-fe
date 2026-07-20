@@ -1,11 +1,27 @@
 "use client";
 
-import {useLocale} from "next-intl";
-import {usePathname, useRouter} from "@/navigation";
-import {Locale, localeMetadata, locales} from "@/i18n/config";
-import {useEffect, useRef, useState} from "react";
+import { useEffect, useRef, useState } from "react";
+import { useLocale } from "next-intl";
 
-export default function LanguageSwitcher() {
+import {
+    localeMetadata,
+    locales,
+    type Locale,
+} from "@/i18n/config";
+import {
+    usePathname,
+    useRouter,
+} from "@/navigation";
+
+interface LanguageSwitcherProps {
+    placement?: "top" | "bottom";
+    className?: string;
+}
+
+export default function LanguageSwitcher({
+    placement = "bottom",
+    className = "",
+}: LanguageSwitcherProps) {
     const locale = useLocale() as Locale;
     const router = useRouter();
     const pathname = usePathname();
@@ -14,71 +30,162 @@ export default function LanguageSwitcher() {
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        const handleClickOutside = (
+            event: MouseEvent,
+        ) => {
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(
+                    event.target as Node,
+                )
+            ) {
                 setIsOpen(false);
             }
         };
 
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
+        const handleKeyDown = (
+            event: KeyboardEvent,
+        ) => {
+            if (event.key === "Escape") {
                 setIsOpen(false);
             }
-        }
+        };
 
-        document.addEventListener("mousedown", handleClickOutside);
-        document.addEventListener("keydown", handleKeyDown);
-
+        document.addEventListener(
+            "mousedown",
+            handleClickOutside,
+        );
+        document.addEventListener(
+            "keydown",
+            handleKeyDown,
+        );
 
         return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-            document.removeEventListener("keydown", handleKeyDown);
+            document.removeEventListener(
+                "mousedown",
+                handleClickOutside,
+            );
+            document.removeEventListener(
+                "keydown",
+                handleKeyDown,
+            );
         };
     }, []);
 
-    const handleLocaleChange = (nextLocale: Locale) => {
+    const handleLocaleChange = (
+        nextLocale: Locale,
+    ) => {
         if (nextLocale === locale) {
+            setIsOpen(false);
             return;
         }
 
-        router.replace(pathname, { locale: nextLocale });
-        setIsOpen(false);
-    }
+        router.replace(pathname, {
+            locale: nextLocale,
+        });
 
-    const currentMetadata = localeMetadata[locale];
+        setIsOpen(false);
+    };
+
+    const currentMetadata =
+        localeMetadata[locale];
+
+    const dropdownPositionClass =
+        placement === "top"
+            ? "bottom-full left-1/2 mb-2 -translate-x-1/2"
+            : "left-1/2 top-full mt-2 -translate-x-1/2";
 
     return (
-        <div className="relative" ref={dropdownRef}>
-            {/* 현재 언어 표시 버튼 */}
+        <div
+            ref={dropdownRef}
+            className={`relative ${className}`}
+        >
             <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center justify-center gap-2 px-3 h-11 rounded-xl bg-black/5 dark:bg-white/10 border border-black/10 dark:border-white/10 hover:bg-black/10 dark:hover:bg-white/20 transition-all active:scale-95 shadow-sm"
+                type="button"
+                onClick={() =>
+                    setIsOpen((value) => !value)
+                }
+                aria-haspopup="menu"
+                aria-expanded={isOpen}
+                aria-label="Language"
+                className="
+                    flex h-11 items-center justify-center
+                    gap-2 rounded-xl
+                    border border-black/10
+                    bg-black/5 px-3
+                    shadow-sm
+                    transition-all
+                    hover:bg-black/10
+                    active:scale-95
+                    dark:border-white/10
+                    dark:bg-white/10
+                    dark:hover:bg-white/20
+                "
             >
-                <span className="text-lg flex items-center justify-center leading-none h-full transform -translate-y-[1.5px]">
+                <span className="flex h-full -translate-y-[1.5px] items-center justify-center text-lg leading-none">
                     {currentMetadata.flag}
                 </span>
-                <span className={`text-[10px] flex items-center leading-none transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
-        ▼
-    </span>
+
+                <span
+                    className={`
+                        flex items-center
+                        text-[10px] leading-none
+                        transition-transform duration-200
+                        ${isOpen ? "rotate-180" : ""}
+                    `}
+                >
+                    ▼
+                </span>
             </button>
 
-            {/* 드롭다운 메뉴 */}
             {isOpen && (
                 <div
-                    className="absolute left-1/2 -translate-x-1/2 mt-2 w-20 py-2 bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-2xl shadow-2xl backdrop-blur-xl z-[100] animate-in fade-in zoom-in-95 duration-200"
+                    role="menu"
+                    className={`
+                        absolute
+                        z-200
+                        w-20
+                        rounded-2xl
+                        border border-black/5
+                        bg-white
+                        py-2
+                        shadow-2xl
+                        backdrop-blur-xl
+                        animate-in
+                        fade-in
+                        zoom-in-95
+                        duration-200
+                        dark:border-white/10
+                        dark:bg-zinc-900
+                        ${dropdownPositionClass}
+                    `}
                 >
                     {locales.map((loc) => (
                         <button
                             key={loc}
-                            onClick={() => handleLocaleChange(loc)}
-                            className={`w-full flex items-center justify-center px-4 py-2 text-sm transition-colors ${
+                            type="button"
+                            role="menuitem"
+                            onClick={() =>
+                                handleLocaleChange(loc)
+                            }
+                            className={`
+                                flex w-full items-center
+                                justify-center
+                                px-4 py-2
+                                text-sm
+                                transition-colors
+                                ${
                                 locale === loc
-                                    ? "bg-blue-600/10 text-blue-600 font-bold"
-                                    : "text-gray-600 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5"
-                            }`}
+                                    ? "bg-blue-600/10 font-bold text-blue-600"
+                                    : "text-gray-600 hover:bg-black/5 dark:text-zinc-400 dark:hover:bg-white/5"
+                            }
+                            `}
                         >
-                            <span className="text-base flex items-center leading-none">
-                                {localeMetadata[loc].flag}
+                            <span className="flex items-center text-base leading-none">
+                                {
+                                    localeMetadata[loc]
+                                        .flag
+                                }
                             </span>
                         </button>
                     ))}

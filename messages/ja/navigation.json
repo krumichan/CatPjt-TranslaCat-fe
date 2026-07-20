@@ -7,6 +7,35 @@
     "settings": "設定",
     "login": "ログイン",
     "logout": "ログアウト",
-    "welcome": "様 ようこそ!"
+    "welcome": "様 ようこそ!",
+    "chat": "チャット",
+    "languageLearning": "言語学習",
+    "profile": "マイプロフィール",
+    "userMenu": "ユーザーメニュー",
+    "primaryNavigation": "メインサービス",
+    "sections": {
+      "main": "メイン",
+      "services": "サービス",
+      "recentActivity": "最近のアクティビティ"
+    },
+    "sidebar": {
+      "navigation": "ナビゲーション",
+      "expand": "サイドバーを展開",
+      "collapse": "サイドバーを折りたたむ"
+    },
+    "mobile": {
+      "title": "全体メニュー",
+      "open": "全体メニューを開く",
+      "close": "全体メニューを閉じる"
+    },
+    "badges": {
+      "new": "新規",
+      "comingSoon": "準備中"
+    },
+    "recent": {
+      "loading": "最近のアクティビティを読み込み中です。",
+      "empty": "最近のアクティビティはありません。",
+      "error": "最近のアクティビティを読み込めませんでした。"
+    }
   }
 }

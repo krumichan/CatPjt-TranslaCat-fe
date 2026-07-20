@@ -7,6 +7,35 @@
     "settings": "설정",
     "login": "로그인",
     "logout": "로그아웃",
-    "welcome": "님, 환영합니다!"
+    "welcome": "님, 환영합니다!",
+    "chat": "채팅",
+    "languageLearning": "언어 학습",
+    "profile": "내 프로필",
+    "userMenu": "사용자 메뉴",
+    "primaryNavigation": "주요 서비스",
+    "sections": {
+      "main": "메인",
+      "services": "서비스",
+      "recentActivity": "최근 활동"
+    },
+    "sidebar": {
+      "navigation": "내비게이션",
+      "expand": "사이드바 펼치기",
+      "collapse": "사이드바 접기"
+    },
+    "mobile": {
+      "title": "전체 메뉴",
+      "open": "전체 메뉴 열기",
+      "close": "전체 메뉴 닫기"
+    },
+    "badges": {
+      "new": "신규",
+      "comingSoon": "준비 중"
+    },
+    "recent": {
+      "loading": "최근 활동을 불러오는 중입니다.",
+      "empty": "최근 활동이 없습니다.",
+      "error": "최근 활동을 불러오지 못했습니다."
+    }
   }
 }

@@ -20,7 +20,7 @@ export default function RubyText({ content, className }: RubyTextProps) {
     if (locale === 'learning' && content.includes('||')) {
         const [ja, ko] = content.split('||');
         return (
-            <div className={`flex flex-col gap-1.5 w-full break-words ${className}`}
+            <div className={`flex flex-col gap-1.5 w-full wrap-break-word ${className}`}
                  lang="ja"
             >
                 <span
@@ -42,7 +42,7 @@ export default function RubyText({ content, className }: RubyTextProps) {
     if (hasRuby) {
         return (
             <span
-                className={`${className} whitespace-pre-wrap break-words`}
+                className={`${className} whitespace-pre-wrap wrap-break-word`}
                 lang="ja"
                 dangerouslySetInnerHTML={{ __html: content }}
             />
@@ -51,7 +51,7 @@ export default function RubyText({ content, className }: RubyTextProps) {
 
     return (
         <span
-            className={`${className} ${locale === 'ko' ? 'break-keep' : 'break-words'}`}
+            className={`${className} ${locale === 'ko' ? 'break-keep' : 'wrap-break-word'}`}
             lang={locale}
         >
         {content}

@@ -1,12 +1,27 @@
-import {Link} from "@/navigation";
+import { Link } from "@/navigation";
 
-export default function Logo() {
+interface LogoProps {
+    className?: string;
+}
+
+export default function Logo({
+    className,
+}: LogoProps) {
     return (
         <Link
             href="/"
-            className="text-2xl font-black text-blue-600 dark:text-blue-400 hover:opacity-80 transition-all tracking-tighter"
+            className={`
+                whitespace-nowrap
+                font-black
+                tracking-tighter
+                text-blue-600
+                transition-all
+                hover:opacity-80
+                dark:text-blue-400
+                ${className ?? "text-2xl"}
+            `}
         >
             TranslaCat
         </Link>
     );
-};
+}

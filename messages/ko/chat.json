@@ -197,6 +197,11 @@
         "FRIEND_LOAD_FAILED": "친구 목록을 불러오지 못했습니다.",
         "SUBMIT_FAILED": "멤버 초대 처리에 실패했습니다."
       }
+    },
+    "readStatus": {
+      "updateFailed": "읽음 상태를 동기화하지 못했습니다.",
+      "retry": "다시 시도",
+      "unreadMembers": "아직 읽지 않은 멤버 {count}명"
     }
   },
   "ChatRoomCreate": {
@@ -279,6 +284,9 @@
       "title": "채팅방 목록을 표시할 수 없습니다",
       "loadFailed": "채팅방 목록을 불러오지 못했습니다.",
       "retry": "다시 시도"
+    },
+    "unread": {
+      "ariaLabel": "읽지 않은 메시지 {count}개"
     }
   },
   "ChatHub": {

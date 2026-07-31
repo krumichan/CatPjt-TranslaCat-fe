@@ -4,6 +4,7 @@ import {
     fulfillApiJson,
     fulfillJson,
     mockCommonPageDependencies,
+    mockIdleWebSocket,
 } from "../support/api-mocks";
 import {
     makeRoomListItem,
@@ -50,6 +51,7 @@ async function mockFriends(
 test.describe("Chat hub tabs", () => {
     test.beforeEach(async ({ page }) => {
         await mockCommonPageDependencies(page);
+        await mockIdleWebSocket(page);
     });
 
     test("HUB-01 /chat 진입 시 채팅 탭을 기본 표시한다", async ({

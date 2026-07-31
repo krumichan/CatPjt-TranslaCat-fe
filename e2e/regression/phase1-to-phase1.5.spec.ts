@@ -14,6 +14,7 @@ import {
 test.describe("Phase 1 -> Phase 1.5 transition regression", () => {
     test.beforeEach(async ({ page }) => {
         await mockCommonPageDependencies(page);
+        await mockIdleWebSocket(page);
     });
 
     test("TRANSITION-01 일반 사용자 채팅 목록에 userId 직접 입력 생성 UI가 노출되지 않는다", async ({ page }) => {
@@ -52,7 +53,6 @@ test.describe("Phase 1 -> Phase 1.5 transition regression", () => {
         await page.goto("/chat");
         await expect(page.getByText("Legacy Manual Room")).toBeVisible();
 
-        await mockIdleWebSocket(page);
         await mockChatRoomBase(page, {
             room: {
                 ...room,

@@ -197,6 +197,11 @@
         "FRIEND_LOAD_FAILED": "友達一覧を読み込めませんでした。",
         "SUBMIT_FAILED": "メンバー招待処理に失敗しました。"
       }
+    },
+    "readStatus": {
+      "updateFailed": "既読状態を同期できませんでした。",
+      "retry": "再試行",
+      "unreadMembers": "まだ読んでいないメンバー{count}人"
     }
   },
   "ChatRoomCreate": {
@@ -279,6 +284,9 @@
       "title": "チャットルーム一覧を表示できません",
       "loadFailed": "チャットルーム一覧の取得に失敗しました。",
       "retry": "再試行"
+    },
+    "unread": {
+      "ariaLabel": "未読メッセージ{count}件"
     }
   },
   "ChatHub": {

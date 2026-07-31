@@ -7,6 +7,10 @@ import type {
     ChatMessage,
     ChatMessageTranslation,
 } from "@/types/chat";
+import type {
+    ChatMemberReadUpdatedEvent,
+    ChatReadUpdatedEvent,
+} from "@/types/chatWebSocket";
 
 interface UseChatRoomRealtimeParams {
     roomId: number;
@@ -19,6 +23,10 @@ interface UseChatRoomRealtimeParams {
         translation: ChatMessageTranslation,
     ) => void;
     syncLatestMessages: () => Promise<void>;
+    onReadUpdated?: (event: ChatReadUpdatedEvent) => void;
+    onMemberReadUpdated?: (
+        event: ChatMemberReadUpdatedEvent,
+    ) => void;
     sendRestMessage: (
         content: string,
     ) => Promise<boolean>;
@@ -32,6 +40,8 @@ export function useChatRoomRealtime({
     appendMessage,
     applyTranslationCompleted,
     syncLatestMessages,
+    onReadUpdated,
+    onMemberReadUpdated,
     sendRestMessage,
 }: UseChatRoomRealtimeParams) {
     const handleMessageCreated = useCallback(
@@ -67,6 +77,8 @@ export function useChatRoomRealtime({
         onMessageCreated: handleMessageCreated,
         onTranslationCompleted:
             handleTranslationCompleted,
+        onReadUpdated,
+        onMemberReadUpdated,
         onReconnectSyncRequested:
             syncLatestMessages,
     });

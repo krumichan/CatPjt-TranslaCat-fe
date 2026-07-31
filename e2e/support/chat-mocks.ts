@@ -149,6 +149,33 @@ export async function mockChatRoomBase(
         );
     });
 
+
+    await page.route(/.*\/chat\/rooms\/\d+\/read$/, (route) => {
+        if (route.request().method() !== "PATCH") {
+            return route.fallback();
+        }
+
+        const requestedRoomId = getRoomIdFromPath(
+            route.request().url(),
+            roomId,
+        );
+        const body = readRequestJson(route);
+        const lastReadMessageId =
+            typeof body.lastReadMessageId === "number"
+                ? body.lastReadMessageId
+                : 0;
+
+        return fulfillApiJson(
+            route,
+            responseDto({
+                chatRoomId: requestedRoomId,
+                lastReadMessageId,
+                lastReadAt: new Date().toISOString(),
+                unreadCount: 0,
+            }),
+        );
+    });
+
     await page.route(/.*\/chat\/rooms\/\d+\/messages(?:\?.*)?$/, (route) => {
         if (route.request().method() !== "GET") {
             return route.fallback();

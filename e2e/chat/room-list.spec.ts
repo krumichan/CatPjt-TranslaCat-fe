@@ -4,6 +4,7 @@ import {
     fulfillApiJson,
     fulfillJson,
     mockCommonPageDependencies,
+    mockIdleWebSocket,
 } from "../support/api-mocks";
 import {
     makeRoomListItem,
@@ -15,6 +16,7 @@ import { TEST_USERS } from "../support/test-users";
 test.describe("Chat room list", () => {
     test.beforeEach(async ({ page }) => {
         await mockCommonPageDependencies(page);
+        await mockIdleWebSocket(page);
     });
 
     test("ROOM-01~04 MANUAL/FRIEND DIRECT/GROUP를 현재 정책으로 표시한다", async ({

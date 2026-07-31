@@ -23,6 +23,7 @@ import { useChatRoomMenu } from "@/hooks/chat/useChatRoomMenu";
 import { useChatPartnerProfilePreview } from "@/hooks/chat/useChatPartnerProfilePreview";
 import { useChatRoom } from "@/hooks/chat/useChatRoom";
 import { useChatRoomRealtime } from "@/hooks/chat/useChatRoomRealtime";
+import { useChatRoomReadStatus } from "@/hooks/chat/useChatRoomReadStatus";
 
 interface ChatRoomPageProps {
     roomId: number;
@@ -64,6 +65,7 @@ export function ChatRoomPage({
         sendMessage: sendRestMessage,
         appendMessage,
         applyTranslationCompleted,
+        applyMemberReadUpdated,
         syncLatestMessages,
         retryTranslation,
     } = useChatRoom(roomId);
@@ -98,6 +100,15 @@ export function ChatRoomPage({
     const currentUserEmail =
         session?.user?.email ?? null;
 
+    const readStatus = useChatRoomReadStatus({
+        roomId,
+        messages,
+        enabled:
+            !isLoading &&
+            loadErrorCode === null &&
+            room !== null,
+    });
+
     const realtime = useChatRoomRealtime({
         roomId,
         accessToken,
@@ -106,6 +117,10 @@ export function ChatRoomPage({
         appendMessage,
         applyTranslationCompleted,
         syncLatestMessages,
+        onReadUpdated:
+            readStatus.handleReadUpdated,
+        onMemberReadUpdated:
+            applyMemberReadUpdated,
         sendRestMessage,
     });
 
@@ -250,7 +265,7 @@ export function ChatRoomPage({
 
     return (
         <>
-            <div className="fixed inset-x-0 bottom-0 top-17 flex min-h-0 flex-col overflow-hidden bg-slate-950">
+            <div className="fixed inset-x-0 bottom-0 top-17 flex min-h-0 flex-col overflow-hidden bg-slate-100 dark:bg-slate-950">
                 <div className="shrink-0">
                     <ChatRoomHeader
                         room={room}

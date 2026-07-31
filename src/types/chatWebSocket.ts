@@ -15,6 +15,8 @@ export type ChatWebSocketEventType =
     | "chat.message.created"
     | "chat.translation.completed"
     | "chat.translation.failed"
+    | "chat.read.updated"
+    | "chat.member.read.updated"
     | "chat.error";
 
 export interface ChatWebSocketEvent<T = unknown> {
@@ -25,6 +27,27 @@ export interface ChatWebSocketEvent<T = unknown> {
     payload?: T;
     data?: T;
     message?: T;
+}
+
+
+export interface ChatReadUpdatedEvent {
+    eventType: "chat.read.updated";
+    chatRoomId: number;
+    userId: number;
+    lastReadMessageId: number;
+    lastReadAt: string;
+    unreadCount: number;
+    occurredAt: string;
+}
+
+export interface ChatMemberReadUpdatedEvent {
+    eventType: "chat.member.read.updated";
+    chatRoomId: number;
+    readerUserId: number;
+    previousLastReadMessageId: number | null;
+    lastReadMessageId: number;
+    readAt: string;
+    occurredAt: string;
 }
 
 export interface ChatTranslationResultPayload {
@@ -83,6 +106,17 @@ export const extractChatMessageFromEvent = (
     event: ChatWebSocketEvent<unknown>,
 ): ChatMessage | null =>
     extractPayloadWithGuard(event, isChatMessage);
+
+
+export const extractChatReadUpdatedEvent = (
+    event: ChatWebSocketEvent<unknown>,
+): ChatReadUpdatedEvent | null =>
+    extractPayloadWithGuard(event, isChatReadUpdatedEvent);
+
+export const extractChatMemberReadUpdatedEvent = (
+    event: ChatWebSocketEvent<unknown>,
+): ChatMemberReadUpdatedEvent | null =>
+    extractPayloadWithGuard(event, isChatMemberReadUpdatedEvent);
 
 export const extractTranslationResultFromEvent = (
     event: ChatWebSocketEvent<unknown>,
@@ -154,10 +188,48 @@ const isChatMessage = (value: unknown): value is ChatMessage => {
         typeof value.messageType === "string" &&
         typeof value.content === "string" &&
         typeof value.status === "string" &&
+        isNullableNumberOrUndefined(value.unreadMemberCount) &&
         Array.isArray(value.translations) &&
         value.translations.every(isChatMessageTranslation) &&
         typeof value.createdAt === "string" &&
         typeof value.updatedAt === "string"
+    );
+};
+
+
+const isChatReadUpdatedEvent = (
+    value: unknown,
+): value is ChatReadUpdatedEvent => {
+    if (!isRecord(value)) {
+        return false;
+    }
+
+    return (
+        value.eventType === "chat.read.updated" &&
+        typeof value.chatRoomId === "number" &&
+        typeof value.userId === "number" &&
+        typeof value.lastReadMessageId === "number" &&
+        typeof value.lastReadAt === "string" &&
+        typeof value.unreadCount === "number" &&
+        typeof value.occurredAt === "string"
+    );
+};
+
+const isChatMemberReadUpdatedEvent = (
+    value: unknown,
+): value is ChatMemberReadUpdatedEvent => {
+    if (!isRecord(value)) {
+        return false;
+    }
+
+    return (
+        value.eventType === "chat.member.read.updated" &&
+        typeof value.chatRoomId === "number" &&
+        typeof value.readerUserId === "number" &&
+        isNullableNumber(value.previousLastReadMessageId) &&
+        typeof value.lastReadMessageId === "number" &&
+        typeof value.readAt === "string" &&
+        typeof value.occurredAt === "string"
     );
 };
 
@@ -204,3 +276,8 @@ const isNullableString = (value: unknown): value is string | null =>
 
 const isNullableNumber = (value: unknown): value is number | null =>
     value === null || typeof value === "number";
+
+const isNullableNumberOrUndefined = (
+    value: unknown,
+): value is number | null | undefined =>
+    value === undefined || isNullableNumber(value);

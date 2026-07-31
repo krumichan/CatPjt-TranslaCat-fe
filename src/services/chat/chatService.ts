@@ -13,6 +13,8 @@ import type {
     ChatRoomCreateRequest,
     ChatRoomListResponse,
     ChatRoomMemberListResponse,
+    ChatRoomReadRequest,
+    ChatRoomReadResponse,
 } from "@/types/chat";
 import type { ResponseDto } from "@/types/common";
 import { normalizeChatLanguageSettingsRequest } from "@/utils/chat/chatLanguageSettings";
@@ -187,6 +189,17 @@ export const chatService = {
                 return parseBody<ChatLanguageSettings>(response);
             },
         );
+    },
+
+    markRoomAsRead: async (
+        roomId: string | number,
+        request: ChatRoomReadRequest,
+    ): Promise<ChatRoomReadResponse> => {
+        const response = await apiClient(`/chat/rooms/${roomId}/read`, {
+            method: "PATCH",
+            body: JSON.stringify(request),
+        });
+        return parseBody<ChatRoomReadResponse>(response);
     },
 
     getMessages: async (

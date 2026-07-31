@@ -99,6 +99,7 @@ export interface ChatRoomListItem {
     description: string | null;
     ownerId: number | null;
     memberCount: number;
+    unreadCount: number;
     createdAt: string;
     updatedAt: string;
 
@@ -231,6 +232,7 @@ export interface ChatMessage {
     messageType: ChatMessageType;
     content: string;
     status: ChatMessageStatus;
+    unreadMemberCount: number | null;
     translations: ChatMessageTranslation[];
     createdAt: string;
     updatedAt: string;
@@ -244,4 +246,15 @@ export interface ChatMessageListResponse {
 
 export interface ChatMessageCreateRequest {
     content: string;
+}
+
+export interface ChatRoomReadRequest {
+    lastReadMessageId: number;
+}
+
+export interface ChatRoomReadResponse {
+    chatRoomId: number;
+    lastReadMessageId: number;
+    lastReadAt: string;
+    unreadCount: number;
 }

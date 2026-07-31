@@ -8,9 +8,13 @@ import type {
     ChatMessageTranslation,
 } from "@/types/chat";
 import {
+    extractChatMemberReadUpdatedEvent,
     extractChatMessageFromEvent,
+    extractChatReadUpdatedEvent,
     extractTranslationResultFromEvent,
     getChatWebSocketEventType,
+    type ChatMemberReadUpdatedEvent,
+    type ChatReadUpdatedEvent,
     type ChatWebSocketConnectionStatus,
     type ChatWebSocketEvent,
 } from "@/types/chatWebSocket";
@@ -25,6 +29,10 @@ interface UseChatRoomWebSocketParams {
     onTranslationCompleted?: (
         messageId: number,
         translation: ChatMessageTranslation,
+    ) => void;
+    onReadUpdated?: (event: ChatReadUpdatedEvent) => void;
+    onMemberReadUpdated?: (
+        event: ChatMemberReadUpdatedEvent,
     ) => void;
     onReconnectSyncRequested?: () => Promise<void>;
 }
@@ -42,6 +50,8 @@ export const useChatRoomWebSocket = ({
     accessToken,
     onMessageCreated,
     onTranslationCompleted,
+    onReadUpdated,
+    onMemberReadUpdated,
     onReconnectSyncRequested,
 }: UseChatRoomWebSocketParams): UseChatRoomWebSocketResult => {
     const clientRef = useRef<Client | null>(null);
@@ -100,6 +110,25 @@ export const useChatRoomWebSocket = ({
                     return;
                 }
 
+                if (eventType === "chat.read.updated") {
+                    const readUpdated = extractChatReadUpdatedEvent(parsed);
+
+                    if (readUpdated) {
+                        onReadUpdated?.(readUpdated);
+                    }
+                    return;
+                }
+
+                if (eventType === "chat.member.read.updated") {
+                    const memberReadUpdated =
+                        extractChatMemberReadUpdatedEvent(parsed);
+
+                    if (memberReadUpdated) {
+                        onMemberReadUpdated?.(memberReadUpdated);
+                    }
+                    return;
+                }
+
                 if (
                     eventType === "chat.translation.completed" ||
                     eventType === "chat.translation.failed"
@@ -124,7 +153,12 @@ export const useChatRoomWebSocket = ({
                 console.error("Failed to parse chat websocket message", error);
             }
         },
-        [onMessageCreated, onTranslationCompleted],
+        [
+            onMemberReadUpdated,
+            onMessageCreated,
+            onReadUpdated,
+            onTranslationCompleted,
+        ],
     );
 
     useEffect(() => {
@@ -165,6 +199,14 @@ export const useChatRoomWebSocket = ({
 
                 client.subscribe(
                     `/topic/chat/rooms/${roomId}`,
+                    handleStompMessage,
+                    {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                );
+
+                client.subscribe(
+                    "/user/queue/chat/read",
                     handleStompMessage,
                     {
                         Authorization: `Bearer ${accessToken}`,

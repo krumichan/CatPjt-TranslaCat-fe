@@ -93,6 +93,7 @@ export const makeRoomListItem = ({
     name,
     description = null,
     memberCount,
+    unreadCount = 0,
 }: {
     id: number;
     roomType: "DIRECT" | "GROUP";
@@ -100,6 +101,7 @@ export const makeRoomListItem = ({
     name: string | null;
     description?: string | null;
     memberCount: number;
+    unreadCount?: number;
 }) => ({
     id,
     roomType,
@@ -108,6 +110,7 @@ export const makeRoomListItem = ({
     description,
     ownerId: TEST_USERS.A.userId,
     memberCount,
+    unreadCount,
     createdAt: NOW,
     updatedAt: LATER,
 });
@@ -197,29 +200,38 @@ export const makeTranslation = ({
 
 export const makeMessage = ({
     id,
+    roomId = 501,
     sender = TEST_USERS.B,
     content,
     translations = [],
     senderProfileImageUrl = null,
+    senderType = "USER",
+    messageType = "TEXT",
+    unreadMemberCount = senderType === "SYSTEM" ? null : 0,
 }: {
     id: number;
+    roomId?: number;
     sender?: E2ETestUser;
     content: string;
     translations?: ReturnType<
         typeof makeTranslation
     >[];
     senderProfileImageUrl?: string | null;
+    senderType?: "USER" | "AI" | "SYSTEM";
+    messageType?: "TEXT" | "SYSTEM";
+    unreadMemberCount?: number | null;
 }) => ({
     id,
-    chatRoomId: 501,
-    senderUserId: sender.userId,
-    senderName: sender.nickname,
-    senderEmail: sender.email,
+    chatRoomId: roomId,
+    senderUserId: senderType === "USER" ? sender.userId : null,
+    senderName: senderType === "USER" ? sender.nickname : null,
+    senderEmail: senderType === "USER" ? sender.email : null,
     senderProfileImageUrl,
-    senderType: "USER",
-    messageType: "TEXT",
+    senderType,
+    messageType,
     content,
     status: "SENT",
+    unreadMemberCount,
     translations,
     createdAt: NOW,
     updatedAt: LATER,

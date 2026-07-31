@@ -45,6 +45,8 @@ export function ChatMessageItem({
     const locale = useLocale();
     const tMemberProfile =
         useTranslations("ChatRoom.memberProfile");
+    const tReadStatus =
+        useTranslations("ChatRoom.readStatus");
     const showOriginalContent = shouldShowOriginalMessageContent(
         message.translations,
         languageSettings,
@@ -52,6 +54,14 @@ export function ChatMessageItem({
     const messageTime = formatMessageTime(message.createdAt, locale);
     const showSenderProfile =
         !isMine && message.senderType === "USER";
+    const unreadMemberCount =
+        typeof message.unreadMemberCount === "number"
+            ? message.unreadMemberCount
+            : 0;
+    const showUnreadMemberCount =
+        message.senderType !== "SYSTEM" &&
+        message.messageType !== "SYSTEM" &&
+        unreadMemberCount > 0;
 
     return (
         <div
@@ -187,13 +197,39 @@ export function ChatMessageItem({
                         />
                     </div>
 
-                    {messageTime && (
-                        <time
-                            dateTime={message.createdAt}
-                            className="mb-1 shrink-0 text-[11px] font-semibold text-slate-400 dark:text-slate-500"
+                    {(showUnreadMemberCount || messageTime) && (
+                        <div
+                            className={`mb-1 flex shrink-0 flex-col gap-0.5 ${
+                                isMine
+                                    ? "items-end"
+                                    : "items-start"
+                            }`}
                         >
-                            {messageTime}
-                        </time>
+                            {showUnreadMemberCount && (
+                                <span
+                                    data-testid={`chat-message-unread-count-${message.id}`}
+                                    aria-label={tReadStatus(
+                                        "unreadMembers",
+                                        {
+                                            count:
+                                                unreadMemberCount,
+                                        },
+                                    )}
+                                    className="text-[11px] font-bold leading-none text-amber-500 dark:text-amber-300"
+                                >
+                                    {unreadMemberCount}
+                                </span>
+                            )}
+
+                            {messageTime && (
+                                <time
+                                    dateTime={message.createdAt}
+                                    className="text-[11px] font-semibold text-slate-400 dark:text-slate-500"
+                                >
+                                    {messageTime}
+                                </time>
+                            )}
+                        </div>
                     )}
                 </div>
             </div>

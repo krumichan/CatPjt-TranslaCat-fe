@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 
 import { ChatRoomAvatar } from "@/components/chat/common/ChatRoomAvatar";
+import { ChatUnreadBadge } from "@/components/chat/list/ChatUnreadBadge";
 import type {
     ChatRoomListItem as ChatRoomListItemType,
     ChatRoomSourceType,
@@ -142,7 +143,13 @@ export function ChatRoomListItem({ room }: ChatRoomListItemProps) {
                             </div>
                         </div>
 
-                        <ChevronRight className="mt-1 h-5 w-5 shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-blue-500 dark:text-slate-600" />
+                        <div className="flex shrink-0 items-center gap-2">
+                            <ChatUnreadBadge
+                                count={room.unreadCount}
+                                roomId={room.id}
+                            />
+                            <ChevronRight className="mt-1 h-5 w-5 shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-blue-500 dark:text-slate-600" />
+                        </div>
                     </div>
 
                     {room.description && (

@@ -3,6 +3,7 @@ import { expect, test } from "../fixtures/mock-test";
 import {
     fulfillJson,
     mockCommonPageDependencies,
+    mockIdleWebSocket,
 } from "../support/api-mocks";
 import {
     makeRoomListItem,
@@ -13,6 +14,7 @@ async function mockNavigationDependencies(
     page: import("@playwright/test").Page,
 ) {
     await mockCommonPageDependencies(page);
+    await mockIdleWebSocket(page);
 
     await page.route("**/recent/top10", (route) =>
         fulfillJson(route, responseDto([])),

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { chatService } from "@/services/chat/chatService";
 import type {
@@ -8,6 +8,7 @@ import type {
     ChatMessageTranslation,
     ChatRoom,
 } from "@/types/chat";
+import type { ChatMemberReadUpdatedEvent } from "@/types/chatWebSocket";
 
 type ChatRoomLoadErrorCode = "LOAD_FAILED";
 type ChatRoomSendErrorCode = "SEND_FAILED";
@@ -40,6 +41,9 @@ interface UseChatRoomResult {
     applyTranslationCompleted: (
         messageId: number,
         translation: ChatMessageTranslation,
+    ) => void;
+    applyMemberReadUpdated: (
+        event: ChatMemberReadUpdatedEvent,
     ) => void;
     syncLatestMessages: () => Promise<void>;
     retryTranslation: (
@@ -172,6 +176,9 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
     );
     const [retryTranslationErrorKeySet, setRetryTranslationErrorKeySet] =
         useState(() => new Set<string>());
+    const appliedReadCursorByUserRef = useRef(
+        new Map<number, number>(),
+    );
 
     const retryingTranslationKeys = useMemo(
         () => Array.from(retryingTranslationKeySet),
@@ -306,6 +313,60 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
         [],
     );
 
+    const applyMemberReadUpdated = useCallback(
+        (event: ChatMemberReadUpdatedEvent) => {
+            if (event.chatRoomId !== roomId) {
+                return;
+            }
+
+            const lastAppliedCursor =
+                appliedReadCursorByUserRef.current.get(
+                    event.readerUserId,
+                ) ?? 0;
+
+            if (event.lastReadMessageId <= lastAppliedCursor) {
+                return;
+            }
+
+            const effectivePreviousCursor = Math.max(
+                event.previousLastReadMessageId ?? 0,
+                lastAppliedCursor,
+            );
+
+            appliedReadCursorByUserRef.current.set(
+                event.readerUserId,
+                event.lastReadMessageId,
+            );
+
+            setMessages((currentMessages) =>
+                currentMessages.map((message) => {
+                    if (
+                        message.senderType === "SYSTEM" ||
+                        message.messageType === "SYSTEM" ||
+                        message.senderUserId ===
+                            event.readerUserId ||
+                        message.id <= effectivePreviousCursor ||
+                        message.id > event.lastReadMessageId ||
+                        message.unreadMemberCount === null ||
+                        message.unreadMemberCount === undefined ||
+                        message.unreadMemberCount <= 0
+                    ) {
+                        return message;
+                    }
+
+                    return {
+                        ...message,
+                        unreadMemberCount: Math.max(
+                            0,
+                            message.unreadMemberCount - 1,
+                        ),
+                    };
+                }),
+            );
+        },
+        [roomId],
+    );
+
     const syncLatestMessages = useCallback(async () => {
         try {
             const messageResponse = await chatService.getMessages(roomId);
@@ -387,6 +448,7 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
     );
 
     useEffect(() => {
+        appliedReadCursorByUserRef.current.clear();
         void load();
     }, [load]);
 
@@ -409,6 +471,7 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
         sendMessage,
         appendMessage,
         applyTranslationCompleted,
+        applyMemberReadUpdated,
         syncLatestMessages,
         retryTranslation,
     };

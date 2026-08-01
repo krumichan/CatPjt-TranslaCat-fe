@@ -88,8 +88,14 @@ export const useChatRoomWebSocket = ({
 }: UseChatRoomWebSocketParams): UseChatRoomWebSocketResult => {
     const clientRef = useRef<Client | null>(null);
     const connectionKeyRef = useRef<string | null>(null);
-    const hasConnectedOnceRef = useRef(false);
-    const stoppedByStompErrorRef = useRef(false);
+
+    /**
+     * 같은 roomId와 accessToken으로 Client가 다시 생성되더라도
+     * 이전 Client의 지연된 close/error callback이 최신 상태를
+     * 덮어쓰지 못하도록 연결 세대를 구분한다.
+     */
+    const connectionGenerationRef = useRef(0);
+
     const eventHandlersRef = useRef({
         onMessageCreated,
         onTranslationCompleted,
@@ -306,16 +312,31 @@ export const useChatRoomWebSocket = ({
     );
 
     useEffect(() => {
+        /*
+         * Effect가 다시 실행될 때마다 새로운 세대를 발급한다.
+         * 이전 Client의 callback은 세대가 달라지므로 무시된다.
+         */
+        const generation = ++connectionGenerationRef.current;
+
         if (!connectionKey || !accessToken) {
             clientRef.current = null;
             connectionKeyRef.current = null;
-            hasConnectedOnceRef.current = false;
-            stoppedByStompErrorRef.current = false;
             return;
         }
 
         connectionKeyRef.current = connectionKey;
-        stoppedByStompErrorRef.current = false;
+
+        /*
+         * 재연결 여부와 STOMP 오류 여부는 Client별 상태다.
+         * Hook 전체 Ref로 공유하면 이전 Client의 상태가
+         * 새 Client에 영향을 줄 수 있으므로 지역 변수로 관리한다.
+         */
+        let hasConnectedOnce = false;
+        let stoppedByStompError = false;
+
+        const isCurrentConnection = () =>
+            connectionGenerationRef.current === generation &&
+            connectionKeyRef.current === connectionKey;
 
         const client = new Client({
             brokerURL: getChatWebSocketUrl(),
@@ -330,14 +351,16 @@ export const useChatRoomWebSocket = ({
                     console.debug("[chat websocket]", message);
                 }
             },
+
             onConnect: () => {
-                if (connectionKeyRef.current !== connectionKey) {
+                if (!isCurrentConnection()) {
                     return;
                 }
 
-                const shouldSyncAfterReconnect = hasConnectedOnceRef.current;
+                const shouldSyncAfterReconnect = hasConnectedOnce;
 
-                hasConnectedOnceRef.current = true;
+                hasConnectedOnce = true;
+
                 setConnectedConnectionKey(connectionKey);
                 setRawConnectionStatus("CONNECTED");
 
@@ -368,48 +391,64 @@ export const useChatRoomWebSocket = ({
                 }
 
                 if (shouldSyncAfterReconnect) {
-                    void eventHandlersRef.current.onReconnectSyncRequested?.();
+                    void eventHandlersRef.current
+                        .onReconnectSyncRequested?.();
                 }
             },
+
             onDisconnect: () => {
-                if (connectionKeyRef.current !== connectionKey) {
+                if (!isCurrentConnection()) {
                     return;
                 }
 
                 setRawConnectionStatus("DISCONNECTED");
             },
+
             onStompError: (frame) => {
-                if (connectionKeyRef.current !== connectionKey) {
+                if (!isCurrentConnection()) {
                     return;
                 }
 
-                console.error("Chat websocket STOMP error.", frame);
+                console.error(
+                    "Chat websocket STOMP error.",
+                    frame,
+                );
+
+                stoppedByStompError = true;
                 setRawConnectionStatus("ERROR");
-                stoppedByStompErrorRef.current = true;
 
                 /*
-                 * STOMP ERROR는 서버가 CONNECT/SUBSCRIBE/SEND 프레임 처리 중
-                 * 명시적으로 오류를 반환한 상태다.
-                 * 그대로 reconnectDelay에 맡기면 같은 ERROR가 3초마다 반복되므로,
-                 * 현재 세션에서는 자동 재연결을 멈추고 REST 송신 fallback을 사용한다.
+                 * 서버가 STOMP ERROR를 명시적으로 반환한 경우에는
+                 * 같은 요청을 반복하지 않도록 현재 Client의
+                 * 자동 재연결을 중지한다.
                  */
                 client.reconnectDelay = 0;
                 void client.deactivate();
             },
+
             onWebSocketError: (event) => {
-                if (connectionKeyRef.current !== connectionKey) {
+                if (!isCurrentConnection()) {
                     return;
                 }
 
-                console.error("Chat websocket error.", event);
+                console.error(
+                    "Chat websocket error.",
+                    event,
+                );
+
                 setRawConnectionStatus("ERROR");
             },
+
             onWebSocketClose: () => {
-                if (connectionKeyRef.current !== connectionKey) {
+                /*
+                 * 이전 Client가 늦게 종료되더라도
+                 * 현재 Client의 CONNECTED 상태를 덮어쓰지 않는다.
+                 */
+                if (!isCurrentConnection()) {
                     return;
                 }
 
-                if (stoppedByStompErrorRef.current) {
+                if (stoppedByStompError) {
                     setRawConnectionStatus("ERROR");
                     return;
                 }
@@ -422,7 +461,20 @@ export const useChatRoomWebSocket = ({
         client.activate();
 
         return () => {
-            clientRef.current = null;
+            /*
+             * deactivate()를 호출하기 전에 현재 세대를 무효화한다.
+             * deactivate 과정에서 onDisconnect/onWebSocketClose가
+             * 늦게 호출되어도 상태를 변경하지 못한다.
+             */
+            if (connectionGenerationRef.current === generation) {
+                connectionGenerationRef.current += 1;
+                connectionKeyRef.current = null;
+            }
+
+            if (clientRef.current === client) {
+                clientRef.current = null;
+            }
+
             void client.deactivate();
         };
     }, [

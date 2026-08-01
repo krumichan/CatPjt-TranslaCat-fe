@@ -224,7 +224,7 @@ export function ChatRoomHeader({
                         </span>
 
                         {connectionStatusLabel && (
-                            <span>
+                            <span data-testid="chat-websocket-status">
                                 {connectionStatusLabel}
                             </span>
                         )}

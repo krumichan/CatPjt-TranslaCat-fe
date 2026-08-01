@@ -15,7 +15,8 @@
     "test:e2e:headed": "playwright test --project=mock-chromium --headed",
     "test:e2e:report": "playwright show-report",
     "e2e:auth": "node scripts/setup-playwright-auth.mjs",
-    "test:e2e:integration": "node scripts/run-integration-e2e.mjs"
+    "test:e2e:integration": "node scripts/run-integration-e2e.mjs",
+    "test:e2e:integration:open": "node scripts/run-integration-e2e.mjs --grep OPEN-INT"
   },
   "dependencies": {
     "@fontsource/noto-sans-jp": "^5.2.9",

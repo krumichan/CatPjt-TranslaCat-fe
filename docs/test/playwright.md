@@ -59,7 +59,7 @@ npm run test:e2e:ui
 
 ```powershell
 $env:PLAYWRIGHT_SKIP_WEB_SERVER="1"
-$env:PLAYWRIGHT_BASE_URL="http://127.0.0.1:3000"
+$env:E2E_BASE_URL="http://127.0.0.1:3000"
 npm run test:e2e
 ```
 
@@ -73,3 +73,22 @@ npm run test:e2e
 4. `npm run build` 성공 확인
 5. 관련 Playwright 테스트 추가 또는 실행
 6. 이슈 완료 처리
+
+
+## 실제 BE/FE 결합 테스트
+
+Mock이 아닌 실제 서버를 대상으로 하는 테스트는 `integration-chromium` 프로젝트로 분리한다.
+
+```powershell
+Copy-Item .env.e2e.example .env.e2e.local
+npm run e2e:auth
+npm run test:e2e:integration
+```
+
+OPEN 채팅 결합 흐름만 실행하려면 다음 명령을 사용한다.
+
+```powershell
+npm run test:e2e:integration:open
+```
+
+상세한 준비 절차와 Docs #12 체크 기준은 `docs/test/phase2-open-chat-integration-qa.md`를 참고한다.

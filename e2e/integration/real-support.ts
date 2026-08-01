@@ -5,6 +5,7 @@ export const REAL_E2E_ENABLED = process.env.E2E_REAL === "1";
 export const RESET_REAL_STATE = process.env.E2E_RESET_STATE === "1";
 
 const API_BASE_URL = process.env.E2E_API_BASE_URL;
+const APP_BASE_URL = process.env.E2E_BASE_URL ?? "http://localhost:3000";
 
 export type RealUserSession = {
     key: TestUserKey;
@@ -51,10 +52,22 @@ export async function openRealUser(
     key: TestUserKey,
 ): Promise<RealUserSession> {
     const context = await browser.newContext({
+        baseURL: APP_BASE_URL,
         storageState: AUTH_STATE_PATHS[key],
     });
 
     const page = await context.newPage();
+
+    page.on("console", (message) => {
+        if (message.type() === "error" || message.type() === "warning") {
+            console.log(
+                `[${key}] browser ${message.type()}: ${message.text()}`,
+            );
+        }
+    });
+    page.on("pageerror", (error) => {
+        console.log(`[${key}] browser pageerror: ${error.message}`);
+    });
 
     const { accessToken } = await getSession(page);
 

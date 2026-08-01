@@ -21,7 +21,10 @@ export default function Header({
     const t = useTranslations("Navigation.mobile");
 
     return (
-        <header className="fixed left-0 right-0 top-0 z-100 flex h-15 items-center justify-between border-b border-slate-200 bg-white/90 px-2.5 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/90 sm:px-4">
+        <header
+            data-testid="app-header"
+            className="fixed left-0 right-0 top-0 z-100 flex h-15 items-center justify-between border-b border-slate-200 bg-white/90 px-2.5 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/90 sm:px-4"
+        >
             <div className="flex min-w-0 items-center gap-2">
                 <button
                     type="button"

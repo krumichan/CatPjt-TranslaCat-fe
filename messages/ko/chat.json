@@ -303,7 +303,54 @@
         "FILE_TOO_LARGE": "이미지 파일은 5MB 이하만 사용할 수 있습니다.",
         "ROOM_CLOSED": "종료된 OPEN 채팅방에서는 프로필을 수정할 수 없습니다.",
         "ACCESS_DENIED": "현재 상태에서는 OPEN 프로필을 수정할 수 없습니다. 방 상태를 다시 확인했습니다.",
-        "SAVE_FAILED": "OPEN 프로필 저장에 실패했습니다. 선택한 이미지는 유지되므로 다시 시도할 수 있습니다."
+        "SAVE_FAILED": "OPEN 프로필 저장에 실패했습니다. 선택한 이미지는 유지되므로 다시 시도할 수 있습니다.",
+        "JOIN_ROOM_FULL": "정원이 마감되었습니다. 방 상태를 다시 확인해주세요.",
+        "JOIN_ROOM_CLOSED": "종료된 OPEN 채팅방에는 참여할 수 없습니다.",
+        "JOIN_BANNED": "이 OPEN 채팅방에는 다시 참여할 수 없습니다.",
+        "JOIN_FAILED": "OPEN 채팅방 참여에 실패했습니다.",
+        "PROFILE_IMAGE_FAILED_AFTER_JOIN": "참여는 완료되었지만 이미지 처리에 실패했습니다. 선택한 이미지는 유지됩니다."
+      }
+    },
+    "openLifecycle": {
+      "menu": {
+        "LEAVE": "OPEN 방 나가기",
+        "TRANSFER_AND_LEAVE": "OWNER 위임 후 나가기",
+        "CLOSE": "OPEN 방 종료"
+      },
+      "close": "닫기",
+      "cancel": "취소",
+      "goToExplore": "OPEN 목록으로 이동",
+      "transfer": {
+        "targetLabel": "새 OWNER 선택"
+      },
+      "dialog": {
+        "LEAVE": {
+          "title": "OPEN 방에서 나갈까요?",
+          "description": "프로필과 memberCode는 유지되지만 재참여 이전 메시지는 다시 볼 수 없습니다.",
+          "confirm": "방 나가기"
+        },
+        "TRANSFER_AND_LEAVE": {
+          "title": "OWNER를 위임하고 나갈까요?",
+          "description": "활성 멤버에게 OWNER를 위임한 뒤 현재 계정은 방에서 나갑니다.",
+          "confirm": "위임 후 나가기"
+        },
+        "CLOSE": {
+          "title": "OPEN 방을 종료할까요?",
+          "description": "종료한 방은 복구할 수 없고 모든 멤버가 더 이상 메시지를 보낼 수 없습니다.",
+          "confirm": "방 종료"
+        },
+        "CLOSED_NOTICE": {
+          "title": "OPEN 방이 종료되었습니다",
+          "description": "방장이 이 OPEN 채팅방을 종료했습니다. 메시지 전송이 중지되었습니다.",
+          "confirm": "확인"
+        }
+      },
+      "errors": {
+        "TARGET_REQUIRED": "OWNER를 위임할 멤버를 선택해주세요.",
+        "ROOM_CLOSED": "이미 종료된 방입니다.",
+        "ACCESS_DENIED": "이 작업을 수행할 권한이 없습니다.",
+        "ACTION_FAILED": "처리에 실패했습니다. 잠시 후 다시 시도해주세요.",
+        "LEAVE_FAILED_AFTER_TRANSFER": "OWNER 위임은 완료되었습니다. 방 나가기를 다시 시도해주세요."
       }
     }
   },
@@ -403,6 +450,9 @@
     },
     "openChatCreate": {
       "label": "새 OPEN 채팅 만들기"
+    },
+    "openChatExplore": {
+      "label": "OPEN 채팅 둘러보기"
     }
   },
   "OpenChatCreate": {
@@ -480,6 +530,120 @@
       "CREATE_FAILED": "OPEN 채팅방 생성에 실패했습니다. 입력값은 유지되므로 다시 시도해주세요.",
       "IMAGE_UPLOAD_FAILED_AFTER_CREATE": "방은 생성되었지만 프로필 이미지 업로드에 실패했습니다. 선택한 이미지는 유지되며 방을 중복 생성하지 않고 다시 시도합니다.",
       "PROFILE_SYNC_FAILED_AFTER_CREATE": "방은 생성되었지만 OWNER 프로필 저장을 마무리하지 못했습니다. 입력값을 유지한 채 다시 시도해주세요."
+    }
+  },
+  "OpenChatExplore": {
+    "badge": "OPEN Chat",
+    "title": "OPEN 채팅 둘러보기",
+    "description": "공개 OPEN 채팅방을 검색하고, 방별 프로필을 설정해 새로운 대화에 참여해보세요.",
+    "backToChat": "내 채팅으로",
+    "create": "새 OPEN 채팅 만들기",
+    "visibility": {
+      "PUBLIC": "공개",
+      "UNLISTED": "링크 공개"
+    },
+    "status": {
+      "joined": "참여 중",
+      "full": "정원 마감",
+      "joinable": "참여 가능",
+      "banned": "참여 제한"
+    },
+    "owner": "방장",
+    "members": "참여 인원",
+    "lastActivity": "최근 활동",
+    "openDetail": "{name} 상세 보기",
+    "enter": "채팅방 입장",
+    "detail": "상세 보기",
+    "search": {
+      "label": "OPEN 채팅 검색",
+      "placeholder": "방 이름 또는 설명 검색",
+      "clear": "검색어 지우기",
+      "searching": "검색어 입력을 기다리는 중...",
+      "help": "빈 검색어에서는 전체 공개 OPEN 채팅방을 표시합니다."
+    },
+    "loading": "OPEN 채팅방을 불러오는 중...",
+    "error": {
+      "title": "OPEN 채팅방을 불러오지 못했습니다",
+      "description": "잠시 후 다시 시도해주세요.",
+      "retry": "다시 시도"
+    },
+    "empty": {
+      "title": "공개 OPEN 채팅방이 없습니다",
+      "description": "새 OPEN 채팅방을 만들거나 잠시 후 다시 확인해주세요.",
+      "searchTitle": "검색 결과가 없습니다",
+      "searchDescription": "다른 방 이름이나 설명으로 검색해보세요."
+    },
+    "listLabel": "PUBLIC OPEN 채팅방 목록",
+    "loadMore": "더 보기",
+    "loadingMore": "추가로 불러오는 중...",
+    "loadMoreFailed": "추가 OPEN 채팅방을 불러오지 못했습니다."
+  },
+  "OpenChatDetail": {
+    "loading": "OPEN 채팅방 상세를 불러오는 중...",
+    "backToExplore": "OPEN 채팅 둘러보기로",
+    "visibility": {
+      "PUBLIC": "공개",
+      "UNLISTED": "링크 공개"
+    },
+    "status": {
+      "joined": "참여 중"
+    },
+    "members": "참여 인원",
+    "lastActivity": "최근 활동",
+    "owner": {
+      "eyebrow": "Room owner",
+      "description": "이 방에서만 사용하는 OWNER의 OPEN 프로필입니다."
+    },
+    "privacyNotice": "이 화면에는 방별 OPEN 프로필만 표시되며 일반 프로필, TranslaCat ID, 친구 관계는 공개되지 않습니다.",
+    "error": {
+      "title": "OPEN 채팅방을 표시할 수 없습니다",
+      "description": "방 정보를 불러오지 못했습니다.",
+      "notFoundTitle": "OPEN 채팅방을 찾을 수 없습니다",
+      "notFoundDescription": "삭제되었거나 접근할 수 없는 방입니다.",
+      "retry": "다시 시도"
+    },
+    "action": {
+      "joinedTitle": "이미 참여 중인 방입니다",
+      "joinedDescription": "기존 채팅방으로 이동해 대화를 계속할 수 있습니다.",
+      "enter": "채팅방 입장",
+      "join": "참여하기",
+      "rejoin": "다시 참여하기",
+      "NONE": {
+        "title": "이 방에 참여할 수 있습니다",
+        "description": "이 방에서 사용할 별도 OPEN 프로필을 설정해주세요.",
+        "label": "참여 가능"
+      },
+      "ALREADY_JOINED": {
+        "title": "이미 참여 중입니다",
+        "description": "채팅방으로 이동할 수 있습니다.",
+        "label": "참여 중"
+      },
+      "ROOM_FULL": {
+        "title": "정원이 마감되었습니다",
+        "description": "현재 최대 인원에 도달했습니다. 자리가 생긴 뒤 다시 시도해주세요.",
+        "label": "정원 마감"
+      },
+      "ROOM_CLOSED": {
+        "title": "종료된 방입니다",
+        "description": "방장이 종료한 방에는 새로 참여할 수 없습니다.",
+        "label": "종료된 방"
+      },
+      "BANNED": {
+        "title": "재참여가 제한되었습니다",
+        "description": "이 방의 운영 정책에 따라 다시 참여할 수 없습니다.",
+        "label": "재참여 제한"
+      }
+    },
+    "join": {
+      "eyebrow": "Join OPEN room",
+      "title": "{name} 참여 프로필",
+      "rejoinTitle": "{name} 재참여 프로필",
+      "close": "참여 설정 닫기",
+      "rejoinNotice": "기존 memberCode와 프로필은 유지됩니다. 재참여 이전 메시지는 조회할 수 없습니다.",
+      "partialSuccess": "방 참여는 완료되었습니다. 남은 이미지 처리를 다시 시도해주세요.",
+      "retryImage": "이미지 처리 다시 시도",
+      "submit": "이 프로필로 참여",
+      "rejoinSubmit": "이 프로필로 재참여"
     }
   }
 }

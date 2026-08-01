@@ -6,6 +6,7 @@ import {
     Hash,
     Info,
     Loader2,
+    LogOut,
     Pencil,
     RefreshCw,
     UserPlus,
@@ -32,6 +33,7 @@ import type {
 import type {
     ChatRoomInvitationSuccessCode,
 } from "@/hooks/chat/useChatRoomInvitation";
+import type { OpenChatLifecycleAction } from "@/hooks/chat/useOpenChatRoomLifecycle";
 
 interface ChatRoomMenuDrawerProps {
     isOpen: boolean;
@@ -54,6 +56,8 @@ interface ChatRoomMenuDrawerProps {
     ) => void;
     canEditMyOpenProfile: boolean;
     onOpenMyOpenProfile: () => void;
+    openLifecycleAction: OpenChatLifecycleAction | null;
+    onOpenLifecycle: () => void;
     onOpenInvitation: () => void;
     onDismissSuccess: () => void;
 }
@@ -73,6 +77,8 @@ export function ChatRoomMenuDrawer({
     onOpenOpenMemberProfile,
     canEditMyOpenProfile,
     onOpenMyOpenProfile,
+    openLifecycleAction,
+    onOpenLifecycle,
     onOpenInvitation,
     onDismissSuccess,
 }: ChatRoomMenuDrawerProps) {
@@ -260,6 +266,18 @@ export function ChatRoomMenuDrawer({
                             >
                                 <Pencil className="h-4 w-4" aria-hidden="true" />
                                 {t("openProfile.menu.editMyProfile")}
+                            </button>
+                        )}
+
+                        {room.roomType === "OPEN" && openLifecycleAction && (
+                            <button
+                                type="button"
+                                data-testid="open-chat-lifecycle-button"
+                                onClick={onOpenLifecycle}
+                                className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-rose-200 px-4 py-3 text-sm font-black text-rose-500 transition hover:bg-rose-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 dark:border-rose-400/30 dark:text-rose-200 dark:hover:bg-rose-500/10"
+                            >
+                                <LogOut className="h-4 w-4" aria-hidden="true" />
+                                {t(`openLifecycle.menu.${openLifecycleAction}`)}
                             </button>
                         )}
                     </section>

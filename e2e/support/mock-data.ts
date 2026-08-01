@@ -268,6 +268,115 @@ export const makeOpenChatProfile = ({
     joinedAt,
 });
 
+export const makeOpenChatRoomListItem = ({
+    id,
+    name = `OPEN room ${id}`,
+    description = `OPEN room ${id} description`,
+    visibility = "PUBLIC",
+    status = "ACTIVE",
+    memberCount = 2,
+    maxMemberCount = 50,
+    joined = false,
+    joinable = true,
+    joinBlockedReason = "NONE",
+    ownerProfile = makeOpenChatProfile({
+        openChatMemberId: id * 10 + 1,
+        memberCode: `OC-${id}-OWNER`,
+        nickname: `Owner ${id}`,
+        role: "OWNER",
+    }),
+}: {
+    id: number;
+    name?: string;
+    description?: string;
+    visibility?: "PUBLIC" | "UNLISTED";
+    status?: "ACTIVE" | "CLOSED";
+    memberCount?: number;
+    maxMemberCount?: number;
+    joined?: boolean;
+    joinable?: boolean;
+    joinBlockedReason?:
+        | "NONE"
+        | "ALREADY_JOINED"
+        | "ROOM_CLOSED"
+        | "ROOM_FULL"
+        | "BANNED";
+    ownerProfile?: ReturnType<typeof makeOpenChatProfile>;
+}) => ({
+    id,
+    roomType: "OPEN" as const,
+    sourceType: "OPEN" as const,
+    name,
+    description,
+    visibility,
+    status,
+    memberCount,
+    maxMemberCount,
+    joined,
+    joinable,
+    joinBlockedReason,
+    lastActivityAt: LATER,
+    ownerProfile,
+});
+
+export const makeOpenChatRoomDetail = ({
+    id,
+    name = `OPEN room ${id}`,
+    description = `OPEN room ${id} description`,
+    visibility = "PUBLIC",
+    status = "ACTIVE",
+    memberCount = 2,
+    maxMemberCount = 50,
+    joined = false,
+    joinable = true,
+    joinBlockedReason = "NONE",
+    myRole = null,
+    ownerProfile = makeOpenChatProfile({
+        openChatMemberId: id * 10 + 1,
+        memberCode: `OC-${id}-OWNER`,
+        nickname: `Owner ${id}`,
+        role: "OWNER",
+    }),
+    myOpenProfile = null,
+}: {
+    id: number;
+    name?: string;
+    description?: string;
+    visibility?: "PUBLIC" | "UNLISTED";
+    status?: "ACTIVE" | "CLOSED";
+    memberCount?: number;
+    maxMemberCount?: number;
+    joined?: boolean;
+    joinable?: boolean;
+    joinBlockedReason?:
+        | "NONE"
+        | "ALREADY_JOINED"
+        | "ROOM_CLOSED"
+        | "ROOM_FULL"
+        | "BANNED";
+    myRole?: "OWNER" | "ADMIN" | "MEMBER" | null;
+    ownerProfile?: ReturnType<typeof makeOpenChatProfile>;
+    myOpenProfile?: ReturnType<typeof makeOpenChatProfile> | null;
+}) => ({
+    ...makeOpenChatRoomListItem({
+        id,
+        name,
+        description,
+        visibility,
+        status,
+        memberCount,
+        maxMemberCount,
+        joined,
+        joinable,
+        joinBlockedReason,
+        ownerProfile,
+    }),
+    myRole,
+    myOpenProfile,
+    createdAt: NOW,
+    updatedAt: LATER,
+});
+
 export const makeOpenChatMessage = ({
     id,
     roomId = 501,

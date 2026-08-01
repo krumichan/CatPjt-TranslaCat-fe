@@ -60,6 +60,50 @@ test.describe("Chat room detail", () => {
         await expect(
             page.getByText("아직 메시지가 없습니다"),
         ).toBeVisible();
+
+        const layout = await page.evaluate(() => {
+            const appHeader = document.querySelector<HTMLElement>(
+                '[data-testid="app-header"]',
+            );
+            const chatRoomShell = document.querySelector<HTMLElement>(
+                '[data-testid="chat-room-shell"]',
+            );
+            const messageViewport = document.querySelector<HTMLElement>(
+                '[data-testid="chat-message-viewport"]',
+            );
+            const emptyState = document.querySelector<HTMLElement>(
+                '[data-testid="chat-message-empty-state"]',
+            );
+
+            if (
+                !appHeader ||
+                !chatRoomShell ||
+                !messageViewport ||
+                !emptyState
+            ) {
+                return null;
+            }
+
+            const appHeaderRect = appHeader.getBoundingClientRect();
+            const chatRoomShellRect =
+                chatRoomShell.getBoundingClientRect();
+            const viewportRect =
+                messageViewport.getBoundingClientRect();
+            const emptyRect = emptyState.getBoundingClientRect();
+
+            return {
+                headerGap:
+                    chatRoomShellRect.top - appHeaderRect.bottom,
+                emptyCenterGap:
+                    emptyRect.top +
+                    emptyRect.height / 2 -
+                    (viewportRect.top + viewportRect.height / 2),
+            };
+        });
+
+        expect(layout).not.toBeNull();
+        expect(Math.abs(layout!.headerGap)).toBeLessThanOrEqual(1);
+        expect(Math.abs(layout!.emptyCenterGap)).toBeLessThanOrEqual(1);
     });
 
     test("CHAT-08 내 메시지와 상대 메시지 및 상대 프로필 이미지를 렌더링한다", async ({

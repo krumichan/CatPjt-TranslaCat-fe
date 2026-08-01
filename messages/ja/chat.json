@@ -303,7 +303,54 @@
         "FILE_TOO_LARGE": "画像ファイルは5MB以下のみ使用できます。",
         "ROOM_CLOSED": "終了したOPENチャットルームではプロフィールを変更できません。",
         "ACCESS_DENIED": "現在の状態ではOPENプロフィールを変更できません。ルーム状態を再取得しました。",
-        "SAVE_FAILED": "OPENプロフィールの保存に失敗しました。選択した画像は維持されるため再試行できます。"
+        "SAVE_FAILED": "OPENプロフィールの保存に失敗しました。選択した画像は維持されるため再試行できます。",
+        "JOIN_ROOM_FULL": "定員に達しました。ルーム状態を再確認してください。",
+        "JOIN_ROOM_CLOSED": "終了済みOPENチャットルームには参加できません。",
+        "JOIN_BANNED": "このOPENチャットルームには再参加できません。",
+        "JOIN_FAILED": "OPENチャットルームへの参加に失敗しました。",
+        "PROFILE_IMAGE_FAILED_AFTER_JOIN": "参加は完了しましたが画像処理に失敗しました。選択した画像は維持されます。"
+      }
+    },
+    "openLifecycle": {
+      "menu": {
+        "LEAVE": "OPENルームを退出",
+        "TRANSFER_AND_LEAVE": "OWNER委譲後に退出",
+        "CLOSE": "OPENルームを終了"
+      },
+      "close": "閉じる",
+      "cancel": "キャンセル",
+      "goToExplore": "OPEN一覧へ移動",
+      "transfer": {
+        "targetLabel": "新しいOWNERを選択"
+      },
+      "dialog": {
+        "LEAVE": {
+          "title": "OPENルームを退出しますか？",
+          "description": "プロフィールとmemberCodeは維持されますが、再参加前のメッセージは再表示できません。",
+          "confirm": "ルームを退出"
+        },
+        "TRANSFER_AND_LEAVE": {
+          "title": "OWNERを委譲して退出しますか？",
+          "description": "アクティブメンバーへOWNERを委譲した後、現在のアカウントは退出します。",
+          "confirm": "委譲後に退出"
+        },
+        "CLOSE": {
+          "title": "OPENルームを終了しますか？",
+          "description": "終了したルームは復元できず、すべてのメンバーがメッセージを送信できなくなります。",
+          "confirm": "ルームを終了"
+        },
+        "CLOSED_NOTICE": {
+          "title": "OPENルームが終了しました",
+          "description": "オーナーがこのOPENチャットルームを終了しました。メッセージ送信は停止されました。",
+          "confirm": "確認"
+        }
+      },
+      "errors": {
+        "TARGET_REQUIRED": "OWNERを委譲するメンバーを選択してください。",
+        "ROOM_CLOSED": "すでに終了済みのルームです。",
+        "ACCESS_DENIED": "この操作を実行する権限がありません。",
+        "ACTION_FAILED": "処理に失敗しました。しばらくしてから再度お試しください。",
+        "LEAVE_FAILED_AFTER_TRANSFER": "OWNERの委譲は完了しました。ルーム退出を再試行してください。"
       }
     }
   },
@@ -403,6 +450,9 @@
     },
     "openChatCreate": {
       "label": "新しいOPENチャットを作成"
+    },
+    "openChatExplore": {
+      "label": "OPENチャットを探す"
     }
   },
   "OpenChatCreate": {
@@ -480,6 +530,120 @@
       "CREATE_FAILED": "OPENチャットルームの作成に失敗しました。入力内容は維持されるため再試行してください。",
       "IMAGE_UPLOAD_FAILED_AFTER_CREATE": "ルームは作成されましたが、プロフィール画像のアップロードに失敗しました。選択画像を維持し、ルームを重複作成せず再試行します。",
       "PROFILE_SYNC_FAILED_AFTER_CREATE": "ルームは作成されましたが、OWNERプロフィールの保存を完了できませんでした。入力内容を維持したまま再試行してください。"
+    }
+  },
+  "OpenChatExplore": {
+    "badge": "OPEN Chat",
+    "title": "OPENチャットを探す",
+    "description": "公開OPENチャットルームを検索し、ルーム別プロフィールを設定して新しい会話に参加しましょう。",
+    "backToChat": "自分のチャットへ",
+    "create": "新しいOPENチャットを作成",
+    "visibility": {
+      "PUBLIC": "公開",
+      "UNLISTED": "リンク限定公開"
+    },
+    "status": {
+      "joined": "参加中",
+      "full": "定員満了",
+      "joinable": "参加可能",
+      "banned": "参加制限"
+    },
+    "owner": "オーナー",
+    "members": "参加人数",
+    "lastActivity": "最終活動",
+    "openDetail": "{name}の詳細を表示",
+    "enter": "チャットルームへ",
+    "detail": "詳細を見る",
+    "search": {
+      "label": "OPENチャット検索",
+      "placeholder": "ルーム名または説明を検索",
+      "clear": "検索語を消去",
+      "searching": "入力確定を待っています...",
+      "help": "検索語が空の場合はすべての公開OPENチャットを表示します。"
+    },
+    "loading": "OPENチャットルームを読み込み中...",
+    "error": {
+      "title": "OPENチャットルームを読み込めませんでした",
+      "description": "しばらくしてから再度お試しください。",
+      "retry": "再試行"
+    },
+    "empty": {
+      "title": "公開OPENチャットルームがありません",
+      "description": "新しいOPENチャットを作成するか、しばらくしてから再確認してください。",
+      "searchTitle": "検索結果がありません",
+      "searchDescription": "別のルーム名や説明で検索してください。"
+    },
+    "listLabel": "PUBLIC OPENチャットルーム一覧",
+    "loadMore": "さらに表示",
+    "loadingMore": "追加読み込み中...",
+    "loadMoreFailed": "追加のOPENチャットルームを読み込めませんでした。"
+  },
+  "OpenChatDetail": {
+    "loading": "OPENチャットルーム詳細を読み込み中...",
+    "backToExplore": "OPENチャット一覧へ",
+    "visibility": {
+      "PUBLIC": "公開",
+      "UNLISTED": "リンク限定公開"
+    },
+    "status": {
+      "joined": "参加中"
+    },
+    "members": "参加人数",
+    "lastActivity": "最終活動",
+    "owner": {
+      "eyebrow": "Room owner",
+      "description": "このルームだけで使用するOWNERのOPENプロフィールです。"
+    },
+    "privacyNotice": "この画面にはルーム別OPENプロフィールのみ表示され、通常プロフィール、TranslaCat ID、友達関係は公開されません。",
+    "error": {
+      "title": "OPENチャットルームを表示できません",
+      "description": "ルーム情報を読み込めませんでした。",
+      "notFoundTitle": "OPENチャットルームが見つかりません",
+      "notFoundDescription": "削除されたかアクセスできないルームです。",
+      "retry": "再試行"
+    },
+    "action": {
+      "joinedTitle": "すでに参加中のルームです",
+      "joinedDescription": "既存チャットルームへ移動して会話を続けられます。",
+      "enter": "チャットルームへ",
+      "join": "参加する",
+      "rejoin": "再参加する",
+      "NONE": {
+        "title": "このルームに参加できます",
+        "description": "このルームで使用する別OPENプロフィールを設定してください。",
+        "label": "参加可能"
+      },
+      "ALREADY_JOINED": {
+        "title": "すでに参加中です",
+        "description": "チャットルームへ移動できます。",
+        "label": "参加中"
+      },
+      "ROOM_FULL": {
+        "title": "定員に達しました",
+        "description": "現在最大人数に達しています。空きが出てから再度お試しください。",
+        "label": "定員満了"
+      },
+      "ROOM_CLOSED": {
+        "title": "終了済みルームです",
+        "description": "オーナーが終了したルームには新たに参加できません。",
+        "label": "終了済み"
+      },
+      "BANNED": {
+        "title": "再参加が制限されています",
+        "description": "このルームの運営ポリシーにより再参加できません。",
+        "label": "再参加制限"
+      }
+    },
+    "join": {
+      "eyebrow": "Join OPEN room",
+      "title": "{name} 参加プロフィール",
+      "rejoinTitle": "{name} 再参加プロフィール",
+      "close": "参加設定を閉じる",
+      "rejoinNotice": "既存memberCodeとプロフィールは維持されます。再参加前のメッセージは参照できません。",
+      "partialSuccess": "ルーム参加は完了しました。残りの画像処理を再試行してください。",
+      "retryImage": "画像処理を再試行",
+      "submit": "このプロフィールで参加",
+      "rejoinSubmit": "このプロフィールで再参加"
     }
   }
 }

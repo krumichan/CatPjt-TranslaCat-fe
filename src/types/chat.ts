@@ -84,6 +84,49 @@ export interface OpenChatRoomDetail {
     updatedAt: string;
 }
 
+export interface OpenChatRoomListItem {
+    id: number;
+    roomType: "OPEN";
+    sourceType: "OPEN";
+    name: string;
+    description: string;
+    visibility: OpenChatVisibility;
+    status: OpenChatRoomStatus;
+    memberCount: number;
+    maxMemberCount: number;
+    joined: boolean;
+    joinable: boolean;
+    joinBlockedReason: OpenChatJoinBlockedReason;
+    lastActivityAt: string;
+    ownerProfile: OpenChatMemberProfile;
+}
+
+export interface OpenChatRoomListResponse {
+    openChatRooms: OpenChatRoomListItem[];
+    nextCursorId: number | null;
+    hasNext: boolean;
+}
+
+export interface OpenChatJoinProfileRequest {
+    nickname: string;
+    profileImageObjectKey: string | null;
+}
+
+export interface OpenChatJoinRequest {
+    profile?: OpenChatJoinProfileRequest | null;
+}
+
+export interface OpenChatMembershipResponse {
+    roomId: number;
+    active: boolean;
+    role: ChatRoomMemberRole;
+    profile: OpenChatMemberProfile;
+}
+
+export interface OpenChatOwnerTransferRequest {
+    targetOpenChatMemberId: number;
+}
+
 export interface OpenChatMemberProfile {
     openChatMemberId: number;
     memberCode: string;

@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageCircle, Plus } from "lucide-react";
+import { Globe2, MessageCircle, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Link } from "@/navigation";
@@ -29,14 +29,24 @@ export function ChatHubHeader() {
                     </p>
                 </div>
 
-                <Link
-                    href="/chat/open/new"
-                    data-testid="open-chat-create-link"
-                    className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-orange-500 px-4 py-3 text-sm font-black text-white shadow-sm transition hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:bg-orange-400 dark:text-slate-950 dark:hover:bg-orange-300 dark:focus-visible:ring-offset-slate-900"
-                >
-                    <Plus className="h-4 w-4" aria-hidden="true" />
-                    {t("openChatCreate.label")}
-                </Link>
+                <div className="flex shrink-0 flex-wrap gap-2">
+                    <Link
+                        href="/chat/open"
+                        data-testid="open-chat-explore-link"
+                        className="inline-flex items-center justify-center gap-2 rounded-2xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm font-black text-orange-600 transition hover:border-orange-300 hover:bg-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:border-orange-400/30 dark:bg-orange-500/10 dark:text-orange-200 dark:hover:bg-orange-500/20 dark:focus-visible:ring-offset-slate-900"
+                    >
+                        <Globe2 className="h-4 w-4" aria-hidden="true" />
+                        {t("openChatExplore.label")}
+                    </Link>
+                    <Link
+                        href="/chat/open/new"
+                        data-testid="open-chat-create-link"
+                        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-orange-500 px-4 py-3 text-sm font-black text-white shadow-sm transition hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:bg-orange-400 dark:text-slate-950 dark:hover:bg-orange-300 dark:focus-visible:ring-offset-slate-900"
+                    >
+                        <Plus className="h-4 w-4" aria-hidden="true" />
+                        {t("openChatCreate.label")}
+                    </Link>
+                </div>
             </div>
         </section>
     );

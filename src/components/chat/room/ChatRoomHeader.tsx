@@ -141,7 +141,10 @@ export function ChatRoomHeader({
             : null;
 
     return (
-        <header className="flex items-center justify-between gap-2 border-b border-slate-200 bg-white px-3 py-3 dark:border-slate-800 dark:bg-slate-900 sm:gap-3 sm:px-4">
+        <header
+            data-testid="chat-room-header"
+            className="flex items-center justify-between gap-2 border-b border-slate-200 bg-white px-3 py-3 dark:border-slate-800 dark:bg-slate-900 sm:gap-3 sm:px-4"
+        >
             <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
                 <Link
                     href="/chat"

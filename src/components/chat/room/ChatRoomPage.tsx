@@ -15,6 +15,7 @@ import { ChatLanguageSettingsModal } from "@/components/chat/room/modal/ChatLang
 import { ChatMemberProfilePreviewModal } from "@/components/chat/room/modal/ChatMemberProfilePreviewModal";
 import { ChatPartnerProfilePreviewModal } from "@/components/chat/room/modal/ChatPartnerProfilePreviewModal";
 import { ChatRoomInvitationModal } from "@/components/chat/room/modal/ChatRoomInvitationModal";
+import { OpenChatLifecycleDialog } from "@/components/chat/room/modal/OpenChatLifecycleDialog";
 import { useChatLanguageSettings } from "@/hooks/chat/useChatLanguageSettings";
 import { useChatMemberProfilePreview } from "@/hooks/chat/useChatMemberProfilePreview";
 import { useChatPartnerProfilePreview } from "@/hooks/chat/useChatPartnerProfilePreview";
@@ -24,6 +25,7 @@ import { useChatRoomMenu } from "@/hooks/chat/useChatRoomMenu";
 import { useChatRoomReadStatus } from "@/hooks/chat/useChatRoomReadStatus";
 import { useChatRoomRealtime } from "@/hooks/chat/useChatRoomRealtime";
 import { useOpenChatMemberProfilePreview } from "@/hooks/chat/useOpenChatMemberProfilePreview";
+import { useOpenChatRoomLifecycle } from "@/hooks/chat/useOpenChatRoomLifecycle";
 import { useOpenChatMyProfile } from "@/hooks/chat/useOpenChatMyProfile";
 import type {
     OpenChatMemberProfile,
@@ -95,6 +97,15 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
         roomId,
         roomType,
     });
+
+    const openLifecycle = useOpenChatRoomLifecycle({
+        roomId,
+        room,
+        openMembers: roomMenu.openMembers,
+        isMembersLoading: roomMenu.isLoading,
+        onCloseRoomMenu: roomMenu.closeMenu,
+    });
+    const handleRemoteOpenRoomClosed = openLifecycle.handleRemoteClosed;
 
     const openMyProfile = useOpenChatMyProfile({
         roomId,
@@ -193,9 +204,9 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
             }
 
             setIsOpenProfileEditOpen(false);
-            void reload();
+            handleRemoteOpenRoomClosed();
         },
-        [reload, roomId],
+        [handleRemoteOpenRoomClosed, roomId],
     );
 
     const syncAfterReconnect = useCallback(async () => {
@@ -365,7 +376,10 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
 
     return (
         <>
-            <div className="fixed inset-x-0 bottom-0 top-17 flex min-h-0 flex-col overflow-hidden bg-slate-100 dark:bg-slate-950">
+            <div
+                data-testid="chat-room-shell"
+                className="fixed inset-x-0 bottom-0 top-15 flex min-h-0 flex-col overflow-hidden bg-slate-100 dark:bg-slate-950"
+            >
                 <div className="shrink-0">
                     <ChatRoomHeader
                         room={room}
@@ -389,7 +403,10 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
                     />
                 </div>
 
-                <div className="min-h-0 flex-1 overflow-hidden">
+                <div
+                    data-testid="chat-message-viewport"
+                    className="flex min-h-0 flex-1 overflow-hidden"
+                >
                     <ChatMessageList
                         messages={messages}
                         currentUserEmail={currentUserEmail}
@@ -420,6 +437,7 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
                     <ChatMessageInput
                         onSend={realtime.sendMessage}
                         isSending={realtime.isSending}
+                        disabled={openLifecycle.isRoomClosed}
                         sendErrorMessage={sendErrorMessage}
                     />
                 </div>
@@ -446,6 +464,8 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
                     openMyProfile.profile?.active === true
                 }
                 onOpenMyOpenProfile={openMyOpenProfile}
+                openLifecycleAction={openLifecycle.action}
+                onOpenLifecycle={openLifecycle.openActionDialog}
                 onOpenInvitation={roomInvitation.openInvitation}
                 onDismissSuccess={roomInvitation.clearSuccess}
             />
@@ -537,6 +557,18 @@ export function ChatRoomPage({ roomId }: ChatRoomPageProps) {
                 onProfileChanged={handleLocalProfileChanged}
                 onAccessStateReload={reloadAccessState}
                 onClose={() => setIsOpenProfileEditOpen(false)}
+            />
+
+            <OpenChatLifecycleDialog
+                mode={openLifecycle.dialogMode}
+                candidates={openLifecycle.candidates}
+                selectedTargetId={openLifecycle.selectedTargetId}
+                isSubmitting={openLifecycle.isSubmitting}
+                errorCode={openLifecycle.errorCode}
+                onClose={openLifecycle.closeDialog}
+                onSelectTarget={openLifecycle.selectTarget}
+                onSubmit={openLifecycle.submit}
+                onAcknowledgeClosed={openLifecycle.acknowledgeClosed}
             />
         </>
     );

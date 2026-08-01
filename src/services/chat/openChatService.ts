@@ -1,14 +1,62 @@
 import { apiClient } from "@/lib/apiClient";
 import { parseResponseBody } from "@/services/common/responseParser";
 import type {
+    OpenChatJoinRequest,
     OpenChatMemberListResponse,
     OpenChatMemberProfile,
+    OpenChatMembershipResponse,
+    OpenChatOwnerTransferRequest,
     OpenChatProfileUpdateRequest,
     OpenChatRoomCreateRequest,
     OpenChatRoomDetail,
+    OpenChatRoomListResponse,
 } from "@/types/chat";
 
 export const openChatService = {
+    getPublicRooms: async ({
+        keyword,
+        cursorId,
+        size = 20,
+    }: {
+        keyword?: string | null;
+        cursorId?: number | null;
+        size?: number;
+    } = {}): Promise<OpenChatRoomListResponse> => {
+        const searchParams = new URLSearchParams();
+        const normalizedKeyword = keyword?.trim();
+
+        if (normalizedKeyword) {
+            searchParams.set("keyword", normalizedKeyword);
+        }
+        if (cursorId != null) {
+            searchParams.set("cursorId", String(cursorId));
+        }
+        searchParams.set("size", String(size));
+
+        const response = await apiClient(
+            `/chat/open-rooms?${searchParams.toString()}`,
+            { method: "GET" },
+        );
+
+        return parseResponseBody<OpenChatRoomListResponse>(
+            response,
+            "OpenChatRoomList",
+        );
+    },
+
+    getRoomDetail: async (
+        roomId: number,
+    ): Promise<OpenChatRoomDetail> => {
+        const response = await apiClient(`/chat/open-rooms/${roomId}`, {
+            method: "GET",
+        });
+
+        return parseResponseBody<OpenChatRoomDetail>(
+            response,
+            "OpenChatRoomDetail",
+        );
+    },
+
     createRoom: async (
         request: OpenChatRoomCreateRequest,
     ): Promise<OpenChatRoomDetail> => {
@@ -23,6 +71,70 @@ export const openChatService = {
         return parseResponseBody<OpenChatRoomDetail>(
             response,
             "OpenChatRoomCreate",
+        );
+    },
+
+    joinRoom: async (
+        roomId: number,
+        request?: OpenChatJoinRequest | null,
+    ): Promise<OpenChatRoomDetail> => {
+        const response = await apiClient(
+            `/chat/open-rooms/${roomId}/join`,
+            {
+                method: "POST",
+                body: request ? JSON.stringify(request) : undefined,
+            },
+        );
+
+        return parseResponseBody<OpenChatRoomDetail>(
+            response,
+            "OpenChatJoin",
+        );
+    },
+
+    leaveRoom: async (
+        roomId: number,
+    ): Promise<OpenChatMembershipResponse> => {
+        const response = await apiClient(
+            `/chat/open-rooms/${roomId}/leave`,
+            { method: "DELETE" },
+        );
+
+        return parseResponseBody<OpenChatMembershipResponse>(
+            response,
+            "OpenChatLeave",
+        );
+    },
+
+    transferOwner: async (
+        roomId: number,
+        request: OpenChatOwnerTransferRequest,
+    ): Promise<OpenChatRoomDetail> => {
+        const response = await apiClient(
+            `/chat/open-rooms/${roomId}/owner-transfer`,
+            {
+                method: "POST",
+                body: JSON.stringify(request),
+            },
+        );
+
+        return parseResponseBody<OpenChatRoomDetail>(
+            response,
+            "OpenChatOwnerTransfer",
+        );
+    },
+
+    closeRoom: async (
+        roomId: number,
+    ): Promise<OpenChatRoomDetail> => {
+        const response = await apiClient(
+            `/chat/open-rooms/${roomId}/close`,
+            { method: "POST" },
+        );
+
+        return parseResponseBody<OpenChatRoomDetail>(
+            response,
+            "OpenChatClose",
         );
     },
 

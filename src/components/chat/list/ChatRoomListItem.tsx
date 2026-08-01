@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, MessageCircle, Users } from "lucide-react";
+import { ChevronRight, Globe2, MessageCircle, Users } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 
@@ -56,6 +56,7 @@ const formatUpdatedAt = (value: string) =>
 export function ChatRoomListItem({ room }: ChatRoomListItemProps) {
     const t = useTranslations("ChatRoomList");
     const isFriendRoom = room.sourceType === "FRIEND";
+    const isOpenRoom = room.roomType === "OPEN";
     const display = resolveChatRoomDisplay(room, {
         friendDirectTitle: t("friend.directTitle"),
         untitledTitle: t("untitledRoom"),
@@ -76,12 +77,14 @@ export function ChatRoomListItem({ room }: ChatRoomListItemProps) {
                 ) : (
                     <div
                         className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${
-                            isFriendRoom
+                            isFriendRoom || isOpenRoom
                                 ? "bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-300"
                                 : "bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-300"
                         }`}
                     >
-                        {room.roomType === "GROUP" ? (
+                        {isOpenRoom ? (
+                            <Globe2 className="h-5 w-5" aria-hidden="true" />
+                        ) : room.roomType === "GROUP" ? (
                             <Users className="h-5 w-5" aria-hidden="true" />
                         ) : (
                             <MessageCircle

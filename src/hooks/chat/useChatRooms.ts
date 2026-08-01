@@ -17,11 +17,14 @@ interface UseChatRoomsResult {
     reload: () => Promise<void>;
 }
 
-const filterPhaseOneChatRooms = (
+const filterSupportedChatRooms = (
     rooms: ChatRoomListItem[],
 ): ChatRoomListItem[] =>
     rooms.filter(
-        (room) => room.roomType === "DIRECT" || room.roomType === "GROUP",
+        (room) =>
+            room.roomType === "DIRECT" ||
+            room.roomType === "GROUP" ||
+            room.roomType === "OPEN",
     );
 
 const sortRoomsByUpdatedAtDesc = (
@@ -36,7 +39,7 @@ const normalizeRooms = (
     rooms: ChatRoomListItem[],
 ): ChatRoomListItem[] =>
     sortRoomsByUpdatedAtDesc(
-        filterPhaseOneChatRooms(rooms).map((room) => ({
+        filterSupportedChatRooms(rooms).map((room) => ({
             ...room,
             unreadCount: Math.max(0, room.unreadCount ?? 0),
         })),

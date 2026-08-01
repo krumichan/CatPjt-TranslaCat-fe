@@ -95,7 +95,10 @@ export function ChatMessageList({
 
     if (messages.length === 0) {
         return (
-            <div className="flex flex-1 items-center justify-center px-4">
+            <div
+                data-testid="chat-message-empty-state"
+                className="flex h-full min-h-0 flex-1 items-center justify-center px-4 py-6"
+            >
                 <div className="max-w-sm rounded-3xl border border-dashed border-slate-200 bg-white p-8 text-center dark:border-white/10 dark:bg-slate-900/70">
                     <MessageCircle className="mx-auto mb-3 h-8 w-8 text-slate-400" />
                     <h2 className="text-lg font-bold text-slate-900 dark:text-white">

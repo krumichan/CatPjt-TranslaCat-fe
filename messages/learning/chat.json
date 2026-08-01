@@ -280,7 +280,8 @@
         "processing": {
           "SAVING": "ニックネームを保存中...",
           "UPLOADING": "画像をアップロード中...",
-          "DELETING": "画像を削除中..."
+          "DELETING": "画像を削除中...",
+          "CREATING": "ルーム作成中..."
         }
       },
       "modal": {
@@ -399,6 +400,86 @@
       "ariaLabel": "チャットページ表示切替",
       "chat": "チャット",
       "friends": "友達"
+    },
+    "openChatCreate": {
+      "label": "新しいOPENチャットを作成"
+    }
+  },
+  "OpenChatCreate": {
+    "header": {
+      "badge": "Create open chat",
+      "title": "新しいOPENチャットを作成",
+      "description": "ルーム情報と、このルームだけで使用するOWNERプロフィールを一緒に設定します。通常プロフィールとpublicIdはOPENチャットに表示されません。"
+    },
+    "actions": {
+      "backToChat": "チャットへ戻る",
+      "openCreatedRoom": "作成済みルームへ移動",
+      "retryProfile": "残りのプロフィール設定を再試行"
+    },
+    "partialSuccess": {
+      "title": "OPENチャットルームの作成は完了しました。",
+      "description": "画像またはプロフィールの仕上げ処理で問題が発生しました。ルームを重複作成せず、現在の入力内容で再試行できます。"
+    },
+    "room": {
+      "eyebrow": "Room information",
+      "title": "ルーム情報",
+      "description": "誰がルームを見つけられるか、参加可能な最大人数を設定します。"
+    },
+    "owner": {
+      "eyebrow": "Owner profile",
+      "title": "OWNERルーム別プロフィール",
+      "description": "通常プロフィールをコピーせず、このルームだけで使用するニックネームと画像を設定します。"
+    },
+    "fields": {
+      "name": {
+        "label": "ルーム名",
+        "placeholder": "例：日本語で話す猫たち",
+        "help": "空白のみは使用できず、100文字以内で入力してください。"
+      },
+      "description": {
+        "label": "ルーム説明",
+        "placeholder": "このルームでどのような話をするか紹介してください。",
+        "help": "空白のみは使用できず、500文字以内で入力してください。"
+      },
+      "visibility": {
+        "label": "公開範囲",
+        "help": "承認型PRIVATEはサポートしません。",
+        "options": {
+          "PUBLIC": {
+            "label": "公開",
+            "description": "一覧と検索から誰でも見つけられます。"
+          },
+          "UNLISTED": {
+            "label": "リンク限定公開",
+            "description": "一覧と検索には表示されず、リンクを知るユーザーのみアクセスできます。"
+          }
+        }
+      },
+      "maxMemberCount": {
+        "label": "最大人数",
+        "unit": "人",
+        "help": "最小{min}人・初期値{default}人・最大{max}人"
+      }
+    },
+    "summary": {
+      "eyebrow": "Final check",
+      "title": "最終確認",
+      "name": "ルーム名",
+      "visibility": "公開範囲",
+      "maxMemberCount": "最大人数",
+      "empty": "まだ入力されていません",
+      "notice": "作成ボタンを押すとOWNERとしてすぐ参加します。画像がある場合はルーム作成後、安全な専用アップロードAPIで保存します。"
+    },
+    "errors": {
+      "NAME_REQUIRED": "ルーム名を入力してください。",
+      "NAME_TOO_LONG": "ルーム名は100文字以内で入力してください。",
+      "DESCRIPTION_REQUIRED": "ルーム説明を入力してください。",
+      "DESCRIPTION_TOO_LONG": "ルーム説明は500文字以内で入力してください。",
+      "VISIBILITY_REQUIRED": "公開範囲を選択してください。",
+      "MAX_MEMBER_COUNT_INVALID": "最大人数は{min}人以上{max}人以下の整数で入力してください。",
+      "CREATE_FAILED": "OPENチャットルームの作成に失敗しました。入力内容は維持されるため再試行してください。",
+      "IMAGE_UPLOAD_FAILED_AFTER_CREATE": "ルームは作成されましたが、プロフィール画像のアップロードに失敗しました。選択画像を維持し、ルームを重複作成せず再試行します。",
+      "PROFILE_SYNC_FAILED_AFTER_CREATE": "ルームは作成されましたが、OWNERプロフィールの保存を完了できませんでした。入力内容を維持したまま再試行してください。"
     }
   }
 }

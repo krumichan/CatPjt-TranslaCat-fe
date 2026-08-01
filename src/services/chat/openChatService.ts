@@ -4,9 +4,28 @@ import type {
     OpenChatMemberListResponse,
     OpenChatMemberProfile,
     OpenChatProfileUpdateRequest,
+    OpenChatRoomCreateRequest,
+    OpenChatRoomDetail,
 } from "@/types/chat";
 
 export const openChatService = {
+    createRoom: async (
+        request: OpenChatRoomCreateRequest,
+    ): Promise<OpenChatRoomDetail> => {
+        const response = await apiClient(
+            "/chat/open-rooms",
+            {
+                method: "POST",
+                body: JSON.stringify(request),
+            },
+        );
+
+        return parseResponseBody<OpenChatRoomDetail>(
+            response,
+            "OpenChatRoomCreate",
+        );
+    },
+
     getMyProfile: async (
         roomId: number,
     ): Promise<OpenChatMemberProfile> => {

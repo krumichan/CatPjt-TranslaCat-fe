@@ -39,6 +39,51 @@ export type ChatLanguageSettingsSource =
     | "DEFAULT"
     | "SYSTEM";
 
+export type OpenChatVisibility = "PUBLIC" | "UNLISTED";
+
+export type OpenChatRoomStatus = "ACTIVE" | "CLOSED";
+
+export type OpenChatJoinBlockedReason =
+    | "NONE"
+    | "ALREADY_JOINED"
+    | "ROOM_CLOSED"
+    | "ROOM_FULL"
+    | "BANNED";
+
+export interface OpenChatOwnerProfileCreateRequest {
+    nickname: string;
+    profileImageObjectKey: string | null;
+}
+
+export interface OpenChatRoomCreateRequest {
+    name: string;
+    description: string;
+    visibility: OpenChatVisibility;
+    maxMemberCount: number;
+    ownerProfile: OpenChatOwnerProfileCreateRequest;
+}
+
+export interface OpenChatRoomDetail {
+    id: number;
+    roomType: "OPEN";
+    sourceType: "OPEN";
+    name: string;
+    description: string;
+    visibility: OpenChatVisibility;
+    status: OpenChatRoomStatus;
+    memberCount: number;
+    maxMemberCount: number;
+    joined: boolean;
+    joinable: boolean;
+    joinBlockedReason: OpenChatJoinBlockedReason;
+    myRole: ChatRoomMemberRole | null;
+    ownerProfile: OpenChatMemberProfile;
+    myOpenProfile: OpenChatMemberProfile | null;
+    lastActivityAt: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
 export interface OpenChatMemberProfile {
     openChatMemberId: number;
     memberCode: string;

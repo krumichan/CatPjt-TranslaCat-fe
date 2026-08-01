@@ -34,9 +34,16 @@ interface OpenChatProfileFormProps {
     initialProfile?: OpenChatMemberProfile | null;
     initialNickname?: string;
     isSubmitting?: boolean;
-    processStage?: "SAVING" | "UPLOADING" | "DELETING" | null;
+    processStage?:
+        | "CREATING"
+        | "SAVING"
+        | "UPLOADING"
+        | "DELETING"
+        | null;
     disabled?: boolean;
     errorCode?: string | null;
+    submitLabel?: string;
+    beforeSubmit?: () => boolean | Promise<boolean>;
     onSubmit: (
         value: OpenChatProfileFormValue,
     ) => Promise<boolean>;
@@ -51,12 +58,15 @@ export function OpenChatProfileForm({
     processStage = null,
     disabled = false,
     errorCode = null,
+    submitLabel,
+    beforeSubmit,
     onSubmit,
     onCancel,
 }: OpenChatProfileFormProps) {
     const t = useTranslations("ChatRoom.openProfile");
     const inputId = useId();
     const nicknameInputId = useId();
+    const formErrorId = useId();
     const [nickname, setNickname] = useState(
         initialProfile?.nickname ?? initialNickname,
     );
@@ -90,6 +100,13 @@ export function OpenChatProfileForm({
         ? null
         : previewUrl ?? initialProfile?.profileImageUrl ?? null;
     const isBusy = isSubmitting || disabled;
+    const displayedErrorCode = validationError ?? errorCode;
+    const nicknameHasError =
+        displayedErrorCode === "NICKNAME_REQUIRED" ||
+        displayedErrorCode === "NICKNAME_TOO_LONG";
+    const imageHasError =
+        displayedErrorCode === "UNSUPPORTED_TYPE" ||
+        displayedErrorCode === "FILE_TOO_LARGE";
 
     const handleFileChange = useCallback(
         (file: File | null) => {
@@ -111,6 +128,13 @@ export function OpenChatProfileForm({
     );
 
     const handleSubmit = useCallback(async () => {
+        if (beforeSubmit) {
+            const canContinue = await beforeSubmit();
+            if (!canContinue) {
+                return;
+            }
+        }
+
         const normalizedNickname = nickname.trim();
 
         if (!normalizedNickname) {
@@ -129,7 +153,7 @@ export function OpenChatProfileForm({
             imageFile: selectedFile,
             removeImage,
         });
-    }, [nickname, onSubmit, removeImage, selectedFile]);
+    }, [beforeSubmit, nickname, onSubmit, removeImage, selectedFile]);
 
     const memberCode = initialProfile?.memberCode ?? null;
 
@@ -150,7 +174,7 @@ export function OpenChatProfileForm({
 
     const submitText = processStage
         ? t(`form.processing.${processStage}`)
-        : t(`form.submit.${mode}`);
+        : submitLabel ?? t(`form.submit.${mode}`);
 
     return (
         <div className="space-y-6">
@@ -205,6 +229,10 @@ export function OpenChatProfileForm({
                         className="sr-only"
                         disabled={isBusy}
                         aria-label={t("form.image.inputLabel")}
+                        aria-invalid={imageHasError}
+                        aria-describedby={
+                            imageHasError ? formErrorId : undefined
+                        }
                         onChange={(event) => {
                             handleFileChange(event.target.files?.[0] ?? null);
                             event.currentTarget.value = "";
@@ -274,6 +302,10 @@ export function OpenChatProfileForm({
                     maxLength={50}
                     disabled={isBusy}
                     autoComplete="off"
+                    aria-invalid={nicknameHasError}
+                    aria-describedby={
+                        nicknameHasError ? formErrorId : undefined
+                    }
                     onChange={(event) => {
                         setNickname(event.target.value);
                         setValidationError(null);
@@ -330,6 +362,7 @@ export function OpenChatProfileForm({
 
             {(validationError || errorCode) && (
                 <p
+                    id={formErrorId}
                     role="alert"
                     aria-live="assertive"
                     className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-600 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-200"

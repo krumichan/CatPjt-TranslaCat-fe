@@ -280,7 +280,8 @@
         "processing": {
           "SAVING": "닉네임 저장 중...",
           "UPLOADING": "이미지 업로드 중...",
-          "DELETING": "이미지 삭제 중..."
+          "DELETING": "이미지 삭제 중...",
+          "CREATING": "방 생성 중..."
         }
       },
       "modal": {
@@ -399,6 +400,86 @@
       "ariaLabel": "채팅 페이지 보기 전환",
       "chat": "채팅",
       "friends": "친구"
+    },
+    "openChatCreate": {
+      "label": "새 OPEN 채팅 만들기"
+    }
+  },
+  "OpenChatCreate": {
+    "header": {
+      "badge": "Create open chat",
+      "title": "새 OPEN 채팅 만들기",
+      "description": "방 정보와 이 방에서만 사용할 OWNER 프로필을 함께 설정합니다. 일반 프로필과 publicId는 OPEN 채팅에 표시되지 않습니다."
+    },
+    "actions": {
+      "backToChat": "채팅으로 돌아가기",
+      "openCreatedRoom": "생성된 방으로 이동",
+      "retryProfile": "남은 프로필 설정 다시 시도"
+    },
+    "partialSuccess": {
+      "title": "OPEN 채팅방 생성은 완료되었습니다.",
+      "description": "이미지 또는 프로필 마무리 단계에서 문제가 발생했습니다. 방을 중복 생성하지 않고 현재 입력값으로 다시 시도할 수 있습니다."
+    },
+    "room": {
+      "eyebrow": "Room information",
+      "title": "방 정보",
+      "description": "누가 방을 찾을 수 있는지와 참여 가능한 최대 인원을 설정합니다."
+    },
+    "owner": {
+      "eyebrow": "Owner profile",
+      "title": "OWNER 방별 프로필",
+      "description": "일반 프로필을 복사하지 않고 이 방에서만 사용할 닉네임과 이미지를 설정합니다."
+    },
+    "fields": {
+      "name": {
+        "label": "방 이름",
+        "placeholder": "예: 일본어로 이야기하는 고양이들",
+        "help": "공백만 입력할 수 없으며 100자 이하로 작성해주세요."
+      },
+      "description": {
+        "label": "방 설명",
+        "placeholder": "이 방에서 어떤 이야기를 나누는지 소개해주세요.",
+        "help": "공백만 입력할 수 없으며 500자 이하로 작성해주세요."
+      },
+      "visibility": {
+        "label": "공개 범위",
+        "help": "승인형 PRIVATE는 지원하지 않습니다.",
+        "options": {
+          "PUBLIC": {
+            "label": "공개",
+            "description": "목록과 검색에서 누구나 찾을 수 있습니다."
+          },
+          "UNLISTED": {
+            "label": "링크 공개",
+            "description": "목록과 검색에는 표시되지 않으며 링크를 아는 사용자만 접근할 수 있습니다."
+          }
+        }
+      },
+      "maxMemberCount": {
+        "label": "최대 인원",
+        "unit": "명",
+        "help": "최소 {min}명 · 기본 {default}명 · 최대 {max}명"
+      }
+    },
+    "summary": {
+      "eyebrow": "Final check",
+      "title": "최종 확인",
+      "name": "방 이름",
+      "visibility": "공개 범위",
+      "maxMemberCount": "최대 인원",
+      "empty": "아직 입력하지 않음",
+      "notice": "생성 버튼을 누르면 OWNER로 즉시 참여합니다. 이미지가 있으면 방 생성 후 안전한 전용 업로드 API로 저장됩니다."
+    },
+    "errors": {
+      "NAME_REQUIRED": "방 이름을 입력해주세요.",
+      "NAME_TOO_LONG": "방 이름은 100자 이하로 입력해주세요.",
+      "DESCRIPTION_REQUIRED": "방 설명을 입력해주세요.",
+      "DESCRIPTION_TOO_LONG": "방 설명은 500자 이하로 입력해주세요.",
+      "VISIBILITY_REQUIRED": "공개 범위를 선택해주세요.",
+      "MAX_MEMBER_COUNT_INVALID": "최대 인원은 {min}명 이상 {max}명 이하의 정수로 입력해주세요.",
+      "CREATE_FAILED": "OPEN 채팅방 생성에 실패했습니다. 입력값은 유지되므로 다시 시도해주세요.",
+      "IMAGE_UPLOAD_FAILED_AFTER_CREATE": "방은 생성되었지만 프로필 이미지 업로드에 실패했습니다. 선택한 이미지는 유지되며 방을 중복 생성하지 않고 다시 시도합니다.",
+      "PROFILE_SYNC_FAILED_AFTER_CREATE": "방은 생성되었지만 OWNER 프로필 저장을 마무리하지 못했습니다. 입력값을 유지한 채 다시 시도해주세요."
     }
   }
 }

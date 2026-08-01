@@ -34,8 +34,8 @@ export const apiClient = async (endpoint: string, options: RequestInit = {}) => 
 
     const response = await fetch(apiUrl, init);
 
-    if (response.status === 401 || response.status === 403) {
-        console.error("Auth error occurred. Logging out...");
+    if (response.status === 401) {
+        console.error("Authentication error occurred. Logging out...");
         await signOut({ callbackUrl: "/login" });
     }
 

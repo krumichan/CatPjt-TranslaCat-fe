@@ -1,4 +1,5 @@
 import { apiClient } from "@/lib/apiClient";
+import { dispatchApiResponseError } from "@/services/common/apiErrorEvent";
 
 import type {
     ChatDefaultLanguageSettings,
@@ -20,12 +21,18 @@ import type { ResponseDto } from "@/types/common";
 import { normalizeChatLanguageSettingsRequest } from "@/utils/chat/chatLanguageSettings";
 
 export class ChatApiError extends Error {
-    status: number;
+    readonly status: number;
+    readonly errorCode: string | null;
 
-    constructor(status: number) {
-        super(`Chat API request failed. status=${status}`);
+    constructor(status: number, errorCode: string | null = null) {
+        super(
+            errorCode
+                ? `Chat API request failed. status=${status}, errorCode=${errorCode}`
+                : `Chat API request failed. status=${status}`,
+        );
         this.name = "ChatApiError";
         this.status = status;
+        this.errorCode = errorCode;
     }
 }
 
@@ -34,7 +41,24 @@ export const isChatApiNotFoundError = (error: unknown) =>
 
 async function parseBody<T>(response: Response): Promise<T> {
     if (!response.ok) {
-        throw new ChatApiError(response.status);
+        let errorCode: string | null = null;
+
+        try {
+            const errorResponse = (await response.json()) as {
+                body?: { errorCode?: string } | null;
+            };
+            errorCode = errorResponse.body?.errorCode ?? null;
+        } catch {
+            // 오류 응답 본문이 없더라도 HTTP 상태 기반 처리는 유지한다.
+        }
+
+        dispatchApiResponseError({
+            status: response.status,
+            domainName: "Chat",
+            errorCode,
+            url: response.url,
+        });
+        throw new ChatApiError(response.status, errorCode);
     }
 
     const data = (await response.json()) as ResponseDto<T>;

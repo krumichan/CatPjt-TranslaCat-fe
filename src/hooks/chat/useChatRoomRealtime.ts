@@ -10,6 +10,8 @@ import type {
 import type {
     ChatMemberReadUpdatedEvent,
     ChatReadUpdatedEvent,
+    OpenChatMemberBannedEvent,
+    OpenChatMemberRoleUpdatedEvent,
     OpenChatProfileUpdatedEvent,
     OpenChatRoomClosedEvent,
 } from "@/types/chatWebSocket";
@@ -17,6 +19,8 @@ import type {
 interface UseChatRoomRealtimeParams {
     roomId: number;
     accessToken: string | null;
+    enabled?: boolean;
+    openChatEventsEnabled?: boolean;
     isRestSending: boolean;
     restSendErrorCode: string | null;
     appendMessage: (message: ChatMessage) => void;
@@ -32,6 +36,15 @@ interface UseChatRoomRealtimeParams {
     onOpenChatProfileUpdated?: (
         event: OpenChatProfileUpdatedEvent,
     ) => void;
+    onOpenChatMemberRoleUpdated?: (
+        event: OpenChatMemberRoleUpdatedEvent,
+    ) => void;
+    onOpenChatMemberBanned?: (
+        event: OpenChatMemberBannedEvent,
+    ) => void;
+    onCurrentUserOpenChatMemberBanned?: (
+        event: OpenChatMemberBannedEvent,
+    ) => void;
     onOpenChatRoomClosed?: (
         event: OpenChatRoomClosedEvent,
     ) => void;
@@ -43,6 +56,8 @@ interface UseChatRoomRealtimeParams {
 export function useChatRoomRealtime({
     roomId,
     accessToken,
+    enabled = true,
+    openChatEventsEnabled = false,
     isRestSending,
     restSendErrorCode,
     appendMessage,
@@ -51,6 +66,9 @@ export function useChatRoomRealtime({
     onReadUpdated,
     onMemberReadUpdated,
     onOpenChatProfileUpdated,
+    onOpenChatMemberRoleUpdated,
+    onOpenChatMemberBanned,
+    onCurrentUserOpenChatMemberBanned,
     onOpenChatRoomClosed,
     sendRestMessage,
 }: UseChatRoomRealtimeParams) {
@@ -84,12 +102,17 @@ export function useChatRoomRealtime({
     } = useChatRoomWebSocket({
         roomId,
         accessToken,
+        enabled,
+        openChatEventsEnabled,
         onMessageCreated: handleMessageCreated,
         onTranslationCompleted:
             handleTranslationCompleted,
         onReadUpdated,
         onMemberReadUpdated,
         onOpenChatProfileUpdated,
+        onOpenChatMemberRoleUpdated,
+        onOpenChatMemberBanned,
+        onCurrentUserOpenChatMemberBanned,
         onOpenChatRoomClosed,
         onReconnectSyncRequested:
             syncLatestMessages,

@@ -7,10 +7,13 @@ import {
     toSummaryProfile,
 } from "../support/mock-data";
 import {
+    fulfillApiJson,
     fulfillJson,
     mockCommonPageDependencies,
+    mockIdleWebSocket,
     requestBody,
 } from "../support/api-mocks";
+import { mockChatRoomBase } from "../support/chat-mocks";
 import { TEST_USERS } from "../support/test-users";
 
 function searchResult(
@@ -84,12 +87,25 @@ test.describe("Public ID user search", () => {
     });
 
     test("DIRECT-01 친구 검색 결과에서 기존/신규 DIRECT room으로 이동한다", async ({ page }) => {
+        await mockIdleWebSocket(page);
+        await mockChatRoomBase(page, {
+            room: makeRoom({
+                id: 777,
+                roomType: "DIRECT",
+                sourceType: "FRIEND",
+            }),
+            messages: [],
+        });
         await page.route("**/users/search?**", (route) =>
             fulfillJson(route, responseDto(searchResult("FRIEND"))),
         );
         await page.route(
             `**/chat/friends/${TEST_USERS.B.userId}/direct-room`,
-            (route) => fulfillJson(route, responseDto(makeRoom({ id: 777 }))),
+            (route) =>
+                fulfillApiJson(
+                    route,
+                    responseDto(makeRoom({ id: 777 })),
+                ),
         );
         await page.goto("/friends/search");
         await page.locator("#publicId").fill(TEST_USERS.B.publicId);

@@ -19,6 +19,7 @@ import {
 import { createPortal } from "react-dom";
 
 import { OpenChatAvatar } from "@/components/chat/open-profile/OpenChatAvatar";
+import { OpenChatRoleBadge } from "@/components/chat/open-moderation/OpenChatRoleBadge";
 import { useModalFocusTrap } from "@/hooks/useModalFocusTrap";
 import type { OpenChatMemberProfile } from "@/types/chat";
 
@@ -147,9 +148,7 @@ export function OpenChatMemberProfileModal({
                             >
                                 {profile.nickname}
                             </h2>
-                            <span className="rounded-full bg-orange-100 px-2.5 py-1 text-[11px] font-black text-orange-700 dark:bg-orange-400/15 dark:text-orange-200">
-                                {t(`roles.${profile.role}`)}
-                            </span>
+                            <OpenChatRoleBadge role={profile.role} />
                         </div>
 
                         <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-4 text-left dark:border-white/10 dark:bg-white/5">

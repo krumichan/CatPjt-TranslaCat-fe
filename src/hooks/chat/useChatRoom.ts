@@ -7,6 +7,7 @@ import type {
     ChatMessage,
     ChatMessageTranslation,
     ChatRoom,
+    ChatRoomMemberRole,
     OpenChatMemberProfile,
     OpenChatProfileSnapshot,
 } from "@/types/chat";
@@ -50,6 +51,12 @@ interface UseChatRoomResult {
     applyOpenChatProfile: (
         profile: OpenChatMemberProfile | OpenChatProfileSnapshot,
     ) => void;
+    applyOpenChatRole: (
+        openChatMemberId: number,
+        role: ChatRoomMemberRole,
+        isCurrentUser: boolean,
+    ) => void;
+    removeOpenChatMember: (openChatMemberId: number) => void;
     syncLatestMessages: () => Promise<void>;
     retryTranslation: (
         messageId: number,
@@ -184,6 +191,7 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
     const appliedReadCursorByUserRef = useRef(
         new Map<number, number>(),
     );
+    const removedOpenChatMemberIdsRef = useRef(new Set<number>());
 
     const retryingTranslationKeys = useMemo(
         () => Array.from(retryingTranslationKeySet),
@@ -206,6 +214,7 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
                 chatService.getMessages(roomId),
             ]);
 
+            removedOpenChatMemberIdsRef.current.clear();
             setRoom(roomResponse);
             setMessages(sortMessagesByCreatedAt(messageResponse.messages));
             setNextCursorId(messageResponse.nextCursorId);
@@ -399,6 +408,54 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
         [],
     );
 
+    const applyOpenChatRole = useCallback(
+        (
+            openChatMemberId: number,
+            role: ChatRoomMemberRole,
+            isCurrentUser: boolean,
+        ) => {
+            setMessages((currentMessages) =>
+                currentMessages.map((message) =>
+                    message.sender?.openChatMemberId === openChatMemberId
+                        ? {
+                              ...message,
+                              sender: { ...message.sender, role },
+                          }
+                        : message,
+                ),
+            );
+
+            if (isCurrentUser) {
+                setRoom((currentRoom) =>
+                    currentRoom ? { ...currentRoom, myRole: role } : currentRoom,
+                );
+            }
+        },
+        [],
+    );
+
+    const removeOpenChatMember = useCallback(
+        (openChatMemberId: number) => {
+            if (removedOpenChatMemberIdsRef.current.has(openChatMemberId)) {
+                return;
+            }
+
+            removedOpenChatMemberIdsRef.current.add(openChatMemberId);
+            setRoom((currentRoom) =>
+                currentRoom?.roomType === "OPEN"
+                    ? {
+                          ...currentRoom,
+                          memberCount: Math.max(
+                              0,
+                              currentRoom.memberCount - 1,
+                          ),
+                      }
+                    : currentRoom,
+            );
+        },
+        [],
+    );
+
     const syncLatestMessages = useCallback(async () => {
         try {
             const messageResponse = await chatService.getMessages(roomId);
@@ -481,6 +538,7 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
 
     useEffect(() => {
         appliedReadCursorByUserRef.current.clear();
+        removedOpenChatMemberIdsRef.current.clear();
         void load();
     }, [load]);
 
@@ -505,6 +563,8 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
         applyTranslationCompleted,
         applyMemberReadUpdated,
         applyOpenChatProfile,
+        applyOpenChatRole,
+        removeOpenChatMember,
         syncLatestMessages,
         retryTranslation,
     };

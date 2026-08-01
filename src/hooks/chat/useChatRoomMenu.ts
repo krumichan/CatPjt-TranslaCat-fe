@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 import { useQuery } from "@/hooks/useQuery";
 import { chatRoomMemberService } from "@/services/chat/chatRoomMemberService";
 import { openChatService } from "@/services/chat/openChatService";
 import type {
     ChatRoomMember,
+    ChatRoomMemberRole,
     ChatRoomType,
     OpenChatMemberProfile,
     OpenChatProfileSnapshot,
@@ -36,6 +37,11 @@ interface UseChatRoomMenuResult {
     applyOpenChatProfile: (
         profile: OpenChatMemberProfile | OpenChatProfileSnapshot,
     ) => Promise<void>;
+    applyOpenChatRole: (
+        openChatMemberId: number,
+        role: ChatRoomMemberRole,
+    ) => Promise<void>;
+    removeOpenChatMember: (openChatMemberId: number) => Promise<void>;
 }
 
 export function useChatRoomMenu({
@@ -44,6 +50,23 @@ export function useChatRoomMenu({
 }: UseChatRoomMenuParams): UseChatRoomMenuResult {
     const [isOpen, setIsOpen] = useState(false);
     const [hasRequestedMembers, setHasRequestedMembers] = useState(false);
+    const pendingOpenChatRolesRef = useRef(
+        new Map<number, ChatRoomMemberRole>(),
+    );
+
+    const applyPendingOpenChatRoles = useCallback(
+        (members: OpenChatMemberProfile[]) =>
+            members.map((member) => {
+                const pendingRole = pendingOpenChatRolesRef.current.get(
+                    member.openChatMemberId,
+                );
+
+                return pendingRole
+                    ? { ...member, role: pendingRole }
+                    : member;
+            }),
+        [],
+    );
 
     const { data, isLoading, isError, mutate } = useQuery<
         ChatRoomMenuData,
@@ -64,7 +87,9 @@ export function useChatRoomMenu({
                 );
                 return {
                     members: [],
-                    openMembers: response.members,
+                    openMembers: applyPendingOpenChatRoles(
+                        response.members,
+                    ),
                 };
             }
 
@@ -88,6 +113,7 @@ export function useChatRoomMenu({
     }, []);
 
     const reloadMembers = useCallback(async () => {
+        pendingOpenChatRolesRef.current.clear();
         await mutate(undefined, true);
     }, [mutate]);
 
@@ -115,6 +141,50 @@ export function useChatRoomMenu({
         [mutate],
     );
 
+    const applyOpenChatRole = useCallback(
+        async (openChatMemberId: number, role: ChatRoomMemberRole) => {
+            pendingOpenChatRolesRef.current.set(
+                openChatMemberId,
+                role,
+            );
+
+            await mutate(
+                (currentData) =>
+                    currentData
+                        ? {
+                              ...currentData,
+                              openMembers: currentData.openMembers.map((member) =>
+                                  member.openChatMemberId === openChatMemberId
+                                      ? { ...member, role }
+                                      : member,
+                              ),
+                          }
+                        : currentData,
+                false,
+            );
+        },
+        [mutate],
+    );
+
+    const removeOpenChatMember = useCallback(
+        async (openChatMemberId: number) => {
+            await mutate(
+                (currentData) =>
+                    currentData
+                        ? {
+                              ...currentData,
+                              openMembers: currentData.openMembers.filter(
+                                  (member) =>
+                                      member.openChatMemberId !== openChatMemberId,
+                              ),
+                          }
+                        : currentData,
+                false,
+            );
+        },
+        [mutate],
+    );
+
     return {
         isOpen,
         members: data?.members ?? [],
@@ -125,5 +195,7 @@ export function useChatRoomMenu({
         closeMenu,
         reloadMembers,
         applyOpenChatProfile,
+        applyOpenChatRole,
+        removeOpenChatMember,
     };
 }

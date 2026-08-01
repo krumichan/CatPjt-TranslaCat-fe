@@ -352,6 +352,63 @@
         "ACTION_FAILED": "처리에 실패했습니다. 잠시 후 다시 시도해주세요.",
         "LEAVE_FAILED_AFTER_TRANSFER": "OWNER 위임은 완료되었습니다. 방 나가기를 다시 시도해주세요."
       }
+    },
+    "openModeration": {
+      "roles": {
+        "OWNER": "방장",
+        "ADMIN": "관리자",
+        "MEMBER": "멤버"
+      },
+      "actions": {
+        "OPEN_MENU": "{nickname}님 관리 메뉴",
+        "ASSIGN_ADMIN": "관리자로 지정",
+        "REVOKE_ADMIN": "관리자 해제",
+        "BAN": "강제 퇴장"
+      },
+      "blacklistMenu": "블랙리스트 관리",
+      "dialog": {
+        "eyebrow": "OPEN CHAT MODERATION",
+        "close": "관리 창 닫기",
+        "targetNickname": "대상 닉네임",
+        "memberCode": "멤버 코드",
+        "nextRole": "변경 후 역할",
+        "roles": {
+          "ADMIN": "관리자",
+          "MEMBER": "멤버"
+        },
+        "reason": {
+          "label": "강제 퇴장 사유",
+          "placeholder": "운영 정책 위반 사유를 입력해 주세요.",
+          "help": "대상 사용자와 운영 기록에 사용됩니다."
+        },
+        "cancel": "취소",
+        "ASSIGN_ADMIN": {
+          "title": "관리자로 지정할까요?",
+          "description": "이 멤버는 방 운영 권한을 갖게 됩니다.",
+          "confirm": "관리자로 지정"
+        },
+        "REVOKE_ADMIN": {
+          "title": "관리자 권한을 해제할까요?",
+          "description": "이 멤버는 일반 멤버 역할로 변경됩니다.",
+          "confirm": "관리자 해제"
+        },
+        "BAN": {
+          "title": "강제 퇴장시킬까요?",
+          "description": "대상은 즉시 퇴장되고, 해제 전까지 이 방에 다시 참여할 수 없습니다.",
+          "confirm": "강제 퇴장"
+        },
+        "errors": {
+          "REASON_REQUIRED": "강제 퇴장 사유를 입력해 주세요.",
+          "REASON_TOO_LONG": "강제 퇴장 사유는 500자 이하여야 합니다.",
+          "ACCESS_CHANGED": "운영 권한이 변경되었습니다. 최신 상태를 확인해 주세요.",
+          "TARGET_CHANGED": "대상 멤버의 역할 또는 참여 상태가 변경되었습니다.",
+          "ALREADY_BANNED": "이미 차단된 사용자입니다.",
+          "ROOM_CLOSED": "종료된 방에서는 이 작업을 수행할 수 없습니다.",
+          "ACTION_FAILED": "처리하지 못했습니다. 잠시 후 다시 시도해 주세요."
+        }
+      },
+      "shareLink": "링크 공유",
+      "shareLinkCopied": "링크가 복사되었습니다"
     }
   },
   "ChatRoomCreate": {
@@ -644,6 +701,68 @@
       "retryImage": "이미지 처리 다시 시도",
       "submit": "이 프로필로 참여",
       "rejoinSubmit": "이 프로필로 재참여"
-    }
+    },
+    "bannedNotice": "강제 퇴장되어 이 채팅방을 더 이상 이용할 수 없습니다. 차단이 해제되기 전에는 다시 참여할 수 없습니다."
+  },
+  "OpenChatBlacklist": {
+    "back": "채팅방으로 돌아가기",
+    "eyebrow": "OPEN CHAT SAFETY",
+    "title": "블랙리스트",
+    "description": "{roomName}에서 차단된 사용자를 검색하고 해제할 수 있습니다.",
+    "loading": "블랙리스트를 불러오는 중입니다.",
+    "retry": "다시 시도",
+    "listLabel": "활성 블랙리스트",
+    "loadMore": "더 불러오기",
+    "search": {
+      "label": "닉네임 또는 멤버 코드 검색",
+      "placeholder": "닉네임 또는 멤버 코드",
+      "clear": "검색어 지우기",
+      "submit": "검색"
+    },
+    "empty": {
+      "title": "차단된 사용자가 없습니다",
+      "description": "현재 활성 상태인 차단 이력이 없습니다."
+    },
+    "emptySearch": {
+      "title": "검색 결과가 없습니다",
+      "description": "다른 닉네임이나 멤버 코드로 검색해 보세요."
+    },
+    "errors": {
+      "ACCESS_DENIED": {
+        "title": "접근 권한이 없습니다",
+        "description": "방장 또는 관리자만 블랙리스트를 확인할 수 있습니다."
+      },
+      "ROOM_CLOSED": {
+        "title": "종료된 채팅방입니다",
+        "description": "종료된 방에서는 운영 작업을 수행할 수 없습니다."
+      },
+      "LOAD_FAILED": {
+        "title": "블랙리스트를 불러오지 못했습니다",
+        "description": "네트워크 상태를 확인하고 다시 시도해 주세요."
+      }
+    },
+    "card": {
+      "lastJoinedAt": "마지막 참여 시각",
+      "bannedAt": "차단 시각",
+      "reason": "차단 사유",
+      "bannedBy": "처리자",
+      "release": "차단 해제",
+      "notReleasable": "해제 권한 없음",
+      "memberCode": "멤버 코드"
+    },
+    "releaseDialog": {
+      "title": "차단을 해제할까요?",
+      "description": "{nickname}님의 이 방 차단을 해제합니다.",
+      "noAutoJoin": "차단을 해제해도 자동으로 재입장하지 않습니다. 사용자가 직접 다시 참여해야 합니다.",
+      "cancel": "취소",
+      "confirm": "차단 해제",
+      "errors": {
+        "ACCESS_CHANGED": "해제 권한이 변경되었습니다. 목록을 새로 불러왔습니다.",
+        "BAN_NOT_FOUND": "이미 해제된 차단입니다. 목록을 새로 불러왔습니다.",
+        "ROOM_CLOSED": "채팅방이 종료되어 차단을 해제할 수 없습니다. 최신 상태를 확인해 주세요.",
+        "RELEASE_FAILED": "차단을 해제하지 못했습니다. 다시 시도해 주세요."
+      }
+    },
+    "close": "블랙리스트 닫기"
   }
 }

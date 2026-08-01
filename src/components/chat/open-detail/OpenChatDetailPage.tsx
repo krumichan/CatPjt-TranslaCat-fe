@@ -7,9 +7,13 @@ import { useOpenChatRoomDetail } from "@/hooks/chat/useOpenChatRoomDetail";
 
 interface OpenChatDetailPageProps {
     roomId: number;
+    showBannedNotice?: boolean;
 }
 
-export function OpenChatDetailPage({ roomId }: OpenChatDetailPageProps) {
+export function OpenChatDetailPage({
+    roomId,
+    showBannedNotice = false,
+}: OpenChatDetailPageProps) {
     const detail = useOpenChatRoomDetail(roomId);
     const join = useOpenChatJoin({
         roomId,
@@ -22,6 +26,7 @@ export function OpenChatDetailPage({ roomId }: OpenChatDetailPageProps) {
         <>
             <OpenChatDetailView
                 room={detail.room}
+                showBannedNotice={showBannedNotice}
                 isLoading={detail.isLoading}
                 loadErrorCode={detail.loadErrorCode}
                 onRetry={detail.reload}

@@ -77,7 +77,7 @@ export interface OpenChatRoomDetail {
     joinable: boolean;
     joinBlockedReason: OpenChatJoinBlockedReason;
     myRole: ChatRoomMemberRole | null;
-    ownerProfile: OpenChatMemberProfile;
+    ownerProfile: OpenChatMemberProfile | null;
     myOpenProfile: OpenChatMemberProfile | null;
     lastActivityAt: string;
     createdAt: string;
@@ -148,6 +148,45 @@ export type OpenChatProfileSnapshot = Pick<
 
 export interface OpenChatMemberListResponse {
     members: OpenChatMemberProfile[];
+}
+
+export interface OpenChatBanCreateRequest {
+    targetOpenChatMemberId: number;
+    reason: string;
+}
+
+export interface OpenChatBanActionResponse {
+    roomId: number;
+    banId: number;
+    targetOpenChatMemberId: number;
+    active: boolean;
+    bannedAt: string;
+    releasedAt: string | null;
+}
+
+export interface OpenChatBanActor {
+    openChatMemberId: number;
+    nickname: string;
+    role: ChatRoomMemberRole;
+}
+
+export interface OpenChatBanListItem {
+    banId: number;
+    targetOpenChatMemberId: number;
+    memberCode: string;
+    nickname: string;
+    profileImageUrl: string | null;
+    lastJoinedAt: string;
+    bannedAt: string;
+    bannedBy: OpenChatBanActor;
+    reason: string;
+    releasable: boolean;
+}
+
+export interface OpenChatBanListResponse {
+    items: OpenChatBanListItem[];
+    nextCursorId: number | null;
+    hasNext: boolean;
 }
 
 export interface OpenChatMessageSender {

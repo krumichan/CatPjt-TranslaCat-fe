@@ -22,6 +22,7 @@ import type { OpenChatRoomDetail } from "@/types/chat";
 
 interface OpenChatDetailViewProps {
     room: OpenChatRoomDetail | null;
+    showBannedNotice?: boolean;
     isLoading: boolean;
     loadErrorCode: OpenChatRoomDetailLoadErrorCode | null;
     onRetry: () => Promise<OpenChatRoomDetail | null>;
@@ -40,6 +41,7 @@ function StatusIcon({ reason }: { reason: OpenChatRoomDetail["joinBlockedReason"
 
 export function OpenChatDetailView({
     room,
+    showBannedNotice = false,
     isLoading,
     loadErrorCode,
     onRetry,
@@ -120,6 +122,17 @@ export function OpenChatDetailView({
                     {t("backToExplore")}
                 </Link>
 
+                {showBannedNotice && (
+                    <div
+                        role="alert"
+                        data-testid="open-chat-banned-notice"
+                        className="mt-5 flex items-start gap-3 rounded-3xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-bold text-rose-700 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-200"
+                    >
+                        <Ban className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
+                        <span>{t("bannedNotice")}</span>
+                    </div>
+                )}
+
                 <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
                     <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
                         <div className="flex flex-wrap items-center gap-2">
@@ -162,26 +175,30 @@ export function OpenChatDetailView({
                             </div>
                         </dl>
 
-                        <section className="mt-7 rounded-3xl border border-orange-200 bg-orange-50/70 p-5 dark:border-orange-400/20 dark:bg-orange-500/10">
-                            <p className="text-xs font-black uppercase tracking-[0.18em] text-orange-500">
-                                {t("owner.eyebrow")}
-                            </p>
-                            <div className="mt-3 flex items-center gap-4">
-                                <OpenChatAvatar
-                                    profileImageUrl={room.ownerProfile.profileImageUrl}
-                                    alt={room.ownerProfile.nickname}
-                                    size="lg"
-                                />
-                                <div className="min-w-0">
-                                    <h2 className="truncate text-xl font-black text-slate-900 dark:text-white">
-                                        {room.ownerProfile.nickname}
-                                    </h2>
-                                    <p className="mt-1 text-sm text-orange-600 dark:text-orange-100">
-                                        {t("owner.description")}
-                                    </p>
+                        {room.ownerProfile && (
+                            <section className="mt-7 rounded-3xl border border-orange-200 bg-orange-50/70 p-5 dark:border-orange-400/20 dark:bg-orange-500/10">
+                                <p className="text-xs font-black uppercase tracking-[0.18em] text-orange-500">
+                                    {t("owner.eyebrow")}
+                                </p>
+                                <div className="mt-3 flex items-center gap-4">
+                                    <OpenChatAvatar
+                                        profileImageUrl={
+                                            room.ownerProfile.profileImageUrl
+                                        }
+                                        alt={room.ownerProfile.nickname}
+                                        size="lg"
+                                    />
+                                    <div className="min-w-0">
+                                        <h2 className="truncate text-xl font-black text-slate-900 dark:text-white">
+                                            {room.ownerProfile.nickname}
+                                        </h2>
+                                        <p className="mt-1 text-sm text-orange-600 dark:text-orange-100">
+                                            {t("owner.description")}
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
-                        </section>
+                            </section>
+                        )}
                     </section>
 
                     <aside className="h-fit rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">

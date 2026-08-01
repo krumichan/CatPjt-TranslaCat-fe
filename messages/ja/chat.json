@@ -352,6 +352,63 @@
         "ACTION_FAILED": "処理に失敗しました。しばらくしてから再度お試しください。",
         "LEAVE_FAILED_AFTER_TRANSFER": "OWNERの委譲は完了しました。ルーム退出を再試行してください。"
       }
+    },
+    "openModeration": {
+      "roles": {
+        "OWNER": "オーナー",
+        "ADMIN": "管理者",
+        "MEMBER": "メンバー"
+      },
+      "actions": {
+        "OPEN_MENU": "{nickname}さんの管理メニュー",
+        "ASSIGN_ADMIN": "管理者に指定",
+        "REVOKE_ADMIN": "管理者を解除",
+        "BAN": "強制退出"
+      },
+      "blacklistMenu": "ブラックリスト管理",
+      "dialog": {
+        "eyebrow": "OPEN CHAT MODERATION",
+        "close": "管理ダイアログを閉じる",
+        "targetNickname": "対象ニックネーム",
+        "memberCode": "メンバーコード",
+        "nextRole": "変更後の役割",
+        "roles": {
+          "ADMIN": "管理者",
+          "MEMBER": "メンバー"
+        },
+        "reason": {
+          "label": "強制退出の理由",
+          "placeholder": "運営ポリシーに違反した理由を入力してください。",
+          "help": "対象ユーザーへの案内と運営記録に使用されます。"
+        },
+        "cancel": "キャンセル",
+        "ASSIGN_ADMIN": {
+          "title": "管理者に指定しますか？",
+          "description": "このメンバーにルーム運営権限が付与されます。",
+          "confirm": "管理者に指定"
+        },
+        "REVOKE_ADMIN": {
+          "title": "管理者権限を解除しますか？",
+          "description": "このメンバーは通常のメンバーに変更されます。",
+          "confirm": "管理者を解除"
+        },
+        "BAN": {
+          "title": "強制退出させますか？",
+          "description": "対象者は直ちに退出し、解除されるまでこのルームに再参加できません。",
+          "confirm": "強制退出"
+        },
+        "errors": {
+          "REASON_REQUIRED": "強制退出の理由を入力してください。",
+          "REASON_TOO_LONG": "強制退出の理由は500文字以内で入力してください。",
+          "ACCESS_CHANGED": "運営権限が変更されました。最新状態を確認してください。",
+          "TARGET_CHANGED": "対象メンバーの役割または参加状態が変更されました。",
+          "ALREADY_BANNED": "すでにブロックされているユーザーです。",
+          "ROOM_CLOSED": "終了したルームではこの操作を実行できません。",
+          "ACTION_FAILED": "処理できませんでした。しばらくしてから再度お試しください。"
+        }
+      },
+      "shareLink": "リンクを共有",
+      "shareLinkCopied": "リンクをコピーしました"
     }
   },
   "ChatRoomCreate": {
@@ -644,6 +701,68 @@
       "retryImage": "画像処理を再試行",
       "submit": "このプロフィールで参加",
       "rejoinSubmit": "このプロフィールで再参加"
-    }
+    },
+    "bannedNotice": "強制退出されたため、このチャットルームは利用できません。ブロックが解除されるまで再参加できません。"
+  },
+  "OpenChatBlacklist": {
+    "back": "チャットルームに戻る",
+    "eyebrow": "OPEN CHAT SAFETY",
+    "title": "ブラックリスト",
+    "description": "{roomName}でブロックされたユーザーを検索・解除できます。",
+    "loading": "ブラックリストを読み込んでいます。",
+    "retry": "再試行",
+    "listLabel": "有効なブラックリスト",
+    "loadMore": "さらに読み込む",
+    "search": {
+      "label": "ニックネームまたはメンバーコードで検索",
+      "placeholder": "ニックネームまたはメンバーコード",
+      "clear": "検索語をクリア",
+      "submit": "検索"
+    },
+    "empty": {
+      "title": "ブロック中のユーザーはいません",
+      "description": "現在有効なブロック履歴はありません。"
+    },
+    "emptySearch": {
+      "title": "検索結果がありません",
+      "description": "別のニックネームまたはメンバーコードで検索してください。"
+    },
+    "errors": {
+      "ACCESS_DENIED": {
+        "title": "アクセス権限がありません",
+        "description": "オーナーまたは管理者のみブラックリストを確認できます。"
+      },
+      "ROOM_CLOSED": {
+        "title": "終了したチャットルームです",
+        "description": "終了したルームでは運営操作を実行できません。"
+      },
+      "LOAD_FAILED": {
+        "title": "ブラックリストを読み込めませんでした",
+        "description": "ネットワーク状態を確認して再度お試しください。"
+      }
+    },
+    "card": {
+      "lastJoinedAt": "最終参加日時",
+      "bannedAt": "ブロック日時",
+      "reason": "ブロック理由",
+      "bannedBy": "実行者",
+      "release": "ブロック解除",
+      "notReleasable": "解除権限なし",
+      "memberCode": "メンバーコード"
+    },
+    "releaseDialog": {
+      "title": "ブロックを解除しますか？",
+      "description": "{nickname}さんのこのルームでのブロックを解除します。",
+      "noAutoJoin": "解除しても自動的には再入室しません。ユーザー自身が再参加する必要があります。",
+      "cancel": "キャンセル",
+      "confirm": "ブロック解除",
+      "errors": {
+        "ACCESS_CHANGED": "解除権限が変更されました。一覧を再読み込みしました。",
+        "BAN_NOT_FOUND": "すでに解除済みです。一覧を再読み込みしました。",
+        "ROOM_CLOSED": "チャットルームが終了したため、ブロックを解除できません。最新状態を確認してください。",
+        "RELEASE_FAILED": "ブロックを解除できませんでした。再度お試しください。"
+      }
+    },
+    "close": "ブラックリストを閉じる"
   }
 }

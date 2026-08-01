@@ -5,6 +5,7 @@ import { useCallback } from "react";
 import { useQuery } from "@/hooks/useQuery";
 import { openChatService } from "@/services/chat/openChatService";
 import type {
+    ChatRoomMemberRole,
     OpenChatMemberProfile,
     OpenChatProfileSnapshot,
 } from "@/types/chat";
@@ -35,12 +36,22 @@ export function useOpenChatMyProfile({
         async (profile: OpenChatMemberProfile | OpenChatProfileSnapshot) => {
             await mutate(
                 (current) =>
-                    current &&
-                    current.openChatMemberId === profile.openChatMemberId
+                    current?.openChatMemberId === profile.openChatMemberId
                         ? { ...current, ...profile }
-                        : "active" in profile
-                          ? profile
-                          : current,
+                        : current,
+                false,
+            );
+        },
+        [mutate],
+    );
+
+    const applyRole = useCallback(
+        async (openChatMemberId: number, role: ChatRoomMemberRole) => {
+            await mutate(
+                (current) =>
+                    current?.openChatMemberId === openChatMemberId
+                        ? { ...current, role }
+                        : current,
                 false,
             );
         },
@@ -53,5 +64,6 @@ export function useOpenChatMyProfile({
         loadErrorCode: isError ? ("LOAD_FAILED" as const) : null,
         reload,
         applyProfile,
+        applyRole,
     };
 }

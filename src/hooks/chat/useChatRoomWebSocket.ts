@@ -11,6 +11,8 @@ import {
     extractChatMemberReadUpdatedEvent,
     extractChatMessageFromEvent,
     extractChatReadUpdatedEvent,
+    extractOpenChatMemberBannedEvent,
+    extractOpenChatMemberRoleUpdatedEvent,
     extractOpenChatProfileUpdatedEvent,
     extractOpenChatRoomClosedEvent,
     extractTranslationResultFromEvent,
@@ -19,6 +21,8 @@ import {
     type ChatReadUpdatedEvent,
     type ChatWebSocketConnectionStatus,
     type ChatWebSocketEvent,
+    type OpenChatMemberBannedEvent,
+    type OpenChatMemberRoleUpdatedEvent,
     type OpenChatProfileUpdatedEvent,
     type OpenChatRoomClosedEvent,
 } from "@/types/chatWebSocket";
@@ -29,6 +33,8 @@ type ChatWebSocketSendErrorCode = "NOT_CONNECTED" | "SEND_FAILED";
 interface UseChatRoomWebSocketParams {
     roomId: number;
     accessToken: string | null;
+    enabled?: boolean;
+    openChatEventsEnabled?: boolean;
     onMessageCreated: (message: ChatMessage) => void;
     onTranslationCompleted?: (
         messageId: number,
@@ -40,6 +46,15 @@ interface UseChatRoomWebSocketParams {
     ) => void;
     onOpenChatProfileUpdated?: (
         event: OpenChatProfileUpdatedEvent,
+    ) => void;
+    onOpenChatMemberRoleUpdated?: (
+        event: OpenChatMemberRoleUpdatedEvent,
+    ) => void;
+    onOpenChatMemberBanned?: (
+        event: OpenChatMemberBannedEvent,
+    ) => void;
+    onCurrentUserOpenChatMemberBanned?: (
+        event: OpenChatMemberBannedEvent,
     ) => void;
     onOpenChatRoomClosed?: (
         event: OpenChatRoomClosedEvent,
@@ -58,11 +73,16 @@ interface UseChatRoomWebSocketResult {
 export const useChatRoomWebSocket = ({
     roomId,
     accessToken,
+    enabled = true,
+    openChatEventsEnabled = false,
     onMessageCreated,
     onTranslationCompleted,
     onReadUpdated,
     onMemberReadUpdated,
     onOpenChatProfileUpdated,
+    onOpenChatMemberRoleUpdated,
+    onOpenChatMemberBanned,
+    onCurrentUserOpenChatMemberBanned,
     onOpenChatRoomClosed,
     onReconnectSyncRequested,
 }: UseChatRoomWebSocketParams): UseChatRoomWebSocketResult => {
@@ -76,6 +96,9 @@ export const useChatRoomWebSocket = ({
         onReadUpdated,
         onMemberReadUpdated,
         onOpenChatProfileUpdated,
+        onOpenChatMemberRoleUpdated,
+        onOpenChatMemberBanned,
+        onCurrentUserOpenChatMemberBanned,
         onOpenChatRoomClosed,
         onReconnectSyncRequested,
     });
@@ -87,12 +110,18 @@ export const useChatRoomWebSocket = ({
             onReadUpdated,
             onMemberReadUpdated,
             onOpenChatProfileUpdated,
+            onOpenChatMemberRoleUpdated,
+            onOpenChatMemberBanned,
+            onCurrentUserOpenChatMemberBanned,
             onOpenChatRoomClosed,
             onReconnectSyncRequested,
         };
     }, [
         onMemberReadUpdated,
         onMessageCreated,
+        onOpenChatMemberBanned,
+        onCurrentUserOpenChatMemberBanned,
+        onOpenChatMemberRoleUpdated,
         onOpenChatProfileUpdated,
         onOpenChatRoomClosed,
         onReadUpdated,
@@ -109,12 +138,12 @@ export const useChatRoomWebSocket = ({
         useState<ChatWebSocketSendErrorCode | null>(null);
 
     const connectionKey = useMemo(() => {
-        if (!roomId || !accessToken) {
+        if (!enabled || !roomId || !accessToken) {
             return null;
         }
 
         return `${roomId}:${accessToken}`;
-    }, [accessToken, roomId]);
+    }, [accessToken, enabled, roomId]);
 
     const connectionStatus = useMemo<ChatWebSocketConnectionStatus>(() => {
         if (!connectionKey) {
@@ -184,6 +213,30 @@ export const useChatRoomWebSocket = ({
                     return;
                 }
 
+                if (eventType === "chat.member.role.updated") {
+                    const roleUpdated =
+                        extractOpenChatMemberRoleUpdatedEvent(parsed);
+
+                    if (roleUpdated) {
+                        eventHandlersRef.current.onOpenChatMemberRoleUpdated?.(
+                            roleUpdated,
+                        );
+                    }
+                    return;
+                }
+
+                if (eventType === "chat.member.banned") {
+                    const memberBanned =
+                        extractOpenChatMemberBannedEvent(parsed);
+
+                    if (memberBanned) {
+                        eventHandlersRef.current.onOpenChatMemberBanned?.(
+                            memberBanned,
+                        );
+                    }
+                    return;
+                }
+
                 if (eventType === "chat.room.closed") {
                     const roomClosed =
                         extractOpenChatRoomClosedEvent(parsed);
@@ -218,6 +271,35 @@ export const useChatRoomWebSocket = ({
                 }
             } catch (error) {
                 console.error("Failed to parse chat websocket message", error);
+            }
+        },
+        [],
+    );
+
+    const handlePrivateOpenChatMessage = useCallback(
+        (message: IMessage) => {
+            try {
+                const parsed = JSON.parse(
+                    message.body,
+                ) as ChatWebSocketEvent<unknown>;
+                const eventType = getChatWebSocketEventType(parsed);
+
+                if (eventType !== "chat.member.banned") {
+                    return;
+                }
+
+                const memberBanned =
+                    extractOpenChatMemberBannedEvent(parsed);
+
+                if (memberBanned) {
+                    eventHandlersRef.current
+                        .onCurrentUserOpenChatMemberBanned?.(memberBanned);
+                }
+            } catch (error) {
+                console.error(
+                    "Failed to parse private OPEN chat websocket message",
+                    error,
+                );
             }
         },
         [],
@@ -274,6 +356,16 @@ export const useChatRoomWebSocket = ({
                         Authorization: `Bearer ${accessToken}`,
                     },
                 );
+
+                if (openChatEventsEnabled) {
+                    client.subscribe(
+                        `/user/queue/chat/open-rooms/${roomId}`,
+                        handlePrivateOpenChatMessage,
+                        {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    );
+                }
 
                 if (shouldSyncAfterReconnect) {
                     void eventHandlersRef.current.onReconnectSyncRequested?.();
@@ -336,7 +428,9 @@ export const useChatRoomWebSocket = ({
     }, [
         accessToken,
         connectionKey,
+        handlePrivateOpenChatMessage,
         handleStompMessage,
+        openChatEventsEnabled,
         roomId,
     ]);
 

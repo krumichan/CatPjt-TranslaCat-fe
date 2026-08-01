@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from "react";
 
 import { openChatService } from "@/services/chat/openChatService";
 import type {
+    ChatRoomMemberRole,
     OpenChatMemberProfile,
     OpenChatProfileSnapshot,
 } from "@/types/chat";
@@ -125,6 +126,26 @@ export function useOpenChatMemberProfilePreview(roomId: number) {
         [],
     );
 
+    const applyRole = useCallback(
+        (openChatMemberId: number, role: ChatRoomMemberRole) => {
+            setProfile((current) =>
+                current?.openChatMemberId === openChatMemberId
+                    ? { ...current, role }
+                    : current,
+            );
+        },
+        [],
+    );
+
+    const removeMember = useCallback(
+        (openChatMemberId: number) => {
+            if (selectedMemberId === openChatMemberId) {
+                closeProfile();
+            }
+        },
+        [closeProfile, selectedMemberId],
+    );
+
     return {
         selectedMemberId,
         profile,
@@ -135,5 +156,7 @@ export function useOpenChatMemberProfilePreview(roomId: number) {
         retryProfile,
         closeProfile,
         applyProfile,
+        applyRole,
+        removeMember,
     };
 }

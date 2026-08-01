@@ -19,6 +19,8 @@ export type ChatWebSocketEventType =
     | "chat.read.updated"
     | "chat.member.read.updated"
     | "chat.open-profile.updated"
+    | "chat.member.role.updated"
+    | "chat.member.banned"
     | "chat.room.closed"
     | "chat.error";
 
@@ -60,6 +62,23 @@ export interface OpenChatProfileUpdatedEvent {
     nickname: string;
     profileImageUrl: string | null;
     role: ChatRoomMemberRole;
+    occurredAt: string;
+}
+
+export interface OpenChatMemberRoleUpdatedEvent {
+    eventType: "chat.member.role.updated";
+    roomId: number;
+    targetOpenChatMemberId: number;
+    role: ChatRoomMemberRole;
+    occurredAt: string;
+}
+
+export interface OpenChatMemberBannedEvent {
+    eventType: "chat.member.banned";
+    roomId: number;
+    targetOpenChatMemberId: number;
+    reason: string;
+    bannedAt: string;
     occurredAt: string;
 }
 
@@ -141,6 +160,16 @@ export const extractOpenChatProfileUpdatedEvent = (
     event: ChatWebSocketEvent<unknown>,
 ): OpenChatProfileUpdatedEvent | null =>
     extractPayloadWithGuard(event, isOpenChatProfileUpdatedEvent);
+
+export const extractOpenChatMemberRoleUpdatedEvent = (
+    event: ChatWebSocketEvent<unknown>,
+): OpenChatMemberRoleUpdatedEvent | null =>
+    extractPayloadWithGuard(event, isOpenChatMemberRoleUpdatedEvent);
+
+export const extractOpenChatMemberBannedEvent = (
+    event: ChatWebSocketEvent<unknown>,
+): OpenChatMemberBannedEvent | null =>
+    extractPayloadWithGuard(event, isOpenChatMemberBannedEvent);
 
 export const extractOpenChatRoomClosedEvent = (
     event: ChatWebSocketEvent<unknown>,
@@ -257,6 +286,39 @@ const isOpenChatProfileUpdatedEvent = (
         typeof value.nickname === "string" &&
         isNullableString(value.profileImageUrl) &&
         isChatRoomMemberRole(value.role) &&
+        typeof value.occurredAt === "string"
+    );
+};
+
+const isOpenChatMemberRoleUpdatedEvent = (
+    value: unknown,
+): value is OpenChatMemberRoleUpdatedEvent => {
+    if (!isRecord(value)) {
+        return false;
+    }
+
+    return (
+        value.eventType === "chat.member.role.updated" &&
+        typeof value.roomId === "number" &&
+        typeof value.targetOpenChatMemberId === "number" &&
+        isChatRoomMemberRole(value.role) &&
+        typeof value.occurredAt === "string"
+    );
+};
+
+const isOpenChatMemberBannedEvent = (
+    value: unknown,
+): value is OpenChatMemberBannedEvent => {
+    if (!isRecord(value)) {
+        return false;
+    }
+
+    return (
+        value.eventType === "chat.member.banned" &&
+        typeof value.roomId === "number" &&
+        typeof value.targetOpenChatMemberId === "number" &&
+        typeof value.reason === "string" &&
+        typeof value.bannedAt === "string" &&
         typeof value.occurredAt === "string"
     );
 };

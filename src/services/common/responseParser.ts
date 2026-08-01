@@ -1,3 +1,4 @@
+import { dispatchApiResponseError } from "@/services/common/apiErrorEvent";
 import type { ResponseDto } from "@/types/common";
 
 interface ApiErrorBody {
@@ -77,11 +78,20 @@ export async function parseResponseBody<T>(
     if (!response.ok) {
         const errorResponse = await safeJson<ApiErrorResponseDto>(response);
 
+        const errorCode = errorResponse?.body?.errorCode ?? null;
+
+        dispatchApiResponseError({
+            status: response.status,
+            domainName,
+            errorCode,
+            url: response.url,
+        });
+
         throw new ApiResponseError({
             status: response.status,
             domainName,
             message: errorResponse?.message ?? null,
-            errorCode: errorResponse?.body?.errorCode ?? null,
+            errorCode,
         });
     }
 

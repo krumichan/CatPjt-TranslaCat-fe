@@ -39,6 +39,53 @@ export type ChatLanguageSettingsSource =
     | "DEFAULT"
     | "SYSTEM";
 
+export interface OpenChatMemberProfile {
+    openChatMemberId: number;
+    memberCode: string;
+    nickname: string;
+    profileImageUrl: string | null;
+    role: ChatRoomMemberRole;
+    active: boolean;
+    joinedAt: string;
+}
+
+export type OpenChatProfileSnapshot = Pick<
+    OpenChatMemberProfile,
+    | "openChatMemberId"
+    | "memberCode"
+    | "nickname"
+    | "profileImageUrl"
+    | "role"
+>;
+
+export interface OpenChatMemberListResponse {
+    members: OpenChatMemberProfile[];
+}
+
+export interface OpenChatMessageSender {
+    openChatMemberId: number;
+    memberCode: string;
+    nickname: string;
+    profileImageUrl: string | null;
+    role: ChatRoomMemberRole;
+}
+
+export type OpenChatProfileFormMode =
+    | "create-owner"
+    | "join"
+    | "rejoin"
+    | "edit";
+
+export interface OpenChatProfileFormValue {
+    nickname: string;
+    imageFile: File | null;
+    removeImage: boolean;
+}
+
+export interface OpenChatProfileUpdateRequest {
+    nickname: string;
+}
+
 export interface DirectPartnerProfile {
     userId: number;
     publicId: string;
@@ -236,6 +283,7 @@ export interface ChatMessage {
     translations: ChatMessageTranslation[];
     createdAt: string;
     updatedAt: string;
+    sender?: OpenChatMessageSender | null;
 }
 
 export interface ChatMessageListResponse {

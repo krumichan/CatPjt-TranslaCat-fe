@@ -1,0 +1,139 @@
+"use client";
+
+import { useCallback, useRef, useState } from "react";
+
+import { openChatService } from "@/services/chat/openChatService";
+import type {
+    OpenChatMemberProfile,
+    OpenChatProfileSnapshot,
+} from "@/types/chat";
+
+export function useOpenChatMemberProfilePreview(roomId: number) {
+    const [selectedMemberId, setSelectedMemberId] =
+        useState<number | null>(null);
+    const [profile, setProfile] =
+        useState<OpenChatMemberProfile | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [loadErrorCode, setLoadErrorCode] =
+        useState<"LOAD_FAILED" | null>(null);
+    const requestSequenceRef = useRef(0);
+    const profilePatchVersionRef = useRef(new Map<number, number>());
+    const latestProfilePatchRef = useRef(
+        new Map<number, OpenChatProfileSnapshot>(),
+    );
+
+    const openProfile = useCallback(
+        async (openChatMemberId: number) => {
+            const sequence = ++requestSequenceRef.current;
+            const patchVersionAtRequest =
+                profilePatchVersionRef.current.get(openChatMemberId) ?? 0;
+            setSelectedMemberId(openChatMemberId);
+            setProfile(null);
+            setLoadErrorCode(null);
+            setIsLoading(true);
+
+            try {
+                const nextProfile =
+                    await openChatService.getMemberProfile(
+                        roomId,
+                        openChatMemberId,
+                    );
+
+                if (sequence !== requestSequenceRef.current) {
+                    return false;
+                }
+
+                const latestPatchVersion =
+                    profilePatchVersionRef.current.get(
+                        openChatMemberId,
+                    ) ?? 0;
+                const latestPatch =
+                    latestProfilePatchRef.current.get(
+                        openChatMemberId,
+                    );
+
+                setProfile(
+                    latestPatch &&
+                        latestPatchVersion > patchVersionAtRequest
+                        ? { ...nextProfile, ...latestPatch }
+                        : nextProfile,
+                );
+                return true;
+            } catch (error) {
+                console.error(
+                    "Failed to load OPEN chat member profile.",
+                    error,
+                );
+                if (sequence === requestSequenceRef.current) {
+                    setLoadErrorCode("LOAD_FAILED");
+                }
+                return false;
+            } finally {
+                if (sequence === requestSequenceRef.current) {
+                    setIsLoading(false);
+                }
+            }
+        },
+        [roomId],
+    );
+
+    const retryProfile = useCallback(async () => {
+        if (selectedMemberId === null) {
+            return false;
+        }
+        return openProfile(selectedMemberId);
+    }, [openProfile, selectedMemberId]);
+
+    const closeProfile = useCallback(() => {
+        requestSequenceRef.current += 1;
+        setSelectedMemberId(null);
+        setProfile(null);
+        setIsLoading(false);
+        setLoadErrorCode(null);
+    }, []);
+
+    const applyProfile = useCallback(
+        (nextProfile: OpenChatMemberProfile | OpenChatProfileSnapshot) => {
+            const snapshot: OpenChatProfileSnapshot = {
+                openChatMemberId: nextProfile.openChatMemberId,
+                memberCode: nextProfile.memberCode,
+                nickname: nextProfile.nickname,
+                profileImageUrl: nextProfile.profileImageUrl,
+                role: nextProfile.role,
+            };
+            const previousVersion =
+                profilePatchVersionRef.current.get(
+                    nextProfile.openChatMemberId,
+                ) ?? 0;
+
+            profilePatchVersionRef.current.set(
+                nextProfile.openChatMemberId,
+                previousVersion + 1,
+            );
+            latestProfilePatchRef.current.set(
+                nextProfile.openChatMemberId,
+                snapshot,
+            );
+
+            setProfile((current) =>
+                current?.openChatMemberId ===
+                nextProfile.openChatMemberId
+                    ? { ...current, ...snapshot }
+                    : current,
+            );
+        },
+        [],
+    );
+
+    return {
+        selectedMemberId,
+        profile,
+        isOpen: selectedMemberId !== null,
+        isLoading,
+        loadErrorCode,
+        openProfile,
+        retryProfile,
+        closeProfile,
+        applyProfile,
+    };
+}

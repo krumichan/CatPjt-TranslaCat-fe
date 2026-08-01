@@ -7,6 +7,8 @@ import type {
     ChatMessage,
     ChatMessageTranslation,
     ChatRoom,
+    OpenChatMemberProfile,
+    OpenChatProfileSnapshot,
 } from "@/types/chat";
 import type { ChatMemberReadUpdatedEvent } from "@/types/chatWebSocket";
 
@@ -44,6 +46,9 @@ interface UseChatRoomResult {
     ) => void;
     applyMemberReadUpdated: (
         event: ChatMemberReadUpdatedEvent,
+    ) => void;
+    applyOpenChatProfile: (
+        profile: OpenChatMemberProfile | OpenChatProfileSnapshot,
     ) => void;
     syncLatestMessages: () => Promise<void>;
     retryTranslation: (
@@ -367,6 +372,33 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
         [roomId],
     );
 
+    const applyOpenChatProfile = useCallback(
+        (profile: OpenChatMemberProfile | OpenChatProfileSnapshot) => {
+            setMessages((currentMessages) =>
+                currentMessages.map((message) => {
+                    if (
+                        message.sender?.openChatMemberId !==
+                        profile.openChatMemberId
+                    ) {
+                        return message;
+                    }
+
+                    return {
+                        ...message,
+                        sender: {
+                            ...message.sender,
+                            memberCode: profile.memberCode,
+                            nickname: profile.nickname,
+                            profileImageUrl: profile.profileImageUrl,
+                            role: profile.role,
+                        },
+                    };
+                }),
+            );
+        },
+        [],
+    );
+
     const syncLatestMessages = useCallback(async () => {
         try {
             const messageResponse = await chatService.getMessages(roomId);
@@ -472,6 +504,7 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
         appendMessage,
         applyTranslationCompleted,
         applyMemberReadUpdated,
+        applyOpenChatProfile,
         syncLatestMessages,
         retryTranslation,
     };

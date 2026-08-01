@@ -282,10 +282,14 @@ test.describe("FE #12 chat read status", () => {
         page,
     }) => {
         let socket: WebSocketRoute | null = null;
+        const subscribedDestinations = new Set<string>();
 
         await mockStompBroker(page, {
             onSocket: (nextSocket) => {
                 socket = nextSocket;
+            },
+            onSubscribe: (destination) => {
+                subscribedDestinations.add(destination);
             },
         });
 
@@ -318,6 +322,13 @@ test.describe("FE #12 chat read status", () => {
         await page.goto("/chat");
         await expect(page.getByText("실시간 그룹")).toBeVisible();
         await expect.poll(() => socket !== null).toBe(true);
+        await expect
+            .poll(() =>
+                subscribedDestinations.has(
+                    "/topic/chat/rooms/502",
+                ),
+            )
+            .toBe(true);
 
         sendStompJson(socket!, "/topic/chat/rooms/502", {
             eventType: "chat.message.created",

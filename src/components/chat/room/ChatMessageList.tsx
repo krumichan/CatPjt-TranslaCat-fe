@@ -5,7 +5,11 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef } from "react";
 
 import { ChatMessageItem } from "@/components/chat/room/ChatMessageItem";
-import type { ChatLanguageSettings, ChatMessage } from "@/types/chat";
+import type {
+    ChatLanguageSettings,
+    ChatMessage,
+    ChatRoomType,
+} from "@/types/chat";
 import {
     isElementNearBottom,
     scrollElementToBottom,
@@ -14,13 +18,15 @@ import {
 interface ChatMessageListProps {
     messages: ChatMessage[];
     currentUserEmail: string | null;
+    currentOpenChatMemberId?: number | null;
+    roomType?: ChatRoomType | null;
     languageSettings: ChatLanguageSettings | null;
     hasNext: boolean;
     isLoadingMore: boolean;
     loadMoreErrorMessage: string | null;
     retryingTranslationKeys: string[];
     retryTranslationErrorKeys: string[];
-    onOpenSenderProfile?: (userId: number) => void;
+    onOpenSenderProfile?: (senderProfileId: number) => void;
     onLoadMore: () => Promise<boolean>;
     onRetryTranslation: (
         messageId: number,
@@ -34,6 +40,8 @@ const LOAD_MORE_SCROLL_THRESHOLD = 80;
 export function ChatMessageList({
     messages,
     currentUserEmail,
+    currentOpenChatMemberId = null,
+    roomType = null,
     languageSettings,
     hasNext,
     isLoadingMore,
@@ -155,15 +163,21 @@ export function ChatMessageList({
             </div>
 
             {messages.map((message) => {
-                const isMine =
-                    !!currentUserEmail &&
-                    message.senderEmail ===
-                        currentUserEmail;
+                const isOpenRoom = roomType === "OPEN";
+                const isMine = isOpenRoom
+                    ? currentOpenChatMemberId !== null &&
+                      message.sender?.openChatMemberId ===
+                          currentOpenChatMemberId
+                    : !!currentUserEmail &&
+                      message.senderEmail === currentUserEmail;
+                const senderProfileId = isOpenRoom
+                    ? message.sender?.openChatMemberId ?? null
+                    : message.senderUserId;
 
                 const canOpenSenderProfile =
                     !isMine &&
                     message.senderType === "USER" &&
-                    message.senderUserId !== null &&
+                    senderProfileId !== null &&
                     onOpenSenderProfile !== undefined;
 
                 return (
@@ -171,6 +185,7 @@ export function ChatMessageList({
                         key={message.id}
                         message={message}
                         isMine={isMine}
+                        isOpenRoom={isOpenRoom}
                         languageSettings={
                             languageSettings
                         }
@@ -184,7 +199,7 @@ export function ChatMessageList({
                             canOpenSenderProfile
                                 ? () =>
                                       onOpenSenderProfile(
-                                          message.senderUserId!,
+                                          senderProfileId!,
                                       )
                                 : undefined
                         }

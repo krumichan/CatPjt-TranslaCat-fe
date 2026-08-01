@@ -111,6 +111,11 @@
           "SEND_REQUEST_FAILED": "友達申請の送信に失敗しました。",
           "TARGET_NOT_FOUND": "対象ユーザーが見つかりません。"
         }
+      },
+      "roles": {
+        "OWNER": "オーナー",
+        "ADMIN": "管理者",
+        "MEMBER": "メンバー"
       }
     },
     "menu": {
@@ -202,6 +207,103 @@
       "updateFailed": "既読状態を同期できませんでした。",
       "retry": "再試行",
       "unreadMembers": "まだ読んでいないメンバー{count}人"
+    },
+    "openProfile": {
+      "menu": {
+        "editMyProfile": "自分のOPENプロフィールを変更"
+      },
+      "defaultNickname": "OPENメンバー",
+      "roles": {
+        "OWNER": "オーナー",
+        "ADMIN": "管理者",
+        "MEMBER": "メンバー"
+      },
+      "edit": {
+        "eyebrow": "Room profile",
+        "title": "自分のOPENプロフィールを変更",
+        "description": "このルームだけで使用するニックネームとプロフィール画像です。通常プロフィールには影響しません。",
+        "close": "OPENプロフィール変更を閉じる",
+        "loading": "OPENプロフィールを読み込み中...",
+        "loadFailed": "OPENプロフィールを読み込めませんでした。",
+        "retry": "再試行"
+      },
+      "form": {
+        "mode": {
+          "create-owner": {
+            "title": "オーナープロフィール設定",
+            "description": "新しいOPENルームで使用する別プロフィールを設定します。"
+          },
+          "join": {
+            "title": "参加プロフィール設定",
+            "description": "このルームで使用するニックネームと画像を設定します。"
+          },
+          "rejoin": {
+            "title": "再参加プロフィール確認",
+            "description": "既存memberCodeを維持したままプロフィールを確認・変更します。"
+          },
+          "edit": {
+            "title": "ルーム別プロフィール",
+            "description": "同じアカウントでもルームごとに異なるニックネームと画像を使用できます。"
+          }
+        },
+        "image": {
+          "alt": "{nickname}のOPENプロフィール画像プレビュー",
+          "custom": "選択したOPENプロフィール画像",
+          "defaultAvatar": "デフォルトOPEN猫Avatar",
+          "choose": "画像を選択",
+          "replace": "画像を差し替え",
+          "delete": "画像を削除",
+          "restore": "削除を取消",
+          "cancelPreview": "プレビューを取消",
+          "inputLabel": "OPENプロフィール画像ファイルを選択",
+          "rules": "JPG、PNG、WEBP・最大5MB。画像がない場合は全ユーザー共通のデフォルトOPEN Avatarを表示します。"
+        },
+        "nickname": {
+          "label": "ルーム別ニックネーム",
+          "placeholder": "このルームで使用するニックネーム",
+          "duplicateAllowed": "他メンバーと同じニックネームを使用でき、memberCodeで区別します。"
+        },
+        "memberCode": {
+          "label": "メンバーコード",
+          "readOnlyLabel": "変更できないメンバーコード {code}",
+          "help": "このルームで同じニックネームと画像を区別する固有コードで、変更できません。",
+          "copy": "メンバーコードをコピー",
+          "copied": "メンバーコードをコピーしました。"
+        },
+        "cancel": "キャンセル",
+        "submit": {
+          "create-owner": "ルームを作成",
+          "join": "参加する",
+          "rejoin": "再参加する",
+          "edit": "変更を保存"
+        },
+        "processing": {
+          "SAVING": "ニックネームを保存中...",
+          "UPLOADING": "画像をアップロード中...",
+          "DELETING": "画像を削除中..."
+        }
+      },
+      "modal": {
+        "title": "OPENメンバープロフィール",
+        "close": "OPENプロフィールを閉じる",
+        "loading": "OPENプロフィールを読み込み中...",
+        "loadFailed": "OPENプロフィールを読み込めませんでした。",
+        "retry": "再試行",
+        "profileAlt": "{nickname}のOPENプロフィール画像",
+        "memberCode": "メンバーコード",
+        "copyMemberCode": "メンバーコードをコピー",
+        "copied": "メンバーコードをコピーしました。",
+        "joinedAt": "最新参加: {date}"
+      },
+      "errors": {
+        "NICKNAME_REQUIRED": "ルーム別ニックネームを入力してください。",
+        "NICKNAME_TOO_LONG": "ルーム別ニックネームは50文字以内で入力してください。",
+        "UNSUPPORTED_TYPE": "JPG、PNG、WEBP画像ファイルのみ使用できます。",
+        "FILE_TOO_LARGE": "画像ファイルは5MB以下のみ使用できます。",
+        "ROOM_CLOSED": "終了したOPENチャットルームではプロフィールを変更できません。",
+        "ACCESS_DENIED": "現在の状態ではOPENプロフィールを変更できません。ルーム状態を再取得しました。",
+        "SAVE_FAILED": "OPENプロフィールの保存に失敗しました。選択した画像は維持されるため再試行できます。"
+      }
     }
   },
   "ChatRoomCreate": {

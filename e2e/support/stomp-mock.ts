@@ -2,6 +2,7 @@ import type { Page, WebSocketRoute } from "@playwright/test";
 
 type StompMockOptions = {
     onSocket?: (ws: WebSocketRoute) => void;
+    onSubscribe?: (destination: string, ws: WebSocketRoute) => void;
     onSend?: (destination: string, body: string, ws: WebSocketRoute) => void;
 };
 
@@ -24,6 +25,12 @@ export async function mockStompBroker(
 
             if (frame.startsWith("CONNECT") || frame.startsWith("STOMP")) {
                 ws.send("CONNECTED\nversion:1.2\nheart-beat:0,0\n\n\0");
+                return;
+            }
+
+            if (frame.startsWith("SUBSCRIBE")) {
+                const destination = parseHeader(frame, "destination") ?? "";
+                options.onSubscribe?.(destination, ws);
                 return;
             }
 

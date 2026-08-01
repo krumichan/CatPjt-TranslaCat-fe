@@ -96,8 +96,8 @@ export const makeRoomListItem = ({
     unreadCount = 0,
 }: {
     id: number;
-    roomType: "DIRECT" | "GROUP";
-    sourceType: "MANUAL" | "FRIEND";
+    roomType: "DIRECT" | "GROUP" | "OPEN";
+    sourceType: "MANUAL" | "FRIEND" | "OPEN" | "AI";
     name: string | null;
     description?: string | null;
     memberCount: number;
@@ -123,22 +123,26 @@ export const makeRoom = ({
     description = null,
     memberCount = 2,
     myRole = null,
+    active = true,
+    ownerId = TEST_USERS.A.userId,
 }: {
     id?: number;
-    roomType?: "DIRECT" | "GROUP";
-    sourceType?: "MANUAL" | "FRIEND";
+    roomType?: "DIRECT" | "GROUP" | "OPEN";
+    sourceType?: "MANUAL" | "FRIEND" | "OPEN" | "AI";
     name?: string | null;
     description?: string | null;
     memberCount?: number;
     myRole?: "OWNER" | "ADMIN" | "MEMBER" | null;
+    active?: boolean;
+    ownerId?: number | null;
 } = {}) => ({
     id,
     roomType,
     sourceType,
     name,
     description,
-    ownerId: TEST_USERS.A.userId,
-    active: true,
+    ownerId,
+    active,
     originalLanguageCode: "ko",
     translationLanguageCode: "ja",
     roomLanguageSettingApplied: true,
@@ -235,4 +239,69 @@ export const makeMessage = ({
     translations,
     createdAt: NOW,
     updatedAt: LATER,
+});
+
+
+export const makeOpenChatProfile = ({
+    openChatMemberId,
+    memberCode,
+    nickname,
+    profileImageUrl = null,
+    role = "MEMBER",
+    active = true,
+    joinedAt = NOW,
+}: {
+    openChatMemberId: number;
+    memberCode: string;
+    nickname: string;
+    profileImageUrl?: string | null;
+    role?: "OWNER" | "ADMIN" | "MEMBER";
+    active?: boolean;
+    joinedAt?: string;
+}) => ({
+    openChatMemberId,
+    memberCode,
+    nickname,
+    profileImageUrl,
+    role,
+    active,
+    joinedAt,
+});
+
+export const makeOpenChatMessage = ({
+    id,
+    roomId = 501,
+    sender,
+    content,
+    translations = [],
+    unreadMemberCount = 0,
+}: {
+    id: number;
+    roomId?: number;
+    sender: ReturnType<typeof makeOpenChatProfile>;
+    content: string;
+    translations?: ReturnType<typeof makeTranslation>[];
+    unreadMemberCount?: number | null;
+}) => ({
+    id,
+    chatRoomId: roomId,
+    senderUserId: null,
+    senderName: null,
+    senderEmail: null,
+    senderProfileImageUrl: null,
+    senderType: "USER" as const,
+    messageType: "TEXT" as const,
+    content,
+    status: "SENT" as const,
+    unreadMemberCount,
+    translations,
+    createdAt: NOW,
+    updatedAt: LATER,
+    sender: {
+        openChatMemberId: sender.openChatMemberId,
+        memberCode: sender.memberCode,
+        nickname: sender.nickname,
+        profileImageUrl: sender.profileImageUrl,
+        role: sender.role,
+    },
 });

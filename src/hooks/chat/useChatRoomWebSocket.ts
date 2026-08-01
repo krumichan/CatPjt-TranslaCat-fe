@@ -11,12 +11,16 @@ import {
     extractChatMemberReadUpdatedEvent,
     extractChatMessageFromEvent,
     extractChatReadUpdatedEvent,
+    extractOpenChatProfileUpdatedEvent,
+    extractOpenChatRoomClosedEvent,
     extractTranslationResultFromEvent,
     getChatWebSocketEventType,
     type ChatMemberReadUpdatedEvent,
     type ChatReadUpdatedEvent,
     type ChatWebSocketConnectionStatus,
     type ChatWebSocketEvent,
+    type OpenChatProfileUpdatedEvent,
+    type OpenChatRoomClosedEvent,
 } from "@/types/chatWebSocket";
 import { getChatWebSocketUrl } from "@/utils/websocket";
 
@@ -33,6 +37,12 @@ interface UseChatRoomWebSocketParams {
     onReadUpdated?: (event: ChatReadUpdatedEvent) => void;
     onMemberReadUpdated?: (
         event: ChatMemberReadUpdatedEvent,
+    ) => void;
+    onOpenChatProfileUpdated?: (
+        event: OpenChatProfileUpdatedEvent,
+    ) => void;
+    onOpenChatRoomClosed?: (
+        event: OpenChatRoomClosedEvent,
     ) => void;
     onReconnectSyncRequested?: () => Promise<void>;
 }
@@ -52,12 +62,43 @@ export const useChatRoomWebSocket = ({
     onTranslationCompleted,
     onReadUpdated,
     onMemberReadUpdated,
+    onOpenChatProfileUpdated,
+    onOpenChatRoomClosed,
     onReconnectSyncRequested,
 }: UseChatRoomWebSocketParams): UseChatRoomWebSocketResult => {
     const clientRef = useRef<Client | null>(null);
     const connectionKeyRef = useRef<string | null>(null);
     const hasConnectedOnceRef = useRef(false);
     const stoppedByStompErrorRef = useRef(false);
+    const eventHandlersRef = useRef({
+        onMessageCreated,
+        onTranslationCompleted,
+        onReadUpdated,
+        onMemberReadUpdated,
+        onOpenChatProfileUpdated,
+        onOpenChatRoomClosed,
+        onReconnectSyncRequested,
+    });
+
+    useEffect(() => {
+        eventHandlersRef.current = {
+            onMessageCreated,
+            onTranslationCompleted,
+            onReadUpdated,
+            onMemberReadUpdated,
+            onOpenChatProfileUpdated,
+            onOpenChatRoomClosed,
+            onReconnectSyncRequested,
+        };
+    }, [
+        onMemberReadUpdated,
+        onMessageCreated,
+        onOpenChatProfileUpdated,
+        onOpenChatRoomClosed,
+        onReadUpdated,
+        onReconnectSyncRequested,
+        onTranslationCompleted,
+    ]);
 
     const [rawConnectionStatus, setRawConnectionStatus] =
         useState<ChatWebSocketConnectionStatus>("IDLE");
@@ -106,7 +147,7 @@ export const useChatRoomWebSocket = ({
                         return;
                     }
 
-                    onMessageCreated(chatMessage);
+                    eventHandlersRef.current.onMessageCreated(chatMessage);
                     return;
                 }
 
@@ -114,7 +155,7 @@ export const useChatRoomWebSocket = ({
                     const readUpdated = extractChatReadUpdatedEvent(parsed);
 
                     if (readUpdated) {
-                        onReadUpdated?.(readUpdated);
+                        eventHandlersRef.current.onReadUpdated?.(readUpdated);
                     }
                     return;
                 }
@@ -124,7 +165,33 @@ export const useChatRoomWebSocket = ({
                         extractChatMemberReadUpdatedEvent(parsed);
 
                     if (memberReadUpdated) {
-                        onMemberReadUpdated?.(memberReadUpdated);
+                        eventHandlersRef.current.onMemberReadUpdated?.(
+                            memberReadUpdated,
+                        );
+                    }
+                    return;
+                }
+
+                if (eventType === "chat.open-profile.updated") {
+                    const profileUpdated =
+                        extractOpenChatProfileUpdatedEvent(parsed);
+
+                    if (profileUpdated) {
+                        eventHandlersRef.current.onOpenChatProfileUpdated?.(
+                            profileUpdated,
+                        );
+                    }
+                    return;
+                }
+
+                if (eventType === "chat.room.closed") {
+                    const roomClosed =
+                        extractOpenChatRoomClosedEvent(parsed);
+
+                    if (roomClosed) {
+                        eventHandlersRef.current.onOpenChatRoomClosed?.(
+                            roomClosed,
+                        );
                     }
                     return;
                 }
@@ -144,7 +211,7 @@ export const useChatRoomWebSocket = ({
                         return;
                     }
 
-                    onTranslationCompleted?.(
+                    eventHandlersRef.current.onTranslationCompleted?.(
                         completed.messageId,
                         completed.translation,
                     );
@@ -153,12 +220,7 @@ export const useChatRoomWebSocket = ({
                 console.error("Failed to parse chat websocket message", error);
             }
         },
-        [
-            onMemberReadUpdated,
-            onMessageCreated,
-            onReadUpdated,
-            onTranslationCompleted,
-        ],
+        [],
     );
 
     useEffect(() => {
@@ -214,7 +276,7 @@ export const useChatRoomWebSocket = ({
                 );
 
                 if (shouldSyncAfterReconnect) {
-                    void onReconnectSyncRequested?.();
+                    void eventHandlersRef.current.onReconnectSyncRequested?.();
                 }
             },
             onDisconnect: () => {
@@ -275,7 +337,6 @@ export const useChatRoomWebSocket = ({
         accessToken,
         connectionKey,
         handleStompMessage,
-        onReconnectSyncRequested,
         roomId,
     ]);
 

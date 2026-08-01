@@ -2,6 +2,7 @@ import type {
     ChatMessage,
     ChatMessageTranslation,
     ChatMessageTranslationStatus,
+    ChatRoomMemberRole,
 } from "@/types/chat";
 
 export type ChatWebSocketConnectionStatus =
@@ -17,6 +18,8 @@ export type ChatWebSocketEventType =
     | "chat.translation.failed"
     | "chat.read.updated"
     | "chat.member.read.updated"
+    | "chat.open-profile.updated"
+    | "chat.room.closed"
     | "chat.error";
 
 export interface ChatWebSocketEvent<T = unknown> {
@@ -28,7 +31,6 @@ export interface ChatWebSocketEvent<T = unknown> {
     data?: T;
     message?: T;
 }
-
 
 export interface ChatReadUpdatedEvent {
     eventType: "chat.read.updated";
@@ -47,6 +49,24 @@ export interface ChatMemberReadUpdatedEvent {
     previousLastReadMessageId: number | null;
     lastReadMessageId: number;
     readAt: string;
+    occurredAt: string;
+}
+
+export interface OpenChatProfileUpdatedEvent {
+    eventType: "chat.open-profile.updated";
+    roomId: number;
+    openChatMemberId: number;
+    memberCode: string;
+    nickname: string;
+    profileImageUrl: string | null;
+    role: ChatRoomMemberRole;
+    occurredAt: string;
+}
+
+export interface OpenChatRoomClosedEvent {
+    eventType: "chat.room.closed";
+    roomId: number;
+    closedAt: string;
     occurredAt: string;
 }
 
@@ -107,7 +127,6 @@ export const extractChatMessageFromEvent = (
 ): ChatMessage | null =>
     extractPayloadWithGuard(event, isChatMessage);
 
-
 export const extractChatReadUpdatedEvent = (
     event: ChatWebSocketEvent<unknown>,
 ): ChatReadUpdatedEvent | null =>
@@ -117,6 +136,16 @@ export const extractChatMemberReadUpdatedEvent = (
     event: ChatWebSocketEvent<unknown>,
 ): ChatMemberReadUpdatedEvent | null =>
     extractPayloadWithGuard(event, isChatMemberReadUpdatedEvent);
+
+export const extractOpenChatProfileUpdatedEvent = (
+    event: ChatWebSocketEvent<unknown>,
+): OpenChatProfileUpdatedEvent | null =>
+    extractPayloadWithGuard(event, isOpenChatProfileUpdatedEvent);
+
+export const extractOpenChatRoomClosedEvent = (
+    event: ChatWebSocketEvent<unknown>,
+): OpenChatRoomClosedEvent | null =>
+    extractPayloadWithGuard(event, isOpenChatRoomClosedEvent);
 
 export const extractTranslationResultFromEvent = (
     event: ChatWebSocketEvent<unknown>,
@@ -192,10 +221,60 @@ const isChatMessage = (value: unknown): value is ChatMessage => {
         Array.isArray(value.translations) &&
         value.translations.every(isChatMessageTranslation) &&
         typeof value.createdAt === "string" &&
-        typeof value.updatedAt === "string"
+        typeof value.updatedAt === "string" &&
+        (value.sender === undefined ||
+            value.sender === null ||
+            isOpenChatMessageSender(value.sender))
     );
 };
 
+const isOpenChatMessageSender = (value: unknown): boolean => {
+    if (!isRecord(value)) {
+        return false;
+    }
+
+    return (
+        typeof value.openChatMemberId === "number" &&
+        typeof value.memberCode === "string" &&
+        typeof value.nickname === "string" &&
+        isNullableString(value.profileImageUrl) &&
+        isChatRoomMemberRole(value.role)
+    );
+};
+
+const isOpenChatProfileUpdatedEvent = (
+    value: unknown,
+): value is OpenChatProfileUpdatedEvent => {
+    if (!isRecord(value)) {
+        return false;
+    }
+
+    return (
+        value.eventType === "chat.open-profile.updated" &&
+        typeof value.roomId === "number" &&
+        typeof value.openChatMemberId === "number" &&
+        typeof value.memberCode === "string" &&
+        typeof value.nickname === "string" &&
+        isNullableString(value.profileImageUrl) &&
+        isChatRoomMemberRole(value.role) &&
+        typeof value.occurredAt === "string"
+    );
+};
+
+const isOpenChatRoomClosedEvent = (
+    value: unknown,
+): value is OpenChatRoomClosedEvent => {
+    if (!isRecord(value)) {
+        return false;
+    }
+
+    return (
+        value.eventType === "chat.room.closed" &&
+        typeof value.roomId === "number" &&
+        typeof value.closedAt === "string" &&
+        typeof value.occurredAt === "string"
+    );
+};
 
 const isChatReadUpdatedEvent = (
     value: unknown,
@@ -270,6 +349,11 @@ const isRecord = (
     typeof value === "object" &&
     value !== null &&
     !Array.isArray(value);
+
+const isChatRoomMemberRole = (
+    value: unknown,
+): value is ChatRoomMemberRole =>
+    value === "OWNER" || value === "ADMIN" || value === "MEMBER";
 
 const isNullableString = (value: unknown): value is string | null =>
     value === null || typeof value === "string";

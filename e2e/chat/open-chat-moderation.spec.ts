@@ -404,9 +404,15 @@ test.describe("OPEN chat moderation and blacklist", () => {
         page,
     }) => {
         let socket: WebSocketRoute | null = null;
+        let roomTopicSubscribed = false;
         await mockStompBroker(page, {
             onSocket: (nextSocket) => {
                 socket = nextSocket;
+            },
+            onSubscribe: (destination) => {
+                if (destination === `/topic/chat/rooms/${ROOM_ID}`) {
+                    roomTopicSubscribed = true;
+                }
             },
         });
         await mockChatRoomBase(page, { room: roomFor("OWNER"), messages: [] });
@@ -416,6 +422,7 @@ test.describe("OPEN chat moderation and blacklist", () => {
         await expect(page.getByText("WS: CONNECTED")).toBeVisible();
         await page.getByTestId("chat-room-menu-button").click();
         await expect.poll(() => socket !== null).toBe(true);
+        await expect.poll(() => roomTopicSubscribed).toBe(true);
 
         sendStompJson(socket as WebSocketRoute, `/topic/chat/rooms/${ROOM_ID}`, {
             eventType: "chat.member.role.updated",

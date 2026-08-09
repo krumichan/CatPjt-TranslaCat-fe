@@ -62,7 +62,7 @@ export function useChatAiManagement({
     const [deleteTarget, setDeleteTarget] = useState<ChatAiMember | null>(null);
 
     const membersQuery = useQuery({
-        keys: isOpen ? (["chat-ai-members", roomId] as const) : null,
+        keys: isOpen && canManage ? (["chat-ai-members", roomId] as const) : null,
         fetcher: (_key: string, targetRoomId: number) =>
             chatAiService.getMembers(targetRoomId),
         config: { revalidateOnMount: true },

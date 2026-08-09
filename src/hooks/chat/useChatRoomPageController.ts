@@ -22,6 +22,7 @@ export function useChatRoomPageController(roomId: number) {
     const { data: session } = useSession();
     const [isLanguageSettingsOpen, setIsLanguageSettingsOpen] =
         useState(false);
+    const [isAiSettingsOpen, setIsAiSettingsOpen] = useState(false);
     const [blacklistRequestedRoomId, setBlacklistRequestedRoomId] =
         useState<number | null>(() => {
             if (typeof window === "undefined") {
@@ -162,6 +163,16 @@ export function useChatRoomPageController(roomId: number) {
     const canManageOpenChat = isOpenChatModerator(
         chatRoom.room?.myRole ?? null,
     );
+    const canViewAiSettings = roomType === "GROUP" || roomType === "OPEN";
+    const canManageAi =
+        canViewAiSettings &&
+        (chatRoom.room?.myRole === "OWNER" || chatRoom.room?.myRole === "ADMIN");
+
+    const openAiSettings = useCallback(() => {
+        if (!canViewAiSettings) return;
+        roomMenu.closeMenu();
+        setIsAiSettingsOpen(true);
+    }, [canViewAiSettings, roomMenu]);
 
     const openBlacklist = useCallback(() => {
         roomMenu.closeMenu();
@@ -216,6 +227,9 @@ export function useChatRoomPageController(roomId: number) {
         isLanguageSettingsOpen,
         openLanguageSettings: () => setIsLanguageSettingsOpen(true),
         closeLanguageSettings: () => setIsLanguageSettingsOpen(false),
+        isAiSettingsOpen,
+        openAiSettings,
+        closeAiSettings: () => setIsAiSettingsOpen(false),
         chatRoom,
         languageSettings,
         roomMenu,
@@ -237,6 +251,8 @@ export function useChatRoomPageController(roomId: number) {
         canOpenMessageSenderProfile,
         canInviteMembers,
         canManageOpenChat,
+        canViewAiSettings,
+        canManageAi,
         openPartnerProfile,
         openMessageSenderProfile,
         openMemberProfileFromMenu,

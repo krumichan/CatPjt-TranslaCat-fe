@@ -82,6 +82,7 @@ export interface OpenChatRoomDetail {
     lastActivityAt: string;
     createdAt: string;
     updatedAt: string;
+    ai?: ChatAiRoomSummary | null;
 }
 
 export interface OpenChatRoomListItem {
@@ -99,6 +100,7 @@ export interface OpenChatRoomListItem {
     joinBlockedReason: OpenChatJoinBlockedReason;
     lastActivityAt: string;
     ownerProfile: OpenChatMemberProfile;
+    ai?: ChatAiRoomSummary | null;
 }
 
 export interface OpenChatRoomListResponse {
@@ -433,3 +435,84 @@ export interface ChatRoomReadResponse {
     lastReadAt: string;
     unreadCount: number;
 }
+
+export type ChatAiDisclosureType = "PUBLIC" | "PRIVATE";
+
+export type ChatAiMentionPermission =
+    | "ALL_MEMBERS"
+    | "OWNER_ADMIN_ONLY";
+
+export interface ChatAiRoomSummary {
+    aiEnabled: boolean;
+    aiMemberCount: number;
+    disclosureType: ChatAiDisclosureType | null;
+}
+
+export interface ChatAiMember {
+    aiMemberId: number;
+    aiAgentId: number;
+    chatRoomId: number;
+    nickname: string;
+    profileImageUrl: string | null;
+    profileBackgroundImageUrl: string | null;
+    bio: string | null;
+    originalLanguageCode: string;
+    personaPrompt: string;
+    active: boolean;
+    joinedAt: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface ChatAiMemberListResponse {
+    chatRoomId: number;
+    currentCount: number;
+    maxCount: number;
+    members: ChatAiMember[];
+}
+
+export interface ChatAiMemberCreateRequest {
+    nickname: string;
+    bio: string | null;
+    originalLanguageCode: string;
+    personaPrompt: string;
+}
+
+export type ChatAiMemberUpdateRequest = ChatAiMemberCreateRequest;
+
+export interface ChatRoomAiSetting {
+    chatRoomId: number;
+    aiEnabled: boolean;
+    currentAiMemberCount: number;
+    maxAiMembersPerRoom: number;
+    disclosureType: ChatAiDisclosureType;
+    mentionPermission: ChatAiMentionPermission;
+    conversationEnabled: boolean;
+    revivalEnabled: boolean;
+}
+
+export interface ChatRoomAiSettingUpdateRequest {
+    disclosureType?: ChatAiDisclosureType;
+    mentionPermission?: ChatAiMentionPermission;
+    conversationEnabled?: boolean;
+    revivalEnabled?: boolean;
+}
+
+export interface ChatAiSystemSetting {
+    maxAiMembersPerRoom: number;
+    conversationResponseRate: number;
+    conversationCooldownSeconds: number;
+    conversationMinHumanMessagesAfterAi: number;
+    revivalFirstDelayHours: number;
+    revivalSecondDelayHours: number;
+    revivalThirdDelayHours: number;
+    revivalAllowedStartTime: string;
+    revivalAllowedEndTime: string;
+    contextMaxMessages: number;
+    contextMaxCharacters: number;
+    replyMaxCharacters: number;
+    mentionRateLimitCount: number;
+    mentionRateLimitWindowSeconds: number;
+}
+
+export type ChatAiSystemSettingUpdateRequest = Partial<ChatAiSystemSetting>;

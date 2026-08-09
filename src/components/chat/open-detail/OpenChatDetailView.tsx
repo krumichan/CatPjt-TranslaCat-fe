@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
+import { ChatAiDisclosureBadge } from "@/components/chat/ai/ChatAiDisclosureBadge";
+import { ChatAiPolicyNotice } from "@/components/chat/ai/ChatAiPolicyNotice";
 import { OpenChatAvatar } from "@/components/chat/open-profile/OpenChatAvatar";
 import type { OpenChatRoomDetailLoadErrorCode } from "@/hooks/chat/useOpenChatRoomDetail";
 import { Link } from "@/navigation";
@@ -64,7 +66,7 @@ export function OpenChatDetailView({
     if (loadErrorCode || !room) {
         return (
             <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 dark:bg-slate-950">
-                <section className="w-full max-w-lg rounded-[2rem] border border-rose-200 bg-white p-8 text-center shadow-sm dark:border-rose-400/30 dark:bg-slate-900">
+                <section className="w-full max-w-lg rounded-4xl border border-rose-200 bg-white p-8 text-center shadow-sm dark:border-rose-400/30 dark:bg-slate-900">
                     <AlertCircle className="mx-auto h-10 w-10 text-rose-500" aria-hidden="true" />
                     <h1 className="mt-4 text-xl font-black text-slate-900 dark:text-white">
                         {loadErrorCode === "NOT_FOUND"
@@ -134,7 +136,7 @@ export function OpenChatDetailView({
                 )}
 
                 <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
-                    <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+                    <section className="rounded-4xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
                         <div className="flex flex-wrap items-center gap-2">
                             <span className="inline-flex items-center gap-2 rounded-full bg-orange-50 px-3 py-1 text-xs font-black text-orange-600 dark:bg-orange-500/10 dark:text-orange-200">
                                 <VisibilityIcon className="h-3.5 w-3.5" aria-hidden="true" />
@@ -145,6 +147,13 @@ export function OpenChatDetailView({
                                     {t("status.joined")}
                                 </span>
                             )}
+                            {room.ai?.aiEnabled && (
+                                <ChatAiDisclosureBadge
+                                    aiEnabled={room.ai.aiEnabled}
+                                    disclosureType={room.ai.disclosureType}
+                                    aiMemberCount={room.ai.aiMemberCount}
+                                />
+                            )}
                         </div>
 
                         <h1 className="mt-5 text-3xl font-black tracking-tight text-slate-950 dark:text-white sm:text-4xl">
@@ -153,6 +162,15 @@ export function OpenChatDetailView({
                         <p className="mt-4 whitespace-pre-wrap text-sm leading-7 text-slate-500 dark:text-slate-300">
                             {room.description}
                         </p>
+
+                        {room.ai?.aiEnabled && room.ai.disclosureType && (
+                            <div className="mt-6">
+                                <ChatAiPolicyNotice
+                                    aiEnabled={room.ai.aiEnabled}
+                                    disclosureType={room.ai.disclosureType}
+                                />
+                            </div>
+                        )}
 
                         <dl className="mt-7 grid gap-3 sm:grid-cols-2">
                             <div className="rounded-3xl bg-slate-50 p-4 dark:bg-white/5">
@@ -201,7 +219,7 @@ export function OpenChatDetailView({
                         )}
                     </section>
 
-                    <aside className="h-fit rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+                    <aside className="h-fit rounded-4xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
                         <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${isBlocked ? "bg-slate-100 text-slate-500 dark:bg-white/10 dark:text-slate-300" : "bg-orange-50 text-orange-500 dark:bg-orange-500/10 dark:text-orange-200"}`}>
                             <StatusIcon reason={room.joinBlockedReason} />
                         </div>

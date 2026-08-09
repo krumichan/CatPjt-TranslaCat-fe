@@ -72,6 +72,15 @@ export const settingCards: SettingCard[] = [
         enabled: true,
     },
     {
+        href: "/settings/admin/chat-ai",
+        titleKey: "chatAi.title",
+        descriptionKey: "chatAi.description",
+        statusKey: "status.available",
+        icon: Bot,
+        adminOnly: true,
+        enabled: true,
+    },
+    {
         href: "/settings/admin/receipt-ai",
         titleKey: "receiptAi.title",
         descriptionKey: "receiptAi.description",

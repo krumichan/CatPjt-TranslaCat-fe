@@ -228,6 +228,91 @@
         "save": "저장",
         "saving": "저장 중..."
       }
+    },
+    "chatAi": {
+      "title": "채팅 AI 운영 설정",
+      "description": "AI 멤버 최대 인원, 자율 반응률, REVIVAL 및 Context 제한을 관리합니다."
+    },
+    "chatAiPage": {
+      "eyebrow": "Admin · Chat AI",
+      "title": "채팅 AI 운영 설정",
+      "description": "Docs #9에서 확정한 Phase 2 AI 기본 운영값을 관리합니다. 실제 운영 품질과 비용에 따라 코드 수정 없이 튜닝할 수 있습니다.",
+      "form": {
+        "title": "시스템 운영값",
+        "description": "모든 GROUP/OPEN 방에 적용되는 상한과 기본 동작값입니다.",
+        "notice": "Room OWNER/ADMIN의 방별 설정은 이 시스템 상한을 초과할 수 없습니다. 값을 변경하면 이후 AI 동작과 신규 검증에 반영됩니다."
+      },
+      "actions": {
+        "save": "설정 저장",
+        "saving": "저장 중...",
+        "retry": "다시 불러오기"
+      },
+      "messages": {
+        "loading": "채팅 AI 운영 설정을 불러오는 중...",
+        "loadFailed": "채팅 AI 운영 설정을 불러오지 못했습니다.",
+        "saved": "채팅 AI 운영 설정을 저장했습니다.",
+        "saveFailed": "채팅 AI 운영 설정 저장에 실패했습니다.",
+        "forbidden": "관리자만 채팅 AI 운영 설정에 접근할 수 있습니다.",
+        "invalidValues": "운영 설정값의 범위 또는 REVIVAL 허용 시간대를 확인해주세요."
+      },
+      "fields": {
+        "members": {
+          "label": "방당 AI 최대 인원",
+          "help": "초기값 2명. GROUP/OPEN 방에 추가 가능한 AI 멤버 상한입니다."
+        },
+        "conversationRate": {
+          "label": "CONVERSATION 반응률 (%)",
+          "help": "초기값 15%. 명시 호출이 아닌 일반 대화에서 AI Server 후보가 되는 비율입니다."
+        },
+        "conversationCooldown": {
+          "label": "CONVERSATION Cooldown (초)",
+          "help": "초기값 180초. 최근 AI 발화 직후 연속 개입을 제한합니다."
+        },
+        "minHumanMessages": {
+          "label": "AI 발화 후 최소 사람 메시지",
+          "help": "초기값 2개. 이 수만큼 사람이 대화하기 전에는 자율 개입하지 않습니다."
+        },
+        "revivalFirst": {
+          "label": "REVIVAL 1차 대기 (시간)",
+          "help": "초기값 24시간. 마지막 사람 메시지 이후 첫 선발화 후보 시간입니다."
+        },
+        "revivalSecond": {
+          "label": "REVIVAL 2차 대기 (시간)",
+          "help": "초기값 72시간. 첫 REVIVAL 무반응 후 추가 대기입니다."
+        },
+        "revivalThird": {
+          "label": "REVIVAL 3차 대기 (시간)",
+          "help": "초기값 168시간(7일). 이후에도 무반응이면 자동 REVIVAL을 중단합니다."
+        },
+        "contextMessages": {
+          "label": "Context 최대 메시지 수",
+          "help": "초기값 30개. AI Server로 전달할 최근 메시지 상한입니다."
+        },
+        "contextCharacters": {
+          "label": "Context 최대 문자 수",
+          "help": "초기값 12,000자. 초과 시 오래된 Context부터 제외합니다."
+        },
+        "replyCharacters": {
+          "label": "AI 응답 최대 문자 수",
+          "help": "초기값 800자. 일반 채팅다운 짧은 응답을 유지하기 위한 상한입니다."
+        },
+        "mentionCount": {
+          "label": "MENTION 허용 횟수",
+          "help": "동일 사용자+방 기준 Rate Limit 횟수입니다. 초기값 5회."
+        },
+        "mentionWindow": {
+          "label": "MENTION Rate Limit 구간 (초)",
+          "help": "초기값 60초. 허용 횟수를 계산하는 시간 구간입니다."
+        },
+        "revivalStart": {
+          "label": "REVIVAL 허용 시작 시각",
+          "help": "초기값 10:00. 시스템 Timezone 기준입니다."
+        },
+        "revivalEnd": {
+          "label": "REVIVAL 허용 종료 시각",
+          "help": "초기값 22:00. 허용 시간대 안에서 실제 발화 시각을 분산합니다."
+        }
+      }
     }
   }
 }

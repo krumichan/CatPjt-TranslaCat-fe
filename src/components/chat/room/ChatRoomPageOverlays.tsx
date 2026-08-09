@@ -1,5 +1,6 @@
 "use client";
 
+import { ChatAiManagementSmartModal } from "@/components/chat/ai/ChatAiManagementSmartModal";
 import { OpenChatBlacklistSmartModal } from "@/components/chat/open-blacklist/OpenChatBlacklistSmartModal";
 import { OpenChatMemberModerationActions } from "@/components/chat/open-moderation/OpenChatMemberModerationActions";
 import { OpenChatModerationDialog } from "@/components/chat/open-moderation/OpenChatModerationDialog";
@@ -75,12 +76,24 @@ export function ChatRoomPageOverlays({
                     openChat.myProfile.profile?.openChatMemberId ?? null
                 }
                 canManageOpenChat={controller.canManageOpenChat}
+                canViewAiSettings={controller.canViewAiSettings}
+                canManageAi={controller.canManageAi}
+                onOpenAiSettings={controller.openAiSettings}
                 onOpenBlacklist={controller.blacklist.open}
                 onOpenModerationAction={openChat.moderation.open}
                 openLifecycleAction={openLifecycle.action}
                 onOpenLifecycle={openLifecycle.openActionDialog}
                 onOpenInvitation={roomInvitation.openInvitation}
                 onDismissSuccess={roomInvitation.clearSuccess}
+            />
+
+
+            <ChatAiManagementSmartModal
+                isOpen={controller.isAiSettingsOpen}
+                roomId={roomId}
+                roomType={room.roomType}
+                canManage={controller.canManageAi}
+                onClose={controller.closeAiSettings}
             />
 
             <OpenChatBlacklistSmartModal

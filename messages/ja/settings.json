@@ -228,6 +228,91 @@
         "save": "保存",
         "saving": "保存中..."
       }
+    },
+    "chatAi": {
+      "title": "チャットAI運用設定",
+      "description": "AIメンバー最大人数、自律反応率、REVIVAL、Context制限を管理します。"
+    },
+    "chatAiPage": {
+      "eyebrow": "Admin · Chat AI",
+      "title": "チャットAI運用設定",
+      "description": "Docs #9で確定したPhase 2 AIの初期運用値を管理します。実運用品質とコストに応じてコード変更なしで調整できます。",
+      "form": {
+        "title": "システム運用値",
+        "description": "すべてのGROUP/OPENルームへ適用する上限・基本動作値です。",
+        "notice": "Room OWNER/ADMINのルーム別設定はこのシステム上限を超えられません。変更値は以降のAI動作・検証へ反映されます。"
+      },
+      "actions": {
+        "save": "設定保存",
+        "saving": "保存中...",
+        "retry": "再読み込み"
+      },
+      "messages": {
+        "loading": "チャットAI運用設定を読み込み中...",
+        "loadFailed": "チャットAI運用設定を読み込めませんでした。",
+        "saved": "チャットAI運用設定を保存しました。",
+        "saveFailed": "チャットAI運用設定の保存に失敗しました。",
+        "forbidden": "管理者のみチャットAI運用設定へアクセスできます。",
+        "invalidValues": "運用設定値の範囲、またはREVIVAL許可時間帯を確認してください。"
+      },
+      "fields": {
+        "members": {
+          "label": "1ルームAI最大人数",
+          "help": "初期値2名。GROUP/OPENルームへ追加可能なAIメンバー上限です。"
+        },
+        "conversationRate": {
+          "label": "CONVERSATION反応率 (%)",
+          "help": "初期値15%。明示呼び出しではない通常会話でAI Server候補となる割合です。"
+        },
+        "conversationCooldown": {
+          "label": "CONVERSATION Cooldown (秒)",
+          "help": "初期値180秒。直近AI発言後の連続介入を制限します。"
+        },
+        "minHumanMessages": {
+          "label": "AI発言後の最小人間メッセージ",
+          "help": "初期値2件。この件数だけ人間が会話するまでは自律介入しません。"
+        },
+        "revivalFirst": {
+          "label": "REVIVAL 1回目待機 (時間)",
+          "help": "初期値24時間。最後の人間メッセージ後の最初の先行発言候補時間です。"
+        },
+        "revivalSecond": {
+          "label": "REVIVAL 2回目待機 (時間)",
+          "help": "初期値72時間。1回目REVIVAL無反応後の追加待機です。"
+        },
+        "revivalThird": {
+          "label": "REVIVAL 3回目待機 (時間)",
+          "help": "初期値168時間(7日)。その後も無反応なら自動REVIVALを停止します。"
+        },
+        "contextMessages": {
+          "label": "Context最大メッセージ数",
+          "help": "初期値30件。AI Serverへ渡す直近メッセージ上限です。"
+        },
+        "contextCharacters": {
+          "label": "Context最大文字数",
+          "help": "初期値12,000文字。超過時は古いContextから除外します。"
+        },
+        "replyCharacters": {
+          "label": "AI応答最大文字数",
+          "help": "初期値800文字。通常チャットらしい短い応答を維持する上限です。"
+        },
+        "mentionCount": {
+          "label": "MENTION許可回数",
+          "help": "同一ユーザー+ルーム基準Rate Limit回数。初期値5回。"
+        },
+        "mentionWindow": {
+          "label": "MENTION Rate Limit区間 (秒)",
+          "help": "初期値60秒。許可回数を計算する時間区間です。"
+        },
+        "revivalStart": {
+          "label": "REVIVAL許可開始時刻",
+          "help": "初期値10:00。システムTimezone基準です。"
+        },
+        "revivalEnd": {
+          "label": "REVIVAL許可終了時刻",
+          "help": "初期値22:00。許可時間帯内で実際の発言時刻を分散します。"
+        }
+      }
     }
   }
 }

@@ -2,6 +2,7 @@
 
 import {
     AlertCircle,
+    Bot,
     CalendarDays,
     Check,
     Hash,
@@ -66,6 +67,9 @@ interface ChatRoomMenuDrawerProps {
     onOpenMyOpenProfile: () => void;
     currentOpenChatMemberId: number | null;
     canManageOpenChat: boolean;
+    canViewAiSettings: boolean;
+    canManageAi: boolean;
+    onOpenAiSettings: () => void;
     onOpenBlacklist: () => void;
     onOpenModerationAction: (
         action: OpenChatModerationAction,
@@ -94,6 +98,9 @@ export function ChatRoomMenuDrawer({
     onOpenMyOpenProfile,
     currentOpenChatMemberId,
     canManageOpenChat,
+    canViewAiSettings,
+    canManageAi,
+    onOpenAiSettings,
     onOpenBlacklist,
     onOpenModerationAction,
     openLifecycleAction,
@@ -315,6 +322,18 @@ export function ChatRoomMenuDrawer({
                                         ? "openModeration.shareLinkCopied"
                                         : "openModeration.shareLink",
                                 )}
+                            </button>
+                        )}
+
+                        {canViewAiSettings && (
+                            <button
+                                type="button"
+                                data-testid="chat-ai-settings-button"
+                                onClick={onOpenAiSettings}
+                                className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-violet-200 px-4 py-3 text-sm font-black text-violet-600 transition hover:bg-violet-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 dark:border-violet-400/30 dark:text-violet-200 dark:hover:bg-violet-500/10"
+                            >
+                                <Bot className="h-4 w-4" aria-hidden="true" />
+                                {t(canManageAi ? "ai.menu.manage" : "ai.menu.view")}
                             </button>
                         )}
 

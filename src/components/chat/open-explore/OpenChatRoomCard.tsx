@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
+import { ChatAiDisclosureBadge } from "@/components/chat/ai/ChatAiDisclosureBadge";
 import { OpenChatAvatar } from "@/components/chat/open-profile/OpenChatAvatar";
 import { Link } from "@/navigation";
 import type { OpenChatRoomListItem } from "@/types/chat";
@@ -60,6 +61,16 @@ export function OpenChatRoomCard({ room }: OpenChatRoomCardProps) {
                             : t("status.joinable")}
                 </span>
             </div>
+
+            {room.ai?.aiEnabled && (
+                <div className="mt-4">
+                    <ChatAiDisclosureBadge
+                        aiEnabled={room.ai.aiEnabled}
+                        disclosureType={room.ai.disclosureType}
+                        aiMemberCount={room.ai.aiMemberCount}
+                    />
+                </div>
+            )}
 
             <h2 className="mt-4 line-clamp-2 text-xl font-black text-slate-950 dark:text-white">
                 {room.name}

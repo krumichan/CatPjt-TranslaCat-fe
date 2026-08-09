@@ -1,5 +1,3 @@
-"use client";
-
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
@@ -7,6 +5,7 @@ import { CircleHelp, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 type ConfirmModalVariant = "default" | "danger";
+type ConfirmModalLayer = "default" | "nested";
 
 type ConfirmModalProps = {
     isOpen: boolean;
@@ -18,6 +17,7 @@ type ConfirmModalProps = {
     confirmLabel?: string;
     cancelLabel?: string;
     variant?: ConfirmModalVariant;
+    layer?: ConfirmModalLayer;
     isLoading?: boolean;
     closeOnBackdrop?: boolean;
     onClose: () => void;
@@ -34,6 +34,7 @@ export default function ConfirmModal({
     confirmLabel,
     cancelLabel,
     variant = "default",
+    layer = "default",
     isLoading: externalLoading = false,
     closeOnBackdrop = true,
     onClose,
@@ -79,6 +80,9 @@ export default function ConfirmModal({
         return null;
     }
 
+    const overlayLayerClassName =
+        layer === "nested" ? "z-[1400]" : "z-50";
+
     const confirmButtonClassName =
         variant === "danger"
             ? "bg-red-500 hover:bg-red-600 shadow-[0_10px_20px_rgba(239,68,68,0.25)]"
@@ -108,14 +112,14 @@ export default function ConfirmModal({
 
     return createPortal(
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4 py-6 backdrop-blur-sm dark:bg-black/60"
+            className={`fixed inset-0 ${overlayLayerClassName} flex items-center justify-center bg-slate-900/50 px-4 py-6 backdrop-blur-sm dark:bg-black/60`}
             role="presentation"
             onClick={handleBackdropClick}
         >
             <section
                 role="dialog"
                 aria-modal="true"
-                className="w-full max-w-lg overflow-hidden rounded-[2rem] border border-slate-200 bg-white text-slate-950 shadow-2xl dark:border-white/10 dark:bg-slate-950 dark:text-white"
+                className="w-full max-w-lg overflow-hidden rounded-4xl border border-slate-200 bg-white text-slate-950 shadow-2xl dark:border-white/10 dark:bg-slate-950 dark:text-white"
                 onMouseDown={(event) => event.stopPropagation()}
                 onClick={(event) => event.stopPropagation()}
             >

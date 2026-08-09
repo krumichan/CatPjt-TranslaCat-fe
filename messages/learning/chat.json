@@ -409,6 +409,12 @@
       },
       "shareLink": "リンクを共有",
       "shareLinkCopied": "リンクをコピーしました"
+    },
+    "ai": {
+      "menu": {
+        "manage": "AIメンバー・ルーム設定",
+        "view": "AIルーム情報"
+      }
     }
   },
   "ChatRoomCreate": {
@@ -764,5 +770,115 @@
       }
     },
     "close": "ブラックリストを閉じる"
+  },
+  "ChatAi": {
+    "disclosure": {
+      "PUBLIC": {
+        "label": "AI公開ルーム",
+        "noticeTitle": "AI公開ルームです",
+        "noticeDescription": "このルームではAIメンバーをAIとして識別できます。"
+      },
+      "PRIVATE": {
+        "label": "AI非公開ルーム",
+        "noticeTitle": "AI非公開ルームです",
+        "noticeDescription": "このルームにはAIメンバーが含まれる場合があり、個々のAIメンバーは一般メンバーと同様に表示されることがあります。"
+      }
+    },
+    "memberCount": "AIメンバー {count}名",
+    "disabled": {
+      "title": "現在AIメンバーはいません",
+      "description": "OWNERまたはADMINがAIメンバーを追加すると、このルームでAI機能を利用できます。"
+    },
+    "management": {
+      "eyebrow": "AI room settings",
+      "title": {
+        "manage": "AIメンバー・ルーム設定",
+        "view": "AIルーム情報"
+      },
+      "description": "{roomType}チャットルームのAIメンバーとAI動作ポリシーを確認します。",
+      "close": "AI設定を閉じる",
+      "loading": "AI設定を読み込み中...",
+      "retry": "再試行",
+      "errors": {
+        "loadFailed": "AIメンバー・ルーム設定を読み込めませんでした。",
+        "settingSaveFailed": "AIルーム設定の保存に失敗しました。",
+        "saveFailed": "AIメンバーの保存に失敗しました。画像処理まで完了していない可能性があるため状態を再確認してください。",
+        "deleteFailed": "AIメンバーの削除に失敗しました。",
+        "nicknameRequired": "AIニックネームを入力してください。",
+        "nicknameTooLong": "AIニックネームは50文字以内で入力してください。",
+        "bioTooLong": "AI自己紹介は200文字以内で入力してください。",
+        "personaRequired": "AI personaを入力してください。",
+        "personaTooLong": "AI personaは4000文字以内で入力してください。",
+        "unsupportedImage": "JPG、PNG、WEBP画像のみ利用できます。",
+        "imageTooLarge": "プロフィールは5MB、背景画像は10MB以下のみ利用できます。"
+      },
+      "policy": {
+        "title": "ルーム別AIポリシー",
+        "manageHelp": "このルームのOWNER/ADMINのみ変更できます。",
+        "readOnlyHelp": "現在のルームAIポリシーを確認できます。",
+        "saving": "保存中...",
+        "disclosure": "AIメンバー識別ポリシー",
+        "disclosureOptions": {
+          "PUBLIC": "PUBLIC · 個々のAIをAIとして表示",
+          "PRIVATE": "PRIVATE · 個々のAIを一般メンバー同様に表示"
+        },
+        "mentionPermission": "@AI呼び出し権限",
+        "mentionOptions": {
+          "ALL_MEMBERS": "すべてのメンバー",
+          "OWNER_ADMIN_ONLY": "OWNER / ADMINのみ"
+        },
+        "conversation": {
+          "title": "自律会話参加",
+          "description": "通常会話中、設定された反応率とCooldownに応じてAIが自然に介入できます。"
+        },
+        "revival": {
+          "title": "ルーム活性化発言",
+          "description": "長期間人間の会話がない場合、Backoffポリシーに従ってAIが先に会話を始められます。"
+        }
+      },
+      "members": {
+        "title": "AIメンバー",
+        "count": "現在 {current} / 最大 {max}名",
+        "add": "AIメンバー追加",
+        "maxReached": "最大人数到達",
+        "empty": "登録済みAIメンバーはいません",
+        "emptyDescription": "OWNERまたはADMINがこのルームに合うAIメンバーを追加できます。",
+        "noBio": "自己紹介はありません。",
+        "edit": "編集",
+        "delete": "削除",
+        "privateHiddenTitle": "個々のAIメンバーは非公開です",
+        "privateHiddenDescription": "このルームはAI非公開ルームです。AIが含まれること自体は公開されますが、一般メンバーにはどのメンバーがAIかを表示しません。"
+      },
+      "editor": {
+        "create": {
+          "title": "AIメンバー追加",
+          "description": "このルームで活動するAIのプロフィールとpersonaを設定します。"
+        },
+        "edit": {
+          "title": "AIメンバー編集",
+          "description": "プロフィールとpersonaを変更します。既存AIメッセージは維持されます。"
+        },
+        "close": "AIメンバー編集を閉じる",
+        "nickname": "ニックネーム",
+        "language": "原文言語",
+        "bio": "自己紹介",
+        "persona": "Persona prompt",
+        "profileImage": "プロフィール画像",
+        "backgroundImage": "背景画像",
+        "image": {
+          "choose": "ファイル選択",
+          "delete": "削除",
+          "restore": "削除取消"
+        },
+        "cancel": "キャンセル",
+        "save": "保存",
+        "saving": "保存中..."
+      },
+      "delete": {
+        "title": "AIメンバーを削除しますか？",
+        "description": "{nickname}のルーム参加を無効化します。既存AIメッセージは削除されません。",
+        "confirm": "削除"
+      }
+    }
   }
 }

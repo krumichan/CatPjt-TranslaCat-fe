@@ -16,12 +16,12 @@ import { createPortal } from "react-dom";
 import { useModalFocusTrap } from "@/hooks/useModalFocusTrap";
 import type {
     ChatAiDisclosureType,
-    ChatAiMember,
+    ChatAiSafeProfile,
 } from "@/types/chat";
 
 interface ChatAiMemberProfileModalProps {
     isOpen: boolean;
-    profile: ChatAiMember | null;
+    profile: ChatAiSafeProfile | null;
     disclosureType: ChatAiDisclosureType | null;
     isLoading: boolean;
     loadErrorCode: string | null;

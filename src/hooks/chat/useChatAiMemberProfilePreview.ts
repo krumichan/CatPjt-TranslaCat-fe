@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 
 import { chatAiService } from "@/services/chat/chatAiService";
-import type { ChatAiMember } from "@/types/chat";
+import type { ChatAiSafeProfile } from "@/types/chat";
 
 export type ChatAiMemberProfileLoadErrorCode = "LOAD_FAILED";
 
@@ -16,7 +16,7 @@ export function useChatAiMemberProfilePreview({
 }: UseChatAiMemberProfilePreviewParams) {
     const [selectedAiMemberId, setSelectedAiMemberId] =
         useState<number | null>(null);
-    const [profile, setProfile] = useState<ChatAiMember | null>(null);
+    const [profile, setProfile] = useState<ChatAiSafeProfile | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [loadErrorCode, setLoadErrorCode] =
         useState<ChatAiMemberProfileLoadErrorCode | null>(null);
@@ -32,7 +32,7 @@ export function useChatAiMemberProfilePreview({
             setIsLoading(true);
 
             try {
-                const nextProfile = await chatAiService.getMember(
+                const nextProfile = await chatAiService.getMemberProfile(
                     roomId,
                     aiMemberId,
                 );

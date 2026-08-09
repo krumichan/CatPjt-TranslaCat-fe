@@ -11,6 +11,7 @@ import {
     extractChatMemberReadUpdatedEvent,
     extractChatMessageFromEvent,
     extractChatReadUpdatedEvent,
+    extractChatRoomMembersChangedEvent,
     extractOpenChatMemberBannedEvent,
     extractOpenChatMemberRoleUpdatedEvent,
     extractOpenChatProfileUpdatedEvent,
@@ -19,6 +20,7 @@ import {
     getChatWebSocketEventType,
     type ChatMemberReadUpdatedEvent,
     type ChatReadUpdatedEvent,
+    type ChatRoomMembersChangedEvent,
     type ChatWebSocketConnectionStatus,
     type ChatWebSocketEvent,
     type OpenChatMemberBannedEvent,
@@ -43,6 +45,9 @@ interface UseChatRoomWebSocketParams {
     onReadUpdated?: (event: ChatReadUpdatedEvent) => void;
     onMemberReadUpdated?: (
         event: ChatMemberReadUpdatedEvent,
+    ) => void;
+    onRoomMembersChanged?: (
+        event: ChatRoomMembersChangedEvent,
     ) => void;
     onOpenChatProfileUpdated?: (
         event: OpenChatProfileUpdatedEvent,
@@ -79,6 +84,7 @@ export const useChatRoomWebSocket = ({
     onTranslationCompleted,
     onReadUpdated,
     onMemberReadUpdated,
+    onRoomMembersChanged,
     onOpenChatProfileUpdated,
     onOpenChatMemberRoleUpdated,
     onOpenChatMemberBanned,
@@ -101,6 +107,7 @@ export const useChatRoomWebSocket = ({
         onTranslationCompleted,
         onReadUpdated,
         onMemberReadUpdated,
+        onRoomMembersChanged,
         onOpenChatProfileUpdated,
         onOpenChatMemberRoleUpdated,
         onOpenChatMemberBanned,
@@ -115,6 +122,7 @@ export const useChatRoomWebSocket = ({
             onTranslationCompleted,
             onReadUpdated,
             onMemberReadUpdated,
+            onRoomMembersChanged,
             onOpenChatProfileUpdated,
             onOpenChatMemberRoleUpdated,
             onOpenChatMemberBanned,
@@ -124,6 +132,7 @@ export const useChatRoomWebSocket = ({
         };
     }, [
         onMemberReadUpdated,
+        onRoomMembersChanged,
         onMessageCreated,
         onOpenChatMemberBanned,
         onCurrentUserOpenChatMemberBanned,
@@ -202,6 +211,18 @@ export const useChatRoomWebSocket = ({
                     if (memberReadUpdated) {
                         eventHandlersRef.current.onMemberReadUpdated?.(
                             memberReadUpdated,
+                        );
+                    }
+                    return;
+                }
+
+                if (eventType === "chat.members.changed") {
+                    const membersChanged =
+                        extractChatRoomMembersChangedEvent(parsed);
+
+                    if (membersChanged) {
+                        eventHandlersRef.current.onRoomMembersChanged?.(
+                            membersChanged,
                         );
                     }
                     return;

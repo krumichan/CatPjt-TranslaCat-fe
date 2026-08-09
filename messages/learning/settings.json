@@ -253,7 +253,7 @@
         "saved": "チャットAI運用設定を保存しました。",
         "saveFailed": "チャットAI運用設定の保存に失敗しました。",
         "forbidden": "管理者のみチャットAI運用設定へアクセスできます。",
-        "invalidValues": "運用設定値の範囲、またはREVIVAL許可時間帯を確認してください。"
+        "invalidValues": "運用設定値の範囲、AI応答遅延の最小/最大値、またはREVIVAL許可時間帯を確認してください。"
       },
       "fields": {
         "members": {
@@ -271,6 +271,18 @@
         "minHumanMessages": {
           "label": "AI発言後の最小人間メッセージ",
           "help": "初期値2件。この件数だけ人間が会話するまでは自律介入しません。"
+        },
+        "responseDelayEnabled": {
+          "label": "AI応答の自然な遅延を使用",
+          "help": "MENTION/CONVERSATION応答を即時表示せず、短いランダム遅延後に配信します。REVIVALには追加遅延しません。"
+        },
+        "responseDelayMin": {
+          "label": "AI応答最小遅延 (ms)",
+          "help": "初期値1,200ms。AI Serverの応答生成完了後、メッセージ保存・配信前に待機する最小時間です。"
+        },
+        "responseDelayMax": {
+          "label": "AI応答最大遅延 (ms)",
+          "help": "初期値3,500ms。応答文字数を少し反映したランダム遅延の最大上限です。"
         },
         "revivalFirst": {
           "label": "REVIVAL 1回目待機 (時間)",

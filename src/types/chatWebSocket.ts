@@ -18,6 +18,7 @@ export type ChatWebSocketEventType =
     | "chat.translation.failed"
     | "chat.read.updated"
     | "chat.member.read.updated"
+    | "chat.members.changed"
     | "chat.open-profile.updated"
     | "chat.member.role.updated"
     | "chat.member.banned"
@@ -51,6 +52,12 @@ export interface ChatMemberReadUpdatedEvent {
     previousLastReadMessageId: number | null;
     lastReadMessageId: number;
     readAt: string;
+    occurredAt: string;
+}
+
+export interface ChatRoomMembersChangedEvent {
+    eventType: "chat.members.changed";
+    roomId: number;
     occurredAt: string;
 }
 
@@ -155,6 +162,11 @@ export const extractChatMemberReadUpdatedEvent = (
     event: ChatWebSocketEvent<unknown>,
 ): ChatMemberReadUpdatedEvent | null =>
     extractPayloadWithGuard(event, isChatMemberReadUpdatedEvent);
+
+export const extractChatRoomMembersChangedEvent = (
+    event: ChatWebSocketEvent<unknown>,
+): ChatRoomMembersChangedEvent | null =>
+    extractPayloadWithGuard(event, isChatRoomMembersChangedEvent);
 
 export const extractOpenChatProfileUpdatedEvent = (
     event: ChatWebSocketEvent<unknown>,
@@ -269,6 +281,20 @@ const isOpenChatMessageSender = (value: unknown): boolean => {
         typeof value.nickname === "string" &&
         isNullableString(value.profileImageUrl) &&
         isChatRoomMemberRole(value.role)
+    );
+};
+
+const isChatRoomMembersChangedEvent = (
+    value: unknown,
+): value is ChatRoomMembersChangedEvent => {
+    if (!isRecord(value)) {
+        return false;
+    }
+
+    return (
+        value.eventType === "chat.members.changed" &&
+        typeof value.roomId === "number" &&
+        typeof value.occurredAt === "string"
     );
 };
 

@@ -8,7 +8,9 @@ import type { ChatAiSystemSetting } from "@/types/chat";
 
 export type ChatAiSystemNumberSettingKey = Exclude<
     keyof ChatAiSystemSetting,
-    "revivalAllowedStartTime" | "revivalAllowedEndTime"
+    | "revivalAllowedStartTime"
+    | "revivalAllowedEndTime"
+    | "responseDelayEnabled"
 >;
 
 export type ChatAiSystemTimeSettingKey = Extract<
@@ -29,6 +31,8 @@ export const CHAT_AI_SYSTEM_NUMBER_FIELDS: readonly ChatAiSystemNumberField[] = 
     { key: "conversationResponseRate", labelKey: "conversationRate", min: 0, max: 100, step: 1 },
     { key: "conversationCooldownSeconds", labelKey: "conversationCooldown", min: 0, max: 86400, step: 1 },
     { key: "conversationMinHumanMessagesAfterAi", labelKey: "minHumanMessages", min: 0, max: 100, step: 1 },
+    { key: "responseDelayMinMillis", labelKey: "responseDelayMin", min: 100, max: 10000, step: 100 },
+    { key: "responseDelayMaxMillis", labelKey: "responseDelayMax", min: 100, max: 10000, step: 100 },
     { key: "revivalFirstDelayHours", labelKey: "revivalFirst", min: 1, max: 8760, step: 1 },
     { key: "revivalSecondDelayHours", labelKey: "revivalSecond", min: 1, max: 8760, step: 1 },
     { key: "revivalThirdDelayHours", labelKey: "revivalThird", min: 1, max: 8760, step: 1 },
@@ -72,6 +76,8 @@ export function useChatAiSystemSettingsForm() {
             },
         );
         if (!numbersValid) return false;
+        if (typeof form.responseDelayEnabled !== "boolean") return false;
+        if (form.responseDelayMinMillis > form.responseDelayMaxMillis) return false;
 
         const start = form.revivalAllowedStartTime?.slice(0, 5) ?? "";
         const end = form.revivalAllowedEndTime?.slice(0, 5) ?? "";
@@ -89,6 +95,16 @@ export function useChatAiSystemSettingsForm() {
 
     const updateNumber = useCallback(
         (key: ChatAiSystemNumberSettingKey, value: number) => {
+            clearFeedback();
+            setForm((current) =>
+                current ? { ...current, [key]: value } : current,
+            );
+        },
+        [clearFeedback],
+    );
+
+    const updateBoolean = useCallback(
+        (key: "responseDelayEnabled", value: boolean) => {
             clearFeedback();
             setForm((current) =>
                 current ? { ...current, [key]: value } : current,
@@ -141,6 +157,7 @@ export function useChatAiSystemSettingsForm() {
         saved,
         isValid,
         updateNumber,
+        updateBoolean,
         updateTime,
         retry,
         save,

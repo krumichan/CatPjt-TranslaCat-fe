@@ -100,7 +100,7 @@ async function mockAiDisplayApi(
         ),
     );
 
-    await page.route(/.*\/chat\/rooms\/501\/ai-members\/11$/, (route) =>
+    await page.route(/.*\/chat\/rooms\/501\/ai-members\/11\/profile$/, (route) =>
         fulfillApiJson(route, responseDto(aiMember)),
     );
 }

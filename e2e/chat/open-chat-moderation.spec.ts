@@ -403,15 +403,11 @@ test.describe("OPEN chat moderation and blacklist", () => {
     test("OPEN-MOD-03 chat.member.role.updated를 즉시 반영하고 오래된 Event는 무시한다", async ({
         page,
     }) => {
-        let socket: WebSocketRoute | null = null;
-        let roomTopicSubscribed = false;
+        let roomTopicSocket: WebSocketRoute | null = null;
         await mockStompBroker(page, {
-            onSocket: (nextSocket) => {
-                socket = nextSocket;
-            },
-            onSubscribe: (destination) => {
+            onSubscribe: (destination, subscribedSocket) => {
                 if (destination === `/topic/chat/rooms/${ROOM_ID}`) {
-                    roomTopicSubscribed = true;
+                    roomTopicSocket = subscribedSocket;
                 }
             },
         });
@@ -421,16 +417,19 @@ test.describe("OPEN chat moderation and blacklist", () => {
         await page.goto(`/chat/rooms/${ROOM_ID}`);
         await expect(page.getByText("WS: CONNECTED")).toBeVisible();
         await page.getByTestId("chat-room-menu-button").click();
-        await expect.poll(() => socket !== null).toBe(true);
-        await expect.poll(() => roomTopicSubscribed).toBe(true);
+        await expect.poll(() => roomTopicSocket !== null).toBe(true);
 
-        sendStompJson(socket as WebSocketRoute, `/topic/chat/rooms/${ROOM_ID}`, {
-            eventType: "chat.member.role.updated",
-            roomId: ROOM_ID,
-            targetOpenChatMemberId: member.openChatMemberId,
-            role: "ADMIN",
-            occurredAt: "2026-08-01T03:00:02.000Z",
-        });
+        sendStompJson(
+            roomTopicSocket as WebSocketRoute,
+            `/topic/chat/rooms/${ROOM_ID}`,
+            {
+                eventType: "chat.member.role.updated",
+                roomId: ROOM_ID,
+                targetOpenChatMemberId: member.openChatMemberId,
+                role: "ADMIN",
+                occurredAt: "2026-08-01T03:00:02.000Z",
+            },
+        );
 
         await expect(
             page
@@ -438,13 +437,17 @@ test.describe("OPEN chat moderation and blacklist", () => {
                 .getByTestId("open-chat-role-badge-ADMIN"),
         ).toBeVisible();
 
-        sendStompJson(socket as WebSocketRoute, `/topic/chat/rooms/${ROOM_ID}`, {
-            eventType: "chat.member.role.updated",
-            roomId: ROOM_ID,
-            targetOpenChatMemberId: member.openChatMemberId,
-            role: "MEMBER",
-            occurredAt: "2026-08-01T03:00:01.000Z",
-        });
+        sendStompJson(
+            roomTopicSocket as WebSocketRoute,
+            `/topic/chat/rooms/${ROOM_ID}`,
+            {
+                eventType: "chat.member.role.updated",
+                roomId: ROOM_ID,
+                targetOpenChatMemberId: member.openChatMemberId,
+                role: "MEMBER",
+                occurredAt: "2026-08-01T03:00:01.000Z",
+            },
+        );
 
         await expect(
             page

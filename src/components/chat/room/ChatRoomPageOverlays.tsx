@@ -56,6 +56,8 @@ export function ChatRoomPageOverlays({
                 room={room}
                 members={roomMenu.members}
                 openMembers={roomMenu.openMembers}
+                aiMembers={roomMenu.aiMembers}
+                aiDisclosureType={roomMenu.aiDisclosureType}
                 isLoading={roomMenu.isLoading}
                 loadErrorCode={roomMenu.loadErrorCode}
                 canInvite={controller.canInviteMembers}
@@ -67,6 +69,9 @@ export function ChatRoomPageOverlays({
                 }
                 onOpenOpenMemberProfile={
                     controller.openOpenMemberProfileFromMenu
+                }
+                onOpenAiMemberProfile={
+                    controller.openAiMessageSenderProfile
                 }
                 canEditMyOpenProfile={
                     isOpenRoom &&
@@ -102,7 +107,9 @@ export function ChatRoomPageOverlays({
                 isOpen={aiMemberProfilePreview.isOpen}
                 profile={aiMemberProfilePreview.profile}
                 disclosureType={
-                    controller.aiDisplayPolicy.setting?.disclosureType ?? null
+                    controller.aiDisplayPolicy.setting?.disclosureType ??
+                    roomMenu.aiDisclosureType ??
+                    null
                 }
                 isLoading={aiMemberProfilePreview.isLoading}
                 loadErrorCode={aiMemberProfilePreview.loadErrorCode}

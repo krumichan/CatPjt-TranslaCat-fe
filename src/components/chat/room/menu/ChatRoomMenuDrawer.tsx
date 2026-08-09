@@ -28,11 +28,14 @@ import {
     useTranslations,
 } from "next-intl";
 
+import { ChatAiPolicyNotice } from "@/components/chat/ai/ChatAiPolicyNotice";
 import { ChatRoomAvatar } from "@/components/chat/common/ChatRoomAvatar";
 import { OpenChatAvatar } from "@/components/chat/open-profile/OpenChatAvatar";
 import { OpenChatMemberModerationActions } from "@/components/chat/open-moderation/OpenChatMemberModerationActions";
 import { OpenChatRoleBadge } from "@/components/chat/open-moderation/OpenChatRoleBadge";
 import type {
+    ChatAiDisclosureType,
+    ChatAiDisplayMember,
     ChatRoom,
     ChatRoomMember,
     OpenChatMemberProfile,
@@ -49,6 +52,8 @@ interface ChatRoomMenuDrawerProps {
     room: ChatRoom;
     members: ChatRoomMember[];
     openMembers: OpenChatMemberProfile[];
+    aiMembers: ChatAiDisplayMember[];
+    aiDisclosureType: ChatAiDisclosureType | null;
     isLoading: boolean;
     loadErrorCode: string | null;
     canInvite: boolean;
@@ -63,6 +68,7 @@ interface ChatRoomMenuDrawerProps {
     onOpenOpenMemberProfile: (
         openChatMemberId: number,
     ) => void;
+    onOpenAiMemberProfile: (aiMemberId: number) => void;
     canEditMyOpenProfile: boolean;
     onOpenMyOpenProfile: () => void;
     currentOpenChatMemberId: number | null;
@@ -86,6 +92,8 @@ export function ChatRoomMenuDrawer({
     room,
     members,
     openMembers,
+    aiMembers,
+    aiDisclosureType,
     isLoading,
     loadErrorCode,
     canInvite,
@@ -94,6 +102,7 @@ export function ChatRoomMenuDrawer({
     onRetry,
     onOpenMemberProfile,
     onOpenOpenMemberProfile,
+    onOpenAiMemberProfile,
     canEditMyOpenProfile,
     onOpenMyOpenProfile,
     currentOpenChatMemberId,
@@ -109,6 +118,7 @@ export function ChatRoomMenuDrawer({
     onDismissSuccess,
 }: ChatRoomMenuDrawerProps) {
     const t = useTranslations("ChatRoom");
+    const tAi = useTranslations("ChatAi");
     const locale = useLocale();
     const closeButtonRef =
         useRef<HTMLButtonElement>(null);
@@ -165,6 +175,15 @@ export function ChatRoomMenuDrawer({
             month: "short",
             day: "numeric",
         }).format(new Date(value));
+
+    const loadedHumanMemberCount =
+        room.roomType === "OPEN" ? openMembers.length : members.length;
+    const loadedMemberCount = loadedHumanMemberCount + aiMembers.length;
+    const visibleMemberCount =
+        isLoading || loadErrorCode ? room.memberCount : loadedMemberCount;
+    const hideHumanIdentifiers =
+        aiDisclosureType === "PRIVATE" && aiMembers.length > 0;
+    const showAiBadge = aiDisclosureType === "PUBLIC";
 
     return createPortal(
         <div
@@ -266,8 +285,7 @@ export function ChatRoomMenuDrawer({
                             </dt>
                             <dd className="text-right font-bold text-slate-700 dark:text-slate-200">
                                 {t("header.members", {
-                                    count:
-                                        room.memberCount,
+                                    count: visibleMemberCount,
                                 })}
                             </dd>
 
@@ -392,6 +410,17 @@ export function ChatRoomMenuDrawer({
                             )}
                         </div>
 
+                        {!canManageAi &&
+                            aiMembers.length > 0 &&
+                            aiDisclosureType && (
+                                <div className="mt-4">
+                                    <ChatAiPolicyNotice
+                                        disclosureType={aiDisclosureType}
+                                        aiEnabled
+                                    />
+                                </div>
+                            )}
+
                         {isLoading ? (
                             <div className="mt-4 flex items-center justify-center rounded-3xl border border-slate-200 py-10 text-sm font-bold text-slate-400 dark:border-white/10">
                                 <Loader2
@@ -430,8 +459,8 @@ export function ChatRoomMenuDrawer({
                                 </button>
                             </div>
                         ) : (room.roomType === "OPEN"
-                            ? openMembers.length === 0
-                            : members.length === 0) ? (
+                            ? openMembers.length === 0 && aiMembers.length === 0
+                            : members.length === 0 && aiMembers.length === 0) ? (
                             <div className="mt-4 rounded-3xl border border-dashed border-slate-300 py-10 text-center text-sm font-bold text-slate-400 dark:border-white/15">
                                 {t("members.empty")}
                             </div>
@@ -483,13 +512,15 @@ export function ChatRoomMenuDrawer({
                                                                   className="shrink-0"
                                                               />
                                                           </div>
-                                                          <p className="mt-1 inline-flex items-center gap-1 font-mono text-xs font-black tracking-wider text-orange-500">
-                                                              <Hash
-                                                                  className="h-3 w-3"
-                                                                  aria-hidden="true"
-                                                              />
-                                                              {member.memberCode}
-                                                          </p>
+                                                          {!hideHumanIdentifiers && (
+                                                              <p className="mt-1 inline-flex items-center gap-1 font-mono text-xs font-black tracking-wider text-orange-500">
+                                                                  <Hash
+                                                                      className="h-3 w-3"
+                                                                      aria-hidden="true"
+                                                                  />
+                                                                  {member.memberCode}
+                                                              </p>
+                                                          )}
                                                           <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400">
                                                               <CalendarDays
                                                                   className="h-3 w-3"
@@ -552,9 +583,11 @@ export function ChatRoomMenuDrawer({
                                                               )}
                                                           </span>
                                                       </div>
-                                                      <p className="mt-1 truncate text-xs font-semibold text-slate-500 dark:text-slate-400">
-                                                          {member.publicId || "-"}
-                                                      </p>
+                                                      {!hideHumanIdentifiers && (
+                                                          <p className="mt-1 truncate text-xs font-semibold text-slate-500 dark:text-slate-400">
+                                                              {member.publicId || "-"}
+                                                          </p>
+                                                      )}
                                                       <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400">
                                                           <CalendarDays
                                                               className="h-3 w-3"
@@ -573,6 +606,69 @@ export function ChatRoomMenuDrawer({
                                               </button>
                                           </li>
                                       ))}
+
+                                {aiMembers.map((member) => (
+                                    <li key={`ai-${member.aiMemberId}`}>
+                                        <button
+                                            type="button"
+                                            data-testid={`chat-room-ai-member-${member.aiMemberId}`}
+                                            onClick={() =>
+                                                onOpenAiMemberProfile(member.aiMemberId)
+                                            }
+                                            aria-label={t("members.openProfile", {
+                                                nickname: member.nickname,
+                                            })}
+                                            className="flex w-full items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3 text-left transition hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 dark:border-white/10 dark:bg-white/5 dark:hover:border-orange-400/40"
+                                        >
+                                            {room.roomType === "OPEN" ? (
+                                                <OpenChatAvatar
+                                                    profileImageUrl={member.profileImageUrl}
+                                                    alt={member.nickname}
+                                                    size="sm"
+                                                />
+                                            ) : (
+                                                <ChatRoomAvatar
+                                                    profileImageUrl={member.profileImageUrl}
+                                                    alt={member.nickname}
+                                                />
+                                            )}
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex items-center gap-2">
+                                                    <p className="truncate text-sm font-black text-slate-900 dark:text-white">
+                                                        {member.nickname}
+                                                    </p>
+                                                    {showAiBadge && (
+                                                        <span
+                                                            data-testid={`chat-room-ai-member-badge-${member.aiMemberId}`}
+                                                            className="shrink-0 rounded-full border border-violet-200 bg-violet-50 px-2 py-0.5 text-[10px] font-black text-violet-700 dark:border-violet-400/30 dark:bg-violet-500/10 dark:text-violet-200"
+                                                        >
+                                                            {tAi("message.badge")}
+                                                        </span>
+                                                    )}
+                                                    {room.roomType === "OPEN" ? (
+                                                        <OpenChatRoleBadge
+                                                            role={member.role}
+                                                            className="shrink-0"
+                                                        />
+                                                    ) : (
+                                                        <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-black text-slate-500 dark:bg-white/10 dark:text-slate-300">
+                                                            {t(`members.roles.${member.role}`)}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400">
+                                                    <CalendarDays
+                                                        className="h-3 w-3"
+                                                        aria-hidden="true"
+                                                    />
+                                                    {t("members.joinedAt", {
+                                                        date: formatJoinedAt(member.joinedAt),
+                                                    })}
+                                                </p>
+                                            </div>
+                                        </button>
+                                    </li>
+                                ))}
                             </ul>
                         )}
                     </section>

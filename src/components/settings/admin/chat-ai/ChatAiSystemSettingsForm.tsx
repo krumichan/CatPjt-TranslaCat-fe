@@ -4,9 +4,10 @@ import { Loader2, RefreshCw, Save, SlidersHorizontal } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import FeedbackMessage from "@/components/common/FeedbackMessage";
+import { NumberSettingField } from "@/components/settings/admin/chat-ai/NumberSettingField";
 import { TimeSettingField } from "@/components/settings/admin/chat-ai/TimeSettingField";
+import { ToggleSettingField } from "@/components/settings/admin/chat-ai/ToggleSettingField";
 import type { ChatAiSystemSettingsFormController } from "@/components/settings/admin/chat-ai/useChatAiSystemSettingsForm";
-import {NumberSettingField} from "@/components/settings/admin/chat-ai/NumberSettingField";
 
 interface ChatAiSystemSettingsFormProps {
     controller: ChatAiSystemSettingsFormController;
@@ -26,6 +27,7 @@ export function ChatAiSystemSettingsForm({
         saved,
         isValid,
         updateNumber,
+        updateBoolean,
         updateTime,
         retry,
         save,
@@ -115,6 +117,18 @@ export function ChatAiSystemSettingsForm({
                         {t("messages.invalidValues")}
                     </FeedbackMessage>
                 )}
+            </div>
+
+            <div className="mt-6">
+                <ToggleSettingField
+                    label={t("fields.responseDelayEnabled.label")}
+                    help={t("fields.responseDelayEnabled.help")}
+                    checked={form.responseDelayEnabled}
+                    onChange={(checked) =>
+                        updateBoolean("responseDelayEnabled", checked)
+                    }
+                    testId="admin-chat-ai-response-delay-enabled"
+                />
             </div>
 
             <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">

@@ -355,7 +355,7 @@ test.describe("FE #10 AI member management", () => {
         expect(patches).toContainEqual({ revivalEnabled: false });
     });
 
-    test("AI-10-02 일반 MEMBER는 AI 정책과 멤버를 조회만 할 수 있다", async ({
+    test("AI-10-02 일반 MEMBER에게 AI 멤버·룸 설정 메뉴를 노출하지 않는다", async ({
         page,
     }) => {
         await mockChatRoomBase(page, {
@@ -377,16 +377,7 @@ test.describe("FE #10 AI member management", () => {
 
         await page.goto(`/chat/rooms/${ROOM_ID}`);
         await page.getByTestId("chat-room-menu-button").click();
-        await page.getByTestId("chat-ai-settings-button").click();
-
-        await expect(page.getByTestId("chat-ai-management-modal")).toBeVisible();
-        await expect(page.getByTestId("chat-ai-private-members-hidden")).toBeVisible();
-        await expect(page.getByTestId("chat-ai-member-11")).toHaveCount(0);
-        await expect(page.getByTestId("chat-ai-disclosure-select")).toBeDisabled();
-        await expect(page.getByTestId("chat-ai-mention-permission-select")).toBeDisabled();
-        await expect(page.getByTestId("chat-ai-conversation-toggle")).toBeDisabled();
-        await expect(page.getByTestId("chat-ai-revival-toggle")).toBeDisabled();
-        await expect(page.getByTestId("chat-ai-add-member")).toHaveCount(0);
+        await expect(page.getByTestId("chat-ai-settings-button")).toHaveCount(0);
     });
 
     test("AI-10-03 OPEN 탐색 목록에서 PRIVATE AI 방임을 입장 전에 확인한다", async ({
@@ -447,6 +438,9 @@ test.describe("FE #10 AI member management", () => {
             conversationResponseRate: 15,
             conversationCooldownSeconds: 180,
             conversationMinHumanMessagesAfterAi: 2,
+            responseDelayEnabled: true,
+            responseDelayMinMillis: 1200,
+            responseDelayMaxMillis: 3500,
             revivalFirstDelayHours: 24,
             revivalSecondDelayHours: 72,
             revivalThirdDelayHours: 168,
@@ -480,10 +474,19 @@ test.describe("FE #10 AI member management", () => {
 
         const maxMembers = page.getByLabel("방당 AI 최대 인원");
         await maxMembers.fill("3");
+        await page.getByLabel("AI 응답 최소 지연 (ms)").fill("1500");
+        await page
+            .getByTestId("admin-chat-ai-response-delay-enabled")
+            .uncheck();
         await page.getByTestId("admin-chat-ai-save").click();
 
         await expect(page.getByText("채팅 AI 운영 설정을 저장했습니다.")).toBeVisible();
-        expect(patchBody).toMatchObject({ maxAiMembersPerRoom: 3 });
+        expect(patchBody).toMatchObject({
+            maxAiMembersPerRoom: 3,
+            responseDelayEnabled: false,
+            responseDelayMinMillis: 1500,
+            responseDelayMaxMillis: 3500,
+        });
     });
 
     test("AI-10-05 Mobile dark mode에서도 AI 관리 Modal이 화면 안에 표시된다", async ({

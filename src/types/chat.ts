@@ -150,6 +150,8 @@ export type OpenChatProfileSnapshot = Pick<
 
 export interface OpenChatMemberListResponse {
     members: OpenChatMemberProfile[];
+    aiMembers?: ChatAiDisplayMember[];
+    aiDisclosureType?: ChatAiDisclosureType | null;
 }
 
 export interface OpenChatBanCreateRequest {
@@ -317,6 +319,8 @@ export interface ChatRoomMember {
 
 export interface ChatRoomMemberListResponse {
     members: ChatRoomMember[];
+    aiMembers?: ChatAiDisplayMember[];
+    aiDisclosureType?: ChatAiDisclosureType | null;
 }
 
 export interface ChatRoomMemberInvitationRequest {
@@ -449,6 +453,26 @@ export interface ChatAiRoomSummary {
     disclosureType: ChatAiDisclosureType | null;
 }
 
+export interface ChatAiDisplayMember {
+    aiMemberId: number;
+    nickname: string;
+    profileImageUrl: string | null;
+    role: ChatRoomMemberRole;
+    active: boolean;
+    joinedAt: string;
+}
+
+export interface ChatAiSafeProfile {
+    aiMemberId: number;
+    nickname: string;
+    profileImageUrl: string | null;
+    profileBackgroundImageUrl: string | null;
+    bio: string | null;
+    originalLanguageCode: string;
+    active: boolean;
+    joinedAt: string;
+}
+
 export interface ChatAiMember {
     aiMemberId: number;
     aiAgentId: number;
@@ -504,6 +528,9 @@ export interface ChatAiSystemSetting {
     conversationResponseRate: number;
     conversationCooldownSeconds: number;
     conversationMinHumanMessagesAfterAi: number;
+    responseDelayEnabled: boolean;
+    responseDelayMinMillis: number;
+    responseDelayMaxMillis: number;
     revivalFirstDelayHours: number;
     revivalSecondDelayHours: number;
     revivalThirdDelayHours: number;

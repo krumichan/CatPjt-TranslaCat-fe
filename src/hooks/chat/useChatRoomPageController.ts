@@ -109,6 +109,9 @@ export function useChatRoomPageController(roomId: number) {
         syncLatestMessages: openChat.syncAfterReconnect,
         onReadUpdated: readStatus.handleReadUpdated,
         onMemberReadUpdated: chatRoom.applyMemberReadUpdated,
+        onRoomMembersChanged: () => {
+            void roomMenu.reloadMembers();
+        },
         onOpenChatProfileUpdated: openChat.handleProfileUpdated,
         onOpenChatMemberRoleUpdated: openChat.handleMemberRoleUpdated,
         onOpenChatMemberBanned: openChat.handleMemberBanned,
@@ -184,16 +187,16 @@ export function useChatRoomPageController(roomId: number) {
     const canManageOpenChat = isOpenChatModerator(
         chatRoom.room?.myRole ?? null,
     );
-    const canViewAiSettings = roomType === "GROUP" || roomType === "OPEN";
     const canManageAi =
-        canViewAiSettings &&
+        (roomType === "GROUP" || roomType === "OPEN") &&
         (chatRoom.room?.myRole === "OWNER" || chatRoom.room?.myRole === "ADMIN");
+    const canViewAiSettings = canManageAi;
 
     const openAiSettings = useCallback(() => {
-        if (!canViewAiSettings) return;
+        if (!canManageAi) return;
         roomMenu.closeMenu();
         setIsAiSettingsOpen(true);
-    }, [canViewAiSettings, roomMenu]);
+    }, [canManageAi, roomMenu]);
 
     const closeAiSettings = useCallback(() => {
         setIsAiSettingsOpen(false);

@@ -2,6 +2,7 @@ import { apiClient } from "@/lib/apiClient";
 import { parseResponseBody } from "@/services/common/responseParser";
 import type {
     ChatAiMember,
+    ChatAiSafeProfile,
     ChatAiMemberCreateRequest,
     ChatAiMemberListResponse,
     ChatAiMemberUpdateRequest,
@@ -31,6 +32,22 @@ export const chatAiService = {
         );
 
         return parseResponseBody<ChatAiMember>(response, "ChatAiMember");
+    },
+
+
+    getMemberProfile: async (
+        roomId: number,
+        aiMemberId: number,
+    ): Promise<ChatAiSafeProfile> => {
+        const response = await apiClient(
+            `/chat/rooms/${roomId}/ai-members/${aiMemberId}/profile`,
+            { method: "GET" },
+        );
+
+        return parseResponseBody<ChatAiSafeProfile>(
+            response,
+            "ChatAiMemberProfile",
+        );
     },
 
     createMember: async (

@@ -10,6 +10,7 @@ import type {
 import type {
     ChatMemberReadUpdatedEvent,
     ChatReadUpdatedEvent,
+    ChatRoomMembersChangedEvent,
     OpenChatMemberBannedEvent,
     OpenChatMemberRoleUpdatedEvent,
     OpenChatProfileUpdatedEvent,
@@ -32,6 +33,9 @@ interface UseChatRoomRealtimeParams {
     onReadUpdated?: (event: ChatReadUpdatedEvent) => void;
     onMemberReadUpdated?: (
         event: ChatMemberReadUpdatedEvent,
+    ) => void;
+    onRoomMembersChanged?: (
+        event: ChatRoomMembersChangedEvent,
     ) => void;
     onOpenChatProfileUpdated?: (
         event: OpenChatProfileUpdatedEvent,
@@ -65,6 +69,7 @@ export function useChatRoomRealtime({
     syncLatestMessages,
     onReadUpdated,
     onMemberReadUpdated,
+    onRoomMembersChanged,
     onOpenChatProfileUpdated,
     onOpenChatMemberRoleUpdated,
     onOpenChatMemberBanned,
@@ -109,6 +114,7 @@ export function useChatRoomRealtime({
             handleTranslationCompleted,
         onReadUpdated,
         onMemberReadUpdated,
+        onRoomMembersChanged,
         onOpenChatProfileUpdated,
         onOpenChatMemberRoleUpdated,
         onOpenChatMemberBanned,

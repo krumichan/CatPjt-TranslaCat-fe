@@ -401,6 +401,7 @@ export interface ChatMessage {
     id: number;
     chatRoomId: number;
     senderUserId: number | null;
+    senderAiMemberId: number | null;
     senderName: string | null;
     senderEmail: string | null;
     senderProfileImageUrl: string | null;

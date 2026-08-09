@@ -4,6 +4,8 @@ import { useCallback, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 
+import { useChatAiMemberProfilePreview } from "@/hooks/chat/useChatAiMemberProfilePreview";
+import { useChatAiRoomDisplayPolicy } from "@/hooks/chat/useChatAiRoomDisplayPolicy";
 import { useChatLanguageSettings } from "@/hooks/chat/useChatLanguageSettings";
 import { useChatMemberProfilePreview } from "@/hooks/chat/useChatMemberProfilePreview";
 import { useChatPartnerProfilePreview } from "@/hooks/chat/useChatPartnerProfilePreview";
@@ -46,6 +48,18 @@ export function useChatRoomPageController(roomId: number) {
     const isOpenRoom = roomType === "OPEN";
 
     const languageSettings = useChatLanguageSettings(roomId);
+    const hasAiMessage = chatRoom.messages.some(
+        (message) => message.senderType === "AI",
+    );
+    const aiDisplayPolicy = useChatAiRoomDisplayPolicy({
+        roomId,
+        enabled:
+            (roomType === "GROUP" || roomType === "OPEN") &&
+            hasAiMessage,
+    });
+    const aiMemberProfilePreview = useChatAiMemberProfilePreview({ roomId });
+    const { openProfile: openAiMemberProfile } = aiMemberProfilePreview;
+    const { reload: reloadAiDisplayPolicy } = aiDisplayPolicy;
     const roomMenu = useChatRoomMenu({ roomId, roomType });
 
     const openLifecycle = useOpenChatRoomLifecycle({
@@ -115,6 +129,13 @@ export function useChatRoomPageController(roomId: number) {
         }
     }, [directPartner, partnerProfilePreview]);
 
+    const openAiMessageSenderProfile = useCallback(
+        (aiMemberId: number) => {
+            void openAiMemberProfile(aiMemberId);
+        },
+        [openAiMemberProfile],
+    );
+
     const openMessageSenderProfile = useCallback(
         (senderProfileId: number) => {
             if (roomType === "OPEN") {
@@ -174,6 +195,11 @@ export function useChatRoomPageController(roomId: number) {
         setIsAiSettingsOpen(true);
     }, [canViewAiSettings, roomMenu]);
 
+    const closeAiSettings = useCallback(() => {
+        setIsAiSettingsOpen(false);
+        void reloadAiDisplayPolicy();
+    }, [reloadAiDisplayPolicy]);
+
     const openBlacklist = useCallback(() => {
         roomMenu.closeMenu();
         setBlacklistRequestedRoomId(roomId);
@@ -229,9 +255,11 @@ export function useChatRoomPageController(roomId: number) {
         closeLanguageSettings: () => setIsLanguageSettingsOpen(false),
         isAiSettingsOpen,
         openAiSettings,
-        closeAiSettings: () => setIsAiSettingsOpen(false),
+        closeAiSettings,
         chatRoom,
         languageSettings,
+        aiDisplayPolicy,
+        aiMemberProfilePreview,
         roomMenu,
         roomInvitation,
         openLifecycle,
@@ -255,6 +283,7 @@ export function useChatRoomPageController(roomId: number) {
         canManageAi,
         openPartnerProfile,
         openMessageSenderProfile,
+        openAiMessageSenderProfile,
         openMemberProfileFromMenu,
         openOpenMemberProfileFromMenu,
         blacklist: {

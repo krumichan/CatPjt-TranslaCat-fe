@@ -1,6 +1,7 @@
 "use client";
 
 import { ChatAiManagementSmartModal } from "@/components/chat/ai/ChatAiManagementSmartModal";
+import { ChatAiMemberProfileModal } from "@/components/chat/ai/ChatAiMemberProfileModal";
 import { OpenChatBlacklistSmartModal } from "@/components/chat/open-blacklist/OpenChatBlacklistSmartModal";
 import { OpenChatMemberModerationActions } from "@/components/chat/open-moderation/OpenChatMemberModerationActions";
 import { OpenChatModerationDialog } from "@/components/chat/open-moderation/OpenChatModerationDialog";
@@ -34,6 +35,7 @@ export function ChatRoomPageOverlays({
         partnerProfilePreview,
         memberProfilePreview,
         openMemberProfilePreview,
+        aiMemberProfilePreview,
         openLifecycle,
         openChat,
     } = controller;
@@ -94,6 +96,18 @@ export function ChatRoomPageOverlays({
                 roomType={room.roomType}
                 canManage={controller.canManageAi}
                 onClose={controller.closeAiSettings}
+            />
+
+            <ChatAiMemberProfileModal
+                isOpen={aiMemberProfilePreview.isOpen}
+                profile={aiMemberProfilePreview.profile}
+                disclosureType={
+                    controller.aiDisplayPolicy.setting?.disclosureType ?? null
+                }
+                isLoading={aiMemberProfilePreview.isLoading}
+                loadErrorCode={aiMemberProfilePreview.loadErrorCode}
+                onRetry={aiMemberProfilePreview.retryProfile}
+                onClose={aiMemberProfilePreview.closeProfile}
             />
 
             <OpenChatBlacklistSmartModal

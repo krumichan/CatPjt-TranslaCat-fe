@@ -63,6 +63,9 @@ export function ChatRoomView({
                         openChat.myProfile.profile?.openChatMemberId ?? null
                     }
                     roomType={controller.roomType}
+                    aiDisclosureType={
+                        controller.aiDisplayPolicy.setting?.disclosureType ?? null
+                    }
                     languageSettings={languageSettings.settings}
                     hasNext={chatRoom.hasNext}
                     isLoadingMore={chatRoom.isLoadingMore}
@@ -74,6 +77,9 @@ export function ChatRoomView({
                     }
                     retryTranslationErrorKeys={
                         chatRoom.retryTranslationErrorKeys
+                    }
+                    onOpenAiSenderProfile={
+                        controller.openAiMessageSenderProfile
                     }
                     onOpenSenderProfile={
                         controller.canOpenMessageSenderProfile

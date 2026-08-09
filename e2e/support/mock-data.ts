@@ -209,6 +209,8 @@ export const makeMessage = ({
     content,
     translations = [],
     senderProfileImageUrl = null,
+    senderAiMemberId = null,
+    senderName = null,
     senderType = "USER",
     messageType = "TEXT",
     unreadMemberCount = senderType === "SYSTEM" ? null : 0,
@@ -221,6 +223,8 @@ export const makeMessage = ({
         typeof makeTranslation
     >[];
     senderProfileImageUrl?: string | null;
+    senderAiMemberId?: number | null;
+    senderName?: string | null;
     senderType?: "USER" | "AI" | "SYSTEM";
     messageType?: "TEXT" | "SYSTEM";
     unreadMemberCount?: number | null;
@@ -228,7 +232,13 @@ export const makeMessage = ({
     id,
     chatRoomId: roomId,
     senderUserId: senderType === "USER" ? sender.userId : null,
-    senderName: senderType === "USER" ? sender.nickname : null,
+    senderAiMemberId: senderType === "AI" ? senderAiMemberId : null,
+    senderName:
+        senderType === "USER"
+            ? sender.nickname
+            : senderType === "AI"
+              ? senderName
+              : null,
     senderEmail: senderType === "USER" ? sender.email : null,
     senderProfileImageUrl,
     senderType,
@@ -395,6 +405,7 @@ export const makeOpenChatMessage = ({
     id,
     chatRoomId: roomId,
     senderUserId: null,
+    senderAiMemberId: null,
     senderName: null,
     senderEmail: null,
     senderProfileImageUrl: null,

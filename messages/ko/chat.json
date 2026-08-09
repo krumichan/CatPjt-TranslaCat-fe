@@ -789,6 +789,22 @@
       "title": "현재 AI 멤버가 없습니다",
       "description": "OWNER 또는 ADMIN이 AI 멤버를 추가하면 이 방에서 AI 기능을 사용할 수 있습니다."
     },
+    "message": {
+      "badge": "AI",
+      "unknownName": "AI 멤버"
+    },
+    "profile": {
+      "title": "프로필",
+      "close": "프로필 닫기",
+      "loading": "프로필을 불러오는 중...",
+      "loadFailed": "프로필을 불러오지 못했습니다.",
+      "retry": "다시 시도",
+      "profileAlt": "{nickname} 프로필 이미지",
+      "aiBadge": "AI",
+      "bio": "자기소개",
+      "emptyBio": "자기소개가 없습니다.",
+      "originalLanguage": "원문 언어"
+    },
     "management": {
       "eyebrow": "AI room settings",
       "title": {

@@ -240,6 +240,7 @@ const isChatMessage = (value: unknown): value is ChatMessage => {
         typeof value.id === "number" &&
         typeof value.chatRoomId === "number" &&
         isNullableNumber(value.senderUserId) &&
+        isNullableNumber(value.senderAiMemberId) &&
         isNullableString(value.senderName) &&
         isNullableString(value.senderEmail) &&
         typeof value.senderType === "string" &&

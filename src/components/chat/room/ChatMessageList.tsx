@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef } from "react";
 
 import { ChatMessageItem } from "@/components/chat/room/ChatMessageItem";
 import type {
+    ChatAiDisclosureType,
     ChatLanguageSettings,
     ChatMessage,
     ChatRoomType,
@@ -20,6 +21,7 @@ interface ChatMessageListProps {
     currentUserEmail: string | null;
     currentOpenChatMemberId?: number | null;
     roomType?: ChatRoomType | null;
+    aiDisclosureType: ChatAiDisclosureType | null;
     languageSettings: ChatLanguageSettings | null;
     hasNext: boolean;
     isLoadingMore: boolean;
@@ -27,6 +29,7 @@ interface ChatMessageListProps {
     retryingTranslationKeys: string[];
     retryTranslationErrorKeys: string[];
     onOpenSenderProfile?: (senderProfileId: number) => void;
+    onOpenAiSenderProfile?: (aiMemberId: number) => void;
     onLoadMore: () => Promise<boolean>;
     onRetryTranslation: (
         messageId: number,
@@ -42,6 +45,7 @@ export function ChatMessageList({
     currentUserEmail,
     currentOpenChatMemberId = null,
     roomType = null,
+    aiDisclosureType,
     languageSettings,
     hasNext,
     isLoadingMore,
@@ -49,6 +53,7 @@ export function ChatMessageList({
     retryingTranslationKeys,
     retryTranslationErrorKeys,
     onOpenSenderProfile,
+    onOpenAiSenderProfile,
     onLoadMore,
     onRetryTranslation,
     onRefreshMessages,
@@ -182,6 +187,11 @@ export function ChatMessageList({
                     message.senderType === "USER" &&
                     senderProfileId !== null &&
                     onOpenSenderProfile !== undefined;
+                const canOpenAiSenderProfile =
+                    !isMine &&
+                    message.senderType === "AI" &&
+                    message.senderAiMemberId !== null &&
+                    onOpenAiSenderProfile !== undefined;
 
                 return (
                     <ChatMessageItem
@@ -189,6 +199,7 @@ export function ChatMessageList({
                         message={message}
                         isMine={isMine}
                         isOpenRoom={isOpenRoom}
+                        aiDisclosureType={aiDisclosureType}
                         languageSettings={
                             languageSettings
                         }
@@ -203,6 +214,14 @@ export function ChatMessageList({
                                 ? () =>
                                       onOpenSenderProfile(
                                           senderProfileId!,
+                                      )
+                                : undefined
+                        }
+                        onOpenAiSenderProfile={
+                            canOpenAiSenderProfile
+                                ? () =>
+                                      onOpenAiSenderProfile(
+                                          message.senderAiMemberId!,
                                       )
                                 : undefined
                         }

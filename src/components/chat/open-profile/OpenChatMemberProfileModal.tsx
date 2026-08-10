@@ -18,6 +18,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 
+import { ChatPresenceIndicator } from "@/components/chat/common/ChatPresenceIndicator";
 import { OpenChatAvatar } from "@/components/chat/open-profile/OpenChatAvatar";
 import { OpenChatRoleBadge } from "@/components/chat/open-moderation/OpenChatRoleBadge";
 import { useModalFocusTrap } from "@/hooks/useModalFocusTrap";
@@ -31,6 +32,7 @@ interface OpenChatMemberProfileModalProps {
     actionSlot?: ReactNode;
     onRetry: () => Promise<boolean>;
     onClose: () => void;
+    showPresence?: boolean;
 }
 
 export function OpenChatMemberProfileModal({
@@ -41,6 +43,7 @@ export function OpenChatMemberProfileModal({
     actionSlot,
     onRetry,
     onClose,
+    showPresence = true,
 }: OpenChatMemberProfileModalProps) {
     const t = useTranslations("ChatRoom.openProfile");
     const locale = useLocale();
@@ -148,6 +151,13 @@ export function OpenChatMemberProfileModal({
                             >
                                 {profile.nickname}
                             </h2>
+                            {showPresence && (
+                                <ChatPresenceIndicator
+                                    online={profile.online}
+                                    testId={`chat-open-member-profile-presence-${profile.openChatMemberId}`}
+                                    className="h-3 w-3"
+                                />
+                            )}
                             <OpenChatRoleBadge role={profile.role} />
                         </div>
 

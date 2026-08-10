@@ -1,5 +1,10 @@
 import type { Page, WebSocketRoute } from "@playwright/test";
 
+const subscriptionIdsBySocket = new WeakMap<
+    WebSocketRoute,
+    Map<string, string>
+>();
+
 type StompMockOptions = {
     onSocket?: (ws: WebSocketRoute) => void;
     onSubscribe?: (destination: string, ws: WebSocketRoute) => void;
@@ -30,6 +35,16 @@ export async function mockStompBroker(
 
             if (frame.startsWith("SUBSCRIBE")) {
                 const destination = parseHeader(frame, "destination") ?? "";
+                const subscriptionId = parseHeader(frame, "id");
+
+                if (subscriptionId) {
+                    const current =
+                        subscriptionIdsBySocket.get(ws) ??
+                        new Map<string, string>();
+                    current.set(destination, subscriptionId);
+                    subscriptionIdsBySocket.set(ws, current);
+                }
+
                 options.onSubscribe?.(destination, ws);
                 return;
             }
@@ -50,11 +65,14 @@ export function sendStompJson(
     body: unknown,
 ): void {
     const payload = JSON.stringify(body);
+    const subscriptionId =
+        subscriptionIdsBySocket.get(ws)?.get(destination) ?? "sub-0";
+
     ws.send(
         [
             "MESSAGE",
             `destination:${destination}`,
-            "subscription:sub-0",
+            `subscription:${subscriptionId}`,
             "message-id:e2e-message",
             `content-length:${Buffer.byteLength(payload, "utf8")}`,
             "",

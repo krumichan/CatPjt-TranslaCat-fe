@@ -137,6 +137,7 @@ export interface OpenChatMemberProfile {
     role: ChatRoomMemberRole;
     active: boolean;
     joinedAt: string;
+    online?: boolean | null;
 }
 
 export type OpenChatProfileSnapshot = Pick<
@@ -224,6 +225,7 @@ export interface DirectPartnerProfile {
     profileImageUrl: string | null;
     profileBackgroundImageUrl: string | null;
     bio: string | null;
+    online?: boolean | null;
 }
 
 export interface ChatRoomMemberProfile {
@@ -234,6 +236,7 @@ export interface ChatRoomMemberProfile {
     profileBackgroundImageUrl: string | null;
     bio: string | null;
     friendStatus: FriendRelationStatus;
+    online?: boolean | null;
 }
 
 export interface ChatRoom {
@@ -309,6 +312,7 @@ export interface ChatRoomMember {
     active: boolean;
     joinedAt: string;
     leftAt: string | null;
+    online?: boolean | null;
 
     /**
      * BE #40 이전 응답과의 과도기 호환 필드.

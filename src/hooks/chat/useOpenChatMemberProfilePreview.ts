@@ -22,12 +22,16 @@ export function useOpenChatMemberProfilePreview(roomId: number) {
     const latestProfilePatchRef = useRef(
         new Map<number, OpenChatProfileSnapshot>(),
     );
+    const presencePatchVersionRef = useRef(new Map<number, number>());
+    const latestPresencePatchRef = useRef(new Map<number, boolean>());
 
     const openProfile = useCallback(
         async (openChatMemberId: number) => {
             const sequence = ++requestSequenceRef.current;
             const patchVersionAtRequest =
                 profilePatchVersionRef.current.get(openChatMemberId) ?? 0;
+            const presencePatchVersionAtRequest =
+                presencePatchVersionRef.current.get(openChatMemberId) ?? 0;
             setSelectedMemberId(openChatMemberId);
             setProfile(null);
             setLoadErrorCode(null);
@@ -53,11 +57,25 @@ export function useOpenChatMemberProfilePreview(roomId: number) {
                         openChatMemberId,
                     );
 
-                setProfile(
+                const latestPresencePatchVersion =
+                    presencePatchVersionRef.current.get(openChatMemberId) ?? 0;
+                const latestOnline =
+                    latestPresencePatchRef.current.get(openChatMemberId);
+                const profileWithRealtimePatch =
                     latestPatch &&
-                        latestPatchVersion > patchVersionAtRequest
+                    latestPatchVersion > patchVersionAtRequest
                         ? { ...nextProfile, ...latestPatch }
-                        : nextProfile,
+                        : nextProfile;
+
+                setProfile(
+                    latestPresencePatchVersion >
+                            presencePatchVersionAtRequest &&
+                        latestOnline !== undefined
+                        ? {
+                              ...profileWithRealtimePatch,
+                              online: latestOnline,
+                          }
+                        : profileWithRealtimePatch,
                 );
                 return true;
             } catch (error) {
@@ -126,6 +144,25 @@ export function useOpenChatMemberProfilePreview(roomId: number) {
         [],
     );
 
+    const applyPresence = useCallback(
+        (openChatMemberId: number, online: boolean) => {
+            const previousVersion =
+                presencePatchVersionRef.current.get(openChatMemberId) ?? 0;
+            presencePatchVersionRef.current.set(
+                openChatMemberId,
+                previousVersion + 1,
+            );
+            latestPresencePatchRef.current.set(openChatMemberId, online);
+
+            setProfile((current) =>
+                current?.openChatMemberId === openChatMemberId
+                    ? { ...current, online }
+                    : current,
+            );
+        },
+        [],
+    );
+
     const applyRole = useCallback(
         (openChatMemberId: number, role: ChatRoomMemberRole) => {
             setProfile((current) =>
@@ -157,6 +194,7 @@ export function useOpenChatMemberProfilePreview(roomId: number) {
         closeProfile,
         applyProfile,
         applyRole,
+        applyPresence,
         removeMember,
     };
 }

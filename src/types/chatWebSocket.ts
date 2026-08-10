@@ -23,6 +23,7 @@ export type ChatWebSocketEventType =
     | "chat.member.role.updated"
     | "chat.member.banned"
     | "chat.room.closed"
+    | "chat.presence.changed"
     | "chat.error";
 
 export interface ChatWebSocketEvent<T = unknown> {
@@ -33,6 +34,16 @@ export interface ChatWebSocketEvent<T = unknown> {
     payload?: T;
     data?: T;
     message?: T;
+}
+
+
+export interface ChatPresenceChangedEvent {
+    eventType: "chat.presence.changed";
+    roomId: number;
+    roomType: "DIRECT" | "GROUP" | "OPEN";
+    memberRef: string;
+    online: boolean;
+    occurredAt: string;
 }
 
 export interface ChatReadUpdatedEvent {
@@ -188,6 +199,11 @@ export const extractOpenChatRoomClosedEvent = (
 ): OpenChatRoomClosedEvent | null =>
     extractPayloadWithGuard(event, isOpenChatRoomClosedEvent);
 
+export const extractChatPresenceChangedEvent = (
+    event: ChatWebSocketEvent<unknown>,
+): ChatPresenceChangedEvent | null =>
+    extractPayloadWithGuard(event, isChatPresenceChangedEvent);
+
 export const extractTranslationResultFromEvent = (
     event: ChatWebSocketEvent<unknown>,
     fallbackStatus: ChatMessageTranslationStatus,
@@ -281,6 +297,26 @@ const isOpenChatMessageSender = (value: unknown): boolean => {
         typeof value.nickname === "string" &&
         isNullableString(value.profileImageUrl) &&
         isChatRoomMemberRole(value.role)
+    );
+};
+
+
+const isChatPresenceChangedEvent = (
+    value: unknown,
+): value is ChatPresenceChangedEvent => {
+    if (!isRecord(value)) {
+        return false;
+    }
+
+    return (
+        value.eventType === "chat.presence.changed" &&
+        typeof value.roomId === "number" &&
+        (value.roomType === "DIRECT" ||
+            value.roomType === "GROUP" ||
+            value.roomType === "OPEN") &&
+        typeof value.memberRef === "string" &&
+        typeof value.online === "boolean" &&
+        typeof value.occurredAt === "string"
     );
 };
 

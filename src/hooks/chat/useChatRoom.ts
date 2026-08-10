@@ -11,7 +11,10 @@ import type {
     OpenChatMemberProfile,
     OpenChatProfileSnapshot,
 } from "@/types/chat";
-import type { ChatMemberReadUpdatedEvent } from "@/types/chatWebSocket";
+import type {
+    ChatMemberReadUpdatedEvent,
+    ChatPresenceChangedEvent,
+} from "@/types/chatWebSocket";
 
 type ChatRoomLoadErrorCode = "LOAD_FAILED";
 type ChatRoomSendErrorCode = "SEND_FAILED";
@@ -57,6 +60,7 @@ interface UseChatRoomResult {
         isCurrentUser: boolean,
     ) => void;
     removeOpenChatMember: (openChatMemberId: number) => void;
+    applyPresenceChanged: (event: ChatPresenceChangedEvent) => void;
     syncLatestMessages: () => Promise<void>;
     retryTranslation: (
         messageId: number,
@@ -192,6 +196,12 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
         new Map<number, number>(),
     );
     const removedOpenChatMemberIdsRef = useRef(new Set<number>());
+    const directPresenceOccurredAtRef = useRef<string | null>(null);
+    const directPresencePatchVersionRef = useRef(0);
+    const latestDirectPresenceRef = useRef<{
+        publicId: string;
+        online: boolean;
+    } | null>(null);
 
     const retryingTranslationKeys = useMemo(
         () => Array.from(retryingTranslationKeySet),
@@ -207,6 +217,8 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
         setIsLoading(true);
         setLoadErrorCode(null);
         setLoadMoreErrorCode(null);
+        const presencePatchVersionAtRequest =
+            directPresencePatchVersionRef.current;
 
         try {
             const [roomResponse, messageResponse] = await Promise.all([
@@ -215,7 +227,29 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
             ]);
 
             removedOpenChatMemberIdsRef.current.clear();
-            setRoom(roomResponse);
+
+            const latestDirectPresence = latestDirectPresenceRef.current;
+            let resolvedRoom = roomResponse;
+
+            if (
+                roomResponse.roomType === "DIRECT" &&
+                roomResponse.directPartner &&
+                latestDirectPresence &&
+                directPresencePatchVersionRef.current >
+                    presencePatchVersionAtRequest &&
+                roomResponse.directPartner.publicId ===
+                    latestDirectPresence.publicId
+            ) {
+                resolvedRoom = {
+                    ...roomResponse,
+                    directPartner: {
+                        ...roomResponse.directPartner,
+                        online: latestDirectPresence.online,
+                    },
+                };
+            }
+
+            setRoom(resolvedRoom);
             setMessages(sortMessagesByCreatedAt(messageResponse.messages));
             setNextCursorId(messageResponse.nextCursorId);
             setHasNext(messageResponse.hasNext);
@@ -456,6 +490,45 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
         [],
     );
 
+    const applyPresenceChanged = useCallback(
+        (event: ChatPresenceChangedEvent) => {
+            if (event.roomId !== roomId || event.roomType !== "DIRECT") {
+                return;
+            }
+
+            directPresencePatchVersionRef.current += 1;
+            latestDirectPresenceRef.current = {
+                publicId: event.memberRef,
+                online: event.online,
+            };
+
+            setRoom((currentRoom) => {
+                const partner = currentRoom?.directPartner;
+                if (!currentRoom || !partner || partner.publicId !== event.memberRef) {
+                    return currentRoom;
+                }
+
+                const previousOccurredAt = directPresenceOccurredAtRef.current;
+                if (
+                    previousOccurredAt &&
+                    Date.parse(event.occurredAt) < Date.parse(previousOccurredAt)
+                ) {
+                    return currentRoom;
+                }
+
+                directPresenceOccurredAtRef.current = event.occurredAt;
+                return {
+                    ...currentRoom,
+                    directPartner: {
+                        ...partner,
+                        online: event.online,
+                    },
+                };
+            });
+        },
+        [roomId],
+    );
+
     const syncLatestMessages = useCallback(async () => {
         try {
             const messageResponse = await chatService.getMessages(roomId);
@@ -565,6 +638,7 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
         applyOpenChatProfile,
         applyOpenChatRole,
         removeOpenChatMember,
+        applyPresenceChanged,
         syncLatestMessages,
         retryTranslation,
     };

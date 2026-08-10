@@ -29,6 +29,7 @@ import {
 } from "next-intl";
 
 import { ChatAiPolicyNotice } from "@/components/chat/ai/ChatAiPolicyNotice";
+import { ChatPresenceIndicator } from "@/components/chat/common/ChatPresenceIndicator";
 import { ChatRoomAvatar } from "@/components/chat/common/ChatRoomAvatar";
 import { OpenChatAvatar } from "@/components/chat/open-profile/OpenChatAvatar";
 import { OpenChatMemberModerationActions } from "@/components/chat/open-moderation/OpenChatMemberModerationActions";
@@ -507,6 +508,12 @@ export function ChatRoomMenuDrawer({
                                                               <p className="truncate text-sm font-black text-slate-900 dark:text-white">
                                                                   {member.nickname}
                                                               </p>
+                                                              {aiDisclosureType !== "PRIVATE" && (
+                                                                  <ChatPresenceIndicator
+                                                                      online={member.online}
+                                                                      testId={`chat-open-member-presence-${member.openChatMemberId}`}
+                                                                  />
+                                                              )}
                                                               <OpenChatRoleBadge
                                                                   role={member.role}
                                                                   className="shrink-0"
@@ -577,6 +584,12 @@ export function ChatRoomMenuDrawer({
                                                           <p className="truncate text-sm font-black text-slate-900 dark:text-white">
                                                               {member.displayName}
                                                           </p>
+                                                          {aiDisclosureType !== "PRIVATE" && (
+                                                              <ChatPresenceIndicator
+                                                                  online={member.online}
+                                                                  testId={`chat-group-member-presence-${member.id}`}
+                                                              />
+                                                          )}
                                                           <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-black text-slate-500 dark:bg-white/10 dark:text-slate-300">
                                                               {t(
                                                                   `members.roles.${member.role}`,

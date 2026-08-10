@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
+import { ChatPresenceIndicator } from "@/components/chat/common/ChatPresenceIndicator";
 import UserProfilePreviewModal from "@/components/profile/UserProfilePreviewModal";
 import type { DirectPartnerProfile } from "@/types/chat";
 
@@ -34,6 +35,14 @@ export function ChatPartnerProfilePreviewModal({
             bioLabel={t("bio")}
             emptyBioText={t("emptyBio")}
             onClose={onClose}
-        />
+        >
+            <div className="mt-4 flex justify-center">
+                <ChatPresenceIndicator
+                    online={partner?.online}
+                    testId="chat-direct-partner-profile-presence"
+                    className="h-3 w-3"
+                />
+            </div>
+        </UserProfilePreviewModal>
     );
 }

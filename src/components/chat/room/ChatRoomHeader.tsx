@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { ChatPresenceIndicator } from "@/components/chat/common/ChatPresenceIndicator";
 import { ChatRoomAvatar } from "@/components/chat/common/ChatRoomAvatar";
 import { Link } from "@/navigation";
 import type {
@@ -173,13 +174,18 @@ export function ChatRoomHeader({
                                 undefined
                             }
                             data-testid="chat-partner-profile-button"
-                            className="shrink-0 cursor-pointer rounded-xl transition hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-default disabled:opacity-70 dark:focus-visible:ring-offset-slate-900"
+                            className="relative shrink-0 cursor-pointer rounded-xl transition hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-default disabled:opacity-70 dark:focus-visible:ring-offset-slate-900"
                         >
                             <ChatRoomAvatar
                                 profileImageUrl={
                                     display.profileImageUrl
                                 }
                                 alt={display.title}
+                            />
+                            <ChatPresenceIndicator
+                                online={room.directPartner.online}
+                                testId="chat-direct-partner-presence"
+                                className="absolute bottom-0 right-0 h-3 w-3"
                             />
                         </button>
                     ) : (

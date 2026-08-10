@@ -10,6 +10,7 @@ import type {
 import {
     extractChatMemberReadUpdatedEvent,
     extractChatMessageFromEvent,
+    extractChatPresenceChangedEvent,
     extractChatReadUpdatedEvent,
     extractChatRoomMembersChangedEvent,
     extractOpenChatMemberBannedEvent,
@@ -19,6 +20,7 @@ import {
     extractTranslationResultFromEvent,
     getChatWebSocketEventType,
     type ChatMemberReadUpdatedEvent,
+    type ChatPresenceChangedEvent,
     type ChatReadUpdatedEvent,
     type ChatRoomMembersChangedEvent,
     type ChatWebSocketConnectionStatus,
@@ -49,6 +51,7 @@ interface UseChatRoomWebSocketParams {
     onRoomMembersChanged?: (
         event: ChatRoomMembersChangedEvent,
     ) => void;
+    onPresenceChanged?: (event: ChatPresenceChangedEvent) => void;
     onOpenChatProfileUpdated?: (
         event: OpenChatProfileUpdatedEvent,
     ) => void;
@@ -85,6 +88,7 @@ export const useChatRoomWebSocket = ({
     onReadUpdated,
     onMemberReadUpdated,
     onRoomMembersChanged,
+    onPresenceChanged,
     onOpenChatProfileUpdated,
     onOpenChatMemberRoleUpdated,
     onOpenChatMemberBanned,
@@ -108,6 +112,7 @@ export const useChatRoomWebSocket = ({
         onReadUpdated,
         onMemberReadUpdated,
         onRoomMembersChanged,
+        onPresenceChanged,
         onOpenChatProfileUpdated,
         onOpenChatMemberRoleUpdated,
         onOpenChatMemberBanned,
@@ -123,6 +128,7 @@ export const useChatRoomWebSocket = ({
             onReadUpdated,
             onMemberReadUpdated,
             onRoomMembersChanged,
+            onPresenceChanged,
             onOpenChatProfileUpdated,
             onOpenChatMemberRoleUpdated,
             onOpenChatMemberBanned,
@@ -133,6 +139,7 @@ export const useChatRoomWebSocket = ({
     }, [
         onMemberReadUpdated,
         onRoomMembersChanged,
+        onPresenceChanged,
         onMessageCreated,
         onOpenChatMemberBanned,
         onCurrentUserOpenChatMemberBanned,
@@ -211,6 +218,18 @@ export const useChatRoomWebSocket = ({
                     if (memberReadUpdated) {
                         eventHandlersRef.current.onMemberReadUpdated?.(
                             memberReadUpdated,
+                        );
+                    }
+                    return;
+                }
+
+                if (eventType === "chat.presence.changed") {
+                    const presenceChanged =
+                        extractChatPresenceChangedEvent(parsed);
+
+                    if (presenceChanged) {
+                        eventHandlersRef.current.onPresenceChanged?.(
+                            presenceChanged,
                         );
                     }
                     return;

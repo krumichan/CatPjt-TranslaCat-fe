@@ -37,6 +37,7 @@ interface UseChatMemberProfilePreviewResult {
     retryProfile: () => Promise<boolean>;
     closeProfile: () => void;
     sendFriendRequest: () => Promise<boolean>;
+    applyPresence: (userId: number, online: boolean) => void;
 }
 
 function toFriendStatusByApiError(
@@ -105,11 +106,15 @@ export function useChatMemberProfilePreview({
 
     const profileRequestSequence = useRef(0);
     const friendRequestSequence = useRef(0);
+    const presencePatchVersionByUserIdRef = useRef(new Map<number, number>());
+    const latestPresenceByUserIdRef = useRef(new Map<number, boolean>());
 
     const openProfile = useCallback(
         async (userId: number) => {
             const requestSequence =
                 ++profileRequestSequence.current;
+            const presencePatchVersionAtRequest =
+                presencePatchVersionByUserIdRef.current.get(userId) ?? 0;
 
             setSelectedUserId(userId);
             setProfile(null);
@@ -131,7 +136,18 @@ export function useChatMemberProfilePreview({
                     return false;
                 }
 
-                setProfile(nextProfile);
+                const latestPresencePatchVersion =
+                    presencePatchVersionByUserIdRef.current.get(userId) ?? 0;
+                const latestOnline =
+                    latestPresenceByUserIdRef.current.get(userId);
+
+                setProfile(
+                    latestPresencePatchVersion >
+                            presencePatchVersionAtRequest &&
+                        latestOnline !== undefined
+                        ? { ...nextProfile, online: latestOnline }
+                        : nextProfile,
+                );
                 return true;
             } catch (error) {
                 console.error(
@@ -166,6 +182,20 @@ export function useChatMemberProfilePreview({
 
         return openProfile(selectedUserId);
     }, [openProfile, selectedUserId]);
+
+    const applyPresence = useCallback((userId: number, online: boolean) => {
+        const previousVersion =
+            presencePatchVersionByUserIdRef.current.get(userId) ?? 0;
+        presencePatchVersionByUserIdRef.current.set(
+            userId,
+            previousVersion + 1,
+        );
+        latestPresenceByUserIdRef.current.set(userId, online);
+
+        setProfile((current) =>
+            current?.userId === userId ? { ...current, online } : current,
+        );
+    }, []);
 
     const closeProfile = useCallback(() => {
         profileRequestSequence.current += 1;
@@ -272,5 +302,6 @@ export function useChatMemberProfilePreview({
         retryProfile,
         closeProfile,
         sendFriendRequest,
+        applyPresence,
     };
 }

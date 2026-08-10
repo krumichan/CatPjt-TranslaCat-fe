@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 import { useQuery } from "@/hooks/useQuery";
 import { chatRoomMemberService } from "@/services/chat/chatRoomMemberService";
@@ -14,6 +14,7 @@ import type {
     OpenChatMemberProfile,
     OpenChatProfileSnapshot,
 } from "@/types/chat";
+import type { ChatPresenceChangedEvent } from "@/types/chatWebSocket";
 
 export type ChatRoomMenuLoadErrorCode = "LOAD_FAILED";
 
@@ -28,6 +29,14 @@ interface ChatRoomMenuData {
     aiMembers: ChatAiDisplayMember[];
     aiDisclosureType: ChatAiDisclosureType | null;
 }
+
+interface PendingPresenceState {
+    roomId: number;
+    roomType: ChatRoomType | null;
+    byMemberRef: ReadonlyMap<string, boolean>;
+}
+
+const EMPTY_PENDING_PRESENCE: ReadonlyMap<string, boolean> = new Map();
 
 interface UseChatRoomMenuResult {
     isOpen: boolean;
@@ -48,6 +57,7 @@ interface UseChatRoomMenuResult {
         role: ChatRoomMemberRole,
     ) => Promise<void>;
     removeOpenChatMember: (openChatMemberId: number) => Promise<void>;
+    applyPresenceChanged: (event: ChatPresenceChangedEvent) => Promise<void>;
 }
 
 export function useChatRoomMenu({
@@ -56,6 +66,14 @@ export function useChatRoomMenu({
 }: UseChatRoomMenuParams): UseChatRoomMenuResult {
     const [isOpen, setIsOpen] = useState(false);
     const [hasRequestedMembers, setHasRequestedMembers] = useState(false);
+    const presenceOccurredAtByMemberRefRef = useRef(new Map<string, string>());
+    const [pendingPresence, setPendingPresence] = useState<PendingPresenceState>(
+        () => ({
+            roomId,
+            roomType,
+            byMemberRef: new Map(),
+        }),
+    );
     const [pendingOpenChatRoles, setPendingOpenChatRoles] = useState<
         ReadonlyMap<number, ChatRoomMemberRole>
     >(() => new Map());
@@ -108,8 +126,14 @@ export function useChatRoomMenu({
 
     const reloadMembers = useCallback(async () => {
         setPendingOpenChatRoles(new Map());
+        setPendingPresence({
+            roomId,
+            roomType,
+            byMemberRef: new Map(),
+        });
+        presenceOccurredAtByMemberRefRef.current.clear();
         await mutate(undefined, true);
-    }, [mutate]);
+    }, [mutate, roomId, roomType]);
 
     const applyOpenChatProfile = useCallback(
         async (profile: OpenChatMemberProfile | OpenChatProfileSnapshot) => {
@@ -190,17 +214,95 @@ export function useChatRoomMenu({
         [mutate],
     );
 
-    const openMembers = useMemo(() => {
+    const applyPresenceChanged = useCallback(
+        async (event: ChatPresenceChangedEvent) => {
+            if (event.roomId !== roomId || event.roomType !== roomType) {
+                return;
+            }
+
+            const presenceEventKey = `${event.roomType}:${event.roomId}:${event.memberRef}`;
+            const previousOccurredAt =
+                presenceOccurredAtByMemberRefRef.current.get(presenceEventKey);
+            if (
+                previousOccurredAt &&
+                Date.parse(event.occurredAt) < Date.parse(previousOccurredAt)
+            ) {
+                return;
+            }
+
+            presenceOccurredAtByMemberRefRef.current.set(
+                presenceEventKey,
+                event.occurredAt,
+            );
+            if (hasRequestedMembers) {
+                setPendingPresence((current) => {
+                    const next = new Map(
+                        current.roomId === roomId &&
+                        current.roomType === roomType
+                            ? current.byMemberRef
+                            : EMPTY_PENDING_PRESENCE,
+                    );
+                    next.set(event.memberRef, event.online);
+                    return {
+                        roomId,
+                        roomType,
+                        byMemberRef: next,
+                    };
+                });
+            }
+
+            await mutate(
+                (currentData) => {
+                    if (!currentData) {
+                        return currentData;
+                    }
+
+                    if (event.roomType === "OPEN") {
+                        return {
+                            ...currentData,
+                            openMembers: currentData.openMembers.map((member) =>
+                                String(member.openChatMemberId) === event.memberRef
+                                    ? { ...member, online: event.online }
+                                    : member,
+                            ),
+                        };
+                    }
+
+                    if (event.roomType === "GROUP") {
+                        return {
+                            ...currentData,
+                            members: currentData.members.map((member) =>
+                                String(member.id) === event.memberRef
+                                    ? { ...member, online: event.online }
+                                    : member,
+                            ),
+                        };
+                    }
+
+                    return currentData;
+                },
+                false,
+            );
+        },
+        [hasRequestedMembers, mutate, roomId, roomType],
+    );
+
+    const pendingPresenceByMemberRef =
+        pendingPresence.roomId === roomId &&
+        pendingPresence.roomType === roomType
+            ? pendingPresence.byMemberRef
+            : EMPTY_PENDING_PRESENCE;
+
+    const openMembersWithPendingRoles = useMemo(() => {
         const members = data?.openMembers ?? [];
 
         if (pendingOpenChatRoles.size === 0) {
             return members;
         }
 
-        // A role event can arrive after the fetcher has built its response but
-        // before SWR commits that response. Keep the latest role event in React
-        // state and overlay it on the committed snapshot so a stale fetch cannot
-        // win that race.
+        // Keep the pre-Presence OPEN moderation path isolated. A role event can
+        // arrive after the fetcher has built its response but before SWR commits
+        // that response, so the latest role event must overlay the snapshot.
         return members.map((member) => {
             const pendingRole = pendingOpenChatRoles.get(
                 member.openChatMemberId,
@@ -212,9 +314,41 @@ export function useChatRoomMenu({
         });
     }, [data?.openMembers, pendingOpenChatRoles]);
 
+    const openMembers = useMemo(() => {
+        if (pendingPresenceByMemberRef.size === 0) {
+            return openMembersWithPendingRoles;
+        }
+
+        // Presence is a separate overlay so adding/removing Presence state cannot
+        // change the existing OPEN role-update behavior.
+        return openMembersWithPendingRoles.map((member) => {
+            const pendingOnline = pendingPresenceByMemberRef.get(
+                String(member.openChatMemberId),
+            );
+
+            return pendingOnline !== undefined
+                ? { ...member, online: pendingOnline }
+                : member;
+        });
+    }, [openMembersWithPendingRoles, pendingPresenceByMemberRef]);
+
+    const members = useMemo(
+        () =>
+            (data?.members ?? []).map((member) => {
+                const pendingOnline = pendingPresenceByMemberRef.get(
+                    String(member.id),
+                );
+
+                return pendingOnline !== undefined
+                    ? { ...member, online: pendingOnline }
+                    : member;
+            }),
+        [data?.members, pendingPresenceByMemberRef],
+    );
+
     return {
         isOpen,
-        members: data?.members ?? [],
+        members,
         openMembers,
         aiMembers: data?.aiMembers ?? [],
         aiDisclosureType: data?.aiDisclosureType ?? null,
@@ -226,5 +360,6 @@ export function useChatRoomMenu({
         applyOpenChatProfile,
         applyOpenChatRole,
         removeOpenChatMember,
+        applyPresenceChanged,
     };
 }

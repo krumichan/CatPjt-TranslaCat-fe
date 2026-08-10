@@ -11,6 +11,7 @@ interface UseChatPartnerProfilePreviewResult {
         partner: DirectPartnerProfile,
     ) => void;
     closeProfilePreview: () => void;
+    applyPresence: (publicId: string, online: boolean) => void;
 }
 
 export function useChatPartnerProfilePreview(): UseChatPartnerProfilePreviewResult {
@@ -24,6 +25,12 @@ export function useChatPartnerProfilePreview(): UseChatPartnerProfilePreviewResu
         [],
     );
 
+    const applyPresence = useCallback((publicId: string, online: boolean) => {
+        setPreviewPartner((current) =>
+            current?.publicId === publicId ? { ...current, online } : current,
+        );
+    }, []);
+
     const closeProfilePreview = useCallback(() => {
         setPreviewPartner(null);
     }, []);
@@ -34,5 +41,6 @@ export function useChatPartnerProfilePreview(): UseChatPartnerProfilePreviewResu
             previewPartner !== null,
         openProfilePreview,
         closeProfilePreview,
+        applyPresence,
     };
 }

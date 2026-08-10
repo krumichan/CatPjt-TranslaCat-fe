@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 
@@ -17,6 +17,7 @@ import { useChatRoomReadStatus } from "@/hooks/chat/useChatRoomReadStatus";
 import { useChatRoomRealtime } from "@/hooks/chat/useChatRoomRealtime";
 import { useOpenChatMemberProfilePreview } from "@/hooks/chat/useOpenChatMemberProfilePreview";
 import { useOpenChatRoomLifecycle } from "@/hooks/chat/useOpenChatRoomLifecycle";
+import type { ChatPresenceChangedEvent } from "@/types/chatWebSocket";
 import { isOpenChatModerator } from "@/utils/chat/openChatModeration";
 
 export function useChatRoomPageController(roomId: number) {
@@ -25,6 +26,7 @@ export function useChatRoomPageController(roomId: number) {
     const [isLanguageSettingsOpen, setIsLanguageSettingsOpen] =
         useState(false);
     const [isAiSettingsOpen, setIsAiSettingsOpen] = useState(false);
+    const presenceOccurredAtByMemberRefRef = useRef(new Map<string, string>());
     const [blacklistRequestedRoomId, setBlacklistRequestedRoomId] =
         useState<number | null>(() => {
             if (typeof window === "undefined") {
@@ -97,6 +99,95 @@ export function useChatRoomPageController(roomId: number) {
             !openChat.isBanned,
     });
 
+    const handlePresenceChanged = useCallback(
+        (event: ChatPresenceChangedEvent) => {
+            if (event.roomId !== roomId || event.roomType !== roomType) {
+                return;
+            }
+
+            const eventKey = `${event.roomId}:${event.roomType}:${event.memberRef}`;
+            const previousOccurredAt =
+                presenceOccurredAtByMemberRefRef.current.get(eventKey);
+            if (
+                previousOccurredAt &&
+                Date.parse(event.occurredAt) < Date.parse(previousOccurredAt)
+            ) {
+                return;
+            }
+
+            presenceOccurredAtByMemberRefRef.current.set(
+                eventKey,
+                event.occurredAt,
+            );
+
+            chatRoom.applyPresenceChanged(event);
+            void roomMenu.applyPresenceChanged(event);
+
+            if (event.roomType === "DIRECT") {
+                partnerProfilePreview.applyPresence(
+                    event.memberRef,
+                    event.online,
+                );
+                return;
+            }
+
+            if (event.roomType === "OPEN") {
+                const openChatMemberId = Number(event.memberRef);
+                if (Number.isFinite(openChatMemberId)) {
+                    openMemberProfilePreview.applyPresence(
+                        openChatMemberId,
+                        event.online,
+                    );
+                }
+                return;
+            }
+
+            const targetMember = roomMenu.members.find(
+                (member) => String(member.id) === event.memberRef,
+            );
+            if (targetMember) {
+                memberProfilePreview.applyPresence(
+                    targetMember.userId,
+                    event.online,
+                );
+                return;
+            }
+
+            if (memberProfilePreview.isOpen) {
+                void memberProfilePreview.retryProfile();
+            }
+        },
+        [
+            chatRoom,
+            memberProfilePreview,
+            openMemberProfilePreview,
+            partnerProfilePreview,
+            roomId,
+            roomMenu,
+            roomType,
+        ],
+    );
+
+    const syncAfterReconnect = useCallback(async () => {
+        const tasks: Promise<unknown>[] = [
+            openChat.syncAfterReconnect(),
+            chatRoom.reload(),
+        ];
+
+        if (roomMenu.isOpen && roomType === "GROUP") {
+            tasks.push(roomMenu.reloadMembers());
+            tasks.push(memberProfilePreview.retryProfile());
+        }
+
+        await Promise.all(tasks);
+    }, [
+        chatRoom,
+        memberProfilePreview,
+        openChat,
+        roomMenu,
+        roomType,
+    ]);
+
     const realtime = useChatRoomRealtime({
         roomId,
         accessToken: session?.accessToken ?? null,
@@ -106,12 +197,13 @@ export function useChatRoomPageController(roomId: number) {
         restSendErrorCode: chatRoom.sendErrorCode,
         appendMessage: chatRoom.appendMessage,
         applyTranslationCompleted: chatRoom.applyTranslationCompleted,
-        syncLatestMessages: openChat.syncAfterReconnect,
+        syncLatestMessages: syncAfterReconnect,
         onReadUpdated: readStatus.handleReadUpdated,
         onMemberReadUpdated: chatRoom.applyMemberReadUpdated,
         onRoomMembersChanged: () => {
             void roomMenu.reloadMembers();
         },
+        onPresenceChanged: handlePresenceChanged,
         onOpenChatProfileUpdated: openChat.handleProfileUpdated,
         onOpenChatMemberRoleUpdated: openChat.handleMemberRoleUpdated,
         onOpenChatMemberBanned: openChat.handleMemberBanned,

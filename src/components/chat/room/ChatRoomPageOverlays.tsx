@@ -182,6 +182,7 @@ export function ChatRoomPageOverlays({
                 friendRequestErrorCode={
                     memberProfilePreview.friendRequestErrorCode
                 }
+                showPresence={roomMenu.aiDisclosureType !== "PRIVATE"}
                 onRetry={memberProfilePreview.retryProfile}
                 onSendFriendRequest={
                     memberProfilePreview.sendFriendRequest
@@ -194,6 +195,7 @@ export function ChatRoomPageOverlays({
                 profile={openMemberProfilePreview.profile}
                 isLoading={openMemberProfilePreview.isLoading}
                 loadErrorCode={openMemberProfilePreview.loadErrorCode}
+                showPresence={roomMenu.aiDisclosureType !== "PRIVATE"}
                 actionSlot={
                     openMemberProfilePreview.profile ? (
                         <OpenChatMemberModerationActions

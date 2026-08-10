@@ -17,6 +17,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 
+import { ChatPresenceIndicator } from "@/components/chat/common/ChatPresenceIndicator";
 import UserProfilePreviewModal from "@/components/profile/UserProfilePreviewModal";
 import type {
     ChatMemberFriendRequestErrorCode,
@@ -36,6 +37,7 @@ interface ChatMemberProfilePreviewModalProps {
     onRetry: () => Promise<boolean>;
     onSendFriendRequest: () => Promise<boolean>;
     onClose: () => void;
+    showPresence?: boolean;
 }
 
 export function ChatMemberProfilePreviewModal({
@@ -48,6 +50,7 @@ export function ChatMemberProfilePreviewModal({
     onRetry,
     onSendFriendRequest,
     onClose,
+    showPresence = true,
 }: ChatMemberProfilePreviewModalProps) {
     const t = useTranslations("ChatRoom.memberProfile");
 
@@ -84,6 +87,15 @@ export function ChatMemberProfilePreviewModal({
             isProcessing={isSendingFriendRequest}
             onClose={onClose}
         >
+            {showPresence && (
+                <div className="mt-4 flex justify-center">
+                    <ChatPresenceIndicator
+                        online={profile.online}
+                        testId="chat-group-member-profile-presence"
+                        className="h-3 w-3"
+                    />
+                </div>
+            )}
             <FriendRelationAction
                 profile={profile}
                 isSending={isSendingFriendRequest}
@@ -247,7 +259,7 @@ function ChatMemberProfileStateDialog({
 
     return createPortal(
         <div
-            className="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-950/60 px-4 backdrop-blur-sm"
+            className="fixed inset-0 z-1200 flex items-center justify-center bg-slate-950/60 px-4 backdrop-blur-sm"
             onMouseDown={onClose}
         >
             <section

@@ -415,6 +415,9 @@
         "manage": "AI 멤버 및 방 설정",
         "view": "AI 방 정보"
       }
+    },
+    "presence": {
+      "online": "온라인"
     }
   },
   "ChatRoomCreate": {

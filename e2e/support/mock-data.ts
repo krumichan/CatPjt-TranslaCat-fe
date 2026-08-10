@@ -260,6 +260,7 @@ export const makeOpenChatProfile = ({
     role = "MEMBER",
     active = true,
     joinedAt = NOW,
+    online,
 }: {
     openChatMemberId: number;
     memberCode: string;
@@ -268,6 +269,7 @@ export const makeOpenChatProfile = ({
     role?: "OWNER" | "ADMIN" | "MEMBER";
     active?: boolean;
     joinedAt?: string;
+    online?: boolean | null;
 }) => ({
     openChatMemberId,
     memberCode,
@@ -276,6 +278,7 @@ export const makeOpenChatProfile = ({
     role,
     active,
     joinedAt,
+    online,
 });
 
 export const makeOpenChatRoomListItem = ({

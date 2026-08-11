@@ -53,6 +53,7 @@ export default function NotificationCenterModal({
             >
                 <NotificationCenterHeader
                     activeTab={notification.activeTab}
+                    tabCounts={notification.tabCounts}
                     onTabChange={notification.setActiveTab}
                     onClose={onClose}
                 />
@@ -60,6 +61,12 @@ export default function NotificationCenterModal({
                 <div className="max-h-[calc(100vh-260px)] overflow-y-auto border-t border-slate-200 p-5 dark:border-white/10">
                     <NotificationCenterContent
                         activeTab={notification.activeTab}
+                        chatNotificationItems={notification.chatNotificationItems}
+                        isChatNotificationLoading={notification.isChatNotificationLoading}
+                        isChatNotificationError={notification.isChatNotificationError}
+                        chatActivityItems={notification.chatActivityItems}
+                        isChatActivityLoading={notification.isChatActivityLoading}
+                        isChatActivityError={notification.isChatActivityError}
                         accountBookInvitations={
                             notification.accountBookInvitations
                         }

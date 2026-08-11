@@ -38,6 +38,7 @@ async function acceptFriendRequest(
         .click();
 
     const dialog = receiver.page.getByRole("dialog");
+    await dialog.getByRole("button", { name: /초대/ }).click();
 
     await expect(
         dialog.getByText(requesterPublicId),

@@ -1,5 +1,3 @@
-"use client";
-
 import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -8,12 +6,14 @@ import type { NotificationTab } from "@/components/notification/useNotificationC
 
 type NotificationCenterHeaderProps = {
     activeTab: NotificationTab;
+    tabCounts: Record<NotificationTab, number>;
     onTabChange: (tab: NotificationTab) => void;
     onClose: () => void;
 };
 
 export default function NotificationCenterHeader({
     activeTab,
+    tabCounts,
     onTabChange,
     onClose,
 }: NotificationCenterHeaderProps) {
@@ -47,6 +47,7 @@ export default function NotificationCenterHeader({
             <div className="mt-5">
                 <NotificationCenterTabs
                     activeTab={activeTab}
+                    tabCounts={tabCounts}
                     onTabChange={onTabChange}
                 />
             </div>

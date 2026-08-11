@@ -1,16 +1,26 @@
-import { useTranslations } from "next-intl";
-
-import NotificationEmptyState from "@/components/notification/NotificationEmptyState";
+import ChatActivityNotificationPanel from "@/components/notification/activity/ChatActivityNotificationPanel";
+import ChatNotificationPanel from "@/components/notification/chat/ChatNotificationPanel";
 import NotificationInvitationPanel from "@/components/notification/NotificationInvitationPanel";
 import type {
     FriendRequestAction,
     NotificationTab,
 } from "@/components/notification/useNotificationCenter";
 import type { AccountBookInvitation } from "@/types/accountBook";
+import type {
+    ChatNotificationActivityItem,
+    ChatNotificationChatItem,
+} from "@/types/chatNotification";
 import type { FriendRequest } from "@/types/social";
 
 type NotificationCenterContentProps = {
     activeTab: NotificationTab;
+
+    chatNotificationItems: ChatNotificationChatItem[];
+    isChatNotificationLoading: boolean;
+    isChatNotificationError: unknown;
+    chatActivityItems: ChatNotificationActivityItem[];
+    isChatActivityLoading: boolean;
+    isChatActivityError: unknown;
 
     accountBookInvitations: AccountBookInvitation[];
     isAccountBookInvitationLoading: boolean;
@@ -34,14 +44,18 @@ type NotificationCenterContentProps = {
 
 export default function NotificationCenterContent({
     activeTab,
-
+    chatNotificationItems,
+    isChatNotificationLoading,
+    isChatNotificationError,
+    chatActivityItems,
+    isChatActivityLoading,
+    isChatActivityError,
     accountBookInvitations,
     isAccountBookInvitationLoading,
     isAccountBookInvitationError,
     processingAccountBookInvitationId,
     onAcceptAccountBookInvitation,
     onRejectAccountBookInvitation,
-
     receivedFriendRequests,
     sentFriendRequests,
     isReceivedFriendRequestLoading,
@@ -54,22 +68,22 @@ export default function NotificationCenterContent({
     onRejectFriendRequest,
     onCancelFriendRequest,
 }: NotificationCenterContentProps) {
-    const t = useTranslations("Notifications");
-
-    if (activeTab === "NOTICE") {
+    if (activeTab === "CHAT") {
         return (
-            <NotificationEmptyState
-                title={t("notice.emptyTitle")}
-                description={t("notice.emptyDescription")}
+            <ChatNotificationPanel
+                items={chatNotificationItems}
+                isLoading={isChatNotificationLoading}
+                error={isChatNotificationError}
             />
         );
     }
 
-    if (activeTab === "PERSONAL") {
+    if (activeTab === "ACTIVITY") {
         return (
-            <NotificationEmptyState
-                title={t("personal.emptyTitle")}
-                description={t("personal.emptyDescription")}
+            <ChatActivityNotificationPanel
+                items={chatActivityItems}
+                isLoading={isChatActivityLoading}
+                error={isChatActivityError}
             />
         );
     }
@@ -79,16 +93,12 @@ export default function NotificationCenterContent({
             accountBookInvitations={accountBookInvitations}
             isAccountBookInvitationLoading={isAccountBookInvitationLoading}
             isAccountBookInvitationError={isAccountBookInvitationError}
-            processingAccountBookInvitationId={
-                processingAccountBookInvitationId
-            }
+            processingAccountBookInvitationId={processingAccountBookInvitationId}
             onAcceptAccountBookInvitation={onAcceptAccountBookInvitation}
             onRejectAccountBookInvitation={onRejectAccountBookInvitation}
             receivedFriendRequests={receivedFriendRequests}
             sentFriendRequests={sentFriendRequests}
-            isReceivedFriendRequestLoading={
-                isReceivedFriendRequestLoading
-            }
+            isReceivedFriendRequestLoading={isReceivedFriendRequestLoading}
             isReceivedFriendRequestError={isReceivedFriendRequestError}
             isSentFriendRequestLoading={isSentFriendRequestLoading}
             isSentFriendRequestError={isSentFriendRequestError}

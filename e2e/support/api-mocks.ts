@@ -63,6 +63,37 @@ export async function mockNotificationBackground(page: Page): Promise<void> {
     await page.route("**/friend-requests/sent", (route) =>
         fulfillJson(route, responseDto([])),
     );
+    await page.route("**/chat/notifications/summary", (route) =>
+        fulfillJson(
+            route,
+            responseDto({
+                unreadChatMessageCount: 0,
+                unreadChatRoomCount: 0,
+                unreadActivityCount: 0,
+                totalAttentionCount: 0,
+            }),
+        ),
+    );
+    await page.route("**/chat/notifications/chats**", (route) =>
+        fulfillJson(
+            route,
+            responseDto({
+                items: [],
+                nextCursorMessageId: null,
+                hasNext: false,
+            }),
+        ),
+    );
+    await page.route("**/chat/notifications/activities**", (route) =>
+        fulfillJson(
+            route,
+            responseDto({
+                items: [],
+                nextCursorId: null,
+                hasNext: false,
+            }),
+        ),
+    );
 }
 
 export async function mockCommonPageDependencies(

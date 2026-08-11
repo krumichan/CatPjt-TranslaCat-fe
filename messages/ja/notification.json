@@ -2,27 +2,23 @@
   "Notifications": {
     "button": "通知",
     "close": "閉じる",
-    "description": "お知らせ、招待、個人通知をまとめて確認できます。",
+    "description": "未読チャット、チャットアクティビティ、招待をまとめて確認できます。",
     "eyebrow": "Notifications",
     "title": "通知センター",
     "tabs": {
-      "notice": "お知らせ",
-      "invitation": "招待",
-      "personal": "個人通知"
-    },
-    "notice": {
-      "emptyTitle": "お知らせはありません",
-      "emptyDescription": "システムからのお知らせがある場合はこちらに表示されます。"
+      "chat": "チャット",
+      "activity": "アクティビティ",
+      "invitation": "招待"
     },
     "invitation": {
       "emptyTitle": "招待はありません",
-      "emptyDescription": "家計簿、チャットルーム、友だちリクエストがある場合はこちらに表示されます。",
+      "emptyDescription": "家計簿や友だちリクエストがある場合はこちらに表示されます。",
       "accountBookInviteTitle": "家計簿への招待",
       "accountBookInviteDescription": "{inviterName}さんから「{accountBookName}」に招待されています。"
     },
     "unified": {
       "title": "招待一覧",
-      "description": "友だちリクエスト、家計簿招待、チャット招待を1つの一覧で確認します。",
+      "description": "友だちリクエストと家計簿招待を1つの一覧で確認します。",
       "filteredEmpty": "選択した種類の招待はありません。",
       "friendRequestReceivedTitle": "友だちリクエスト",
       "friendRequestReceivedDescription": "{requesterName}さんから友だちリクエストが届いています。",
@@ -34,17 +30,12 @@
     "filters": {
       "all": "すべて",
       "friend": "友だち",
-      "accountBook": "家計簿",
-      "groupChat": "グループチャット"
+      "accountBook": "家計簿"
     },
     "type": {
       "friend": "友だち",
       "friendSent": "送信済み",
       "accountBook": "家計簿"
-    },
-    "personal": {
-      "emptyTitle": "個人通知はありません",
-      "emptyDescription": "メッセージや友だち追加などの通知がある場合はこちらに表示されます。"
     },
     "actions": {
       "accept": "承認",
@@ -60,6 +51,25 @@
       "acceptFriendRequestFailed": "友だちリクエストの承認に失敗しました。",
       "rejectFriendRequestFailed": "友だちリクエストの拒否に失敗しました。",
       "cancelFriendRequestFailed": "友だちリクエストの取消に失敗しました。"
+    },
+    "chat": {
+      "emptyTitle": "未読チャットはありません",
+      "emptyDescription": "新しいMessageが届くと、Roomごとに最新Messageと未読数を表示します。",
+      "loadFailedTitle": "チャット通知の取得に失敗しました",
+      "unreadCount": "未読Message {count}件",
+      "messageFallback": "新しいMessageが届きました。"
+    },
+    "activity": {
+      "emptyTitle": "新しいチャットアクティビティはありません",
+      "emptyDescription": "チャットルーム招待、強制退出、Role変更、Room終了などを表示します。",
+      "loadFailedTitle": "チャットアクティビティの取得に失敗しました",
+      "unknownRoom": "チャットルーム",
+      "unread": "未読アクティビティ",
+      "chatInvitation": "「{roomName}」チャットルームに招待されました。",
+      "openChatKicked": "「{roomName}」から強制退出されました。",
+      "openChatKickedWithReason": "「{roomName}」から強制退出されました。理由: {reason}",
+      "openChatRoleChanged": "「{roomName}」であなたのRoleが{role}に変更されました。",
+      "openChatRoomClosed": "「{roomName}」チャットルームが終了しました。"
     }
   }
 }

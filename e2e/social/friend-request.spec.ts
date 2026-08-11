@@ -15,7 +15,9 @@ async function base(
 async function openInvitations(page: import("@playwright/test").Page) {
     await page.goto("/friends");
     await page.getByRole("button", { name: "알림", exact: true }).click();
-    await expect(page.getByRole("dialog")).toBeVisible();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole("button", { name: /초대/ }).click();
 }
 
 test.describe("Friend request notification actions", () => {

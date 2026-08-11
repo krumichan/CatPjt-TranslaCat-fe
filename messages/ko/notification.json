@@ -2,27 +2,23 @@
   "Notifications": {
     "button": "알림",
     "close": "닫기",
-    "description": "공지, 초대, 개인 알림을 한 곳에서 확인할 수 있습니다.",
+    "description": "읽지 않은 채팅, 채팅 활동, 초대를 한 곳에서 확인할 수 있습니다.",
     "eyebrow": "Notifications",
     "title": "알림 센터",
     "tabs": {
-      "notice": "공지",
-      "invitation": "초대",
-      "personal": "개인 알림"
-    },
-    "notice": {
-      "emptyTitle": "공지 알림이 없습니다",
-      "emptyDescription": "시스템 공지가 있을 경우 여기에 표시됩니다."
+      "chat": "채팅",
+      "activity": "활동",
+      "invitation": "초대"
     },
     "invitation": {
       "emptyTitle": "받은 초대가 없습니다",
-      "emptyDescription": "가계부, 채팅방, 친구 요청이 있을 경우 여기에 표시됩니다.",
+      "emptyDescription": "가계부나 친구 요청이 있을 경우 여기에 표시됩니다.",
       "accountBookInviteTitle": "가계부 초대",
       "accountBookInviteDescription": "{inviterName}님이 「{accountBookName}」에 초대했습니다."
     },
     "unified": {
       "title": "초대 목록",
-      "description": "친구 요청, 가계부 초대, 채팅 초대를 하나의 목록에서 확인합니다.",
+      "description": "친구 요청과 가계부 초대를 하나의 목록에서 확인합니다.",
       "filteredEmpty": "선택한 종류의 초대가 없습니다.",
       "friendRequestReceivedTitle": "친구 요청",
       "friendRequestReceivedDescription": "{requesterName}님이 친구 요청을 보냈습니다.",
@@ -34,17 +30,12 @@
     "filters": {
       "all": "전체",
       "friend": "친구",
-      "accountBook": "가계부",
-      "groupChat": "그룹 채팅"
+      "accountBook": "가계부"
     },
     "type": {
       "friend": "친구",
       "friendSent": "보낸 요청",
       "accountBook": "가계부"
-    },
-    "personal": {
-      "emptyTitle": "개인 알림이 없습니다",
-      "emptyDescription": "메시지나 친구 추가 등의 알림이 있을 경우 여기에 표시됩니다."
     },
     "actions": {
       "accept": "수락",
@@ -60,6 +51,25 @@
       "acceptFriendRequestFailed": "친구 요청 수락에 실패했습니다.",
       "rejectFriendRequestFailed": "친구 요청 거절에 실패했습니다.",
       "cancelFriendRequestFailed": "친구 요청 취소에 실패했습니다."
+    },
+    "chat": {
+      "emptyTitle": "읽지 않은 채팅이 없습니다",
+      "emptyDescription": "새 메시지가 도착하면 방별로 마지막 메시지와 읽지 않은 수를 표시합니다.",
+      "loadFailedTitle": "채팅 알림을 불러오지 못했습니다",
+      "unreadCount": "읽지 않은 메시지 {count}개",
+      "messageFallback": "새 메시지가 도착했습니다."
+    },
+    "activity": {
+      "emptyTitle": "새로운 채팅 활동이 없습니다",
+      "emptyDescription": "채팅방 초대, 강퇴, 권한 변경, 방 종료 등의 활동이 여기에 표시됩니다.",
+      "loadFailedTitle": "채팅 활동을 불러오지 못했습니다",
+      "unknownRoom": "채팅방",
+      "unread": "읽지 않은 활동",
+      "chatInvitation": "「{roomName}」 채팅방에 초대되었습니다.",
+      "openChatKicked": "「{roomName}」에서 강퇴되었습니다.",
+      "openChatKickedWithReason": "「{roomName}」에서 강퇴되었습니다. 사유: {reason}",
+      "openChatRoleChanged": "「{roomName}」에서 내 권한이 {role}(으)로 변경되었습니다.",
+      "openChatRoomClosed": "「{roomName}」 채팅방이 종료되었습니다."
     }
   }
 }

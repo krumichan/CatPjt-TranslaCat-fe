@@ -4,12 +4,13 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { useQuery } from "@/hooks/useQuery";
+import { useChatNotifications } from "@/hooks/chat/useChatNotifications";
 import type { AccountBookInvitation } from "@/types/accountBook";
 import type { FriendRequest } from "@/types/social";
 import { accountBookInvitationService } from "@/services/account-book/accountBookInvitationService";
 import { friendRequestService } from "@/services/friend/friendRequestService";
 
-export type NotificationTab = "NOTICE" | "INVITATION" | "PERSONAL";
+export type NotificationTab = "CHAT" | "ACTIVITY" | "INVITATION";
 export type FriendRequestAction = "ACCEPT" | "REJECT" | "CANCEL";
 
 const NOTIFICATION_QUERY_CONFIG = {
@@ -25,7 +26,7 @@ const NOTIFICATION_QUERY_CONFIG = {
 export function useNotificationCenter() {
     const t = useTranslations("Notifications");
     const [activeTab, setActiveTab] =
-        useState<NotificationTab>("INVITATION");
+        useState<NotificationTab>("CHAT");
 
     const [
         processingAccountBookInvitationId,
@@ -35,6 +36,8 @@ export function useNotificationCenter() {
         useState<number | null>(null);
     const [processingFriendRequestAction, setProcessingFriendRequestAction] =
         useState<FriendRequestAction | null>(null);
+
+    const chatNotification = useChatNotifications();
 
     const {
         data: accountBookInvitations = [],
@@ -70,18 +73,28 @@ export function useNotificationCenter() {
         config: NOTIFICATION_QUERY_CONFIG,
     });
 
-    const unreadCount = useMemo(() => {
+    const invitationUnreadCount = useMemo(() => {
         return accountBookInvitations.length + receivedFriendRequests.length;
     }, [
         accountBookInvitations.length,
         receivedFriendRequests.length,
     ]);
 
+    const unreadCount =
+        invitationUnreadCount + chatNotification.summary.totalAttentionCount;
+
+    const tabCounts = {
+        CHAT: chatNotification.summary.unreadChatMessageCount,
+        ACTIVITY: chatNotification.summary.unreadActivityCount,
+        INVITATION: invitationUnreadCount,
+    } satisfies Record<NotificationTab, number>;
+
     const refreshNotifications = async () => {
         await Promise.all([
             mutateAccountBookInvitations((currentData) => currentData, true),
             mutateReceivedFriendRequests((currentData) => currentData, true),
             mutateSentFriendRequests((currentData) => currentData, true),
+            chatNotification.refresh(),
         ]);
     };
 
@@ -269,6 +282,14 @@ export function useNotificationCenter() {
         processingFriendRequestAction,
 
         unreadCount,
+        tabCounts,
+        chatNotificationSummary: chatNotification.summary,
+        chatNotificationItems: chatNotification.chatList.items,
+        chatActivityItems: chatNotification.activityList.items,
+        isChatNotificationLoading: chatNotification.isChatListLoading,
+        isChatNotificationError: chatNotification.chatListError,
+        isChatActivityLoading: chatNotification.isActivityListLoading,
+        isChatActivityError: chatNotification.activityListError,
         refreshNotifications,
 
         handleAcceptInvitation,

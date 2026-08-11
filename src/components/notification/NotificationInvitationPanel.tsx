@@ -1,6 +1,6 @@
 import type React from "react";
 import { useMemo, useState } from "react";
-import { BookOpen, MessageCircle, UsersRound } from "lucide-react";
+import { BookOpen, UsersRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import InvitationNotificationUnifiedItem from "@/components/notification/InvitationNotificationUnifiedItem";
@@ -251,10 +251,6 @@ export default function NotificationInvitationPanel({
                         activeClassName="border-emerald-500 bg-emerald-500 text-white"
                         inactiveClassName="border-emerald-300 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-400/40 dark:text-emerald-200 dark:hover:bg-emerald-500/10"
                     />
-                    <FutureFilterChip
-                        label={t("filters.groupChat")}
-                        icon={<MessageCircle className="h-3.5 w-3.5" />}
-                    />
                 </div>
             </div>
 
@@ -333,22 +329,5 @@ function FilterChip({
                 {count}
             </span>
         </button>
-    );
-}
-
-type FutureFilterChipProps = {
-    label: string;
-    icon: React.ReactNode;
-};
-
-function FutureFilterChip({ label, icon }: FutureFilterChipProps) {
-    return (
-        <span className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full border border-slate-200 px-3 py-2 text-xs font-black text-slate-400 dark:border-white/10 dark:text-slate-500">
-            {icon}
-            {label}
-            <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] dark:bg-white/5">
-                0
-            </span>
-        </span>
     );
 }

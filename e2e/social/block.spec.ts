@@ -2,6 +2,7 @@ import { expect, test } from "../fixtures/mock-test";
 import {
     fulfillApiJson,
     mockCommonPageDependencies,
+    mockIdleWebSocket,
     requestBody,
 } from "../support/api-mocks";
 import { responseDto, toBlockApi, toFriendApi } from "../support/mock-data";
@@ -14,6 +15,7 @@ function friendCard(page: import("@playwright/test").Page, nickname: string) {
 test.describe("Block / unblock", () => {
     test.beforeEach(async ({ page }) => {
         await mockCommonPageDependencies(page);
+        await mockIdleWebSocket(page);
     });
 
     test("BLOCK-01~02 친구를 차단하면 목록에서 제외한다", async ({ page }) => {

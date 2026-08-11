@@ -2,12 +2,14 @@ import { expect, test } from "../fixtures/mock-test";
 import {
     fulfillApiJson,
     mockCommonPageDependencies,
+    mockIdleWebSocket,
 } from "../support/api-mocks";
 import { responseDto } from "../support/mock-data";
 
 for (const locale of ["ko", "ja"] as const) {
     test(`BASE i18n ${locale} 주요 Social/Chat 화면이 번역 오류 없이 렌더링된다`, async ({ page }) => {
         await mockCommonPageDependencies(page);
+        await mockIdleWebSocket(page);
         await page.route("**/friends", (route) =>
             fulfillApiJson(route, responseDto([])),
         );

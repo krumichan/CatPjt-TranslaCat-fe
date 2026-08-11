@@ -2,6 +2,7 @@ import { expect, test } from "../fixtures/mock-test";
 import {
     fulfillJson,
     mockCommonPageDependencies,
+    mockIdleWebSocket,
     requestBody,
 } from "../support/api-mocks";
 import { responseDto, toProfile } from "../support/mock-data";
@@ -10,6 +11,7 @@ import { TEST_USERS } from "../support/test-users";
 test.describe("Profile", () => {
     test.beforeEach(async ({ page }) => {
         await mockCommonPageDependencies(page);
+        await mockIdleWebSocket(page);
     });
 
     test("SOCIAL-01 내 프로필을 조회해 표시한다", async ({ page }) => {

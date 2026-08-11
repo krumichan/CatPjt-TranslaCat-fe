@@ -51,13 +51,26 @@ export function useChatRoomsRealtime({
         [roomIdKey],
     );
 
+    const shouldSubscribeNotifications =
+        onNotificationCreated !== undefined;
+
     const connectionKey = useMemo(() => {
-        if (!accessToken || normalizedRoomIds.length === 0) {
+        if (
+            !accessToken ||
+            (normalizedRoomIds.length === 0 &&
+                !shouldSubscribeNotifications)
+        ) {
             return null;
         }
 
-        return `${accessToken}:${normalizedRoomIds.join(",")}`;
-    }, [accessToken, normalizedRoomIds]);
+        return `${accessToken}:${normalizedRoomIds.join(",")}:${
+            shouldSubscribeNotifications ? "notifications" : "rooms"
+        }`;
+    }, [
+        accessToken,
+        normalizedRoomIds,
+        shouldSubscribeNotifications,
+    ]);
 
     const rememberMessageId = useCallback((messageId: number) => {
         const seenMessageIds = seenMessageIdsRef.current;
@@ -168,21 +181,25 @@ export function useChatRoomsRealtime({
                     );
                 }
 
-                client.subscribe(
-                    "/user/queue/chat/read",
-                    handleStompMessage,
-                    {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                );
+                if (normalizedRoomIds.length > 0) {
+                    client.subscribe(
+                        "/user/queue/chat/read",
+                        handleStompMessage,
+                        {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    );
+                }
 
-                client.subscribe(
-                    "/user/queue/chat/notifications",
-                    handleStompMessage,
-                    {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                );
+                if (shouldSubscribeNotifications) {
+                    client.subscribe(
+                        "/user/queue/chat/notifications",
+                        handleStompMessage,
+                        {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    );
+                }
 
                 if (shouldSyncAfterReconnect) {
                     void onReconnectSyncRequested();
@@ -215,5 +232,6 @@ export function useChatRoomsRealtime({
         handleStompMessage,
         normalizedRoomIds,
         onReconnectSyncRequested,
+        shouldSubscribeNotifications,
     ]);
 }

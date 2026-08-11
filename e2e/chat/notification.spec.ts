@@ -691,4 +691,123 @@ test.describe("FE #15 notification center", () => {
         await expect(page.getByRole("dialog")).toHaveCount(0);
     });
 
+    test("NOTI-ACT-08 참여 Room이 0개여도 Activity Queue를 구독하고 첫 초대를 즉시 반영한다", async ({
+        page,
+    }) => {
+        let invitationArrived = false;
+        let currentSummary = {
+            unreadChatMessageCount: 0,
+            unreadChatRoomCount: 0,
+            unreadActivityCount: 0,
+            totalAttentionCount: 0,
+        };
+        let currentActivities: ChatNotificationActivityListResponse =
+            emptyActivities;
+
+        await mockCommonPageDependencies(page);
+        const stompBroker = await mockStompBroker(page);
+
+        await page.route("**/chat/rooms", (route) =>
+            fulfillJson(
+                route,
+                responseDto({
+                    chatRooms: invitationArrived
+                        ? [
+                              makeRoomListItem({
+                                  id: 700,
+                                  roomType: "GROUP",
+                                  sourceType: "MANUAL",
+                                  name: "첫 초대방",
+                                  memberCount: 2,
+                                  unreadCount: 0,
+                              }),
+                          ]
+                        : [],
+                }),
+            ),
+        );
+        await page.route("**/chat/notifications/summary", (route) =>
+            fulfillApiJson(route, responseDto(currentSummary)),
+        );
+        await page.route("**/chat/notifications/chats**", (route) =>
+            fulfillApiJson(
+                route,
+                responseDto({
+                    items: [],
+                    nextCursorMessageId: null,
+                    hasNext: false,
+                }),
+            ),
+        );
+        await page.route("**/chat/notifications/activities**", (route) =>
+            fulfillApiJson(route, responseDto(currentActivities)),
+        );
+
+        await page.goto("/settings");
+
+        await expect
+            .poll(() =>
+                stompBroker.hasSubscriber(
+                    "/user/queue/chat/notifications",
+                ),
+            )
+            .toBe(true);
+        expect(
+            stompBroker.getSubscriberCount("/user/queue/chat/read"),
+        ).toBe(0);
+
+        const firstInvitation = {
+            id: 400,
+            notificationType: "CHAT_INVITATION" as const,
+            roomId: 700,
+            payload: {
+                roomName: "첫 초대방",
+            },
+            isRead: false,
+            readAt: null,
+            createdAt: "2026-08-11T17:00:00",
+        };
+
+        invitationArrived = true;
+        currentSummary = {
+            unreadChatMessageCount: 0,
+            unreadChatRoomCount: 0,
+            unreadActivityCount: 1,
+            totalAttentionCount: 1,
+        };
+        currentActivities = {
+            items: [firstInvitation],
+            nextCursorId: null,
+            hasNext: false,
+        };
+
+        stompBroker.sendJsonToSubscribers(
+            "/user/queue/chat/notifications",
+            {
+                eventType: "chat.notification.created",
+                notification: firstInvitation,
+                occurredAt: "2026-08-11T17:00:01",
+            },
+        );
+
+        const bell = page
+            .getByTestId("app-header")
+            .getByRole("button", { name: "알림", exact: true });
+        await expect(bell).toContainText("1");
+
+        await bell.click();
+        const dialog = page.getByRole("dialog");
+        await dialog.getByRole("button", { name: /활동/ }).click();
+        await expect(
+            dialog.getByTestId("chat-activity-notification-400"),
+        ).toContainText("첫 초대방");
+
+        // Activity 수신 후 Room Directory를 재조회해 새 Room Topic까지 이어서 구독한다.
+        await expect
+            .poll(() =>
+                stompBroker.hasSubscriber("/topic/chat/rooms/700"),
+            )
+            .toBe(true);
+    });
+
 });

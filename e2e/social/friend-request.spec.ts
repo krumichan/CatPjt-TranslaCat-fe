@@ -2,6 +2,7 @@ import { expect, test } from "../fixtures/mock-test";
 import {
     fulfillApiJson,
     mockCommonPageDependencies,
+    mockIdleWebSocket,
 } from "../support/api-mocks";
 import { responseDto, toFriendRequest } from "../support/mock-data";
 import { TEST_USERS } from "../support/test-users";
@@ -10,6 +11,7 @@ async function base(
     page: import("@playwright/test").Page,
 ) {
     await mockCommonPageDependencies(page);
+    await mockIdleWebSocket(page);
 }
 
 async function openInvitations(page: import("@playwright/test").Page) {

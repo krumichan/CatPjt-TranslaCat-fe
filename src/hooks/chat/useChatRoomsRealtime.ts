@@ -4,8 +4,10 @@ import { Client, type IMessage } from "@stomp/stompjs";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
 import type { ChatMessage } from "@/types/chat";
+import type { ChatNotificationActivityItem } from "@/types/chatNotification";
 import {
     extractChatMessageFromEvent,
+    extractChatNotificationCreatedItem,
     extractChatReadUpdatedEvent,
     getChatWebSocketEventType,
     type ChatReadUpdatedEvent,
@@ -20,6 +22,9 @@ interface UseChatRoomsRealtimeParams {
     accessToken: string | null;
     onMessageCreated: (message: ChatMessage) => void;
     onReadUpdated: (event: ChatReadUpdatedEvent) => void;
+    onNotificationCreated?: (
+        notification: ChatNotificationActivityItem,
+    ) => void;
     onReconnectSyncRequested: () => Promise<void>;
 }
 
@@ -28,6 +33,7 @@ export function useChatRoomsRealtime({
     accessToken,
     onMessageCreated,
     onReadUpdated,
+    onNotificationCreated,
     onReconnectSyncRequested,
 }: UseChatRoomsRealtimeParams) {
     const hasConnectedOnceRef = useRef(false);
@@ -98,6 +104,16 @@ export function useChatRoomsRealtime({
                     if (readUpdated) {
                         onReadUpdated(readUpdated);
                     }
+                    return;
+                }
+
+                if (eventType === "chat.notification.created") {
+                    const notification =
+                        extractChatNotificationCreatedItem(parsed);
+
+                    if (notification) {
+                        onNotificationCreated?.(notification);
+                    }
                 }
             } catch (error) {
                 console.error(
@@ -106,7 +122,12 @@ export function useChatRoomsRealtime({
                 );
             }
         },
-        [onMessageCreated, onReadUpdated, rememberMessageId],
+        [
+            onMessageCreated,
+            onNotificationCreated,
+            onReadUpdated,
+            rememberMessageId,
+        ],
     );
 
     useEffect(() => {
@@ -149,6 +170,14 @@ export function useChatRoomsRealtime({
 
                 client.subscribe(
                     "/user/queue/chat/read",
+                    handleStompMessage,
+                    {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                );
+
+                client.subscribe(
+                    "/user/queue/chat/notifications",
                     handleStompMessage,
                     {
                         Authorization: `Bearer ${accessToken}`,

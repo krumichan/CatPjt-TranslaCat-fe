@@ -22,8 +22,16 @@ type NotificationCenterContentProps = {
     onMarkChatAsRead: (item: ChatNotificationChatItem) => void;
     onNavigateChat: () => void;
     chatActivityItems: ChatNotificationActivityItem[];
+    chatActivityUnreadCount: number;
     isChatActivityLoading: boolean;
     isChatActivityError: unknown;
+    processingActivityId: number | null;
+    isProcessingAllActivities: boolean;
+    onMarkActivityAsRead: (
+        item: ChatNotificationActivityItem,
+    ) => Promise<boolean>;
+    onMarkAllActivitiesAsRead: () => Promise<boolean>;
+    onNavigateActivity: () => void;
 
     accountBookInvitations: AccountBookInvitation[];
     isAccountBookInvitationLoading: boolean;
@@ -54,8 +62,14 @@ export default function NotificationCenterContent({
     onMarkChatAsRead,
     onNavigateChat,
     chatActivityItems,
+    chatActivityUnreadCount,
     isChatActivityLoading,
     isChatActivityError,
+    processingActivityId,
+    isProcessingAllActivities,
+    onMarkActivityAsRead,
+    onMarkAllActivitiesAsRead,
+    onNavigateActivity,
     accountBookInvitations,
     isAccountBookInvitationLoading,
     isAccountBookInvitationError,
@@ -91,8 +105,14 @@ export default function NotificationCenterContent({
         return (
             <ChatActivityNotificationPanel
                 items={chatActivityItems}
+                unreadCount={chatActivityUnreadCount}
                 isLoading={isChatActivityLoading}
                 error={isChatActivityError}
+                processingActivityId={processingActivityId}
+                isProcessingAll={isProcessingAllActivities}
+                onMarkRead={onMarkActivityAsRead}
+                onMarkAllRead={onMarkAllActivitiesAsRead}
+                onNavigate={onNavigateActivity}
             />
         );
     }

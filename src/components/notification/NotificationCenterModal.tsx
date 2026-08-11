@@ -68,8 +68,23 @@ export default function NotificationCenterModal({
                         onMarkChatAsRead={notification.handleMarkChatAsRead}
                         onNavigateChat={onClose}
                         chatActivityItems={notification.chatActivityItems}
+                        chatActivityUnreadCount={
+                            notification.chatNotificationSummary
+                                .unreadActivityCount
+                        }
                         isChatActivityLoading={notification.isChatActivityLoading}
                         isChatActivityError={notification.isChatActivityError}
+                        processingActivityId={notification.processingActivityId}
+                        isProcessingAllActivities={
+                            notification.isProcessingAllActivities
+                        }
+                        onMarkActivityAsRead={
+                            notification.handleMarkActivityAsRead
+                        }
+                        onMarkAllActivitiesAsRead={
+                            notification.handleMarkAllActivitiesAsRead
+                        }
+                        onNavigateActivity={onClose}
                         accountBookInvitations={
                             notification.accountBookInvitations
                         }

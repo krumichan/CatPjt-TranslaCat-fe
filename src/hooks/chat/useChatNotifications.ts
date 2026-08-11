@@ -32,6 +32,7 @@ const CHAT_NOTIFICATION_ROOM_QUERY_CONFIG = {
 };
 
 const REALTIME_REFRESH_DEBOUNCE_MS = 120;
+const MAX_SEEN_ACTIVITY_NOTIFICATION_IDS = 500;
 
 const EMPTY_SUMMARY: ChatNotificationSummary = {
     unreadChatMessageCount: 0,
@@ -60,9 +61,15 @@ export function useChatNotifications() {
     const [processingChatRoomId, setProcessingChatRoomId] = useState<
         number | null
     >(null);
+    const [processingActivityId, setProcessingActivityId] = useState<
+        number | null
+    >(null);
+    const [isProcessingAllActivities, setIsProcessingAllActivities] =
+        useState(false);
     const realtimeRefreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
         null,
     );
+    const seenActivityNotificationIdsRef = useRef(new Set<number>());
 
     const {
         data: summary = EMPTY_SUMMARY,
@@ -156,13 +163,86 @@ export function useChatNotifications() {
         [scheduleRealtimeRefresh],
     );
 
+    const handleNotificationCreated = useCallback(
+        (notification: ChatNotificationActivityListResponse["items"][number]) => {
+            const seenIds = seenActivityNotificationIdsRef.current;
+            if (seenIds.has(notification.id)) {
+                return;
+            }
+
+            seenIds.add(notification.id);
+            if (seenIds.size > MAX_SEEN_ACTIVITY_NOTIFICATION_IDS) {
+                const oldestId = seenIds.values().next().value;
+                if (typeof oldestId === "number") {
+                    seenIds.delete(oldestId);
+                }
+            }
+
+            void mutateActivityList((currentData) => {
+                const base = currentData ?? EMPTY_ACTIVITY_LIST;
+                if (base.items.some((item) => item.id === notification.id)) {
+                    return base;
+                }
+
+                return {
+                    ...base,
+                    items: [notification, ...base.items],
+                };
+            }, false);
+
+            if (!notification.isRead) {
+                void mutateSummary((currentData) => {
+                    if (!currentData) {
+                        return currentData;
+                    }
+
+                    const unreadActivityCount =
+                        currentData.unreadActivityCount + 1;
+
+                    return {
+                        ...currentData,
+                        unreadActivityCount,
+                        totalAttentionCount:
+                            currentData.unreadChatMessageCount +
+                            unreadActivityCount,
+                    };
+                }, false);
+            }
+
+            // 초대/강퇴/Role 변경/Room 종료는 참여 가능한 Room 목록도 바꿀 수 있다.
+            void mutateRoomDirectory((currentData) => currentData, true);
+            // Optimistic count가 서버와 경합하더라도 최종적으로 BE Summary에 재수렴한다.
+            void mutateSummary((currentData) => currentData, true);
+        },
+        [mutateActivityList, mutateRoomDirectory, mutateSummary],
+    );
+
+    const handleReconnectSyncRequested = useCallback(async () => {
+        await Promise.all([
+            refreshChatProjection(),
+            mutateActivityList((currentData) => currentData, true),
+            mutateRoomDirectory((currentData) => currentData, true),
+        ]);
+    }, [
+        mutateActivityList,
+        mutateRoomDirectory,
+        refreshChatProjection,
+    ]);
+
     useChatRoomsRealtime({
         roomIds,
         accessToken: session?.accessToken ?? null,
         onMessageCreated: handleMessageCreated,
         onReadUpdated: handleReadUpdated,
-        onReconnectSyncRequested: refreshChatProjection,
+        onNotificationCreated: handleNotificationCreated,
+        onReconnectSyncRequested: handleReconnectSyncRequested,
     });
+
+    useEffect(() => {
+        for (const item of activityList.items) {
+            seenActivityNotificationIdsRef.current.add(item.id);
+        }
+    }, [activityList.items]);
 
     useEffect(() => {
         return () => {
@@ -261,6 +341,141 @@ export function useChatNotifications() {
         [mutateChatList, mutateSummary, processingChatRoomId],
     );
 
+    const markActivityAsRead = useCallback(
+        async (
+            item: ChatNotificationActivityListResponse["items"][number],
+        ): Promise<boolean> => {
+            if (item.isRead) {
+                return true;
+            }
+            if (processingActivityId !== null || isProcessingAllActivities) {
+                return false;
+            }
+
+            setProcessingActivityId(item.id);
+            try {
+                const updated =
+                    await chatNotificationService.markActivityAsRead(item.id);
+
+                await Promise.all([
+                    mutateActivityList((currentData) => {
+                        if (!currentData) {
+                            return currentData;
+                        }
+
+                        return {
+                            ...currentData,
+                            items: currentData.items.map((currentItem) =>
+                                currentItem.id === item.id
+                                    ? updated
+                                    : currentItem,
+                            ),
+                        };
+                    }, false),
+                    mutateSummary((currentData) => {
+                        if (!currentData) {
+                            return currentData;
+                        }
+
+                        const unreadActivityCount = Math.max(
+                            0,
+                            currentData.unreadActivityCount - 1,
+                        );
+
+                        return {
+                            ...currentData,
+                            unreadActivityCount,
+                            totalAttentionCount:
+                                currentData.unreadChatMessageCount +
+                                unreadActivityCount,
+                        };
+                    }, false),
+                ]);
+
+                return true;
+            } catch (error) {
+                console.error(
+                    "Failed to mark chat activity notification as read.",
+                    error,
+                );
+                return false;
+            } finally {
+                setProcessingActivityId(null);
+            }
+        },
+        [
+            isProcessingAllActivities,
+            mutateActivityList,
+            mutateSummary,
+            processingActivityId,
+        ],
+    );
+
+    const markAllActivitiesAsRead = useCallback(async (): Promise<boolean> => {
+        if (isProcessingAllActivities || processingActivityId !== null) {
+            return false;
+        }
+        if (summary.unreadActivityCount <= 0) {
+            return true;
+        }
+
+        setIsProcessingAllActivities(true);
+        try {
+            await chatNotificationService.markAllActivitiesAsRead();
+            const readAt = new Date().toISOString();
+
+            await Promise.all([
+                mutateActivityList((currentData) => {
+                    if (!currentData) {
+                        return currentData;
+                    }
+
+                    return {
+                        ...currentData,
+                        items: currentData.items.map((item) =>
+                            item.isRead
+                                ? item
+                                : { ...item, isRead: true, readAt },
+                        ),
+                    };
+                }, false),
+                mutateSummary((currentData) => {
+                    if (!currentData) {
+                        return currentData;
+                    }
+
+                    return {
+                        ...currentData,
+                        unreadActivityCount: 0,
+                        totalAttentionCount:
+                            currentData.unreadChatMessageCount,
+                    };
+                }, false),
+            ]);
+
+            // 현재 Page 밖의 Activity까지 모두 읽음 처리되므로 서버 상태를 재확인한다.
+            await Promise.all([
+                mutateActivityList((currentData) => currentData, true),
+                mutateSummary((currentData) => currentData, true),
+            ]);
+            return true;
+        } catch (error) {
+            console.error(
+                "Failed to mark all chat activity notifications as read.",
+                error,
+            );
+            return false;
+        } finally {
+            setIsProcessingAllActivities(false);
+        }
+    }, [
+        isProcessingAllActivities,
+        mutateActivityList,
+        mutateSummary,
+        processingActivityId,
+        summary.unreadActivityCount,
+    ]);
+
     const refresh = useCallback(async () => {
         await Promise.all([
             mutateSummary((currentData) => currentData, true),
@@ -286,7 +501,11 @@ export function useChatNotifications() {
         chatListError,
         activityListError,
         processingChatRoomId,
+        processingActivityId,
+        isProcessingAllActivities,
         markChatRoomAsRead,
+        markActivityAsRead,
+        markAllActivitiesAsRead,
         mutateSummary,
         mutateChatList,
         mutateActivityList,

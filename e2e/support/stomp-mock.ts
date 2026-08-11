@@ -13,6 +13,7 @@ type StompMockOptions = {
 
 export interface StompMockController {
     hasSubscriber: (destination: string) => boolean;
+    getSubscriberCount: (destination: string) => number;
     sendJsonToSubscribers: (destination: string, body: unknown) => void;
 }
 
@@ -131,6 +132,8 @@ export async function mockStompBroker(
     return {
         hasSubscriber: (destination) =>
             (subscribersByDestination.get(destination)?.size ?? 0) > 0,
+        getSubscriberCount: (destination) =>
+            subscribersByDestination.get(destination)?.size ?? 0,
         sendJsonToSubscribers: (destination, body) => {
             const subscribers = subscribersByDestination.get(destination);
             if (!subscribers || subscribers.size === 0) {

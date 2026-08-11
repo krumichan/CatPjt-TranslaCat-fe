@@ -73,7 +73,16 @@
       "openChatKicked": "「{roomName}」에서 강퇴되었습니다.",
       "openChatKickedWithReason": "「{roomName}」에서 강퇴되었습니다. 사유: {reason}",
       "openChatRoleChanged": "「{roomName}」에서 내 권한이 {role}(으)로 변경되었습니다.",
-      "openChatRoomClosed": "「{roomName}」 채팅방이 종료되었습니다."
+      "openChatRoomClosed": "「{roomName}」 채팅방이 종료되었습니다.",
+      "new": "새 알림",
+      "read": "읽은 활동",
+      "markRead": "읽음 처리",
+      "markingRead": "처리 중...",
+      "markReadFailed": "활동 알림 읽음 처리에 실패했습니다.",
+      "markAllRead": "모두 읽음",
+      "markingAllRead": "처리 중...",
+      "markAllReadFailed": "활동 알림 전체 읽음 처리에 실패했습니다.",
+      "openRoom": "{roomName} 채팅방 열기"
     }
   }
 }

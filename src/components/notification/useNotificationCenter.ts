@@ -7,7 +7,10 @@ import { useQuery } from "@/hooks/useQuery";
 import { useChatNotifications } from "@/hooks/chat/useChatNotifications";
 import type { AccountBookInvitation } from "@/types/accountBook";
 import type { FriendRequest } from "@/types/social";
-import type { ChatNotificationChatItem } from "@/types/chatNotification";
+import type {
+    ChatNotificationActivityItem,
+    ChatNotificationChatItem,
+} from "@/types/chatNotification";
 import { accountBookInvitationService } from "@/services/account-book/accountBookInvitationService";
 import { friendRequestService } from "@/services/friend/friendRequestService";
 
@@ -105,6 +108,28 @@ export function useNotificationCenter() {
         if (!succeeded) {
             window.alert(t("chat.markReadFailed"));
         }
+    };
+
+    const handleMarkActivityAsRead = async (
+        item: ChatNotificationActivityItem,
+    ): Promise<boolean> => {
+        const succeeded = await chatNotification.markActivityAsRead(item);
+
+        if (!succeeded) {
+            window.alert(t("activity.markReadFailed"));
+        }
+
+        return succeeded;
+    };
+
+    const handleMarkAllActivitiesAsRead = async (): Promise<boolean> => {
+        const succeeded = await chatNotification.markAllActivitiesAsRead();
+
+        if (!succeeded) {
+            window.alert(t("activity.markAllReadFailed"));
+        }
+
+        return succeeded;
     };
 
     const handleAcceptInvitation = async (invitationId: number) => {
@@ -300,8 +325,13 @@ export function useNotificationCenter() {
         isChatActivityLoading: chatNotification.isActivityListLoading,
         isChatActivityError: chatNotification.activityListError,
         processingChatRoomId: chatNotification.processingChatRoomId,
+        processingActivityId: chatNotification.processingActivityId,
+        isProcessingAllActivities:
+            chatNotification.isProcessingAllActivities,
         refreshNotifications,
         handleMarkChatAsRead,
+        handleMarkActivityAsRead,
+        handleMarkAllActivitiesAsRead,
 
         handleAcceptInvitation,
         handleRejectInvitation,

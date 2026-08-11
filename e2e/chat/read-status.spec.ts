@@ -281,17 +281,7 @@ test.describe("FE #12 chat read status", () => {
     test("READ-07 다른 방의 타 사용자·AI 메시지만 증가하고 본인·SYSTEM은 제외하며 read.updated 서버 값으로 교체한다", async ({
         page,
     }) => {
-        let socket: WebSocketRoute | null = null;
-        const subscribedDestinations = new Set<string>();
-
-        await mockStompBroker(page, {
-            onSocket: (nextSocket) => {
-                socket = nextSocket;
-            },
-            onSubscribe: (destination) => {
-                subscribedDestinations.add(destination);
-            },
-        });
+        const stompBroker = await mockStompBroker(page);
 
         await page.route("**/chat/rooms", (route) =>
             fulfillJson(
@@ -321,16 +311,18 @@ test.describe("FE #12 chat read status", () => {
 
         await page.goto("/chat");
         await expect(page.getByText("실시간 그룹")).toBeVisible();
-        await expect.poll(() => socket !== null).toBe(true);
+        // /chat 화면에서는 Room List와 Global Notification이 각각 같은 Room Topic을
+        // 구독한다. 하나만 SUBSCRIBE된 순간 이벤트를 보내면 늦게 연결된 Room List가
+        // 메시지를 놓칠 수 있으므로 두 활성 subscriber가 모두 준비될 때까지 기다린다.
         await expect
             .poll(() =>
-                subscribedDestinations.has(
+                stompBroker.getSubscriberCount(
                     "/topic/chat/rooms/502",
                 ),
             )
-            .toBe(true);
+            .toBeGreaterThanOrEqual(2);
 
-        sendStompJson(socket!, "/topic/chat/rooms/502", {
+        stompBroker.sendJsonToSubscribers("/topic/chat/rooms/502", {
             eventType: "chat.message.created",
             chatRoomId: 502,
             message: makeMessage({
@@ -344,7 +336,7 @@ test.describe("FE #12 chat read status", () => {
             page.getByTestId("chat-room-unread-badge-502"),
         ).toHaveText("3");
 
-        sendStompJson(socket!, "/topic/chat/rooms/502", {
+        stompBroker.sendJsonToSubscribers("/topic/chat/rooms/502", {
             eventType: "chat.message.created",
             chatRoomId: 502,
             message: makeMessage({
@@ -358,7 +350,7 @@ test.describe("FE #12 chat read status", () => {
             page.getByTestId("chat-room-unread-badge-502"),
         ).toHaveText("4");
 
-        sendStompJson(socket!, "/topic/chat/rooms/502", {
+        stompBroker.sendJsonToSubscribers("/topic/chat/rooms/502", {
             eventType: "chat.message.created",
             chatRoomId: 502,
             message: makeMessage({
@@ -368,7 +360,7 @@ test.describe("FE #12 chat read status", () => {
                 content: "본인 메시지",
             }),
         });
-        sendStompJson(socket!, "/topic/chat/rooms/502", {
+        stompBroker.sendJsonToSubscribers("/topic/chat/rooms/502", {
             eventType: "chat.message.created",
             chatRoomId: 502,
             message: makeMessage({
@@ -384,7 +376,7 @@ test.describe("FE #12 chat read status", () => {
             page.getByTestId("chat-room-unread-badge-502"),
         ).toHaveText("4");
 
-        sendStompJson(socket!, "/user/queue/chat/read", {
+        stompBroker.sendJsonToSubscribers("/user/queue/chat/read", {
             eventType: "chat.read.updated",
             chatRoomId: 502,
             userId: TEST_USERS.A.userId,

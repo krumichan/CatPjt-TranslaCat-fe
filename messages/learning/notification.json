@@ -73,7 +73,16 @@
       "openChatKicked": "「{roomName}」から強制退出されました。",
       "openChatKickedWithReason": "「{roomName}」から強制退出されました。理由: {reason}",
       "openChatRoleChanged": "「{roomName}」であなたのRoleが{role}に変更されました。",
-      "openChatRoomClosed": "「{roomName}」チャットルームが終了しました。"
+      "openChatRoomClosed": "「{roomName}」チャットルームが終了しました。",
+      "new": "新着",
+      "read": "既読アクティビティ",
+      "markRead": "既読にする",
+      "markingRead": "処理中...",
+      "markReadFailed": "アクティビティ通知の既読処理に失敗しました。",
+      "markAllRead": "すべて既読",
+      "markingAllRead": "処理中...",
+      "markAllReadFailed": "アクティビティ通知の一括既読処理に失敗しました。",
+      "openRoom": "「{roomName}」チャットルームを開く"
     }
   }
 }

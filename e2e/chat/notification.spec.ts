@@ -1,5 +1,7 @@
 import type { WebSocketRoute } from "@playwright/test";
 
+import type { ChatNotificationActivityListResponse } from "@/types/chatNotification";
+
 import { expect, test } from "../fixtures/mock-test";
 import {
     fulfillApiJson,
@@ -385,4 +387,308 @@ test.describe("FE #15 notification center", () => {
 
         await expect(page.getByRole("button", { name: "알림" })).not.toContainText("1");
     });
+
+    test("NOTI-ACT-05 chat.notification.created를 즉시 반영하고 중복 Event를 무시한다", async ({
+        page,
+    }) => {
+        let currentSummary = {
+            unreadChatMessageCount: 0,
+            unreadChatRoomCount: 0,
+            unreadActivityCount: 0,
+            totalAttentionCount: 0,
+        };
+        let currentActivities: ChatNotificationActivityListResponse =
+            emptyActivities;
+
+        await mockCommonPageDependencies(page);
+        const stompBroker = await mockStompBroker(page);
+
+        await page.route("**/chat/rooms", (route) =>
+            fulfillJson(
+                route,
+                responseDto({
+                    chatRooms: [
+                        makeRoomListItem({
+                            id: 100,
+                            roomType: "GROUP",
+                            sourceType: "MANUAL",
+                            name: "실시간 활동방",
+                            memberCount: 3,
+                            unreadCount: 0,
+                        }),
+                    ],
+                }),
+            ),
+        );
+        await page.route("**/chat/notifications/summary", (route) =>
+            fulfillApiJson(route, responseDto(currentSummary)),
+        );
+        await page.route("**/chat/notifications/chats**", (route) =>
+            fulfillApiJson(
+                route,
+                responseDto({
+                    items: [],
+                    nextCursorMessageId: null,
+                    hasNext: false,
+                }),
+            ),
+        );
+        await page.route("**/chat/notifications/activities**", (route) =>
+            fulfillApiJson(route, responseDto(currentActivities)),
+        );
+
+        await page.goto("/settings");
+        await expect
+            .poll(() =>
+                stompBroker.hasSubscriber("/user/queue/chat/notifications"),
+            )
+            .toBe(true);
+
+        const realtimeActivity = {
+            id: 302,
+            notificationType: "OPEN_CHAT_ROLE_CHANGED" as const,
+            roomId: 100,
+            payload: {
+                roomName: "실시간 활동방",
+                newRole: "ADMIN",
+            },
+            isRead: false,
+            readAt: null,
+            createdAt: "2026-08-11T16:00:00",
+        };
+
+        currentSummary = {
+            unreadChatMessageCount: 0,
+            unreadChatRoomCount: 0,
+            unreadActivityCount: 1,
+            totalAttentionCount: 1,
+        };
+        currentActivities = {
+            items: [realtimeActivity],
+            nextCursorId: null,
+            hasNext: false,
+        };
+
+        const event = {
+            eventType: "chat.notification.created",
+            notification: realtimeActivity,
+            occurredAt: "2026-08-11T16:00:01",
+        };
+
+        stompBroker.sendJsonToSubscribers(
+            "/user/queue/chat/notifications",
+            event,
+        );
+
+        await expect(page.getByRole("button", { name: "알림" })).toContainText(
+            "1",
+        );
+        await page.getByRole("button", { name: "알림" }).click();
+        const dialog = page.getByRole("dialog");
+        await dialog.getByRole("button", { name: /활동/ }).click();
+        await expect(
+            dialog.getByTestId("chat-activity-notification-302"),
+        ).toContainText("실시간 활동방");
+
+        stompBroker.sendJsonToSubscribers(
+            "/user/queue/chat/notifications",
+            event,
+        );
+        await expect(
+            dialog.getByTestId("chat-activity-notification-302"),
+        ).toHaveCount(1);
+        await expect(page.getByRole("button", { name: "알림" })).toContainText(
+            "1",
+        );
+    });
+
+    test("NOTI-ACT-06 강퇴/종료 Activity는 이동 없이 읽고 모두 읽음은 Chat unread를 유지한다", async ({
+        page,
+    }) => {
+        let currentSummary = { ...summary };
+        let currentActivities = {
+            ...activities,
+            items: activities.items.map((item) => ({ ...item })),
+        };
+        let singleReadId: number | null = null;
+        let readAllCalls = 0;
+
+        await mockCommonPageDependencies(page);
+        await mockIdleWebSocket(page);
+        await page.route("**/chat/notifications/summary", (route) =>
+            fulfillApiJson(route, responseDto(currentSummary)),
+        );
+        await page.route("**/chat/notifications/chats**", (route) =>
+            fulfillApiJson(route, responseDto(chats)),
+        );
+        await page.route("**/chat/notifications/activities**", (route) =>
+            fulfillApiJson(route, responseDto(currentActivities)),
+        );
+        await page.route(
+            /.*\/chat\/notifications\/activities\/(\d+)\/read$/,
+            (route) => {
+                const match = route.request().url().match(/activities\/(\d+)\/read$/);
+                singleReadId = match ? Number(match[1]) : null;
+                const target = currentActivities.items.find(
+                    (item) => item.id === singleReadId,
+                );
+                if (!target) {
+                    return route.abort();
+                }
+
+                const updated = {
+                    ...target,
+                    isRead: true,
+                    readAt: "2026-08-11T16:10:00",
+                };
+                currentActivities = {
+                    ...currentActivities,
+                    items: currentActivities.items.map((item) =>
+                        item.id === updated.id ? updated : item,
+                    ),
+                };
+                currentSummary = {
+                    ...currentSummary,
+                    unreadActivityCount: Math.max(
+                        0,
+                        currentSummary.unreadActivityCount - 1,
+                    ),
+                    totalAttentionCount: Math.max(
+                        0,
+                        currentSummary.totalAttentionCount - 1,
+                    ),
+                };
+                return fulfillApiJson(route, responseDto(updated));
+            },
+        );
+        await page.route(
+            "**/chat/notifications/activities/read-all",
+            (route) => {
+                readAllCalls += 1;
+                currentActivities = {
+                    ...currentActivities,
+                    items: currentActivities.items.map((item) => ({
+                        ...item,
+                        isRead: true,
+                        readAt:
+                            item.readAt ?? "2026-08-11T16:11:00",
+                    })),
+                };
+                currentSummary = {
+                    ...currentSummary,
+                    unreadActivityCount: 0,
+                    totalAttentionCount:
+                        currentSummary.unreadChatMessageCount,
+                };
+                return fulfillApiJson(
+                    route,
+                    responseDto({ updatedCount: 1 }),
+                );
+            },
+        );
+
+        await page.goto("/settings");
+        await page.getByRole("button", { name: "알림" }).click();
+        const dialog = page.getByRole("dialog");
+        await dialog.getByRole("button", { name: /활동/ }).click();
+
+        await dialog
+            .getByTestId("chat-activity-notification-300")
+            .click();
+        await expect.poll(() => singleReadId).toBe(300);
+        await expect(page).toHaveURL(/\/settings$/);
+        await expect(
+            page.getByRole("button", { name: "알림", exact: true }),
+        ).toContainText("5");
+
+        await dialog.getByTestId("chat-activity-mark-all-read").click();
+        await expect.poll(() => readAllCalls).toBe(1);
+        await expect(
+            page.getByRole("button", { name: "알림", exact: true }),
+        ).toContainText("4");
+        await expect(
+            dialog.getByTestId("chat-activity-mark-all-read"),
+        ).toBeDisabled();
+    });
+
+    test("NOTI-ACT-07 초대/Role 변경 Activity는 읽음 처리 후 접근 가능한 Room으로 이동한다", async ({
+        page,
+    }) => {
+        const invitationActivity = {
+            id: 303,
+            notificationType: "CHAT_INVITATION" as const,
+            roomId: 100,
+            payload: {
+                roomName: "초대된 채팅방",
+            },
+            isRead: false,
+            readAt: null,
+            createdAt: "2026-08-11T16:20:00",
+        };
+        let readCalls = 0;
+
+        await mockCommonPageDependencies(page);
+        await mockIdleWebSocket(page);
+        await mockChatRoomBase(page, {
+            room: makeRoom({
+                id: 100,
+                roomType: "GROUP",
+                sourceType: "MANUAL",
+                name: "초대된 채팅방",
+                memberCount: 3,
+            }),
+        });
+        await page.route("**/chat/notifications/summary", (route) =>
+            fulfillApiJson(
+                route,
+                responseDto({
+                    unreadChatMessageCount: 0,
+                    unreadChatRoomCount: 0,
+                    unreadActivityCount: 1,
+                    totalAttentionCount: 1,
+                }),
+            ),
+        );
+        await page.route("**/chat/notifications/chats**", (route) =>
+            fulfillApiJson(route, responseDto({ items: [], nextCursorMessageId: null, hasNext: false })),
+        );
+        await page.route("**/chat/notifications/activities**", (route) =>
+            fulfillApiJson(
+                route,
+                responseDto({
+                    items: [invitationActivity],
+                    nextCursorId: null,
+                    hasNext: false,
+                }),
+            ),
+        );
+        await page.route(
+            "**/chat/notifications/activities/303/read",
+            (route) => {
+                readCalls += 1;
+                return fulfillApiJson(
+                    route,
+                    responseDto({
+                        ...invitationActivity,
+                        isRead: true,
+                        readAt: "2026-08-11T16:21:00",
+                    }),
+                );
+            },
+        );
+
+        await page.goto("/settings");
+        await page.getByRole("button", { name: "알림" }).click();
+        const dialog = page.getByRole("dialog");
+        await dialog.getByRole("button", { name: /활동/ }).click();
+
+        await dialog
+            .getByTestId("chat-activity-notification-303")
+            .click();
+
+        await expect.poll(() => readCalls).toBe(1);
+        await expect(page).toHaveURL(/\/chat\/rooms\/100$/);
+        await expect(page.getByRole("dialog")).toHaveCount(0);
+    });
+
 });

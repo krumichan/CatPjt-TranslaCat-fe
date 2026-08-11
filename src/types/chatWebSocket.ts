@@ -1,3 +1,4 @@
+import type { ChatNotificationActivityItem } from "@/types/chatNotification";
 import type {
     ChatMessage,
     ChatMessageTranslation,
@@ -24,6 +25,7 @@ export type ChatWebSocketEventType =
     | "chat.member.banned"
     | "chat.room.closed"
     | "chat.presence.changed"
+    | "chat.notification.created"
     | "chat.error";
 
 export interface ChatWebSocketEvent<T = unknown> {
@@ -34,6 +36,7 @@ export interface ChatWebSocketEvent<T = unknown> {
     payload?: T;
     data?: T;
     message?: T;
+    notification?: T;
 }
 
 
@@ -204,6 +207,18 @@ export const extractChatPresenceChangedEvent = (
 ): ChatPresenceChangedEvent | null =>
     extractPayloadWithGuard(event, isChatPresenceChangedEvent);
 
+export const extractChatNotificationCreatedItem = (
+    event: ChatWebSocketEvent<unknown>,
+): ChatNotificationActivityItem | null => {
+    if (getChatWebSocketEventType(event) !== "chat.notification.created") {
+        return null;
+    }
+
+    return isChatNotificationActivityItem(event.notification)
+        ? event.notification
+        : null;
+};
+
 export const extractTranslationResultFromEvent = (
     event: ChatWebSocketEvent<unknown>,
     fallbackStatus: ChatMessageTranslationStatus,
@@ -300,6 +315,30 @@ const isOpenChatMessageSender = (value: unknown): boolean => {
     );
 };
 
+
+const isChatNotificationActivityItem = (
+    value: unknown,
+): value is ChatNotificationActivityItem => {
+    if (!isRecord(value)) {
+        return false;
+    }
+
+    const isNotificationType =
+        value.notificationType === "CHAT_INVITATION" ||
+        value.notificationType === "OPEN_CHAT_KICKED" ||
+        value.notificationType === "OPEN_CHAT_ROLE_CHANGED" ||
+        value.notificationType === "OPEN_CHAT_ROOM_CLOSED";
+
+    return (
+        typeof value.id === "number" &&
+        isNotificationType &&
+        isNullableNumber(value.roomId) &&
+        isRecord(value.payload) &&
+        typeof value.isRead === "boolean" &&
+        isNullableString(value.readAt) &&
+        typeof value.createdAt === "string"
+    );
+};
 
 const isChatPresenceChangedEvent = (
     value: unknown,

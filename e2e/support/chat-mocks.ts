@@ -190,4 +190,42 @@ export async function mockChatRoomBase(
             }),
         );
     });
+
+    await page.route(/.*\/chat\/rooms\/\d+\/messages\/anchor(?:\?.*)?$/, (route) => {
+        if (route.request().method() !== "GET") {
+            return route.fallback();
+        }
+
+        const url = new URL(route.request().url());
+        const anchorMessageId = Number(
+            url.searchParams.get("anchorMessageId") ?? 0,
+        );
+
+        return fulfillApiJson(
+            route,
+            responseDto({
+                messages,
+                anchorMessageId,
+                previousCursorId: null,
+                hasPrevious: false,
+                nextCursorId: null,
+                hasNext: false,
+            }),
+        );
+    });
+
+    await page.route(/.*\/chat\/rooms\/\d+\/messages\/after(?:\?.*)?$/, (route) => {
+        if (route.request().method() !== "GET") {
+            return route.fallback();
+        }
+
+        return fulfillApiJson(
+            route,
+            responseDto({
+                messages: [],
+                hasNext: false,
+                nextCursorId: null,
+            }),
+        );
+    });
 }

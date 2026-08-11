@@ -73,8 +73,11 @@
     },
     "pagination": {
       "loadingPrevious": "이전 메시지를 불러오는 중...",
+      "loadingNewer": "다음 메시지를 불러오는 중...",
       "loadFailed": "이전 메시지를 불러오지 못했습니다.",
+      "loadNewerFailed": "다음 메시지를 불러오지 못했습니다.",
       "retry": "다시 시도",
+      "jumpToLatest": "최신 메시지로",
       "noMoreMessages": "대화의 시작입니다"
     },
     "translation": {
@@ -206,7 +209,8 @@
     "readStatus": {
       "updateFailed": "읽음 상태를 동기화하지 못했습니다.",
       "retry": "다시 시도",
-      "unreadMembers": "아직 읽지 않은 멤버 {count}명"
+      "unreadMembers": "아직 읽지 않은 멤버 {count}명",
+      "firstUnreadDivider": "여기부터 안 읽음"
     },
     "openProfile": {
       "menu": {

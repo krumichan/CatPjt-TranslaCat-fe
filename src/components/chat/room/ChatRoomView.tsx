@@ -69,8 +69,14 @@ export function ChatRoomView({
                     languageSettings={languageSettings.settings}
                     hasNext={chatRoom.hasNext}
                     isLoadingMore={chatRoom.isLoadingMore}
+                    hasNewer={chatRoom.hasNewer}
+                    isLoadingNewer={chatRoom.isLoadingNewer}
+                    activeAnchorMessageId={chatRoom.activeAnchorMessageId}
                     loadMoreErrorMessage={
                         controller.loadMoreErrorMessage
+                    }
+                    loadNewerErrorMessage={
+                        controller.loadNewerErrorMessage
                     }
                     retryingTranslationKeys={
                         chatRoom.retryingTranslationKeys
@@ -87,6 +93,11 @@ export function ChatRoomView({
                             : undefined
                     }
                     onLoadMore={chatRoom.loadMoreMessages}
+                    onLoadNewer={chatRoom.loadNewerMessages}
+                    onJumpToLatest={controller.jumpToLatestMessages}
+                    onMessageVisible={
+                        controller.readStatus.handleMessageVisible
+                    }
                     onRetryTranslation={chatRoom.retryTranslation}
                     onRefreshMessages={chatRoom.syncLatestMessages}
                 />

@@ -20,7 +20,10 @@ import { useOpenChatRoomLifecycle } from "@/hooks/chat/useOpenChatRoomLifecycle"
 import type { ChatPresenceChangedEvent } from "@/types/chatWebSocket";
 import { isOpenChatModerator } from "@/utils/chat/openChatModeration";
 
-export function useChatRoomPageController(roomId: number) {
+export function useChatRoomPageController(
+    roomId: number,
+    initialFirstUnreadMessageId: number | null = null,
+) {
     const t = useTranslations("ChatRoom");
     const { data: session } = useSession();
     const [isLanguageSettingsOpen, setIsLanguageSettingsOpen] =
@@ -44,7 +47,7 @@ export function useChatRoomPageController(roomId: number) {
     const openMemberProfilePreview =
         useOpenChatMemberProfilePreview(roomId);
 
-    const chatRoom = useChatRoom(roomId);
+    const chatRoom = useChatRoom(roomId, initialFirstUnreadMessageId);
     const roomType = chatRoom.room?.roomType ?? null;
     const roomSourceType = chatRoom.room?.sourceType ?? null;
     const isOpenRoom = roomType === "OPEN";
@@ -91,13 +94,22 @@ export function useChatRoomPageController(roomId: number) {
 
     const readStatus = useChatRoomReadStatus({
         roomId,
-        messages: chatRoom.messages,
         enabled:
             !chatRoom.isLoading &&
             chatRoom.loadErrorCode === null &&
             chatRoom.room !== null &&
             !openChat.isBanned,
     });
+
+    const jumpToLatestMessages = useCallback(async () => {
+        const latestMessageId = await chatRoom.jumpToLatestMessages();
+        if (latestMessageId === null) {
+            return false;
+        }
+
+        await readStatus.markReadImmediately(latestMessageId);
+        return true;
+    }, [chatRoom, readStatus]);
 
     const handlePresenceChanged = useCallback(
         (event: ChatPresenceChangedEvent) => {
@@ -352,6 +364,8 @@ export function useChatRoomPageController(roomId: number) {
         openAiSettings,
         closeAiSettings,
         chatRoom,
+        readStatus,
+        jumpToLatestMessages,
         languageSettings,
         aiDisplayPolicy,
         aiMemberProfilePreview,
@@ -369,6 +383,9 @@ export function useChatRoomPageController(roomId: number) {
             : null,
         loadMoreErrorMessage: chatRoom.loadMoreErrorCode
             ? t("pagination.loadFailed")
+            : null,
+        loadNewerErrorMessage: chatRoom.loadNewerErrorCode
+            ? t("pagination.loadNewerFailed")
             : null,
         canOpenPartnerProfile,
         canOpenMessageSenderProfile,

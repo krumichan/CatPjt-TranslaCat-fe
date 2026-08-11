@@ -1,23 +1,20 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 import { usePageActivity } from "@/hooks/chat/usePageActivity";
 import { chatService } from "@/services/chat/chatService";
-import type { ChatMessage } from "@/types/chat";
 import type { ChatReadUpdatedEvent } from "@/types/chatWebSocket";
 
 const READ_REQUEST_DEBOUNCE_MS = 180;
 
 interface UseChatRoomReadStatusParams {
     roomId: number;
-    messages: ChatMessage[];
     enabled: boolean;
 }
 
 export function useChatRoomReadStatus({
     roomId,
-    messages,
     enabled,
 }: UseChatRoomReadStatusParams) {
     const isPageActive = usePageActivity();
@@ -27,15 +24,6 @@ export function useChatRoomReadStatus({
     const lastSucceededMessageIdRef = useRef(0);
     const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const isMountedRef = useRef(true);
-
-    const latestMessageId = useMemo(
-        () =>
-            messages.reduce(
-                (latestId, message) => Math.max(latestId, message.id),
-                0,
-            ),
-        [messages],
-    );
 
     const clearDebounceTimer = useCallback(() => {
         if (debounceTimerRef.current !== null) {
@@ -89,6 +77,14 @@ export function useChatRoomReadStatus({
 
         if (
             succeeded &&
+            pendingMessageIdRef.current !== null &&
+            pendingMessageIdRef.current <= lastSucceededMessageIdRef.current
+        ) {
+            pendingMessageIdRef.current = null;
+        }
+
+        if (
+            succeeded &&
             isMountedRef.current &&
             isPageActiveRef.current &&
             pendingMessageIdRef.current !== null &&
@@ -102,7 +98,7 @@ export function useChatRoomReadStatus({
         (messageId: number) => {
             if (
                 !enabled ||
-                !isPageActiveRef.current ||
+                !Number.isSafeInteger(messageId) ||
                 messageId <= 0 ||
                 messageId <= lastSucceededMessageIdRef.current
             ) {
@@ -114,11 +110,37 @@ export function useChatRoomReadStatus({
                 messageId,
             );
 
+            if (!isPageActiveRef.current) {
+                return;
+            }
+
             clearDebounceTimer();
             debounceTimerRef.current = setTimeout(() => {
                 debounceTimerRef.current = null;
                 void flushReadRequest();
             }, READ_REQUEST_DEBOUNCE_MS);
+        },
+        [clearDebounceTimer, enabled, flushReadRequest],
+    );
+
+    const markReadImmediately = useCallback(
+        async (messageId: number) => {
+            if (
+                !enabled ||
+                !isPageActiveRef.current ||
+                !Number.isSafeInteger(messageId) ||
+                messageId <= 0 ||
+                messageId <= lastSucceededMessageIdRef.current
+            ) {
+                return;
+            }
+
+            pendingMessageIdRef.current = Math.max(
+                pendingMessageIdRef.current ?? 0,
+                messageId,
+            );
+            clearDebounceTimer();
+            await flushReadRequest();
         },
         [clearDebounceTimer, enabled, flushReadRequest],
     );
@@ -148,17 +170,18 @@ export function useChatRoomReadStatus({
     useEffect(() => {
         isPageActiveRef.current = isPageActive;
 
-        if (isPageActive && latestMessageId > 0) {
-            scheduleRead(latestMessageId);
-        } else if (!isPageActive) {
+        if (!isPageActive) {
             clearDebounceTimer();
+            return;
         }
-    }, [
-        clearDebounceTimer,
-        isPageActive,
-        latestMessageId,
-        scheduleRead,
-    ]);
+
+        if (
+            pendingMessageIdRef.current !== null &&
+            pendingMessageIdRef.current > lastSucceededMessageIdRef.current
+        ) {
+            void flushReadRequest();
+        }
+    }, [clearDebounceTimer, flushReadRequest, isPageActive]);
 
     useEffect(() => {
         isMountedRef.current = true;
@@ -177,6 +200,8 @@ export function useChatRoomReadStatus({
 
     return {
         isPageActive,
+        handleMessageVisible: scheduleRead,
+        markReadImmediately,
         handleReadUpdated,
     };
 }

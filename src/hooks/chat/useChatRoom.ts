@@ -19,6 +19,7 @@ import type {
 type ChatRoomLoadErrorCode = "LOAD_FAILED";
 type ChatRoomSendErrorCode = "SEND_FAILED";
 type ChatRoomLoadMoreErrorCode = "LOAD_MORE_FAILED";
+type ChatRoomLoadNewerErrorCode = "LOAD_NEWER_FAILED";
 type ChatRoomTranslationRetryErrorCode = "RETRY_TRANSLATION_FAILED";
 
 export const getChatTranslationKey = (
@@ -32,16 +33,23 @@ interface UseChatRoomResult {
     isLoading: boolean;
     isSending: boolean;
     isLoadingMore: boolean;
+    isLoadingNewer: boolean;
     hasNext: boolean;
     nextCursorId: number | null;
+    hasNewer: boolean;
+    newerCursorId: number | null;
+    activeAnchorMessageId: number | null;
     loadErrorCode: ChatRoomLoadErrorCode | null;
     sendErrorCode: ChatRoomSendErrorCode | null;
     loadMoreErrorCode: ChatRoomLoadMoreErrorCode | null;
+    loadNewerErrorCode: ChatRoomLoadNewerErrorCode | null;
     retryTranslationErrorCode: ChatRoomTranslationRetryErrorCode | null;
     retryingTranslationKeys: string[];
     retryTranslationErrorKeys: string[];
     reload: () => Promise<void>;
     loadMoreMessages: () => Promise<boolean>;
+    loadNewerMessages: () => Promise<boolean>;
+    jumpToLatestMessages: () => Promise<number | null>;
     sendMessage: (content: string) => Promise<boolean>;
     appendMessage: (message: ChatMessage) => void;
     applyTranslationCompleted: (
@@ -171,20 +179,39 @@ const mergeMessageTranslation = (
         };
     });
 
-export function useChatRoom(roomId: number): UseChatRoomResult {
+export function useChatRoom(
+    roomId: number,
+    initialFirstUnreadMessageId: number | null = null,
+): UseChatRoomResult {
+    const normalizedFirstUnreadMessageId = useMemo(
+        () =>
+            Number.isSafeInteger(initialFirstUnreadMessageId) &&
+            (initialFirstUnreadMessageId ?? 0) > 0
+                ? initialFirstUnreadMessageId
+                : null,
+        [initialFirstUnreadMessageId],
+    );
     const [room, setRoom] = useState<ChatRoom | null>(null);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isSending, setIsSending] = useState(false);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [isLoadingNewer, setIsLoadingNewer] = useState(false);
     const [hasNext, setHasNext] = useState(false);
     const [nextCursorId, setNextCursorId] = useState<number | null>(null);
+    const [hasNewer, setHasNewer] = useState(false);
+    const [newerCursorId, setNewerCursorId] = useState<number | null>(null);
+    const [activeAnchorMessageId, setActiveAnchorMessageId] = useState<
+        number | null
+    >(null);
     const [loadErrorCode, setLoadErrorCode] =
         useState<ChatRoomLoadErrorCode | null>(null);
     const [sendErrorCode, setSendErrorCode] =
         useState<ChatRoomSendErrorCode | null>(null);
     const [loadMoreErrorCode, setLoadMoreErrorCode] =
         useState<ChatRoomLoadMoreErrorCode | null>(null);
+    const [loadNewerErrorCode, setLoadNewerErrorCode] =
+        useState<ChatRoomLoadNewerErrorCode | null>(null);
     const [retryTranslationErrorCode, setRetryTranslationErrorCode] =
         useState<ChatRoomTranslationRetryErrorCode | null>(null);
     const [retryingTranslationKeySet, setRetryingTranslationKeySet] = useState(
@@ -198,6 +225,8 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
     const removedOpenChatMemberIdsRef = useRef(new Set<number>());
     const directPresenceOccurredAtRef = useRef<string | null>(null);
     const directPresencePatchVersionRef = useRef(0);
+    const hasLoadedSuccessfullyRef = useRef(false);
+    const hasNewerRef = useRef(false);
     const latestDirectPresenceRef = useRef<{
         publicId: string;
         online: boolean;
@@ -213,17 +242,59 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
         [retryTranslationErrorKeySet],
     );
 
+    const applyNewerState = useCallback(
+        (nextHasNewer: boolean, nextCursor: number | null) => {
+            hasNewerRef.current = nextHasNewer;
+            setHasNewer(nextHasNewer);
+            setNewerCursorId(nextHasNewer ? nextCursor : null);
+        },
+        [],
+    );
+
     const load = useCallback(async () => {
         setIsLoading(true);
         setLoadErrorCode(null);
         setLoadMoreErrorCode(null);
+        setLoadNewerErrorCode(null);
         const presencePatchVersionAtRequest =
             directPresencePatchVersionRef.current;
+        const shouldUseInitialAnchor =
+            !hasLoadedSuccessfullyRef.current &&
+            normalizedFirstUnreadMessageId !== null;
+        const shouldPreserveAnchoredMessages =
+            hasLoadedSuccessfullyRef.current && hasNewerRef.current;
 
         try {
-            const [roomResponse, messageResponse] = await Promise.all([
+            const messageRequest = shouldPreserveAnchoredMessages
+                ? Promise.resolve({ mode: "preserve" as const })
+                : shouldUseInitialAnchor
+                ? chatService
+                      .getMessagesAroundAnchor(
+                          roomId,
+                          normalizedFirstUnreadMessageId,
+                      )
+                      .then((response) => ({
+                          mode: "anchor" as const,
+                          response,
+                      }))
+                      .catch(async (error) => {
+                          console.warn(
+                              "Failed to load first-unread anchor. Falling back to latest messages.",
+                              error,
+                          );
+                          return {
+                              mode: "latest" as const,
+                              response: await chatService.getMessages(roomId),
+                          };
+                      })
+                : chatService.getMessages(roomId).then((response) => ({
+                      mode: "latest" as const,
+                      response,
+                  }));
+
+            const [roomResponse, messageResult] = await Promise.all([
                 chatService.getRoom(roomId),
-                chatService.getMessages(roomId),
+                messageRequest,
             ]);
 
             removedOpenChatMemberIdsRef.current.clear();
@@ -250,16 +321,38 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
             }
 
             setRoom(resolvedRoom);
-            setMessages(sortMessagesByCreatedAt(messageResponse.messages));
-            setNextCursorId(messageResponse.nextCursorId);
-            setHasNext(messageResponse.hasNext);
+            if (messageResult.mode === "preserve") {
+                hasLoadedSuccessfullyRef.current = true;
+                return;
+            }
+
+            setMessages(sortMessagesByCreatedAt(messageResult.response.messages));
+
+            if (messageResult.mode === "anchor") {
+                setActiveAnchorMessageId(
+                    messageResult.response.anchorMessageId,
+                );
+                setNextCursorId(messageResult.response.previousCursorId);
+                setHasNext(messageResult.response.hasPrevious);
+                applyNewerState(
+                    messageResult.response.hasNext,
+                    messageResult.response.nextCursorId,
+                );
+            } else {
+                setActiveAnchorMessageId(null);
+                setNextCursorId(messageResult.response.nextCursorId);
+                setHasNext(messageResult.response.hasNext);
+                applyNewerState(false, null);
+            }
+
+            hasLoadedSuccessfullyRef.current = true;
         } catch (error) {
             console.error(error);
             setLoadErrorCode("LOAD_FAILED");
         } finally {
             setIsLoading(false);
         }
-    }, [roomId]);
+    }, [applyNewerState, normalizedFirstUnreadMessageId, roomId]);
 
     const loadMoreMessages = useCallback(async () => {
         if (!hasNext || nextCursorId == null || isLoadingMore) {
@@ -294,6 +387,83 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
         }
     }, [hasNext, isLoadingMore, nextCursorId, roomId]);
 
+    const loadNewerMessages = useCallback(async () => {
+        if (!hasNewer || newerCursorId == null || isLoadingNewer) {
+            return false;
+        }
+
+        setIsLoadingNewer(true);
+        setLoadNewerErrorCode(null);
+
+        try {
+            const messageResponse = await chatService.getMessagesAfter(
+                roomId,
+                newerCursorId,
+                30,
+            );
+
+            setMessages((currentMessages) =>
+                mergeMessagesWithoutDuplicates([
+                    ...currentMessages,
+                    ...messageResponse.messages,
+                ]),
+            );
+            applyNewerState(
+                messageResponse.hasNext,
+                messageResponse.nextCursorId,
+            );
+
+            return true;
+        } catch (error) {
+            console.error(error);
+            setLoadNewerErrorCode("LOAD_NEWER_FAILED");
+            return false;
+        } finally {
+            setIsLoadingNewer(false);
+        }
+    }, [
+        applyNewerState,
+        hasNewer,
+        isLoadingNewer,
+        newerCursorId,
+        roomId,
+    ]);
+
+    const replaceWithLatestPage = useCallback(async () => {
+        const messageResponse = await chatService.getMessages(roomId);
+
+        setMessages(sortMessagesByCreatedAt(messageResponse.messages));
+        setNextCursorId(messageResponse.nextCursorId);
+        setHasNext(messageResponse.hasNext);
+        setActiveAnchorMessageId(null);
+        applyNewerState(false, null);
+
+        return messageResponse.messages.reduce(
+            (latestId, message) => Math.max(latestId, message.id),
+            0,
+        );
+    }, [applyNewerState, roomId]);
+
+    const jumpToLatestMessages = useCallback(async () => {
+        if (isLoadingNewer) {
+            return null;
+        }
+
+        setIsLoadingNewer(true);
+        setLoadNewerErrorCode(null);
+
+        try {
+            const latestMessageId = await replaceWithLatestPage();
+            return latestMessageId > 0 ? latestMessageId : null;
+        } catch (error) {
+            console.error("Failed to jump to latest chat messages.", error);
+            setLoadNewerErrorCode("LOAD_NEWER_FAILED");
+            return null;
+        } finally {
+            setIsLoadingNewer(false);
+        }
+    }, [isLoadingNewer, replaceWithLatestPage]);
+
     const sendMessage = useCallback(
         async (content: string) => {
             const trimmedContent = content.trim();
@@ -310,12 +480,20 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
                     content: trimmedContent,
                 });
 
-                setMessages((currentMessages) =>
-                    mergeMessagesWithoutDuplicates([
-                        ...currentMessages,
-                        createdMessage,
-                    ]),
-                );
+                if (hasNewerRef.current) {
+                    setMessages([createdMessage]);
+                    setNextCursorId(createdMessage.id);
+                    setHasNext(true);
+                    setActiveAnchorMessageId(null);
+                    applyNewerState(false, null);
+                } else {
+                    setMessages((currentMessages) =>
+                        mergeMessagesWithoutDuplicates([
+                            ...currentMessages,
+                            createdMessage,
+                        ]),
+                    );
+                }
 
                 return true;
             } catch (error) {
@@ -326,10 +504,14 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
                 setIsSending(false);
             }
         },
-        [isSending, roomId],
+        [applyNewerState, isSending, roomId],
     );
 
     const appendMessage = useCallback((message: ChatMessage) => {
+        if (hasNewerRef.current) {
+            return;
+        }
+
         setMessages((currentMessages) =>
             mergeMessagesWithoutDuplicates([...currentMessages, message]),
         );
@@ -530,6 +712,10 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
     );
 
     const syncLatestMessages = useCallback(async () => {
+        if (hasNewerRef.current) {
+            return;
+        }
+
         try {
             const messageResponse = await chatService.getMessages(roomId);
 
@@ -610,6 +796,7 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
     );
 
     useEffect(() => {
+        hasLoadedSuccessfullyRef.current = false;
         appliedReadCursorByUserRef.current.clear();
         removedOpenChatMemberIdsRef.current.clear();
         void load();
@@ -621,16 +808,23 @@ export function useChatRoom(roomId: number): UseChatRoomResult {
         isLoading,
         isSending,
         isLoadingMore,
+        isLoadingNewer,
         hasNext,
         nextCursorId,
+        hasNewer,
+        newerCursorId,
+        activeAnchorMessageId,
         loadErrorCode,
         sendErrorCode,
         loadMoreErrorCode,
+        loadNewerErrorCode,
         retryTranslationErrorCode,
         retryingTranslationKeys,
         retryTranslationErrorKeys,
         reload: load,
         loadMoreMessages,
+        loadNewerMessages,
+        jumpToLatestMessages,
         sendMessage,
         appendMessage,
         applyTranslationCompleted,

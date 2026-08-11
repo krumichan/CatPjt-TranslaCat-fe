@@ -10,6 +10,7 @@ import {
 } from "../support/api-mocks";
 import { mockChatRoomBase } from "../support/chat-mocks";
 import {
+    makeMessage,
     makeRoom,
     makeRoomListItem,
     responseDto,
@@ -182,6 +183,7 @@ test.describe("FE #15 notification center", () => {
     test("NOTI-CHAT-03 Chat Item 클릭 시 firstUnreadMessageId를 전달하고 Room으로 이동한다", async ({
         page,
     }) => {
+        let requestedAnchorMessageId: string | null = null;
         await mockCommonPageDependencies(page);
         await mockIdleWebSocket(page);
         await mockChatRoomBase(page, {
@@ -193,6 +195,31 @@ test.describe("FE #15 notification center", () => {
                 memberCount: 3,
             }),
         });
+        await page.route(
+            /.*\/chat\/rooms\/100\/messages\/anchor(?:\?.*)?$/,
+            (route) => {
+                const url = new URL(route.request().url());
+                requestedAnchorMessageId =
+                    url.searchParams.get("anchorMessageId");
+                return fulfillApiJson(
+                    route,
+                    responseDto({
+                        messages: [
+                            makeMessage({
+                                id: 1497,
+                                roomId: 100,
+                                content: "알림 첫 unread",
+                            }),
+                        ],
+                        anchorMessageId: 1497,
+                        previousCursorId: null,
+                        hasPrevious: false,
+                        nextCursorId: null,
+                        hasNext: false,
+                    }),
+                );
+            },
+        );
 
         await page.route("**/chat/notifications/summary", (route) =>
             fulfillApiJson(route, responseDto(summary)),
@@ -214,9 +241,8 @@ test.describe("FE #15 notification center", () => {
             })
             .click();
 
-        await expect(page).toHaveURL(
-            /\/chat\/rooms\/100\?firstUnreadMessageId=1497$/,
-        );
+        await expect.poll(() => requestedAnchorMessageId).toBe("1497");
+        await expect(page).toHaveURL(/\/chat\/rooms\/100$/);
         await expect(page.getByRole("dialog")).toHaveCount(0);
     });
 

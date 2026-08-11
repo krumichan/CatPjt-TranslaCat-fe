@@ -7,6 +7,7 @@ import type {
     ChatLanguageSettings,
     ChatLanguageSettingsUpdateRequest,
     ChatMessage,
+    ChatMessageAnchorListResponse,
     ChatMessageCreateRequest,
     ChatMessageListResponse,
     ChatMessageTranslation,
@@ -242,6 +243,40 @@ export const chatService = {
         const response = await apiClient(endpoint, {
             method: "GET",
         });
+        return parseBody<ChatMessageListResponse>(response);
+    },
+
+    getMessagesAroundAnchor: async (
+        roomId: string | number,
+        anchorMessageId: number,
+        beforeSize = 5,
+        afterSize = 30,
+    ): Promise<ChatMessageAnchorListResponse> => {
+        const searchParams = new URLSearchParams({
+            anchorMessageId: String(anchorMessageId),
+            beforeSize: String(beforeSize),
+            afterSize: String(afterSize),
+        });
+        const response = await apiClient(
+            `/chat/rooms/${roomId}/messages/anchor?${searchParams.toString()}`,
+            { method: "GET" },
+        );
+        return parseBody<ChatMessageAnchorListResponse>(response);
+    },
+
+    getMessagesAfter: async (
+        roomId: string | number,
+        cursorId: number,
+        size = 30,
+    ): Promise<ChatMessageListResponse> => {
+        const searchParams = new URLSearchParams({
+            cursorId: String(cursorId),
+            size: String(size),
+        });
+        const response = await apiClient(
+            `/chat/rooms/${roomId}/messages/after?${searchParams.toString()}`,
+            { method: "GET" },
+        );
         return parseBody<ChatMessageListResponse>(response);
     },
 

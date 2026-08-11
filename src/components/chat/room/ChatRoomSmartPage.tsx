@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { ChatRoomPageOverlays } from "@/components/chat/room/ChatRoomPageOverlays";
 import {
     ChatRoomErrorState,
@@ -10,12 +12,39 @@ import { useChatRoomPageController } from "@/hooks/chat/useChatRoomPageControlle
 
 interface ChatRoomSmartPageProps {
     roomId: number;
+    initialFirstUnreadMessageId?: number | null;
 }
 
 export function ChatRoomSmartPage({
     roomId,
+    initialFirstUnreadMessageId = null,
 }: ChatRoomSmartPageProps) {
-    const controller = useChatRoomPageController(roomId);
+    const controller = useChatRoomPageController(
+        roomId,
+        initialFirstUnreadMessageId,
+    );
+
+    useEffect(() => {
+        if (
+            controller.chatRoom.activeAnchorMessageId === null ||
+            typeof window === "undefined"
+        ) {
+            return;
+        }
+
+        const nextSearchParams = new URLSearchParams(window.location.search);
+        if (!nextSearchParams.has("firstUnreadMessageId")) {
+            return;
+        }
+
+        nextSearchParams.delete("firstUnreadMessageId");
+        const query = nextSearchParams.toString();
+        window.history.replaceState(
+            window.history.state,
+            "",
+            `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`,
+        );
+    }, [controller.chatRoom.activeAnchorMessageId]);
 
     if (controller.chatRoom.isLoading) {
         return (

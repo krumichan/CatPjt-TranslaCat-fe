@@ -430,6 +430,15 @@ export interface ChatMessageListResponse {
     hasNext: boolean;
 }
 
+export interface ChatMessageAnchorListResponse {
+    messages: ChatMessage[];
+    anchorMessageId: number;
+    previousCursorId: number | null;
+    hasPrevious: boolean;
+    nextCursorId: number | null;
+    hasNext: boolean;
+}
+
 export interface ChatMessageCreateRequest {
     content: string;
 }

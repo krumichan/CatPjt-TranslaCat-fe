@@ -76,11 +76,13 @@ interface UseChatRoomResult {
     ) => Promise<boolean>;
 }
 
-function sortMessagesByCreatedAt(messages: ChatMessage[]) {
-    return [...messages].sort(
-        (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-    );
+function sortMessagesById(messages: ChatMessage[]) {
+    /*
+     * Message ID is the authoritative room sequence/high-water mark.
+     * Do not use createdAt for ordering: timestamps can cross runtime
+     * time-zone boundaries while IDs remain monotonic within the room.
+     */
+    return [...messages].sort((a, b) => a.id - b.id);
 }
 
 const mergeTranslation = (
@@ -138,7 +140,7 @@ const mergeMessagesWithoutDuplicates = (
 ): ChatMessage[] => {
     const messageById = new Map<number, ChatMessage>();
 
-    for (const message of sortMessagesByCreatedAt(messages)) {
+    for (const message of sortMessagesById(messages)) {
         const previous = messageById.get(message.id);
 
         messageById.set(
@@ -326,7 +328,9 @@ export function useChatRoom(
                 return;
             }
 
-            setMessages(sortMessagesByCreatedAt(messageResult.response.messages));
+            setMessages(
+                sortMessagesById(messageResult.response.messages),
+            );
 
             if (messageResult.mode === "anchor") {
                 setActiveAnchorMessageId(
@@ -432,7 +436,7 @@ export function useChatRoom(
     const replaceWithLatestPage = useCallback(async () => {
         const messageResponse = await chatService.getMessages(roomId);
 
-        setMessages(sortMessagesByCreatedAt(messageResponse.messages));
+        setMessages(sortMessagesById(messageResponse.messages));
         setNextCursorId(messageResponse.nextCursorId);
         setHasNext(messageResponse.hasNext);
         setActiveAnchorMessageId(null);

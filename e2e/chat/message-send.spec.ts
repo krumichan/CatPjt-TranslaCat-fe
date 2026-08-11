@@ -85,6 +85,61 @@ test.describe("Message send REST fallback", () => {
         await expect(input).toHaveValue("");
     });
 
+    test("WS-07 createdAt 시각이 역전되어도 messageId 순서로 최신 메시지를 아래에 유지한다", async ({ page }) => {
+        const existingMessage = {
+            ...makeMessage({
+                id: 10,
+                sender: TEST_USERS.B,
+                content: "기존 메시지",
+            }),
+            // 과거 Local/JST 데이터처럼 더 늦은 wall-clock 값이 남아 있는 상황을 재현한다.
+            createdAt: "2026-08-11T21:32:00",
+            updatedAt: "2026-08-11T21:32:00",
+        };
+
+        await mockChatRoomBase(page, { messages: [existingMessage] });
+        await page.route(/\/chat\/rooms\/501\/messages$/, async (route) => {
+            if (route.request().method() !== "POST") {
+                return route.fallback();
+            }
+
+            return fulfillJson(
+                route,
+                responseDto({
+                    ...makeMessage({
+                        id: 11,
+                        sender: TEST_USERS.A,
+                        content: "방금 보낸 메시지",
+                    }),
+                    // OCI/UTC에서 생성된 값처럼 wall-clock만 보면 기존 메시지보다 작다.
+                    createdAt: "2026-08-11T11:01:00",
+                    updatedAt: "2026-08-11T11:01:00",
+                }),
+            );
+        });
+
+        await page.goto("/chat/rooms/501");
+        await page
+            .getByPlaceholder("메시지를 입력하세요")
+            .fill("방금 보낸 메시지");
+        await page
+            .getByRole("button", { name: "메시지 전송" })
+            .click();
+
+        const messageBubbles = page.locator(
+            '[data-testid^="chat-message-bubble-"]',
+        );
+        await expect(messageBubbles).toHaveCount(2);
+        await expect(messageBubbles.nth(0)).toHaveAttribute(
+            "data-testid",
+            "chat-message-bubble-10",
+        );
+        await expect(messageBubbles.nth(1)).toHaveAttribute(
+            "data-testid",
+            "chat-message-bubble-11",
+        );
+    });
+
     test("전송 실패 시 오류 메시지를 표시한다", async ({ page }) => {
         await mockChatRoomBase(page);
         await page.route(/\/chat\/rooms\/501\/messages$/, (route) => {

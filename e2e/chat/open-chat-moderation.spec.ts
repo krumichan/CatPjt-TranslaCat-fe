@@ -403,25 +403,18 @@ test.describe("OPEN chat moderation and blacklist", () => {
     test("OPEN-MOD-03 chat.member.role.updated를 즉시 반영하고 오래된 Event는 무시한다", async ({
         page,
     }) => {
-        let roomTopicSocket: WebSocketRoute | null = null;
-        await mockStompBroker(page, {
-            onSubscribe: (destination, subscribedSocket) => {
-                if (destination === `/topic/chat/rooms/${ROOM_ID}`) {
-                    roomTopicSocket = subscribedSocket;
-                }
-            },
-        });
+        const stompBroker = await mockStompBroker(page);
+        const roomTopic = `/topic/chat/rooms/${ROOM_ID}`;
         await mockChatRoomBase(page, { room: roomFor("OWNER"), messages: [] });
         await mockOpenModerationApis(page);
 
         await page.goto(`/chat/rooms/${ROOM_ID}`);
         await expect(page.getByText("WS: CONNECTED")).toBeVisible();
         await page.getByTestId("chat-room-menu-button").click();
-        await expect.poll(() => roomTopicSocket !== null).toBe(true);
+        await expect.poll(() => stompBroker.hasSubscriber(roomTopic)).toBe(true);
 
-        sendStompJson(
-            roomTopicSocket as WebSocketRoute,
-            `/topic/chat/rooms/${ROOM_ID}`,
+        stompBroker.sendJsonToSubscribers(
+            roomTopic,
             {
                 eventType: "chat.member.role.updated",
                 roomId: ROOM_ID,
@@ -437,9 +430,8 @@ test.describe("OPEN chat moderation and blacklist", () => {
                 .getByTestId("open-chat-role-badge-ADMIN"),
         ).toBeVisible();
 
-        sendStompJson(
-            roomTopicSocket as WebSocketRoute,
-            `/topic/chat/rooms/${ROOM_ID}`,
+        stompBroker.sendJsonToSubscribers(
+            roomTopic,
             {
                 eventType: "chat.member.role.updated",
                 roomId: ROOM_ID,

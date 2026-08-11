@@ -113,13 +113,14 @@ test.describe("Chat room list", () => {
         page,
     }) => {
         let count = 0;
+        let shouldFail = true;
 
         await page.route(
             "**/chat/rooms",
             async (route) => {
                 count += 1;
 
-                if (count === 1) {
+                if (shouldFail) {
                     return fulfillJson(
                         route,
                         { message: "failed" },
@@ -136,16 +137,20 @@ test.describe("Chat room list", () => {
 
         await page.goto("/chat");
 
-        await page
-            .getByRole("button", {
-                name: "다시 시도",
-                exact: true,
-            })
-            .click();
+        const retryButton = page.getByRole("button", {
+            name: "다시 시도",
+            exact: true,
+        });
+        await expect(retryButton).toBeVisible();
+
+        const requestCountBeforeRetry = count;
+        shouldFail = false;
+        await retryButton.click();
 
         await expect
             .poll(() => count)
-            .toBeGreaterThanOrEqual(2);
+            .toBeGreaterThan(requestCountBeforeRetry);
+        await expect(retryButton).toHaveCount(0);
     });
 
     test("TRANSITION-02 채팅 시작 CTA는 친구 탭으로 전환한다", async ({

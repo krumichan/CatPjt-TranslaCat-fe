@@ -167,6 +167,14 @@ export function useChatRoomMenu({
                 return nextRoles;
             });
 
+            // Do not mutate an empty SWR cache while the initial member request
+            // is still in flight. SWR treats mutate as a newer write and may
+            // discard that request result. The pending-role overlay above is
+            // intentionally enough until the initial snapshot is committed.
+            if (!data) {
+                return;
+            }
+
             await mutate(
                 (currentData) =>
                     currentData
@@ -182,7 +190,7 @@ export function useChatRoomMenu({
                 false,
             );
         },
-        [mutate],
+        [data, mutate],
     );
 
     const removeOpenChatMember = useCallback(
@@ -251,6 +259,13 @@ export function useChatRoomMenu({
                 });
             }
 
+            // As with the role overlay, avoid invalidating the initial SWR
+            // member request before it commits. Pending Presence will be
+            // overlaid on the fetched snapshot once data becomes available.
+            if (!data) {
+                return;
+            }
+
             await mutate(
                 (currentData) => {
                     if (!currentData) {
@@ -284,7 +299,7 @@ export function useChatRoomMenu({
                 false,
             );
         },
-        [hasRequestedMembers, mutate, roomId, roomType],
+        [data, hasRequestedMembers, mutate, roomId, roomType],
     );
 
     const pendingPresenceByMemberRef =

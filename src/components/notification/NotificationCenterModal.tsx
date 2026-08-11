@@ -64,6 +64,9 @@ export default function NotificationCenterModal({
                         chatNotificationItems={notification.chatNotificationItems}
                         isChatNotificationLoading={notification.isChatNotificationLoading}
                         isChatNotificationError={notification.isChatNotificationError}
+                        processingChatRoomId={notification.processingChatRoomId}
+                        onMarkChatAsRead={notification.handleMarkChatAsRead}
+                        onNavigateChat={onClose}
                         chatActivityItems={notification.chatActivityItems}
                         isChatActivityLoading={notification.isChatActivityLoading}
                         isChatActivityError={notification.isChatActivityError}

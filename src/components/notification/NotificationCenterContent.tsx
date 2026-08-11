@@ -18,6 +18,9 @@ type NotificationCenterContentProps = {
     chatNotificationItems: ChatNotificationChatItem[];
     isChatNotificationLoading: boolean;
     isChatNotificationError: unknown;
+    processingChatRoomId: number | null;
+    onMarkChatAsRead: (item: ChatNotificationChatItem) => void;
+    onNavigateChat: () => void;
     chatActivityItems: ChatNotificationActivityItem[];
     isChatActivityLoading: boolean;
     isChatActivityError: unknown;
@@ -47,6 +50,9 @@ export default function NotificationCenterContent({
     chatNotificationItems,
     isChatNotificationLoading,
     isChatNotificationError,
+    processingChatRoomId,
+    onMarkChatAsRead,
+    onNavigateChat,
     chatActivityItems,
     isChatActivityLoading,
     isChatActivityError,
@@ -74,6 +80,9 @@ export default function NotificationCenterContent({
                 items={chatNotificationItems}
                 isLoading={isChatNotificationLoading}
                 error={isChatNotificationError}
+                processingChatRoomId={processingChatRoomId}
+                onMarkRead={onMarkChatAsRead}
+                onNavigate={onNavigateChat}
             />
         );
     }

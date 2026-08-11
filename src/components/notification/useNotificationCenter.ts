@@ -7,6 +7,7 @@ import { useQuery } from "@/hooks/useQuery";
 import { useChatNotifications } from "@/hooks/chat/useChatNotifications";
 import type { AccountBookInvitation } from "@/types/accountBook";
 import type { FriendRequest } from "@/types/social";
+import type { ChatNotificationChatItem } from "@/types/chatNotification";
 import { accountBookInvitationService } from "@/services/account-book/accountBookInvitationService";
 import { friendRequestService } from "@/services/friend/friendRequestService";
 
@@ -96,6 +97,14 @@ export function useNotificationCenter() {
             mutateSentFriendRequests((currentData) => currentData, true),
             chatNotification.refresh(),
         ]);
+    };
+
+    const handleMarkChatAsRead = async (item: ChatNotificationChatItem) => {
+        const succeeded = await chatNotification.markChatRoomAsRead(item);
+
+        if (!succeeded) {
+            window.alert(t("chat.markReadFailed"));
+        }
     };
 
     const handleAcceptInvitation = async (invitationId: number) => {
@@ -290,7 +299,9 @@ export function useNotificationCenter() {
         isChatNotificationError: chatNotification.chatListError,
         isChatActivityLoading: chatNotification.isActivityListLoading,
         isChatActivityError: chatNotification.activityListError,
+        processingChatRoomId: chatNotification.processingChatRoomId,
         refreshNotifications,
+        handleMarkChatAsRead,
 
         handleAcceptInvitation,
         handleRejectInvitation,

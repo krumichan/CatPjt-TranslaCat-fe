@@ -57,7 +57,11 @@
       "emptyDescription": "新しいMessageが届くと、Roomごとに最新Messageと未読数を表示します。",
       "loadFailedTitle": "チャット通知の取得に失敗しました",
       "unreadCount": "未読Message {count}件",
-      "messageFallback": "新しいMessageが届きました。"
+      "messageFallback": "新しいMessageが届きました。",
+      "openRoom": "「{roomName}」チャットルームを開く",
+      "markRead": "既読にする",
+      "markingRead": "処理中...",
+      "markReadFailed": "チャットの既読処理に失敗しました。"
     },
     "activity": {
       "emptyTitle": "新しいチャットアクティビティはありません",

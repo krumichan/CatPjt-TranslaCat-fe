@@ -94,6 +94,14 @@ export async function mockNotificationBackground(page: Page): Promise<void> {
             }),
         ),
     );
+    await page.route("**/chat/rooms", (route) =>
+        fulfillJson(
+            route,
+            responseDto({
+                chatRooms: [],
+            }),
+        ),
+    );
 }
 
 export async function mockCommonPageDependencies(

@@ -57,7 +57,11 @@
       "emptyDescription": "새 메시지가 도착하면 방별로 마지막 메시지와 읽지 않은 수를 표시합니다.",
       "loadFailedTitle": "채팅 알림을 불러오지 못했습니다",
       "unreadCount": "읽지 않은 메시지 {count}개",
-      "messageFallback": "새 메시지가 도착했습니다."
+      "messageFallback": "새 메시지가 도착했습니다.",
+      "openRoom": "{roomName} 채팅방 열기",
+      "markRead": "읽음 처리",
+      "markingRead": "처리 중...",
+      "markReadFailed": "채팅 읽음 처리에 실패했습니다."
     },
     "activity": {
       "emptyTitle": "새로운 채팅 활동이 없습니다",

@@ -220,6 +220,7 @@ test.describe("Room member realtime + AI display", () => {
             "chat-open-member-presence-91",
         );
         await expect(indicator).toBeVisible();
+        await expect(indicator).toHaveAttribute("data-presence-state", "online");
 
         await expect.poll(() => socket !== null).toBe(true);
         await expect.poll(() => roomTopicSubscribed).toBe(true);
@@ -232,7 +233,8 @@ test.describe("Room member realtime + AI display", () => {
             online: false,
             occurredAt: "2026-08-09T12:00:03+09:00",
         });
-        await expect(indicator).toHaveCount(0);
+        await expect(indicator).toBeVisible();
+        await expect(indicator).toHaveAttribute("data-presence-state", "offline");
 
         sendStompJson(socket!, `/topic/chat/rooms/${ROOM_ID}`, {
             eventType: "chat.presence.changed",
@@ -242,7 +244,8 @@ test.describe("Room member realtime + AI display", () => {
             online: true,
             occurredAt: "2026-08-09T12:00:01+09:00",
         });
-        await expect(indicator).toHaveCount(0);
+        await expect(indicator).toBeVisible();
+        await expect(indicator).toHaveAttribute("data-presence-state", "offline");
     });
 
     test("PRESENCE-PRIVATE-01 PRIVATE AI Room에서는 Human Presence를 숨긴다", async ({

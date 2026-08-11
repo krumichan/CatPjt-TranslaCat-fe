@@ -68,6 +68,7 @@ test.describe("Chat Presence", () => {
             "chat-direct-partner-presence",
         );
         await expect(indicator).toBeVisible();
+        await expect(indicator).toHaveAttribute("data-presence-state", "online");
 
         await expect.poll(() => ws.getSocket() !== null).toBe(true);
         await expect.poll(ws.isRoomTopicSubscribed).toBe(true);
@@ -81,7 +82,40 @@ test.describe("Chat Presence", () => {
             occurredAt: NOW,
         });
 
-        await expect(indicator).toHaveCount(0);
+        await expect(indicator).toBeVisible();
+        await expect(indicator).toHaveAttribute("data-presence-state", "offline");
+    });
+
+    test("PRESENCE-UNKNOWN-01 DIRECT Snapshot이 null이면 UNKNOWN Indicator를 표시한다", async ({
+        page,
+    }) => {
+        const room = {
+            ...makeRoom({
+                id: ROOM_ID,
+                roomType: "DIRECT",
+                sourceType: "FRIEND",
+            }),
+            directPartner: {
+                userId: 22,
+                publicId: "TC-PARTNER",
+                displayName: "상대 사용자",
+                profileImageUrl: null,
+                profileBackgroundImageUrl: null,
+                bio: null,
+                online: null,
+            },
+        };
+
+        await setupSocket(page);
+        await mockChatRoomBase(page, { room });
+
+        await page.goto(`/chat/rooms/${ROOM_ID}`);
+        await expect(page.getByText(/WS:\s*CONNECTED/i)).toBeVisible();
+
+        const indicator = page.getByTestId("chat-direct-partner-presence");
+        await expect(indicator).toBeVisible();
+        await expect(indicator).toHaveAttribute("data-presence-state", "unknown");
+        await expect(indicator).toHaveText("?");
     });
 
     test("PRESENCE-GROUP-01 GROUP Member Snapshot과 Event를 memberRef로 갱신한다", async ({
@@ -132,6 +166,7 @@ test.describe("Chat Presence", () => {
             "chat-group-member-presence-77",
         );
         await expect(indicator).toBeVisible();
+        await expect(indicator).toHaveAttribute("data-presence-state", "online");
 
         await expect.poll(() => ws.getSocket() !== null).toBe(true);
         await expect.poll(ws.isRoomTopicSubscribed).toBe(true);
@@ -145,6 +180,7 @@ test.describe("Chat Presence", () => {
             occurredAt: NOW,
         });
 
-        await expect(indicator).toHaveCount(0);
+        await expect(indicator).toBeVisible();
+        await expect(indicator).toHaveAttribute("data-presence-state", "offline");
     });
 });

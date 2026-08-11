@@ -417,7 +417,9 @@
       }
     },
     "presence": {
-      "online": "Online"
+      "online": "Online",
+      "offline": "Offline",
+      "unknown": "Unknown"
     }
   },
   "ChatRoomCreate": {

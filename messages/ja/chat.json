@@ -417,7 +417,9 @@
       }
     },
     "presence": {
-      "online": "オンライン"
+      "online": "オンライン",
+      "offline": "オフライン",
+      "unknown": "状態不明"
     }
   },
   "ChatRoomCreate": {

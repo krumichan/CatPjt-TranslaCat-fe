@@ -62,7 +62,8 @@ export interface ChatReadUpdatedEvent {
 export interface ChatMemberReadUpdatedEvent {
     eventType: "chat.member.read.updated";
     chatRoomId: number;
-    readerUserId: number;
+    readerUserId: number | null;
+    readerOpenChatMemberId?: number | null;
     previousLastReadMessageId: number | null;
     lastReadMessageId: number;
     readAt: string;
@@ -465,10 +466,16 @@ const isChatMemberReadUpdatedEvent = (
         return false;
     }
 
+    const hasReaderRef =
+        typeof value.readerUserId === "number" ||
+        typeof value.readerOpenChatMemberId === "number";
+
     return (
         value.eventType === "chat.member.read.updated" &&
         typeof value.chatRoomId === "number" &&
-        typeof value.readerUserId === "number" &&
+        isNullableNumber(value.readerUserId) &&
+        isNullableNumberOrUndefined(value.readerOpenChatMemberId) &&
+        hasReaderRef &&
         isNullableNumber(value.previousLastReadMessageId) &&
         typeof value.lastReadMessageId === "number" &&
         typeof value.readAt === "string" &&

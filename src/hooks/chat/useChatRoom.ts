@@ -222,7 +222,7 @@ export function useChatRoom(
     const [retryTranslationErrorKeySet, setRetryTranslationErrorKeySet] =
         useState(() => new Set<string>());
     const appliedReadCursorByUserRef = useRef(
-        new Map<number, number>(),
+        new Map<string, number>(),
     );
     const removedOpenChatMemberIdsRef = useRef(new Set<number>());
     const directPresenceOccurredAtRef = useRef<string | null>(null);
@@ -553,10 +553,19 @@ export function useChatRoom(
                 return;
             }
 
+            const readerCursorKey =
+                typeof event.readerOpenChatMemberId === "number"
+                    ? `open:${event.readerOpenChatMemberId}`
+                    : typeof event.readerUserId === "number"
+                      ? `user:${event.readerUserId}`
+                      : null;
+
+            if (readerCursorKey === null) {
+                return;
+            }
+
             const lastAppliedCursor =
-                appliedReadCursorByUserRef.current.get(
-                    event.readerUserId,
-                ) ?? 0;
+                appliedReadCursorByUserRef.current.get(readerCursorKey) ?? 0;
 
             if (event.lastReadMessageId <= lastAppliedCursor) {
                 return;
@@ -568,17 +577,23 @@ export function useChatRoom(
             );
 
             appliedReadCursorByUserRef.current.set(
-                event.readerUserId,
+                readerCursorKey,
                 event.lastReadMessageId,
             );
 
             setMessages((currentMessages) =>
                 currentMessages.map((message) => {
+                    const isMessageFromReader =
+                        (typeof event.readerUserId === "number" &&
+                            message.senderUserId === event.readerUserId) ||
+                        (typeof event.readerOpenChatMemberId === "number" &&
+                            message.sender?.openChatMemberId ===
+                                event.readerOpenChatMemberId);
+
                     if (
                         message.senderType === "SYSTEM" ||
                         message.messageType === "SYSTEM" ||
-                        message.senderUserId ===
-                            event.readerUserId ||
+                        isMessageFromReader ||
                         message.id <= effectivePreviousCursor ||
                         message.id > event.lastReadMessageId ||
                         message.unreadMemberCount === null ||

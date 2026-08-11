@@ -9,6 +9,8 @@ import {
 import { mockChatRoomBase } from "../support/chat-mocks";
 import {
     makeMessage,
+    makeOpenChatMessage,
+    makeOpenChatProfile,
     makeRoom,
     makeRoomListItem,
     responseDto,
@@ -659,6 +661,79 @@ test.describe("FE #12 chat read status", () => {
         await expect(
             page.getByTestId("chat-message-unread-count-312"),
         ).toHaveCount(0);
+    });
+
+    test("READ-14 OPEN은 openChatMemberId로 발신자를 식별해 자신의 읽음 Event로 자기 메시지 숫자를 줄이지 않는다", async ({
+        page,
+    }) => {
+        let socket: WebSocketRoute | null = null;
+        const myProfile = makeOpenChatProfile({
+            openChatMemberId: 91,
+            memberCode: "OPEN-ME-91",
+            nickname: "내 OPEN 프로필",
+        });
+        const otherProfile = makeOpenChatProfile({
+            openChatMemberId: 92,
+            memberCode: "OPEN-OTHER-92",
+            nickname: "다른 OPEN 멤버",
+        });
+
+        await mockStompBroker(page, {
+            onSocket: (nextSocket) => {
+                socket = nextSocket;
+            },
+        });
+        await page.route(/.*\/chat\/open-rooms\/501\/me\/profile$/, (route) =>
+            fulfillApiJson(route, responseDto(myProfile)),
+        );
+        await mockChatRoomBase(page, {
+            room: makeRoom({
+                id: 501,
+                roomType: "OPEN",
+                sourceType: "OPEN",
+                name: "OPEN 읽음 테스트",
+                memberCount: 3,
+                myRole: "MEMBER",
+            }),
+            messages: [
+                makeOpenChatMessage({
+                    id: 320,
+                    sender: myProfile,
+                    content: "내가 보낸 OPEN 메시지",
+                    unreadMemberCount: 2,
+                }),
+                makeOpenChatMessage({
+                    id: 321,
+                    sender: otherProfile,
+                    content: "다른 사람이 보낸 OPEN 메시지",
+                    unreadMemberCount: 2,
+                }),
+            ],
+        });
+
+        await page.goto("/chat/rooms/501");
+        await expect.poll(() => socket !== null).toBe(true);
+        await expect(
+            page.getByText("WS: CONNECTED", { exact: true }),
+        ).toBeVisible();
+
+        sendStompJson(socket!, "/topic/chat/rooms/501", {
+            eventType: "chat.member.read.updated",
+            chatRoomId: 501,
+            readerUserId: null,
+            readerOpenChatMemberId: 91,
+            previousLastReadMessageId: null,
+            lastReadMessageId: 321,
+            readAt: new Date().toISOString(),
+            occurredAt: new Date().toISOString(),
+        });
+
+        await expect(
+            page.getByTestId("chat-message-unread-count-320"),
+        ).toHaveText("2");
+        await expect(
+            page.getByTestId("chat-message-unread-count-321"),
+        ).toHaveText("1");
     });
 
     test("READ-12 message.created Payload의 초기 미확인 인원을 즉시 표시한다", async ({

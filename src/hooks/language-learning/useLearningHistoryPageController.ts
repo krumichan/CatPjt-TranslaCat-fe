@@ -1,53 +1,75 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { useQuery } from "@/hooks/useQuery";
 import { dailyWritingService } from "@/services/language-learning/dailyWritingService";
-import { languageLearningDashboardService } from "@/services/language-learning/languageLearningDashboardService";
+import { learningHistoryService } from "@/services/language-learning/learningHistoryService";
 import type { DailyWritingItem } from "@/types/language-learning/daily";
+import type { LearningHistorySourceFilter } from "@/types/language-learning/history";
 
 export function useLearningHistoryPageController() {
-    const dashboardQuery = useQuery({
-        keys: ["language-learning-history-index"] as const,
-        fetcher: () => languageLearningDashboardService.get(),
-        config: { revalidateOnMount: true },
-    });
-    const [selectedDate, setSelectedDate] = useState<string | null>(null);
-    const [reviewDrafts, setReviewDrafts] = useState<Record<number, string>>({});
-    const [submittingItemId, setSubmittingItemId] = useState<number | null>(null);
+    const [source, setSource] =
+        useState<LearningHistorySourceFilter>("ALL");
+    const [period, setPeriod] = useState("30d");
+    const [selectedActivityId, setSelectedActivityId] =
+        useState<string | null>(null);
+    const [reviewDrafts, setReviewDrafts] =
+        useState<Record<number, string>>({});
+    const [submittingItemId, setSubmittingItemId] =
+        useState<number | null>(null);
     const [actionError, setActionError] = useState(false);
 
-    const availableDates = useMemo(
-        () =>
-            dashboardQuery.data?.recentLearningHistory.map(
-                (item) => item.learningDate,
-            ) ?? [],
-        [dashboardQuery.data?.recentLearningHistory],
-    );
-
-    useEffect(() => {
-        if (!selectedDate && availableDates.length > 0) {
-            setSelectedDate(availableDates[0]);
-        }
-    }, [availableDates, selectedDate]);
-
-    const historyQuery = useQuery({
-        keys: selectedDate
-            ? (["language-learning-history", selectedDate] as const)
-            : null,
-        fetcher: (_key, date) => dailyWritingService.getHistory(date),
-        enabled: selectedDate !== null,
+    const listQuery = useQuery({
+        keys: ["language-learning-history", source, period] as const,
+        fetcher: (_key, sourceFilter, historyPeriod) =>
+            learningHistoryService.getAll({
+                source: sourceFilter,
+                period: historyPeriod,
+            }),
         config: { revalidateOnMount: true },
     });
 
-    const updateReviewDraft = useCallback((itemId: number, value: string) => {
-        setReviewDrafts((current) => ({
-            ...current,
-            [itemId]: value,
-        }));
-        setActionError(false);
-    }, []);
+    useEffect(() => {
+        const items = listQuery.data ?? [];
+
+        if (items.length === 0) {
+            setSelectedActivityId(null);
+            return;
+        }
+
+        const selectedExists =
+            selectedActivityId !== null &&
+            items.some((item) => item.activityId === selectedActivityId);
+
+        if (!selectedExists) {
+            setSelectedActivityId(items[0].activityId);
+        }
+    }, [listQuery.data, selectedActivityId]);
+
+    const detailQuery = useQuery({
+        keys: selectedActivityId
+            ? ([
+                  "language-learning-history-detail",
+                  selectedActivityId,
+              ] as const)
+            : null,
+        fetcher: (_key, activityId) =>
+            learningHistoryService.getDetail(activityId),
+        enabled: selectedActivityId !== null,
+        config: { revalidateOnMount: true },
+    });
+
+    const updateReviewDraft = useCallback(
+        (itemId: number, value: string) => {
+            setReviewDrafts((current) => ({
+                ...current,
+                [itemId]: value,
+            }));
+            setActionError(false);
+        },
+        [],
+    );
 
     const submitReviewAnswer = useCallback(
         async (item: DailyWritingItem) => {
@@ -65,10 +87,9 @@ export function useLearningHistoryPageController() {
                     ...current,
                     [item.itemId]: "",
                 }));
-
                 await Promise.all([
-                    historyQuery.mutate(undefined, true),
-                    dashboardQuery.mutate(undefined, true),
+                    detailQuery.mutate(undefined, true),
+                    listQuery.mutate(undefined, true),
                 ]);
                 return true;
             } catch (error) {
@@ -82,40 +103,61 @@ export function useLearningHistoryPageController() {
                 setSubmittingItemId(null);
             }
         },
-        [
-            dashboardQuery,
-            historyQuery,
-            reviewDrafts,
-            submittingItemId,
-        ],
+        [detailQuery, listQuery, reviewDrafts, submittingItemId],
     );
 
-    const changeSelectedDate = useCallback((date: string) => {
-        setSelectedDate(date);
+    const selectActivity = useCallback((activityId: string) => {
+        setSelectedActivityId(activityId);
         setActionError(false);
         setReviewDrafts({});
     }, []);
 
+    const changeSource = useCallback(
+        (value: LearningHistorySourceFilter) => {
+            setSource(value);
+            setSelectedActivityId(null);
+            setActionError(false);
+        },
+        [],
+    );
+
+    const changePeriod = useCallback((value: string) => {
+        setPeriod(value);
+        setSelectedActivityId(null);
+        setActionError(false);
+    }, []);
+
+    const reload = useCallback(async () => {
+        await Promise.all([
+            listQuery.mutate(undefined, true),
+            detailQuery.mutate(undefined, true),
+        ]);
+    }, [detailQuery, listQuery]);
+
+    const reloadDetail = useCallback(async () => {
+        await detailQuery.mutate(undefined, true);
+    }, [detailQuery]);
+
     return {
-        summaries: dashboardQuery.data?.recentLearningHistory ?? [],
-        selectedDate,
-        history: historyQuery.data ?? null,
-        isLoading: dashboardQuery.isLoading,
-        historyLoading: selectedDate !== null && historyQuery.isLoading,
-        loadError: dashboardQuery.isError,
-        historyError: historyQuery.isError,
+        source,
+        period,
+        items: listQuery.data ?? [],
+        selectedActivityId,
+        detail: detailQuery.data ?? null,
+        isLoading: listQuery.isLoading,
+        detailLoading: selectedActivityId !== null && detailQuery.isLoading,
+        loadError: listQuery.isError,
+        detailError: detailQuery.isError,
         reviewDrafts,
         submittingItemId,
         actionError,
-        setSelectedDate: changeSelectedDate,
+        setSource: changeSource,
+        setPeriod: changePeriod,
+        selectActivity,
         updateReviewDraft,
         submitReviewAnswer,
-        reload: async () => {
-            await Promise.all([
-                dashboardQuery.mutate(undefined, true),
-                historyQuery.mutate(undefined, true),
-            ]);
-        },
+        reload,
+        reloadDetail,
     };
 }
 

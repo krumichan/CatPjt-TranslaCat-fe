@@ -3,20 +3,21 @@
 import { CalendarDays } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { LearningHistoryDailySet } from "@/components/language-learning/history/LearningHistoryDailySet";
-import { LearningHistoryDateList } from "@/components/language-learning/history/LearningHistoryDateList";
+import { LanguageLearningStateCard } from "@/components/language-learning/common/LanguageLearningStateCard";
+import { SpeakingHistoryDetail } from "@/components/language-learning/history/SpeakingHistoryDetail";
+import { UnifiedLearningHistoryList } from "@/components/language-learning/history/UnifiedLearningHistoryList";
+import { WritingHistoryDetail } from "@/components/language-learning/history/WritingHistoryDetail";
 import type { LearningHistoryPageController } from "@/hooks/language-learning/useLearningHistoryPageController";
-
-interface LanguageLearningHistoryViewProps {
-    controller: LearningHistoryPageController;
-}
 
 export function LanguageLearningHistoryView({
     controller,
-}: LanguageLearningHistoryViewProps) {
+}: {
+    controller: LearningHistoryPageController;
+}) {
     const t = useTranslations("LanguageLearning.history");
+    const common = useTranslations("LanguageLearning.common");
 
-    if (controller.summaries.length === 0) {
+    if (controller.items.length === 0) {
         return (
             <section className="rounded-3xl border border-slate-200 bg-white/90 p-10 text-center shadow-sm dark:border-white/10 dark:bg-slate-900/75">
                 <CalendarDays
@@ -33,17 +34,40 @@ export function LanguageLearningHistoryView({
         );
     }
 
-    return (
-        <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
-            <LearningHistoryDateList
-                summaries={controller.summaries}
-                selectedDate={controller.selectedDate}
-                onSelect={controller.setSelectedDate}
+    let detailContent;
+    if (controller.detailLoading) {
+        detailContent = (
+            <LanguageLearningStateCard
+                variant="loading"
+                title={common("loadingTitle")}
+                message={t("historyLoading")}
             />
+        );
+    } else if (controller.detailError || !controller.detail) {
+        detailContent = (
+            <LanguageLearningStateCard
+                variant="error"
+                title={common("loadFailedTitle")}
+                message={t("historyLoadFailed")}
+                actionLabel={common("retry")}
+                onAction={() => void controller.reloadDetail()}
+            />
+        );
+    } else if (controller.detail.source === "WRITING") {
+        detailContent = (
+            <WritingHistoryDetail
+                history={controller.detail.detail}
+                controller={controller}
+            />
+        );
+    } else {
+        detailContent = <SpeakingHistoryDetail detail={controller.detail.detail} />;
+    }
 
-            <section className="min-w-0 space-y-4">
-                <LearningHistoryDailySet controller={controller} />
-            </section>
+    return (
+        <div className="grid gap-6 lg:grid-cols-[300px_minmax(0,1fr)]">
+            <UnifiedLearningHistoryList controller={controller} />
+            <section className="min-w-0">{detailContent}</section>
         </div>
     );
 }

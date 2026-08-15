@@ -80,7 +80,7 @@ test.describe("Language Learning Phase 1", () => {
             })),
         };
 
-        await page.route("**/language-learning/dashboard", (route) =>
+        await page.route("**/language-learning/dashboard**", (route) =>
             fulfillJson(
                 route,
                 responseDto({
@@ -96,9 +96,35 @@ test.describe("Language Learning Phase 1", () => {
                 }),
             ),
         );
+        await page.route("**/language-learning/history?**", (route) =>
+            fulfillJson(
+                route,
+                responseDto([
+                    {
+                        activityId: "WRITING:101",
+                        source: "WRITING",
+                        learningDate: "2026-08-12",
+                        title: "Daily Writing",
+                        topic: null,
+                        durationSeconds: 0,
+                        overallScore: 84,
+                        completionStatus: "COMPLETED",
+                        evaluationStatus: "EVALUATED",
+                    },
+                ]),
+            ),
+        );
         await page.route(
-            "**/language-learning/writing/daily/history/2026-08-12",
-            (route) => fulfillJson(route, responseDto(reviewSet)),
+            "**/language-learning/history/WRITING%3A101",
+            (route) =>
+                fulfillJson(
+                    route,
+                    responseDto({
+                        activityId: "WRITING:101",
+                        source: "WRITING",
+                        detail: reviewSet,
+                    }),
+                ),
         );
         await page.route("**/language-learning/writing/daily/items/1001/answers", (route) =>
             fulfillJson(

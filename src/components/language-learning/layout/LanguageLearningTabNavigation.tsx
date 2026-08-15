@@ -3,6 +3,7 @@
 import {
     BarChart3,
     History,
+    Mic2,
     Settings,
     Sparkles,
     UserRound,
@@ -22,6 +23,11 @@ const NAV_ITEMS = [
         href: "/language-learning/writing",
         key: "writing",
         icon: Sparkles,
+    },
+    {
+        href: "/language-learning/speaking",
+        key: "speaking",
+        icon: Mic2,
     },
     {
         href: "/language-learning/history",
@@ -53,7 +59,7 @@ export function LanguageLearningTabNavigation() {
                 "dark:border-slate-800 dark:bg-slate-900",
             )}
         >
-            <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:grid-cols-5">
+            <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:grid-cols-6">
                 {NAV_ITEMS.map((item) => {
                     const active =
                         item.href === "/language-learning"

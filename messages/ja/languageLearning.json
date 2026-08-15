@@ -12,7 +12,8 @@
       "writing": "今日のWriting",
       "history": "学習履歴",
       "profile": "学習プロフィール",
-      "settings": "学習設定"
+      "settings": "学習設定",
+      "speaking": "AI Speaking"
     },
     "onboarding": {
       "SETTING": {
@@ -113,6 +114,47 @@
           "sentences": "{count}文",
           "viewAll": "すべての学習履歴を見る"
         }
+      },
+      "v2": {
+        "writingToday": "今日のWriting",
+        "speakingToday": "今日のSpeaking",
+        "writingProgress": "{completed} / {total}文",
+        "speakingProgress": "{minutes} / {goal}分 · {sessions} Session",
+        "speakingSummary": "Speakingサマリー",
+        "collectingData": "評価データがまだ十分ではないため収集中です。",
+        "sessions": "Session",
+        "minutes": "学習分",
+        "overall": "総合",
+        "fluency": "流暢さ",
+        "pronunciation": "発音",
+        "interaction": "会話力",
+        "skillTrend": "Source別Skill推移",
+        "trendSamples": "評価Sample {count}件",
+        "source": {
+          "ALL": "すべて",
+          "WRITING": "Writing",
+          "SPEAKING": "Speaking"
+        },
+        "metric": {
+          "GRAMMAR": "文法",
+          "VOCABULARY": "語彙",
+          "NATURALNESS": "自然さ",
+          "MEANING": "意味伝達",
+          "EXPRESSIVENESS": "表現力",
+          "FLUENCY": "流暢さ",
+          "PRONUNCIATION": "発音",
+          "INTERACTION": "会話力",
+          "OVERALL": "総合"
+        },
+        "points": "{count} Point",
+        "unifiedInsight": "統合Learning Insight",
+        "strengths": "強み",
+        "weaknesses": "弱み",
+        "focus": "推奨Focus",
+        "widgetFailed": "このウィジェットを表示できませんでした。他のダッシュボード情報は引き続き確認できます。",
+        "startWriting": "Writingを始める",
+        "startSpeaking": "Speakingを始める",
+        "sourceEvidence": "根拠Source"
       }
     },
     "levelTest": {
@@ -202,7 +244,7 @@
     },
     "history": {
       "title": "学習履歴",
-      "description": "過去のDaily Set、自分のAnswer、当時のAI評価を日付ごとに確認します。",
+      "description": "WritingとSpeakingの学習履歴と当時の評価をまとめて確認します。",
       "loading": "最近の学習履歴を読み込んでいます。",
       "loadFailed": "学習履歴一覧を読み込めませんでした。",
       "historyLoading": "選択した日の学習履歴を読み込んでいます。",
@@ -220,7 +262,7 @@
       },
       "empty": {
         "title": "学習履歴はまだありません",
-        "description": "Daily Writingを始めると日付ごとの履歴がここに蓄積されます。"
+        "description": "WritingまたはSpeakingを始めると統合履歴がここに表示されます。"
       },
       "review": {
         "answerLabel": "もう一度書いてみる",
@@ -229,6 +271,22 @@
         "submit": "再学習を評価",
         "submitting": "評価中...",
         "submitFailed": "再学習の回答を評価できませんでした。入力内容は保持されています。"
+      },
+      "unified": {
+        "source": {
+          "ALL": "すべて",
+          "WRITING": "Writing",
+          "SPEAKING": "Speaking"
+        },
+        "freeTalk": "フリートーク",
+        "speakingSummary": "{turns} Turn · {minutes}分",
+        "noTranscript": "認識された文章がありません。",
+        "userAudioUnavailable": "現在のAPI契約ではユーザー元音声の再生URLが提供されないため、AI音声のみ再生できます。",
+        "startMode": "会話開始方式",
+        "correctionMode": "訂正Mode",
+        "speakingMetrics": "Speaking評価8軸",
+        "fullTranscript": "全会話Transcript",
+        "assistanceHistoryUnavailable": "現在のAPI応答にはTurn別学習補助の利用回数が含まれないため、Assistance Summaryの数値は表示しません。"
       }
     },
     "profile": {
@@ -274,7 +332,7 @@
     },
     "settings": {
       "title": "言語学習設定",
-      "description": "学習言語、1日の文章数、System/Custom Keywordを管理します。ほとんどの変更は次回学習日から適用されます。",
+      "description": "学習言語、Writing/Speaking目標とKeywordを管理します。一部の変更は翌学習日から適用されます。",
       "loading": "学習設定とKeywordを読み込んでいます。",
       "loadFailed": "言語学習設定を読み込めませんでした。",
       "form": {
@@ -294,6 +352,14 @@
         "pending": {
           "title": "適用予定の設定があります",
           "description": "現在予約されている変更は{date}から適用されます。"
+        },
+        "dailySpeakingGoalMinutes": "1日のSpeaking目標",
+        "dailySpeakingGoalRange": "管理者の許可範囲: {min} ~ {max}分",
+        "speakingVoice": "デフォルトSpeaking Voice",
+        "speakingPlaybackSpeed": "デフォルト再生速度",
+        "playbackSpeed": {
+          "SLOW": "ゆっくり",
+          "NORMAL": "通常"
         }
       },
       "keywords": {
@@ -381,6 +447,403 @@
         "aiEvaluationEnabled": {
           "label": "AI Evaluation有効",
           "help": "Writing回答のAI評価機能を有効化します。"
+        },
+        "speakingEnabled": {
+          "label": "Speaking 활성",
+          "help": "AI Speaking 기능 전체를 활성화합니다."
+        },
+        "speakingEvaluationEnabled": {
+          "label": "Speaking 평가 활성",
+          "help": "Session 종료 후 AI Speaking 평가를 활성화합니다."
+        },
+        "defaultDailySpeakingGoalMinutes": {
+          "label": "기본 Speaking 목표(분)",
+          "help": "신규 사용자의 기본 일일 Speaking 목표입니다."
+        },
+        "minDailySpeakingGoalMinutes": {
+          "label": "최소 Speaking 목표(분)",
+          "help": "사용자가 선택 가능한 최소 목표입니다."
+        },
+        "maxDailySpeakingGoalMinutes": {
+          "label": "최대 Speaking 목표(분)",
+          "help": "사용자가 선택 가능한 최대 목표입니다."
+        },
+        "dailySpeakingHardLimitMinutes": {
+          "label": "일일 Speaking Hard Limit(분)",
+          "help": "사용자의 하루 최대 Speaking 사용 시간입니다."
+        },
+        "dailySpeakingSessionLimit": {
+          "label": "일일 Session 제한",
+          "help": "하루 생성할 수 있는 Speaking Session 수입니다."
+        },
+        "maxSessionMinutes": {
+          "label": "Session 최대 시간(분)",
+          "help": "한 Session의 최대 목표 시간입니다."
+        },
+        "maxTurnsPerSession": {
+          "label": "Session 최대 Turn",
+          "help": "한 Session의 최대 Turn 수입니다."
+        },
+        "minValidAudioSeconds": {
+          "label": "최소 유효 음성(초)",
+          "help": "유효 Turn으로 인정할 최소 녹음 길이입니다."
+        },
+        "maxTurnAudioSeconds": {
+          "label": "Turn 최대 음성(초)",
+          "help": "한 Turn의 최대 녹음 길이입니다."
+        },
+        "maxAudioFileBytes": {
+          "label": "Audio 최대 Byte",
+          "help": "한 Turn 업로드 파일의 최대 크기입니다."
+        },
+        "rawAudioRetentionDays": {
+          "label": "일반 Audio 보관일",
+          "help": "일반 원본 Audio 보관 기간입니다."
+        },
+        "reportedAudioRetentionDays": {
+          "label": "신고 Audio 보관일",
+          "help": "분석 동의된 오류 신고 Audio의 최대 보관 기간입니다."
+        },
+        "activeSessionResumeHours": {
+          "label": "Session 재개 가능 시간",
+          "help": "진행 중 Session을 이어갈 수 있는 시간입니다."
+        },
+        "automaticRetryLimitPerStage": {
+          "label": "단계별 자동 Retry",
+          "help": "STT/LLM/TTS 단계의 자동 Retry 최대 횟수입니다."
+        },
+        "manualRetryLimitPerStage": {
+          "label": "단계별 수동 Retry",
+          "help": "사용자 수동 Retry 최대 횟수입니다."
+        },
+        "sttTimeoutSeconds": {
+          "label": "STT Timeout(초)",
+          "help": "STT 처리 Timeout입니다."
+        },
+        "ttsTimeoutSeconds": {
+          "label": "TTS Timeout(초)",
+          "help": "TTS 처리 Timeout입니다."
+        },
+        "evaluationTimeoutSeconds": {
+          "label": "평가 Timeout(초)",
+          "help": "Speaking 평가 Timeout입니다."
+        }
+      },
+      "speaking": {
+        "title": "Speaking運用設定",
+        "description": "Speaking目標、Session/Turn制限、音声保持、RetryとTimeout Policyを管理します。"
+      }
+    },
+    "speaking": {
+      "start": {
+        "pageTitle": "AI Speaking",
+        "pageDescription": "トピックと会話方法を選び、AIとの音声会話を始めます。",
+        "loading": "Speaking設定を確認しています。",
+        "loadFailed": "Speaking開始情報を取得できませんでした。",
+        "usage": {
+          "sessions": "今日のSession",
+          "minutes": "今日のSpeaking時間"
+        },
+        "createFailed": "Speaking Sessionを開始できませんでした。",
+        "creating": "Session作成中...",
+        "start": "Speakingを開始",
+        "active": {
+          "eyebrow": "進行中のSession",
+          "freeTalk": "フリートーク",
+          "turns": "{current} / {max} Turn",
+          "minutes": "{value}分",
+          "continue": "続きから学習",
+          "loading": "進行中のSpeaking Sessionを確認しています。",
+          "loadFailed": "進行中Sessionを確認できませんでした。重複作成を防ぐため、新しいSession開始を一時的に制限します。",
+          "retry": "再確認"
+        },
+        "topic": {
+          "title": "会話Topic",
+          "description": "おすすめTopicを選ぶか、自由Topicを入力できます。",
+          "category": "Topic Category",
+          "all": "すべて",
+          "loading": "Topicを読み込み中...",
+          "loadFailed": "Topicを取得できませんでした。",
+          "categories": {
+            "DAILY": "日常",
+            "TRAVEL": "旅行",
+            "FOOD": "食事",
+            "SHOPPING": "ショッピング",
+            "BUSINESS": "ビジネス",
+            "IT": "IT",
+            "HOBBY": "趣味",
+            "GAME": "ゲーム",
+            "CULTURE": "文化",
+            "FREE_TALK": "フリートーク"
+          },
+          "level": "推奨Level · {level}",
+          "customTitle": "自由Topic",
+          "customDescription": "練習したい状況や話題を自由に設定します。",
+          "customLabel": "自由Topic",
+          "customPlaceholder": "例：ホテルのチェックインを練習したい",
+          "minutes": "目標 {value}分"
+        },
+        "config": {
+          "title": "Session設定",
+          "description": "会話開始方法、訂正モード、目標時間と音声を設定します。",
+          "startMode": {
+            "title": "会話開始方法",
+            "AI_FIRST": {
+              "label": "AIから開始",
+              "help": "AIが最初の質問をします。"
+            },
+            "USER_FIRST": {
+              "label": "自分から開始",
+              "help": "あなたの発話から会話を始めます。"
+            },
+            "TOPIC_RECOMMENDED": {
+              "label": "Topic推奨",
+              "help": "Topicの推奨方法で開始します。"
+            }
+          },
+          "correctionMode": {
+            "title": "訂正モード",
+            "CONVERSATION": {
+              "label": "会話優先",
+              "help": "会話の流れを優先し、重要な誤りを中心に訂正します。"
+            },
+            "COACHING": {
+              "label": "コーチング優先",
+              "help": "学習向けの訂正とガイドを積極的に提供します。"
+            },
+            "reconfirm": "Session中は選択した訂正モードを基準にAIが応答します。"
+          },
+          "targetMinutes": "目標時間",
+          "targetRange": "管理者の許可範囲: {min} ~ {max}分",
+          "voice": "AI Voice",
+          "speed": "再生速度",
+          "speeds": {
+            "SLOW": "ゆっくり",
+            "NORMAL": "通常"
+          },
+          "goal": "今回の会話目標",
+          "goalPlaceholder": "例：自然に質問を続ける",
+          "persona": "AIの役割",
+          "personaPlaceholder": "例：ホテルスタッフ",
+          "applyPolicy": "Session開始時に選択した設定とPolicy Snapshotが固定されます。"
+        }
+      },
+      "audio": {
+        "unavailable": "音声なし",
+        "pause": "一時停止",
+        "playSlow": "ゆっくり再生",
+        "play": "再生",
+        "slow": "ゆっくり",
+        "failed": "再生失敗"
+      },
+      "session": {
+        "title": "AI Speaking Session",
+        "description": "マイクで回答を録音し、AIとTurn単位で会話します。",
+        "loading": "Speaking Sessionを読み込んでいます。",
+        "loadFailed": "Speaking Sessionを取得できませんでした。",
+        "actionFailed": "処理に失敗しました。完了済みの段階は可能な範囲で保持されます。",
+        "reportCreated": "STTエラー報告を受け付けました。Reference: {reference}",
+        "header": {
+          "customTopic": "Custom Topic",
+          "freeTalk": "フリートーク",
+          "turns": "Turn",
+          "sessionTime": "発話時間",
+          "dailyUsage": "今日の利用",
+          "minutes": "{value}分",
+          "dailyMinutes": "{used} / {limit}分"
+        },
+        "history": {
+          "title": "会話履歴",
+          "empty": "まだTurnがありません。最初の回答を録音してみましょう。"
+        },
+        "microphone": {
+          "title": "マイク権限が必要です",
+          "blockedTitle": "マイクを利用できません",
+          "description": "ブラウザのマイク権限を許可してください。",
+          "request": "マイク権限を許可",
+          "requesting": "確認中...",
+          "granted": "マイク利用可能",
+          "reason": {
+            "UNSUPPORTED": "このブラウザは音声録音をサポートしていません。",
+            "DENIED": "マイク権限がブロックされています。ブラウザ設定から許可してください。",
+            "NO_DEVICE": "利用可能なマイクが見つかりません。",
+            "DEVICE_BUSY": "他のアプリがマイクを使用している可能性があります。",
+            "UNKNOWN": "マイクを開始できませんでした。"
+          }
+        },
+        "recorder": {
+          "state": {
+            "IDLE": "録音準備",
+            "STARTING": "マイク準備中",
+            "RECORDING": "録音中",
+            "RECORDED": "録音完了",
+            "ERROR": "録音エラー"
+          },
+          "limits": "最短1秒 · 1 Turn最大60秒",
+          "nearLimit": "{seconds}秒後に自動停止します。",
+          "start": "録音開始",
+          "stop": "録音停止",
+          "rerecord": "録り直す",
+          "uploading": "アップロード準備中...",
+          "processing": "AI処理中...",
+          "submit": "回答を送信",
+          "preview": "録音を試聴",
+          "recordFailed": "録音に失敗しました。マイク権限とデバイスを確認してください。",
+          "processingStages": "音声アップロード後、STT → AI応答生成 → TTSを処理しています。",
+          "navigationConfirm": "録音中です。このページを離れると現在の録音は失われます。移動しますか？",
+          "tooShort": "最低{seconds}秒以上録音してください。",
+          "tooLarge": "録音ファイルが最大10MBを超えました。録音し直してください。",
+          "pipelineNotice": "現在のAPIは全処理完了後に応答するため、各段階のリアルタイム完了時点はServerの最終状態で確認します。",
+          "pipeline": {
+            "stt": "音声認識(STT)",
+            "conversation": "AI回答生成",
+            "tts": "音声生成(TTS)"
+          }
+        },
+        "eligibility": {
+          "title": "Speaking評価の準備状況",
+          "turnsValue": "有効Turn {current} / {required}",
+          "durationValue": "発話時間 {current} / {required}秒",
+          "sttValue": "有効STT {current}% / {required}%"
+        },
+        "assistance": {
+          "title": "学習サポート",
+          "description": "必要なサポートを選ぶと次のTurnの学習Contextに記録されます。",
+          "items": {
+            "REPLAY": "AI音声をもう一度",
+            "SLOW_PLAYBACK": "ゆっくり聞く",
+            "SHOW_QUESTION": "質問を再表示",
+            "HINT": "ヒント",
+            "TRANSLATION": "翻訳",
+            "SAMPLE_ANSWER": "回答例"
+          },
+          "selected": "{count}件選択中",
+          "question": "直近のAI質問"
+        },
+        "turn": {
+          "number": "Turn {value}",
+          "you": "自分",
+          "confidence": "STT信頼度 {value}%",
+          "noTranscript": "認識された文章がありません。",
+          "lowConfidence": "音声認識の信頼度が低いです。必要ならエラー報告または評価除外を選べます。",
+          "failed": "一部処理失敗",
+          "retry": "失敗段階を再試行",
+          "retryAudio": "TTSのみ再生成",
+          "exclude": "評価から除外",
+          "report": "STTエラー報告",
+          "status": {
+            "AWAITING_UPLOAD": "アップロード待ち",
+            "UPLOADED": "アップロード済み",
+            "PROCESSING": "処理中",
+            "READY": "完了",
+            "PARTIAL_FAILURE": "一部失敗",
+            "FAILED": "失敗",
+            "EXCLUDED": "評価除外"
+          },
+          "stage": {
+            "AUDIO_VALIDATION": "音声検証失敗",
+            "STT": "STT失敗",
+            "CONVERSATION": "AI応答生成失敗",
+            "TTS": "TTS生成失敗",
+            "EVALUATION": "評価失敗"
+          },
+          "userAudio": "直前に録音した自分の音声",
+          "rerecord": "録音し直す",
+          "rerecordConfirm": "このTurnはHistoryに残して評価対象から除外し、新しく録音しますか？",
+          "excludeConfirm": "このTurnを評価対象から除外しますか？Historyには残りますが、ScoreとProfileには反映されません。"
+        },
+        "sttReport": {
+          "title": "STTエラー報告",
+          "description": "音声認識結果が実際の発話と異なる場合に報告してください。",
+          "close": "閉じる",
+          "type": "エラー種類",
+          "types": {
+            "wrong": "認識文が違う",
+            "missing": "一部が欠落",
+            "language": "別言語として認識",
+            "almostNone": "ほとんど認識されない",
+            "other": "その他"
+          },
+          "expectedText": "実際の発話文",
+          "expectedTextPlaceholder": "可能なら実際に話した文章を入力してください。",
+          "expectedTextHelp": "任意です。STT品質確認に利用します。",
+          "consent": "エラー分析のため、このTurnの元音声を最大30日保管することに同意します。",
+          "support": "必要に応じて運用サポート依頼も作成します。",
+          "cancel": "キャンセル",
+          "submit": "報告する",
+          "submitting": "送信中...",
+          "submitFailed": "報告を送信できませんでした。しばらくしてからもう一度お試しください。"
+        },
+        "finish": {
+          "title": "Session終了",
+          "ready": "現在のデータでSpeaking評価条件を満たしています。",
+          "insufficient": "評価基準（5 Turn・60秒・STT 80%）をまだ満たしていません。",
+          "action": "Session終了",
+          "completing": "終了処理中...",
+          "confirm": "Speaking Sessionを終了しますか？終了後は新しいTurnを追加できません。",
+          "serverEvaluationNotice": "評価基準を満たさないまま終了すると、結果が「評価データ不足」と表示される場合があります。",
+          "evaluateAction": "終了して評価を受ける",
+          "continueConversation": "会話を続ける",
+          "withoutEvaluationAction": "評価なしで終了",
+          "confirmEvaluate": "Speaking Sessionを終了して評価を開始しますか？終了後は新しいTurnを追加できません。",
+          "confirmWithoutEvaluation": "評価基準を満たさない状態でSessionを終了しますか？ScoreとProfileには反映されません。",
+          "withoutEvaluationNotice": "評価なしで終了してもHistoryと学習時間は保持されます。現在のBEは別途skip flagではなく評価基準未達をINSUFFICIENT_EVIDENCEとして処理します。"
+        }
+      },
+      "evaluation": {
+        "title": "Speaking評価",
+        "description": "Session全体をもとに共通5 SkillとSpeaking 3 Skillを確認します。",
+        "loading": "Speaking評価を読み込んでいます。",
+        "loadFailed": "Speaking評価を取得できませんでした。",
+        "pendingTitle": "Speaking評価中",
+        "pendingDescription": "Turnと音声Evidenceを分析しています。自動で更新されます。",
+        "failedTitle": "評価に失敗しました",
+        "failedDescription": "会話履歴は保持されています。評価段階のみ再試行できます。",
+        "retry": "評価を再依頼",
+        "retrying": "再依頼中...",
+        "retryFailed": "評価の再依頼に失敗しました。",
+        "insufficientTitle": "評価データが不足しています",
+        "insufficientDescription": "有効Turn、発話時間またはSTT品質が評価基準を満たしませんでした。",
+        "overall": "総合スコア",
+        "confidence": "評価信頼度 {value}%",
+        "commonMetrics": "共通5 Skill",
+        "speakingMetrics": "Speaking 3 Skill",
+        "notEvaluable": "評価不可",
+        "evidence": "評価Evidence",
+        "evidenceFallback": "関連会話Evidence",
+        "strengths": "強み",
+        "improvements": "改善ポイント",
+        "emptyStrengths": "表示できる強みはまだありません。",
+        "emptyImprovements": "表示できる改善ポイントはまだありません。",
+        "recommendedExpressions": "おすすめ表現",
+        "pronunciationPractice": "発音練習",
+        "evidenceTranscript": "Evidence会話確認",
+        "metrics": {
+          "GRAMMAR": "文法",
+          "VOCABULARY": "語彙",
+          "NATURALNESS": "自然さ",
+          "MEANING": "意味伝達",
+          "EXPRESSIVENESS": "表現力",
+          "FLUENCY": "流暢さ",
+          "PRONUNCIATION": "発音",
+          "INTERACTION": "会話力"
+        },
+        "assistanceSummary": {
+          "title": "学習補助の利用案内",
+          "description": "学習補助は失敗や固定減点として扱いません。評価では、どの補助を利用したかをContextとしてのみ反映します。",
+          "neutral": {
+            "title": "評価への影響なし",
+            "description": "再生・ゆっくり再生・質問再表示"
+          },
+          "assisted": {
+            "title": "ASSISTED",
+            "description": "Hint・翻訳を利用して会話を続けた場合"
+          },
+          "guided": {
+            "title": "GUIDED",
+            "description": "回答例を利用して表現を練習した場合"
+          },
+          "usageUnavailable": "現在のBE評価Responseには補助機能ごとの実利用回数が含まれていないため、回数は表示しません。"
         }
       }
     }

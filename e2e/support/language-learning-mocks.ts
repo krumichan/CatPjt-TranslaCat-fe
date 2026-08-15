@@ -8,13 +8,19 @@ export const LANGUAGE_LEARNING_SETTING = {
     learningLanguage: "ja",
     timezone: "Asia/Tokyo",
     dailySentenceCount: 5,
+    dailySpeakingGoalMinutes: 5,
+    speakingVoiceId: "Aoede",
+    speakingPlaybackSpeed: "NORMAL",
     pendingOriginLanguage: null,
     pendingLearningLanguage: null,
     pendingTimezone: null,
     pendingDailySentenceCount: null,
+    pendingDailySpeakingGoalMinutes: null,
     pendingEffectiveDate: null,
     minDailySentenceCount: 1,
     maxDailySentenceCount: 20,
+    minDailySpeakingGoalMinutes: 3,
+    maxDailySpeakingGoalMinutes: 20,
     configured: true,
 };
 
@@ -168,6 +174,12 @@ export const LANGUAGE_LEARNING_DASHBOARD = {
         strongestMetric: "MEANING",
         weakestMetric: "EXPRESSION",
     },
+    speakingToday: { completedSessions: 1, completedMinutes: 4, goalMinutes: 5, status: "IN_PROGRESS" },
+    streak: { current: 6, longest: 10, lastStudyDate: "2026-08-15" },
+    speakingSummary: { sessions: 4, totalMinutes: 26, overallAverage: 81, fluencyAverage: 79, pronunciationAverage: 78, interactionAverage: 86, collectingData: false },
+    sourceSkillTrend: { source: "ALL", sampleCount: 8, confidence: 0.86, collectingData: false, metrics: { GRAMMAR: [{ date: "2026-08-15", score: 82 }], FLUENCY: [{ date: "2026-08-15", score: 79 }], PRONUNCIATION: [{ date: "2026-08-15", score: 78 }] } },
+    insights: { strengths: [{ patternKey: "meaning", direction: "UP", evidenceCount: 5, weightedEvidence: 4.2, sources: ["WRITING", "SPEAKING"], unified: true, recommendedFocus: null }], weaknesses: [{ patternKey: "pronunciation", direction: "DOWN", evidenceCount: 3, weightedEvidence: 2.4, sources: ["SPEAKING"], unified: false, recommendedFocus: "pronunciation" }], recommendedFocus: ["pronunciation"] },
+    source: "ALL",
 };
 
 export async function mockLanguageLearningBase(page: Page) {
@@ -178,11 +190,17 @@ export async function mockLanguageLearningBase(page: Page) {
     await page.route("**/language-learning/level-test/status", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LEVEL_STATUS)),
     );
-    await page.route("**/language-learning/dashboard", (route) =>
+    await page.route("**/language-learning/dashboard**", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_DASHBOARD)),
     );
     await page.route("**/language-learning/profile", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_PROFILE)),
+    );
+    await page.route("**/language-learning/history?**", (route) =>
+        fulfillApiJson(route, responseDto([{ activityId: "WRITING:101", source: "WRITING", learningDate: "2026-08-13", title: "Daily Writing", topic: null, durationSeconds: 0, overallScore: 84, completionStatus: "COMPLETED", evaluationStatus: "EVALUATED" }])),
+    );
+    await page.route("**/language-learning/history/WRITING%3A101", (route) =>
+        fulfillApiJson(route, responseDto({ activityId: "WRITING:101", source: "WRITING", detail: LANGUAGE_LEARNING_DAILY_SET })),
     );
     await page.route("**/language-learning/keywords", (route) =>
         fulfillApiJson(
@@ -196,5 +214,231 @@ export async function mockLanguageLearningBase(page: Page) {
                 ],
             }),
         ),
+    );
+}
+
+export const LANGUAGE_LEARNING_SPEAKING_TOPICS = [
+    {
+        id: 201,
+        topicCode: "DAILY_WEEKEND",
+        category: "DAILY",
+        title: "週末の予定",
+        description: "週末の予定について自然に会話します。",
+        originLanguage: "ko",
+        learningLanguage: "ja",
+        recommendedLevel: "B1",
+        recommendedStartMode: "AI_FIRST",
+        sortOrder: 1,
+        version: 1,
+    },
+    {
+        id: 202,
+        topicCode: "TRAVEL_HOTEL",
+        category: "TRAVEL",
+        title: "ホテルチェックイン",
+        description: "ホテルのチェックイン場面を練習します。",
+        originLanguage: "ko",
+        learningLanguage: "ja",
+        recommendedLevel: "A2",
+        recommendedStartMode: "TOPIC_RECOMMENDED",
+        sortOrder: 2,
+        version: 1,
+    },
+];
+
+export const LANGUAGE_LEARNING_SPEAKING_SESSION = {
+    id: 301,
+    learningDate: "2026-08-15",
+    topicId: 201,
+    topicTitle: "週末の予定",
+    topicCategory: "DAILY",
+    topicVersion: 1,
+    customTopic: null,
+    goal: "自然に質問を続ける",
+    persona: null,
+    originLanguage: "ko",
+    learningLanguage: "ja",
+    status: "IN_PROGRESS",
+    evaluationStatus: "NOT_REQUESTED",
+    conversationStartMode: "AI_FIRST",
+    resolvedStartMode: "AI_FIRST",
+    correctionMode: "CONVERSATION",
+    targetMinutes: 5,
+    maxTurns: 20,
+    completedTurns: 5,
+    totalDurationSeconds: 72,
+    voiceId: "Aoede",
+    playbackSpeed: "NORMAL",
+    openingAssistantText: "今週末は何をする予定ですか？",
+    openingAssistantAudioUrl: "/api/v1/language-learning/speaking/sessions/301/audio/opening",
+    sessionSummary: "週末の予定について会話中",
+    startedAt: "2026-08-15T08:00:00",
+    completedAt: null,
+    lastActivityAt: "2026-08-15T08:05:00",
+};
+
+export const LANGUAGE_LEARNING_SPEAKING_TURNS = Array.from({ length: 5 }, (_, index) => ({
+    id: 401 + index,
+    turnIndex: index + 1,
+    status: "READY",
+    durationSeconds: index === 0 ? 16 : 14,
+    transcript: index === 0 ? "友達と映画を見に行く予定です。" : `E2E Speaking answer ${index + 1}`,
+    sttConfidence: 0.94,
+    assistantText: index === 0 ? "いいですね。どんな映画を見る予定ですか？" : `AI response ${index + 1}`,
+    assistantAudioUrl: `/api/v1/language-learning/speaking/sessions/301/turns/${401 + index}/audio`,
+    excludedFromEvaluation: false,
+    failedStage: null,
+    errorCode: null,
+    errorMessage: null,
+    manualRetryCount: 0,
+    completedAt: "2026-08-15T08:05:00",
+}));
+
+export const LANGUAGE_LEARNING_SPEAKING_DETAIL = {
+    session: LANGUAGE_LEARNING_SPEAKING_SESSION,
+    dailyUsage: {
+        sessionCount: 1,
+        usedMinutes: 4,
+        dailySessionLimit: 5,
+        dailySpeakingHardLimitMinutes: 30,
+        dailyGoalMinutes: 5,
+    },
+    turns: LANGUAGE_LEARNING_SPEAKING_TURNS,
+    resumable: true,
+};
+
+export const LANGUAGE_LEARNING_SPEAKING_EVALUATION = {
+    evaluationId: 501,
+    sessionId: 301,
+    status: "EVALUATED",
+    overallScore: 82,
+    evaluationConfidence: 0.88,
+    metrics: [
+        ["GRAMMAR", 84], ["VOCABULARY", 80], ["NATURALNESS", 81], ["MEANING", 88],
+        ["EXPRESSIVENESS", 76], ["FLUENCY", 79], ["PRONUNCIATION", 78], ["INTERACTION", 86],
+    ].map(([metricType, score], index) => ({
+        metricType,
+        state: "EVALUATED",
+        score,
+        confidence: 0.86,
+        summary: `${metricType} feedback`,
+        notEvaluableReason: null,
+        evidenceJson: JSON.stringify([{ turnId: String(401 + Math.min(index, 4)), startMs: 0, endMs: 1200, message: "Evidence phrase" }]),
+    })),
+    strengthsJson: JSON.stringify(["질문에 자연스럽게 반응했습니다."]),
+    improvementsJson: JSON.stringify(["조금 더 다양한 연결 표현을 사용해 보세요."]),
+    recommendedExpressionsJson: JSON.stringify([{ original: "映画を見る", recommended: "映画を観に行く", explanation: "상황에 더 자연스러운 표현입니다." }]),
+    pronunciationPracticeJson: JSON.stringify([{ target: "予定です", practicePhrase: "週末の予定です。", reason: "장음을 의식해서 천천히 연습해 보세요.", evidenceTurnIds: ["401"] }]),
+    eligibilityJson: JSON.stringify({ validTurns: 5, speakingSeconds: 72, sttValidRatio: 1 }),
+    evaluationVersion: "speaking-eval-v1",
+    scoringPolicyVersion: "speaking-score-v1",
+    promptVersion: "speaking-eval-prompt-v1",
+    evaluatedAt: "2026-08-15T08:10:00",
+};
+
+export const LANGUAGE_LEARNING_UNIFIED_HISTORY = [
+    {
+        activityId: "SPEAKING:301",
+        source: "SPEAKING",
+        learningDate: "2026-08-15",
+        title: "週末の予定",
+        topic: "DAILY",
+        durationSeconds: 72,
+        overallScore: 82,
+        completionStatus: "COMPLETED",
+        evaluationStatus: "EVALUATED",
+    },
+    {
+        activityId: "WRITING:101",
+        source: "WRITING",
+        learningDate: "2026-08-13",
+        title: "Daily Writing",
+        topic: null,
+        durationSeconds: 0,
+        overallScore: 84,
+        completionStatus: "COMPLETED",
+        evaluationStatus: "EVALUATED",
+    },
+];
+
+export const LANGUAGE_LEARNING_ADMIN_SETTING = {
+    defaultDailySentenceCount: 5,
+    minDailySentenceCount: 1,
+    maxDailySentenceCount: 20,
+    dailyKeywordMaxCount: 5,
+    reviewAvailableDays: 7,
+    levelRecheckRecommendationDays: 30,
+    adaptiveWritingEnabled: true,
+    aiEvaluationEnabled: true,
+    speakingEnabled: true,
+    speakingEvaluationEnabled: true,
+    defaultDailySpeakingGoalMinutes: 5,
+    minDailySpeakingGoalMinutes: 3,
+    maxDailySpeakingGoalMinutes: 20,
+    dailySpeakingHardLimitMinutes: 30,
+    dailySpeakingSessionLimit: 5,
+    maxSessionMinutes: 10,
+    maxTurnsPerSession: 20,
+    minValidAudioSeconds: 1,
+    maxTurnAudioSeconds: 60,
+    maxAudioFileBytes: 10485760,
+    rawAudioRetentionDays: 7,
+    reportedAudioRetentionDays: 30,
+    activeSessionResumeHours: 2,
+    automaticRetryLimitPerStage: 2,
+    manualRetryLimitPerStage: 1,
+    sttTimeoutSeconds: 30,
+    ttsTimeoutSeconds: 30,
+    evaluationTimeoutSeconds: 60,
+};
+
+export async function mockLanguageLearningPhase2(page: Page) {
+    await page.route("**/language-learning/speaking/topics**", (route) =>
+        fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_SPEAKING_TOPICS)),
+    );
+    await page.route("**/language-learning/speaking/sessions/active", (route) =>
+        fulfillApiJson(route, responseDto(null)),
+    );
+    await page.route("**/language-learning/speaking/sessions/301/evaluation/retry", (route) =>
+        fulfillApiJson(route, responseDto(null)),
+    );
+    await page.route("**/language-learning/speaking/sessions/301/evaluation", (route) =>
+        fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_SPEAKING_EVALUATION)),
+    );
+    await page.route("**/language-learning/speaking/sessions/301/turns/upload-url", (route) =>
+        fulfillApiJson(route, responseDto({ turnId: 406, turnIndex: 6, uploadToken: "upload-token", uploadUrl: "/mock-upload", expiresAt: "2026-08-15T09:00:00" })),
+    );
+    await page.route("**/language-learning/speaking/sessions/301/turns", (route) =>
+        fulfillApiJson(route, responseDto({ ...LANGUAGE_LEARNING_SPEAKING_TURNS[0], id: 406, turnIndex: 6, transcript: "新しい回答です。" })),
+    );
+    await page.route("**/language-learning/speaking/sessions/301/turns/*/retry", (route) =>
+        fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_SPEAKING_TURNS[0])),
+    );
+    await page.route("**/language-learning/speaking/sessions/301/turns/*/exclude", (route) =>
+        fulfillApiJson(route, responseDto({ ...LANGUAGE_LEARNING_SPEAKING_TURNS[0], excludedFromEvaluation: true, status: "EXCLUDED" })),
+    );
+    await page.route("**/language-learning/speaking/sessions/301/turns/*/stt-reports", (route) =>
+        fulfillApiJson(route, responseDto({ id: 701, reportReference: "STT-701", sessionId: 301, turnId: 401, reportType: "WRONG_TEXT", reportStatus: "OPEN", expectedText: null, audioAnalysisConsent: false, audioRetentionUntil: null, supportRequested: false, supportReference: null, resolvedAt: null })),
+    );
+    await page.route("**/language-learning/speaking/sessions/301/complete", (route) =>
+        fulfillApiJson(route, responseDto({ ...LANGUAGE_LEARNING_SPEAKING_SESSION, status: "EVALUATING", evaluationStatus: "PENDING", completedAt: "2026-08-15T08:08:00" })),
+    );
+    await page.route("**/language-learning/speaking/sessions/301", (route) =>
+        fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_SPEAKING_DETAIL)),
+    );
+    await page.route("**/language-learning/speaking/sessions", (route) =>
+        fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_SPEAKING_SESSION)),
+    );
+    await page.route("**/language-learning/history?**", (route) =>
+        fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_UNIFIED_HISTORY)),
+    );
+    await page.route("**/language-learning/history/SPEAKING%3A301", (route) =>
+        fulfillApiJson(route, responseDto({ activityId: "SPEAKING:301", source: "SPEAKING", detail: { session: LANGUAGE_LEARNING_SPEAKING_SESSION, turns: LANGUAGE_LEARNING_SPEAKING_TURNS, evaluation: LANGUAGE_LEARNING_SPEAKING_EVALUATION } })),
+    );
+    await page.route("**/language-learning/history/WRITING%3A101", (route) =>
+        fulfillApiJson(route, responseDto({ activityId: "WRITING:101", source: "WRITING", detail: LANGUAGE_LEARNING_DAILY_SET })),
+    );
+    await page.route("**/admin/language-learning/settings", (route) =>
+        fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_ADMIN_SETTING)),
     );
 }

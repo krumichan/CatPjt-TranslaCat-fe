@@ -85,6 +85,10 @@ export function LanguageLearningDashboardSmartPage() {
                 recheckRecommended={
                     controller.entry.levelStatus?.recheckRecommended ?? false
                 }
+                period={controller.period}
+                source={controller.source}
+                onPeriodChange={controller.setPeriod}
+                onSourceChange={controller.setSource}
             />
         );
     })();

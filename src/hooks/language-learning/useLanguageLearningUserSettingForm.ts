@@ -10,6 +10,16 @@ export interface LanguageLearningSettingFormValue {
     learningLanguage: string;
     timezone: string;
     dailySentenceCount: number;
+    dailySpeakingGoalMinutes: number;
+    speakingVoiceId: string;
+    speakingPlaybackSpeed: string;
+}
+
+interface UseLanguageLearningUserSettingFormOptions {
+    setting: LanguageLearningUserSetting | null;
+    onUpdated: (
+        setting: LanguageLearningUserSetting,
+    ) => Promise<unknown> | unknown;
 }
 
 function toFormValue(
@@ -26,17 +36,20 @@ function toFormValue(
             Intl.DateTimeFormat().resolvedOptions().timeZone,
         dailySentenceCount:
             setting.pendingDailySentenceCount ?? setting.dailySentenceCount,
+        dailySpeakingGoalMinutes:
+            setting.pendingDailySpeakingGoalMinutes ??
+            setting.dailySpeakingGoalMinutes,
+        speakingVoiceId: setting.speakingVoiceId ?? "Aoede",
+        speakingPlaybackSpeed: setting.speakingPlaybackSpeed ?? "NORMAL",
     };
 }
 
 export function useLanguageLearningUserSettingForm({
     setting,
     onUpdated,
-}: {
-    setting: LanguageLearningUserSetting | null;
-    onUpdated: (setting: LanguageLearningUserSetting) => Promise<unknown> | unknown;
-}) {
-    const [form, setForm] = useState<LanguageLearningSettingFormValue | null>(null);
+}: UseLanguageLearningUserSettingFormOptions) {
+    const [form, setForm] =
+        useState<LanguageLearningSettingFormValue | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [saveError, setSaveError] = useState(false);
     const [saved, setSaved] = useState(false);
@@ -57,7 +70,14 @@ export function useLanguageLearningUserSettingForm({
             form.timezone.trim().length > 0 &&
             Number.isInteger(form.dailySentenceCount) &&
             form.dailySentenceCount >= setting.minDailySentenceCount &&
-            form.dailySentenceCount <= setting.maxDailySentenceCount
+            form.dailySentenceCount <= setting.maxDailySentenceCount &&
+            Number.isInteger(form.dailySpeakingGoalMinutes) &&
+            form.dailySpeakingGoalMinutes >=
+                setting.minDailySpeakingGoalMinutes &&
+            form.dailySpeakingGoalMinutes <=
+                setting.maxDailySpeakingGoalMinutes &&
+            form.speakingVoiceId.trim().length > 0 &&
+            form.speakingPlaybackSpeed.trim().length > 0
         );
     }, [form, setting]);
 
@@ -94,7 +114,10 @@ export function useLanguageLearningUserSettingForm({
             setSaved(true);
             return true;
         } catch (error) {
-            console.error("Failed to update language learning setting.", error);
+            console.error(
+                "Failed to update language learning setting.",
+                error,
+            );
             setSaveError(true);
             return false;
         } finally {

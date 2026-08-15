@@ -12,7 +12,8 @@
       "writing": "오늘의 Writing",
       "history": "학습 기록",
       "profile": "학습 프로필",
-      "settings": "학습 설정"
+      "settings": "학습 설정",
+      "speaking": "AI Speaking"
     },
     "onboarding": {
       "SETTING": {
@@ -113,6 +114,47 @@
           "sentences": "{count}문장",
           "viewAll": "전체 학습 기록 보기"
         }
+      },
+      "v2": {
+        "writingToday": "오늘 Writing",
+        "speakingToday": "오늘 Speaking",
+        "writingProgress": "{completed} / {total}문장",
+        "speakingProgress": "{minutes} / {goal}분 · {sessions} Session",
+        "speakingSummary": "Speaking 요약",
+        "collectingData": "아직 충분한 평가 데이터가 없어 수집 중입니다.",
+        "sessions": "Session",
+        "minutes": "학습 분",
+        "overall": "종합",
+        "fluency": "유창성",
+        "pronunciation": "발음",
+        "interaction": "대화 능력",
+        "skillTrend": "Source별 Skill 추이",
+        "trendSamples": "평가 Sample {count}개",
+        "source": {
+          "ALL": "전체",
+          "WRITING": "Writing",
+          "SPEAKING": "Speaking"
+        },
+        "metric": {
+          "GRAMMAR": "문법",
+          "VOCABULARY": "어휘",
+          "NATURALNESS": "자연스러움",
+          "MEANING": "의미 전달",
+          "EXPRESSIVENESS": "표현력",
+          "FLUENCY": "유창성",
+          "PRONUNCIATION": "발음",
+          "INTERACTION": "대화 능력",
+          "OVERALL": "종합"
+        },
+        "points": "{count}개 Point",
+        "unifiedInsight": "통합 Learning Insight",
+        "strengths": "강점",
+        "weaknesses": "약점",
+        "focus": "추천 Focus",
+        "widgetFailed": "이 위젯을 표시하지 못했습니다. 다른 대시보드 정보는 계속 확인할 수 있습니다.",
+        "startWriting": "Writing 시작",
+        "startSpeaking": "Speaking 시작",
+        "sourceEvidence": "근거 Source"
       }
     },
     "levelTest": {
@@ -202,7 +244,7 @@
     },
     "history": {
       "title": "학습 기록",
-      "description": "과거 Daily Set, 내가 작성한 Answer와 당시 AI 평가를 날짜별로 다시 확인합니다.",
+      "description": "Writing과 Speaking 학습 기록 및 당시 평가 결과를 통합해서 확인합니다.",
       "loading": "최근 학습 기록을 불러오고 있습니다.",
       "loadFailed": "학습 기록 목록을 불러오지 못했습니다.",
       "historyLoading": "선택한 날짜의 학습 기록을 불러오고 있습니다.",
@@ -220,7 +262,7 @@
       },
       "empty": {
         "title": "아직 학습 기록이 없습니다",
-        "description": "Daily Writing을 시작하면 여기에 날짜별 기록이 쌓입니다."
+        "description": "Writing 또는 Speaking 학습을 시작하면 여기에 통합 기록이 쌓입니다."
       },
       "review": {
         "answerLabel": "다시 작성해 보기",
@@ -229,6 +271,22 @@
         "submit": "재학습 평가",
         "submitting": "평가 중...",
         "submitFailed": "재학습 답변을 평가하지 못했습니다. 입력한 내용은 유지됩니다."
+      },
+      "unified": {
+        "source": {
+          "ALL": "전체",
+          "WRITING": "Writing",
+          "SPEAKING": "Speaking"
+        },
+        "freeTalk": "자유 대화",
+        "speakingSummary": "{turns} Turn · {minutes}분",
+        "noTranscript": "인식된 문장이 없습니다.",
+        "userAudioUnavailable": "현재 API 계약에서는 사용자 원본 음성 재생 URL이 제공되지 않아 AI 음성만 재생할 수 있습니다.",
+        "startMode": "대화 시작 방식",
+        "correctionMode": "교정 Mode",
+        "speakingMetrics": "Speaking 평가 8축",
+        "fullTranscript": "전체 대화 Transcript",
+        "assistanceHistoryUnavailable": "현재 API 응답에는 Turn별 학습 보조 사용 횟수가 포함되지 않아 Assistance Summary 수치는 표시하지 않습니다."
       }
     },
     "profile": {
@@ -274,7 +332,7 @@
     },
     "settings": {
       "title": "언어 학습 설정",
-      "description": "학습 언어, 하루 문장 수와 System/Custom Keyword를 관리합니다. 대부분의 변경은 다음 학습일부터 적용됩니다.",
+      "description": "학습 언어, Writing/Speaking 목표와 Keyword를 관리합니다. 일부 변경은 다음 학습일부터 적용됩니다.",
       "loading": "학습 설정과 Keyword를 불러오고 있습니다.",
       "loadFailed": "언어 학습 설정을 불러오지 못했습니다.",
       "form": {
@@ -294,6 +352,14 @@
         "pending": {
           "title": "적용 예정 설정이 있습니다",
           "description": "현재 예약된 변경은 {date}부터 적용됩니다."
+        },
+        "dailySpeakingGoalMinutes": "하루 Speaking 목표",
+        "dailySpeakingGoalRange": "관리자 허용 범위: {min} ~ {max}분",
+        "speakingVoice": "기본 Speaking Voice",
+        "speakingPlaybackSpeed": "기본 재생 속도",
+        "playbackSpeed": {
+          "SLOW": "느리게",
+          "NORMAL": "보통"
         }
       },
       "keywords": {
@@ -381,6 +447,403 @@
         "aiEvaluationEnabled": {
           "label": "AI Evaluation 활성",
           "help": "Writing 답변 AI 평가 기능을 활성화합니다."
+        },
+        "speakingEnabled": {
+          "label": "Speaking 활성",
+          "help": "AI Speaking 기능 전체를 활성화합니다."
+        },
+        "speakingEvaluationEnabled": {
+          "label": "Speaking 평가 활성",
+          "help": "Session 종료 후 AI Speaking 평가를 활성화합니다."
+        },
+        "defaultDailySpeakingGoalMinutes": {
+          "label": "기본 Speaking 목표(분)",
+          "help": "신규 사용자의 기본 일일 Speaking 목표입니다."
+        },
+        "minDailySpeakingGoalMinutes": {
+          "label": "최소 Speaking 목표(분)",
+          "help": "사용자가 선택 가능한 최소 목표입니다."
+        },
+        "maxDailySpeakingGoalMinutes": {
+          "label": "최대 Speaking 목표(분)",
+          "help": "사용자가 선택 가능한 최대 목표입니다."
+        },
+        "dailySpeakingHardLimitMinutes": {
+          "label": "일일 Speaking Hard Limit(분)",
+          "help": "사용자의 하루 최대 Speaking 사용 시간입니다."
+        },
+        "dailySpeakingSessionLimit": {
+          "label": "일일 Session 제한",
+          "help": "하루 생성할 수 있는 Speaking Session 수입니다."
+        },
+        "maxSessionMinutes": {
+          "label": "Session 최대 시간(분)",
+          "help": "한 Session의 최대 목표 시간입니다."
+        },
+        "maxTurnsPerSession": {
+          "label": "Session 최대 Turn",
+          "help": "한 Session의 최대 Turn 수입니다."
+        },
+        "minValidAudioSeconds": {
+          "label": "최소 유효 음성(초)",
+          "help": "유효 Turn으로 인정할 최소 녹음 길이입니다."
+        },
+        "maxTurnAudioSeconds": {
+          "label": "Turn 최대 음성(초)",
+          "help": "한 Turn의 최대 녹음 길이입니다."
+        },
+        "maxAudioFileBytes": {
+          "label": "Audio 최대 Byte",
+          "help": "한 Turn 업로드 파일의 최대 크기입니다."
+        },
+        "rawAudioRetentionDays": {
+          "label": "일반 Audio 보관일",
+          "help": "일반 원본 Audio 보관 기간입니다."
+        },
+        "reportedAudioRetentionDays": {
+          "label": "신고 Audio 보관일",
+          "help": "분석 동의된 오류 신고 Audio의 최대 보관 기간입니다."
+        },
+        "activeSessionResumeHours": {
+          "label": "Session 재개 가능 시간",
+          "help": "진행 중 Session을 이어갈 수 있는 시간입니다."
+        },
+        "automaticRetryLimitPerStage": {
+          "label": "단계별 자동 Retry",
+          "help": "STT/LLM/TTS 단계의 자동 Retry 최대 횟수입니다."
+        },
+        "manualRetryLimitPerStage": {
+          "label": "단계별 수동 Retry",
+          "help": "사용자 수동 Retry 최대 횟수입니다."
+        },
+        "sttTimeoutSeconds": {
+          "label": "STT Timeout(초)",
+          "help": "STT 처리 Timeout입니다."
+        },
+        "ttsTimeoutSeconds": {
+          "label": "TTS Timeout(초)",
+          "help": "TTS 처리 Timeout입니다."
+        },
+        "evaluationTimeoutSeconds": {
+          "label": "평가 Timeout(초)",
+          "help": "Speaking 평가 Timeout입니다."
+        }
+      },
+      "speaking": {
+        "title": "Speaking 운영 설정",
+        "description": "Speaking 목표, Session/Turn 제한, Audio 보관, Retry와 Timeout 정책을 관리합니다."
+      }
+    },
+    "speaking": {
+      "start": {
+        "pageTitle": "AI Speaking",
+        "pageDescription": "주제와 대화 방식을 선택하고 AI와 음성 대화를 시작합니다.",
+        "loading": "Speaking 설정을 확인하고 있습니다.",
+        "loadFailed": "Speaking 시작 정보를 불러오지 못했습니다.",
+        "usage": {
+          "sessions": "오늘 Session",
+          "minutes": "오늘 Speaking 시간"
+        },
+        "createFailed": "Speaking Session을 시작하지 못했습니다.",
+        "creating": "Session 생성 중...",
+        "start": "Speaking 시작",
+        "active": {
+          "eyebrow": "진행 중인 Session",
+          "freeTalk": "자유 대화",
+          "turns": "{current} / {max} Turn",
+          "minutes": "{value}분",
+          "continue": "이어서 학습",
+          "loading": "진행 중인 Speaking Session을 확인하고 있습니다.",
+          "loadFailed": "진행 중 Session을 확인하지 못했습니다. 중복 생성을 막기 위해 새 Session 시작을 잠시 제한합니다.",
+          "retry": "다시 확인"
+        },
+        "topic": {
+          "title": "대화 Topic",
+          "description": "추천 Topic을 고르거나 자유 Topic을 직접 입력할 수 있습니다.",
+          "category": "Topic Category",
+          "all": "전체",
+          "loading": "Topic을 불러오는 중...",
+          "loadFailed": "Topic을 불러오지 못했습니다.",
+          "categories": {
+            "DAILY": "일상",
+            "TRAVEL": "여행",
+            "FOOD": "음식",
+            "SHOPPING": "쇼핑",
+            "BUSINESS": "비즈니스",
+            "IT": "IT",
+            "HOBBY": "취미",
+            "GAME": "게임",
+            "CULTURE": "문화",
+            "FREE_TALK": "자유 대화"
+          },
+          "level": "추천 Level · {level}",
+          "customTitle": "직접 Topic 입력",
+          "customDescription": "원하는 상황이나 주제를 직접 정합니다.",
+          "customLabel": "자유 Topic",
+          "customPlaceholder": "예: 호텔 체크인 상황을 연습하고 싶어요",
+          "minutes": "목표 {value}분"
+        },
+        "config": {
+          "title": "Session 설정",
+          "description": "대화 시작 방식, 교정 강도, 목표 시간과 음성을 설정합니다.",
+          "startMode": {
+            "title": "대화 시작 방식",
+            "AI_FIRST": {
+              "label": "AI 먼저",
+              "help": "AI가 첫 질문을 시작합니다."
+            },
+            "USER_FIRST": {
+              "label": "내가 먼저",
+              "help": "사용자가 먼저 말하면서 대화를 시작합니다."
+            },
+            "TOPIC_RECOMMENDED": {
+              "label": "Topic 추천",
+              "help": "Topic의 권장 방식으로 시작합니다."
+            }
+          },
+          "correctionMode": {
+            "title": "교정 방식",
+            "CONVERSATION": {
+              "label": "대화 중심",
+              "help": "대화 흐름을 우선하고 핵심 오류만 교정합니다."
+            },
+            "COACHING": {
+              "label": "코칭 중심",
+              "help": "학습 관점의 교정과 안내를 더 적극적으로 제공합니다."
+            },
+            "reconfirm": "Session 중에는 선택한 교정 방식을 기준으로 AI가 응답합니다."
+          },
+          "targetMinutes": "목표 시간",
+          "targetRange": "관리자 허용 범위: {min} ~ {max}분",
+          "voice": "AI Voice",
+          "speed": "재생 속도",
+          "speeds": {
+            "SLOW": "느리게",
+            "NORMAL": "보통"
+          },
+          "goal": "이번 대화 목표",
+          "goalPlaceholder": "예: 자연스럽게 질문을 이어가기",
+          "persona": "AI 역할",
+          "personaPlaceholder": "예: 호텔 직원",
+          "applyPolicy": "Session 시작 시 선택한 설정과 정책이 Snapshot으로 고정됩니다."
+        }
+      },
+      "audio": {
+        "unavailable": "오디오 없음",
+        "pause": "일시정지",
+        "playSlow": "느리게 재생",
+        "play": "재생",
+        "slow": "느리게",
+        "failed": "재생 실패"
+      },
+      "session": {
+        "title": "AI Speaking Session",
+        "description": "마이크로 답변을 녹음하고 AI와 Turn 단위로 대화합니다.",
+        "loading": "Speaking Session을 불러오고 있습니다.",
+        "loadFailed": "Speaking Session을 불러오지 못했습니다.",
+        "actionFailed": "요청을 처리하지 못했습니다. 녹음 내용과 완료된 단계는 가능한 범위에서 유지됩니다.",
+        "reportCreated": "STT 오류 신고가 접수되었습니다. Reference: {reference}",
+        "header": {
+          "customTopic": "Custom Topic",
+          "freeTalk": "자유 대화",
+          "turns": "Turn",
+          "sessionTime": "말한 시간",
+          "dailyUsage": "오늘 사용량",
+          "minutes": "{value}분",
+          "dailyMinutes": "{used} / {limit}분"
+        },
+        "history": {
+          "title": "대화 기록",
+          "empty": "아직 대화 Turn이 없습니다. 첫 답변을 녹음해 보세요."
+        },
+        "microphone": {
+          "title": "마이크 권한이 필요합니다",
+          "blockedTitle": "마이크를 사용할 수 없습니다",
+          "description": "브라우저의 마이크 권한을 허용해 주세요.",
+          "request": "마이크 권한 요청",
+          "requesting": "권한 확인 중...",
+          "granted": "마이크 사용 가능",
+          "reason": {
+            "UNSUPPORTED": "이 브라우저는 음성 녹음을 지원하지 않습니다.",
+            "DENIED": "마이크 권한이 차단되어 있습니다. 브라우저 설정에서 허용해 주세요.",
+            "NO_DEVICE": "사용 가능한 마이크를 찾지 못했습니다.",
+            "DEVICE_BUSY": "다른 앱에서 마이크를 사용 중일 수 있습니다.",
+            "UNKNOWN": "마이크를 시작하지 못했습니다."
+          }
+        },
+        "recorder": {
+          "state": {
+            "IDLE": "녹음 준비",
+            "STARTING": "마이크 준비 중",
+            "RECORDING": "녹음 중",
+            "RECORDED": "녹음 완료",
+            "ERROR": "녹음 오류"
+          },
+          "limits": "최소 1초 · Turn당 최대 60초",
+          "nearLimit": "{seconds}초 후 자동으로 녹음이 종료됩니다.",
+          "start": "녹음 시작",
+          "stop": "녹음 종료",
+          "rerecord": "다시 녹음",
+          "uploading": "업로드 준비 중...",
+          "processing": "AI 처리 중...",
+          "submit": "답변 보내기",
+          "preview": "내 녹음 미리 듣기",
+          "recordFailed": "녹음에 실패했습니다. 마이크 권한과 장치를 확인해 주세요.",
+          "processingStages": "음성 업로드 후 STT → AI 대화 생성 → TTS 단계를 처리하고 있습니다.",
+          "navigationConfirm": "녹음 중입니다. 이 페이지를 떠나면 현재 녹음이 사라집니다. 이동할까요?",
+          "tooShort": "최소 {seconds}초 이상 녹음해 주세요.",
+          "tooLarge": "녹음 파일이 최대 10MB를 초과했습니다. 다시 녹음해 주세요.",
+          "pipelineNotice": "현재 API는 전체 처리 완료 후 응답하므로 각 단계의 실시간 완료 시점은 서버가 반환한 최종 상태로 확인합니다.",
+          "pipeline": {
+            "stt": "음성 인식(STT)",
+            "conversation": "AI 답변 생성",
+            "tts": "음성 생성(TTS)"
+          }
+        },
+        "eligibility": {
+          "title": "Speaking 평가 준비도",
+          "turnsValue": "유효 Turn {current} / {required}",
+          "durationValue": "말한 시간 {current} / {required}초",
+          "sttValue": "유효 STT {current}% / {required}%"
+        },
+        "assistance": {
+          "title": "학습 보조",
+          "description": "필요한 도움을 선택하면 다음 Turn의 학습 Context에 기록됩니다.",
+          "items": {
+            "REPLAY": "AI 음성 다시 듣기",
+            "SLOW_PLAYBACK": "느리게 듣기",
+            "SHOW_QUESTION": "질문 다시 보기",
+            "HINT": "힌트",
+            "TRANSLATION": "번역",
+            "SAMPLE_ANSWER": "예시 답안"
+          },
+          "selected": "{count}개 보조 기능 선택됨",
+          "question": "최근 AI 질문"
+        },
+        "turn": {
+          "number": "Turn {value}",
+          "you": "나",
+          "confidence": "STT 신뢰도 {value}%",
+          "noTranscript": "인식된 문장이 없습니다.",
+          "lowConfidence": "음성 인식 신뢰도가 낮습니다. 필요하면 오류 신고 또는 평가 제외를 선택할 수 있습니다.",
+          "failed": "일부 처리 실패",
+          "retry": "실패 단계 재시도",
+          "retryAudio": "TTS만 다시 생성",
+          "exclude": "평가에서 제외",
+          "report": "STT 오류 신고",
+          "status": {
+            "AWAITING_UPLOAD": "업로드 대기",
+            "UPLOADED": "업로드 완료",
+            "PROCESSING": "처리 중",
+            "READY": "완료",
+            "PARTIAL_FAILURE": "일부 실패",
+            "FAILED": "실패",
+            "EXCLUDED": "평가 제외"
+          },
+          "stage": {
+            "AUDIO_VALIDATION": "오디오 검증 실패",
+            "STT": "STT 실패",
+            "CONVERSATION": "AI 응답 생성 실패",
+            "TTS": "TTS 생성 실패",
+            "EVALUATION": "평가 실패"
+          },
+          "userAudio": "내가 방금 녹음한 음성",
+          "rerecord": "다시 녹음",
+          "rerecordConfirm": "이 Turn은 History에 남기되 평가에서 제외하고 새로 녹음할까요?",
+          "excludeConfirm": "이 Turn을 평가에서 제외할까요? History에는 유지되지만 점수와 Profile에는 반영되지 않습니다."
+        },
+        "sttReport": {
+          "title": "STT 오류 신고",
+          "description": "음성 인식 결과가 실제 발화와 다르면 알려주세요.",
+          "close": "닫기",
+          "type": "오류 유형",
+          "types": {
+            "wrong": "인식 문장이 다름",
+            "missing": "일부 문장이 누락됨",
+            "language": "다른 언어로 인식됨",
+            "almostNone": "거의 인식되지 않음",
+            "other": "기타"
+          },
+          "expectedText": "실제 발화 문장",
+          "expectedTextPlaceholder": "가능하면 실제로 말한 문장을 입력해 주세요.",
+          "expectedTextHelp": "선택 사항입니다. STT 품질 개선 확인에 사용됩니다.",
+          "consent": "오류 분석을 위해 이 Turn의 원본 음성을 최대 30일 보관하는 데 동의합니다.",
+          "support": "필요하면 운영 지원 요청도 함께 생성합니다.",
+          "cancel": "취소",
+          "submit": "신고 보내기",
+          "submitting": "전송 중...",
+          "submitFailed": "신고를 전송하지 못했습니다. 잠시 후 다시 시도해 주세요."
+        },
+        "finish": {
+          "title": "Session 종료",
+          "ready": "현재 데이터로 Speaking 평가 조건을 충족했습니다.",
+          "insufficient": "아직 평가 기준(5 Turn · 60초 · STT 80%)을 모두 충족하지 않았습니다.",
+          "action": "Session 종료",
+          "completing": "종료 처리 중...",
+          "confirm": "Speaking Session을 종료할까요? 종료 후에는 새 Turn을 추가할 수 없습니다.",
+          "serverEvaluationNotice": "평가 기준이 부족한 상태에서 종료하면 결과가 “평가 데이터 부족”으로 표시될 수 있습니다.",
+          "evaluateAction": "종료하고 평가받기",
+          "continueConversation": "계속 대화하기",
+          "withoutEvaluationAction": "평가 없이 종료하기",
+          "confirmEvaluate": "Speaking Session을 종료하고 평가를 시작할까요? 종료 후에는 새 Turn을 추가할 수 없습니다.",
+          "confirmWithoutEvaluation": "평가 기준을 충족하지 않은 상태로 Session을 종료할까요? 점수와 Profile에는 반영되지 않습니다.",
+          "withoutEvaluationNotice": "평가 없이 종료해도 History와 학습 시간은 유지됩니다. 현재 BE는 별도 skip flag 대신 평가 기준 미달을 INSUFFICIENT_EVIDENCE로 처리합니다."
+        }
+      },
+      "evaluation": {
+        "title": "Speaking 평가",
+        "description": "Session 전체 대화를 바탕으로 공통 5대 Skill과 Speaking 3대 Skill을 확인합니다.",
+        "loading": "Speaking 평가를 불러오고 있습니다.",
+        "loadFailed": "Speaking 평가를 불러오지 못했습니다.",
+        "pendingTitle": "Speaking 평가 중",
+        "pendingDescription": "Session의 Turn과 음성 Evidence를 분석하고 있습니다. 잠시 후 자동으로 갱신됩니다.",
+        "failedTitle": "평가에 실패했습니다",
+        "failedDescription": "대화 기록은 보존되어 있습니다. 평가 단계만 다시 요청할 수 있습니다.",
+        "retry": "평가 다시 요청",
+        "retrying": "재요청 중...",
+        "retryFailed": "평가 재요청에 실패했습니다.",
+        "insufficientTitle": "평가할 데이터가 부족합니다",
+        "insufficientDescription": "유효 Turn, 실제 발화 시간 또는 STT 품질이 평가 기준에 충분하지 않았습니다.",
+        "overall": "종합 점수",
+        "confidence": "평가 신뢰도 {value}%",
+        "commonMetrics": "공통 5대 Skill",
+        "speakingMetrics": "Speaking 3대 Skill",
+        "notEvaluable": "평가 불가",
+        "evidence": "평가 Evidence",
+        "evidenceFallback": "관련 대화 Evidence",
+        "strengths": "강점",
+        "improvements": "개선 포인트",
+        "emptyStrengths": "아직 표시할 강점이 없습니다.",
+        "emptyImprovements": "아직 표시할 개선 포인트가 없습니다.",
+        "recommendedExpressions": "추천 표현",
+        "pronunciationPractice": "발음 연습",
+        "evidenceTranscript": "Evidence 대화 확인",
+        "metrics": {
+          "GRAMMAR": "문법",
+          "VOCABULARY": "어휘",
+          "NATURALNESS": "자연스러움",
+          "MEANING": "의미 전달",
+          "EXPRESSIVENESS": "표현력",
+          "FLUENCY": "유창성",
+          "PRONUNCIATION": "발음",
+          "INTERACTION": "대화 능력"
+        },
+        "assistanceSummary": {
+          "title": "학습 보조 사용 안내",
+          "description": "학습 보조는 실패나 고정 감점으로 취급하지 않습니다. 평가에서는 어떤 도움을 사용했는지 Context로만 반영합니다.",
+          "neutral": {
+            "title": "평가 영향 없음",
+            "description": "다시 듣기 · 천천히 듣기 · 질문 다시 보기"
+          },
+          "assisted": {
+            "title": "ASSISTED",
+            "description": "힌트 · 번역을 활용해 대화를 이어간 경우"
+          },
+          "guided": {
+            "title": "GUIDED",
+            "description": "답변 예시를 활용해 표현을 연습한 경우"
+          },
+          "usageUnavailable": "현재 BE 평가 응답에는 도움 기능별 실제 사용 횟수가 포함되지 않아 횟수는 표시하지 않습니다."
         }
       }
     }

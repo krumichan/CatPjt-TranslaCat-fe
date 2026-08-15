@@ -135,8 +135,10 @@ export interface SpeakingTurn {
     durationSeconds: number;
     transcript: string | null;
     sttConfidence: number | null;
+    userAudioUrl: string | null;
     assistantText: string | null;
     assistantAudioUrl: string | null;
+    assistanceUsage: AssistanceType[];
     excludedFromEvaluation: boolean;
     failedStage: SpeakingStage | null;
     errorCode: string | null;
@@ -145,10 +147,23 @@ export interface SpeakingTurn {
     completedAt: string | null;
 }
 
+export interface SpeakingEvaluationEligibility {
+    validUserTurns: number;
+    validUserSpeechSeconds: number;
+    validSttTurnRatio: number;
+    requiredUserTurns: number;
+    requiredUserSpeechSeconds: number;
+    requiredSttTurnRatio: number;
+    requiredEvaluationConfidence: number;
+    eligible: boolean;
+    missingRequirements: string[];
+}
+
 export interface SpeakingSessionDetail {
     session: SpeakingSession;
     dailyUsage: SpeakingDailyUsage;
     turns: SpeakingTurn[];
+    evaluationEligibility: SpeakingEvaluationEligibility;
     resumable: boolean;
 }
 
@@ -233,6 +248,21 @@ export interface SpeakingPronunciationPractice {
     reason?: string;
     evidenceTurnIds?: string[];
     [key: string]: unknown;
+}
+
+
+export interface SpeakingAssistanceRequest {
+    type: AssistanceType;
+    targetTurnId: number | null;
+}
+
+export interface SpeakingAssistanceResponse {
+    type: AssistanceType;
+    targetTurnId: number | null;
+    appliesToTurnIndex: number;
+    content: string | null;
+    audioUrl: string | null;
+    playbackRate: number;
 }
 
 export interface SttErrorReportCreateRequest {

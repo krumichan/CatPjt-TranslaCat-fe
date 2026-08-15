@@ -68,7 +68,7 @@ export function SpeakingEvaluationResult({
                 <TextListCard title={t("improvements")} items={improvements} empty={t("emptyImprovements")} />
             </div>
 
-            <SpeakingAssistanceSummary />
+            <SpeakingAssistanceSummary turns={controller.session?.turns ?? []} />
 
             {expressions.length > 0 && (
                 <section className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-slate-900">

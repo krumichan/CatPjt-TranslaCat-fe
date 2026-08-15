@@ -3,38 +3,44 @@
 import { CheckCircle2, Circle } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-interface SpeakingEvaluationProgressProps {
-    validTurns: number;
-    durationSeconds: number;
-    sttRatio: number;
-}
+import type { SpeakingEvaluationEligibility } from "@/types/language-learning/speaking";
 
 export function SpeakingEvaluationProgress({
-    validTurns,
-    durationSeconds,
-    sttRatio,
-}: SpeakingEvaluationProgressProps) {
+    eligibility,
+}: {
+    eligibility: SpeakingEvaluationEligibility;
+}) {
     const t = useTranslations("LanguageLearning.speaking.session.eligibility");
+    const sttRatioPercent = eligibility.validSttTurnRatio * 100;
+    const requiredSttRatioPercent = eligibility.requiredSttTurnRatio * 100;
     const items = [
         {
             key: "turns",
-            complete: validTurns >= 5,
-            value: t("turnsValue", { current: validTurns, required: 5 }),
+            complete:
+                eligibility.validUserTurns >= eligibility.requiredUserTurns,
+            value: t("turnsValue", {
+                current: eligibility.validUserTurns,
+                required: eligibility.requiredUserTurns,
+            }),
         },
         {
             key: "duration",
-            complete: durationSeconds >= 60,
+            complete:
+                eligibility.validUserSpeechSeconds >=
+                eligibility.requiredUserSpeechSeconds,
             value: t("durationValue", {
-                current: Math.floor(durationSeconds),
-                required: 60,
+                current: Math.floor(eligibility.validUserSpeechSeconds),
+                required: Math.floor(eligibility.requiredUserSpeechSeconds),
             }),
         },
         {
             key: "stt",
-            complete: sttRatio >= 80,
+            complete:
+                eligibility.validSttTurnRatio >=
+                eligibility.requiredSttTurnRatio,
             value: t("sttValue", {
-                current: Math.round(sttRatio),
-                required: 80,
+                current: Math.round(sttRatioPercent),
+                required: Math.round(requiredSttRatioPercent),
             }),
         },
     ];

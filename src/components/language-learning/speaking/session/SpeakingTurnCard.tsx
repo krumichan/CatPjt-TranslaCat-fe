@@ -32,6 +32,8 @@ export function SpeakingTurnCard({
     const sttFailed = failed && turn.failedStage === "STT";
     const highlighted = controller.highlightedTurnId === turn.id;
     const actionDisabled = controller.isBusy || controller.recorder.isRecording;
+    const userAudioUrl =
+        controller.localAudioUrls[turn.id] ?? turn.userAudioUrl;
 
     const excludeFromEvaluation = async () => {
         if (!window.confirm(t("excludeConfirm"))) return;
@@ -90,13 +92,19 @@ export function SpeakingTurnCard({
                     <p className="mt-1 whitespace-pre-wrap text-sm leading-6">
                         {turn.transcript || t("noTranscript")}
                     </p>
-                    {controller.localAudioUrls[turn.id] && (
-                        <audio
-                            controls
-                            src={controller.localAudioUrls[turn.id]}
-                            aria-label={t("userAudio")}
-                            className="mt-3 max-w-full"
-                        />
+                    {userAudioUrl && (
+                        <div className="mt-3">
+                            {userAudioUrl.startsWith("blob:") ? (
+                                <audio
+                                    controls
+                                    src={userAudioUrl}
+                                    aria-label={t("userAudio")}
+                                    className="max-w-full"
+                                />
+                            ) : (
+                                <AudioPlaybackButton url={userAudioUrl} />
+                            )}
+                        </div>
                     )}
                     {turn.sttConfidence !== null && (
                         <p className="mt-2 text-[11px] text-blue-100">
@@ -202,6 +210,7 @@ export function SpeakingTurnCard({
                 onSubmit={(request) =>
                     controller.createSttReport(turn.id, request)
                 }
+                onRequestSupport={controller.requestSttSupport}
             />
         </article>
     );

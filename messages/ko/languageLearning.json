@@ -281,12 +281,13 @@
         "freeTalk": "자유 대화",
         "speakingSummary": "{turns} Turn · {minutes}분",
         "noTranscript": "인식된 문장이 없습니다.",
-        "userAudioUnavailable": "현재 API 계약에서는 사용자 원본 음성 재생 URL이 제공되지 않아 AI 음성만 재생할 수 있습니다.",
         "startMode": "대화 시작 방식",
         "correctionMode": "교정 Mode",
         "speakingMetrics": "Speaking 평가 8축",
         "fullTranscript": "전체 대화 Transcript",
-        "assistanceHistoryUnavailable": "현재 API 응답에는 Turn별 학습 보조 사용 횟수가 포함되지 않아 Assistance Summary 수치는 표시하지 않습니다."
+        "assistanceSummary": "학습 보조 사용 내역",
+        "assistanceSummaryDescription": "Session 동안 실제로 사용한 학습 보조 횟수입니다.",
+        "userAudioExpired": "사용자 원본 음성의 보관 기간이 만료되어 재생할 수 없습니다."
       }
     },
     "profile": {
@@ -708,7 +709,7 @@
         },
         "assistance": {
           "title": "학습 보조",
-          "description": "필요한 도움을 선택하면 다음 Turn의 학습 Context에 기록됩니다.",
+          "description": "필요한 도움을 선택하면 즉시 내용을 확인할 수 있고, 실제 사용 내역은 다음 Turn의 평가 Context에 기록됩니다.",
           "items": {
             "REPLAY": "AI 음성 다시 듣기",
             "SLOW_PLAYBACK": "느리게 듣기",
@@ -718,7 +719,13 @@
             "SAMPLE_ANSWER": "예시 답안"
           },
           "selected": "{count}개 보조 기능 선택됨",
-          "question": "최근 AI 질문"
+          "question": "최근 AI 질문",
+          "used": "이번 Turn 준비에서 학습 보조를 {count}회 사용했습니다.",
+          "unavailableUntilQuestion": "AI 질문이 표시된 뒤 사용할 수 있습니다.",
+          "loadFailed": "학습 보조를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
+          "hint": "힌트",
+          "translation": "번역",
+          "sampleAnswer": "예시 답안"
         },
         "turn": {
           "number": "Turn {value}",
@@ -768,11 +775,20 @@
           "expectedTextPlaceholder": "가능하면 실제로 말한 문장을 입력해 주세요.",
           "expectedTextHelp": "선택 사항입니다. STT 품질 개선 확인에 사용됩니다.",
           "consent": "오류 분석을 위해 이 Turn의 원본 음성을 최대 30일 보관하는 데 동의합니다.",
-          "support": "필요하면 운영 지원 요청도 함께 생성합니다.",
+          "support": "추가 확인이 필요하면 이 신고를 고객 문의로 연결할 수 있습니다.",
           "cancel": "취소",
           "submit": "신고 보내기",
           "submitting": "전송 중...",
-          "submitFailed": "신고를 전송하지 못했습니다. 잠시 후 다시 시도해 주세요."
+          "submitFailed": "신고를 전송하지 못했습니다. 잠시 후 다시 시도해 주세요.",
+          "created": "STT 오류 신고가 접수되었습니다.",
+          "reference": "신고 번호: {reference}",
+          "supportDescription": "추가 확인이 필요하면 이 신고를 고객 문의로 연결할 수 있습니다.",
+          "supportAction": "고객 문의 요청",
+          "supportSubmitting": "문의 요청 중...",
+          "supportCreated": "고객 문의가 생성되었습니다.",
+          "supportReference": "문의 번호: {reference}",
+          "supportFailed": "고객 문의를 생성하지 못했습니다. 다시 시도해 주세요.",
+          "done": "확인"
         },
         "finish": {
           "title": "Session 종료",
@@ -787,7 +803,7 @@
           "withoutEvaluationAction": "평가 없이 종료하기",
           "confirmEvaluate": "Speaking Session을 종료하고 평가를 시작할까요? 종료 후에는 새 Turn을 추가할 수 없습니다.",
           "confirmWithoutEvaluation": "평가 기준을 충족하지 않은 상태로 Session을 종료할까요? 점수와 Profile에는 반영되지 않습니다.",
-          "withoutEvaluationNotice": "평가 없이 종료해도 History와 학습 시간은 유지됩니다. 현재 BE는 별도 skip flag 대신 평가 기준 미달을 INSUFFICIENT_EVIDENCE로 처리합니다."
+          "withoutEvaluationNotice": "평가 없이 종료해도 History와 학습 시간·Streak는 유지되며, 점수와 Learning Profile에는 반영되지 않습니다."
         }
       },
       "evaluation": {
@@ -843,7 +859,8 @@
             "title": "GUIDED",
             "description": "답변 예시를 활용해 표현을 연습한 경우"
           },
-          "usageUnavailable": "현재 BE 평가 응답에는 도움 기능별 실제 사용 횟수가 포함되지 않아 횟수는 표시하지 않습니다."
+          "usageSummary": "이번 Session에서 학습 보조를 총 {count}회 사용했습니다.",
+          "count": "{count}회"
         }
       }
     }

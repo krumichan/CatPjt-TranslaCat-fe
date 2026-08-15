@@ -15,10 +15,12 @@ function formatSeconds(value: number) {
 export function AudioPlaybackButton({
     url,
     slow = false,
+    playbackRate,
     compact = false,
 }: {
     url: string | null;
     slow?: boolean;
+    playbackRate?: number;
     compact?: boolean;
 }) {
     const t = useTranslations("LanguageLearning.speaking.audio");
@@ -36,7 +38,7 @@ export function AudioPlaybackButton({
         <div className="inline-flex items-center gap-2">
             <button
                 type="button"
-                onClick={() => void playback.toggle(slow ? 0.8 : 1)}
+                onClick={() => void playback.toggle(playbackRate ?? (slow ? 0.75 : 1))}
                 disabled={playback.isLoading}
                 aria-label={
                     playback.isPlaying

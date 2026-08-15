@@ -31,10 +31,11 @@ test.describe("Language Learning Phase 2", () => {
         await expect(page.getByRole("radio", { name: /Topic 추천/ })).toBeAttached();
     });
 
-    test("LL2-02 진행 중 Session에서 평가 준비도와 6개 학습 보조를 표시한다", async ({ page }) => {
+    test("LL2-02 진행 중 Session에서 평가 준비도와 6개 학습 보조를 실제 제공한다", async ({ page }) => {
         await page.goto("/language-learning/speaking/301");
         await expect(page.getByTestId("speaking-session-page")).toBeVisible();
         await expect(page.getByText("유효 Turn 5 / 5")).toBeVisible();
+
         for (const label of [
             "AI 음성 다시 듣기",
             "느리게 듣기",
@@ -43,8 +44,27 @@ test.describe("Language Learning Phase 2", () => {
             "번역",
             "예시 답안",
         ]) {
-            await expect(page.getByRole("button", { name: label })).toBeVisible();
+            const request = page.waitForRequest(
+                (candidate) =>
+                    candidate.url().includes("/sessions/301/assistance") &&
+                    candidate.method() === "POST",
+            );
+            await page.getByRole("button", { name: label }).click();
+            await request;
         }
+
+        const assistance = page.getByTestId("speaking-assistance-panel");
+        await expect(assistance.getByText("AI response 5", { exact: true })).toBeVisible();
+        await expect(
+            assistance.getByText("친구와 무엇을 할지 나타내는 동사를 떠올려 보세요."),
+        ).toBeVisible();
+        await expect(assistance.getByText("주말에 무엇을 할 예정인가요?")).toBeVisible();
+        await expect(
+            assistance.getByText("今週末は友達と映画を観に行く予定です。"),
+        ).toBeVisible();
+        await expect(
+            assistance.getByText(/학습 보조를 6회 사용했습니다/),
+        ).toBeVisible();
     });
 
     test("LL2-03 마이크 녹음 후 Turn 전송 UI가 동작한다", async ({ page }) => {
@@ -83,6 +103,9 @@ test.describe("Language Learning Phase 2", () => {
                 }),
         ).toBeVisible();
         await expect(page.getByText("Evidence phrase").first()).toBeVisible();
+        await expect(page.getByText(/학습 보조를 총 5회 사용했습니다/)).toBeVisible();
+        await expect(page.getByText("3회", { exact: true })).toBeVisible();
+        await expect(page.getByText("1회", { exact: true }).first()).toBeVisible();
     });
 
     test("LL2-05 Dashboard V2에서 Writing/Speaking 진행과 Source 필터를 표시한다", async ({ page }) => {
@@ -94,7 +117,7 @@ test.describe("Language Learning Phase 2", () => {
         await trend.getByRole("combobox").first().selectOption("SPEAKING");
     });
 
-    test("LL2-06 통합 History에서 Speaking 상세를 표시한다", async ({ page }) => {
+    test("LL2-06 통합 History에서 User Audio와 Assistance 이력을 포함한 Speaking 상세를 표시한다", async ({ page }) => {
         await page.goto("/language-learning/history");
         await page.getByRole("button", { name: /Speaking/ }).first().click();
         const speakingDetail = page.getByTestId("speaking-history-detail");
@@ -105,6 +128,14 @@ test.describe("Language Learning Phase 2", () => {
                 exact: true,
             }),
         ).toBeVisible();
+        await expect(
+            speakingDetail.getByRole("heading", { name: "학습 보조 사용 내역" }),
+        ).toBeVisible();
+        const hintUsage = speakingDetail.getByTestId("history-assistance-HINT");
+        await expect(hintUsage.getByText("힌트", { exact: true })).toBeVisible();
+        await expect(hintUsage.getByText("2", { exact: true })).toBeVisible();
+        const firstTurn = speakingDetail.locator("#history-speaking-turn-401");
+        await expect(firstTurn.getByRole("button", { name: "재생" }).first()).toBeVisible();
     });
 
     test("LL2-07 사용자 설정에 Speaking 목표와 Voice를 표시한다", async ({ page }) => {
@@ -231,6 +262,7 @@ test.describe("Language Learning Phase 2", () => {
             ...LANGUAGE_LEARNING_SPEAKING_TURNS[0],
             sttConfidence: 0.42,
         };
+
         await page.route(SESSION_DETAIL_URL, (route) =>
             fulfillApiJson(
                 route,
@@ -245,25 +277,70 @@ test.describe("Language Learning Phase 2", () => {
         );
 
         await page.goto("/language-learning/speaking/301");
-        const turn = page.getByTestId("speaking-turn-1");
-        await expect(turn.getByText(/음성 인식 신뢰도가 낮습니다/)).toBeVisible();
-        await expect(turn.getByRole("button", { name: "다시 녹음" })).toBeVisible();
-        await expect(turn.getByRole("button", { name: "평가에서 제외" })).toBeVisible();
-        await turn.getByRole("button", { name: "STT 오류 신고" }).click();
 
-        await page.getByLabel(/최대 30일 보관/).check();
-        await page.getByLabel(/운영 지원 요청/).check();
-        const requestPromise = page.waitForRequest(
+        const turn = page.getByTestId("speaking-turn-1");
+
+        await expect(
+            turn.getByText(/음성 인식 신뢰도가 낮습니다/),
+        ).toBeVisible();
+        await expect(
+            turn.getByRole("button", { name: "다시 녹음" }),
+        ).toBeVisible();
+        await expect(
+            turn.getByRole("button", { name: "평가에서 제외" }),
+        ).toBeVisible();
+
+        await turn
+            .getByRole("button", { name: "STT 오류 신고" })
+            .click();
+
+        const reportDialog = page.getByRole("dialog", {
+            name: "STT 오류 신고",
+        });
+
+        await expect(reportDialog).toBeVisible();
+        await reportDialog.getByLabel(/최대 30일 보관/).check();
+
+        const reportRequestPromise = page.waitForRequest(
             (request) =>
                 request.url().includes("/stt-reports") &&
+                !request.url().includes("/support") &&
                 request.method() === "POST",
         );
-        await page.getByRole("button", { name: "신고 보내기" }).click();
-        const request = await requestPromise;
-        const body = request.postDataJSON();
-        expect(body.audioAnalysisConsent).toBe(true);
-        expect(body.supportRequested).toBe(true);
-        await expect(page.getByText(/STT-701/)).toBeVisible();
+
+        await reportDialog
+            .getByRole("button", { name: "신고 보내기" })
+            .click();
+
+        const reportRequest = await reportRequestPromise;
+        const reportBody = reportRequest.postDataJSON();
+
+        expect(reportBody.audioAnalysisConsent).toBe(true);
+        expect(reportBody.supportRequested).toBe(false);
+
+        await expect(
+            reportDialog.getByText("신고 번호: STT-701", {
+                exact: true,
+            }),
+        ).toBeVisible();
+
+        const supportRequestPromise = page.waitForRequest(
+            (request) =>
+                request.url().includes("/stt-reports/701/support") &&
+                request.method() === "POST",
+        );
+
+        await reportDialog
+            .getByRole("button", { name: "고객 문의 요청" })
+            .click();
+
+        await supportRequestPromise;
+
+        await expect(
+            reportDialog.getByText("문의 번호: SUP-701", {
+                exact: true,
+            }),
+        ).toBeVisible();
     });
 
     test("LL2-14 평가 생성 전 EVALUATION_PENDING을 정상 대기 상태로 처리한다", async ({ page }) => {
@@ -337,6 +414,14 @@ test.describe("Language Learning Phase 2", () => {
                         totalDurationSeconds: 16,
                     },
                     turns: shortTurns,
+                    evaluationEligibility: {
+                        ...LANGUAGE_LEARNING_SPEAKING_DETAIL.evaluationEligibility,
+                        validUserTurns: 2,
+                        validUserSpeechSeconds: 16,
+                        validSttTurnRatio: 1,
+                        eligible: false,
+                        missingRequirements: ["VALID_USER_TURNS", "USER_SPEECH_SECONDS"],
+                    },
                 }),
             ),
         );
@@ -346,9 +431,15 @@ test.describe("Language Learning Phase 2", () => {
         await expect(
             page.getByRole("button", { name: "계속 대화하기" }),
         ).toBeVisible();
-        await expect(
-            page.getByRole("button", { name: "평가 없이 종료하기" }),
-        ).toBeVisible();
+        const completeRequestPromise = page.waitForRequest(
+            (request) =>
+                request.url().includes("/sessions/301/complete") &&
+                request.method() === "POST",
+        );
+        page.once("dialog", (dialog) => dialog.accept());
+        await page.getByRole("button", { name: "평가 없이 종료하기" }).click();
+        const completeRequest = await completeRequestPromise;
+        expect(completeRequest.postDataJSON()).toEqual({ skipEvaluation: true });
     });
 
     test("LL2-17 Dashboard Widget 하나가 실패해도 나머지 Widget을 유지한다", async ({ page }) => {

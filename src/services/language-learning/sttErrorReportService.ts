@@ -24,4 +24,16 @@ export const sttErrorReportService = {
             "SpeakingSttErrorReport",
         );
     },
+
+    requestSupport: async (reportId: number): Promise<SttErrorReport> => {
+        const response = await apiClient(
+            `/language-learning/speaking/stt-reports/${reportId}/support`,
+            { method: "POST" },
+        );
+
+        return parseResponseBody<SttErrorReport>(
+            response,
+            "SpeakingSttErrorReportSupport",
+        );
+    },
 };

@@ -284,8 +284,15 @@ export const LANGUAGE_LEARNING_SPEAKING_TURNS = Array.from({ length: 5 }, (_, in
     durationSeconds: index === 0 ? 16 : 14,
     transcript: index === 0 ? "友達と映画を見に行く予定です。" : `E2E Speaking answer ${index + 1}`,
     sttConfidence: 0.94,
+    userAudioUrl: `/api/v1/language-learning/speaking/sessions/301/turns/${401 + index}/audio/user`,
     assistantText: index === 0 ? "いいですね。どんな映画を見る予定ですか？" : `AI response ${index + 1}`,
     assistantAudioUrl: `/api/v1/language-learning/speaking/sessions/301/turns/${401 + index}/audio`,
+    assistanceUsage:
+        index === 0
+            ? ["REPLAY", "HINT", "HINT", "SAMPLE_ANSWER"]
+            : index === 1
+              ? ["TRANSLATION"]
+              : [],
     excludedFromEvaluation: false,
     failedStage: null,
     errorCode: null,
@@ -293,6 +300,18 @@ export const LANGUAGE_LEARNING_SPEAKING_TURNS = Array.from({ length: 5 }, (_, in
     manualRetryCount: 0,
     completedAt: "2026-08-15T08:05:00",
 }));
+
+export const LANGUAGE_LEARNING_SPEAKING_ELIGIBILITY = {
+    validUserTurns: 5,
+    validUserSpeechSeconds: 72,
+    validSttTurnRatio: 1,
+    requiredUserTurns: 5,
+    requiredUserSpeechSeconds: 60,
+    requiredSttTurnRatio: 0.8,
+    requiredEvaluationConfidence: 0.7,
+    eligible: true,
+    missingRequirements: [],
+};
 
 export const LANGUAGE_LEARNING_SPEAKING_DETAIL = {
     session: LANGUAGE_LEARNING_SPEAKING_SESSION,
@@ -304,6 +323,7 @@ export const LANGUAGE_LEARNING_SPEAKING_DETAIL = {
         dailyGoalMinutes: 5,
     },
     turns: LANGUAGE_LEARNING_SPEAKING_TURNS,
+    evaluationEligibility: LANGUAGE_LEARNING_SPEAKING_ELIGIBILITY,
     resumable: true,
 };
 
@@ -418,11 +438,43 @@ export async function mockLanguageLearningPhase2(page: Page) {
         fulfillApiJson(route, responseDto({ ...LANGUAGE_LEARNING_SPEAKING_TURNS[0], excludedFromEvaluation: true, status: "EXCLUDED" })),
     );
     await page.route("**/language-learning/speaking/sessions/301/turns/*/stt-reports", (route) =>
-        fulfillApiJson(route, responseDto({ id: 701, reportReference: "STT-701", sessionId: 301, turnId: 401, reportType: "WRONG_TEXT", reportStatus: "OPEN", expectedText: null, audioAnalysisConsent: false, audioRetentionUntil: null, supportRequested: false, supportReference: null, resolvedAt: null })),
+        fulfillApiJson(route, responseDto({ id: 701, reportReference: "STT-701", sessionId: 301, turnId: 401, reportType: "WRONG_TEXT", reportStatus: "OPEN", expectedText: null, audioAnalysisConsent: true, audioRetentionUntil: "2026-09-14T08:05:00", supportRequested: false, supportReference: null, resolvedAt: null })),
     );
-    await page.route("**/language-learning/speaking/sessions/301/complete", (route) =>
-        fulfillApiJson(route, responseDto({ ...LANGUAGE_LEARNING_SPEAKING_SESSION, status: "EVALUATING", evaluationStatus: "PENDING", completedAt: "2026-08-15T08:08:00" })),
+    await page.route("**/language-learning/speaking/stt-reports/701/support", (route) =>
+        fulfillApiJson(route, responseDto({ id: 701, reportReference: "STT-701", sessionId: 301, turnId: 401, reportType: "WRONG_TEXT", reportStatus: "OPEN", expectedText: null, audioAnalysisConsent: true, audioRetentionUntil: "2026-09-14T08:05:00", supportRequested: true, supportReference: "SUP-701", resolvedAt: null })),
     );
+    await page.route("**/language-learning/speaking/sessions/301/assistance", async (route) => {
+        const request = route.request().postDataJSON() as { type: string };
+        const payloads: Record<string, { content: string | null; audioUrl: string | null; playbackRate: number }> = {
+            REPLAY: { content: null, audioUrl: LANGUAGE_LEARNING_SPEAKING_TURNS[4].assistantAudioUrl, playbackRate: 1 },
+            SLOW_PLAYBACK: { content: null, audioUrl: LANGUAGE_LEARNING_SPEAKING_TURNS[4].assistantAudioUrl, playbackRate: 0.75 },
+            SHOW_QUESTION: { content: LANGUAGE_LEARNING_SPEAKING_TURNS[4].assistantText, audioUrl: null, playbackRate: 1 },
+            HINT: { content: "친구와 무엇을 할지 나타내는 동사를 떠올려 보세요.", audioUrl: null, playbackRate: 1 },
+            TRANSLATION: { content: "주말에 무엇을 할 예정인가요?", audioUrl: null, playbackRate: 1 },
+            SAMPLE_ANSWER: { content: "今週末は友達と映画を観に行く予定です。", audioUrl: null, playbackRate: 1 },
+        };
+        await fulfillApiJson(
+            route,
+            responseDto({
+                type: request.type,
+                targetTurnId: 405,
+                appliesToTurnIndex: 6,
+                ...payloads[request.type],
+            }),
+        );
+    });
+    await page.route("**/language-learning/speaking/sessions/301/complete", async (route) => {
+        const request = route.request().postDataJSON() as { skipEvaluation?: boolean };
+        await fulfillApiJson(
+            route,
+            responseDto({
+                ...LANGUAGE_LEARNING_SPEAKING_SESSION,
+                status: request.skipEvaluation ? "COMPLETED" : "EVALUATING",
+                evaluationStatus: request.skipEvaluation ? "NOT_REQUESTED" : "PENDING",
+                completedAt: "2026-08-15T08:08:00",
+            }),
+        );
+    });
     await page.route("**/language-learning/speaking/sessions/301", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_SPEAKING_DETAIL)),
     );

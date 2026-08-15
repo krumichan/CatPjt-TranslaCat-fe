@@ -48,10 +48,16 @@ export const speakingSessionService = {
         );
     },
 
-    complete: async (sessionId: number): Promise<SpeakingSession> => {
+    complete: async (
+        sessionId: number,
+        skipEvaluation = false,
+    ): Promise<SpeakingSession> => {
         const response = await apiClient(
             `/language-learning/speaking/sessions/${sessionId}/complete`,
-            { method: "POST" },
+            {
+                method: "POST",
+                body: JSON.stringify({ skipEvaluation }),
+            },
         );
 
         return parseResponseBody<SpeakingSession>(

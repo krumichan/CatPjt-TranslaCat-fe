@@ -5,9 +5,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import {
-    SPEAKING_EVALUATION_MIN_SECONDS,
-    SPEAKING_EVALUATION_MIN_STT_RATIO,
-    SPEAKING_EVALUATION_MIN_TURNS,
     SPEAKING_MAX_AUDIO_FILE_BYTES,
     SPEAKING_MAX_TURN_AUDIO_SECONDS,
     SPEAKING_MIN_VALID_AUDIO_SECONDS,
@@ -20,11 +17,13 @@ import { useAudioRecorder } from "@/hooks/language-learning/speaking/useAudioRec
 import { useMicrophonePermission } from "@/hooks/language-learning/speaking/useMicrophonePermission";
 import { useQuery } from "@/hooks/useQuery";
 import { useRouter } from "@/navigation";
+import { speakingAssistanceService } from "@/services/language-learning/speakingAssistanceService";
 import { speakingSessionService } from "@/services/language-learning/speakingSessionService";
 import { speakingTurnService } from "@/services/language-learning/speakingTurnService";
 import { sttErrorReportService } from "@/services/language-learning/sttErrorReportService";
 import type {
     AssistanceType,
+    SpeakingAssistanceResponse,
     SpeakingTurn,
     SttErrorReportCreateRequest,
 } from "@/types/language-learning/speaking";
@@ -51,6 +50,12 @@ export function useSpeakingSessionController(sessionId: number) {
     const [selectedAssistance, setSelectedAssistance] = useState<
         AssistanceType[]
     >([]);
+    const [assistanceResults, setAssistanceResults] = useState<
+        Partial<Record<AssistanceType, SpeakingAssistanceResponse>>
+    >({});
+    const [assistanceLoadingType, setAssistanceLoadingType] =
+        useState<AssistanceType | null>(null);
+    const [assistanceError, setAssistanceError] = useState(false);
     const [highlightedTurnId, setHighlightedTurnId] = useState<number | null>(
         null,
     );
@@ -98,39 +103,7 @@ export function useSpeakingSessionController(sessionId: number) {
     });
     const microphone = useMicrophonePermission();
     const detail = sessionQuery.data ?? null;
-
-    // Keep the client-side progress indicator aligned with BE's formal
-    // SpeakingEvaluationEligibilityPolicy. A TTS-only partial failure can still
-    // be a valid STT turn, so READY-only filtering would undercount progress.
-    const eligibility = useMemo(() => {
-        const turns = detail?.turns ?? [];
-        const includedTurns = turns.filter(
-            (turn) =>
-                !turn.excludedFromEvaluation &&
-                turn.status !== "AWAITING_UPLOAD",
-        );
-        const validSttTurns = includedTurns.filter((turn) =>
-            Boolean(turn.transcript?.trim()),
-        );
-        const durationSeconds = validSttTurns.reduce(
-            (sum, turn) => sum + turn.durationSeconds,
-            0,
-        );
-        const sttRatio =
-            includedTurns.length === 0
-                ? 0
-                : (validSttTurns.length / includedTurns.length) * 100;
-
-        return {
-            validTurns: validSttTurns.length,
-            durationSeconds,
-            sttRatio,
-            eligible:
-                validSttTurns.length >= SPEAKING_EVALUATION_MIN_TURNS &&
-                durationSeconds >= SPEAKING_EVALUATION_MIN_SECONDS &&
-                sttRatio >= SPEAKING_EVALUATION_MIN_STT_RATIO,
-        };
-    }, [detail?.turns]);
+    const eligibility = detail?.evaluationEligibility ?? null;
 
     const recordingValidationError = useMemo<SpeakingRecordingValidationError>(
         () => {
@@ -196,6 +169,8 @@ export function useSpeakingSessionController(sessionId: number) {
             await sessionQuery.mutate(undefined, true);
             setHighlightedTurnId(turn.id);
             setSelectedAssistance([]);
+            setAssistanceResults({});
+            setAssistanceError(false);
             recorder.reset();
             return true;
         } catch (error) {
@@ -254,6 +229,41 @@ export function useSpeakingSessionController(sessionId: number) {
         [isBusy, sessionId, sessionQuery],
     );
 
+    const requestAssistance = useCallback(
+        async (type: AssistanceType) => {
+            if (isBusy || assistanceLoadingType !== null) return null;
+
+            const targetTurn = detail?.turns
+                .filter((turn) => Boolean(turn.assistantText?.trim()))
+                .at(-1);
+
+            setAssistanceLoadingType(type);
+            setAssistanceError(false);
+            try {
+                const result = await speakingAssistanceService.request(
+                    sessionId,
+                    {
+                        type,
+                        targetTurnId: targetTurn?.id ?? null,
+                    },
+                );
+                setAssistanceResults((current) => ({
+                    ...current,
+                    [type]: result,
+                }));
+                setSelectedAssistance((current) => [...current, type]);
+                return result;
+            } catch (error) {
+                console.error("Failed to load speaking assistance.", error);
+                setAssistanceError(true);
+                return null;
+            } finally {
+                setAssistanceLoadingType(null);
+            }
+        },
+        [assistanceLoadingType, detail?.turns, isBusy, sessionId],
+    );
+
     const createSttReport = useCallback(
         async (turnId: number, request: SttErrorReportCreateRequest) => {
             setActionError(false);
@@ -263,9 +273,7 @@ export function useSpeakingSessionController(sessionId: number) {
                     turnId,
                     request,
                 );
-                setLastReportReference(
-                    report.supportReference ?? report.reportReference,
-                );
+                setLastReportReference(report.reportReference);
                 return report;
             } catch (error) {
                 console.error("Failed to create STT report.", error);
@@ -276,24 +284,49 @@ export function useSpeakingSessionController(sessionId: number) {
         [sessionId],
     );
 
-    const completeSession = useCallback(async () => {
-        if (isBusy) return false;
-
-        setTurnPhase("COMPLETING");
+    const requestSttSupport = useCallback(async (reportId: number) => {
         setActionError(false);
         try {
-            const session = await speakingSessionService.complete(sessionId);
-            await sessionQuery.mutate(undefined, true);
-            router.push(`/language-learning/speaking/${session.id}/evaluation`);
-            return true;
+            const report = await sttErrorReportService.requestSupport(reportId);
+            setLastReportReference(
+                report.supportReference ?? report.reportReference,
+            );
+            return report;
         } catch (error) {
-            console.error("Failed to complete speaking session.", error);
+            console.error("Failed to request STT report support.", error);
             setActionError(true);
-            return false;
-        } finally {
-            setTurnPhase("IDLE");
+            return null;
         }
-    }, [isBusy, router, sessionId, sessionQuery]);
+    }, []);
+
+    const completeSession = useCallback(
+        async (skipEvaluation = false) => {
+            if (isBusy) return false;
+
+            setTurnPhase("COMPLETING");
+            setActionError(false);
+            try {
+                const session = await speakingSessionService.complete(
+                    sessionId,
+                    skipEvaluation,
+                );
+                await sessionQuery.mutate(undefined, true);
+                router.push(
+                    skipEvaluation
+                        ? "/language-learning/history"
+                        : `/language-learning/speaking/${session.id}/evaluation`,
+                );
+                return true;
+            } catch (error) {
+                console.error("Failed to complete speaking session.", error);
+                setActionError(true);
+                return false;
+            } finally {
+                setTurnPhase("IDLE");
+            }
+        },
+        [isBusy, router, sessionId, sessionQuery],
+    );
 
     return {
         detail,
@@ -307,23 +340,25 @@ export function useSpeakingSessionController(sessionId: number) {
         eligibility,
         recordingValidationError,
         selectedAssistance,
+        assistanceResults,
+        assistanceLoadingType,
+        assistanceError,
         highlightedTurnId,
         lastReportReference,
         localAudioUrls,
         canRecord,
         setHighlightedTurnId,
-        toggleAssistance: (type: AssistanceType) => {
-            setSelectedAssistance((current) =>
-                current.includes(type)
-                    ? current.filter((item) => item !== type)
-                    : [...current, type],
-            );
+        requestAssistance,
+        clearAssistance: () => {
+            setSelectedAssistance([]);
+            setAssistanceResults({});
+            setAssistanceError(false);
         },
-        clearAssistance: () => setSelectedAssistance([]),
         submitRecording,
         retryTurn,
         excludeTurn,
         createSttReport,
+        requestSttSupport,
         completeSession,
         reload: async () => {
             await sessionQuery.mutate(undefined, true);

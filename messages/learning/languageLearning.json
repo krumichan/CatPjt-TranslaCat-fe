@@ -281,12 +281,13 @@
         "freeTalk": "フリートーク",
         "speakingSummary": "{turns} Turn · {minutes}分",
         "noTranscript": "認識された文章がありません。",
-        "userAudioUnavailable": "現在のAPI契約ではユーザー元音声の再生URLが提供されないため、AI音声のみ再生できます。",
         "startMode": "会話開始方式",
         "correctionMode": "訂正Mode",
         "speakingMetrics": "Speaking評価8軸",
         "fullTranscript": "全会話Transcript",
-        "assistanceHistoryUnavailable": "現在のAPI応答にはTurn別学習補助の利用回数が含まれないため、Assistance Summaryの数値は表示しません。"
+        "assistanceSummary": "学習サポート利用履歴",
+        "assistanceSummaryDescription": "Session中に実際に利用した学習サポートの回数です。",
+        "userAudioExpired": "ユーザー元音声の保存期間が終了したため再生できません。"
       }
     },
     "profile": {
@@ -708,7 +709,7 @@
         },
         "assistance": {
           "title": "学習サポート",
-          "description": "必要なサポートを選ぶと次のTurnの学習Contextに記録されます。",
+          "description": "必要なサポートを選ぶと内容をすぐ確認でき、実際の利用履歴は次のTurnの評価Contextに記録されます。",
           "items": {
             "REPLAY": "AI音声をもう一度",
             "SLOW_PLAYBACK": "ゆっくり聞く",
@@ -718,7 +719,13 @@
             "SAMPLE_ANSWER": "回答例"
           },
           "selected": "{count}件選択中",
-          "question": "直近のAI質問"
+          "question": "直近のAI質問",
+          "used": "このTurnの準備で学習サポートを{count}回利用しました。",
+          "unavailableUntilQuestion": "AIの質問が表示された後に利用できます。",
+          "loadFailed": "学習サポートを取得できませんでした。しばらくしてからもう一度お試しください。",
+          "hint": "ヒント",
+          "translation": "翻訳",
+          "sampleAnswer": "回答例"
         },
         "turn": {
           "number": "Turn {value}",
@@ -768,11 +775,20 @@
           "expectedTextPlaceholder": "可能なら実際に話した文章を入力してください。",
           "expectedTextHelp": "任意です。STT品質確認に利用します。",
           "consent": "エラー分析のため、このTurnの元音声を最大30日保管することに同意します。",
-          "support": "必要に応じて運用サポート依頼も作成します。",
+          "support": "追加確認が必要な場合、この報告をカスタマーサポート依頼につなげられます。",
           "cancel": "キャンセル",
           "submit": "報告する",
           "submitting": "送信中...",
-          "submitFailed": "Failed to send the report. Please try again in a moment."
+          "submitFailed": "Failed to send the report. Please try again in a moment.",
+          "created": "STTエラー報告を受け付けました。",
+          "reference": "報告番号: {reference}",
+          "supportDescription": "追加確認が必要な場合、この報告をカスタマーサポート依頼につなげられます。",
+          "supportAction": "カスタマーサポートを依頼",
+          "supportSubmitting": "サポート依頼中...",
+          "supportCreated": "カスタマーサポート依頼を作成しました。",
+          "supportReference": "問い合わせ番号: {reference}",
+          "supportFailed": "カスタマーサポート依頼を作成できませんでした。もう一度お試しください。",
+          "done": "確認"
         },
         "finish": {
           "title": "Session終了",
@@ -787,7 +803,7 @@
           "withoutEvaluationAction": "評価なしで終了",
           "confirmEvaluate": "Speaking Sessionを終了して評価を開始しますか？終了後は新しいTurnを追加できません。",
           "confirmWithoutEvaluation": "評価基準を満たさない状態でSessionを終了しますか？ScoreとProfileには反映されません。",
-          "withoutEvaluationNotice": "評価なしで終了してもHistoryと学習時間は保持されます。現在のBEは別途skip flagではなく評価基準未達をINSUFFICIENT_EVIDENCEとして処理します。"
+          "withoutEvaluationNotice": "評価なしで終了してもHistory・学習時間・Streakは保持されますが、ScoreとLearning Profileには反映されません。"
         }
       },
       "evaluation": {
@@ -843,7 +859,8 @@
             "title": "GUIDED",
             "description": "A sample answer was used to practice an expression."
           },
-          "usageUnavailable": "The current BE evaluation response does not expose per-assistance usage counts, so exact counts are not displayed."
+          "usageSummary": "This session used learning assistance {count} times in total.",
+          "count": "{count} uses"
         }
       }
     }

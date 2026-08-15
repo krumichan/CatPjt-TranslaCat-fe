@@ -2,6 +2,7 @@ import React from "react";
 import {
     BookOpen,
     Bot,
+    GraduationCap,
     Languages,
     MessageCircle,
     Mic,
@@ -68,6 +69,15 @@ export const settingCards: SettingCard[] = [
         descriptionKey: "currency.description",
         statusKey: "status.available",
         icon: Languages,
+        adminOnly: true,
+        enabled: true,
+    },
+    {
+        href: "/settings/admin/language-learning",
+        titleKey: "languageLearningAdmin.title",
+        descriptionKey: "languageLearningAdmin.description",
+        statusKey: "status.available",
+        icon: GraduationCap,
         adminOnly: true,
         enabled: true,
     },

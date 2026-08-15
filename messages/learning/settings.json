@@ -325,6 +325,10 @@
           "help": "初期値22:00。許可時間帯内で実際の発言時刻を分散します。"
         }
       }
+    },
+    "languageLearningAdmin": {
+      "title": "言語学習運用設定",
+      "description": "1日の文章数、Keyword反映数、復習期間、Level Recheck基準を管理します。"
     }
   }
 }

@@ -65,8 +65,6 @@ export const APP_NAVIGATION_SECTIONS: AppNavigationSection[] = [
                 labelKey: "languageLearning",
                 icon: GraduationCap,
                 matchPaths: ["/language-learning"],
-                badge: "comingSoon",
-                disabled: true,
             },
         ],
     },

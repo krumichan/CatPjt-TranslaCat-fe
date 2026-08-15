@@ -325,6 +325,10 @@
           "help": "초기값 22:00. 허용 시간대 안에서 실제 발화 시각을 분산합니다."
         }
       }
+    },
+    "languageLearningAdmin": {
+      "title": "언어 학습 운영 설정",
+      "description": "하루 문장 수, Keyword 반영 수, 복습 기간과 Level Recheck 기준을 관리합니다."
     }
   }
 }

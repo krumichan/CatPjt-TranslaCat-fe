@@ -1,0 +1,388 @@
+{
+  "LanguageLearning": {
+    "common": {
+      "loadingTitle": "読み込み中",
+      "loadFailedTitle": "データを読み込めませんでした",
+      "retry": "再試行"
+    },
+    "navigation": {
+      "eyebrow": "Language Learning",
+      "ariaLabel": "言語学習メニュー",
+      "dashboard": "ダッシュボード",
+      "writing": "今日のWriting",
+      "history": "学習履歴",
+      "profile": "学習プロフィール",
+      "settings": "学習設定"
+    },
+    "onboarding": {
+      "SETTING": {
+        "title": "まず学習設定を完了してください",
+        "description": "原文言語、学習言語、1日の文章数を設定すると、あなたに合った学習を準備できます。",
+        "action": "学習設定へ"
+      },
+      "LEVEL_TEST": {
+        "title": "最初の学習前にレベルを確認しましょう",
+        "description": "約12問のWritingレベルテストで初期Base Levelを設定し、その後7日間の実学習で補正します。",
+        "action": "レベルテスト開始"
+      }
+    },
+    "metrics": {
+      "OVERALL": "総合",
+      "MEANING": "意味伝達",
+      "GRAMMAR": "文法",
+      "VOCABULARY": "語彙",
+      "NATURALNESS": "自然さ",
+      "EXPRESSION": "表現力",
+      "score": "スコア",
+      "radarAriaLabel": "意味伝達、文法、語彙、自然さ、表現力の学習スコアレーダーチャート"
+    },
+    "dashboard": {
+      "title": "言語学習ダッシュボード",
+      "description": "今日の学習進捗から長期的なSkill変化、Keyword習熟度、弱点までまとめて確認できます。",
+      "loading": "学習状態を確認しています。",
+      "loadingData": "ダッシュボードと学習プロフィールを読み込んでいます。",
+      "loadFailed": "言語学習ダッシュボードを読み込めませんでした。",
+      "calibration": {
+        "title": "学習パターンを分析中",
+        "description": "初期7日間は実際のWriting結果をもとにBase LevelとLearning Profileを調整します。"
+      },
+      "recheck": {
+        "title": "現在の実力をもう一度確認しますか？",
+        "description": "久しぶりに学習を再開した場合は、Level Recheckで現在のレベルを確認できます。",
+        "action": "レベルを再測定"
+      },
+      "summary": {
+        "todayProgress": "今日の学習",
+        "todayScore": "今日の平均",
+        "weekly": "週間平均",
+        "monthly": "月間平均",
+        "streak": "連続学習",
+        "streakValue": "{count}日",
+        "total": "累計文章"
+      },
+      "widgets": {
+        "radar": {
+          "title": "5大Skill Radar",
+          "description": "現在のWriting力を5つの軸で確認します。"
+        },
+        "trend": {
+          "title": "スコア推移",
+          "description": "最近のDaily評価の主要Metric変化を確認します。",
+          "empty": "推移を表示するための学習データがまだ十分ではありません。",
+          "ariaLabel": "言語学習評価スコア推移チャート",
+          "overall": "総合",
+          "grammar": "文法",
+          "naturalness": "自然さ"
+        },
+        "difficulty": {
+          "title": "難易度別パフォーマンス",
+          "review": "復習",
+          "normal": "適正",
+          "challenge": "挑戦"
+        },
+        "keyword": {
+          "title": "Keyword習熟度",
+          "empty": "Keyword習熟度データはまだありません。"
+        },
+        "weakness": {
+          "title": "弱点と反復エラー",
+          "grammar": "文法の弱点",
+          "patterns": "Error Pattern",
+          "emptyGrammar": "繰り返し発生する文法の弱点はまだありません。",
+          "emptyPattern": "繰り返し発生するError Patternはまだありません。"
+        },
+        "insight": {
+          "title": "Learning Insight",
+          "description": "蓄積評価から見つかった強み・弱みと次の学習Focusです。",
+          "strengths": "強み",
+          "weaknesses": "弱み",
+          "focus": "おすすめFocus",
+          "empty": "まだ十分なデータがありません。"
+        },
+        "monthly": {
+          "title": "月次レポート",
+          "month": "月",
+          "count": "評価文章",
+          "average": "平均スコア",
+          "strongest": "最も強いMetric",
+          "weakest": "今月の改善Focus: {metric}"
+        },
+        "recent": {
+          "title": "最近の学習",
+          "empty": "学習履歴はまだありません。",
+          "sentences": "{count}文",
+          "viewAll": "すべての学習履歴を見る"
+        }
+      }
+    },
+    "levelTest": {
+      "title": "レベルテスト",
+      "description": "Writing中心のAdaptive Testで初期Base Levelを確認し、必要に応じて現在のレベルを再測定できます。",
+      "loading": "レベルテスト状態を確認しています。",
+      "loadFailed": "レベルテスト状態を読み込めませんでした。",
+      "actionFailed": "処理に失敗しました。入力内容を保持したまま再試行してください。",
+      "ready": {
+        "initialTitle": "初回レベルテストを開始します",
+        "initialDescription": "約12問のWriting問題を解きながら、現在の実力に合わせて次の問題難易度が調整されます。",
+        "recheckTitle": "現在のレベルを再測定します",
+        "recheckDescription": "過去の学習履歴は維持したまま、現在のBase Levelと新しいCalibration基準だけを再設定します。",
+        "currentBaseLevel": "現在のBase Level: {score}",
+        "start": "テスト開始",
+        "starting": "準備中...",
+        "continue": "現在のレベルで学習を続ける"
+      },
+      "question": {
+        "progress": "{current} / {total}",
+        "prompt": "次の文章を学習言語で書いてください",
+        "answer": "自分の回答",
+        "placeholder": "文章を入力してください。",
+        "submit": "回答を送信",
+        "evaluating": "評価中..."
+      },
+      "difficulty": {
+        "EASY": "易しい",
+        "NORMAL": "適正",
+        "CHALLENGE": "挑戦"
+      },
+      "completed": {
+        "title": "レベル測定が完了しました",
+        "description": "これでDaily Writingを開始できます。最初の約7日間は実際の学習結果を反映し、難易度を少しずつ補正します。",
+        "baseLevel": "初期Base Level",
+        "startWriting": "今日のWritingを開始",
+        "dashboard": "ダッシュボードへ"
+      }
+    },
+    "writing": {
+      "title": "今日のAdaptive Writing",
+      "description": "今日のSnapshotで固定された問題に回答し、AI評価を次の学習日のLearning Profileへ反映します。",
+      "loadingEntry": "学習設定とレベル状態を確認しています。",
+      "generatingTitle": "今日の問題を準備しています",
+      "generatingMessage": "現在の設定とLearning Profileをもとに今日のDaily Setを生成しています。",
+      "loadFailed": "今日のWriting問題を読み込めませんでした。",
+      "progress": "{completed} / {total} 完了",
+      "snapshotNotice": "今日の問題は生成時点のSnapshotで維持され、設定やKeywordの変更は明日から反映されます。",
+      "actionFailed": "処理に失敗しました。入力した回答は保持されているため再試行できます。",
+      "regenerate": {
+        "action": "未回答問題を変更 · 残り{count}回",
+        "loading": "問題を変更中..."
+      },
+      "calibration": {
+        "title": "Calibration中です。",
+        "description": "今日の評価も明日から適用されるLearning Profileの補正に利用されます。"
+      },
+      "item": {
+        "difficulty": {
+          "REVIEW": "復習",
+          "NORMAL": "適正",
+          "CHALLENGE": "挑戦"
+        },
+        "prompt": "原文",
+        "answer": "自分の回答",
+        "placeholder": "学習言語で文章を書いてください。",
+        "submit": "AI評価を受ける",
+        "evaluating": "評価中...",
+        "answeredToday": "本日のこの問題の回答と評価は完了しています。",
+        "reviewExpired": "現在、この問題に新しい回答を送信できません。過去の記録は引き続き確認できます。",
+        "latestAnswer": "最新の回答"
+      },
+      "completed": {
+        "title": "今日の学習完了！",
+        "description": "今日の評価結果がLearning Profileへ反映され、次回学習日から活用されます。",
+        "dashboard": "ダッシュボードで結果を見る"
+      }
+    },
+    "evaluation": {
+      "eyebrow": "AI Evaluation",
+      "title": "AI評価結果",
+      "strengths": "良かった点",
+      "weaknesses": "改善ポイント",
+      "corrections": "修正内容",
+      "recommendedAnswers": "おすすめ回答",
+      "explanation": "詳細説明"
+    },
+    "history": {
+      "title": "学習履歴",
+      "description": "過去のDaily Set、自分のAnswer、当時のAI評価を日付ごとに確認します。",
+      "loading": "最近の学習履歴を読み込んでいます。",
+      "loadFailed": "学習履歴一覧を読み込めませんでした。",
+      "historyLoading": "選択した日の学習履歴を読み込んでいます。",
+      "historyLoadFailed": "選択した日の学習履歴を読み込めませんでした。",
+      "dates": "学習日",
+      "summary": "{count}文 · 平均 {score}",
+      "setTitle": "{count}件のWriting問題",
+      "reviewAvailable": "再学習可能",
+      "reviewExpired": "閲覧のみ",
+      "noAttempt": "この問題には回答履歴がありません。",
+      "difficulty": {
+        "REVIEW": "復習",
+        "NORMAL": "適正",
+        "CHALLENGE": "挑戦"
+      },
+      "empty": {
+        "title": "学習履歴はまだありません",
+        "description": "Daily Writingを始めると日付ごとの履歴がここに蓄積されます。"
+      },
+      "review": {
+        "answerLabel": "もう一度書いてみる",
+        "placeholder": "この問題をもう一度学習してみましょう。",
+        "notice": "再学習の提出もAI評価に反映され、本日はこの問題を1回だけ提出できます。",
+        "submit": "再学習を評価",
+        "submitting": "評価中...",
+        "submitFailed": "再学習の回答を評価できませんでした。入力内容は保持されています。"
+      }
+    },
+    "profile": {
+      "title": "Learning Profile",
+      "description": "ユーザー向けの5大Skillと、AIが次の問題生成に利用する長期学習Signalを確認します。",
+      "loading": "Learning Profileを読み込んでいます。",
+      "loadFailed": "Learning Profileを読み込めませんでした。",
+      "baseLevel": "Base Level",
+      "trend": "最近のTrend",
+      "confidence": "Profile信頼度 {value}%",
+      "calibrating": "現在は初期Calibration期間です。実際のWritingデータが増えるにつれてProfileが早めに補正される場合があります。",
+      "state": {
+        "LEVEL_TEST_REQUIRED": "Level Testが必要",
+        "CALIBRATING": "Calibration中",
+        "ACTIVE": "Adaptive Learning有効"
+      },
+      "signals": {
+        "strengths": {
+          "title": "強み",
+          "empty": "明確な強みSignalはまだありません。"
+        },
+        "weaknesses": {
+          "title": "弱み",
+          "empty": "明確な弱みSignalはまだありません。"
+        },
+        "focus": {
+          "title": "おすすめFocus",
+          "empty": "おすすめFocusはまだありません。"
+        }
+      },
+      "grammar": {
+        "title": "Grammar Weakness",
+        "empty": "反復する文法弱点はありません。"
+      },
+      "errors": {
+        "title": "Error Pattern",
+        "empty": "反復するError Patternはありません。"
+      },
+      "keywords": {
+        "title": "Keyword Mastery",
+        "empty": "Keyword習熟度データはありません。"
+      }
+    },
+    "settings": {
+      "title": "言語学習設定",
+      "description": "学習言語、1日の文章数、System/Custom Keywordを管理します。ほとんどの変更は次回学習日から適用されます。",
+      "loading": "学習設定とKeywordを読み込んでいます。",
+      "loadFailed": "言語学習設定を読み込めませんでした。",
+      "form": {
+        "title": "基本学習設定",
+        "description": "初回設定はすぐ利用でき、その後の変更は次回学習日から反映されます。",
+        "originLanguage": "原文言語",
+        "learningLanguage": "学習言語",
+        "dailySentenceCount": "1日の学習文章数",
+        "dailySentenceRange": "管理者許容範囲: {min} ～ {max}",
+        "timezone": "学習基準Timezone",
+        "sameLanguage": "原文言語と学習言語は異なる必要があります。",
+        "save": "設定を保存",
+        "saving": "保存中...",
+        "saveFailed": "学習設定の保存に失敗しました。",
+        "savedInitial": "初期学習設定を保存しました。",
+        "savedNextDay": "設定を保存しました。変更内容は次回学習日から反映されます。",
+        "pending": {
+          "title": "適用予定の設定があります",
+          "description": "現在予約されている変更は{date}から適用されます。"
+        }
+      },
+      "keywords": {
+        "title": "学習Keyword",
+        "description": "System Keywordはおすすめを支援し、Custom Keywordでは興味のある分野や単語を直接追加できます。出所による優先順位の差はありません。",
+        "nextDayNotice": "Keywordの追加・編集・選択変更も明日から反映されます。新規Keywordは約7日かけてSelection Weightが段階的に上がります。",
+        "types": {
+          "TOPIC": "Topic",
+          "VOCABULARY": "Vocabulary"
+        },
+        "create": {
+          "title": "Custom Keyword追加",
+          "placeholder": "例: Customer Service, deployment",
+          "action": "追加",
+          "creating": "追加中..."
+        },
+        "system": {
+          "title": "System Keyword",
+          "description": "学習テーマを決めにくいときに利用できる標準おすすめKeywordです。"
+        },
+        "custom": {
+          "title": "Custom Keyword",
+          "description": "自分の興味分野や覚えたい表現を直接管理します。",
+          "empty": "登録済みCustom Keywordはありません。"
+        },
+        "selected": "選択済み",
+        "notSelected": "未選択",
+        "edit": "編集",
+        "deactivate": "無効化",
+        "cancel": "キャンセル",
+        "save": "保存",
+        "pending": "{date}適用予定",
+        "duplicate": "同じTypeの同一Keywordがすでに登録されています。",
+        "actionFailed": "Keywordの変更に失敗しました。"
+      },
+      "recheck": {
+        "title": "学習レベルを再測定",
+        "description": "過去の履歴は維持したまま、現在のBase Levelを再測定して新しいCalibration Cycleを開始できます。",
+        "recommended": "長期間の学習停止によりLevel Recheckが推奨されています。",
+        "action": "Level Recheck"
+      }
+    },
+    "admin": {
+      "eyebrow": "Admin · Language Learning",
+      "title": "言語学習運用設定",
+      "description": "Daily Sentence範囲、Keyword反映数、復習期間、Level Recheck基準、AI機能の有効状態を管理します。",
+      "loading": "言語学習運用設定を読み込み中...",
+      "forbidden": "管理者のみ言語学習運用設定へアクセスできます。",
+      "loadFailed": "言語学習運用設定を読み込めませんでした。",
+      "retry": "再読み込み",
+      "save": "設定を保存",
+      "saving": "保存中...",
+      "saved": "言語学習運用設定を保存しました。",
+      "saveFailed": "言語学習運用設定の保存に失敗しました。",
+      "invalid": "最小値 ≤ デフォルト値 ≤ 最大値、および各期間・件数設定を確認してください。",
+      "fields": {
+        "defaultDailySentenceCount": {
+          "label": "Default Daily Sentence Count",
+          "help": "新規ユーザーの1日あたりのデフォルト文章数です。"
+        },
+        "minDailySentenceCount": {
+          "label": "Minimum Daily Sentence Count",
+          "help": "ユーザーが選択できる最小文章数です。"
+        },
+        "maxDailySentenceCount": {
+          "label": "Maximum Daily Sentence Count",
+          "help": "ユーザーが選択できる最大文章数です。"
+        },
+        "dailyKeywordMaxCount": {
+          "label": "Daily Keyword最大反映数",
+          "help": "ユーザーKeyword Poolから1つのDaily Setへ選定する最大数です。"
+        },
+        "reviewAvailableDays": {
+          "label": "過去問題の再学習可能日数",
+          "help": "期間終了後も履歴閲覧は可能ですが、新しい回答送信は制限されます。"
+        },
+        "levelRecheckRecommendationDays": {
+          "label": "Level Recheck推奨基準日数",
+          "help": "最終学習からこの期間以上空いた場合、再測定を推奨します。"
+        },
+        "adaptiveWritingEnabled": {
+          "label": "Adaptive Writing有効",
+          "help": "Daily Writing生成機能全体を有効化します。"
+        },
+        "aiEvaluationEnabled": {
+          "label": "AI Evaluation有効",
+          "help": "Writing回答のAI評価機能を有効化します。"
+        }
+      }
+    }
+  }
+}

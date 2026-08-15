@@ -19,6 +19,7 @@ const MESSAGE_FILE_NAMES = [
     "chat",
     "social",
     "friendGroup",
+    "languageLearning",
 ] as const;
 
 function isObject(value: unknown): value is Messages {

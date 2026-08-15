@@ -10,6 +10,8 @@
     "accountBookDesc": "収入と支出を管理します。",
     "chatTitle": "チャット",
     "chatDesc": "異なる言語で会話し、メッセージを自分の言語に翻訳して確認できます。",
-    "start": "始める"
+    "start": "始める",
+    "languageLearningTitle": "言語学習",
+    "languageLearningDesc": "毎日のWritingとAI評価を通じて、学習レベル・弱点・Keyword習熟度を管理します。"
   }
 }

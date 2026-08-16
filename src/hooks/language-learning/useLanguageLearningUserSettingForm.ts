@@ -39,8 +39,9 @@ function toFormValue(
         dailySpeakingGoalMinutes:
             setting.pendingDailySpeakingGoalMinutes ??
             setting.dailySpeakingGoalMinutes,
-        speakingVoiceId: setting.speakingVoiceId ?? "Aoede",
-        speakingPlaybackSpeed: setting.speakingPlaybackSpeed ?? "NORMAL",
+        speakingVoiceId: setting.speakingVoiceId?.trim() || "Kore",
+        speakingPlaybackSpeed:
+            setting.speakingPlaybackSpeed?.trim() || "NORMAL",
     };
 }
 

@@ -365,11 +365,15 @@
       },
       "keywords": {
         "title": "学習Keyword",
-        "description": "System Keywordはおすすめを支援し、Custom Keywordでは興味のある分野や単語を直接追加できます。出所による優先順位の差はありません。",
+        "description": "上位Topicで広く選ぶことも、下位Vocabularyで詳細な関心を選ぶこともできます。Keywordを一つも選択せずに学習することもできます。",
         "nextDayNotice": "Keywordの追加・編集・選択変更も明日から反映されます。新規Keywordは約7日かけてSelection Weightが段階的に上がります。",
         "types": {
           "TOPIC": "Topic",
           "VOCABULARY": "Vocabulary"
+        },
+        "parentGroup": {
+          "label": "上位Topic",
+          "none": "グループ指定なし"
         },
         "create": {
           "title": "Custom Keyword追加",
@@ -379,7 +383,14 @@
         },
         "system": {
           "title": "System Keyword",
-          "description": "学習テーマを決めにくいときに利用できる標準おすすめKeywordです。"
+          "description": "Topicの選択と展開は独立しています。Topicのみ、または詳細Vocabularyも一緒に選択できます。",
+          "empty": "登録済みSystem Keywordはありません。",
+          "detailTitle": "詳細Vocabulary",
+          "detailSummary": "{selected}/{total}件選択",
+          "expand": "{topic}の詳細Keywordを開く",
+          "collapse": "{topic}の詳細Keywordを閉じる",
+          "noDetails": "登録済みの詳細Keywordはありません。",
+          "ungrouped": "グループ未指定Keyword"
         },
         "custom": {
           "title": "Custom Keyword",
@@ -779,7 +790,7 @@
           "cancel": "キャンセル",
           "submit": "報告する",
           "submitting": "送信中...",
-          "submitFailed": "Failed to send the report. Please try again in a moment.",
+          "submitFailed": "報告を送信できませんでした。しばらくしてからもう一度お試しください。",
           "created": "STTエラー報告を受け付けました。",
           "reference": "報告番号: {reference}",
           "supportDescription": "追加確認が必要な場合、この報告をカスタマーサポート依頼につなげられます。",
@@ -845,22 +856,22 @@
           "INTERACTION": "会話力"
         },
         "assistanceSummary": {
-          "title": "Assistance summary",
-          "description": "Learning assistance is not treated as failure or a fixed score penalty. It is used only as evaluation context.",
+          "title": "学習補助の利用案内",
+          "description": "学習補助は失敗や固定減点として扱いません。評価では、どの補助を利用したかをContextとしてのみ反映します。",
           "neutral": {
-            "title": "No score impact",
-            "description": "Replay · Slow playback · Show question"
+            "title": "評価への影響なし",
+            "description": "再生・ゆっくり再生・質問再表示"
           },
           "assisted": {
             "title": "ASSISTED",
-            "description": "The conversation continued with hint or translation support."
+            "description": "Hint・翻訳を利用して会話を続けた場合"
           },
           "guided": {
             "title": "GUIDED",
-            "description": "A sample answer was used to practice an expression."
+            "description": "回答例を利用して表現を練習した場合"
           },
-          "usageSummary": "This session used learning assistance {count} times in total.",
-          "count": "{count} uses"
+          "usageSummary": "このSessionでは学習サポートを合計{count}回利用しました。",
+          "count": "{count}回"
         }
       }
     }

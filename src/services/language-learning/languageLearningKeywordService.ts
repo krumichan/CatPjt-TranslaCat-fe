@@ -9,9 +9,12 @@ import type {
 } from "@/types/language-learning/keyword";
 
 export const languageLearningKeywordService = {
-    getAll: async (): Promise<LanguageLearningKeywordList> => {
+    getAll: async (uiLocale: string): Promise<LanguageLearningKeywordList> => {
         const response = await apiClient("/language-learning/keywords", {
             method: "GET",
+            headers: {
+                "X-TranslaCat-Locale": uiLocale,
+            },
         });
 
         return parseResponseBody<LanguageLearningKeywordList>(

@@ -6,9 +6,14 @@ import type {
 export interface LanguageLearningKeyword {
     id: number;
     text: string;
+    displayName?: string | null;
+    secondaryDisplayName?: string | null;
     source: KeywordSource;
     type: KeywordType;
     canonicalKey: string;
+    parentKeywordId: number | null;
+    parentCanonicalKey: string | null;
+    sortOrder: number;
     active: boolean;
     selected: boolean;
     pendingEffectiveDate: string | null;
@@ -23,6 +28,8 @@ export interface LanguageLearningKeywordCreateRequest {
     text: string;
     type: KeywordType;
     canonicalKey?: string | null;
+    parentKeywordId?: number | null;
+    sortOrder?: number | null;
 }
 
 export interface LanguageLearningKeywordUpdateRequest {
@@ -30,6 +37,8 @@ export interface LanguageLearningKeywordUpdateRequest {
     type?: KeywordType | null;
     canonicalKey?: string | null;
     active?: boolean | null;
+    parentKeywordId?: number | null;
+    sortOrder?: number | null;
 }
 
 export interface SystemKeywordSelectionRequest {

@@ -4,6 +4,7 @@ import clsx from "clsx";
 import { useTranslations } from "next-intl";
 
 import { AppSelect } from "@/components/common/AppSelect";
+import { getKeywordSelectText } from "@/features/language-learning/keyword/keywordDisplay";
 import type { KeywordType } from "@/types/language-learning/common";
 import type { LanguageLearningKeyword } from "@/types/language-learning/keyword";
 
@@ -12,11 +13,14 @@ interface CustomKeywordItemProps {
     isEditing: boolean;
     editText: string;
     editType: KeywordType;
+    editParentKeywordId: number | null;
+    systemTopics: LanguageLearningKeyword[];
     isBusy: boolean;
     onStartEdit: () => void;
     onCancelEdit: () => void;
     onEditTextChange: (value: string) => void;
     onEditTypeChange: (value: KeywordType) => void;
+    onEditParentKeywordChange: (value: number | null) => void;
     onSave: () => void;
     onDeactivate: () => void;
 }
@@ -26,21 +30,30 @@ export function CustomKeywordItem({
     isEditing,
     editText,
     editType,
+    editParentKeywordId,
+    systemTopics,
     isBusy,
     onStartEdit,
     onCancelEdit,
     onEditTextChange,
     onEditTypeChange,
+    onEditParentKeywordChange,
     onSave,
     onDeactivate,
 }: CustomKeywordItemProps) {
     const t = useTranslations("LanguageLearning.settings.keywords");
+    const parentTopic = systemTopics.find(
+        (topic) => topic.id === keyword.parentKeywordId,
+    );
+    const parentLabel = parentTopic
+        ? getKeywordSelectText(parentTopic)
+        : keyword.parentCanonicalKey;
 
     return (
         <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/5">
             {isEditing ? (
                 <div className="space-y-3">
-                    <div className="grid gap-2 sm:grid-cols-[150px_minmax(0,1fr)]">
+                    <div className="grid gap-2 sm:grid-cols-2">
                         <AppSelect
                             value={editType}
                             onChange={(event) =>
@@ -56,13 +69,36 @@ export function CustomKeywordItem({
                             </option>
                         </AppSelect>
 
+                        <AppSelect
+                            value={editParentKeywordId?.toString() ?? ""}
+                            onChange={(event) =>
+                                onEditParentKeywordChange(
+                                    event.target.value
+                                        ? Number(event.target.value)
+                                        : null,
+                                )
+                            }
+                            disabled={editType === "TOPIC"}
+                            aria-label={t("parentGroup.label")}
+                            className="rounded-lg px-3 py-2 disabled:opacity-50"
+                        >
+                            <option value="">
+                                {t("parentGroup.none")}
+                            </option>
+                            {systemTopics.map((topic) => (
+                                <option key={topic.id} value={topic.id}>
+                                    {getKeywordSelectText(topic)}
+                                </option>
+                            ))}
+                        </AppSelect>
+
                         <input
                             value={editText}
                             onChange={(event) =>
                                 onEditTextChange(event.target.value)
                             }
                             maxLength={200}
-                            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-black/20 dark:text-white"
+                            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm sm:col-span-2 dark:border-white/10 dark:bg-black/20 dark:text-white"
                         />
                     </div>
 
@@ -90,7 +126,7 @@ export function CustomKeywordItem({
                         <div className="flex flex-wrap items-center gap-2">
                             <p
                                 className={clsx(
-                                    "truncate text-sm font-black",
+                                    "whitespace-normal break-words text-sm font-black",
                                     keyword.active
                                         ? "text-slate-800 dark:text-slate-100"
                                         : "text-slate-400 line-through",
@@ -101,6 +137,11 @@ export function CustomKeywordItem({
                             <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-black text-slate-500 dark:bg-white/10 dark:text-slate-300">
                                 {t(`types.${keyword.type}`)}
                             </span>
+                            {parentLabel && (
+                                <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-black text-blue-600 dark:bg-blue-500/10 dark:text-blue-200">
+                                    {parentLabel}
+                                </span>
+                            )}
                         </div>
                         <p className="mt-1 text-xs text-slate-400">
                             {keyword.canonicalKey}

@@ -365,11 +365,15 @@
       },
       "keywords": {
         "title": "学習Keyword",
-        "description": "System Keywordはおすすめを支援し、Custom Keywordでは興味のある分野や単語を直接追加できます。出所による優先順位の差はありません。",
+        "description": "上位Topicで広く選ぶことも、下位Vocabularyで詳細な関心を選ぶこともできます。Keywordを一つも選択せずに学習することもできます。",
         "nextDayNotice": "Keywordの追加・編集・選択変更も明日から反映されます。新規Keywordは約7日かけてSelection Weightが段階的に上がります。",
         "types": {
           "TOPIC": "Topic",
           "VOCABULARY": "Vocabulary"
+        },
+        "parentGroup": {
+          "label": "上位Topic",
+          "none": "グループ指定なし"
         },
         "create": {
           "title": "Custom Keyword追加",
@@ -379,7 +383,14 @@
         },
         "system": {
           "title": "System Keyword",
-          "description": "学習テーマを決めにくいときに利用できる標準おすすめKeywordです。"
+          "description": "Topicの選択と展開は独立しています。Topicのみ、または詳細Vocabularyも一緒に選択できます。",
+          "empty": "登録済みSystem Keywordはありません。",
+          "detailTitle": "詳細Vocabulary",
+          "detailSummary": "{selected}/{total}件選択",
+          "expand": "{topic}の詳細Keywordを開く",
+          "collapse": "{topic}の詳細Keywordを閉じる",
+          "noDetails": "登録済みの詳細Keywordはありません。",
+          "ungrouped": "グループ未指定Keyword"
         },
         "custom": {
           "title": "Custom Keyword",

@@ -4,25 +4,33 @@ import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { AppSelect } from "@/components/common/AppSelect";
+import { getKeywordSelectText } from "@/features/language-learning/keyword/keywordDisplay";
 import type { KeywordType } from "@/types/language-learning/common";
+import type { LanguageLearningKeyword } from "@/types/language-learning/keyword";
 
 interface KeywordCreateFormProps {
     text: string;
     type: KeywordType;
+    parentKeywordId: number | null;
+    systemTopics: LanguageLearningKeyword[];
     isCreating: boolean;
     errorMessage: string | null;
     onTextChange: (value: string) => void;
     onTypeChange: (value: KeywordType) => void;
+    onParentKeywordChange: (value: number | null) => void;
     onSubmit: () => void;
 }
 
 export function KeywordCreateForm({
     text,
     type,
+    parentKeywordId,
+    systemTopics,
     isCreating,
     errorMessage,
     onTextChange,
     onTypeChange,
+    onParentKeywordChange,
     onSubmit,
 }: KeywordCreateFormProps) {
     const t = useTranslations("LanguageLearning.settings.keywords");
@@ -33,7 +41,7 @@ export function KeywordCreateForm({
                 {t("create.title")}
             </h3>
 
-            <div className="mt-3 grid gap-3 sm:grid-cols-[160px_minmax(0,1fr)_auto]">
+            <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-[150px_190px_minmax(0,1fr)_auto]">
                 <AppSelect
                     value={type}
                     onChange={(event) =>
@@ -45,6 +53,27 @@ export function KeywordCreateForm({
                     <option value="VOCABULARY">
                         {t("types.VOCABULARY")}
                     </option>
+                </AppSelect>
+
+                <AppSelect
+                    value={parentKeywordId?.toString() ?? ""}
+                    onChange={(event) =>
+                        onParentKeywordChange(
+                            event.target.value
+                                ? Number(event.target.value)
+                                : null,
+                        )
+                    }
+                    disabled={type === "TOPIC"}
+                    aria-label={t("parentGroup.label")}
+                    className="px-3 py-2.5 disabled:opacity-50"
+                >
+                    <option value="">{t("parentGroup.none")}</option>
+                    {systemTopics.map((topic) => (
+                        <option key={topic.id} value={topic.id}>
+                            {getKeywordSelectText(topic)}
+                        </option>
+                    ))}
                 </AppSelect>
 
                 <input

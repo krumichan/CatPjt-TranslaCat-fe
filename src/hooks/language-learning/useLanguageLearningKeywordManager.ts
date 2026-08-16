@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useLocale } from "next-intl";
 
 import { useQuery } from "@/hooks/useQuery";
 import { getLanguageLearningErrorCode } from "@/hooks/language-learning/languageLearningErrorMapper";
@@ -9,9 +10,11 @@ import type { KeywordType } from "@/types/language-learning/common";
 import type { LanguageLearningKeyword } from "@/types/language-learning/keyword";
 
 export function useLanguageLearningKeywordManager() {
+    const uiLocale = useLocale();
     const query = useQuery({
-        keys: ["language-learning-keywords"] as const,
-        fetcher: () => languageLearningKeywordService.getAll(),
+        keys: ["language-learning-keywords", uiLocale] as const,
+        fetcher: (_key, locale) =>
+            languageLearningKeywordService.getAll(locale),
         config: { revalidateOnMount: true },
     });
     const [busyKeywordId, setBusyKeywordId] = useState<number | null>(null);
@@ -23,7 +26,11 @@ export function useLanguageLearningKeywordManager() {
     }, [query]);
 
     const createCustom = useCallback(
-        async (text: string, type: KeywordType) => {
+        async (
+            text: string,
+            type: KeywordType,
+            parentKeywordId: number | null,
+        ) => {
             if (isCreating) return false;
 
             setIsCreating(true);
@@ -33,6 +40,8 @@ export function useLanguageLearningKeywordManager() {
                     text: text.trim(),
                     type,
                     canonicalKey: null,
+                    parentKeywordId:
+                        type === "VOCABULARY" ? parentKeywordId : null,
                 });
                 await refresh();
                 return true;
@@ -50,7 +59,11 @@ export function useLanguageLearningKeywordManager() {
     const updateCustom = useCallback(
         async (
             keyword: LanguageLearningKeyword,
-            values: { text: string; type: KeywordType },
+            values: {
+                text: string;
+                type: KeywordType;
+                parentKeywordId: number | null;
+            },
         ) => {
             if (busyKeywordId !== null) return false;
 
@@ -62,6 +75,10 @@ export function useLanguageLearningKeywordManager() {
                     type: values.type,
                     canonicalKey: keyword.canonicalKey,
                     active: keyword.active,
+                    parentKeywordId:
+                        values.type === "VOCABULARY"
+                            ? values.parentKeywordId
+                            : null,
                 });
                 await refresh();
                 return true;

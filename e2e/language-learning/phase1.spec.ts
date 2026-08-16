@@ -5,6 +5,7 @@ import {
     LANGUAGE_LEARNING_DAILY_SET,
     LANGUAGE_LEARNING_DASHBOARD,
     LANGUAGE_LEARNING_EVALUATION,
+    LANGUAGE_LEARNING_KEYWORDS,
     LANGUAGE_LEARNING_LEVEL_STATUS,
     mockLanguageLearningBase,
 } from "../support/language-learning-mocks";
@@ -67,7 +68,79 @@ test.describe("Language Learning Phase 1", () => {
         await expect(page.getByText("관리자 허용 범위: 1 ~ 20")).toBeVisible();
         await expect(page.getByRole("option", { name: "Topic" }).first()).toBeAttached();
         await expect(page.getByRole("option", { name: "Vocabulary" }).first()).toBeAttached();
+
+        const itGroup = page.getByTestId("system-keyword-group-1");
+        await expect(itGroup).toBeVisible();
+        await expect(page.getByTestId("system-keyword-1")).toHaveAttribute(
+            "aria-pressed",
+            "true",
+        );
+        await expect(page.getByTestId("system-keyword-2")).toHaveCount(0);
+
+        await itGroup
+            .getByRole("button", { name: "IT 세부 Keyword 펼치기" })
+            .click();
+        await expect(page.getByTestId("system-keyword-2")).toBeVisible();
+        await expect(page.getByTestId("system-keyword-2")).toHaveAttribute(
+            "aria-pressed",
+            "false",
+        );
     });
+
+    test("LL-04A 전체 시스템 언어를 Keyword Locale에 적용한다", async ({ page }) => {
+        let requestedLocale: string | undefined;
+        const localizedKeyword =
+            "とても長いショッピング価格比較と配送確認の会話練習";
+
+        await page.setViewportSize({ width: 390, height: 844 });
+
+        await page.route("**/language-learning/keywords", (route) => {
+            requestedLocale =
+                route.request().headers()["x-translacat-locale"];
+
+            return fulfillJson(
+                route,
+                responseDto({
+                    ...LANGUAGE_LEARNING_KEYWORDS,
+                    systemKeywords:
+                        LANGUAGE_LEARNING_KEYWORDS.systemKeywords.map(
+                            (keyword) =>
+                                keyword.id === 3
+                                    ? {
+                                          ...keyword,
+                                          displayName: localizedKeyword,
+                                      }
+                                    : keyword,
+                        ),
+                }),
+            );
+        });
+
+        await page.goto("/ja/language-learning/settings");
+
+        const keywordLabel = page.getByTestId("system-keyword-primary-3");
+        await expect(keywordLabel).toBeVisible();
+        await expect(keywordLabel).toHaveText(localizedKeyword);
+        await expect(page.getByTestId("system-keyword-meta-3")).toBeVisible();
+
+        const layout = await keywordLabel.evaluate((element) => {
+            const style = window.getComputedStyle(element);
+
+            return {
+                whiteSpace: style.whiteSpace,
+                textOverflow: style.textOverflow,
+                scrollWidth: element.scrollWidth,
+                clientWidth: element.clientWidth,
+            };
+        });
+
+        expect(layout.whiteSpace).toBe("normal");
+        expect(layout.textOverflow).not.toBe("ellipsis");
+        expect(layout.clientWidth).toBeGreaterThan(0);
+        expect(layout.scrollWidth).toBeLessThanOrEqual(layout.clientWidth);
+        expect(requestedLocale).toBe("ja");
+    });
+
     test("LL-05 재학습 기간 내 과거 문제를 다시 제출할 수 있다", async ({ page }) => {
         const reviewSet = {
             ...LANGUAGE_LEARNING_DAILY_SET,

@@ -33,6 +33,88 @@ export const LANGUAGE_LEARNING_LEVEL_STATUS = {
     baseLevelScore: 72.5,
 };
 
+export const LANGUAGE_LEARNING_KEYWORDS = {
+    systemKeywords: [
+        {
+            id: 1,
+            text: "IT",
+            displayName: "IT",
+            secondaryDisplayName: null,
+            source: "SYSTEM",
+            type: "TOPIC",
+            canonicalKey: "IT",
+            parentKeywordId: null,
+            parentCanonicalKey: null,
+            sortOrder: 600,
+            active: true,
+            selected: true,
+            pendingEffectiveDate: null,
+        },
+        {
+            id: 2,
+            text: "deployment",
+            displayName: "배포",
+            secondaryDisplayName: null,
+            source: "SYSTEM",
+            type: "VOCABULARY",
+            canonicalKey: "IT_DEPLOYMENT",
+            parentKeywordId: 1,
+            parentCanonicalKey: "IT",
+            sortOrder: 640,
+            active: true,
+            selected: false,
+            pendingEffectiveDate: null,
+        },
+        {
+            id: 3,
+            text: "Shopping",
+            displayName: "쇼핑",
+            secondaryDisplayName: null,
+            source: "SYSTEM",
+            type: "TOPIC",
+            canonicalKey: "SHOPPING",
+            parentKeywordId: null,
+            parentCanonicalKey: null,
+            sortOrder: 400,
+            active: true,
+            selected: false,
+            pendingEffectiveDate: null,
+        },
+        {
+            id: 4,
+            text: "price",
+            displayName: "가격",
+            secondaryDisplayName: null,
+            source: "SYSTEM",
+            type: "VOCABULARY",
+            canonicalKey: "SHOPPING_PRICE",
+            parentKeywordId: 3,
+            parentCanonicalKey: "SHOPPING",
+            sortOrder: 410,
+            active: true,
+            selected: true,
+            pendingEffectiveDate: null,
+        },
+    ],
+    customKeywords: [
+        {
+            id: 10,
+            text: "deployment",
+            displayName: null,
+            secondaryDisplayName: null,
+            source: "CUSTOM",
+            type: "VOCABULARY",
+            canonicalKey: "DEPLOYMENT",
+            parentKeywordId: 1,
+            parentCanonicalKey: "IT",
+            sortOrder: 0,
+            active: true,
+            selected: true,
+            pendingEffectiveDate: null,
+        },
+    ],
+};
+
 export const LANGUAGE_LEARNING_EVALUATION = {
     evaluationId: 9001,
     context: "DAILY",
@@ -205,14 +287,7 @@ export async function mockLanguageLearningBase(page: Page) {
     await page.route("**/language-learning/keywords", (route) =>
         fulfillApiJson(
             route,
-            responseDto({
-                systemKeywords: [
-                    { id: 1, text: "IT", source: "SYSTEM", type: "TOPIC", canonicalKey: "IT", active: true, selected: true, pendingEffectiveDate: null },
-                ],
-                customKeywords: [
-                    { id: 10, text: "deployment", source: "CUSTOM", type: "VOCABULARY", canonicalKey: "DEPLOYMENT", active: true, selected: true, pendingEffectiveDate: null },
-                ],
-            }),
+            responseDto(LANGUAGE_LEARNING_KEYWORDS),
         ),
     );
 }

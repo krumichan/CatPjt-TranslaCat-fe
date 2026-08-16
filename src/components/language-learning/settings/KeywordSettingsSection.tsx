@@ -20,20 +20,36 @@ export function KeywordSettingsSection({
     const t = useTranslations("LanguageLearning.settings.keywords");
     const [text, setText] = useState("");
     const [type, setType] = useState<KeywordType>("TOPIC");
+    const [parentKeywordId, setParentKeywordId] = useState<number | null>(null);
     const [editingId, setEditingId] = useState<number | null>(null);
     const [editText, setEditText] = useState("");
     const [editType, setEditType] = useState<KeywordType>("TOPIC");
+    const [editParentKeywordId, setEditParentKeywordId] = useState<
+        number | null
+    >(null);
+
+    const systemTopics = (manager.data?.systemKeywords ?? []).filter(
+        (keyword) =>
+            keyword.active &&
+            keyword.type === "TOPIC" &&
+            (keyword.parentKeywordId ?? null) === null,
+    );
 
     const startEdit = (keyword: LanguageLearningKeyword) => {
         setEditingId(keyword.id);
         setEditText(keyword.text);
         setEditType(keyword.type);
+        setEditParentKeywordId(keyword.parentKeywordId ?? null);
     };
 
     const submitCreate = async () => {
         if (!text.trim()) return;
 
-        const success = await manager.createCustom(text, type);
+        const success = await manager.createCustom(
+            text,
+            type,
+            parentKeywordId,
+        );
         if (success) {
             setText("");
         }
@@ -45,6 +61,7 @@ export function KeywordSettingsSection({
         const success = await manager.updateCustom(keyword, {
             text: editText,
             type: editType,
+            parentKeywordId: editParentKeywordId,
         });
         if (success) {
             setEditingId(null);
@@ -73,10 +90,16 @@ export function KeywordSettingsSection({
             <KeywordCreateForm
                 text={text}
                 type={type}
+                parentKeywordId={parentKeywordId}
+                systemTopics={systemTopics}
                 isCreating={manager.isCreating}
                 errorMessage={errorMessage}
                 onTextChange={setText}
-                onTypeChange={setType}
+                onTypeChange={(value) => {
+                    setType(value);
+                    if (value === "TOPIC") setParentKeywordId(null);
+                }}
+                onParentKeywordChange={setParentKeywordId}
                 onSubmit={() => void submitCreate()}
             />
 
@@ -87,10 +110,18 @@ export function KeywordSettingsSection({
                     editingId={editingId}
                     editText={editText}
                     editType={editType}
+                    editParentKeywordId={editParentKeywordId}
+                    systemTopics={systemTopics}
                     onStartEdit={startEdit}
                     onCancelEdit={() => setEditingId(null)}
                     onEditTextChange={setEditText}
-                    onEditTypeChange={setEditType}
+                    onEditTypeChange={(value) => {
+                        setEditType(value);
+                        if (value === "TOPIC") {
+                            setEditParentKeywordId(null);
+                        }
+                    }}
+                    onEditParentKeywordChange={setEditParentKeywordId}
                     onSave={(keyword) => void submitEdit(keyword)}
                 />
             </div>

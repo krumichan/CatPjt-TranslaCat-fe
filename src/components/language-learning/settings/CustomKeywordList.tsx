@@ -12,10 +12,13 @@ interface CustomKeywordListProps {
     editingId: number | null;
     editText: string;
     editType: KeywordType;
+    editParentKeywordId: number | null;
+    systemTopics: LanguageLearningKeyword[];
     onStartEdit: (keyword: LanguageLearningKeyword) => void;
     onCancelEdit: () => void;
     onEditTextChange: (value: string) => void;
     onEditTypeChange: (value: KeywordType) => void;
+    onEditParentKeywordChange: (value: number | null) => void;
     onSave: (keyword: LanguageLearningKeyword) => void;
 }
 
@@ -24,10 +27,13 @@ export function CustomKeywordList({
     editingId,
     editText,
     editType,
+    editParentKeywordId,
+    systemTopics,
     onStartEdit,
     onCancelEdit,
     onEditTextChange,
     onEditTypeChange,
+    onEditParentKeywordChange,
     onSave,
 }: CustomKeywordListProps) {
     const t = useTranslations("LanguageLearning.settings.keywords");
@@ -56,11 +62,16 @@ export function CustomKeywordList({
                         isEditing={editingId === keyword.id}
                         editText={editText}
                         editType={editType}
+                        editParentKeywordId={editParentKeywordId}
+                        systemTopics={systemTopics}
                         isBusy={manager.busyKeywordId !== null}
                         onStartEdit={() => onStartEdit(keyword)}
                         onCancelEdit={onCancelEdit}
                         onEditTextChange={onEditTextChange}
                         onEditTypeChange={onEditTypeChange}
+                        onEditParentKeywordChange={
+                            onEditParentKeywordChange
+                        }
                         onSave={() => onSave(keyword)}
                         onDeactivate={() =>
                             void manager.deleteCustom(keyword.id)

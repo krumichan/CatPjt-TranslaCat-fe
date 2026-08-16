@@ -37,6 +37,7 @@ export const APP_NAVIGATION_SECTIONS: AppNavigationSection[] = [
                 labelKey: "platform",
                 icon: BookOpen,
                 matchPaths: [ROUTES.NOVEL_SELECT],
+                adminOnly: true,
             },
             {
                 key: "voice",

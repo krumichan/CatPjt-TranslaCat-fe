@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useSession } from "next-auth/react";
 
 import { AppSidebarItem } from "@/components/navigation/app/AppSidebarItem";
 import { AppSidebarRecentHistory } from "@/components/navigation/app/AppSidebarRecentHistory";
@@ -21,6 +22,8 @@ export function AppNavigationContent({
 }: AppNavigationContentProps) {
     const pathname = usePathname();
     const t = useTranslations("Navigation");
+    const { data: session } = useSession();
+    const isAdmin = session?.user?.role === "ADMIN";
 
     return (
         <div className="flex min-h-0 flex-1 flex-col">
@@ -39,24 +42,29 @@ export function AppNavigationContent({
                         )}
 
                         <div className="space-y-1">
-                            {section.items.map((item) => (
-                                <AppSidebarItem
-                                    key={item.key}
-                                    item={item}
-                                    isActive={isNavigationItemActive(
-                                        pathname,
-                                        item,
-                                    )}
-                                    isCollapsed={isCollapsed}
-                                    onNavigate={onNavigate}
-                                />
-                            ))}
+                            {section.items
+                                .filter(
+                                    (item) =>
+                                        !item.adminOnly || isAdmin,
+                                )
+                                .map((item) => (
+                                    <AppSidebarItem
+                                        key={item.key}
+                                        item={item}
+                                        isActive={isNavigationItemActive(
+                                            pathname,
+                                            item,
+                                        )}
+                                        isCollapsed={isCollapsed}
+                                        onNavigate={onNavigate}
+                                    />
+                                ))}
                         </div>
                     </section>
                 ))}
             </nav>
 
-            {!isCollapsed && (
+            {!isCollapsed && isAdmin && (
                 <section className="mt-6 min-h-0 border-t border-slate-200 px-2 pt-5 dark:border-white/10">
                     <h2 className="mb-2 px-3 text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
                         {t("sections.recentActivity")}

@@ -45,6 +45,7 @@ export const settingCards: SettingCard[] = [
         descriptionKey: "novel.description",
         statusKey: "status.preparing",
         icon: BookOpen,
+        adminOnly: true,
         enabled: false,
     },
     {

@@ -32,6 +32,7 @@ export async function fulfillApiJson(
 export async function mockAuthenticatedSession(
     page: Page,
     user: E2ETestUser = TEST_USERS.A,
+    role: "USER" | "ADMIN" = "USER",
 ): Promise<void> {
     await page.route("**/api/auth/session", async (route) => {
         await fulfillJson(route, {
@@ -39,7 +40,7 @@ export async function mockAuthenticatedSession(
                 name: user.nickname,
                 email: user.email,
                 image: null,
-                role: "USER",
+                role,
                 publicId: user.publicId,
                 accessToken: `mock-access-token-${user.key}`,
                 refreshToken: `mock-refresh-token-${user.key}`,
@@ -107,8 +108,9 @@ export async function mockNotificationBackground(page: Page): Promise<void> {
 export async function mockCommonPageDependencies(
     page: Page,
     user: E2ETestUser = TEST_USERS.A,
+    role: "USER" | "ADMIN" = "USER",
 ): Promise<void> {
-    await mockAuthenticatedSession(page, user);
+    await mockAuthenticatedSession(page, user, role);
     await mockNotificationBackground(page);
 
     /*

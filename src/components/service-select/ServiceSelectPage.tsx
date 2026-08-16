@@ -9,6 +9,7 @@ import {
     WalletCards,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useSession } from "next-auth/react";
 
 import { cn } from "@/lib/utils";
 import { Link } from "@/navigation";
@@ -21,6 +22,8 @@ const SERVICE_CARD_STYLE = cn(
 
 export function ServiceSelectPage() {
     const t = useTranslations("ServiceSelect");
+    const { data: session } = useSession();
+    const isAdmin = session?.user?.role === "ADMIN";
 
     const services = [
         {
@@ -75,6 +78,10 @@ export function ServiceSelectPage() {
         },
     ] as const;
 
+    const visibleServices = services.filter(
+        (service) => service.id !== "novel" || isAdmin,
+    );
+
     return (
         <main
             className={cn(
@@ -94,10 +101,11 @@ export function ServiceSelectPage() {
             <div
                 className={cn(
                     "grid w-full max-w-7xl grid-cols-1 gap-6 md:grid-cols-2",
-                    "lg:grid-cols-3 xl:grid-cols-5",
+                    "lg:grid-cols-3",
+                    isAdmin ? "xl:grid-cols-5" : "xl:grid-cols-4",
                 )}
             >
-                {services.map((service) => {
+                {visibleServices.map((service) => {
                     const Icon = service.icon;
 
                     return (

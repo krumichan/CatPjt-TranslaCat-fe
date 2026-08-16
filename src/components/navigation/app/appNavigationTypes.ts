@@ -20,6 +20,7 @@ export interface AppNavigationItem {
         | "languageLearning";
     icon: LucideIcon;
     matchPaths: string[];
+    adminOnly?: boolean;
     badge?: AppNavigationBadge;
     disabled?: boolean;
 }

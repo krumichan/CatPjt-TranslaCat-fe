@@ -85,6 +85,10 @@ export function SystemKeywordList({ manager }: SystemKeywordListProps) {
                         {secondaryText && `${secondaryText} · `}
                         {t(`types.${keyword.type}`)}
                         {keyword.canonicalKey && ` · ${keyword.canonicalKey}`}
+                        {keyword.pendingEffectiveDate &&
+                            ` · ${t("pending", {
+                                date: keyword.pendingEffectiveDate,
+                            })}`}
                     </p>
                 </div>
 
@@ -170,6 +174,10 @@ export function SystemKeywordList({ manager }: SystemKeywordListProps) {
                                             {t(`types.${topic.type}`)}
                                             {topic.canonicalKey &&
                                                 ` · ${topic.canonicalKey}`}
+                                            {topic.pendingEffectiveDate &&
+                                                ` · ${t("pending", {
+                                                    date: topic.pendingEffectiveDate,
+                                                })}`}
                                         </span>
                                     </span>
 

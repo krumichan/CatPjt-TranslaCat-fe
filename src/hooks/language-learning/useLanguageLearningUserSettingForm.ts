@@ -15,6 +15,8 @@ export interface LanguageLearningSettingFormValue {
     speakingPlaybackSpeed: string;
 }
 
+type LanguageLearningSettingSaveMode = "INITIAL" | "NEXT_DAY";
+
 interface UseLanguageLearningUserSettingFormOptions {
     setting: LanguageLearningUserSetting | null;
     onUpdated: (
@@ -54,6 +56,8 @@ export function useLanguageLearningUserSettingForm({
     const [isSaving, setIsSaving] = useState(false);
     const [saveError, setSaveError] = useState(false);
     const [saved, setSaved] = useState(false);
+    const [saveMode, setSaveMode] =
+        useState<LanguageLearningSettingSaveMode | null>(null);
 
     useEffect(() => {
         if (setting) {
@@ -88,6 +92,7 @@ export function useLanguageLearningUserSettingForm({
             value: LanguageLearningSettingFormValue[K],
         ) => {
             setSaved(false);
+            setSaveMode(null);
             setSaveError(false);
             setForm((current) =>
                 current ? { ...current, [key]: value } : current,
@@ -102,6 +107,10 @@ export function useLanguageLearningUserSettingForm({
         setIsSaving(true);
         setSaveError(false);
         setSaved(false);
+        setSaveMode(null);
+
+        const nextSaveMode: LanguageLearningSettingSaveMode =
+            setting?.configured === true ? "NEXT_DAY" : "INITIAL";
 
         try {
             const updated = await languageLearningSettingService.update({
@@ -112,6 +121,7 @@ export function useLanguageLearningUserSettingForm({
             });
             await onUpdated(updated);
             setForm(toFormValue(updated));
+            setSaveMode(nextSaveMode);
             setSaved(true);
             return true;
         } catch (error) {
@@ -124,7 +134,7 @@ export function useLanguageLearningUserSettingForm({
         } finally {
             setIsSaving(false);
         }
-    }, [form, isSaving, isValid, onUpdated]);
+    }, [form, isSaving, isValid, onUpdated, setting?.configured]);
 
     return {
         form,
@@ -132,6 +142,7 @@ export function useLanguageLearningUserSettingForm({
         isSaving,
         saveError,
         saved,
+        saveMode,
         update,
         save,
     };

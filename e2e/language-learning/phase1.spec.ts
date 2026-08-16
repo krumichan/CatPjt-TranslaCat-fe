@@ -7,6 +7,7 @@ import {
     LANGUAGE_LEARNING_EVALUATION,
     LANGUAGE_LEARNING_KEYWORDS,
     LANGUAGE_LEARNING_LEVEL_STATUS,
+    LANGUAGE_LEARNING_SETTING,
     mockLanguageLearningBase,
 } from "../support/language-learning-mocks";
 import { responseDto } from "../support/mock-data";
@@ -68,6 +69,9 @@ test.describe("Language Learning Phase 1", () => {
         await expect(page.getByText("관리자 허용 범위: 1 ~ 20")).toBeVisible();
         await expect(page.getByRole("option", { name: "Topic" }).first()).toBeAttached();
         await expect(page.getByRole("option", { name: "Vocabulary" }).first()).toBeAttached();
+        await expect(
+            page.getByText(/첫 Writing Daily Set 또는 Speaking Session/),
+        ).toBeVisible();
 
         const itGroup = page.getByTestId("system-keyword-group-1");
         await expect(itGroup).toBeVisible();
@@ -85,6 +89,41 @@ test.describe("Language Learning Phase 1", () => {
             "aria-pressed",
             "false",
         );
+    });
+
+    test("LL-04B 최초 학습 설정 저장은 즉시 적용 안내를 표시한다", async ({ page }) => {
+        const initialSetting = {
+            ...LANGUAGE_LEARNING_SETTING,
+            originLanguage: null,
+            learningLanguage: null,
+            pendingOriginLanguage: null,
+            pendingLearningLanguage: null,
+            pendingEffectiveDate: null,
+            configured: false,
+        };
+
+        await page.route("**/language-learning/settings", (route) => {
+            if (route.request().method() === "PATCH") {
+                return fulfillJson(
+                    route,
+                    responseDto({
+                        ...LANGUAGE_LEARNING_SETTING,
+                        originLanguage: "ko",
+                        learningLanguage: "ja",
+                        configured: true,
+                    }),
+                );
+            }
+
+            return fulfillJson(route, responseDto(initialSetting));
+        });
+
+        await page.goto("/language-learning/settings");
+        await page.getByRole("button", { name: "설정 저장" }).click();
+
+        await expect(
+            page.getByText("초기 학습 설정을 저장했습니다."),
+        ).toBeVisible();
     });
 
     test("LL-04A 전체 시스템 언어를 Keyword Locale에 적용한다", async ({ page }) => {

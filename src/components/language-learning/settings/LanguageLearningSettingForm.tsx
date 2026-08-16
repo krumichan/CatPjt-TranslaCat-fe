@@ -225,9 +225,9 @@ export function LanguageLearningSettingForm({
                     role="status"
                     className="mt-4 text-sm font-bold text-emerald-600 dark:text-emerald-300"
                 >
-                    {setting.configured
-                        ? t("savedNextDay")
-                        : t("savedInitial")}
+                    {controller.saveMode === "INITIAL"
+                        ? t("savedInitial")
+                        : t("savedNextDay")}
                 </p>
             )}
 

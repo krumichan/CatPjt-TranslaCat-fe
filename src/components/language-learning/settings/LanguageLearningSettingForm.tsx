@@ -1,6 +1,6 @@
 "use client";
 
-import { Save } from "lucide-react";
+import { Ear, Headphones, Languages, Mic2, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { AppSelect } from "@/components/common/AppSelect";
@@ -11,6 +11,14 @@ import {
 } from "@/constants/language-learning/speaking";
 import type { LanguageLearningUserSettingFormController } from "@/hooks/language-learning/useLanguageLearningUserSettingForm";
 import type { LanguageLearningUserSetting } from "@/types/language-learning/setting";
+import type { ListeningTaskType } from "@/types/language-learning/listening";
+
+
+const LISTENING_TASK_OPTIONS: Array<[ListeningTaskType, typeof Headphones]> = [
+    ["DICTATION", Headphones],
+    ["INTERPRETATION", Languages],
+    ["REPEAT_AFTER_AUDIO", Mic2],
+];
 
 interface LanguageLearningSettingFormProps {
     setting: LanguageLearningUserSetting;
@@ -146,6 +154,33 @@ export function LanguageLearningSettingForm({
                 </label>
 
                 <label className="block">
+                    <span className="inline-flex items-center gap-1.5 text-sm font-black text-slate-700 dark:text-slate-200">
+                        <Ear className="h-4 w-4" aria-hidden="true" />
+                        {t("dailyListeningGoalCount")}
+                    </span>
+                    <input
+                        type="number"
+                        min={setting.minDailyListeningGoalCount}
+                        max={setting.maxDailyListeningGoalCount}
+                        step={1}
+                        value={form.dailyListeningGoalCount}
+                        onChange={(event) =>
+                            controller.update(
+                                "dailyListeningGoalCount",
+                                Number(event.target.value),
+                            )
+                        }
+                        className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-white/10 dark:bg-black/20 dark:text-white dark:focus:ring-blue-500/20"
+                    />
+                    <span className="mt-1 block text-xs text-slate-400">
+                        {t("dailyListeningGoalRange", {
+                            min: setting.minDailyListeningGoalCount,
+                            max: setting.maxDailyListeningGoalCount,
+                        })}
+                    </span>
+                </label>
+
+                <label className="block">
                     <span className="text-sm font-black text-slate-700 dark:text-slate-200">
                         {t("speakingVoice")}
                     </span>
@@ -188,6 +223,55 @@ export function LanguageLearningSettingForm({
                         ))}
                     </AppSelect>
                 </label>
+
+                <fieldset className="md:col-span-2">
+                    <legend className="text-sm font-black text-slate-700 dark:text-slate-200">
+                        {t("defaultListeningTasks")}
+                    </legend>
+                    <p id="listening-setting-selection-rule" className="mt-1 text-xs text-slate-400">
+                        {t("defaultListeningTasksRule")}
+                    </p>
+                    <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                        {LISTENING_TASK_OPTIONS.map(([taskType, Icon]) => {
+                            const checked = form.defaultListeningTaskTypes.includes(taskType);
+                            return (
+                                <label
+                                    key={taskType}
+                                    data-testid={`listening-setting-task-option-${taskType}`}
+                                    className={`cursor-pointer rounded-xl border px-3 py-3 transition ${
+                                        checked
+                                            ? "border-blue-500 bg-blue-50 dark:bg-blue-500/10"
+                                            : "border-slate-200 bg-white dark:border-white/10 dark:bg-black/10"
+                                    }`}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        className="sr-only"
+                                        checked={checked}
+                                        aria-describedby="listening-setting-selection-rule"
+                                        onChange={() => {
+                                            const next = checked
+                                                ? form.defaultListeningTaskTypes.filter((item) => item !== taskType)
+                                                : [...form.defaultListeningTaskTypes, taskType];
+                                            controller.update("defaultListeningTaskTypes", next);
+                                        }}
+                                    />
+                                    <span className="flex items-center gap-2 text-sm font-black text-slate-700 dark:text-slate-200">
+                                        <Icon className="h-4 w-4 text-blue-600" aria-hidden="true" />
+                                        {t(`listeningTask.${taskType}`)}
+                                    </span>
+                                </label>
+                            );
+                        })}
+                    </div>
+                    {!form.defaultListeningTaskTypes.some(
+                        (task) => task === "DICTATION" || task === "REPEAT_AFTER_AUDIO",
+                    ) && (
+                        <p role="alert" className="mt-2 text-xs font-bold text-rose-600 dark:text-rose-300">
+                            {t("defaultListeningTasksInvalid")}
+                        </p>
+                    )}
+                </fieldset>
 
                 <label className="block">
                     <span className="text-sm font-black text-slate-700 dark:text-slate-200">

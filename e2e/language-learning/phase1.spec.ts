@@ -21,8 +21,8 @@ test.describe("Language Learning Phase 1", () => {
         await page.goto("/language-learning");
 
         await expect(page.getByTestId("language-learning-dashboard")).toBeVisible();
-        await expect(page.getByRole("heading", { name: "5대 Skill Radar" })).toBeVisible();
-        await expect(page.getByRole("heading", { name: "Keyword 숙련도" })).toBeVisible();
+        await expect(page.getByTestId("dashboard-integrated-ability")).toBeVisible();
+        await expect(page.getByTestId("dashboard-activity-writing")).toBeVisible();
     });
 
     test("LL-02 최초 Level Test가 필요한 사용자는 시작 안내를 표시한다", async ({ page }) => {
@@ -66,7 +66,7 @@ test.describe("Language Learning Phase 1", () => {
     test("LL-04 학습 설정에서 Admin Min/Max와 Keyword Type을 표시한다", async ({ page }) => {
         await page.goto("/language-learning/settings");
         await expect(page.getByTestId("language-learning-settings")).toBeVisible();
-        await expect(page.getByText("관리자 허용 범위: 1 ~ 20")).toBeVisible();
+        await expect(page.getByText("관리자 허용 범위: 1 ~ 20", { exact: true })).toBeVisible();
         await expect(page.getByRole("option", { name: "Topic" }).first()).toBeAttached();
         await expect(page.getByRole("option", { name: "Vocabulary" }).first()).toBeAttached();
         await expect(

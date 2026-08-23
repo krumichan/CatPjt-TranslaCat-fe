@@ -11,16 +11,21 @@ export const LANGUAGE_LEARNING_SETTING = {
     dailySpeakingGoalMinutes: 5,
     speakingVoiceId: "Aoede",
     speakingPlaybackSpeed: "NORMAL",
+    dailyListeningGoalCount: 5,
+    defaultListeningTaskTypes: ["DICTATION"],
     pendingOriginLanguage: null,
     pendingLearningLanguage: null,
     pendingTimezone: null,
     pendingDailySentenceCount: null,
     pendingDailySpeakingGoalMinutes: null,
+    pendingDailyListeningGoalCount: null,
     pendingEffectiveDate: null,
     minDailySentenceCount: 1,
     maxDailySentenceCount: 20,
     minDailySpeakingGoalMinutes: 3,
     maxDailySpeakingGoalMinutes: 20,
+    minDailyListeningGoalCount: 1,
+    maxDailyListeningGoalCount: 20,
     configured: true,
 };
 
@@ -230,38 +235,67 @@ export const LANGUAGE_LEARNING_PROFILE = {
 };
 
 export const LANGUAGE_LEARNING_DASHBOARD = {
-    todayCompleted: 1,
-    todayTotal: 5,
-    currentStreak: 6,
-    totalStudySentenceCount: 123,
-    weeklyAverageScore: 80.4,
-    monthlyAverageScore: 78.8,
-    skillRadar: LANGUAGE_LEARNING_PROFILE.skillScores,
-    metricTrend: [
-        { date: "2026-08-11", overall: 74, meaning: 80, grammar: 68, vocabulary: 72, naturalness: 74, expression: 70 },
-        { date: "2026-08-12", overall: 79, meaning: 84, grammar: 72, vocabulary: 76, naturalness: 78, expression: 72 },
-        { date: "2026-08-13", overall: 84, meaning: 90, grammar: 82, vocabulary: 80, naturalness: 86, expression: 76 },
-    ],
-    difficultyPerformance: LANGUAGE_LEARNING_PROFILE.difficultyPerformance,
-    keywordMastery: LANGUAGE_LEARNING_PROFILE.keywordMasteries,
-    grammarWeaknesses: LANGUAGE_LEARNING_PROFILE.grammarWeaknesses,
-    errorPatterns: LANGUAGE_LEARNING_PROFILE.errorPatterns,
-    recentLearningHistory: [
-        { learningDate: "2026-08-13", sentenceCount: 5, status: "READY", averageScore: 84 },
-    ],
-    monthlyReport: {
-        month: "2026-08",
-        evaluatedSentenceCount: 42,
-        overallAverage: 78.8,
-        strongestMetric: "MEANING",
-        weakestMetric: "EXPRESSION",
-    },
-    speakingToday: { completedSessions: 1, completedMinutes: 4, goalMinutes: 5, status: "IN_PROGRESS" },
-    streak: { current: 6, longest: 10, lastStudyDate: "2026-08-15" },
-    speakingSummary: { sessions: 4, totalMinutes: 26, overallAverage: 81, fluencyAverage: 79, pronunciationAverage: 78, interactionAverage: 86, collectingData: false },
-    sourceSkillTrend: { source: "ALL", sampleCount: 8, confidence: 0.86, collectingData: false, metrics: { GRAMMAR: [{ date: "2026-08-15", score: 82 }], FLUENCY: [{ date: "2026-08-15", score: 79 }], PRONUNCIATION: [{ date: "2026-08-15", score: 78 }] } },
-    insights: { strengths: [{ patternKey: "meaning", direction: "UP", evidenceCount: 5, weightedEvidence: 4.2, sources: ["WRITING", "SPEAKING"], unified: true, recommendedFocus: null }], weaknesses: [{ patternKey: "pronunciation", direction: "DOWN", evidenceCount: 3, weightedEvidence: 2.4, sources: ["SPEAKING"], unified: false, recommendedFocus: "pronunciation" }], recommendedFocus: ["pronunciation"] },
+    learningLanguage: "ja",
+    from: "2026-08-01",
+    to: "2026-08-23",
     source: "ALL",
+    integratedAbility: {
+        overall: 79,
+        confidence: "HIGH",
+        measuredMetricCount: 8,
+        totalMetricCount: 10,
+        groups: [
+            { group: "COMPREHENSION", score: 82, measuredMetricCount: 3 },
+            { group: "EXPRESSION", score: 77, measuredMetricCount: 2 },
+            { group: "ACCURACY", score: 78, measuredMetricCount: 2 },
+            { group: "SPEECH", score: 76, measuredMetricCount: 3 },
+        ],
+        metrics: [
+            { metric: "MEANING", score: 83, sampleCount: 8, confidence: "HIGH", collectingData: false },
+            { metric: "GRAMMAR", score: 78, sampleCount: 7, confidence: "HIGH", collectingData: false },
+            { metric: "VOCABULARY", score: 80, sampleCount: 8, confidence: "HIGH", collectingData: false },
+            { metric: "PRONUNCIATION", score: 76, sampleCount: 5, confidence: "MEDIUM", collectingData: false },
+        ],
+    },
+    activityPerformance: {
+        writing: { recentScore: 84, coverage: { evaluated: 5, total: 5 }, today: { completed: 5, target: 5, unit: "문장" }, sampleCount: 12, collectingData: false },
+        speaking: { recentScore: 81, coverage: { evaluated: 8, total: 8 }, today: { completed: 4, target: 5, unit: "분" }, sampleCount: 6, collectingData: false },
+        listening: { recentScore: 84, coverage: { evaluated: 2, total: 3 }, today: { completed: 3, target: 5, unit: "문제" }, sampleCount: 10, collectingData: false },
+        reading: { recentScore: null, coverage: { evaluated: 0, total: 0 }, today: { completed: 0, target: 0, unit: "문제" }, sampleCount: 0, collectingData: true },
+    },
+    growth: [
+        { metric: "LISTENING_RECOGNITION", source: "LISTENING", taskType: "DICTATION", previousAverage: 72, recentAverage: 78, delta: 6, previousSampleCount: 5, recentSampleCount: 5 },
+    ],
+    weaknesses: [
+        { key: "PRONUNCIATION", state: "IMPROVING", evidenceCount: 3, recentScore: 69, sources: ["LISTENING", "SPEAKING"], recommendedFocus: "따라 말하기" },
+    ],
+    recommendations: [
+        { recommendationId: 501, targetMetric: "PRONUNCIATION", recommendedActivity: "LISTENING", recommendedTask: "REPEAT_AFTER_AUDIO", reason: "발음 재현 연습을 이어가 보세요.", ctaLabel: "따라 말하기 시작", priority: 1, status: "ACTIVE", expiresAt: "2026-08-30T12:00:00" },
+    ],
+    trends: {
+        sourceMetrics: {
+            source: "ALL",
+            sampleCount: 10,
+            confidence: 0.88,
+            collectingData: false,
+            metrics: {
+                GRAMMAR: [{ date: "2026-08-22", score: 78 }],
+                FLUENCY: [{ date: "2026-08-22", score: 79 }],
+                PRONUNCIATION: [{ date: "2026-08-22", score: 76 }],
+                LISTENING_RECOGNITION: [{ date: "2026-08-23", score: 84 }],
+            },
+        },
+        listeningTasks: [
+            { taskType: "DICTATION", date: "2026-08-23", averageScore: 88, sampleCount: 5 },
+            { taskType: "REPEAT_AFTER_AUDIO", date: "2026-08-23", averageScore: 80, sampleCount: 5 },
+        ],
+        listeningMetrics: [
+            { taskType: "DICTATION", metric: "LISTENING_RECOGNITION", date: "2026-08-23", averageScore: 88, sampleCount: 5 },
+            { taskType: "REPEAT_AFTER_AUDIO", metric: "PRONUNCIATION", date: "2026-08-23", averageScore: 80, sampleCount: 5 },
+        ],
+    },
+    // Keep the Phase 2 widget-isolation regression payload marker.
+    speakingSummary: { sessions: 4 },
 };
 
 export async function mockLanguageLearningBase(page: Page) {
@@ -289,6 +323,301 @@ export async function mockLanguageLearningBase(page: Page) {
             route,
             responseDto(LANGUAGE_LEARNING_KEYWORDS),
         ),
+    );
+}
+
+export const LANGUAGE_LEARNING_LISTENING_POLICY = {
+    enabled: true,
+    defaultItemCount: 5,
+    minItemCount: 1,
+    maxItemCount: 20,
+    hardItemLimit: 30,
+    resumeHours: 2,
+    referenceAudioRetentionDays: 7,
+    userAudioRetentionDays: 7,
+    reportedAudioRetentionDays: 30,
+    automaticRetryLimit: 2,
+    manualRetryLimit: 1,
+    practiceAttemptLimit: 1,
+    profilePolicyVersion: "listening-profile-v1",
+    modelConfigVersion: "listening-model-v1",
+    referenceTtsRegenerationEnabled: false,
+};
+
+export const LANGUAGE_LEARNING_LISTENING_DAILY_SET = {
+    dailySetId: 701,
+    learningDate: "2026-08-23",
+    originLanguage: "ko",
+    learningLanguage: "ja",
+    difficulty: "MY_LEVEL",
+    status: "READY",
+    targetItemCount: 5,
+    physicalItemCount: 5,
+    readyItemCount: 5,
+    completedItemCount: 1,
+    failureReason: null,
+    items: [1, 2, 3, 4, 5].map((itemIndex) => ({
+        itemId: 710 + itemIndex,
+        itemIndex,
+        replacementSequence: 0,
+        status: "READY",
+        playable: true,
+        audioDurationMs: 8000,
+    })),
+};
+
+const LISTENING_AUDIO_AVAILABILITY = {
+    available: true,
+    expired: false,
+    retentionUntil: "2026-08-30T12:00:00",
+    deletedAt: null,
+};
+
+export const LANGUAGE_LEARNING_LISTENING_ATTEMPT = {
+    attemptId: 801,
+    itemId: 711,
+    attemptNo: 1,
+    evaluationPurpose: "OFFICIAL",
+    status: "IN_PROGRESS",
+    answerRevealed: false,
+    overallScore: null,
+    evaluatedTaskCount: 0,
+    coverage: 0,
+    errorCode: null,
+    tasks: [
+        {
+            taskResponseId: 901,
+            taskType: "DICTATION",
+            status: "IN_PROGRESS",
+            answerText: null,
+            audioUploaded: false,
+            audioDurationMs: null,
+            audioAvailability: null,
+            rerecordCount: 0,
+            assistanceLevel: "INDEPENDENT",
+            assistanceUsage: [],
+            evaluationErrorCode: null,
+            evaluation: null,
+        },
+        {
+            taskResponseId: 902,
+            taskType: "INTERPRETATION",
+            status: "NOT_SELECTED",
+            answerText: null,
+            audioUploaded: false,
+            audioDurationMs: null,
+            audioAvailability: null,
+            rerecordCount: 0,
+            assistanceLevel: "INDEPENDENT",
+            assistanceUsage: [],
+            evaluationErrorCode: null,
+            evaluation: null,
+        },
+        {
+            taskResponseId: 903,
+            taskType: "REPEAT_AFTER_AUDIO",
+            status: "IN_PROGRESS",
+            answerText: null,
+            audioUploaded: false,
+            audioDurationMs: null,
+            audioAvailability: LISTENING_AUDIO_AVAILABILITY,
+            rerecordCount: 0,
+            assistanceLevel: "INDEPENDENT",
+            assistanceUsage: [],
+            evaluationErrorCode: null,
+            evaluation: null,
+        },
+    ],
+};
+
+export const LANGUAGE_LEARNING_LISTENING_SESSION = {
+    sessionId: 702,
+    dailySetId: 701,
+    status: "IN_PROGRESS",
+    selectedTaskTypes: ["DICTATION", "REPEAT_AFTER_AUDIO"],
+    completedItemCount: 1,
+    evaluatedItemCount: 1,
+    actualDurationMs: 52000,
+    startedAt: "2026-08-23T11:55:00",
+    lastActivityAt: "2026-08-23T12:00:00",
+    resumableUntil: "2026-08-23T14:00:00",
+    attempts: [LANGUAGE_LEARNING_LISTENING_ATTEMPT],
+};
+
+export const LANGUAGE_LEARNING_LISTENING_ITEM = {
+    sessionId: 702,
+    itemId: 711,
+    itemIndex: 1,
+    status: "READY",
+    playable: true,
+    referenceAudioPath: "/api/v1/language-learning/listening/items/711/audio",
+    audioDurationMs: 8000,
+    topicHint: "週末の予定",
+    keywordHints: ["友達", "映画"],
+    sourceText: null,
+    referenceMeanings: null,
+    attempt: LANGUAGE_LEARNING_LISTENING_ATTEMPT,
+};
+
+const LISTENING_DICTATION_EVALUATION = {
+    evaluationId: 9501,
+    taskType: "DICTATION",
+    evaluable: true,
+    score: 88,
+    confidence: 0.92,
+    reasonCode: null,
+    metrics: [
+        { metric: "LISTENING_RECOGNITION", score: 90 },
+        { metric: "ORTHOGRAPHY", score: 86 },
+    ],
+    strengths: ["핵심 단어를 정확히 들었습니다."],
+    improvements: ["장음 표기를 조금 더 확인해 보세요."],
+    recommendedAnswers: ["明日は友達と映画を見に行きます。"],
+    evaluatedAt: "2026-08-23T12:03:00",
+};
+
+const LISTENING_REPEAT_EVALUATION = {
+    evaluationId: 9502,
+    taskType: "REPEAT_AFTER_AUDIO",
+    evaluable: true,
+    score: 80,
+    confidence: 0.88,
+    reasonCode: null,
+    metrics: [
+        { metric: "PRONUNCIATION", score: 79 },
+        { metric: "FLUENCY", score: 81 },
+    ],
+    strengths: ["문장 전체를 끊기지 않고 말했습니다."],
+    improvements: ["억양의 높낮이를 조금 더 살려 보세요."],
+    recommendedAnswers: [],
+    evaluatedAt: "2026-08-23T12:03:00",
+};
+
+export const LANGUAGE_LEARNING_LISTENING_RESULT = {
+    sessionId: 702,
+    status: "COMPLETED",
+    learnedItemCount: 5,
+    evaluatedItemCount: 5,
+    averageScore: 84,
+    coverage: 2 / 3,
+    attempts: [
+        {
+            ...LANGUAGE_LEARNING_LISTENING_ATTEMPT,
+            status: "EVALUATED",
+            overallScore: 84,
+            evaluatedTaskCount: 2,
+            coverage: 2 / 3,
+            tasks: [
+                {
+                    ...LANGUAGE_LEARNING_LISTENING_ATTEMPT.tasks[0],
+                    status: "EVALUATED",
+                    answerText: "明日は友達と映画を見に行きます。",
+                    evaluation: LISTENING_DICTATION_EVALUATION,
+                },
+                LANGUAGE_LEARNING_LISTENING_ATTEMPT.tasks[1],
+                {
+                    ...LANGUAGE_LEARNING_LISTENING_ATTEMPT.tasks[2],
+                    status: "EVALUATED",
+                    audioUploaded: true,
+                    audioDurationMs: 8200,
+                    audioAvailability: LISTENING_AUDIO_AVAILABILITY,
+                    evaluation: LISTENING_REPEAT_EVALUATION,
+                },
+            ],
+        },
+    ],
+};
+
+export const LANGUAGE_LEARNING_LISTENING_HISTORY_DETAIL = {
+    session: { ...LANGUAGE_LEARNING_LISTENING_SESSION, status: "COMPLETED" },
+    attempts: [
+        {
+            itemId: 711,
+            itemIndex: 1,
+            sourceText: "明日は友達と映画を見に行きます。",
+            referenceMeanings: ["내일 친구와 영화를 보러 갑니다."],
+            referenceAudio: LISTENING_AUDIO_AVAILABILITY,
+            attempt: LANGUAGE_LEARNING_LISTENING_RESULT.attempts[0],
+        },
+    ],
+};
+
+export async function mockLanguageLearningPhase3(page: Page) {
+    await page.route("**/language-learning/listening/policy", (route) =>
+        fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LISTENING_POLICY)),
+    );
+    await page.route("**/language-learning/listening/today", (route) =>
+        fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LISTENING_DAILY_SET)),
+    );
+    await page.route("**/language-learning/listening/daily-sets", (route) =>
+        fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LISTENING_DAILY_SET)),
+    );
+    await page.route("**/language-learning/listening/sessions", (route) =>
+        fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LISTENING_SESSION)),
+    );
+    await page.route("**/language-learning/listening/sessions/active", (route) =>
+        fulfillApiJson(route, responseDto({ active: false, session: null })),
+    );
+    await page.route("**/language-learning/listening/sessions/702", (route) =>
+        fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LISTENING_SESSION)),
+    );
+    await page.route("**/language-learning/listening/sessions/702/resume", (route) =>
+        fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LISTENING_SESSION)),
+    );
+    await page.route("**/language-learning/listening/sessions/702/items/711", (route) =>
+        fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LISTENING_ITEM)),
+    );
+    await page.route("**/language-learning/listening/items/711/audio", async (route) => {
+        if (route.request().resourceType() === "document") return route.fallback();
+        await route.fulfill({ status: 200, contentType: "audio/webm", body: "mock-audio" });
+    });
+    await page.route("**/language-learning/listening/attempts/801/responses/**", (route) => {
+        const url = route.request().url();
+        const taskType = url.includes("REPEAT_AFTER_AUDIO") ? "REPEAT_AFTER_AUDIO" : url.includes("INTERPRETATION") ? "INTERPRETATION" : "DICTATION";
+        const task = LANGUAGE_LEARNING_LISTENING_ATTEMPT.tasks.find((item) => item.taskType === taskType) ?? LANGUAGE_LEARNING_LISTENING_ATTEMPT.tasks[0];
+        return fulfillApiJson(route, responseDto({ ...task, status: "IN_PROGRESS" }));
+    });
+    await page.route("**/language-learning/listening/attempts/801/audio-upload**", (route) =>
+        fulfillApiJson(route, responseDto({ taskResponseId: 903, durationMs: 8200, rerecordCount: 1, retentionUntil: "2026-08-30T12:00:00" })),
+    );
+    await page.route("**/language-learning/listening/attempts/801/answer", (route) =>
+        fulfillApiJson(route, responseDto({ attemptId: 801, sourceText: "明日は友達と映画を見に行きます。", referenceMeanings: ["내일 친구와 영화를 보러 갑니다."], excludedFromProgress: true, excludedFromProfile: true })),
+    );
+    await page.route("**/language-learning/listening/attempts/801/submit", (route) =>
+        fulfillApiJson(route, responseDto({ ...LANGUAGE_LEARNING_LISTENING_ATTEMPT, status: "EVALUATING" })),
+    );
+    await page.route("**/language-learning/listening/attempts/801/retry-evaluation", (route) =>
+        fulfillApiJson(route, responseDto({ ...LANGUAGE_LEARNING_LISTENING_RESULT.attempts[0], status: "EVALUATING" })),
+    );
+    await page.route("**/language-learning/listening/sessions/702/items/711/practice-attempts", (route) =>
+        fulfillApiJson(route, responseDto({ ...LANGUAGE_LEARNING_LISTENING_ATTEMPT, attemptId: 802, attemptNo: 2, evaluationPurpose: "PRACTICE" })),
+    );
+    await page.route("**/language-learning/listening/attempts/801/skip", (route) =>
+        fulfillApiJson(route, responseDto({ ...LANGUAGE_LEARNING_LISTENING_ATTEMPT, status: "SKIPPED" })),
+    );
+    await page.route("**/language-learning/listening/responses/**/audio", async (route) => {
+        await route.fulfill({ status: 200, contentType: "audio/webm", body: "mock-user-audio" });
+    });
+    await page.route("**/language-learning/listening/responses/**/reports", (route) =>
+        fulfillApiJson(route, responseDto({ reportId: 9901, taskResponseId: 903, status: "OPEN", consentToRetainAudio: false, audioRetentionUntil: "2026-08-30T12:00:00" })),
+    );
+    await page.route("**/language-learning/listening/sessions/702/complete", (route) =>
+        fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LISTENING_RESULT)),
+    );
+    await page.route("**/language-learning/listening/sessions/702/result", (route) =>
+        fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LISTENING_RESULT)),
+    );
+    await page.route("**/language-learning/history?**", (route) =>
+        fulfillApiJson(route, responseDto([
+            { activityId: "LISTENING:702", source: "LISTENING", learningDate: "2026-08-23", title: "AI Listening", topic: "週末", durationSeconds: 320, overallScore: 84, completionStatus: "COMPLETED", evaluationStatus: "EVALUATED", taskTypes: ["DICTATION", "REPEAT_AFTER_AUDIO"] },
+            { activityId: "WRITING:101", source: "WRITING", learningDate: "2026-08-13", title: "Daily Writing", topic: null, durationSeconds: 0, overallScore: 84, completionStatus: "COMPLETED", evaluationStatus: "EVALUATED" },
+        ])),
+    );
+    await page.route("**/language-learning/history/LISTENING%3A702", (route) =>
+        fulfillApiJson(route, responseDto({ activityId: "LISTENING:702", source: "LISTENING", detail: LANGUAGE_LEARNING_LISTENING_HISTORY_DETAIL })),
+    );
+    await page.route("**/language-learning/recommendations/**/dismiss", (route) =>
+        fulfillApiJson(route, responseDto(null)),
     );
 }
 

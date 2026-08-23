@@ -4,6 +4,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { languageLearningSettingService } from "@/services/language-learning/languageLearningSettingService";
 import type { LanguageLearningUserSetting } from "@/types/language-learning/setting";
+import type { ListeningTaskType } from "@/types/language-learning/listening";
+import { isValidListeningTaskSelection } from "@/types/language-learning/listening";
 
 export interface LanguageLearningSettingFormValue {
     originLanguage: string;
@@ -13,6 +15,8 @@ export interface LanguageLearningSettingFormValue {
     dailySpeakingGoalMinutes: number;
     speakingVoiceId: string;
     speakingPlaybackSpeed: string;
+    dailyListeningGoalCount: number;
+    defaultListeningTaskTypes: ListeningTaskType[];
 }
 
 type LanguageLearningSettingSaveMode = "INITIAL" | "NEXT_DAY";
@@ -44,6 +48,13 @@ function toFormValue(
         speakingVoiceId: setting.speakingVoiceId?.trim() || "Kore",
         speakingPlaybackSpeed:
             setting.speakingPlaybackSpeed?.trim() || "NORMAL",
+        dailyListeningGoalCount:
+            setting.pendingDailyListeningGoalCount ??
+            setting.dailyListeningGoalCount,
+        defaultListeningTaskTypes:
+            setting.defaultListeningTaskTypes?.length > 0
+                ? [...setting.defaultListeningTaskTypes]
+                : ["DICTATION"],
     };
 }
 
@@ -82,7 +93,11 @@ export function useLanguageLearningUserSettingForm({
             form.dailySpeakingGoalMinutes <=
                 setting.maxDailySpeakingGoalMinutes &&
             form.speakingVoiceId.trim().length > 0 &&
-            form.speakingPlaybackSpeed.trim().length > 0
+            form.speakingPlaybackSpeed.trim().length > 0 &&
+            Number.isInteger(form.dailyListeningGoalCount) &&
+            form.dailyListeningGoalCount >= setting.minDailyListeningGoalCount &&
+            form.dailyListeningGoalCount <= setting.maxDailyListeningGoalCount &&
+            isValidListeningTaskSelection(form.defaultListeningTaskTypes)
         );
     }, [form, setting]);
 

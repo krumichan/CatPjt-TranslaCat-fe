@@ -56,6 +56,8 @@ export function DashboardSourceTrendWidget({
                         <option value="ALL">{t("source.ALL")}</option>
                         <option value="WRITING">{t("source.WRITING")}</option>
                         <option value="SPEAKING">{t("source.SPEAKING")}</option>
+                        <option value="LISTENING">{t("source.LISTENING")}</option>
+                        <option value="READING">{t("source.READING")}</option>
                     </AppSelect>
                     <AppSelect
                         value={period}

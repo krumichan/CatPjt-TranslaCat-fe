@@ -5,11 +5,13 @@ import type {
     LearningHistoryItem,
     LearningHistorySourceFilter,
 } from "@/types/language-learning/history";
+import type { ListeningTaskType } from "@/types/language-learning/listening";
 
 interface LearningHistoryQuery {
     source: LearningHistorySourceFilter;
     period: string;
     status?: string | null;
+    taskType?: ListeningTaskType | null;
 }
 
 export const learningHistoryService = {
@@ -17,13 +19,13 @@ export const learningHistoryService = {
         source,
         period,
         status,
+        taskType,
     }: LearningHistoryQuery): Promise<LearningHistoryItem[]> => {
         const params = new URLSearchParams({ period });
-        if (source !== "ALL") {
-            params.set("source", source);
-        }
-        if (status) {
-            params.set("status", status);
+        if (source !== "ALL") params.set("source", source);
+        if (status) params.set("status", status);
+        if (taskType && (source === "ALL" || source === "LISTENING")) {
+            params.set("taskType", taskType);
         }
 
         const response = await apiClient(

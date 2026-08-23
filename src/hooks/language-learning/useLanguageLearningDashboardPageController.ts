@@ -1,17 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import { useLanguageLearningEntryState } from "@/hooks/language-learning/useLanguageLearningEntryState";
 import { useQuery } from "@/hooks/useQuery";
 import { languageLearningDashboardService } from "@/services/language-learning/languageLearningDashboardService";
-import { languageLearningProfileService } from "@/services/language-learning/languageLearningProfileService";
+import { listeningService } from "@/services/language-learning/listeningService";
 import type { DashboardPeriod, DashboardSourceFilter } from "@/types/language-learning/dashboard";
 
 export function useLanguageLearningDashboardPageController() {
     const entry = useLanguageLearningEntryState();
-    const [period, setPeriod] = useState<DashboardPeriod>("7d");
+    const [period, setPeriod] = useState<DashboardPeriod>("30d");
     const [source, setSource] = useState<DashboardSourceFilter>("ALL");
+    const [dismissingId, setDismissingId] = useState<number | null>(null);
     const canLoadLearningData = entry.setting?.configured === true && entry.levelStatus?.profileState !== "LEVEL_TEST_REQUIRED";
 
     const dashboardQuery = useQuery({
@@ -21,25 +22,34 @@ export function useLanguageLearningDashboardPageController() {
         config: { revalidateOnMount: true },
     });
 
-    const profileQuery = useQuery({
-        keys: canLoadLearningData ? (["language-learning-profile"] as const) : null,
-        fetcher: () => languageLearningProfileService.get(),
-        enabled: canLoadLearningData,
-        config: { revalidateOnMount: true },
-    });
+    const dismissRecommendation = useCallback(async (recommendationId: number) => {
+        if (dismissingId !== null) return false;
+        setDismissingId(recommendationId);
+        try {
+            await listeningService.dismissRecommendation(recommendationId);
+            await dashboardQuery.mutate(undefined, true);
+            return true;
+        } catch (error) {
+            console.error("Failed to dismiss language learning recommendation.", error);
+            return false;
+        } finally {
+            setDismissingId(null);
+        }
+    }, [dashboardQuery, dismissingId]);
 
     return {
         entry,
         dashboard: dashboardQuery.data ?? null,
-        profile: profileQuery.data ?? null,
         period,
         source,
         setPeriod,
         setSource,
-        isLoadingData: canLoadLearningData && (dashboardQuery.isLoading || profileQuery.isLoading),
-        loadError: dashboardQuery.isError || profileQuery.isError,
+        dismissingId,
+        dismissRecommendation,
+        isLoadingData: canLoadLearningData && dashboardQuery.isLoading,
+        loadError: dashboardQuery.isError,
         reloadData: async () => {
-            await Promise.all([dashboardQuery.mutate(undefined, true), profileQuery.mutate(undefined, true)]);
+            await dashboardQuery.mutate(undefined, true);
         },
     };
 }

@@ -13,7 +13,8 @@
       "history": "学習履歴",
       "profile": "学習プロフィール",
       "settings": "学習設定",
-      "speaking": "AI Speaking"
+      "speaking": "AI Speaking",
+      "listening": "AI Listening"
     },
     "onboarding": {
       "SETTING": {
@@ -133,7 +134,9 @@
         "source": {
           "ALL": "すべて",
           "WRITING": "Writing",
-          "SPEAKING": "Speaking"
+          "SPEAKING": "Speaking",
+          "LISTENING": "Listening",
+          "READING": "Reading"
         },
         "metric": {
           "GRAMMAR": "文法",
@@ -155,6 +158,93 @@
         "startWriting": "Writingを始める",
         "startSpeaking": "Speakingを始める",
         "sourceEvidence": "根拠Source"
+      },
+      "v3": {
+        "collectingData": "データ収集中",
+        "integrated": {
+          "eyebrow": "総合評価",
+          "title": "統合言語能力",
+          "confidence": "信頼度 {value}",
+          "measured": "測定領域 {measured}/{total}",
+          "groupMeasured": "測定Metric {count}",
+          "metricMeta": "Sample {count} · {confidence}"
+        },
+        "activity": {
+          "eyebrow": "機能別評価",
+          "title": "学習別成績",
+          "writing": "Writing",
+          "speaking": "Speaking",
+          "listening": "Listening",
+          "reading": "Reading",
+          "recentScore": "最近のスコア",
+          "samples": "Sample {count}",
+          "coverage": "評価範囲 {evaluated}/{total}",
+          "today": "今日 {completed}/{target} {unit}",
+          "start": "学習開始"
+        },
+        "group": {
+          "COMPREHENSION": "理解能力",
+          "EXPRESSION": "表現能力",
+          "ACCURACY": "言語基盤",
+          "SPEECH": "音声・会話"
+        },
+        "growth": {
+          "title": "成長",
+          "empty": "成長判定に十分なSampleがまだありません。",
+          "meta": "{source} · 前回 {previous} ({previousCount}) → 最近 {recent} ({recentCount})"
+        },
+        "weakness": {
+          "title": "弱点と回復",
+          "empty": "現在、繰り返し観測される弱点はありません。",
+          "evidence": "根拠 {count}回 · 最近 {score} · {sources}",
+          "state": {
+            "DATA_COLLECTING": "収集中",
+            "ACTIVE": "要改善",
+            "IMPROVING": "回復中",
+            "RESOLVED": "改善済み",
+            "WEAKNESS": "要改善",
+            "STRENGTH": "強み"
+          }
+        },
+        "recommendation": {
+          "title": "おすすめ学習",
+          "empty": "現在追加のおすすめ学習はありません。",
+          "dismiss": "おすすめを非表示",
+          "start": "おすすめ学習を開始"
+        },
+        "trend": {
+          "listeningTitle": "Listening Task・Metric推移",
+          "listeningDescription": "評価範囲の異なるOverallを1本にまとめず、TaskとMetricを分離します。",
+          "samples": "Sample {count}"
+        },
+        "task": {
+          "DICTATION": "ディクテーション",
+          "INTERPRETATION": "意味記述",
+          "REPEAT_AFTER_AUDIO": "リピート発話"
+        },
+        "metric": {
+          "LISTENING_RECOGNITION": "聞き取り認識",
+          "TOKEN_RECOGNITION": "単語認識",
+          "OMISSION_ADDITION_ORDER": "欠落・追加・語順",
+          "ORTHOGRAPHY": "表記正確性",
+          "MEANING": "意味理解",
+          "MEANING_FIDELITY": "主要意味",
+          "DETAIL_AND_NUANCE": "詳細情報",
+          "ORIGIN_NATURALNESS": "自然な意味表現",
+          "PRONUNCIATION": "発音",
+          "PROSODY_RHYTHM": "イントネーション・リズム",
+          "FLUENCY": "流暢さ",
+          "COMPLETENESS": "完成度",
+          "VOCABULARY": "語彙",
+          "SPOKEN_EXPRESSION": "発話表現",
+          "INTERACTION": "会話能力",
+          "WRITTEN_EXPRESSION": "文章表現",
+          "GRAMMAR": "文法",
+          "NATURALNESS": "自然さ",
+          "EXPRESSIVENESS": "表現力",
+          "EXPRESSION": "表現力",
+          "OVERALL": "総合"
+        }
       }
     },
     "levelTest": {
@@ -276,7 +366,9 @@
         "source": {
           "ALL": "すべて",
           "WRITING": "Writing",
-          "SPEAKING": "Speaking"
+          "SPEAKING": "Speaking",
+          "LISTENING": "Listening",
+          "READING": "Reading"
         },
         "freeTalk": "フリートーク",
         "speakingSummary": "{turns} Turn · {minutes}分",
@@ -287,7 +379,38 @@
         "fullTranscript": "全会話Transcript",
         "assistanceSummary": "学習サポート利用履歴",
         "assistanceSummaryDescription": "Session中に実際に利用した学習サポートの回数です。",
-        "userAudioExpired": "ユーザー元音声の保存期間が終了したため再生できません。"
+        "userAudioExpired": "ユーザー元音声の保存期間が終了したため再生できません。",
+        "taskFilter": "Listening Task Filter",
+        "allTasks": "すべてのTask",
+        "task": {
+          "DICTATION": "ディクテーション",
+          "INTERPRETATION": "意味記述",
+          "REPEAT_AFTER_AUDIO": "リピート発話"
+        }
+      },
+      "readingPreparing": "Reading詳細は準備中です。",
+      "listening": {
+        "title": "Listening詳細",
+        "sessionSummary": "完了 {completed} · 評価 {evaluated}",
+        "task": {
+          "DICTATION": "ディクテーション",
+          "INTERPRETATION": "意味記述",
+          "REPEAT_AFTER_AUDIO": "リピート発話"
+        },
+        "notSelected": "未選択",
+        "userAudioExpired": "ユーザーAudioの保存期間が終了しました。",
+        "userAudioRetained": "ユーザーAudio保存中 · {until}",
+        "userAudioUnavailable": "ユーザーAudioなし",
+        "profileApplied": "Profile反映: {value}",
+        "yes": "はい",
+        "no": "いいえ",
+        "referenceAudioExpired": "音声保存期間が終了しました。回答と評価結果は引き続き確認できます。",
+        "audioLoading": "Audio読み込み中...",
+        "playReference": "Reference Audio再生",
+        "retentionUntil": "保存期限 {until}",
+        "playUserAudio": "ユーザーAudioを再生",
+        "userAudioLoading": "Audio読み込み中...",
+        "userAudioLoadFailed": "ユーザーAudioを読み込めませんでした。"
       }
     },
     "profile": {
@@ -361,6 +484,16 @@
         "playbackSpeed": {
           "SLOW": "ゆっくり",
           "NORMAL": "通常"
+        },
+        "dailyListeningGoalCount": "1日のListening目標",
+        "dailyListeningGoalRange": "管理者の許可範囲: {min} ~ {max}問",
+        "defaultListeningTasks": "デフォルトListening学習方式",
+        "defaultListeningTasksRule": "ディクテーションまたはリピート発話を1つ以上選択してください。意味記述は任意です。この組合せは次回Listening Sessionのデフォルトとして即時保存されます。",
+        "defaultListeningTasksInvalid": "ディクテーションまたはリピート発話を1つ以上選択してください。",
+        "listeningTask": {
+          "DICTATION": "ディクテーション",
+          "INTERPRETATION": "意味記述",
+          "REPEAT_AFTER_AUDIO": "リピート発話"
         }
       },
       "keywords": {
@@ -873,6 +1006,244 @@
           "usageSummary": "このSessionでは学習サポートを合計{count}回利用しました。",
           "count": "{count}回"
         }
+      }
+    },
+    "listening": {
+      "title": "AI Listening",
+      "description": "Reference Audioを聞き、ディクテーション・意味記述・リピート発話を選択して練習・評価します。",
+      "difficulty": {
+        "EASY": "やさしい",
+        "MY_LEVEL": "自分のレベル",
+        "CHALLENGE": "チャレンジ"
+      },
+      "task": {
+        "DICTATION": "ディクテーション",
+        "INTERPRETATION": "意味記述",
+        "REPEAT_AFTER_AUDIO": "リピート発話"
+      },
+      "dailyStatus": {
+        "GENERATING": "問題準備中",
+        "READY": "学習可能",
+        "PARTIAL": "一部準備中",
+        "COMPLETED": "完了",
+        "FAILED": "準備失敗"
+      },
+      "itemStatus": {
+        "TTS_PENDING": "Audio準備中",
+        "READY": "準備完了",
+        "NOT_EVALUABLE": "Audio準備失敗",
+        "REPLACED": "差し替え済み"
+      },
+      "attemptStatus": {
+        "READY": "回答可能",
+        "IN_PROGRESS": "進行中",
+        "SUBMITTED": "提出済み",
+        "EVALUATING": "評価中",
+        "EVALUATED": "評価完了",
+        "NOT_EVALUABLE": "評価不可",
+        "SKIPPED": "スキップ"
+      },
+      "landing": {
+        "loading": "今日のListeningを準備しています。",
+        "loadFailed": "Listening情報を読み込めませんでした。",
+        "disabledTitle": "Listeningを利用できません",
+        "disabledDescription": "現在の運用設定でListening機能が無効です。",
+        "resumeTitle": "進行中のListeningがあります",
+        "resumeDescription": "Serverに保存された状態から続けられます。",
+        "resume": "続ける",
+        "todayTitle": "今日のListening",
+        "progressAria": "今日のListening進捗",
+        "readyCount": "準備済み {ready} · 生成済み {physical}",
+        "generating": "文章とReference Audioを準備しています。",
+        "retryTts": "Audioを再準備",
+        "start": "学習方式を選択"
+      },
+      "setup": {
+        "title": "Listening学習方式の選択",
+        "description": "このSessionで利用するTaskを選択します。開始後は変更できません。",
+        "loading": "今日のListening Setを確認しています。",
+        "loadFailed": "Listening Setを読み込めませんでした。",
+        "dailySummary": "今日 {count}問 · {difficulty}",
+        "taskLegend": "今日行う学習",
+        "selectionRule": "ディクテーションまたはリピート発話を1つ以上選択してください。意味記述は任意です。",
+        "taskDescription": {
+          "DICTATION": "聞いた文章を学習言語で正確に書きます。",
+          "INTERPRETATION": "聞いた内容の意味を原文言語で自然に書きます。",
+          "REPEAT_AFTER_AUDIO": "聞いた文章を発話し、発音と流暢さを確認します。"
+        },
+        "invalidSelection": "ディクテーションまたはリピート発話が必要です。意味記述のみでは開始できません。",
+        "start": "Listeningを開始",
+        "starting": "Session作成中...",
+        "activeTitle": "進行中のListening Sessionがあります",
+        "activeDescription": "新しいSessionを作成せず、Serverに保存された進行状態から続けます。",
+        "activeAction": "続ける"
+      },
+      "session": {
+        "title": "AI Listening Session",
+        "description": "Audioを聞いて選択Taskを完了し、評価を依頼します。",
+        "loading": "Session状態を復元しています。",
+        "loadFailed": "Listening Sessionを読み込めませんでした。",
+        "expiredTitle": "Sessionの有効期限が切れました",
+        "expiredDescription": "最後の操作から2時間経過したため再開できません。",
+        "newSession": "新しいSessionを開始",
+        "allItemsDone": "選択した問題の学習が完了しました",
+        "allItemsDoneDescription": "Sessionを完了して結果を確認してください。",
+        "complete": "Session完了",
+        "completing": "完了処理中...",
+        "itemProgress": "問題 {current}/{total}",
+        "completedCount": "完了 {completed}/{total}",
+        "evaluating": "選択したTaskを評価中です。成功結果は保持し、失敗Taskのみ再試行できます。",
+        "skip": "スキップ",
+        "skipConfirm": "この問題をスキップしますか？今日の完了数には含まれません。",
+        "submit": "選択回答を提出",
+        "submitPractice": "練習回答を提出",
+        "submitting": "回答保存・評価依頼中...",
+        "audio": {
+          "play": "再生 / もう一度",
+          "slow": "0.75x ゆっくり",
+          "notice": "再生と0.75xは固定減点せず、利用履歴のみ記録します。"
+        },
+        "task": {
+          "DICTATION": {
+            "title": "ディクテーション",
+            "description": "聞いた文章を{language}で入力してください。",
+            "label": "ディクテーション回答",
+            "placeholder": "聞いた文章を入力してください。"
+          },
+          "INTERPRETATION": {
+            "title": "意味記述",
+            "description": "聞いた意味を{language}で自然に書いてください。",
+            "label": "意味記述回答",
+            "placeholder": "理解した内容を自然に書いてください。"
+          }
+        },
+        "recorder": {
+          "title": "リピート発話",
+          "description": "Reference Audio + 15秒、最大{seconds}秒まで録音できます。",
+          "permission": {
+            "PROMPT": "リピート発話にはマイク権限が必要です。",
+            "UNSUPPORTED": "このブラウザは音声録音に対応していません。",
+            "DENIED": "マイク権限が拒否されました。",
+            "NO_DEVICE": "利用可能なマイクが見つかりません。",
+            "DEVICE_BUSY": "他のアプリがマイクを使用中の可能性があります。",
+            "UNKNOWN": "マイクを利用できません。"
+          },
+          "requestPermission": "マイク権限を要求",
+          "record": "録音開始",
+          "rerecord": "再録音",
+          "stop": "録音停止",
+          "remaining": "再録音残り {count}回",
+          "preview": "録音プレビュー",
+          "confirm": "このAudioを確定",
+          "uploading": "Audioアップロード中...",
+          "discard": "録り直す",
+          "uploaded": "Audio確定済み · 再録音 {count}回"
+        },
+        "assistance": {
+          "title": "学習補助",
+          "description": "補助利用自体を失敗や固定減点として扱いません。",
+          "topicHint": "Topicヒント",
+          "keywordHint": "Keywordヒント",
+          "showAnswer": "正解を見る",
+          "answerConfirm": "先に正解を見ると、この問題の選択Task全体が正式評価・今日の完了数・Profileから除外されます。続けますか？",
+          "practiceBadge": "練習として完了 · 正式評価対象外",
+          "used": {
+            "REPLAY": "再生を利用しました。",
+            "SLOW_PLAYBACK": "0.75x再生を利用しました。",
+            "TOPIC_HINT": "Topicヒントの利用を記録しました。",
+            "KEYWORD_HINT": "Keywordヒントの利用を記録しました。",
+            "SHOW_ANSWER": "正解表示を記録しました。"
+          },
+          "topicHintValue": "Topic: {value}",
+          "keywordHintValue": "Keyword: {value}",
+          "hintUnavailable": "表示できるヒントがありません。"
+        }
+      },
+      "result": {
+        "title": "Listening評価結果",
+        "description": "Task別の評価範囲とEvidenceを確認し、必要な場合は失敗Taskのみ再評価します。",
+        "loading": "Listening評価結果を読み込んでいます。",
+        "loadFailed": "Listening結果を読み込めませんでした。",
+        "summaryEyebrow": "Session Result",
+        "summaryTitle": "Listening結果",
+        "coverage": "評価 {evaluated} · 学習 {learned}",
+        "itemTitle": "Listening Item {itemId}",
+        "officialBadge": "正式評価",
+        "practiceBadge": "練習評価 · Profile対象外",
+        "taskCoverage": "評価範囲 {count}/{total}",
+        "notSelected": "未選択",
+        "confidence": "Confidence {value}%",
+        "notEvaluable": "評価できませんでした: {reason}",
+        "retryEvaluation": "評価を再試行",
+        "strengths": "良かった点",
+        "improvements": "改善点",
+        "recommendedAnswers": "おすすめ回答",
+        "audioExpired": "音声保存期間が終了しました。Transcriptと評価結果は引き続き確認できます。",
+        "audioRetained": "ユーザーAudio保存中 · {until}",
+        "audioUnavailable": "ユーザーAudioを再生できません。",
+        "practice": "練習でもう一度",
+        "dashboard": "ダッシュボードで確認",
+        "history": "学習履歴で確認",
+        "task": {
+          "DICTATION": "ディクテーション",
+          "INTERPRETATION": "意味記述",
+          "REPEAT_AFTER_AUDIO": "リピート発話"
+        },
+        "status": {
+          "READY": "準備",
+          "IN_PROGRESS": "進行中",
+          "SUBMITTED": "提出済み",
+          "EVALUATING": "評価中",
+          "EVALUATED": "評価完了",
+          "EVALUATION_FAILED": "評価失敗",
+          "NOT_SELECTED": "未選択",
+          "NOT_EVALUABLE": "評価不可",
+          "SKIPPED": "スキップ"
+        },
+        "report": {
+          "title": "音声認識・評価エラー報告",
+          "action": "音声認識・評価エラーを報告",
+          "reason": "問題の種類",
+          "reasonOption": {
+            "STT_INCORRECT": "発話内容と異なる認識",
+            "PRONUNCIATION_EVALUATION_INCORRECT": "発音評価が実際の発話と異なる",
+            "OTHER": "その他"
+          },
+          "comment": "追加説明（任意）",
+          "consent": "エラー確認のため該当Audioを報告時点から最大30日保存することに同意します。",
+          "expiredConsent": "Audioが既に期限切れのためMetadataのみ報告できます。",
+          "submit": "報告を送信",
+          "cancel": "キャンセル",
+          "close": "確認",
+          "submitted": "報告を受け付けました。",
+          "failed": "報告を送信できませんでした。"
+        },
+        "playUserAudio": "自分のAudioを再生",
+        "userAudioLoading": "Audio読み込み中...",
+        "userAudioLoadFailed": "ユーザーAudioを読み込めませんでした。"
+      },
+      "errors": {
+        "LISTENING_SETTING_REQUIRED": "先に学習設定を完了してください。",
+        "LISTENING_DAILY_LIMIT_EXCEEDED": "今日のListening上限に達しました。",
+        "LISTENING_INVALID_TASK_COMBINATION": "選択した学習方式を確認してください。",
+        "LISTENING_ACTIVE_SESSION_EXISTS": "進行中のListening Sessionを続けます。",
+        "LISTENING_SESSION_EXPIRED": "Sessionの有効期限が切れました。",
+        "LISTENING_INVALID_STATE": "現在の状態ではこの操作を実行できません。",
+        "LISTENING_ITEM_ALREADY_SUBMITTED": "既に提出済みの問題です。",
+        "LISTENING_AUDIO_INVALID": "Audioを確認できません。再録音または再生してください。",
+        "LISTENING_RERECORD_LIMIT_EXCEEDED": "再録音回数を使い切りました。",
+        "LISTENING_ANSWER_REVEALED": "正解を確認した問題は正式評価へ反映されません。",
+        "LISTENING_PRACTICE_LIMIT_EXCEEDED": "この問題の練習再挑戦は既に利用済みです。",
+        "LISTENING_REPORT_AUDIO_EXPIRED": "Audio期限切れのためMetadataのみ報告できます。",
+        "LISTENING_REPORT_ALREADY_SUBMITTED": "この評価は既に報告済みです。",
+        "LISTENING_REPLACEMENT_LIMIT_EXCEEDED": "代替問題をこれ以上準備できません。Supportをご利用ください。",
+        "LISTENING_IDEMPOTENCY_CONFLICT": "同一Request Keyで異なる内容が検出されました。画面を更新してください。",
+        "AI_GENERATION_FAILED": "Listening問題の生成に失敗しました。",
+        "AI_TTS_FAILED": "Reference Audioの生成に失敗しました。",
+        "AI_STT_FAILED": "音声認識に失敗しました。",
+        "AI_EVALUATION_FAILED": "評価に失敗しました。失敗Taskのみ再試行できます。",
+        "AI_SCHEMA_INVALID": "評価結果の形式を確認できません。",
+        "UNKNOWN": "処理に失敗しました。Server状態を再確認してください。"
       }
     }
   }

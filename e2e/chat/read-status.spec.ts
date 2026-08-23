@@ -666,7 +666,7 @@ test.describe("FE #12 chat read status", () => {
     test("READ-14 OPEN은 openChatMemberId로 발신자를 식별해 자신의 읽음 Event로 자기 메시지 숫자를 줄이지 않는다", async ({
         page,
     }) => {
-        let socket: WebSocketRoute | null = null;
+        const topic = "/topic/chat/rooms/501";
         const myProfile = makeOpenChatProfile({
             openChatMemberId: 91,
             memberCode: "OPEN-ME-91",
@@ -678,11 +678,7 @@ test.describe("FE #12 chat read status", () => {
             nickname: "다른 OPEN 멤버",
         });
 
-        await mockStompBroker(page, {
-            onSocket: (nextSocket) => {
-                socket = nextSocket;
-            },
-        });
+        const stomp = await mockStompBroker(page);
         await page.route(/.*\/chat\/open-rooms\/501\/me\/profile$/, (route) =>
             fulfillApiJson(route, responseDto(myProfile)),
         );
@@ -712,12 +708,12 @@ test.describe("FE #12 chat read status", () => {
         });
 
         await page.goto("/chat/rooms/501");
-        await expect.poll(() => socket !== null).toBe(true);
         await expect(
             page.getByText("WS: CONNECTED", { exact: true }),
         ).toBeVisible();
+        await expect.poll(() => stomp.hasSubscriber(topic)).toBe(true);
 
-        sendStompJson(socket!, "/topic/chat/rooms/501", {
+        stomp.sendJsonToSubscribers(topic, {
             eventType: "chat.member.read.updated",
             chatRoomId: 501,
             readerUserId: null,

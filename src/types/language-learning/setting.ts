@@ -1,3 +1,5 @@
+import type { ListeningTaskType } from "@/types/language-learning/listening";
+
 export interface LanguageLearningUserSetting {
     originLanguage: string | null;
     learningLanguage: string | null;
@@ -6,16 +8,21 @@ export interface LanguageLearningUserSetting {
     dailySpeakingGoalMinutes: number;
     speakingVoiceId: string | null;
     speakingPlaybackSpeed: string | null;
+    dailyListeningGoalCount: number;
+    defaultListeningTaskTypes: ListeningTaskType[];
     pendingOriginLanguage: string | null;
     pendingLearningLanguage: string | null;
     pendingTimezone: string | null;
     pendingDailySentenceCount: number | null;
     pendingDailySpeakingGoalMinutes: number | null;
+    pendingDailyListeningGoalCount: number | null;
     pendingEffectiveDate: string | null;
     minDailySentenceCount: number;
     maxDailySentenceCount: number;
     minDailySpeakingGoalMinutes: number;
     maxDailySpeakingGoalMinutes: number;
+    minDailyListeningGoalCount: number;
+    maxDailyListeningGoalCount: number;
     configured: boolean;
 }
 
@@ -27,6 +34,8 @@ export interface LanguageLearningUserSettingUpdateRequest {
     dailySpeakingGoalMinutes: number;
     speakingVoiceId: string;
     speakingPlaybackSpeed: string;
+    dailyListeningGoalCount: number;
+    defaultListeningTaskTypes: ListeningTaskType[];
 }
 
 export interface LanguageLearningAdminSetting {

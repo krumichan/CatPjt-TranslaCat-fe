@@ -4,6 +4,7 @@ import { CalendarDays } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { LanguageLearningStateCard } from "@/components/language-learning/common/LanguageLearningStateCard";
+import { ListeningHistoryDetail } from "@/components/language-learning/history/ListeningHistoryDetail";
 import { SpeakingHistoryDetail } from "@/components/language-learning/history/SpeakingHistoryDetail";
 import { UnifiedLearningHistoryList } from "@/components/language-learning/history/UnifiedLearningHistoryList";
 import { WritingHistoryDetail } from "@/components/language-learning/history/WritingHistoryDetail";
@@ -60,8 +61,12 @@ export function LanguageLearningHistoryView({
                 controller={controller}
             />
         );
-    } else {
+    } else if (controller.detail.source === "SPEAKING") {
         detailContent = <SpeakingHistoryDetail detail={controller.detail.detail} />;
+    } else if (controller.detail.source === "LISTENING") {
+        detailContent = <ListeningHistoryDetail detail={controller.detail.detail} />;
+    } else {
+        detailContent = <LanguageLearningStateCard variant="loading" title={common("loadingTitle")} message={t("readingPreparing")} />;
     }
 
     return (

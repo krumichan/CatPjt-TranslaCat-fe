@@ -13,7 +13,8 @@
       "history": "학습 기록",
       "profile": "학습 프로필",
       "settings": "학습 설정",
-      "speaking": "AI Speaking"
+      "speaking": "AI Speaking",
+      "listening": "AI Listening"
     },
     "onboarding": {
       "SETTING": {
@@ -133,7 +134,9 @@
         "source": {
           "ALL": "전체",
           "WRITING": "Writing",
-          "SPEAKING": "Speaking"
+          "SPEAKING": "Speaking",
+          "LISTENING": "Listening",
+          "READING": "Reading"
         },
         "metric": {
           "GRAMMAR": "문법",
@@ -155,6 +158,93 @@
         "startWriting": "Writing 시작",
         "startSpeaking": "Speaking 시작",
         "sourceEvidence": "근거 Source"
+      },
+      "v3": {
+        "collectingData": "데이터 수집 중",
+        "integrated": {
+          "eyebrow": "종합 평가",
+          "title": "통합 언어 능력",
+          "confidence": "신뢰도 {value}",
+          "measured": "측정 영역 {measured}/{total}",
+          "groupMeasured": "측정 Metric {count}개",
+          "metricMeta": "Sample {count} · {confidence}"
+        },
+        "activity": {
+          "eyebrow": "기능별 평가",
+          "title": "학습별 성과",
+          "writing": "Writing",
+          "speaking": "Speaking",
+          "listening": "Listening",
+          "reading": "Reading",
+          "recentScore": "최근 점수",
+          "samples": "Sample {count}",
+          "coverage": "평가 범위 {evaluated}/{total}",
+          "today": "오늘 {completed}/{target} {unit}",
+          "start": "학습 시작"
+        },
+        "group": {
+          "COMPREHENSION": "이해 능력",
+          "EXPRESSION": "표현 능력",
+          "ACCURACY": "언어 기반",
+          "SPEECH": "음성·대화"
+        },
+        "growth": {
+          "title": "성장",
+          "empty": "아직 성장으로 판단할 만큼 충분한 표본이 없습니다.",
+          "meta": "{source} · 이전 {previous} ({previousCount}) → 최근 {recent} ({recentCount})"
+        },
+        "weakness": {
+          "title": "약점과 회복",
+          "empty": "현재 반복해서 관찰된 약점이 없습니다.",
+          "evidence": "근거 {count}회 · 최근 {score} · {sources}",
+          "state": {
+            "DATA_COLLECTING": "수집 중",
+            "ACTIVE": "보완 필요",
+            "IMPROVING": "회복 중",
+            "RESOLVED": "개선 완료",
+            "WEAKNESS": "보완 필요",
+            "STRENGTH": "강점"
+          }
+        },
+        "recommendation": {
+          "title": "추천 학습",
+          "empty": "현재 추천할 추가 학습이 없습니다.",
+          "dismiss": "추천 숨기기",
+          "start": "추천 학습 시작"
+        },
+        "trend": {
+          "listeningTitle": "Listening Task·Metric 추이",
+          "listeningDescription": "선택 범위가 다른 Overall을 한 선으로 합치지 않고 Task와 Metric을 분리합니다.",
+          "samples": "Sample {count}"
+        },
+        "task": {
+          "DICTATION": "받아쓰기",
+          "INTERPRETATION": "의미 쓰기",
+          "REPEAT_AFTER_AUDIO": "따라 말하기"
+        },
+        "metric": {
+          "LISTENING_RECOGNITION": "듣기 인식",
+          "TOKEN_RECOGNITION": "단어 인식",
+          "OMISSION_ADDITION_ORDER": "누락·추가·어순",
+          "ORTHOGRAPHY": "표기 정확성",
+          "MEANING": "의미 이해",
+          "MEANING_FIDELITY": "핵심 의미",
+          "DETAIL_AND_NUANCE": "세부 정보",
+          "ORIGIN_NATURALNESS": "자연스러운 의미 표현",
+          "PRONUNCIATION": "발음",
+          "PROSODY_RHYTHM": "억양·리듬",
+          "FLUENCY": "유창성",
+          "COMPLETENESS": "완성도",
+          "VOCABULARY": "어휘",
+          "SPOKEN_EXPRESSION": "말하기 표현",
+          "INTERACTION": "대화 능력",
+          "WRITTEN_EXPRESSION": "쓰기 표현",
+          "GRAMMAR": "문법",
+          "NATURALNESS": "자연스러움",
+          "EXPRESSIVENESS": "표현력",
+          "EXPRESSION": "표현력",
+          "OVERALL": "종합"
+        }
       }
     },
     "levelTest": {
@@ -276,7 +366,9 @@
         "source": {
           "ALL": "전체",
           "WRITING": "Writing",
-          "SPEAKING": "Speaking"
+          "SPEAKING": "Speaking",
+          "LISTENING": "Listening",
+          "READING": "Reading"
         },
         "freeTalk": "자유 대화",
         "speakingSummary": "{turns} Turn · {minutes}분",
@@ -287,7 +379,38 @@
         "fullTranscript": "전체 대화 Transcript",
         "assistanceSummary": "학습 보조 사용 내역",
         "assistanceSummaryDescription": "Session 동안 실제로 사용한 학습 보조 횟수입니다.",
-        "userAudioExpired": "사용자 원본 음성의 보관 기간이 만료되어 재생할 수 없습니다."
+        "userAudioExpired": "사용자 원본 음성의 보관 기간이 만료되어 재생할 수 없습니다.",
+        "taskFilter": "Listening Task 필터",
+        "allTasks": "전체 Task",
+        "task": {
+          "DICTATION": "받아쓰기",
+          "INTERPRETATION": "의미 쓰기",
+          "REPEAT_AFTER_AUDIO": "따라 말하기"
+        }
+      },
+      "readingPreparing": "Reading 상세는 준비 중입니다.",
+      "listening": {
+        "title": "Listening 상세",
+        "sessionSummary": "완료 {completed} · 평가 {evaluated}",
+        "task": {
+          "DICTATION": "받아쓰기",
+          "INTERPRETATION": "의미 쓰기",
+          "REPEAT_AFTER_AUDIO": "따라 말하기"
+        },
+        "notSelected": "미선택",
+        "userAudioExpired": "사용자 Audio 보관 기간이 종료되었습니다.",
+        "userAudioRetained": "사용자 Audio 보관 중 · {until}",
+        "userAudioUnavailable": "사용자 Audio 없음",
+        "profileApplied": "Profile 반영: {value}",
+        "yes": "예",
+        "no": "아니오",
+        "referenceAudioExpired": "음성 보관 기간이 종료되었습니다. 답안과 평가 결과는 계속 확인할 수 있습니다.",
+        "audioLoading": "Audio 불러오는 중...",
+        "playReference": "Reference Audio 재생",
+        "retentionUntil": "보관 만료 {until}",
+        "playUserAudio": "사용자 Audio 재생",
+        "userAudioLoading": "Audio 불러오는 중...",
+        "userAudioLoadFailed": "사용자 Audio를 불러오지 못했습니다."
       }
     },
     "profile": {
@@ -361,6 +484,16 @@
         "playbackSpeed": {
           "SLOW": "느리게",
           "NORMAL": "보통"
+        },
+        "dailyListeningGoalCount": "하루 Listening 목표",
+        "dailyListeningGoalRange": "관리자 허용 범위: {min} ~ {max}문제",
+        "defaultListeningTasks": "기본 Listening 학습 방식",
+        "defaultListeningTasksRule": "받아쓰기 또는 따라 말하기 중 하나 이상을 선택하세요. 의미 쓰기는 선택입니다. 이 조합은 다음 Listening Session의 기본값으로 즉시 저장됩니다.",
+        "defaultListeningTasksInvalid": "받아쓰기 또는 따라 말하기 중 하나 이상이 필요합니다.",
+        "listeningTask": {
+          "DICTATION": "받아쓰기",
+          "INTERPRETATION": "의미 쓰기",
+          "REPEAT_AFTER_AUDIO": "따라 말하기"
         }
       },
       "keywords": {
@@ -873,6 +1006,244 @@
           "usageSummary": "이번 Session에서 학습 보조를 총 {count}회 사용했습니다.",
           "count": "{count}회"
         }
+      }
+    },
+    "listening": {
+      "title": "AI Listening",
+      "description": "Reference Audio를 듣고 받아쓰기·의미 쓰기·따라 말하기를 선택해 연습하고 평가받습니다.",
+      "difficulty": {
+        "EASY": "쉬움",
+        "MY_LEVEL": "내 레벨",
+        "CHALLENGE": "심화"
+      },
+      "task": {
+        "DICTATION": "받아쓰기",
+        "INTERPRETATION": "의미 쓰기",
+        "REPEAT_AFTER_AUDIO": "따라 말하기"
+      },
+      "dailyStatus": {
+        "GENERATING": "문제 준비 중",
+        "READY": "학습 가능",
+        "PARTIAL": "일부 준비 중",
+        "COMPLETED": "완료",
+        "FAILED": "준비 실패"
+      },
+      "itemStatus": {
+        "TTS_PENDING": "Audio 준비 중",
+        "READY": "준비 완료",
+        "NOT_EVALUABLE": "Audio 준비 실패",
+        "REPLACED": "대체됨"
+      },
+      "attemptStatus": {
+        "READY": "답안 작성 가능",
+        "IN_PROGRESS": "진행 중",
+        "SUBMITTED": "제출 완료",
+        "EVALUATING": "평가 중",
+        "EVALUATED": "평가 완료",
+        "NOT_EVALUABLE": "평가 불가",
+        "SKIPPED": "건너뜀"
+      },
+      "landing": {
+        "loading": "오늘의 Listening을 준비하고 있습니다.",
+        "loadFailed": "Listening 정보를 불러오지 못했습니다.",
+        "disabledTitle": "Listening을 사용할 수 없습니다",
+        "disabledDescription": "현재 운영 설정에서 Listening 기능이 비활성화되어 있습니다.",
+        "resumeTitle": "진행 중인 Listening이 있습니다",
+        "resumeDescription": "Server에 남아 있는 진행 상태에서 계속할 수 있습니다.",
+        "resume": "계속하기",
+        "todayTitle": "오늘의 Listening",
+        "progressAria": "오늘 Listening 진행률",
+        "readyCount": "준비된 문제 {ready} · 생성된 문제 {physical}",
+        "generating": "문장과 Reference Audio를 준비하고 있습니다. 준비된 문제부터 곧 시작할 수 있습니다.",
+        "retryTts": "Audio 다시 준비",
+        "start": "학습 방식 선택"
+      },
+      "setup": {
+        "title": "Listening 학습 방식 선택",
+        "description": "이번 Session에서 사용할 Task 조합을 선택합니다. 시작 후에는 변경하지 않습니다.",
+        "loading": "오늘의 Listening Set을 확인하고 있습니다.",
+        "loadFailed": "Listening Set을 불러오지 못했습니다.",
+        "dailySummary": "오늘 {count}문제 · {difficulty}",
+        "taskLegend": "오늘 진행할 학습",
+        "selectionRule": "받아쓰기 또는 따라 말하기 중 하나를 선택하세요. 의미 쓰기는 선택입니다.",
+        "taskDescription": {
+          "DICTATION": "들은 문장을 학습 언어로 정확히 작성합니다.",
+          "INTERPRETATION": "들은 내용의 의미를 원문 언어로 자연스럽게 작성합니다.",
+          "REPEAT_AFTER_AUDIO": "들은 문장을 직접 말하고 발음과 유창성을 확인합니다."
+        },
+        "invalidSelection": "받아쓰기 또는 따라 말하기 중 하나 이상이 필요하며, 의미 쓰기는 단독으로 선택할 수 없습니다.",
+        "start": "Listening 시작",
+        "starting": "Session 생성 중...",
+        "activeTitle": "진행 중인 Listening Session이 있습니다",
+        "activeDescription": "새 Session을 만들기보다 Server에 저장된 진행 상태에서 계속합니다.",
+        "activeAction": "계속하기"
+      },
+      "session": {
+        "title": "AI Listening Session",
+        "description": "Audio를 듣고 선택한 Task를 모두 완료한 뒤 평가를 요청합니다.",
+        "loading": "Session 상태를 복원하고 있습니다.",
+        "loadFailed": "Listening Session을 불러오지 못했습니다.",
+        "expiredTitle": "Session이 만료되었습니다",
+        "expiredDescription": "마지막 활동 후 2시간이 지나 기존 Session을 재개할 수 없습니다.",
+        "newSession": "새 Session 시작",
+        "allItemsDone": "선택한 문제 학습이 끝났습니다",
+        "allItemsDoneDescription": "Session을 완료하고 전체 결과를 확인하세요.",
+        "complete": "Session 완료",
+        "completing": "완료 처리 중...",
+        "itemProgress": "문제 {current}/{total}",
+        "completedCount": "완료 {completed}/{total}",
+        "evaluating": "선택한 Task를 평가하고 있습니다. 성공한 결과는 유지하며 실패한 Task만 재시도할 수 있습니다.",
+        "skip": "건너뛰기",
+        "skipConfirm": "이 문제를 건너뛸까요? 오늘 완료 수에는 포함되지 않습니다.",
+        "submit": "선택 답안 제출",
+        "submitPractice": "연습 답안 제출",
+        "submitting": "답안 저장·평가 요청 중...",
+        "audio": {
+          "play": "재생 / 다시 듣기",
+          "slow": "0.75x 천천히",
+          "notice": "다시 듣기와 0.75x는 고정 감점 없이 사용 기록만 남습니다."
+        },
+        "task": {
+          "DICTATION": {
+            "title": "받아쓰기",
+            "description": "들은 문장을 {language}로 작성하세요.",
+            "label": "받아쓰기 답안",
+            "placeholder": "들은 문장을 입력해 주세요."
+          },
+          "INTERPRETATION": {
+            "title": "의미 쓰기",
+            "description": "들은 의미를 {language}로 자연스럽게 작성하세요.",
+            "label": "의미 쓰기 답안",
+            "placeholder": "이해한 내용을 자연스럽게 작성해 주세요."
+          }
+        },
+        "recorder": {
+          "title": "따라 말하기",
+          "description": "Reference Audio 길이 + 15초 범위에서 녹음하며 최대 {seconds}초입니다.",
+          "permission": {
+            "PROMPT": "따라 말하기를 위해 마이크 권한이 필요합니다.",
+            "UNSUPPORTED": "이 브라우저는 음성 녹음을 지원하지 않습니다.",
+            "DENIED": "마이크 권한이 거부되었습니다.",
+            "NO_DEVICE": "사용 가능한 마이크를 찾지 못했습니다.",
+            "DEVICE_BUSY": "다른 앱에서 마이크를 사용 중일 수 있습니다.",
+            "UNKNOWN": "마이크를 사용할 수 없습니다."
+          },
+          "requestPermission": "마이크 권한 요청",
+          "record": "녹음 시작",
+          "rerecord": "다시 녹음",
+          "stop": "녹음 정지",
+          "remaining": "다시 녹음 남은 횟수 {count}",
+          "preview": "녹음 미리 듣기",
+          "confirm": "이 Audio 확정",
+          "uploading": "Audio 업로드 중...",
+          "discard": "다시 녹음하기",
+          "uploaded": "Audio 확정 완료 · 다시 녹음 {count}회"
+        },
+        "assistance": {
+          "title": "학습 보조",
+          "description": "도움 사용 자체를 실패나 고정 감점으로 처리하지 않습니다.",
+          "topicHint": "Topic 힌트",
+          "keywordHint": "Keyword 힌트",
+          "showAnswer": "정답 보기",
+          "answerConfirm": "정답을 먼저 확인하면 이 문제의 선택 Task 전체가 정식 평가·오늘 완료 수·Profile에서 제외됩니다. 계속할까요?",
+          "practiceBadge": "연습으로 완료 · 공식 평가 제외",
+          "used": {
+            "REPLAY": "다시 듣기를 사용했습니다.",
+            "SLOW_PLAYBACK": "0.75x 재생을 사용했습니다.",
+            "TOPIC_HINT": "Topic 힌트 사용이 기록되었습니다.",
+            "KEYWORD_HINT": "Keyword 힌트 사용이 기록되었습니다.",
+            "SHOW_ANSWER": "정답 보기가 기록되었습니다."
+          },
+          "topicHintValue": "Topic: {value}",
+          "keywordHintValue": "Keyword: {value}",
+          "hintUnavailable": "표시할 힌트가 없습니다."
+        }
+      },
+      "result": {
+        "title": "Listening 평가 결과",
+        "description": "Task별 평가 범위와 Evidence를 확인하고 필요한 경우 실패 Task만 다시 평가합니다.",
+        "loading": "Listening 평가 결과를 불러오고 있습니다.",
+        "loadFailed": "Listening 결과를 불러오지 못했습니다.",
+        "summaryEyebrow": "Session Result",
+        "summaryTitle": "Listening 결과",
+        "coverage": "평가 {evaluated} · 학습 {learned}",
+        "itemTitle": "Listening Item {itemId}",
+        "officialBadge": "정식 평가",
+        "practiceBadge": "연습 평가 · Profile 미반영",
+        "taskCoverage": "평가 범위 {count}/{total}",
+        "notSelected": "미선택",
+        "confidence": "Confidence {value}%",
+        "notEvaluable": "평가할 수 없었습니다: {reason}",
+        "retryEvaluation": "평가 다시 시도",
+        "strengths": "잘한 점",
+        "improvements": "개선할 점",
+        "recommendedAnswers": "추천 답안",
+        "audioExpired": "음성 보관 기간이 종료되었습니다. Transcript와 평가 결과는 계속 확인할 수 있습니다.",
+        "audioRetained": "사용자 Audio 보관 중 · {until}",
+        "audioUnavailable": "사용자 Audio를 재생할 수 없습니다.",
+        "practice": "연습으로 다시 해보기",
+        "dashboard": "대시보드에서 보기",
+        "history": "학습 기록에서 보기",
+        "task": {
+          "DICTATION": "받아쓰기",
+          "INTERPRETATION": "의미 쓰기",
+          "REPEAT_AFTER_AUDIO": "따라 말하기"
+        },
+        "status": {
+          "READY": "준비",
+          "IN_PROGRESS": "진행 중",
+          "SUBMITTED": "제출",
+          "EVALUATING": "평가 중",
+          "EVALUATED": "평가 완료",
+          "EVALUATION_FAILED": "평가 실패",
+          "NOT_SELECTED": "미선택",
+          "NOT_EVALUABLE": "평가 불가",
+          "SKIPPED": "건너뜀"
+        },
+        "report": {
+          "title": "음성 인식·평가 오류 신고",
+          "action": "음성 인식·평가 오류 신고",
+          "reason": "문제 유형",
+          "reasonOption": {
+            "STT_INCORRECT": "말한 내용과 다르게 인식",
+            "PRONUNCIATION_EVALUATION_INCORRECT": "발음 평가가 실제 발화와 다름",
+            "OTHER": "기타"
+          },
+          "comment": "추가 설명 (선택)",
+          "consent": "오류 확인을 위해 해당 Audio를 신고 시점부터 최대 30일 보관하는 데 동의합니다.",
+          "expiredConsent": "이미 Audio가 만료되어 Metadata만 신고할 수 있습니다.",
+          "submit": "신고 보내기",
+          "cancel": "취소",
+          "close": "확인",
+          "submitted": "신고가 접수되었습니다.",
+          "failed": "신고를 전송하지 못했습니다."
+        },
+        "playUserAudio": "내 Audio 재생",
+        "userAudioLoading": "Audio 불러오는 중...",
+        "userAudioLoadFailed": "사용자 Audio를 불러오지 못했습니다."
+      },
+      "errors": {
+        "LISTENING_SETTING_REQUIRED": "학습 설정을 먼저 완료해 주세요.",
+        "LISTENING_DAILY_LIMIT_EXCEEDED": "오늘의 Listening 한도에 도달했습니다.",
+        "LISTENING_INVALID_TASK_COMBINATION": "선택한 학습 방식 조합을 확인해 주세요.",
+        "LISTENING_ACTIVE_SESSION_EXISTS": "진행 중인 Listening Session이 있어 해당 Session을 계속합니다.",
+        "LISTENING_SESSION_EXPIRED": "Session이 만료되었습니다.",
+        "LISTENING_INVALID_STATE": "현재 상태에서는 이 작업을 수행할 수 없습니다.",
+        "LISTENING_ITEM_ALREADY_SUBMITTED": "이미 제출된 문제입니다.",
+        "LISTENING_AUDIO_INVALID": "Audio를 확인할 수 없습니다. 다시 녹음하거나 재생해 주세요.",
+        "LISTENING_RERECORD_LIMIT_EXCEEDED": "다시 녹음 가능한 횟수를 모두 사용했습니다.",
+        "LISTENING_ANSWER_REVEALED": "정답을 확인한 문제는 정식 평가에 반영되지 않습니다.",
+        "LISTENING_PRACTICE_LIMIT_EXCEEDED": "이 문제의 연습 재도전은 이미 사용했습니다.",
+        "LISTENING_REPORT_AUDIO_EXPIRED": "Audio가 만료되어 Metadata만 신고할 수 있습니다.",
+        "LISTENING_REPORT_ALREADY_SUBMITTED": "이미 신고가 접수된 평가입니다.",
+        "LISTENING_REPLACEMENT_LIMIT_EXCEEDED": "대체 문제를 더 준비할 수 없습니다. 고객 문의를 이용해 주세요.",
+        "LISTENING_IDEMPOTENCY_CONFLICT": "같은 요청 키에 다른 내용이 감지되었습니다. 화면을 새로고침해 주세요.",
+        "AI_GENERATION_FAILED": "Listening 문제 생성에 실패했습니다.",
+        "AI_TTS_FAILED": "Reference Audio 생성에 실패했습니다.",
+        "AI_STT_FAILED": "음성 인식에 실패했습니다.",
+        "AI_EVALUATION_FAILED": "평가에 실패했습니다. 실패한 Task만 다시 시도할 수 있습니다.",
+        "AI_SCHEMA_INVALID": "평가 결과 형식을 확인할 수 없습니다.",
+        "UNKNOWN": "요청 처리에 실패했습니다. Server 상태를 다시 확인해 주세요."
       }
     }
   }

@@ -7,11 +7,13 @@ import { dailyWritingService } from "@/services/language-learning/dailyWritingSe
 import { learningHistoryService } from "@/services/language-learning/learningHistoryService";
 import type { DailyWritingItem } from "@/types/language-learning/daily";
 import type { LearningHistorySourceFilter } from "@/types/language-learning/history";
+import type { ListeningTaskType } from "@/types/language-learning/listening";
 
 export function useLearningHistoryPageController() {
     const [source, setSource] =
         useState<LearningHistorySourceFilter>("ALL");
     const [period, setPeriod] = useState("30d");
+    const [taskType, setTaskType] = useState<ListeningTaskType | null>(null);
     const [selectedActivityId, setSelectedActivityId] =
         useState<string | null>(null);
     const [reviewDrafts, setReviewDrafts] =
@@ -21,11 +23,12 @@ export function useLearningHistoryPageController() {
     const [actionError, setActionError] = useState(false);
 
     const listQuery = useQuery({
-        keys: ["language-learning-history", source, period] as const,
+        keys: ["language-learning-history", source, period, taskType ?? "ALL_TASKS"] as const,
         fetcher: (_key, sourceFilter, historyPeriod) =>
             learningHistoryService.getAll({
                 source: sourceFilter,
                 period: historyPeriod,
+                taskType,
             }),
         config: { revalidateOnMount: true },
     });
@@ -115,6 +118,7 @@ export function useLearningHistoryPageController() {
     const changeSource = useCallback(
         (value: LearningHistorySourceFilter) => {
             setSource(value);
+            if (value !== "LISTENING" && value !== "ALL") setTaskType(null);
             setSelectedActivityId(null);
             setActionError(false);
         },
@@ -141,6 +145,7 @@ export function useLearningHistoryPageController() {
     return {
         source,
         period,
+        taskType,
         items: listQuery.data ?? [],
         selectedActivityId,
         detail: detailQuery.data ?? null,
@@ -153,6 +158,7 @@ export function useLearningHistoryPageController() {
         actionError,
         setSource: changeSource,
         setPeriod: changePeriod,
+        setTaskType,
         selectActivity,
         updateReviewDraft,
         submitReviewAnswer,

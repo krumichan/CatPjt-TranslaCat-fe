@@ -1,61 +1,12 @@
-import type {
-    DifficultyPerformance,
-    KeywordMastery,
-    ProfileSignal,
-    SkillScores,
-} from "@/types/language-learning/profile";
 import type { LearningSource } from "@/types/language-learning/history";
+import type {
+    ListeningProfileMetric,
+    ListeningRecommendationStatus,
+    ListeningTaskType,
+} from "@/types/language-learning/listening";
 
 export type DashboardSourceFilter = "ALL" | LearningSource;
 export type DashboardPeriod = "7d" | "30d";
-
-export interface ScorePoint {
-    date: string;
-    overall: number;
-    meaning: number;
-    grammar: number;
-    vocabulary: number;
-    naturalness: number;
-    expression: number;
-}
-
-export interface RecentLearning {
-    learningDate: string;
-    sentenceCount: number;
-    status: string;
-    averageScore: number | null;
-}
-
-export interface MonthlyReport {
-    month: string;
-    evaluatedSentenceCount: number;
-    overallAverage: number | null;
-    strongestMetric: string | null;
-    weakestMetric: string | null;
-}
-
-export interface SpeakingTodayProgress {
-    completedSessions: number;
-    completedMinutes: number;
-    goalMinutes: number;
-    status: string;
-}
-
-export interface LearningStreak {
-    current: number;
-    longest: number;
-    lastStudyDate: string | null;
-}
-
-export interface SpeakingFeatureSummary {
-    sessions: number;
-    totalMinutes: number;
-    overallAverage: number | null;
-    fluencyAverage: number | null;
-    pronunciationAverage: number | null;
-    interactionAverage: number | null;
-    collectingData: boolean;
-}
 
 export interface DashboardMetricPoint {
     date: string;
@@ -70,41 +21,126 @@ export interface SourceSkillTrend {
     metrics: Record<string, DashboardMetricPoint[]>;
 }
 
-export interface UnifiedDashboardInsight {
-    patternKey: string;
-    direction: string;
+export interface DashboardAbilityMetric {
+    metric: string;
+    score: number | null;
+    sampleCount: number;
+    confidence: string;
+    collectingData: boolean;
+}
+
+export interface DashboardAbilityGroup {
+    group: string;
+    score: number | null;
+    measuredMetricCount: number;
+}
+
+export interface DashboardIntegratedAbility {
+    overall: number | null;
+    confidence: string;
+    measuredMetricCount: number;
+    totalMetricCount: number;
+    groups: DashboardAbilityGroup[];
+    metrics: DashboardAbilityMetric[];
+}
+
+export interface DashboardCoverage {
+    evaluated: number;
+    total: number;
+}
+
+export interface DashboardTodayProgress {
+    completed: number;
+    target: number;
+    unit: string;
+}
+
+export interface DashboardActivityPerformanceItem {
+    recentScore: number | null;
+    coverage: DashboardCoverage;
+    today: DashboardTodayProgress;
+    sampleCount: number;
+    collectingData: boolean;
+}
+
+export interface DashboardActivityPerformance {
+    writing: DashboardActivityPerformanceItem;
+    speaking: DashboardActivityPerformanceItem;
+    listening: DashboardActivityPerformanceItem;
+    reading: DashboardActivityPerformanceItem;
+}
+
+export interface DashboardGrowth {
+    metric: string;
+    source: string;
+    taskType: ListeningTaskType | null;
+    previousAverage: number | null;
+    recentAverage: number | null;
+    delta: number | null;
+    previousSampleCount: number;
+    recentSampleCount: number;
+}
+
+export interface DashboardWeakness {
+    key: string;
+    state: string;
     evidenceCount: number;
-    weightedEvidence: number;
+    recentScore: number | null;
     sources: LearningSource[];
-    unified: boolean;
     recommendedFocus: string | null;
 }
 
-export interface DashboardInsights {
-    strengths: UnifiedDashboardInsight[];
-    weaknesses: UnifiedDashboardInsight[];
-    recommendedFocus: string[];
+export interface DashboardRecommendation {
+    recommendationId: number;
+    targetMetric: ListeningProfileMetric;
+    recommendedActivity: string;
+    recommendedTask: string | null;
+    reason: string;
+    ctaLabel: string | null;
+    priority: number;
+    status: ListeningRecommendationStatus;
+    expiresAt: string | null;
 }
 
+export interface ListeningTaskTrendPoint {
+    taskType: ListeningTaskType;
+    date: string;
+    averageScore: number | null;
+    sampleCount: number;
+}
+
+export interface ListeningMetricTrendPoint {
+    taskType: ListeningTaskType;
+    metric: string;
+    date: string;
+    averageScore: number | null;
+    sampleCount: number;
+}
+
+export interface DashboardTrends {
+    sourceMetrics: SourceSkillTrend;
+    listeningTasks: ListeningTaskTrendPoint[];
+    listeningMetrics: ListeningMetricTrendPoint[];
+}
+
+/**
+ * Phase 3 improves the existing dashboard contract instead of introducing a
+ * versioned endpoint. Integrated ability and activity performance deliberately
+ * remain separate dimensions.
+ */
 export interface LanguageLearningDashboard {
-    todayCompleted: number;
-    todayTotal: number;
-    currentStreak: number;
-    totalStudySentenceCount: number;
-    weeklyAverageScore: number | null;
-    monthlyAverageScore: number | null;
-    skillRadar: SkillScores;
-    metricTrend: ScorePoint[];
-    difficultyPerformance: DifficultyPerformance;
-    keywordMastery: KeywordMastery[];
-    grammarWeaknesses: ProfileSignal[];
-    errorPatterns: ProfileSignal[];
-    recentLearningHistory: RecentLearning[];
-    monthlyReport: MonthlyReport;
-    speakingToday: SpeakingTodayProgress;
-    streak: LearningStreak;
-    speakingSummary: SpeakingFeatureSummary;
-    sourceSkillTrend: SourceSkillTrend;
-    insights: DashboardInsights;
+    learningLanguage: string;
+    from: string;
+    to: string;
     source: DashboardSourceFilter;
+    integratedAbility: DashboardIntegratedAbility;
+    activityPerformance: DashboardActivityPerformance;
+    growth: DashboardGrowth[];
+    weaknesses: DashboardWeakness[];
+    recommendations: DashboardRecommendation[];
+    trends: DashboardTrends;
+
+    // Optional legacy marker used only so the Phase 2 widget isolation regression
+    // test can keep asserting that a malformed legacy payload does not break the page.
+    speakingSummary?: unknown;
 }

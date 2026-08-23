@@ -1,18 +1,95 @@
 {
   "Voice": {
     "title": "실시간 음성 번역",
-    "micMode": "마이크 번역",
-    "systemMode": "시스템 번역",
-    "startListening": "음성 인식 시작",
-    "stopListening": "인식 중단",
-    "original": "일본어 (원문)",
-    "translated": "한국어 (번역)",
-    "errorSupported": "이 브라우저는 음성 인식을 지원하지 않습니다.",
-    "description": "일본어로 말하면 실시간으로 한국어 번역과 함께 텍스트가 표시됩니다.",
-    "micDescription": "사용자의 마이크 소리를 듣고 실시간으로 한국어로 번역합니다. 발음 연습이나 대화에 최적화되어 있습니다.",
-    "systemDescription": "유튜브나 화상 회의 등, PC에서 흘러나오는 소리를 캐치하여 한국어로 번역합니다. 영상 시청이나 회의에 편리합니다.",
-    "waiting": "음성을 기다리는 중...",
-    "idle": "버튼을 눌러 시작해 주세요",
-    "emptyHistory": "번역된 문장들이 여기에 쌓여 하나의 이야기가 됩니다."
+    "description": "브라우저의 마이크·시스템 오디오를 PCM 스트림으로 전송하고, 서버 AI 파이프라인에서 음성 인식과 번역을 처리합니다.",
+    "mode": {
+      "MIC": { "title": "마이크", "description": "내 마이크 음성을 번역합니다." },
+      "MEDIA": { "title": "시스템 오디오", "description": "탭·화면에서 재생되는 오디오를 번역합니다." },
+      "MEETING": { "title": "회의", "description": "내 마이크와 상대방 시스템 오디오를 독립 채널로 처리합니다." }
+    },
+    "channel": {
+      "SELF": "내 음성",
+      "REMOTE": "상대방 음성"
+    },
+    "language": {
+      "ko": "한국어",
+      "ja": "일본어",
+      "en": "영어"
+    },
+    "sourceMode": {
+      "AUTO": "자동 감지",
+      "MANUAL": "언어 직접 지정"
+    },
+    "setup": {
+      "title": "번역 세션 설정",
+      "description": "모드와 언어를 선택한 뒤 세션을 시작해 주세요.",
+      "modeLabel": "음성 입력 모드",
+      "sourceLanguageMode": "입력 언어",
+      "targetLanguage": "번역 언어",
+      "saveTranscript": "대화 내용 저장",
+      "saveTranscriptDescription": "완료된 원문과 번역 결과를 이력에 저장합니다. 원본 음성은 저장하지 않습니다."
+    },
+    "action": {
+      "start": "번역 시작",
+      "preparing": "연결 준비 중...",
+      "complete": "세션 종료",
+      "completing": "마지막 음성 처리 중...",
+      "newSession": "새 세션 시작"
+    },
+    "phase": {
+      "IDLE": "대기",
+      "PREPARING": "준비 중",
+      "STREAMING": "번역 중",
+      "COMPLETING": "종료 처리 중",
+      "COMPLETED": "완료",
+      "ERROR": "오류"
+    },
+    "status": {
+      "DISCONNECTED": "연결 안 됨",
+      "CONNECTING": "연결 중",
+      "STREAMING": "스트리밍",
+      "BACKPRESSURED": "전송 대기",
+      "RECONNECTING": "재연결 중",
+      "ERROR": "오류"
+    },
+    "live": {
+      "title": "실시간 세션",
+      "waiting": "음성을 기다리는 중...",
+      "transcript": "실시간 번역",
+      "empty": "음성이 인식되면 원문과 번역이 여기에 표시됩니다.",
+      "translating": "번역 중...",
+      "translationSkipped": "번역이 필요하지 않아 원문만 표시합니다.",
+      "translationFailed": "번역에 실패했습니다.",
+      "latency": "처리 시간 {ms} ms"
+    },
+    "history": {
+      "title": "번역 이력",
+      "description": "저장한 세션과 최종 문장을 다시 확인할 수 있습니다.",
+      "refresh": "새로고침",
+      "loading": "이력을 불러오는 중...",
+      "loadFailed": "이력을 불러오지 못했습니다.",
+      "empty": "저장된 음성 번역 이력이 없습니다.",
+      "untitled": "제목 없는 세션",
+      "processedAudio": "처리 음성 {seconds}초",
+      "rename": "제목 수정",
+      "delete": "삭제",
+      "deleteConfirm": "이 음성 번역 이력을 삭제할까요?",
+      "titlePlaceholder": "세션 제목",
+      "saveTitle": "저장",
+      "loadingSegments": "문장을 불러오는 중...",
+      "emptySegments": "저장된 문장이 없습니다.",
+      "translationUnavailable": "번역 결과가 없습니다.",
+      "retryTranslation": "번역 재시도",
+      "actionFailed": "요청을 처리하지 못했습니다. 다시 시도해 주세요.",
+      "loadMore": "더 보기"
+    },
+    "error": {
+      "MEDIA_DEVICE_UNSUPPORTED": "이 브라우저에서는 필요한 오디오 캡처 기능을 사용할 수 없습니다.",
+      "MICROPHONE_PERMISSION": "마이크 권한을 확인해 주세요.",
+      "DISPLAY_PERMISSION": "화면 또는 탭 공유 권한을 확인해 주세요.",
+      "DISPLAY_AUDIO_REQUIRED": "오디오가 포함된 탭 또는 화면을 선택해 주세요.",
+      "START_FAILED": "음성 번역 세션을 시작하지 못했습니다. 다시 시도해 주세요.",
+      "COMPLETE_FAILED": "세션 종료 처리에 실패했습니다. 다시 종료를 시도해 주세요."
+    }
   }
 }

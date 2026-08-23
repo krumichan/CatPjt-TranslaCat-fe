@@ -1,6 +1,6 @@
 import { expect, test } from "../fixtures/mock-test";
 
-import { fulfillJson } from "../support/api-mocks";
+import { fulfillApiJson, fulfillJson } from "../support/api-mocks";
 import {
     LANGUAGE_LEARNING_DAILY_SET,
     LANGUAGE_LEARNING_DASHBOARD,
@@ -104,7 +104,7 @@ test.describe("Language Learning Phase 1", () => {
 
         await page.route("**/language-learning/settings", (route) => {
             if (route.request().method() === "PATCH") {
-                return fulfillJson(
+                return fulfillApiJson(
                     route,
                     responseDto({
                         ...LANGUAGE_LEARNING_SETTING,
@@ -115,7 +115,7 @@ test.describe("Language Learning Phase 1", () => {
                 );
             }
 
-            return fulfillJson(route, responseDto(initialSetting));
+            return fulfillApiJson(route, responseDto(initialSetting));
         });
 
         await page.goto("/language-learning/settings");

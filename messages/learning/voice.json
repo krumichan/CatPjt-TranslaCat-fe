@@ -1,18 +1,95 @@
 {
   "Voice": {
     "title": "リアルタイム音声翻訳",
-    "micMode": "マイク翻訳",
-    "systemMode": "システム翻訳",
-    "startListening": "音声認識開始",
-    "stopListening": "認識中断",
-    "original": "日本語 (原文)",
-    "translated": "韓国語 (翻訳)",
-    "errorSupported": "このブラウザは音声認識をサポートしていません。",
-    "description": "日本語で話すとリアルタイムで韓国語翻訳とともにテキストが表示されます。",
-    "micDescription": "あなたのマイクの声を聞き取って、リアルタイムで韓国語に翻訳します。発音の練習や会話に最適です。",
-    "systemDescription": "YouTubeやビデオ会議など、PCから流れる音声をキャプチャして韓国語に翻訳します。動画の視聴や会議に便利です。",
-    "waiting": "音声を待っています...",
-    "idle": "ボタンを押して開始してください",
-    "emptyHistory": "翻訳された文章がここに積み重なり、物語になります。"
+    "description": "ブラウザのマイク・システム音声をPCMストリームで送信し、サーバー側のAIパイプラインで音声認識と翻訳を処理します。",
+    "mode": {
+      "MIC": { "title": "マイク", "description": "自分のマイク音声を翻訳します。" },
+      "MEDIA": { "title": "システム音声", "description": "タブ・画面で再生される音声を翻訳します。" },
+      "MEETING": { "title": "会議", "description": "自分のマイクと相手のシステム音声を独立したチャンネルで処理します。" }
+    },
+    "channel": {
+      "SELF": "自分の音声",
+      "REMOTE": "相手の音声"
+    },
+    "language": {
+      "ko": "韓国語",
+      "ja": "日本語",
+      "en": "英語"
+    },
+    "sourceMode": {
+      "AUTO": "自動検出",
+      "MANUAL": "言語を指定"
+    },
+    "setup": {
+      "title": "翻訳セッション設定",
+      "description": "モードと言語を選択してセッションを開始してください。",
+      "modeLabel": "音声入力モード",
+      "sourceLanguageMode": "入力言語",
+      "targetLanguage": "翻訳先言語",
+      "saveTranscript": "会話内容を保存",
+      "saveTranscriptDescription": "確定した原文と翻訳結果を履歴に保存します。元の音声は保存しません。"
+    },
+    "action": {
+      "start": "翻訳開始",
+      "preparing": "接続準備中...",
+      "complete": "セッション終了",
+      "completing": "最後の音声を処理中...",
+      "newSession": "新しいセッション"
+    },
+    "phase": {
+      "IDLE": "待機",
+      "PREPARING": "準備中",
+      "STREAMING": "翻訳中",
+      "COMPLETING": "終了処理中",
+      "COMPLETED": "完了",
+      "ERROR": "エラー"
+    },
+    "status": {
+      "DISCONNECTED": "未接続",
+      "CONNECTING": "接続中",
+      "STREAMING": "ストリーミング",
+      "BACKPRESSURED": "送信待機",
+      "RECONNECTING": "再接続中",
+      "ERROR": "エラー"
+    },
+    "live": {
+      "title": "リアルタイムセッション",
+      "waiting": "音声を待っています...",
+      "transcript": "リアルタイム翻訳",
+      "empty": "音声が認識されると、原文と翻訳がここに表示されます。",
+      "translating": "翻訳中...",
+      "translationSkipped": "翻訳が不要なため原文のみ表示します。",
+      "translationFailed": "翻訳に失敗しました。",
+      "latency": "処理時間 {ms} ms"
+    },
+    "history": {
+      "title": "翻訳履歴",
+      "description": "保存したセッションと確定文を確認できます。",
+      "refresh": "再読み込み",
+      "loading": "履歴を読み込み中...",
+      "loadFailed": "履歴を読み込めませんでした。",
+      "empty": "保存された音声翻訳履歴はありません。",
+      "untitled": "タイトルなし",
+      "processedAudio": "処理音声 {seconds}秒",
+      "rename": "タイトル編集",
+      "delete": "削除",
+      "deleteConfirm": "この音声翻訳履歴を削除しますか？",
+      "titlePlaceholder": "セッションタイトル",
+      "saveTitle": "保存",
+      "loadingSegments": "文章を読み込み中...",
+      "emptySegments": "保存された文章はありません。",
+      "translationUnavailable": "翻訳結果がありません。",
+      "retryTranslation": "翻訳を再試行",
+      "actionFailed": "処理に失敗しました。もう一度お試しください。",
+      "loadMore": "もっと見る"
+    },
+    "error": {
+      "MEDIA_DEVICE_UNSUPPORTED": "このブラウザでは必要な音声キャプチャ機能を利用できません。",
+      "MICROPHONE_PERMISSION": "マイクの権限を確認してください。",
+      "DISPLAY_PERMISSION": "画面またはタブ共有の権限を確認してください。",
+      "DISPLAY_AUDIO_REQUIRED": "音声を含むタブまたは画面を選択してください。",
+      "START_FAILED": "音声翻訳セッションを開始できませんでした。もう一度お試しください。",
+      "COMPLETE_FAILED": "セッション終了処理に失敗しました。もう一度終了をお試しください。"
+    }
   }
 }

@@ -25,6 +25,7 @@ export function DashboardSourceTrendWidget({
     onSourceChange,
 }: DashboardSourceTrendWidgetProps) {
     const t = useTranslations("LanguageLearning.dashboard.v2");
+    const metricT = useTranslations("LanguageLearning.dashboard.v3.metric");
     const entries = Object.entries(data.metrics ?? {});
 
     return (
@@ -61,7 +62,7 @@ export function DashboardSourceTrendWidget({
                     </AppSelect>
                     <AppSelect
                         value={period}
-                        aria-label="Trend period"
+                        aria-label={t("trendPeriod")}
                         onChange={(event) =>
                             onPeriodChange(event.target.value as DashboardPeriod)
                         }
@@ -88,7 +89,7 @@ export function DashboardSourceTrendWidget({
                                 className="rounded-2xl bg-slate-50 p-4 dark:bg-white/5"
                             >
                                 <p className="text-xs font-black uppercase text-slate-400">
-                                    {t(`metric.${metric}`)}
+                                    {metricT(metric)}
                                 </p>
                                 <p className="mt-2 text-2xl font-black text-slate-800 dark:text-slate-100">
                                     {latest === null ? "—" : Math.round(latest)}

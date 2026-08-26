@@ -23,6 +23,7 @@ export function useListeningSessionController(sessionId: number) {
     const entry = useLanguageLearningEntryState();
     const pageStartedAt = useRef(Date.now());
     const resumeRequestedRef = useRef(false);
+    const draftAttemptIdRef = useRef<number | null>(null);
     const [drafts, setDrafts] = useState<Partial<Record<ListeningTaskType, string>>>({});
     const [referenceAudioUrl, setReferenceAudioUrl] = useState<string | null>(null);
     const [referenceAudioLoading, setReferenceAudioLoading] = useState(false);
@@ -70,8 +71,20 @@ export function useListeningSessionController(sessionId: number) {
         enabled: currentAttempt !== null,
         config: { revalidateOnMount: true, shouldRetryOnError: false },
     });
-    const item = itemQuery.data ?? null;
+    const queriedItem = itemQuery.data ?? null;
+    const item = queriedItem
+        && currentAttempt
+        && queriedItem.itemId === currentAttempt.itemId
+        && queriedItem.attempt.attemptId === currentAttempt.attemptId
+        ? queriedItem
+        : null;
     const attempt = item?.attempt ?? currentAttempt;
+    const selectedTaskTypes = useMemo(
+        () => attempt?.tasks
+            .filter((task) => task.status !== "NOT_SELECTED")
+            .map((task) => task.taskType) ?? [],
+        [attempt],
+    );
     const repeatTask = attempt?.tasks.find((task) => task.taskType === "REPEAT_AFTER_AUDIO") ?? null;
     const maxRecordingSeconds = Math.min(60, Math.max(1, Math.ceil((item?.audioDurationMs ?? 0) / 1000) + 15));
     const recorder = useAudioRecorder({
@@ -82,15 +95,31 @@ export function useListeningSessionController(sessionId: number) {
 
     useEffect(() => {
         if (!item?.attempt) return;
-        setDrafts((current) => {
-            const next = { ...current };
+
+        const attemptChanged =
+            draftAttemptIdRef.current !== item.attempt.attemptId;
+
+        if (attemptChanged) {
+            draftAttemptIdRef.current = item.attempt.attemptId;
+            const next: Partial<Record<ListeningTaskType, string>> = {};
             for (const task of item.attempt.tasks) {
-                if ((task.taskType === "DICTATION" || task.taskType === "INTERPRETATION") && next[task.taskType] === undefined) {
+                if (task.taskType === "DICTATION"
+                    || task.taskType === "INTERPRETATION") {
                     next[task.taskType] = task.answerText ?? "";
                 }
             }
-            return next;
-        });
+            setDrafts(next);
+            pageStartedAt.current = Date.now();
+            setActionErrorCode(null);
+            setAssistanceNotice(null);
+            setPlaybackRate(1);
+            setRevealedAnswer(null);
+            setReferenceAudioUrl((current) => {
+                if (current) URL.revokeObjectURL(current);
+                return null;
+            });
+        }
+
         if (item.attempt.answerRevealed && item.sourceText) {
             setRevealedAnswer({
                 attemptId: item.attempt.attemptId,
@@ -105,7 +134,10 @@ export function useListeningSessionController(sessionId: number) {
     useEffect(() => {
         if (!attempt || !["SUBMITTED", "EVALUATING"].includes(attempt.status)) return;
         const timer = window.setInterval(async () => {
-            await Promise.all([sessionQuery.mutate(undefined, true), itemQuery.mutate(undefined, true)]);
+            await Promise.all([
+                sessionQuery.mutate((current) => current, true),
+                itemQuery.mutate((current) => current, true),
+            ]);
         }, 2000);
         return () => window.clearInterval(timer);
     }, [attempt, itemQuery, sessionQuery]);
@@ -141,7 +173,7 @@ export function useListeningSessionController(sessionId: number) {
     const recordAssistance = useCallback(async (type: ListeningAssistanceType) => {
         if (!attempt || !session) return;
 
-        const requests = session.selectedTaskTypes.map((taskType) => {
+        const requests = selectedTaskTypes.map((taskType) => {
             const task = attempt.tasks.find((candidate) => candidate.taskType === taskType);
             const currentUsage = task?.assistanceUsage ?? [];
             const nextUsage = currentUsage.some((usage) => usage.type === type)
@@ -160,7 +192,7 @@ export function useListeningSessionController(sessionId: number) {
         } catch (error) {
             setActionErrorCode(error instanceof ApiResponseError ? error.errorCode : "UNKNOWN");
         }
-    }, [attempt, itemQuery, session]);
+    }, [attempt, itemQuery, selectedTaskTypes, session]);
 
     const playReference = useCallback(async (audio: HTMLAudioElement | null, slow = false) => {
         if (!audio) return false;
@@ -211,7 +243,7 @@ export function useListeningSessionController(sessionId: number) {
 
     const canSubmit = useMemo(() => {
         if (!attempt || !session || isSubmitting) return false;
-        for (const taskType of session.selectedTaskTypes) {
+        for (const taskType of selectedTaskTypes) {
             if (taskType === "REPEAT_AFTER_AUDIO") {
                 const task = attempt.tasks.find((candidate) => candidate.taskType === taskType);
                 if (!task?.audioUploaded) return false;
@@ -220,14 +252,14 @@ export function useListeningSessionController(sessionId: number) {
             }
         }
         return true;
-    }, [attempt, drafts, isSubmitting, session]);
+    }, [attempt, drafts, isSubmitting, selectedTaskTypes, session]);
 
     const submit = useCallback(async () => {
         if (!attempt || !session || !canSubmit) return false;
         setIsSubmitting(true);
         setActionErrorCode(null);
         try {
-            for (const taskType of session.selectedTaskTypes) {
+            for (const taskType of selectedTaskTypes) {
                 if (taskType === "REPEAT_AFTER_AUDIO") continue;
                 const task = attempt.tasks.find((candidate) => candidate.taskType === taskType);
                 await listeningService.saveText(attempt.attemptId, taskType, {
@@ -250,7 +282,7 @@ export function useListeningSessionController(sessionId: number) {
         } finally {
             setIsSubmitting(false);
         }
-    }, [attempt, canSubmit, drafts, itemQuery, recorder, session, sessionQuery]);
+    }, [attempt, canSubmit, drafts, itemQuery, recorder, selectedTaskTypes, session, sessionQuery]);
 
     const skip = useCallback(async () => {
         if (!attempt) return false;
@@ -274,7 +306,12 @@ export function useListeningSessionController(sessionId: number) {
         if (!session || currentAttempt || isCompleting) return false;
         setIsCompleting(true);
         try {
-            await listeningService.complete(session.sessionId, Date.now() - pageStartedAt.current);
+            if (session.status !== "COMPLETED") {
+                await listeningService.complete(
+                    session.sessionId,
+                    Date.now() - pageStartedAt.current,
+                );
+            }
             router.push(`/language-learning/listening/session/${session.sessionId}/result`);
             return true;
         } catch (error) {
@@ -290,6 +327,7 @@ export function useListeningSessionController(sessionId: number) {
         session,
         item,
         attempt,
+        selectedTaskTypes,
         drafts,
         repeatTask,
         recorder,
@@ -300,7 +338,9 @@ export function useListeningSessionController(sessionId: number) {
         revealedAnswer,
         assistanceNotice,
         actionErrorCode,
-        isLoading: sessionQuery.isLoading || (currentAttempt !== null && itemQuery.isLoading),
+        isLoading:
+            (session === null && sessionQuery.isLoading) ||
+            (currentAttempt !== null && item === null && itemQuery.isLoading),
         loadError: sessionQuery.isError || itemQuery.isError,
         isSubmitting,
         isUploading,

@@ -59,11 +59,15 @@ export function ListeningSessionPage({ sessionId }: { sessionId: number }) {
                 <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
-                            <p className="text-xs font-black uppercase text-slate-400">{t("session.itemProgress", { current: item.itemIndex, total: session.attempts.length })}</p>
-                            <h2 className="mt-1 text-xl font-black text-slate-900 dark:text-white">{session.selectedTaskTypes.map((task) => t(`task.${task}`)).join(" · ")}</h2>
+                            <p className="text-xs font-black uppercase text-slate-400">{t("session.itemProgress", { current: item.itemIndex, total: session.attempts.filter((candidate) => candidate.evaluationPurpose === "OFFICIAL").length })}</p>
+                            <h2 className="mt-1 text-xl font-black text-slate-900 dark:text-white">
+                                {evaluating
+                                    ? t("session.evaluatingTitle")
+                                    : controller.selectedTaskTypes.map((task) => t(`task.${task}`)).join(" · ")}
+                            </h2>
                         </div>
                         <div className="text-right text-xs font-bold text-slate-400">
-                            <p>{t("session.completedCount", { completed: session.completedItemCount, total: session.attempts.length })}</p>
+                            <p>{t("session.completedCount", { completed: session.completedItemCount, total: session.attempts.filter((candidate) => candidate.evaluationPurpose === "OFFICIAL").length })}</p>
                             <p className="mt-1">{t(`attemptStatus.${attempt.status}`)}</p>
                         </div>
                     </div>
@@ -75,32 +79,37 @@ export function ListeningSessionPage({ sessionId }: { sessionId: number }) {
                     onPlay={(audio, slow) => controller.playReference(audio, slow)}
                 />
 
-                {session.selectedTaskTypes.includes("DICTATION") && (
-                    <ListeningTextAnswerPanel
-                        taskType="DICTATION"
-                        value={controller.drafts.DICTATION ?? ""}
-                        disabled={evaluating || attempt.answerRevealed}
-                        originLanguage={controller.entry?.setting?.originLanguage ?? ""}
-                        learningLanguage={controller.entry?.setting?.learningLanguage ?? ""}
-                        onChange={(value) => controller.updateDraft("DICTATION", value)}
-                    />
+                {!evaluating && (
+                    <>
+                        {controller.selectedTaskTypes.includes("DICTATION") && (
+                            <ListeningTextAnswerPanel
+                                taskType="DICTATION"
+                                value={controller.drafts.DICTATION ?? ""}
+                                disabled={attempt.answerRevealed}
+                                originLanguage={controller.entry?.setting?.originLanguage ?? ""}
+                                learningLanguage={controller.entry?.setting?.learningLanguage ?? ""}
+                                onChange={(value) => controller.updateDraft("DICTATION", value)}
+                            />
+                        )}
+                        {controller.selectedTaskTypes.includes("INTERPRETATION") && (
+                            <ListeningTextAnswerPanel
+                                taskType="INTERPRETATION"
+                                value={controller.drafts.INTERPRETATION ?? ""}
+                                disabled={attempt.answerRevealed}
+                                originLanguage={controller.entry?.setting?.originLanguage ?? ""}
+                                learningLanguage={controller.entry?.setting?.learningLanguage ?? ""}
+                                onChange={(value) => controller.updateDraft("INTERPRETATION", value)}
+                            />
+                        )}
+                        {controller.selectedTaskTypes.includes("REPEAT_AFTER_AUDIO") && <ListeningRepeatRecorderPanel controller={controller} />}
+                        <ListeningAssistancePanel controller={controller} />
+                    </>
                 )}
-                {session.selectedTaskTypes.includes("INTERPRETATION") && (
-                    <ListeningTextAnswerPanel
-                        taskType="INTERPRETATION"
-                        value={controller.drafts.INTERPRETATION ?? ""}
-                        disabled={evaluating || attempt.answerRevealed}
-                        originLanguage={controller.entry?.setting?.originLanguage ?? ""}
-                        learningLanguage={controller.entry?.setting?.learningLanguage ?? ""}
-                        onChange={(value) => controller.updateDraft("INTERPRETATION", value)}
-                    />
-                )}
-                {session.selectedTaskTypes.includes("REPEAT_AFTER_AUDIO") && <ListeningRepeatRecorderPanel controller={controller} />}
-                <ListeningAssistancePanel controller={controller} />
 
                 {evaluating && (
-                    <section className="rounded-3xl border border-blue-200 bg-blue-50 p-5 text-sm font-bold text-blue-800 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200" aria-live="polite" data-testid="listening-evaluating">
-                        {t("session.evaluating")}
+                    <section className="rounded-3xl border border-blue-200 bg-blue-50 p-6 text-center dark:border-blue-400/20 dark:bg-blue-500/10" aria-live="polite" data-testid="listening-evaluating">
+                        <p className="text-lg font-black text-blue-900 dark:text-blue-100">{t("session.evaluatingTitle")}</p>
+                        <p className="mt-2 text-sm font-bold text-blue-700 dark:text-blue-200">{t("session.evaluatingDescription")}</p>
                     </section>
                 )}
 

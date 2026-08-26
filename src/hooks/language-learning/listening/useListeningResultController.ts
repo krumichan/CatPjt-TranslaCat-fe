@@ -20,7 +20,18 @@ export function useListeningResultController(sessionId: number) {
     const resultQuery = useQuery({
         keys: ["listening-result", sessionId] as const,
         fetcher: (_key, id) => listeningService.getResult(id),
-        config: { revalidateOnMount: true, shouldRetryOnError: false },
+        config: {
+            revalidateOnMount: true,
+            shouldRetryOnError: false,
+            refreshInterval: (data) =>
+                data?.attempts.some((attempt) =>
+                    attempt.tasks.some((task) =>
+                        ["SUBMITTED", "EVALUATING"].includes(task.status),
+                    ),
+                )
+                    ? 2_000
+                    : 0,
+        },
     });
 
     const retryEvaluation = useCallback(async (attemptId: number, taskType: ListeningTaskType) => {
@@ -33,7 +44,7 @@ export function useListeningResultController(sessionId: number) {
                 taskType,
                 idempotencyKey: createIdempotencyKey("listening-retry"),
             });
-            await resultQuery.mutate(undefined, true);
+            await resultQuery.mutate((current) => current, true);
             return true;
         } catch (error) {
             setErrorCode(error instanceof ApiResponseError ? error.errorCode : "UNKNOWN");
@@ -89,14 +100,14 @@ export function useListeningResultController(sessionId: number) {
 
     return {
         result: resultQuery.data ?? null,
-        isLoading: resultQuery.isLoading,
+        isLoading: resultQuery.data == null && resultQuery.isLoading,
         loadError: resultQuery.isError,
         busyKey,
         errorCode,
         retryEvaluation,
         startPractice,
         report,
-        reload: () => resultQuery.mutate(undefined, true),
+        reload: () => resultQuery.mutate((current) => current, true),
     };
 }
 

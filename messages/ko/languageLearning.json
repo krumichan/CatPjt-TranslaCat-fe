@@ -89,12 +89,12 @@
         "weakness": {
           "title": "약점과 반복 오류",
           "grammar": "문법 약점",
-          "patterns": "Error Pattern",
+          "patterns": "오류 패턴",
           "emptyGrammar": "아직 반복되는 문법 약점이 없습니다.",
           "emptyPattern": "아직 반복 Error Pattern이 없습니다."
         },
         "insight": {
-          "title": "Learning Insight",
+          "title": "학습 인사이트",
           "description": "누적 평가에서 발견된 강점·약점과 다음 학습 Focus입니다.",
           "strengths": "강점",
           "weaknesses": "약점",
@@ -123,7 +123,7 @@
         "speakingProgress": "{minutes} / {goal}분 · {sessions} Session",
         "speakingSummary": "Speaking 요약",
         "collectingData": "아직 충분한 평가 데이터가 없어 수집 중입니다.",
-        "sessions": "Session",
+        "sessions": "세션",
         "minutes": "학습 분",
         "overall": "종합",
         "fluency": "유창성",
@@ -133,10 +133,10 @@
         "trendSamples": "평가 Sample {count}개",
         "source": {
           "ALL": "전체",
-          "WRITING": "Writing",
-          "SPEAKING": "Speaking",
-          "LISTENING": "Listening",
-          "READING": "Reading"
+          "WRITING": "쓰기",
+          "SPEAKING": "말하기",
+          "LISTENING": "듣기",
+          "READING": "읽기"
         },
         "metric": {
           "GRAMMAR": "문법",
@@ -149,7 +149,7 @@
           "INTERACTION": "대화 능력",
           "OVERALL": "종합"
         },
-        "points": "{count}개 Point",
+        "points": "{count}포인트",
         "unifiedInsight": "통합 Learning Insight",
         "strengths": "강점",
         "weaknesses": "약점",
@@ -157,7 +157,8 @@
         "widgetFailed": "이 위젯을 표시하지 못했습니다. 다른 대시보드 정보는 계속 확인할 수 있습니다.",
         "startWriting": "Writing 시작",
         "startSpeaking": "Speaking 시작",
-        "sourceEvidence": "근거 Source"
+        "sourceEvidence": "근거 Source",
+        "trendPeriod": "조회 기간"
       },
       "v3": {
         "collectingData": "데이터 수집 중",
@@ -172,10 +173,10 @@
         "activity": {
           "eyebrow": "기능별 평가",
           "title": "학습별 성과",
-          "writing": "Writing",
-          "speaking": "Speaking",
-          "listening": "Listening",
-          "reading": "Reading",
+          "writing": "쓰기",
+          "speaking": "말하기",
+          "listening": "듣기",
+          "reading": "읽기",
           "recentScore": "최근 점수",
           "samples": "Sample {count}",
           "coverage": "평가 범위 {evaluated}/{total}",
@@ -334,7 +335,7 @@
     },
     "history": {
       "title": "학습 기록",
-      "description": "Writing과 Speaking 학습 기록 및 당시 평가 결과를 통합해서 확인합니다.",
+      "description": "쓰기·말하기·듣기 학습 이력과 당시 평가를 한곳에서 확인합니다.",
       "loading": "최근 학습 기록을 불러오고 있습니다.",
       "loadFailed": "학습 기록 목록을 불러오지 못했습니다.",
       "historyLoading": "선택한 날짜의 학습 기록을 불러오고 있습니다.",
@@ -352,7 +353,7 @@
       },
       "empty": {
         "title": "아직 학습 기록이 없습니다",
-        "description": "Writing 또는 Speaking 학습을 시작하면 여기에 통합 기록이 쌓입니다."
+        "description": "쓰기·말하기·듣기 학습을 시작하면 통합 이력이 여기에 표시됩니다."
       },
       "review": {
         "answerLabel": "다시 작성해 보기",
@@ -365,23 +366,23 @@
       "unified": {
         "source": {
           "ALL": "전체",
-          "WRITING": "Writing",
-          "SPEAKING": "Speaking",
-          "LISTENING": "Listening",
-          "READING": "Reading"
+          "WRITING": "쓰기",
+          "SPEAKING": "말하기",
+          "LISTENING": "듣기",
+          "READING": "읽기"
         },
         "freeTalk": "자유 대화",
-        "speakingSummary": "{turns} Turn · {minutes}분",
+        "speakingSummary": "{turns}턴 · {minutes}분",
         "noTranscript": "인식된 문장이 없습니다.",
         "startMode": "대화 시작 방식",
-        "correctionMode": "교정 Mode",
-        "speakingMetrics": "Speaking 평가 8축",
-        "fullTranscript": "전체 대화 Transcript",
+        "correctionMode": "교정 모드",
+        "speakingMetrics": "말하기 평가 8축",
+        "fullTranscript": "전체 대화 기록",
         "assistanceSummary": "학습 보조 사용 내역",
-        "assistanceSummaryDescription": "Session 동안 실제로 사용한 학습 보조 횟수입니다.",
+        "assistanceSummaryDescription": "세션 중 실제로 사용한 학습 보조 횟수입니다.",
         "userAudioExpired": "사용자 원본 음성의 보관 기간이 만료되어 재생할 수 없습니다.",
-        "taskFilter": "Listening Task 필터",
-        "allTasks": "전체 Task",
+        "taskFilter": "듣기 학습 방식 필터",
+        "allTasks": "전체 학습 방식",
         "task": {
           "DICTATION": "받아쓰기",
           "INTERPRETATION": "의미 쓰기",
@@ -414,11 +415,11 @@
       }
     },
     "profile": {
-      "title": "Learning Profile",
+      "title": "학습 프로필",
       "description": "사용자에게 보이는 5대 Skill과 AI가 다음 문제 생성에 활용하는 장기 학습 신호를 확인합니다.",
       "loading": "Learning Profile을 불러오고 있습니다.",
       "loadFailed": "Learning Profile을 불러오지 못했습니다.",
-      "baseLevel": "Base Level",
+      "baseLevel": "기준 레벨",
       "trend": "최근 Trend",
       "confidence": "Profile 신뢰도 {value}%",
       "calibrating": "현재 초기 Calibration 기간입니다. 실제 Writing 데이터가 쌓이면서 Profile이 빠르게 보정될 수 있습니다.",
@@ -442,15 +443,15 @@
         }
       },
       "grammar": {
-        "title": "Grammar Weakness",
+        "title": "문법 약점",
         "empty": "반복 문법 약점이 없습니다."
       },
       "errors": {
-        "title": "Error Pattern",
+        "title": "오류 패턴",
         "empty": "반복 오류 Pattern이 없습니다."
       },
       "keywords": {
-        "title": "Keyword Mastery",
+        "title": "키워드 숙련도",
         "empty": "Keyword 숙련도 데이터가 없습니다."
       }
     },
@@ -501,8 +502,8 @@
         "description": "상위 Topic으로 넓게 선택하거나 하위 Vocabulary로 세부 관심사를 선택할 수 있습니다. Keyword를 하나도 선택하지 않아도 학습할 수 있습니다.",
         "nextDayNotice": "첫 Writing Daily Set 또는 Speaking Session이 생성되기 전에는 Keyword 변경이 즉시 적용됩니다. 한 번이라도 생성된 뒤의 추가·수정·선택 변경은 다음 학습일부터 적용됩니다. 신규 Keyword는 약 7일 동안 Selection Weight가 점진적으로 올라갑니다.",
         "types": {
-          "TOPIC": "Topic",
-          "VOCABULARY": "Vocabulary"
+          "TOPIC": "주제",
+          "VOCABULARY": "어휘"
         },
         "parentGroup": {
           "label": "상위 Topic",
@@ -515,7 +516,7 @@
           "creating": "추가 중..."
         },
         "system": {
-          "title": "System Keyword",
+          "title": "시스템 키워드",
           "description": "Topic 선택과 펼치기는 서로 독립적입니다. Topic만 선택하거나 세부 Vocabulary를 함께 선택할 수 있습니다.",
           "empty": "등록된 System Keyword가 없습니다.",
           "detailTitle": "세부 Vocabulary",
@@ -526,7 +527,7 @@
           "ungrouped": "그룹 미지정 Keyword"
         },
         "custom": {
-          "title": "Custom Keyword",
+          "title": "사용자 키워드",
           "description": "내 관심 분야와 익히고 싶은 표현을 직접 관리합니다.",
           "empty": "등록한 Custom Keyword가 없습니다."
         },
@@ -544,7 +545,7 @@
         "title": "학습 수준 다시 측정하기",
         "description": "과거 기록은 유지한 채 현재 Base Level을 다시 측정하고 새 Calibration Cycle을 시작할 수 있습니다.",
         "recommended": "오랜 학습 공백으로 Level Recheck가 권장되는 상태입니다.",
-        "action": "Level Recheck"
+        "action": "레벨 재확인"
       }
     },
     "admin": {
@@ -562,15 +563,15 @@
       "invalid": "최소값 ≤ 기본값 ≤ 최대값 및 각 기간/개수 설정을 확인해 주세요.",
       "fields": {
         "defaultDailySentenceCount": {
-          "label": "기본 Daily Sentence Count",
+          "label": "기본 하루 문장 수",
           "help": "신규 사용자의 기본 하루 문장 수입니다."
         },
         "minDailySentenceCount": {
-          "label": "최소 Daily Sentence Count",
+          "label": "최소 하루 문장 수",
           "help": "사용자가 선택할 수 있는 최소 문장 수입니다."
         },
         "maxDailySentenceCount": {
-          "label": "최대 Daily Sentence Count",
+          "label": "최대 하루 문장 수",
           "help": "사용자가 선택할 수 있는 최대 문장 수입니다."
         },
         "dailyKeywordMaxCount": {
@@ -705,7 +706,7 @@
         "topic": {
           "title": "대화 Topic",
           "description": "추천 Topic을 고르거나 자유 Topic을 직접 입력할 수 있습니다.",
-          "category": "Topic Category",
+          "category": "주제 카테고리",
           "all": "전체",
           "loading": "Topic을 불러오는 중...",
           "loadFailed": "Topic을 불러오지 못했습니다.",
@@ -760,7 +761,7 @@
           },
           "targetMinutes": "목표 시간",
           "targetRange": "관리자 허용 범위: {min} ~ {max}분",
-          "voice": "AI Voice",
+          "voice": "AI 음성",
           "speed": "재생 속도",
           "speeds": {
             "SLOW": "느리게",
@@ -789,9 +790,9 @@
         "actionFailed": "요청을 처리하지 못했습니다. 녹음 내용과 완료된 단계는 가능한 범위에서 유지됩니다.",
         "reportCreated": "STT 오류 신고가 접수되었습니다. Reference: {reference}",
         "header": {
-          "customTopic": "Custom Topic",
+          "customTopic": "사용자 지정 주제",
           "freeTalk": "자유 대화",
-          "turns": "Turn",
+          "turns": "턴",
           "sessionTime": "말한 시간",
           "dailyUsage": "오늘 사용량",
           "minutes": "{value}분",
@@ -967,7 +968,7 @@
         "overall": "종합 점수",
         "confidence": "평가 신뢰도 {value}%",
         "commonMetrics": "공통 5대 Skill",
-        "speakingMetrics": "Speaking 3대 Skill",
+        "speakingMetrics": "말하기 3대 스킬",
         "notEvaluable": "평가 불가",
         "evidence": "평가 Evidence",
         "evidenceFallback": "관련 대화 Evidence",
@@ -996,11 +997,11 @@
             "description": "다시 듣기 · 천천히 듣기 · 질문 다시 보기"
           },
           "assisted": {
-            "title": "ASSISTED",
+            "title": "도움 사용",
             "description": "힌트 · 번역을 활용해 대화를 이어간 경우"
           },
           "guided": {
-            "title": "GUIDED",
+            "title": "가이드 사용",
             "description": "답변 예시를 활용해 표현을 연습한 경우"
           },
           "usageSummary": "이번 Session에서 학습 보조를 총 {count}회 사용했습니다.",
@@ -1056,7 +1057,8 @@
         "readyCount": "준비된 문제 {ready} · 생성된 문제 {physical}",
         "generating": "문장과 Reference Audio를 준비하고 있습니다. 준비된 문제부터 곧 시작할 수 있습니다.",
         "retryTts": "Audio 다시 준비",
-        "start": "학습 방식 선택"
+        "start": "학습 방식 선택",
+        "result": "결과 보기"
       },
       "setup": {
         "title": "Listening 학습 방식 선택",
@@ -1093,6 +1095,8 @@
         "itemProgress": "문제 {current}/{total}",
         "completedCount": "완료 {completed}/{total}",
         "evaluating": "선택한 Task를 평가하고 있습니다. 성공한 결과는 유지하며 실패한 Task만 재시도할 수 있습니다.",
+        "evaluatingTitle": "평가 중입니다…",
+        "evaluatingDescription": "평가가 완료되면 자동으로 다음 단계로 이동합니다.",
         "skip": "건너뛰기",
         "skipConfirm": "이 문제를 건너뛸까요? 오늘 완료 수에는 포함되지 않습니다.",
         "submit": "선택 답안 제출",
@@ -1164,7 +1168,7 @@
         "description": "Task별 평가 범위와 Evidence를 확인하고 필요한 경우 실패 Task만 다시 평가합니다.",
         "loading": "Listening 평가 결과를 불러오고 있습니다.",
         "loadFailed": "Listening 결과를 불러오지 못했습니다.",
-        "summaryEyebrow": "Session Result",
+        "summaryEyebrow": "세션 결과",
         "summaryTitle": "Listening 결과",
         "coverage": "평가 {evaluated} · 학습 {learned}",
         "itemTitle": "Listening Item {itemId}",

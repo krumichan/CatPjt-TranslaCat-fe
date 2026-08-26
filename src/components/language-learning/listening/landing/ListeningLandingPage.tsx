@@ -84,7 +84,19 @@ export function ListeningLandingPage() {
                         ))}
                     </div>
 
-                    {!controller.activeSession && set.readyItemCount > 0 && (
+                    {!controller.activeSession && controller.todayCompleted && (
+                        <Link
+                            href={controller.completedSessionId
+                                ? `/language-learning/listening/session/${controller.completedSessionId}/result`
+                                : "/language-learning/history"}
+                            data-testid="listening-result-link"
+                            className="mt-6 inline-flex rounded-xl bg-blue-600 px-5 py-3 text-sm font-black text-white hover:bg-blue-500"
+                        >
+                            {t("landing.result")}
+                        </Link>
+                    )}
+
+                    {!controller.activeSession && !controller.todayCompleted && set.readyItemCount > 0 && (
                         <Link href="/language-learning/listening/setup" data-testid="listening-start-link" className="mt-6 inline-flex rounded-xl bg-blue-600 px-5 py-3 text-sm font-black text-white hover:bg-blue-500">
                             {t("landing.start")}
                         </Link>

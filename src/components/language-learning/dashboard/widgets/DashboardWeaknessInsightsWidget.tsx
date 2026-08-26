@@ -16,6 +16,12 @@ const TRANSLATED_METRICS = new Set([
 
 export function DashboardWeaknessInsightsWidget({ data }: { data: DashboardWeakness[] }) {
     const t = useTranslations("LanguageLearning.dashboard.v3");
+    const sourceLabels = {
+        WRITING: t("activity.writing"),
+        SPEAKING: t("activity.speaking"),
+        LISTENING: t("activity.listening"),
+        READING: t("activity.reading"),
+    };
     return (
         <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900" data-testid="dashboard-weaknesses-v3">
             <div className="flex items-center gap-2">
@@ -38,7 +44,7 @@ export function DashboardWeaknessInsightsWidget({ data }: { data: DashboardWeakn
                                 {t("weakness.evidence", {
                                     count: item.evidenceCount,
                                     score: item.recentScore ?? 0,
-                                    sources: item.sources.join(" · "),
+                                    sources: item.sources.map((source) => sourceLabels[source]).join(" · "),
                                 })}
                             </p>
                             {item.recommendedFocus && <p className="mt-2 text-sm font-bold text-amber-700 dark:text-amber-200">{item.recommendedFocus}</p>}

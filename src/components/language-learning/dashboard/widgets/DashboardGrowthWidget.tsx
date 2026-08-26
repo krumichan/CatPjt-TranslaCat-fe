@@ -7,6 +7,12 @@ import type { DashboardGrowth } from "@/types/language-learning/dashboard";
 
 export function DashboardGrowthWidget({ data }: { data: DashboardGrowth[] }) {
     const t = useTranslations("LanguageLearning.dashboard.v3");
+    const sourceLabels: Record<string, string> = {
+        WRITING: t("activity.writing"),
+        SPEAKING: t("activity.speaking"),
+        LISTENING: t("activity.listening"),
+        READING: t("activity.reading"),
+    };
     return (
         <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900" data-testid="dashboard-growth">
             <div className="flex items-center gap-2">
@@ -27,7 +33,7 @@ export function DashboardGrowthWidget({ data }: { data: DashboardGrowth[] }) {
                             </div>
                             <p className="mt-2 text-xs text-slate-400">
                                 {t("growth.meta", {
-                                    source: item.source,
+                                    source: sourceLabels[item.source] ?? item.source,
                                     previous: item.previousAverage ?? 0,
                                     recent: item.recentAverage ?? 0,
                                     previousCount: item.previousSampleCount,

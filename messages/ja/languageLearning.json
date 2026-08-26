@@ -89,12 +89,12 @@
         "weakness": {
           "title": "弱点と反復エラー",
           "grammar": "文法の弱点",
-          "patterns": "Error Pattern",
+          "patterns": "エラーパターン",
           "emptyGrammar": "繰り返し発生する文法の弱点はまだありません。",
           "emptyPattern": "繰り返し発生するError Patternはまだありません。"
         },
         "insight": {
-          "title": "Learning Insight",
+          "title": "学習インサイト",
           "description": "蓄積評価から見つかった強み・弱みと次の学習Focusです。",
           "strengths": "強み",
           "weaknesses": "弱み",
@@ -123,7 +123,7 @@
         "speakingProgress": "{minutes} / {goal}分 · {sessions} Session",
         "speakingSummary": "Speakingサマリー",
         "collectingData": "評価データがまだ十分ではないため収集中です。",
-        "sessions": "Session",
+        "sessions": "セッション",
         "minutes": "学習分",
         "overall": "総合",
         "fluency": "流暢さ",
@@ -133,10 +133,10 @@
         "trendSamples": "評価Sample {count}件",
         "source": {
           "ALL": "すべて",
-          "WRITING": "Writing",
-          "SPEAKING": "Speaking",
-          "LISTENING": "Listening",
-          "READING": "Reading"
+          "WRITING": "ライティング",
+          "SPEAKING": "スピーキング",
+          "LISTENING": "リスニング",
+          "READING": "リーディング"
         },
         "metric": {
           "GRAMMAR": "文法",
@@ -149,7 +149,7 @@
           "INTERACTION": "会話力",
           "OVERALL": "総合"
         },
-        "points": "{count} Point",
+        "points": "{count}ポイント",
         "unifiedInsight": "統合Learning Insight",
         "strengths": "強み",
         "weaknesses": "弱み",
@@ -157,7 +157,8 @@
         "widgetFailed": "このウィジェットを表示できませんでした。他のダッシュボード情報は引き続き確認できます。",
         "startWriting": "Writingを始める",
         "startSpeaking": "Speakingを始める",
-        "sourceEvidence": "根拠Source"
+        "sourceEvidence": "根拠Source",
+        "trendPeriod": "表示期間"
       },
       "v3": {
         "collectingData": "データ収集中",
@@ -172,10 +173,10 @@
         "activity": {
           "eyebrow": "機能別評価",
           "title": "学習別成績",
-          "writing": "Writing",
-          "speaking": "Speaking",
-          "listening": "Listening",
-          "reading": "Reading",
+          "writing": "ライティング",
+          "speaking": "スピーキング",
+          "listening": "リスニング",
+          "reading": "リーディング",
           "recentScore": "最近のスコア",
           "samples": "Sample {count}",
           "coverage": "評価範囲 {evaluated}/{total}",
@@ -334,7 +335,7 @@
     },
     "history": {
       "title": "学習履歴",
-      "description": "WritingとSpeakingの学習履歴と当時の評価をまとめて確認します。",
+      "description": "ライティング・スピーキング・リスニングの学習履歴と当時の評価をまとめて確認します。",
       "loading": "最近の学習履歴を読み込んでいます。",
       "loadFailed": "学習履歴一覧を読み込めませんでした。",
       "historyLoading": "選択した日の学習履歴を読み込んでいます。",
@@ -352,7 +353,7 @@
       },
       "empty": {
         "title": "学習履歴はまだありません",
-        "description": "WritingまたはSpeakingを始めると統合履歴がここに表示されます。"
+        "description": "ライティング・スピーキング・リスニングを始めると統合履歴がここに表示されます。"
       },
       "review": {
         "answerLabel": "もう一度書いてみる",
@@ -365,23 +366,23 @@
       "unified": {
         "source": {
           "ALL": "すべて",
-          "WRITING": "Writing",
-          "SPEAKING": "Speaking",
-          "LISTENING": "Listening",
-          "READING": "Reading"
+          "WRITING": "ライティング",
+          "SPEAKING": "スピーキング",
+          "LISTENING": "リスニング",
+          "READING": "リーディング"
         },
         "freeTalk": "フリートーク",
-        "speakingSummary": "{turns} Turn · {minutes}分",
+        "speakingSummary": "{turns}ターン · {minutes}分",
         "noTranscript": "認識された文章がありません。",
         "startMode": "会話開始方式",
-        "correctionMode": "訂正Mode",
-        "speakingMetrics": "Speaking評価8軸",
-        "fullTranscript": "全会話Transcript",
+        "correctionMode": "訂正モード",
+        "speakingMetrics": "スピーキング評価8軸",
+        "fullTranscript": "全会話の文字起こし",
         "assistanceSummary": "学習サポート利用履歴",
-        "assistanceSummaryDescription": "Session中に実際に利用した学習サポートの回数です。",
+        "assistanceSummaryDescription": "セッション中に実際に利用した学習サポートの回数です。",
         "userAudioExpired": "ユーザー元音声の保存期間が終了したため再生できません。",
-        "taskFilter": "Listening Task Filter",
-        "allTasks": "すべてのTask",
+        "taskFilter": "リスニング学習方式フィルター",
+        "allTasks": "すべての学習方式",
         "task": {
           "DICTATION": "ディクテーション",
           "INTERPRETATION": "意味記述",
@@ -414,11 +415,11 @@
       }
     },
     "profile": {
-      "title": "Learning Profile",
+      "title": "学習プロフィール",
       "description": "ユーザー向けの5大Skillと、AIが次の問題生成に利用する長期学習Signalを確認します。",
       "loading": "Learning Profileを読み込んでいます。",
       "loadFailed": "Learning Profileを読み込めませんでした。",
-      "baseLevel": "Base Level",
+      "baseLevel": "基準レベル",
       "trend": "最近のTrend",
       "confidence": "Profile信頼度 {value}%",
       "calibrating": "現在は初期Calibration期間です。実際のWritingデータが増えるにつれてProfileが早めに補正される場合があります。",
@@ -442,15 +443,15 @@
         }
       },
       "grammar": {
-        "title": "Grammar Weakness",
+        "title": "文法の弱点",
         "empty": "反復する文法弱点はありません。"
       },
       "errors": {
-        "title": "Error Pattern",
+        "title": "エラーパターン",
         "empty": "反復するError Patternはありません。"
       },
       "keywords": {
-        "title": "Keyword Mastery",
+        "title": "キーワード習熟度",
         "empty": "Keyword習熟度データはありません。"
       }
     },
@@ -501,8 +502,8 @@
         "description": "上位Topicで広く選ぶことも、下位Vocabularyで詳細な関心を選ぶこともできます。Keywordを一つも選択せずに学習することもできます。",
         "nextDayNotice": "最初のWriting Daily SetまたはSpeaking Sessionが作成される前は、Keyword変更が即時反映されます。一度でも作成された後の追加・編集・選択変更は次回学習日から反映されます。新規KeywordのSelection Weightは約7日かけて段階的に上がります。",
         "types": {
-          "TOPIC": "Topic",
-          "VOCABULARY": "Vocabulary"
+          "TOPIC": "トピック",
+          "VOCABULARY": "語彙"
         },
         "parentGroup": {
           "label": "上位Topic",
@@ -515,7 +516,7 @@
           "creating": "追加中..."
         },
         "system": {
-          "title": "System Keyword",
+          "title": "システムキーワード",
           "description": "Topicの選択と展開は独立しています。Topicのみ、または詳細Vocabularyも一緒に選択できます。",
           "empty": "登録済みSystem Keywordはありません。",
           "detailTitle": "詳細Vocabulary",
@@ -526,7 +527,7 @@
           "ungrouped": "グループ未指定Keyword"
         },
         "custom": {
-          "title": "Custom Keyword",
+          "title": "カスタムキーワード",
           "description": "自分の興味分野や覚えたい表現を直接管理します。",
           "empty": "登録済みCustom Keywordはありません。"
         },
@@ -544,7 +545,7 @@
         "title": "学習レベルを再測定",
         "description": "過去の履歴は維持したまま、現在のBase Levelを再測定して新しいCalibration Cycleを開始できます。",
         "recommended": "長期間の学習停止によりLevel Recheckが推奨されています。",
-        "action": "Level Recheck"
+        "action": "レベルを再確認"
       }
     },
     "admin": {
@@ -562,15 +563,15 @@
       "invalid": "最小値 ≤ デフォルト値 ≤ 最大値、および各期間・件数設定を確認してください。",
       "fields": {
         "defaultDailySentenceCount": {
-          "label": "Default Daily Sentence Count",
+          "label": "1日の文章数（デフォルト）",
           "help": "新規ユーザーの1日あたりのデフォルト文章数です。"
         },
         "minDailySentenceCount": {
-          "label": "Minimum Daily Sentence Count",
+          "label": "1日の文章数（最小）",
           "help": "ユーザーが選択できる最小文章数です。"
         },
         "maxDailySentenceCount": {
-          "label": "Maximum Daily Sentence Count",
+          "label": "1日の文章数（最大）",
           "help": "ユーザーが選択できる最大文章数です。"
         },
         "dailyKeywordMaxCount": {
@@ -705,7 +706,7 @@
         "topic": {
           "title": "会話Topic",
           "description": "おすすめTopicを選ぶか、自由Topicを入力できます。",
-          "category": "Topic Category",
+          "category": "トピックカテゴリ",
           "all": "すべて",
           "loading": "Topicを読み込み中...",
           "loadFailed": "Topicを取得できませんでした。",
@@ -760,7 +761,7 @@
           },
           "targetMinutes": "目標時間",
           "targetRange": "管理者の許可範囲: {min} ~ {max}分",
-          "voice": "AI Voice",
+          "voice": "AI音声",
           "speed": "再生速度",
           "speeds": {
             "SLOW": "ゆっくり",
@@ -789,9 +790,9 @@
         "actionFailed": "処理に失敗しました。完了済みの段階は可能な範囲で保持されます。",
         "reportCreated": "STTエラー報告を受け付けました。Reference: {reference}",
         "header": {
-          "customTopic": "Custom Topic",
+          "customTopic": "カスタムトピック",
           "freeTalk": "フリートーク",
-          "turns": "Turn",
+          "turns": "ターン",
           "sessionTime": "発話時間",
           "dailyUsage": "今日の利用",
           "minutes": "{value}分",
@@ -967,7 +968,7 @@
         "overall": "総合スコア",
         "confidence": "評価信頼度 {value}%",
         "commonMetrics": "共通5 Skill",
-        "speakingMetrics": "Speaking 3 Skill",
+        "speakingMetrics": "スピーキング3スキル",
         "notEvaluable": "評価不可",
         "evidence": "評価Evidence",
         "evidenceFallback": "関連会話Evidence",
@@ -996,11 +997,11 @@
             "description": "再生・ゆっくり再生・質問再表示"
           },
           "assisted": {
-            "title": "ASSISTED",
+            "title": "補助あり",
             "description": "Hint・翻訳を利用して会話を続けた場合"
           },
           "guided": {
-            "title": "GUIDED",
+            "title": "ガイドあり",
             "description": "回答例を利用して表現を練習した場合"
           },
           "usageSummary": "このSessionでは学習サポートを合計{count}回利用しました。",
@@ -1056,7 +1057,8 @@
         "readyCount": "準備済み {ready} · 生成済み {physical}",
         "generating": "文章とReference Audioを準備しています。",
         "retryTts": "Audioを再準備",
-        "start": "学習方式を選択"
+        "start": "学習方式を選択",
+        "result": "結果を見る"
       },
       "setup": {
         "title": "Listening学習方式の選択",
@@ -1093,6 +1095,8 @@
         "itemProgress": "問題 {current}/{total}",
         "completedCount": "完了 {completed}/{total}",
         "evaluating": "選択したTaskを評価中です。成功結果は保持し、失敗Taskのみ再試行できます。",
+        "evaluatingTitle": "評価中です…",
+        "evaluatingDescription": "評価が完了すると自動的に次へ進みます。",
         "skip": "スキップ",
         "skipConfirm": "この問題をスキップしますか？今日の完了数には含まれません。",
         "submit": "選択回答を提出",
@@ -1164,7 +1168,7 @@
         "description": "Task別の評価範囲とEvidenceを確認し、必要な場合は失敗Taskのみ再評価します。",
         "loading": "Listening評価結果を読み込んでいます。",
         "loadFailed": "Listening結果を読み込めませんでした。",
-        "summaryEyebrow": "Session Result",
+        "summaryEyebrow": "セッション結果",
         "summaryTitle": "Listening結果",
         "coverage": "評価 {evaluated} · 学習 {learned}",
         "itemTitle": "Listening Item {itemId}",

@@ -1,13 +1,25 @@
 "use client";
 
+import { History, RotateCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { SignalList } from "@/components/language-learning/common/SignalList";
 import { SkillRadarChart } from "@/components/language-learning/common/SkillRadarChart";
+import { Link } from "@/navigation";
 import type { LanguageLearningProfile } from "@/types/language-learning/profile";
+import type { LevelTestHistoryItem, LevelTestStatus } from "@/types/language-learning/level";
 
-export function LanguageLearningProfileView({ profile }: { profile: LanguageLearningProfile }) {
+export function LanguageLearningProfileView({
+    profile,
+    levelStatus,
+    latestLevelTest,
+}: {
+    profile: LanguageLearningProfile;
+    levelStatus: LevelTestStatus | null;
+    latestLevelTest: LevelTestHistoryItem | null;
+}) {
     const t = useTranslations("LanguageLearning.profile");
+    const bandT = useTranslations("LanguageLearning.levelTest.band");
 
     return (
         <div className="space-y-6" data-testid="language-learning-profile">
@@ -36,6 +48,62 @@ export function LanguageLearningProfileView({ profile }: { profile: LanguageLear
                     )}
                 </div>
                 <SkillRadarChart scores={profile.skillScores} height={260} />
+            </section>
+
+            <section className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm dark:border-white/10 dark:bg-slate-900/75">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h2 className="text-lg font-black text-slate-900 dark:text-white">{t("levelTest.title")}</h2>
+                        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                            {t("levelTest.current", {
+                                score: levelStatus?.baseLevelScore == null
+                                    ? "—"
+                                    : Math.round(levelStatus.baseLevelScore),
+                                band: levelStatus?.proficiencyBand
+                                    ? bandT(levelStatus.proficiencyBand)
+                                    : "—",
+                            })}
+                        </p>
+                        <p className="mt-1 text-xs text-slate-400">
+                            {t("levelTest.lastMeasured", {
+                                date: latestLevelTest?.completedAt
+                                    ? new Date(latestLevelTest.completedAt).toLocaleDateString()
+                                    : "—",
+                            })}
+                        </p>
+                        {levelStatus?.recheckRecommended && (
+                            <p className="mt-2 text-sm font-black text-amber-700 dark:text-amber-200">
+                                {t("levelTest.recheckRecommended")}
+                            </p>
+                        )}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        {latestLevelTest && (
+                            <Link
+                                href={`/language-learning/level-test/history/${latestLevelTest.sessionId}`}
+                                className="inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-black text-slate-700 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-200"
+                            >
+                                <History className="h-4 w-4" aria-hidden="true" />
+                                {t("levelTest.latestResult")}
+                            </Link>
+                        )}
+                        <Link
+                            href="/language-learning/level-test/history"
+                            className="rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-black text-slate-700 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-200"
+                        >
+                            {t("levelTest.history")}
+                        </Link>
+                        <Link
+                            href="/language-learning/level-test"
+                            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-black text-white hover:bg-blue-500"
+                        >
+                            <RotateCcw className="h-4 w-4" aria-hidden="true" />
+                            {levelStatus?.initialLevelTestCompleted
+                                ? t("levelTest.recheck")
+                                : t("levelTest.start")}
+                        </Link>
+                    </div>
+                </div>
             </section>
 
             <section className="grid gap-6 lg:grid-cols-3">

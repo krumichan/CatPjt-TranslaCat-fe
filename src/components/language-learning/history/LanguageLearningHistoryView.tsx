@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 
 import { LanguageLearningStateCard } from "@/components/language-learning/common/LanguageLearningStateCard";
 import { ListeningHistoryDetail } from "@/components/language-learning/history/ListeningHistoryDetail";
+import { LevelTestHistoryDetailView } from "@/components/language-learning/level-test/LevelTestHistoryDetailView";
 import { SpeakingHistoryDetail } from "@/components/language-learning/history/SpeakingHistoryDetail";
 import { UnifiedLearningHistoryList } from "@/components/language-learning/history/UnifiedLearningHistoryList";
 import { WritingHistoryDetail } from "@/components/language-learning/history/WritingHistoryDetail";
@@ -18,8 +19,9 @@ export function LanguageLearningHistoryView({
     const t = useTranslations("LanguageLearning.history");
     const common = useTranslations("LanguageLearning.common");
 
+    let detailContent;
     if (controller.items.length === 0) {
-        return (
+        detailContent = (
             <section className="rounded-3xl border border-slate-200 bg-white/90 p-10 text-center shadow-sm dark:border-white/10 dark:bg-slate-900/75">
                 <CalendarDays
                     className="mx-auto h-10 w-10 text-slate-300"
@@ -33,10 +35,7 @@ export function LanguageLearningHistoryView({
                 </p>
             </section>
         );
-    }
-
-    let detailContent;
-    if (controller.detailLoading) {
+    } else if (controller.detailLoading) {
         detailContent = (
             <LanguageLearningStateCard
                 variant="loading"
@@ -65,6 +64,10 @@ export function LanguageLearningHistoryView({
         detailContent = <SpeakingHistoryDetail detail={controller.detail.detail} />;
     } else if (controller.detail.source === "LISTENING") {
         detailContent = <ListeningHistoryDetail detail={controller.detail.detail} />;
+    } else if (controller.detail.source === "LEVEL_TEST") {
+        detailContent = (
+            <LevelTestHistoryDetailView detail={controller.detail.detail} />
+        );
     } else {
         detailContent = <LanguageLearningStateCard variant="loading" title={common("loadingTitle")} message={t("readingPreparing")} />;
     }

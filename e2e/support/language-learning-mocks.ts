@@ -36,6 +36,7 @@ export const LANGUAGE_LEARNING_LEVEL_STATUS = {
     activeSessionId: null,
     currentQuestionNumber: null,
     baseLevelScore: 72.5,
+    proficiencyBand: "UPPER_INTERMEDIATE",
 };
 
 export const LANGUAGE_LEARNING_KEYWORDS = {
@@ -255,6 +256,7 @@ export const LANGUAGE_LEARNING_DASHBOARD = {
             { metric: "GRAMMAR", score: 78, sampleCount: 7, confidence: "HIGH", collectingData: false },
             { metric: "VOCABULARY", score: 80, sampleCount: 8, confidence: "HIGH", collectingData: false },
             { metric: "PRONUNCIATION", score: 76, sampleCount: 5, confidence: "MEDIUM", collectingData: false },
+            { metric: "LISTENING_INDEPENDENCE", score: 75, sampleCount: 5, confidence: "MEDIUM", collectingData: false },
         ],
     },
     activityPerformance: {
@@ -305,6 +307,9 @@ export async function mockLanguageLearningBase(page: Page) {
     );
     await page.route("**/language-learning/level-test/status", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LEVEL_STATUS)),
+    );
+    await page.route("**/language-learning/level-test/history", (route) =>
+        fulfillApiJson(route, responseDto([])),
     );
     await page.route("**/language-learning/dashboard**", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_DASHBOARD)),
@@ -380,7 +385,14 @@ export const LANGUAGE_LEARNING_LISTENING_ATTEMPT = {
     evaluationPurpose: "OFFICIAL",
     status: "IN_PROGRESS",
     answerRevealed: false,
+    contentOverallScore: null,
+    listeningIndependenceScore: null,
     overallScore: null,
+    playbackSummary: {
+        normalPlaybackCount: 0,
+        slowPlaybackCount: 0,
+        policyVersion: null,
+    },
     evaluatedTaskCount: 0,
     coverage: 0,
     errorCode: null,
@@ -504,7 +516,14 @@ export const LANGUAGE_LEARNING_LISTENING_RESULT = {
         {
             ...LANGUAGE_LEARNING_LISTENING_ATTEMPT,
             status: "EVALUATED",
+            contentOverallScore: 86,
+            listeningIndependenceScore: 75,
             overallScore: 84,
+            playbackSummary: {
+                normalPlaybackCount: 2,
+                slowPlaybackCount: 1,
+                policyVersion: "listening-independence-v1",
+            },
             evaluatedTaskCount: 2,
             coverage: 2 / 3,
             tasks: [
@@ -566,6 +585,9 @@ export async function mockLanguageLearningPhase3(page: Page) {
     );
     await page.route("**/language-learning/listening/sessions/702/items/711", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LISTENING_ITEM)),
+    );
+    await page.route("**/language-learning/listening/sessions/702/items/711/playbacks", (route) =>
+        fulfillApiJson(route, responseDto(null)),
     );
     await page.route("**/language-learning/listening/items/711/audio", async (route) => {
         if (route.request().resourceType() === "document") return route.fallback();

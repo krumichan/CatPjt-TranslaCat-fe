@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import type { DashboardWeakness } from "@/types/language-learning/dashboard";
 
 const TRANSLATED_METRICS = new Set([
-    "LISTENING_RECOGNITION", "TOKEN_RECOGNITION", "OMISSION_ADDITION_ORDER",
+    "LISTENING_RECOGNITION", "LISTENING_INDEPENDENCE", "TOKEN_RECOGNITION", "OMISSION_ADDITION_ORDER",
     "ORTHOGRAPHY", "MEANING", "MEANING_FIDELITY", "DETAIL_AND_NUANCE",
     "ORIGIN_NATURALNESS", "PRONUNCIATION", "PROSODY_RHYTHM", "FLUENCY",
     "COMPLETENESS", "VOCABULARY", "SPOKEN_EXPRESSION", "INTERACTION",
@@ -21,6 +21,7 @@ export function DashboardWeaknessInsightsWidget({ data }: { data: DashboardWeakn
         SPEAKING: t("activity.speaking"),
         LISTENING: t("activity.listening"),
         READING: t("activity.reading"),
+        LEVEL_TEST: t("activity.levelTest"),
     };
     return (
         <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900" data-testid="dashboard-weaknesses-v3">

@@ -1,12 +1,18 @@
 import type { DailyWritingSet } from "@/types/language-learning/daily";
 import type { ListeningHistoryDetail } from "@/types/language-learning/listening";
+import type { LevelTestHistoryDetail } from "@/types/language-learning/level";
 import type {
     SpeakingEvaluation,
     SpeakingSession,
     SpeakingTurn,
 } from "@/types/language-learning/speaking";
 
-export type LearningSource = "WRITING" | "SPEAKING" | "LISTENING" | "READING";
+export type LearningSource =
+    | "WRITING"
+    | "SPEAKING"
+    | "LISTENING"
+    | "READING"
+    | "LEVEL_TEST";
 export type LearningHistorySourceFilter = "ALL" | LearningSource;
 
 export interface LearningHistoryItem {
@@ -45,6 +51,12 @@ export interface ListeningLearningHistoryDetail {
     detail: ListeningHistoryDetail;
 }
 
+export interface LevelTestLearningHistoryDetail {
+    activityId: string;
+    source: "LEVEL_TEST";
+    detail: LevelTestHistoryDetail;
+}
+
 export interface ReadingLearningHistoryDetail {
     activityId: string;
     source: "READING";
@@ -55,4 +67,5 @@ export type LearningHistoryDetail =
     | WritingLearningHistoryDetail
     | SpeakingLearningHistoryDetail
     | ListeningLearningHistoryDetail
+    | LevelTestLearningHistoryDetail
     | ReadingLearningHistoryDetail;

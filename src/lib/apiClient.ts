@@ -1,4 +1,10 @@
-import {getSession, signOut} from "next-auth/react";
+import { getSession } from "next-auth/react";
+
+import {
+    isTemporaryAuthError,
+    isTerminalAuthError,
+} from "@/lib/authError";
+import { notifyAuthUnauthorized } from "@/lib/authEvents";
 
 // 웹 브라우저 실행 - CodeBuild 환경 변수 정의가 필요.
 // CodeBuild 환경 변수는 Build 단계에서 값이 들어감.
@@ -7,37 +13,77 @@ import {getSession, signOut} from "next-auth/react";
 // 따라서, CodeBuild 환경 변수를 사용해서 Build 단계에 구울 필요가 있음.
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export const apiClient = async (endpoint: string, options: RequestInit = {}) => {
+export const apiClient = async (
+    endpoint: string,
+    options: RequestInit = {},
+) => {
     const session = await getSession();
 
-    if (!session?.accessToken) {
-        console.warn("No token found, redirecting to login...");
-        await signOut({ callbackUrl: "/login" });
-        return new Response(null, { status: 401 });
+    if (!session) {
+        return unauthorizedResponse();
+    }
+
+    if (isTerminalAuthError(session.error)) {
+        notifyAuthUnauthorized();
+        return unauthorizedResponse();
+    }
+
+    if (isTemporaryAuthError(session.error)) {
+        const accessTokenExpires = session.user.accessTokenExpires ?? 0;
+        const accessTokenExpired = accessTokenExpires <= Date.now();
+
+        if (!session.accessToken || accessTokenExpired) {
+            return temporarilyUnavailableResponse(session.refreshRetryAt);
+        }
+    }
+
+    if (!session.accessToken) {
+        notifyAuthUnauthorized();
+        return unauthorizedResponse();
     }
 
     const headers: Record<string, string> = {
-        ...options.headers as Record<string, string>,
+        ...(options.headers as Record<string, string>),
     };
 
     if (!(options.body instanceof FormData)) {
         headers["Content-Type"] = "application/json";
     }
 
-    (headers as Record<string, string>)["Authorization"] = `Bearer ${session.accessToken}`;
+    headers.Authorization = `Bearer ${session.accessToken}`;
 
     const apiUrl = `${API_BASE_URL}${endpoint}`;
     const init = {
         ...options,
-        headers
+        headers,
     };
 
     const response = await fetch(apiUrl, init);
 
     if (response.status === 401) {
-        console.error("Authentication error occurred. Logging out...");
-        await signOut({ callbackUrl: "/login" });
+        notifyAuthUnauthorized();
     }
 
     return response;
 };
+
+function unauthorizedResponse(): Response {
+    return new Response(null, {
+        status: 401,
+    });
+}
+
+function temporarilyUnavailableResponse(
+    retryAt?: number,
+): Response {
+    const retryAfterSeconds = retryAt
+        ? Math.max(Math.ceil((retryAt - Date.now()) / 1000), 1)
+        : 5;
+
+    return new Response(null, {
+        status: 503,
+        headers: {
+            "Retry-After": String(retryAfterSeconds),
+        },
+    });
+}

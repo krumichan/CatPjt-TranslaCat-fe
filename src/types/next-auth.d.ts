@@ -1,11 +1,15 @@
 import { DefaultSession } from "next-auth";
 
+import type { AuthSessionError } from "@/lib/authError";
+
 export type UserRole = "USER" | "ADMIN";
 
 declare module "next-auth" {
     interface Session {
         accessToken?: string;
         refreshToken?: string;
+        error?: AuthSessionError;
+        refreshRetryAt?: number;
         user: {
             accessToken?: string;
             refreshToken?: string;
@@ -31,6 +35,8 @@ declare module "next-auth/jwt" {
         accessTokenExpires?: number;
         role?: UserRole;
         publicId?: string;
-        error?: string;
+        error?: AuthSessionError;
+        refreshRetryAt?: number;
+        refreshRetryCount?: number;
     }
 }

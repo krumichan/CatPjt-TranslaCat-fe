@@ -29,7 +29,11 @@ export function LanguageLearningProfileSmartPage() {
             onAction={() => void controller.reload()}
         />
     ) : (
-        <LanguageLearningProfileView profile={controller.profile} />
+        <LanguageLearningProfileView
+            profile={controller.profile}
+            levelStatus={controller.levelStatus}
+            latestLevelTest={controller.latestLevelTest}
+        />
     );
 
     return (

@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 
 import { LanguageLearningStateCard } from "@/components/language-learning/common/LanguageLearningStateCard";
 import { LanguageLearningPageLayout } from "@/components/language-learning/layout/LanguageLearningPageLayout";
+import { ListeningIndependenceSummary } from "@/components/language-learning/listening/result/ListeningIndependenceSummary";
 import { ListeningTaskResultCard } from "@/components/language-learning/listening/result/ListeningTaskResultCard";
 import { useListeningResultController } from "@/hooks/language-learning/listening/useListeningResultController";
 import { Link } from "@/navigation";
@@ -48,6 +49,7 @@ export function ListeningResultPage({ sessionId }: { sessionId: number }) {
                             </div>
                             <p className="text-sm font-black text-slate-500">{t("result.taskCoverage", { count: attempt.evaluatedTaskCount, total: attempt.tasks.filter((task) => task.status !== "NOT_SELECTED").length })}</p>
                         </div>
+                        <ListeningIndependenceSummary attempt={attempt} />
                         <div className="grid gap-3 xl:grid-cols-3">
                             {attempt.tasks.map((task) => <ListeningTaskResultCard key={task.taskType} task={task} attemptId={attempt.attemptId} controller={controller} />)}
                         </div>

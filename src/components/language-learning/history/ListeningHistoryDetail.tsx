@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { ListeningUserAudioPlayer } from "@/components/language-learning/listening/common/ListeningUserAudioPlayer";
+import { ListeningIndependenceSummary } from "@/components/language-learning/listening/result/ListeningIndependenceSummary";
 import { listeningService } from "@/services/language-learning/listeningService";
 import type { ListeningHistoryDetail as ListeningHistoryDetailType } from "@/types/language-learning/listening";
 
@@ -30,6 +31,10 @@ export function ListeningHistoryDetail({ detail }: { detail: ListeningHistoryDet
                             <p className="mt-2 font-bold leading-7 text-slate-900 dark:text-white">{row.sourceText}</p>
                         </div>
                         <p className="text-xl font-black text-slate-900 dark:text-white">{row.attempt.overallScore === null ? "—" : Math.round(row.attempt.overallScore)}</p>
+                    </div>
+
+                    <div className="mt-4">
+                        <ListeningIndependenceSummary attempt={row.attempt} />
                     </div>
 
                     {row.referenceMeanings.length > 0 && (

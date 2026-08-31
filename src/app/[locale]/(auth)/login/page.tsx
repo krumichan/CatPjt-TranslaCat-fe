@@ -7,6 +7,7 @@ import GoogleLoginButton from "@/components/auth/GoogleLoginButton";
 import {useTranslations} from "next-intl";
 import Image from "next/image";
 import FullPageLoader from "@/components/common/FullPageLoader";
+import {isTerminalAuthError} from "@/lib/authError";
 
 export default function LoginPage() {
     const {data: session, status} = useSession();
@@ -14,12 +15,16 @@ export default function LoginPage() {
     const t = useTranslations('Login');
 
     useEffect(() => {
-        if (status === "authenticated" && session) {
+        if (
+            status === "authenticated"
+            && session
+            && !isTerminalAuthError(session.error)
+        ) {
             router.replace("/");
         }
     }, [status, session, router]);
 
-    if (status === "loading") {
+    if (status === "loading" || isTerminalAuthError(session?.error)) {
         return (
             <FullPageLoader />
         );

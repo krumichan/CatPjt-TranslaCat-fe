@@ -11,6 +11,7 @@ export type ListeningAssistanceType =
     | "SHOW_ANSWER";
 
 export type ListeningAssistanceLevel = "INDEPENDENT" | "ASSISTED" | "GUIDED";
+export type ListeningPlaybackType = "NORMAL" | "SLOW";
 export type ListeningDifficulty = "EASY" | "MY_LEVEL" | "CHALLENGE";
 export type ListeningDailySetStatus = "GENERATING" | "READY" | "PARTIAL" | "COMPLETED" | "FAILED";
 export type ListeningItemStatus = "TTS_PENDING" | "READY" | "NOT_EVALUABLE" | "REPLACED";
@@ -38,6 +39,7 @@ export type ListeningWeaknessState = "DATA_COLLECTING" | "ACTIVE" | "IMPROVING" 
 export type ListeningRecommendationStatus = "ACTIVE" | "DISMISSED" | "RESOLVED" | "EXPIRED";
 export type ListeningProfileMetric =
     | "LISTENING_RECOGNITION"
+    | "LISTENING_INDEPENDENCE"
     | "VOCABULARY"
     | "ORTHOGRAPHY"
     | "MEANING"
@@ -125,6 +127,18 @@ export interface ListeningTask {
     evaluation: ListeningEvaluation | null;
 }
 
+export interface ListeningPlaybackSummary {
+    normalPlaybackCount: number;
+    slowPlaybackCount: number;
+    policyVersion: string | null;
+}
+
+export interface ListeningPlaybackRequest {
+    attemptId: number;
+    playbackType: ListeningPlaybackType;
+    clientEventId: string;
+}
+
 export interface ListeningAttempt {
     attemptId: number;
     itemId: number;
@@ -132,7 +146,10 @@ export interface ListeningAttempt {
     evaluationPurpose: ListeningEvaluationPurpose;
     status: ListeningAttemptStatus;
     answerRevealed: boolean;
+    contentOverallScore: number | null;
+    listeningIndependenceScore: number | null;
     overallScore: number | null;
+    playbackSummary: ListeningPlaybackSummary;
     evaluatedTaskCount: number;
     coverage: number;
     errorCode: string | null;

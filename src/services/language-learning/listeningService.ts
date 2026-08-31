@@ -11,6 +11,7 @@ import type {
     ListeningEvaluationReportRequest,
     ListeningItem,
     ListeningPolicy,
+    ListeningPlaybackRequest,
     ListeningPracticeAttemptRequest,
     ListeningResponseUpsertRequest,
     ListeningRetryRequest,
@@ -80,6 +81,21 @@ export const listeningService = {
     getItem: async (sessionId: number, itemId: number): Promise<ListeningItem> => {
         const response = await apiClient(`/language-learning/listening/sessions/${sessionId}/items/${itemId}`, { method: "GET" });
         return parseResponseBody<ListeningItem>(response, "ListeningItem");
+    },
+
+
+    recordPlayback: async (
+        sessionId: number,
+        itemId: number,
+        request: ListeningPlaybackRequest,
+    ): Promise<void> => {
+        const response = await apiClient(
+            `/language-learning/listening/sessions/${sessionId}/items/${itemId}/playbacks`,
+            jsonBody(request),
+        );
+        if (!response.ok) {
+            await parseResponseBody<never>(response, "ListeningPlayback");
+        }
     },
 
     saveText: async (

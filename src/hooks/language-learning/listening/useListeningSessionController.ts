@@ -12,6 +12,7 @@ import { listeningService } from "@/services/language-learning/listeningService"
 import { ApiResponseError } from "@/services/common/responseParser";
 import type {
     ListeningAssistanceType,
+    ListeningPlaybackRequest,
     ListeningRevealAnswer,
     ListeningTaskType,
 } from "@/types/language-learning/listening";
@@ -24,6 +25,7 @@ export function useListeningSessionController(sessionId: number) {
     const pageStartedAt = useRef(Date.now());
     const resumeRequestedRef = useRef(false);
     const draftAttemptIdRef = useRef<number | null>(null);
+    const pendingPlaybackEventsRef = useRef<Map<string, ListeningPlaybackRequest>>(new Map());
     const [drafts, setDrafts] = useState<Partial<Record<ListeningTaskType, string>>>({});
     const [referenceAudioUrl, setReferenceAudioUrl] = useState<string | null>(null);
     const [referenceAudioLoading, setReferenceAudioLoading] = useState(false);
@@ -170,6 +172,45 @@ export function useListeningSessionController(sessionId: number) {
         }
     }, [item, referenceAudioUrl]);
 
+    const sendPlaybackEvent = useCallback(async (request: ListeningPlaybackRequest) => {
+        if (!session || !item) return false;
+        try {
+            await listeningService.recordPlayback(session.sessionId, item.itemId, request);
+            pendingPlaybackEventsRef.current.delete(request.clientEventId);
+            return true;
+        } catch {
+            pendingPlaybackEventsRef.current.set(request.clientEventId, request);
+            window.setTimeout(() => {
+                void listeningService
+                    .recordPlayback(session.sessionId, item.itemId, request)
+                    .then(() => {
+                        pendingPlaybackEventsRef.current.delete(request.clientEventId);
+                    })
+                    .catch(() => undefined);
+            }, 1500);
+            return false;
+        }
+    }, [item, session]);
+
+    const retryPendingPlaybackEvents = useCallback(async () => {
+        if (!session || !item) return;
+        const pending = [...pendingPlaybackEventsRef.current.values()];
+        await Promise.all(
+            pending.map(async (request) => {
+                try {
+                    await listeningService.recordPlayback(
+                        session.sessionId,
+                        item.itemId,
+                        request,
+                    );
+                    pendingPlaybackEventsRef.current.delete(request.clientEventId);
+                } catch {
+                    // Playback event delivery is best-effort until submit.
+                }
+            }),
+        );
+    }, [item, session]);
+
     const recordAssistance = useCallback(async (type: ListeningAssistanceType) => {
         if (!attempt || !session) return;
 
@@ -195,12 +236,24 @@ export function useListeningSessionController(sessionId: number) {
     }, [attempt, itemQuery, selectedTaskTypes, session]);
 
     const playReference = useCallback(async (audio: HTMLAudioElement | null, slow = false) => {
-        if (!audio) return false;
+        if (!audio || !attempt) return false;
         const url = await ensureReferenceAudio();
         if (!url) return false;
         audio.src = url;
         audio.playbackRate = slow ? 0.75 : 1;
         setPlaybackRate(slow ? 0.75 : 1);
+
+        const playbackRequest: ListeningPlaybackRequest = {
+            attemptId: attempt.attemptId,
+            playbackType: slow ? "SLOW" : "NORMAL",
+            clientEventId: createIdempotencyKey("listening-playback"),
+        };
+        pendingPlaybackEventsRef.current.set(
+            playbackRequest.clientEventId,
+            playbackRequest,
+        );
+        void sendPlaybackEvent(playbackRequest);
+
         try {
             await audio.play();
             await recordAssistance(slow ? "SLOW_PLAYBACK" : "REPLAY");
@@ -209,7 +262,7 @@ export function useListeningSessionController(sessionId: number) {
             setActionErrorCode("LISTENING_AUDIO_INVALID");
             return false;
         }
-    }, [ensureReferenceAudio, recordAssistance]);
+    }, [attempt, ensureReferenceAudio, recordAssistance, sendPlaybackEvent]);
 
     const confirmRecording = useCallback(async () => {
         if (!attempt || !recorder.audioBlob || isUploading) return false;
@@ -259,6 +312,7 @@ export function useListeningSessionController(sessionId: number) {
         setIsSubmitting(true);
         setActionErrorCode(null);
         try {
+            await retryPendingPlaybackEvents();
             for (const taskType of selectedTaskTypes) {
                 if (taskType === "REPEAT_AFTER_AUDIO") continue;
                 const task = attempt.tasks.find((candidate) => candidate.taskType === taskType);
@@ -282,7 +336,17 @@ export function useListeningSessionController(sessionId: number) {
         } finally {
             setIsSubmitting(false);
         }
-    }, [attempt, canSubmit, drafts, itemQuery, recorder, selectedTaskTypes, session, sessionQuery]);
+    }, [
+        attempt,
+        canSubmit,
+        drafts,
+        itemQuery,
+        recorder,
+        retryPendingPlaybackEvents,
+        selectedTaskTypes,
+        session,
+        sessionQuery,
+    ]);
 
     const skip = useCallback(async () => {
         if (!attempt) return false;

@@ -24,7 +24,7 @@
       },
       "LEVEL_TEST": {
         "title": "첫 학습 전에 레벨을 확인해요",
-        "description": "약 12문항의 Writing 레벨 테스트를 통해 초기 Base Level을 잡고, 이후 7일간 실제 학습으로 보정합니다.",
+        "description": "20문항 종합 레벨 테스트로 6개 영역의 Base Level을 확인하고, 이후 7일간 실제 학습으로 보정합니다.",
         "action": "레벨 테스트 시작"
       }
     },
@@ -181,7 +181,8 @@
           "samples": "Sample {count}",
           "coverage": "평가 범위 {evaluated}/{total}",
           "today": "오늘 {completed}/{target} {unit}",
-          "start": "학습 시작"
+          "start": "학습 시작",
+          "levelTest": "레벨 테스트"
         },
         "group": {
           "COMPREHENSION": "이해 능력",
@@ -244,45 +245,219 @@
           "NATURALNESS": "자연스러움",
           "EXPRESSIVENESS": "표현력",
           "EXPRESSION": "표현력",
-          "OVERALL": "종합"
+          "OVERALL": "종합",
+          "LISTENING_INDEPENDENCE": "독립 청취"
         }
       }
     },
     "levelTest": {
       "title": "레벨 테스트",
-      "description": "Writing 중심의 Adaptive Test로 초기 Base Level을 확인하고, 필요할 때 현재 수준을 다시 측정할 수 있습니다.",
+      "description": "어휘·문법·읽기·듣기·쓰기·말하기를 함께 확인하는 20문항 종합 레벨 테스트입니다.",
       "loading": "레벨 테스트 상태를 확인하고 있습니다.",
       "loadFailed": "레벨 테스트 상태를 불러오지 못했습니다.",
-      "actionFailed": "요청 처리에 실패했습니다. 입력을 유지한 채 다시 시도해 주세요.",
       "ready": {
-        "initialTitle": "첫 레벨 테스트를 시작합니다",
-        "initialDescription": "약 12개의 Writing 문제를 풀면서 현재 수준에 맞춰 다음 문제 난이도가 조정됩니다.",
+        "initialTitle": "종합 레벨 테스트를 시작합니다",
+        "initialDescription": "20문항을 통해 6개 영역의 현재 언어 능력을 확인합니다. 문제 난이도는 답변에 따라 조정됩니다.",
         "recheckTitle": "현재 수준을 다시 측정합니다",
-        "recheckDescription": "과거 학습 기록은 유지하고, 현재 Base Level과 새 Calibration 기준만 다시 잡습니다.",
+        "recheckDescription": "과거 결과는 유지하면서 현재의 종합 Base Level을 다시 측정합니다.",
         "currentBaseLevel": "현재 Base Level: {score}",
+        "recheckRecommended": "최근 측정 후 시간이 지났습니다. 현재 수준을 다시 확인하는 것을 권장합니다.",
+        "resume": "진행 중 테스트 이어하기",
         "start": "테스트 시작",
         "starting": "준비 중...",
-        "continue": "기존 레벨로 계속 학습"
+        "history": "이전 결과",
+        "questionCount": "총 {count}문항",
+        "estimatedTime": "예상 20~25분",
+        "microphoneRequired": "마이크가 필요합니다",
+        "microphoneHint": "Speaking 3문항이 포함됩니다. 조용한 환경을 권장합니다.",
+        "resumeHint": "도중에 중단해도 제출 완료 상태는 서버에 저장되며 진행 중 테스트를 다시 이어갈 수 있습니다. 제출 전 음성은 새로고침 시 사라질 수 있습니다."
       },
-      "question": {
+      "domain": {
+        "VOCABULARY": "어휘",
+        "GRAMMAR": "문법",
+        "READING": "읽기",
+        "LISTENING": "듣기",
+        "WRITING": "쓰기",
+        "SPEAKING": "말하기"
+      },
+      "itemType": {
+        "VOCAB_CONTEXT_CHOICE": "문맥 어휘 선택",
+        "VOCAB_PARAPHRASE_CHOICE": "바꿔 말하기 선택",
+        "GRAMMAR_FORM_CHOICE": "문법 형태 선택",
+        "GRAMMAR_SENTENCE_ORDER": "문장 순서 배열",
+        "READING_GIST": "글의 요지",
+        "READING_DETAIL": "세부 내용",
+        "READING_DISCOURSE_FUNCTION": "담화 기능",
+        "READING_TEXT_INFERENCE": "지문 기반 추론",
+        "LISTENING_GIST_CHOICE": "듣기 요지",
+        "LISTENING_DETAIL_CHOICE": "듣기 세부 내용",
+        "LISTENING_DICTATION": "받아쓰기",
+        "LISTENING_INTERPRETATION": "듣고 의미 쓰기",
+        "WRITING_TRANSLATION": "번역 쓰기",
+        "WRITING_GUIDED_SENTENCE": "안내 문장 쓰기",
+        "WRITING_SCENARIO_RESPONSE": "상황 응답 쓰기",
+        "WRITING_SHORT_PARAGRAPH": "짧은 문단 쓰기",
+        "SPEAKING_REPEAT": "듣고 따라 말하기",
+        "SPEAKING_GUIDED_RESPONSE": "안내에 따라 말하기",
+        "SPEAKING_SHORT_RESPONSE": "짧게 말하기"
+      },
+      "answerMode": {
+        "CHOICE": "선택",
+        "TEXT": "텍스트 입력",
+        "AUDIO": "말하기"
+      },
+      "language": {
+        "ko": "한국어",
+        "ja": "日本語",
+        "en": "English",
+        "other": "학습 언어",
+        "none": "해당 없음"
+      },
+      "session": {
+        "title": "종합 레벨 테스트",
+        "description": "답변은 문제별로 저장됩니다. 평가 중에는 현재 답변을 수정할 수 없습니다.",
         "progress": "{current} / {total}",
-        "prompt": "다음 문장을 학습 언어로 작성해 주세요",
-        "answer": "내 답변",
-        "placeholder": "문장을 작성해 주세요.",
+        "itemType": "문제 유형",
+        "answerMode": "답변 방식",
+        "answerLanguage": "답변 언어",
+        "prompt": "문제",
+        "chooseAnswer": "답변 선택",
+        "textAnswer": "내 답변",
+        "textPlaceholder": "답변을 작성해 주세요.",
+        "guidance": {
+          "title": "답변 가이드",
+          "facts": "주어진 사실",
+          "required": "반드시 표현할 내용",
+          "constraints": "답변 조건"
+        },
+        "sentenceOrder": {
+          "current": "현재 문장 순서",
+          "empty": "아래 조각을 선택해 문장을 완성해 주세요.",
+          "remaining": "남은 문장 조각",
+          "moveUp": "{index}번째 조각을 앞으로 이동",
+          "moveDown": "{index}번째 조각을 뒤로 이동",
+          "remove": "{index}번째 조각 제거"
+        },
+        "listening": {
+          "title": "Listening Audio",
+          "normalOnly": "레벨 테스트에서는 정상속도만 사용할 수 있습니다.",
+          "play": "재생",
+          "loading": "준비 중...",
+          "remaining": "추가 재생 가능 {count}회"
+        },
+        "speaking": {
+          "referenceTitle": "따라 말할 원본 음성",
+          "referenceDescription": "먼저 원본 음성을 듣고, 들은 내용을 일본어로 그대로 따라 말해 주세요.",
+          "referencePlay": "원본 음성 듣기",
+          "referenceLoading": "원본 음성 준비 중...",
+          "referenceRemaining": "재생 가능 {count}회",
+          "referenceUnavailable": "원본 음성을 준비할 수 없습니다. 문제를 다시 불러와 주세요.",
+          "permissionTitle": "마이크 권한이 필요합니다",
+          "permissionDescription": "Speaking 문항을 진행하려면 브라우저에서 마이크 사용을 허용해 주세요. 권한을 거부해도 현재 테스트 진행 상태는 유지됩니다.",
+          "requesting": "확인 중...",
+          "allow": "마이크 허용",
+          "record": "녹음 시작",
+          "stop": "녹음 정지",
+          "rerecord": "다시 녹음",
+          "preview": "녹음 미리듣기",
+          "time": "{current}초 / 최대 {max}초",
+          "state": {
+            "IDLE": "녹음 준비",
+            "STARTING": "마이크 준비 중",
+            "RECORDING": "녹음 중",
+            "RECORDED": "녹음 완료",
+            "ERROR": "녹음 오류"
+          },
+          "error": {
+            "DENIED": "마이크 권한이 거부되었습니다.",
+            "NO_DEVICE": "사용 가능한 마이크를 찾을 수 없습니다.",
+            "IN_USE": "마이크가 다른 앱에서 사용 중입니다.",
+            "UNSUPPORTED": "이 브라우저에서는 음성 녹음을 사용할 수 없습니다.",
+            "UNKNOWN": "마이크를 사용할 수 없습니다."
+          },
+          "refreshWarning": "제출 전 녹음은 새로고침하면 사라질 수 있습니다."
+        },
+        "nextQuestionLoadFailedTitle": "답변 저장·평가 완료",
+        "evaluating": "답변을 평가하고 있습니다...",
+        "evaluationFailed": "평가에 실패했습니다.",
+        "answerSaved": "답변은 저장되어 있습니다. 전체 테스트를 다시 시작할 필요가 없습니다.",
+        "audioInvalidTitle": "음성을 충분히 인식하지 못했습니다.",
+        "audioInvalidDescription": "같은 녹음을 다시 평가하는 대신 새로 녹음해 주세요.",
+        "audioInvalidHint": "마이크에 조금 더 가까이서 평소보다 약간 큰 목소리로 또렷하게 말하면 인식이 더 안정적입니다.",
+        "rerecordAnswer": "다시 녹음하기",
+        "rerecordReady": "새 녹음을 완료한 뒤 답변을 제출해 주세요.",
+        "retryEvaluation": "평가 다시 시도",
+        "retrying": "재평가 중...",
         "submit": "답변 제출",
-        "evaluating": "평가 중..."
+        "submitting": "제출 중...",
+        "listeningLanguage": "듣는 언어"
+      },
+      "errors": {
+        "LEVEL_TEST_DAILY_LIMIT_REACHED": "오늘의 공식 레벨 테스트는 이미 완료했습니다.",
+        "LEVEL_TEST_MIC_REQUIRED": "마이크 권한이 필요합니다.",
+        "LEVEL_TEST_AUDIO_INVALID": "음성을 확인할 수 없습니다. 다시 녹음해 주세요.",
+        "LEVEL_TEST_EVALUATION_FAILED": "답변은 저장되었습니다. 평가만 다시 시도해 주세요.",
+        "LEVEL_TEST_ITEM_REFRESHED": "문항 상태가 변경되어 최신 문제를 다시 불러왔습니다. 현재 문제에 다시 답변해 주세요.",
+        "LEVEL_TEST_NEXT_QUESTION_REFRESH_FAILED": "답변 저장 및 평가는 정상적으로 완료되었습니다. 다음 문제만 불러오지 못했습니다. 다시 불러오기를 시도해 주세요.",
+        "CONTENT_DIVERSITY_EXHAUSTED": "문제 준비에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+        "UNKNOWN": "요청 처리에 실패했습니다. 입력과 진행 상태를 유지한 채 다시 시도해 주세요."
+      },
+      "result": {
+        "title": "레벨 테스트 결과",
+        "description": "종합 점수와 6개 영역의 결과를 확인합니다.",
+        "overall": "종합 레벨",
+        "legacyBadge": "Legacy Writing Level Test",
+        "multiSkillBadge": "Multi-skill Level Test",
+        "internalBandNotice": "표시되는 Band는 TranslaCat 내부 학습 기준이며 CEFR 등 공인 등급과 동일하지 않습니다.",
+        "domainScores": "영역별 점수",
+        "recommendedDifficulty": "추천 학습 난이도",
+        "completedAt": "측정일",
+        "startLearning": "학습 시작",
+        "profile": "학습 프로필 보기",
+        "detail": "이 테스트 상세 보기"
+      },
+      "history": {
+        "title": "레벨 테스트 기록",
+        "description": "기존 Writing 중심 결과와 새 Multi-skill 결과를 함께 확인합니다.",
+        "loading": "레벨 테스트 기록을 불러오고 있습니다.",
+        "loadFailed": "레벨 테스트 기록을 불러오지 못했습니다.",
+        "detailTitle": "레벨 테스트 상세",
+        "detailDescription": "당시 결과와 문항별 제출·평가 정보를 확인합니다.",
+        "filterLabel": "레벨 테스트 기록 필터",
+        "filter": {
+          "ALL": "전체",
+          "INITIAL": "초기 테스트",
+          "RECHECK": "재측정"
+        },
+        "empty": "조건에 맞는 레벨 테스트 기록이 없습니다.",
+        "legacy": "Legacy Writing Level Test",
+        "multiSkill": "Multi-skill Level Test",
+        "overall": "종합 {score}",
+        "legacyDetailNotice": "기존 Writing Level Test는 당시 저장된 데이터만 표시합니다. 존재하지 않는 Listening·Speaking 등의 점수를 0으로 만들지 않습니다.",
+        "question": "{number}번 문제",
+        "userAnswer": "사용자 답변",
+        "audioSubmitted": "음성 답변 제출",
+        "feedback": "평가 피드백"
       },
       "difficulty": {
         "EASY": "쉬움",
         "NORMAL": "적정",
-        "CHALLENGE": "도전"
+        "CHALLENGE": "도전",
+        "MY_LEVEL": "내 레벨"
       },
       "completed": {
         "title": "레벨 측정이 완료되었습니다",
-        "description": "이제 실제 Daily Writing을 시작할 수 있습니다. 처음 약 7일 동안은 실제 학습 결과를 반영해 난이도를 조금씩 보정합니다.",
-        "baseLevel": "초기 Base Level",
-        "startWriting": "오늘의 Writing 시작",
+        "description": "결과 화면에서 종합 점수와 영역별 점수를 확인할 수 있습니다.",
+        "baseLevel": "Base Level",
+        "startWriting": "학습 시작",
         "dashboard": "대시보드로 이동"
+      },
+      "band": {
+        "FOUNDATION": "기초",
+        "BASIC": "기본",
+        "INTERMEDIATE": "중급",
+        "UPPER_INTERMEDIATE": "중상급",
+        "ADVANCED": "고급"
       }
     },
     "writing": {
@@ -316,7 +491,10 @@
         "evaluating": "평가 중...",
         "answeredToday": "오늘 이 문제의 답변과 평가가 완료되었습니다.",
         "reviewExpired": "현재는 이 문제에 새 답변을 제출할 수 없습니다. 기존 기록은 계속 확인할 수 있습니다.",
-        "latestAnswer": "최근 답변"
+        "latestAnswer": "최근 답변",
+        "difficultyDescription": {
+          "CHALLENGE": "더 복잡한 문법·어휘·표현에 도전합니다."
+        }
       },
       "completed": {
         "title": "오늘의 학습 완료!",
@@ -369,7 +547,8 @@
           "WRITING": "쓰기",
           "SPEAKING": "말하기",
           "LISTENING": "듣기",
-          "READING": "읽기"
+          "READING": "읽기",
+          "LEVEL_TEST": "레벨 테스트"
         },
         "freeTalk": "자유 대화",
         "speakingSummary": "{turns}턴 · {minutes}분",
@@ -383,6 +562,7 @@
         "userAudioExpired": "사용자 원본 음성의 보관 기간이 만료되어 재생할 수 없습니다.",
         "taskFilter": "듣기 학습 방식 필터",
         "allTasks": "전체 학습 방식",
+        "noItems": "이 조건에 해당하는 학습 이력이 없습니다.",
         "task": {
           "DICTATION": "받아쓰기",
           "INTERPRETATION": "의미 쓰기",
@@ -453,6 +633,16 @@
       "keywords": {
         "title": "키워드 숙련도",
         "empty": "Keyword 숙련도 데이터가 없습니다."
+      },
+      "levelTest": {
+        "title": "레벨 테스트",
+        "current": "현재 Base Level {score} · {band}",
+        "lastMeasured": "최근 측정일 {date}",
+        "recheckRecommended": "현재 수준 재측정을 권장합니다.",
+        "latestResult": "최근 결과",
+        "history": "이전 결과",
+        "recheck": "다시 측정하기",
+        "start": "레벨 테스트 시작"
       }
     },
     "settings": {
@@ -1224,7 +1414,14 @@
         },
         "playUserAudio": "내 Audio 재생",
         "userAudioLoading": "Audio 불러오는 중...",
-        "userAudioLoadFailed": "사용자 Audio를 불러오지 못했습니다."
+        "userAudioLoadFailed": "사용자 Audio를 불러오지 못했습니다.",
+        "independence": {
+          "overall": "최종 Listening 점수",
+          "content": "내용 이해·수행",
+          "independence": "독립 청취",
+          "playback": "재생 · 정상속도 {normal}회 / 0.75x {slow}회",
+          "help": "첫 정상속도 재생은 감점되지 않습니다. 추가 재생과 느리게 듣기는 독립 청취 점수에만 반영됩니다."
+        }
       },
       "errors": {
         "LISTENING_SETTING_REQUIRED": "학습 설정을 먼저 완료해 주세요.",

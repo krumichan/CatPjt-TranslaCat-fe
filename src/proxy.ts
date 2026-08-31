@@ -2,6 +2,7 @@ import createMiddleware from 'next-intl/middleware';
 import { withAuth } from "next-auth/middleware";
 import {NextRequest, NextResponse} from 'next/server';
 import {locales} from "@/i18n/config";
+import {isTerminalAuthError} from "@/lib/authError";
 
 const publicPages = ['/login', '/error'];
 
@@ -14,7 +15,9 @@ const intlMiddleware = createMiddleware({
 const authMiddleware = withAuth(
     (req) => intlMiddleware(req),
     {
-        callbacks: { authorized: ({ token }) => !!token },
+        callbacks: {
+            authorized: ({ token }) => !!token && !isTerminalAuthError(token.error),
+        },
         pages: {
             signIn: '/login',
             error: '/error'

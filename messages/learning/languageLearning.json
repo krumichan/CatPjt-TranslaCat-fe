@@ -24,7 +24,7 @@
       },
       "LEVEL_TEST": {
         "title": "最初の学習前にレベルを確認しましょう",
-        "description": "約12問のWritingレベルテストで初期Base Levelを設定し、その後7日間の実学習で補正します。",
+        "description": "20問の総合レベルテストで6領域のBase Levelを確認し、その後7日間の実学習で補正します。",
         "action": "レベルテスト開始"
       }
     },
@@ -181,7 +181,8 @@
           "samples": "Sample {count}",
           "coverage": "評価範囲 {evaluated}/{total}",
           "today": "今日 {completed}/{target} {unit}",
-          "start": "学習開始"
+          "start": "学習開始",
+          "levelTest": "レベルテスト"
         },
         "group": {
           "COMPREHENSION": "理解能力",
@@ -244,45 +245,219 @@
           "NATURALNESS": "自然さ",
           "EXPRESSIVENESS": "表現力",
           "EXPRESSION": "表現力",
-          "OVERALL": "総合"
+          "OVERALL": "総合",
+          "LISTENING_INDEPENDENCE": "独立リスニング"
         }
       }
     },
     "levelTest": {
       "title": "レベルテスト",
-      "description": "Writing中心のAdaptive Testで初期Base Levelを確認し、必要に応じて現在のレベルを再測定できます。",
+      "description": "語彙・文法・読解・リスニング・ライティング・スピーキングをまとめて確認する20問の総合レベルテストです。",
       "loading": "レベルテスト状態を確認しています。",
       "loadFailed": "レベルテスト状態を読み込めませんでした。",
-      "actionFailed": "処理に失敗しました。入力内容を保持したまま再試行してください。",
       "ready": {
-        "initialTitle": "初回レベルテストを開始します",
-        "initialDescription": "約12問のWriting問題を解きながら、現在の実力に合わせて次の問題難易度が調整されます。",
+        "initialTitle": "総合レベルテストを開始します",
+        "initialDescription": "20問で6領域の現在の言語能力を確認します。問題の難易度は回答に応じて調整されます。",
         "recheckTitle": "現在のレベルを再測定します",
-        "recheckDescription": "過去の学習履歴は維持したまま、現在のBase Levelと新しいCalibration基準だけを再設定します。",
+        "recheckDescription": "過去の結果を保持したまま、現在の総合Base Levelを再測定します。",
         "currentBaseLevel": "現在のBase Level: {score}",
+        "recheckRecommended": "前回の測定から時間が経っています。現在のレベルを再確認することをおすすめします。",
+        "resume": "進行中のテストを再開",
         "start": "テスト開始",
         "starting": "準備中...",
-        "continue": "現在のレベルで学習を続ける"
+        "history": "過去の結果",
+        "questionCount": "全{count}問",
+        "estimatedTime": "目安20～25分",
+        "microphoneRequired": "マイクが必要です",
+        "microphoneHint": "Speaking 3問を含みます。静かな環境を推奨します。",
+        "resumeHint": "途中で中断しても送信済みの状態はサーバーに保存され、進行中のテストを再開できます。送信前の音声は再読み込みで失われる場合があります。"
       },
-      "question": {
+      "domain": {
+        "VOCABULARY": "語彙",
+        "GRAMMAR": "文法",
+        "READING": "読解",
+        "LISTENING": "リスニング",
+        "WRITING": "ライティング",
+        "SPEAKING": "スピーキング"
+      },
+      "itemType": {
+        "VOCAB_CONTEXT_CHOICE": "文脈語彙選択",
+        "VOCAB_PARAPHRASE_CHOICE": "言い換え選択",
+        "GRAMMAR_FORM_CHOICE": "文法形式選択",
+        "GRAMMAR_SENTENCE_ORDER": "語順並べ替え",
+        "READING_GIST": "要旨理解",
+        "READING_DETAIL": "詳細理解",
+        "READING_DISCOURSE_FUNCTION": "談話機能",
+        "READING_TEXT_INFERENCE": "本文に基づく推論",
+        "LISTENING_GIST_CHOICE": "聞き取り要旨",
+        "LISTENING_DETAIL_CHOICE": "聞き取り詳細",
+        "LISTENING_DICTATION": "ディクテーション",
+        "LISTENING_INTERPRETATION": "聞いて意味を書く",
+        "WRITING_TRANSLATION": "翻訳ライティング",
+        "WRITING_GUIDED_SENTENCE": "ガイド文作成",
+        "WRITING_SCENARIO_RESPONSE": "場面応答ライティング",
+        "WRITING_SHORT_PARAGRAPH": "短い段落作成",
+        "SPEAKING_REPEAT": "聞いて復唱",
+        "SPEAKING_GUIDED_RESPONSE": "ガイド応答スピーキング",
+        "SPEAKING_SHORT_RESPONSE": "短い応答スピーキング"
+      },
+      "answerMode": {
+        "CHOICE": "選択",
+        "TEXT": "テキスト入力",
+        "AUDIO": "発話"
+      },
+      "language": {
+        "ko": "韓国語",
+        "ja": "日本語",
+        "en": "English",
+        "other": "学習言語",
+        "none": "該当なし"
+      },
+      "session": {
+        "title": "総合レベルテスト",
+        "description": "回答は問題ごとに保存されます。評価中は現在の回答を変更できません。",
         "progress": "{current} / {total}",
-        "prompt": "次の文章を学習言語で書いてください",
-        "answer": "自分の回答",
-        "placeholder": "文章を入力してください。",
+        "itemType": "問題形式",
+        "answerMode": "回答方式",
+        "answerLanguage": "回答言語",
+        "prompt": "問題",
+        "chooseAnswer": "回答を選択",
+        "textAnswer": "自分の回答",
+        "textPlaceholder": "回答を入力してください。",
+        "guidance": {
+          "title": "回答ガイド",
+          "facts": "与えられた事実",
+          "required": "必ず表現する内容",
+          "constraints": "回答条件"
+        },
+        "sentenceOrder": {
+          "current": "現在の語順",
+          "empty": "下の断片を選んで文を完成させてください。",
+          "remaining": "残りの断片",
+          "moveUp": "{index}番目を前へ移動",
+          "moveDown": "{index}番目を後ろへ移動",
+          "remove": "{index}番目を削除"
+        },
+        "listening": {
+          "title": "Listening Audio",
+          "normalOnly": "レベルテストでは通常速度のみ利用できます。",
+          "play": "再生",
+          "loading": "準備中...",
+          "remaining": "追加再生 残り{count}回"
+        },
+        "speaking": {
+          "referenceTitle": "復唱するお手本音声",
+          "referenceDescription": "まずお手本音声を聞き、聞こえた内容をそのまま日本語で繰り返してください。",
+          "referencePlay": "お手本音声を聞く",
+          "referenceLoading": "お手本音声を準備中...",
+          "referenceRemaining": "再生可能 残り{count}回",
+          "referenceUnavailable": "お手本音声を準備できません。問題を再読み込みしてください。",
+          "permissionTitle": "マイク権限が必要です",
+          "permissionDescription": "Speaking問題を進めるにはブラウザでマイク使用を許可してください。拒否しても現在のテスト進捗は保持されます。",
+          "requesting": "確認中...",
+          "allow": "マイクを許可",
+          "record": "録音開始",
+          "stop": "録音停止",
+          "rerecord": "再録音",
+          "preview": "録音を確認",
+          "time": "{current}秒 / 最大{max}秒",
+          "state": {
+            "IDLE": "録音準備",
+            "STARTING": "マイク準備中",
+            "RECORDING": "録音中",
+            "RECORDED": "録音完了",
+            "ERROR": "録音エラー"
+          },
+          "error": {
+            "DENIED": "マイク権限が拒否されました。",
+            "NO_DEVICE": "利用可能なマイクが見つかりません。",
+            "IN_USE": "マイクが他のアプリで使用中です。",
+            "UNSUPPORTED": "このブラウザでは音声録音を利用できません。",
+            "UNKNOWN": "マイクを利用できません。"
+          },
+          "refreshWarning": "An unsubmitted recording may be lost if you refresh the page."
+        },
+        "nextQuestionLoadFailedTitle": "回答の保存・評価は完了しました",
+        "evaluating": "回答を評価しています...",
+        "evaluationFailed": "評価に失敗しました。",
+        "answerSaved": "回答は保存されています。テスト全体をやり直す必要はありません。",
+        "audioInvalidTitle": "音声を十分に認識できませんでした。",
+        "audioInvalidDescription": "同じ録音を再評価するのではなく、もう一度録音してください。",
+        "audioInvalidHint": "マイクに少し近づき、普段より少し大きめの声ではっきり話すと認識しやすくなります。",
+        "rerecordAnswer": "もう一度録音する",
+        "rerecordReady": "新しい録音を作成してから回答を送信してください。",
+        "retryEvaluation": "評価を再試行",
+        "retrying": "再評価中...",
         "submit": "回答を送信",
-        "evaluating": "評価中..."
+        "submitting": "送信中...",
+        "listeningLanguage": "Listening language"
+      },
+      "errors": {
+        "LEVEL_TEST_DAILY_LIMIT_REACHED": "本日の公式レベルテストはすでに完了しています。",
+        "LEVEL_TEST_MIC_REQUIRED": "マイク権限が必要です。",
+        "LEVEL_TEST_AUDIO_INVALID": "音声を確認できません。再録音してください。",
+        "LEVEL_TEST_EVALUATION_FAILED": "回答は保存されています。評価のみ再試行してください。",
+        "LEVEL_TEST_ITEM_REFRESHED": "問題の状態が変更されたため、最新の問題を再読み込みしました。現在の問題にもう一度回答してください。",
+        "LEVEL_TEST_NEXT_QUESTION_REFRESH_FAILED": "回答の保存と評価は正常に完了しています。次の問題だけを読み込めませんでした。再読み込みをお試しください。",
+        "CONTENT_DIVERSITY_EXHAUSTED": "問題の準備に失敗しました。しばらくしてから再試行してください。",
+        "UNKNOWN": "処理に失敗しました。入力と進捗を保持したまま再試行してください。"
+      },
+      "result": {
+        "title": "レベルテスト結果",
+        "description": "総合スコアと6領域の結果を確認します。",
+        "overall": "総合レベル",
+        "legacyBadge": "Legacy Writing Level Test",
+        "multiSkillBadge": "Multi-skill Level Test",
+        "internalBandNotice": "表示BandはTranslaCat内部の学習基準であり、CEFRなどの公的等級と同一ではありません。",
+        "domainScores": "領域別スコア",
+        "recommendedDifficulty": "推奨学習難易度",
+        "completedAt": "測定日",
+        "startLearning": "学習を始める",
+        "profile": "学習プロフィールを見る",
+        "detail": "このテストの詳細を見る"
+      },
+      "history": {
+        "title": "レベルテスト履歴",
+        "description": "従来のWriting中心結果と新しいMulti-skill結果をまとめて確認します。",
+        "loading": "レベルテスト履歴を読み込んでいます。",
+        "loadFailed": "レベルテスト履歴を読み込めませんでした。",
+        "detailTitle": "レベルテスト詳細",
+        "detailDescription": "当時の結果と各問題の回答・評価情報を確認します。",
+        "filterLabel": "レベルテスト履歴フィルター",
+        "filter": {
+          "ALL": "すべて",
+          "INITIAL": "初回テスト",
+          "RECHECK": "再測定"
+        },
+        "empty": "条件に一致するレベルテスト履歴がありません。",
+        "legacy": "Legacy Writing Level Test",
+        "multiSkill": "Multi-skill Level Test",
+        "overall": "総合 {score}",
+        "legacyDetailNotice": "従来のWriting Level Testは当時保存されたデータのみ表示します。存在しないListening・Speakingなどのスコアを0として表示しません。",
+        "question": "問題 {number}",
+        "userAnswer": "ユーザー回答",
+        "audioSubmitted": "音声回答を送信済み",
+        "feedback": "評価フィードバック"
       },
       "difficulty": {
         "EASY": "易しい",
         "NORMAL": "適正",
-        "CHALLENGE": "挑戦"
+        "CHALLENGE": "挑戦",
+        "MY_LEVEL": "My level"
       },
       "completed": {
         "title": "レベル測定が完了しました",
-        "description": "これでDaily Writingを開始できます。最初の約7日間は実際の学習結果を反映し、難易度を少しずつ補正します。",
-        "baseLevel": "初期Base Level",
-        "startWriting": "今日のWritingを開始",
+        "description": "結果画面で総合スコアと領域別スコアを確認できます。",
+        "baseLevel": "Base Level",
+        "startWriting": "学習を始める",
         "dashboard": "ダッシュボードへ"
+      },
+      "band": {
+        "FOUNDATION": "Foundation",
+        "BASIC": "Basic",
+        "INTERMEDIATE": "Intermediate",
+        "UPPER_INTERMEDIATE": "Upper Intermediate",
+        "ADVANCED": "Advanced"
       }
     },
     "writing": {
@@ -316,7 +491,10 @@
         "evaluating": "評価中...",
         "answeredToday": "本日のこの問題の回答と評価は完了しています。",
         "reviewExpired": "現在、この問題に新しい回答を送信できません。過去の記録は引き続き確認できます。",
-        "latestAnswer": "最新の回答"
+        "latestAnswer": "最新の回答",
+        "difficultyDescription": {
+          "CHALLENGE": "より複雑な文法・語彙・表現に挑戦します。"
+        }
       },
       "completed": {
         "title": "今日の学習完了！",
@@ -369,7 +547,8 @@
           "WRITING": "ライティング",
           "SPEAKING": "スピーキング",
           "LISTENING": "リスニング",
-          "READING": "リーディング"
+          "READING": "リーディング",
+          "LEVEL_TEST": "レベルテスト"
         },
         "freeTalk": "フリートーク",
         "speakingSummary": "{turns}ターン · {minutes}分",
@@ -383,6 +562,7 @@
         "userAudioExpired": "ユーザー元音声の保存期間が終了したため再生できません。",
         "taskFilter": "リスニング学習方式フィルター",
         "allTasks": "すべての学習方式",
+        "noItems": "この条件に該当する学習履歴はありません。",
         "task": {
           "DICTATION": "ディクテーション",
           "INTERPRETATION": "意味記述",
@@ -453,6 +633,16 @@
       "keywords": {
         "title": "キーワード習熟度",
         "empty": "Keyword習熟度データはありません。"
+      },
+      "levelTest": {
+        "title": "レベルテスト",
+        "current": "現在のBase Level {score} · {band}",
+        "lastMeasured": "最近の測定日 {date}",
+        "recheckRecommended": "現在のレベルの再測定をおすすめします。",
+        "latestResult": "最近の結果",
+        "history": "過去の結果",
+        "recheck": "再測定する",
+        "start": "レベルテスト開始"
       }
     },
     "settings": {
@@ -1224,7 +1414,14 @@
         },
         "playUserAudio": "自分のAudioを再生",
         "userAudioLoading": "Audio読み込み中...",
-        "userAudioLoadFailed": "ユーザーAudioを読み込めませんでした。"
+        "userAudioLoadFailed": "ユーザーAudioを読み込めませんでした。",
+        "independence": {
+          "overall": "最終Listeningスコア",
+          "content": "内容理解・遂行",
+          "independence": "独立リスニング",
+          "playback": "再生 · 通常速度 {normal}回 / 0.75x {slow}回",
+          "help": "最初の通常速度再生は減点されません。追加再生と低速再生は独立リスニングスコアにのみ反映されます。"
+        }
       },
       "errors": {
         "LISTENING_SETTING_REQUIRED": "先に学習設定を完了してください。",

@@ -1,46 +1,49 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { useSWRConfig } from "swr";
 
+import { createIdempotencyKey } from "@/features/language-learning/listening/idempotency";
 import { useQuery } from "@/hooks/useQuery";
+import { useRouter } from "@/navigation";
+import { getApiErrorCode } from "@/services/common/responseParser";
 import { languageLearningLevelService } from "@/services/language-learning/languageLearningLevelService";
 import type { LevelTestSessionType } from "@/types/language-learning/common";
-import type {
-    LevelTestAnswerResult,
-    LevelTestQuestion,
-} from "@/types/language-learning/level";
 
 export function useLanguageLearningLevelTestController() {
+    const router = useRouter();
+    const { mutate: mutateCache } = useSWRConfig();
     const statusQuery = useQuery({
         keys: ["language-learning-level-status"] as const,
         fetcher: () => languageLearningLevelService.getStatus(),
         config: { revalidateOnMount: true },
     });
-
-    const activeSessionId = statusQuery.data?.activeSessionId ?? null;
-    const currentQuestionQuery = useQuery({
-        keys: activeSessionId
-            ? (["language-learning-level-current", activeSessionId] as const)
-            : null,
-        fetcher: (_key, sessionId) =>
-            languageLearningLevelService.getCurrent(sessionId),
-        enabled: activeSessionId !== null,
+    const historyQuery = useQuery({
+        keys: ["language-learning-level-history-preview"] as const,
+        fetcher: () => languageLearningLevelService.getHistory(),
         config: { revalidateOnMount: true },
     });
 
-    const [question, setQuestion] = useState<LevelTestQuestion | null>(null);
-    const [answer, setAnswer] = useState("");
-    const [lastResult, setLastResult] =
-        useState<LevelTestAnswerResult | null>(null);
     const [isStarting, setIsStarting] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [actionError, setActionError] = useState(false);
+    const [actionErrorCode, setActionErrorCode] = useState<string | null>(null);
 
-    useEffect(() => {
-        if (currentQuestionQuery.data) {
-            setQuestion(currentQuestionQuery.data);
-        }
-    }, [currentQuestionQuery.data]);
+    const clearSessionCache = useCallback(
+        async (sessionId: number) => {
+            await Promise.all([
+                mutateCache(
+                    ["language-learning-level-session", sessionId],
+                    undefined,
+                    { revalidate: false },
+                ),
+                mutateCache(
+                    ["language-learning-level-current", sessionId],
+                    undefined,
+                    { revalidate: false },
+                ),
+            ]);
+        },
+        [mutateCache],
+    );
 
     const defaultSessionType: LevelTestSessionType = useMemo(() => {
         return statusQuery.data?.initialLevelTestCompleted
@@ -50,90 +53,55 @@ export function useLanguageLearningLevelTestController() {
 
     const start = useCallback(
         async (type: LevelTestSessionType = defaultSessionType) => {
-            if (isStarting || isSubmitting) return false;
+            if (isStarting) return false;
 
             setIsStarting(true);
-            setActionError(false);
-            setLastResult(null);
+            setActionErrorCode(null);
             try {
-                const next = await languageLearningLevelService.start(type);
-                setQuestion(next);
-                setAnswer("");
-                await statusQuery.mutate(undefined, true);
+                const session = await languageLearningLevelService.start({
+                    type,
+                    idempotencyKey: createIdempotencyKey("level-test-start"),
+                });
+                await Promise.all([
+                    statusQuery.mutate((current) => current, true),
+                    clearSessionCache(session.sessionId),
+                ]);
+                router.push(
+                    `/language-learning/level-test/session/${session.sessionId}`,
+                );
                 return true;
             } catch (error) {
                 console.error("Failed to start language learning level test.", error);
-                setActionError(true);
+                setActionErrorCode(getApiErrorCode(error) ?? "UNKNOWN");
                 return false;
             } finally {
                 setIsStarting(false);
             }
         },
-        [defaultSessionType, isStarting, isSubmitting, statusQuery],
+        [clearSessionCache, defaultSessionType, isStarting, router, statusQuery],
     );
 
-    const submit = useCallback(async () => {
-        if (!question || !answer.trim() || isSubmitting || isStarting) {
-            return false;
-        }
-
-        setIsSubmitting(true);
-        setActionError(false);
-        try {
-            const result = await languageLearningLevelService.submitAnswer(
-                question.sessionId,
-                { answer: answer.trim() },
-            );
-            setLastResult(result);
-            setAnswer("");
-
-            if (result.completed) {
-                setQuestion(null);
-                await Promise.all([
-                    statusQuery.mutate(undefined, true),
-                    currentQuestionQuery.mutate(undefined, false),
-                ]);
-            } else if (result.nextQuestion) {
-                setQuestion(result.nextQuestion);
-            }
-
-            return true;
-        } catch (error) {
-            console.error("Failed to submit language learning level answer.", error);
-            setActionError(true);
-            return false;
-        } finally {
-            setIsSubmitting(false);
-        }
-    }, [
-        answer,
-        currentQuestionQuery,
-        isStarting,
-        isSubmitting,
-        question,
-        statusQuery,
-    ]);
+    const resume = useCallback(async () => {
+        const sessionId = statusQuery.data?.activeSessionId;
+        if (!sessionId) return;
+        await clearSessionCache(sessionId);
+        router.push(`/language-learning/level-test/session/${sessionId}`);
+    }, [clearSessionCache, router, statusQuery.data?.activeSessionId]);
 
     return {
         status: statusQuery.data ?? null,
-        question,
-        answer,
-        lastResult,
-        isLoading:
-            statusQuery.isLoading ||
-            (activeSessionId !== null && currentQuestionQuery.isLoading),
-        loadError: statusQuery.isError || currentQuestionQuery.isError,
-        actionError,
+        recentHistory: historyQuery.data?.slice(0, 2) ?? [],
+        isLoading: statusQuery.isLoading,
+        loadError: statusQuery.isError,
+        actionErrorCode,
         isStarting,
-        isSubmitting,
         defaultSessionType,
-        setAnswer,
         start,
-        submit,
+        resume,
         reload: async () => {
             await Promise.all([
-                statusQuery.mutate(undefined, true),
-                currentQuestionQuery.mutate(undefined, true),
+                statusQuery.mutate((current) => current, true),
+                historyQuery.mutate((current) => current, true),
             ]);
         },
     };

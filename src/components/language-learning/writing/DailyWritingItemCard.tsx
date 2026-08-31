@@ -46,6 +46,12 @@ export function DailyWritingItemCard({
                 ))}
             </div>
 
+            {item.difficulty === "CHALLENGE" && (
+                <p className="mt-2 text-xs leading-5 text-violet-600 dark:text-violet-300">
+                    {t("difficultyDescription.CHALLENGE")}
+                </p>
+            )}
+
             <div className="mt-5 rounded-2xl bg-slate-50 p-5 dark:bg-white/5">
                 <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">
                     {t("prompt")}

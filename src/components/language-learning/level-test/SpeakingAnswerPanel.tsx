@@ -15,7 +15,11 @@ export function SpeakingAnswerPanel({ controller }: SpeakingAnswerPanelProps) {
     const { microphone, recorder } = controller;
     const referenceAudioRef = useRef<HTMLAudioElement | null>(null);
     const isRepeat = controller.question?.itemType === "SPEAKING_REPEAT";
-    const referenceRemaining = Math.max(0, 2 - controller.referencePlaybackCount);
+    const referencePlaybackLimit = controller.question?.referencePlaybackLimit ?? 0;
+    const referenceRemaining = Math.max(
+        0,
+        referencePlaybackLimit - controller.referencePlaybackCount,
+    );
 
     const referenceAudioPanel = isRepeat ? (
         <div
@@ -47,6 +51,19 @@ export function SpeakingAnswerPanel({ controller }: SpeakingAnswerPanelProps) {
                     {controller.isAudioLoading ? t("referenceLoading") : t("referencePlay")}
                 </button>
             </div>
+            {controller.question?.repeatReferenceText && (
+                <div
+                    className="mt-3 rounded-xl border border-cyan-200 bg-white/80 p-3 dark:border-cyan-400/20 dark:bg-slate-900/50"
+                    data-testid="speaking-repeat-reference-text"
+                >
+                    <p className="text-xs font-black text-cyan-800 dark:text-cyan-200">
+                        {t("referenceTextTitle")}
+                    </p>
+                    <p className="mt-1 whitespace-pre-wrap text-sm font-black leading-6 text-slate-900 dark:text-white">
+                        {controller.question.repeatReferenceText}
+                    </p>
+                </div>
+            )}
             <p className="mt-3 text-xs font-bold text-cyan-900/70 dark:text-cyan-100/70">
                 {t("referenceRemaining", { count: referenceRemaining })}
             </p>

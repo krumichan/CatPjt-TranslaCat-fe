@@ -375,7 +375,8 @@
             "UNSUPPORTED": "このブラウザでは音声録音を利用できません。",
             "UNKNOWN": "マイクを利用できません。"
           },
-          "refreshWarning": "送信前の録音はページを再読み込みすると失われる場合があります。"
+          "refreshWarning": "送信前の録音はページを再読み込みすると失われる場合があります。",
+          "referenceTextTitle": "復唱するテキスト"
         },
         "nextQuestionLoadFailedTitle": "回答の保存・評価は完了しました",
         "evaluating": "回答を評価しています...",
@@ -437,7 +438,26 @@
         "question": "問題 {number}",
         "userAnswer": "ユーザー回答",
         "audioSubmitted": "音声回答を送信済み",
-        "feedback": "評価フィードバック"
+        "feedback": "評価フィードバック",
+        "problem": "問題全体",
+        "options": "選択肢",
+        "fragments": "文の断片",
+        "correctAnswer": "正解",
+        "selectedBadge": "自分の回答",
+        "correctBadge": "正解",
+        "reviewHint": "個別の評価フィードバックがない問題です。問題・自分の回答・正解を比較して、間違えた箇所を確認してください。",
+        "feedbackUnavailable": "個別の評価フィードバックはありません。問題と提出した回答をあわせて確認してください。",
+        "questionAudio": "問題音声",
+        "playQuestionAudio": "問題音声を再生",
+        "modelAnswer": "回答例",
+        "modelAnswerAudio": "回答例の音声",
+        "playModelAnswerAudio": "回答例を聞く",
+        "audioLoadFailed": "音声を読み込めませんでした。",
+        "sttTranscript": "音声認識（STT）",
+        "detailedFeedback": "詳しいフィードバック",
+        "yourExpression": "自分の表現",
+        "suggestedExpression": "推奨表現",
+        "playMyAnswerAudio": "自分の音声を聞く"
       },
       "difficulty": {
         "EASY": "易しい",

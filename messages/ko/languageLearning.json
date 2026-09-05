@@ -375,7 +375,8 @@
             "UNSUPPORTED": "이 브라우저에서는 음성 녹음을 사용할 수 없습니다.",
             "UNKNOWN": "마이크를 사용할 수 없습니다."
           },
-          "refreshWarning": "제출 전 녹음은 새로고침하면 사라질 수 있습니다."
+          "refreshWarning": "제출 전 녹음은 새로고침하면 사라질 수 있습니다.",
+          "referenceTextTitle": "따라 말할 텍스트"
         },
         "nextQuestionLoadFailedTitle": "답변 저장·평가 완료",
         "evaluating": "답변을 평가하고 있습니다...",
@@ -437,7 +438,26 @@
         "question": "{number}번 문제",
         "userAnswer": "사용자 답변",
         "audioSubmitted": "음성 답변 제출",
-        "feedback": "평가 피드백"
+        "feedback": "평가 피드백",
+        "problem": "문제 전체",
+        "options": "선택지",
+        "fragments": "문장 조각",
+        "correctAnswer": "정답",
+        "selectedBadge": "내 답",
+        "correctBadge": "정답",
+        "reviewHint": "별도의 평가 피드백이 없는 문항입니다. 문제와 내 답, 정답을 비교해 틀린 부분을 확인해 주세요.",
+        "feedbackUnavailable": "별도의 평가 피드백이 없습니다. 문제와 제출한 답변을 함께 확인해 주세요.",
+        "questionAudio": "문제 음성",
+        "playQuestionAudio": "문제 음성 재생",
+        "modelAnswer": "답안 예시",
+        "modelAnswerAudio": "답안 예시 음성",
+        "playModelAnswerAudio": "답안 예시 듣기",
+        "audioLoadFailed": "음성을 불러오지 못했습니다.",
+        "sttTranscript": "음성 인식(STT)",
+        "detailedFeedback": "상세 피드백",
+        "yourExpression": "내 표현",
+        "suggestedExpression": "권장 표현",
+        "playMyAnswerAudio": "내 음성 듣기"
       },
       "difficulty": {
         "EASY": "쉬움",

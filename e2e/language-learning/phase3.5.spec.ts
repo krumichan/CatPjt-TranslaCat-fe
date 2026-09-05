@@ -13,6 +13,8 @@ import {
     LEVEL_TEST_SENTENCE_ORDER,
     LEVEL_TEST_SESSION,
     LEVEL_TEST_SPEAKING,
+    LEVEL_TEST_SPEAKING_AUDIO_ONLY,
+    LEVEL_TEST_SPEAKING_OPEN,
     LEVEL_TEST_WRITING,
     mockLanguageLearningPhase35,
 } from "../support/language-learning-phase35-mocks";
@@ -192,6 +194,9 @@ test.describe("Language Learning Phase 3.5", () => {
         await page.getByRole("button", { name: /원본 음성 듣기/ }).click();
         await referenceRequest;
         await expect(page.getByTestId("speaking-repeat-reference-audio")).toBeVisible();
+        await expect(page.getByTestId("speaking-repeat-reference-text")).toContainText(
+            LEVEL_TEST_SPEAKING.repeatReferenceText!,
+        );
         await expect(page.getByText(LEVEL_TEST_SPEAKING.promptText, { exact: true })).toHaveCount(0);
         await page.getByRole("button", { name: /녹음 시작/ }).click();
         await page.getByRole("button", { name: /녹음 정지/ }).click();
@@ -201,6 +206,31 @@ test.describe("Language Learning Phase 3.5", () => {
         );
         await page.getByRole("button", { name: /답변 제출/ }).click();
         await requestPromise;
+    });
+
+    test("LL35-12A 두 번째 Repeat은 텍스트를 숨기고 원본 음성을 최대 3회 재생한다", async ({ page }) => {
+        await mockPlayableAudio(page);
+        await mockSpeakingMediaRecorder(page);
+        await overrideQuestion(page, LEVEL_TEST_SPEAKING_AUDIO_ONLY);
+        await page.goto("/language-learning/level-test/session/3101");
+
+        const play = page.getByRole("button", { name: /원본 음성 듣기/ });
+        await expect(page.getByTestId("speaking-repeat-reference-text")).toHaveCount(0);
+        await play.click();
+        await play.click();
+        await play.click();
+        await expect(play).toBeDisabled();
+        await expect(page.getByText(/남은 0회/)).toBeVisible();
+    });
+
+    test("LL35-12B 마지막 Speaking은 Repeat이 아닌 가이드형 논술 응답을 제공한다", async ({ page }) => {
+        await mockSpeakingMediaRecorder(page);
+        await overrideQuestion(page, LEVEL_TEST_SPEAKING_OPEN);
+        await page.goto("/language-learning/level-test/session/3101");
+
+        await expect(page.getByText(LEVEL_TEST_SPEAKING_OPEN.promptText, { exact: true })).toBeVisible();
+        await expect(page.getByTestId("level-test-task-guidance")).toBeVisible();
+        await expect(page.getByTestId("speaking-repeat-reference-audio")).toHaveCount(0);
     });
 
     test("LL35-13 마이크 거부·장치 없음·사용 중을 서로 다른 안내로 구분한다", async ({ browser }) => {
@@ -291,6 +321,35 @@ test.describe("Language Learning Phase 3.5", () => {
         await expect(page.getByText(/기존 Writing Level Test는/)).toBeVisible();
         await expect(page.getByText("0", { exact: true })).toHaveCount(0);
         expect(LEVEL_TEST_HISTORY[1].domainScores).toBeNull();
+    });
+
+    test("LL35-18A 상세 피드백은 피드백이 없는 객관식도 문제·선택지·내 답·정답을 함께 표시한다", async ({ page }) => {
+        await page.goto("/language-learning/level-test/history/3101");
+
+        const item = page.getByTestId("level-test-history-item-1");
+        await expect(item.getByText(LEVEL_TEST_QUESTION.promptText, { exact: true })).toBeVisible();
+        for (const option of LEVEL_TEST_QUESTION.options) {
+            await expect(item.getByText(`${option.key}. ${option.text}`, { exact: true }).first()).toBeVisible();
+        }
+        await expect(
+            page.getByTestId("level-test-history-user-answer-1"),
+        ).toContainText("B. 睡眠");
+        await expect(
+            page.getByTestId("level-test-history-correct-answer-1"),
+        ).toContainText("A. 連絡");
+        await expect(item.getByText(/문제와 내 답, 정답을 비교/)).toBeVisible();
+        await expect(item.getByText("—", { exact: true })).toHaveCount(0);
+    });
+
+    test("LL35-18B Speaking 결과는 STT·내 음성·답안 예시·예시 음성을 함께 제공한다", async ({ page }) => {
+        await page.goto("/language-learning/level-test/history/3101");
+
+        const item = page.getByTestId("level-test-history-item-18");
+        await expect(item.getByText(/음성 인식\(STT\)/)).toBeVisible();
+        await expect(item.getByText(/予定を変更する場合は、早めに連絡してください。/)).toBeVisible();
+        await expect(item.getByRole("button", { name: /내 음성 듣기/ })).toBeVisible();
+        await expect(item.getByText(/답안 예시/).first()).toBeVisible();
+        await expect(item.getByRole("button", { name: /답안 예시 듣기/ })).toBeVisible();
     });
 
     test("LL35-19 Profile과 공통 History에서 Level Test 결과에 접근할 수 있다", async ({ page }) => {

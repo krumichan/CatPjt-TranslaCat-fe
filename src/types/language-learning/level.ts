@@ -105,6 +105,8 @@ export interface LevelTestQuestion {
     emphasisText: string | null;
     taskGuidance: LevelTestTaskGuidance | null;
     referenceAudioAvailable: boolean;
+    repeatReferenceText: string | null;
+    referencePlaybackLimit: number | null;
     maxAnswerLength: number | null;
     maxAudioSeconds: number | null;
     status: LevelTestItemStatus;
@@ -168,16 +170,37 @@ export interface LevelTestHistoryItem {
     completedAt: string | null;
 }
 
+export interface LevelTestDetailedFeedback {
+    category: string;
+    severity: "INFO" | "STRENGTH" | "IMPROVEMENT" | "CORRECTION" | "OMISSION";
+    original: string | null;
+    corrected: string | null;
+    explanation: string;
+}
+
 export interface LevelTestHistoryItemDetail {
+    itemId: number;
     questionNumber: number;
     domain: LevelTestDomain;
     itemType: LevelTestItemType;
     complexityBand: number;
+    instruction: string;
     promptText: string;
+    options: LevelTestOption[];
+    emphasisText: string | null;
+    taskGuidance: LevelTestTaskGuidance | null;
     selectedOptionKey: string | null;
     selectedOptionKeys: string[];
     textAnswer: string | null;
     audioSubmitted: boolean;
+    answerAudioAvailable: boolean;
+    referenceAudioAvailable: boolean;
+    transcript: string | null;
+    recommendedAnswers: string[];
+    detailedFeedback: LevelTestDetailedFeedback[];
+    modelAnswerAudioAvailable: boolean;
+    correctOptionKey: string | null;
+    correctOrder: string[];
     evaluable: boolean;
     score: number | null;
     confidence: number | null;

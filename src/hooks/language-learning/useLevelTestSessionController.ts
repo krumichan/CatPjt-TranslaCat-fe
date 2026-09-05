@@ -401,7 +401,12 @@ export function useLevelTestSessionController(sessionId: number) {
     const playReferenceAudio = useCallback(
         async (audio: HTMLAudioElement | null) => {
             if (!audio || !question?.referenceAudioAvailable) return false;
-            if (referencePlaybackCount >= 2) return false;
+            const playbackLimit = Math.max(
+                0,
+                question.referencePlaybackLimit ??
+                    (question.domain === "LISTENING" ? 2 : 0),
+            );
+            if (playbackLimit === 0 || referencePlaybackCount >= playbackLimit) return false;
             setIsAudioLoading(true);
             setActionErrorCode(null);
             try {
@@ -416,7 +421,7 @@ export function useLevelTestSessionController(sessionId: number) {
                 audio.src = url;
                 audio.playbackRate = 1;
                 await audio.play();
-                setReferencePlaybackCount((count) => Math.min(2, count + 1));
+                setReferencePlaybackCount((count) => Math.min(playbackLimit, count + 1));
                 return true;
             } catch (error) {
                 setActionErrorCode(getApiErrorCode(error) ?? "LEVEL_TEST_AUDIO_INVALID");

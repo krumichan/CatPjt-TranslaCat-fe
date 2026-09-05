@@ -80,6 +80,30 @@ export const languageLearningLevelService = {
         return response.blob();
     },
 
+    fetchAnswerAudio: async (itemId: number): Promise<Blob> => {
+        const response = await apiClient(
+            `/language-learning/level-test/items/${itemId}/answer-audio`,
+            { method: "GET" },
+        );
+        if (!response.ok) {
+            await parseResponseBody<never>(response, "LanguageLearningLevelTestAnswerAudio");
+            throw new Error("Level Test answer audio request failed.");
+        }
+        return response.blob();
+    },
+
+    fetchModelAnswerAudio: async (itemId: number): Promise<Blob> => {
+        const response = await apiClient(
+            `/language-learning/level-test/items/${itemId}/model-answer-audio`,
+            { method: "GET" },
+        );
+        if (!response.ok) {
+            await parseResponseBody<never>(response, "LanguageLearningLevelTestModelAnswerAudio");
+            throw new Error("Level Test model answer audio request failed.");
+        }
+        return response.blob();
+    },
+
     submitAnswer: async (
         sessionId: number,
         itemId: number,

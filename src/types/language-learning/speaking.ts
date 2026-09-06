@@ -10,6 +10,8 @@ export type SpeakingTopicCategory =
     | "CULTURE"
     | "FREE_TALK";
 
+export type SpeakingPracticeMode = "READ_ALOUD" | "GUIDED" | "FREE";
+
 export type ConversationStartMode =
     | "AI_FIRST"
     | "USER_FIRST"
@@ -111,6 +113,7 @@ export interface SpeakingSession {
     learningLanguage: string;
     status: SpeakingSessionStatus;
     evaluationStatus: SpeakingEvaluationStatus;
+    practiceMode: SpeakingPracticeMode;
     conversationStartMode: ConversationStartMode;
     resolvedStartMode: ConversationStartMode;
     correctionMode: CorrectionMode;
@@ -121,6 +124,7 @@ export interface SpeakingSession {
     voiceId: string | null;
     playbackSpeed: string | null;
     openingAssistantText: string | null;
+    openingPromptGuide: SpeakingPromptGuide;
     openingAssistantAudioUrl: string | null;
     sessionSummary: string | null;
     startedAt: string;
@@ -137,6 +141,7 @@ export interface SpeakingTurn {
     sttConfidence: number | null;
     userAudioUrl: string | null;
     assistantText: string | null;
+    promptGuide: SpeakingPromptGuide;
     assistantAudioUrl: string | null;
     assistanceUsage: AssistanceType[];
     excludedFromEvaluation: boolean;
@@ -145,6 +150,24 @@ export interface SpeakingTurn {
     errorMessage: string | null;
     manualRetryCount: number;
     completedAt: string | null;
+}
+
+
+export interface SpeakingPromptGuide {
+    scriptText: string | null;
+    providedFacts: string[];
+    requiredIntents: string[];
+    responseConstraints: string[];
+}
+
+export interface SpeakingPracticeModeStatus {
+    practiceMode: SpeakingPracticeMode;
+    sessionId: number | null;
+    sessionStatus: SpeakingSessionStatus | null;
+    evaluationStatus: SpeakingEvaluationStatus | null;
+    completedTurns: number;
+    maxTurns: number;
+    completed: boolean;
 }
 
 export interface SpeakingEvaluationEligibility {
@@ -172,6 +195,7 @@ export interface SpeakingSessionCreateRequest {
     customTopic: string | null;
     goal: string | null;
     persona: string | null;
+    practiceMode: SpeakingPracticeMode;
     conversationStartMode: ConversationStartMode;
     correctionMode: CorrectionMode;
     targetMinutes: number;

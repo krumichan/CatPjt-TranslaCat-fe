@@ -10,7 +10,7 @@ export function ListeningTextAnswerPanel({
     learningLanguage,
     onChange,
 }: {
-    taskType: "DICTATION" | "INTERPRETATION";
+    taskType: "DICTATION" | "INTERPRETATION" | "SUMMARY";
     value: string;
     disabled: boolean;
     originLanguage: string;
@@ -18,7 +18,7 @@ export function ListeningTextAnswerPanel({
     onChange: (value: string) => void;
 }) {
     const t = useTranslations("LanguageLearning.listening.session");
-    const language = taskType === "DICTATION" ? learningLanguage : originLanguage;
+    const language = taskType === "INTERPRETATION" ? originLanguage : learningLanguage;
     return (
         <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900" data-testid={`listening-answer-${taskType}`}>
             <h2 className="text-lg font-black text-slate-900 dark:text-white">{t(`task.${taskType}.title`)}</h2>
@@ -39,6 +39,6 @@ export function ListeningTextAnswerPanel({
     );
 }
 
-export function isTextTask(taskType: ListeningTaskType): taskType is "DICTATION" | "INTERPRETATION" {
-    return taskType === "DICTATION" || taskType === "INTERPRETATION";
+export function isTextTask(taskType: ListeningTaskType): taskType is "DICTATION" | "INTERPRETATION" | "SUMMARY" {
+    return taskType === "DICTATION" || taskType === "INTERPRETATION" || taskType === "SUMMARY";
 }

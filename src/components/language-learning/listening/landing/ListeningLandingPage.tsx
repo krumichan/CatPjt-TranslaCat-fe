@@ -1,6 +1,6 @@
 "use client";
 
-import { Ear, RefreshCw } from "lucide-react";
+import { CheckCircle2, ClipboardCheck, FileText, Headphones, LoaderCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { LanguageLearningOnboardingCard } from "@/components/language-learning/common/LanguageLearningOnboardingCard";
@@ -8,6 +8,13 @@ import { LanguageLearningStateCard } from "@/components/language-learning/common
 import { LanguageLearningPageLayout } from "@/components/language-learning/layout/LanguageLearningPageLayout";
 import { useListeningLandingController } from "@/hooks/language-learning/listening/useListeningLandingController";
 import { Link } from "@/navigation";
+import type { ListeningLearningMode } from "@/types/language-learning/listening";
+
+const MODES: Array<[ListeningLearningMode, typeof Headphones]> = [
+    ["DICTATION", Headphones],
+    ["COMPREHENSION", ClipboardCheck],
+    ["SUMMARY", FileText],
+];
 
 export function ListeningLandingPage() {
     const t = useTranslations("LanguageLearning.listening");
@@ -26,10 +33,7 @@ export function ListeningLandingPage() {
         if (!controller.policy?.enabled) {
             return <LanguageLearningStateCard variant="error" title={t("landing.disabledTitle")} message={t("landing.disabledDescription")} />;
         }
-        if (!controller.today) return null;
 
-        const set = controller.today;
-        const percent = set.targetItemCount <= 0 ? 0 : Math.round((set.completedItemCount / set.targetItemCount) * 100);
         return (
             <div className="space-y-5" data-testid="listening-landing-page">
                 {controller.activeSession && (
@@ -43,63 +47,144 @@ export function ListeningLandingPage() {
                 )}
 
                 <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-slate-900">
-                    <div className="flex flex-wrap items-start justify-between gap-4">
-                        <div>
-                            <div className="flex items-center gap-2">
-                                <Ear className="h-5 w-5 text-blue-600" aria-hidden="true" />
-                                <h2 className="text-xl font-black text-slate-900 dark:text-white">{t("landing.todayTitle")}</h2>
-                            </div>
-                            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{t(`difficulty.${set.difficulty}`)}</p>
-                        </div>
-                        <div className="text-right">
-                            <p className="text-3xl font-black text-slate-950 dark:text-white">{set.completedItemCount} / {set.targetItemCount}</p>
-                            <p className="text-xs font-bold text-slate-400">{t(`dailyStatus.${set.status}`)}</p>
-                        </div>
+                    <h2 className="text-xl font-black text-slate-900 dark:text-white">{t("modeSelector.title")}</h2>
+                    <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">{t("modeSelector.description")}</p>
+
+                    <div className="mt-6 grid gap-4 lg:grid-cols-3">
+                        {MODES.map(([mode, Icon]) => {
+                            const status = controller.statusByMode[mode];
+                            const liveSet = controller.selectedMode === mode ? controller.currentSet : null;
+                            const activeForMode = controller.activeSession && status?.dailySetId === controller.activeSession.dailySetId;
+                            const completed = status?.completed === true;
+                            const evaluating = status?.latestSessionStatus === "EVALUATING";
+                            const failed = status?.status === "FAILED" || (controller.selectedMode === mode && liveSet?.status === "FAILED");
+                            const preparing = status?.status === "GENERATING" || status?.status === "PARTIAL" || (liveSet?.status !== undefined && liveSet.status !== "FAILED" && liveSet.status !== "READY");
+                            const targetCount = status?.targetItemCount || liveSet?.targetItemCount || 0;
+                            const submittedCount = status?.submittedItemCount ?? 0;
+                            const terminalCount = status?.terminalItemCount ?? 0;
+                            const evaluatedCount = status?.evaluatedItemCount ?? 0;
+                            const revealedCount = status?.answerRevealedItemCount ?? 0;
+                            const excludedCount = Math.max(0, terminalCount - evaluatedCount);
+                            const otherExcludedCount = Math.max(0, excludedCount - revealedCount);
+                            const generatedCount = targetCount <= 0
+                                ? 0
+                                : Math.min(targetCount, Math.max(status?.physicalItemCount ?? 0, liveSet?.physicalItemCount ?? 0));
+                            const readyCount = targetCount <= 0
+                                ? 0
+                                : Math.min(targetCount, Math.max(status?.readyItemCount ?? 0, liveSet?.readyItemCount ?? 0));
+                            const finishedCount = Math.max(submittedCount, terminalCount);
+                            const completionDetails = completed
+                                ? [
+                                    t("modeSelector.evaluationCoverageDetail", { evaluated: evaluatedCount, total: targetCount }),
+                                    revealedCount > 0 ? t("modeSelector.answerRevealedCount", { count: revealedCount }) : null,
+                                    otherExcludedCount > 0 ? t("modeSelector.otherExcludedCount", { count: otherExcludedCount }) : null,
+                                ].filter((value): value is string => Boolean(value))
+                                : [];
+                            const actionLabel = completed
+                                ? t("modeSelector.result")
+                                : evaluating
+                                  ? t("modeSelector.evaluationProgress")
+                                  : failed
+                                    ? t("modeSelector.retry")
+                                    : activeForMode
+                                      ? t("modeSelector.resume")
+                                      : status?.dailySetId
+                                        ? t("modeSelector.continue")
+                                        : t("modeSelector.start");
+                            const href = (completed || evaluating) && status?.latestSessionId
+                                ? `/language-learning/listening/session/${status.latestSessionId}/result`
+                                : activeForMode && controller.activeSession
+                                  ? `/language-learning/listening/session/${controller.activeSession.sessionId}`
+                                  : null;
+
+                            return (
+                                <article
+                                    key={mode}
+                                    data-testid={`listening-mode-${mode}`}
+                                    className={`rounded-3xl border p-5 ${completed ? "border-emerald-300 bg-emerald-50/70 dark:border-emerald-400/30 dark:bg-emerald-500/10" : failed ? "border-rose-300 bg-rose-50/70 dark:border-rose-400/30 dark:bg-rose-500/10" : activeForMode ? "border-blue-300 bg-blue-50/70 dark:border-blue-400/30 dark:bg-blue-500/10" : "border-slate-200 bg-slate-50/70 dark:border-white/10 dark:bg-white/5"}`}
+                                >
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-blue-600 shadow-sm dark:bg-white/10 dark:text-blue-300">
+                                            <Icon className="h-5 w-5" aria-hidden="true" />
+                                        </div>
+                                        {completed && (
+                                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-black text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200">
+                                                <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+                                                {t("modeSelector.completed")}
+                                            </span>
+                                        )}
+                                        {!completed && evaluating && (
+                                            <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-black text-blue-700 dark:bg-blue-500/20 dark:text-blue-200">
+                                                <LoaderCircle className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+                                                {t("modeSelector.evaluating")}
+                                            </span>
+                                        )}
+                                        {!completed && !evaluating && failed && (
+                                            <span className="rounded-full bg-rose-100 px-2.5 py-1 text-xs font-black text-rose-700 dark:bg-rose-500/20 dark:text-rose-200">{t("modeSelector.failed")}</span>
+                                        )}
+                                        {!completed && !evaluating && !failed && activeForMode && (
+                                            <span className="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-black text-blue-700 dark:bg-blue-500/20 dark:text-blue-200">{t("modeSelector.inProgress")}</span>
+                                        )}
+                                    </div>
+                                    <h3 className="mt-5 text-lg font-black text-slate-950 dark:text-white">{t(`mode.${mode}.title`)}</h3>
+                                    <p className="mt-2 min-h-18 text-sm leading-6 text-slate-500 dark:text-slate-400">{t(`mode.${mode}.description`)}</p>
+                                    {targetCount > 0 && preparing && (
+                                        <div className="mt-3 space-y-1" aria-live="polite">
+                                            <p className="text-xs font-black text-slate-500 dark:text-slate-300">
+                                                {t("modeSelector.preparationProgress", { generated: generatedCount, ready: readyCount, total: targetCount })}
+                                            </p>
+                                            <p className="inline-flex items-center gap-2 text-xs font-black text-blue-600 dark:text-blue-300">
+                                                <LoaderCircle className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+                                                {t("modeSelector.preparing")}
+                                            </p>
+                                        </div>
+                                    )}
+                                    {targetCount > 0 && !preparing && evaluating && (
+                                        <div className="mt-3 space-y-1 text-xs font-black">
+                                            <p className="text-slate-500 dark:text-slate-300">
+                                                {t("modeSelector.learningCompleted", { completed: submittedCount, total: targetCount })}
+                                            </p>
+                                            <p className="text-blue-600 dark:text-blue-300">
+                                                {t("modeSelector.evaluationProcessing", { completed: terminalCount, total: targetCount })}
+                                            </p>
+                                        </div>
+                                    )}
+                                    {targetCount > 0 && !preparing && !evaluating && completed && (
+                                        <div className="mt-3 space-y-1 text-xs font-black">
+                                            <p className="text-emerald-700 dark:text-emerald-200">
+                                                {t("modeSelector.learningCompleted", { completed: finishedCount, total: targetCount })}
+                                            </p>
+                                            <p className="text-slate-500 dark:text-slate-300">{completionDetails.join(" · ")}</p>
+                                        </div>
+                                    )}
+                                    {targetCount > 0 && !preparing && !evaluating && !completed && (
+                                        <p className="mt-3 text-xs font-black text-slate-400">
+                                            {t("modeSelector.learningProgress", { completed: submittedCount, total: targetCount })}
+                                        </p>
+                                    )}
+                                    {href ? (
+                                        <Link href={href} className="mt-5 inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-sm font-black text-white hover:bg-blue-500">
+                                            {actionLabel}
+                                        </Link>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            onClick={() => void controller.selectMode(mode)}
+                                            disabled={controller.isStarting || Boolean(controller.activeSession) || preparing}
+                                            className="mt-5 inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-sm font-black text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+                                        >
+                                            {preparing ? t("modeSelector.preparing") : actionLabel}
+                                        </button>
+                                    )}
+                                </article>
+                            );
+                        })}
                     </div>
-                    <div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10" role="progressbar" aria-label={t("landing.progressAria")} aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent}>
-                        <div className="h-full rounded-full bg-blue-600" style={{ width: `${Math.min(100, percent)}%` }} />
-                    </div>
-                    <p className="mt-3 text-xs text-slate-400">{t("landing.readyCount", { ready: set.readyItemCount, physical: set.physicalItemCount })}</p>
 
-                    {["GENERATING", "PARTIAL"].includes(set.status) && (
-                        <div className="mt-5 rounded-2xl bg-slate-50 p-4 text-sm text-slate-500 dark:bg-white/5 dark:text-slate-300">
-                            <RefreshCw className="mr-2 inline h-4 w-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
-                            {t("landing.generating")}
-                        </div>
-                    )}
-
-                    <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                        {set.items.map((item) => (
-                            <div key={item.itemId} className="rounded-2xl border border-slate-100 p-3 dark:border-white/10">
-                                <div className="flex items-center justify-between gap-2">
-                                    <span className="text-sm font-black text-slate-700 dark:text-slate-200">#{item.itemIndex}</span>
-                                    <span className="text-xs font-bold text-slate-400">{t(`itemStatus.${item.status}`)}</span>
-                                </div>
-                                {item.status === "NOT_EVALUABLE" && (
-                                    <button type="button" onClick={() => void controller.retryTts(item.itemId)} className="mt-3 text-xs font-black text-blue-600 hover:text-blue-500 dark:text-blue-300">
-                                        {t("landing.retryTts")}
-                                    </button>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-
-                    {!controller.activeSession && controller.todayCompleted && (
-                        <Link
-                            href={controller.completedSessionId
-                                ? `/language-learning/listening/session/${controller.completedSessionId}/result`
-                                : "/language-learning/history"}
-                            data-testid="listening-result-link"
-                            className="mt-6 inline-flex rounded-xl bg-blue-600 px-5 py-3 text-sm font-black text-white hover:bg-blue-500"
-                        >
-                            {t("landing.result")}
-                        </Link>
-                    )}
-
-                    {!controller.activeSession && !controller.todayCompleted && set.readyItemCount > 0 && (
-                        <Link href="/language-learning/listening/setup" data-testid="listening-start-link" className="mt-6 inline-flex rounded-xl bg-blue-600 px-5 py-3 text-sm font-black text-white hover:bg-blue-500">
-                            {t("landing.start")}
-                        </Link>
+                    {controller.actionErrorCode && (
+                        <p role="alert" className="mt-5 rounded-2xl bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700 dark:bg-rose-500/10 dark:text-rose-200">
+                            {t(`errors.${controller.actionErrorCode}`)}
+                        </p>
                     )}
                 </section>
             </div>

@@ -12,10 +12,12 @@ import type { ListeningTask } from "@/types/language-learning/listening";
 export function ListeningTaskResultCard({
     task,
     attemptId,
+    answerRevealed,
     controller,
 }: {
     task: ListeningTask;
     attemptId: number;
+    answerRevealed: boolean;
     controller: ListeningResultController;
 }) {
     const t = useTranslations("LanguageLearning.listening.result");
@@ -43,8 +45,12 @@ export function ListeningTaskResultCard({
 
             {notEvaluable && (
                 <div className="mt-4 rounded-2xl bg-amber-50 p-4 text-sm text-amber-800 dark:bg-amber-500/10 dark:text-amber-200">
-                    <p className="font-bold">{t("notEvaluable", { reason: evaluation?.reasonCode ?? task.evaluationErrorCode ?? "UNKNOWN" })}</p>
-                    {task.status === "EVALUATION_FAILED" && (
+                    <p className="font-bold">
+                        {answerRevealed
+                            ? t("answerRevealedExcluded")
+                            : t("notEvaluable", { reason: evaluation?.reasonCode ?? task.evaluationErrorCode ?? "UNKNOWN" })}
+                    </p>
+                    {!answerRevealed && task.status === "EVALUATION_FAILED" && (
                         <button type="button" onClick={() => void controller.retryEvaluation(attemptId, task.taskType)} disabled={controller.busyKey !== null} className="mt-3 rounded-xl bg-amber-600 px-3 py-2 text-xs font-black text-white disabled:opacity-50">
                             {t("retryEvaluation")}
                         </button>
@@ -108,9 +114,12 @@ export function ListeningTaskResultCard({
 }
 
 function MetricRow({ metric }: { metric: Record<string, unknown> }) {
+    const t = useTranslations("LanguageLearning.listening.result.metrics");
     const entries = Object.entries(metric);
-    const label = String(metric.metric ?? metric.name ?? entries[0]?.[0] ?? "metric");
-    const value = metric.score ?? metric.value ?? entries.find(([, item]) => typeof item === "number")?.[1];
+    const metricKey = String(metric.metric ?? metric.name ?? metric.type ?? entries[0]?.[0] ?? "metric");
+    const knownMetric = LISTENING_RESULT_METRICS.has(metricKey);
+    const label = knownMetric ? t(metricKey as never) : metricKey;
+    const value = metric.score ?? metric.value ?? entries.find(([key, item]) => key !== "confidence" && typeof item === "number")?.[1];
     return (
         <div className="rounded-2xl bg-slate-50 p-3 dark:bg-white/5">
             <p className="text-xs font-black text-slate-400">{label}</p>
@@ -129,3 +138,21 @@ function Feedback({ title, items }: { title: string; items: string[] }) {
         </div>
     );
 }
+
+
+const LISTENING_RESULT_METRICS = new Set([
+    "TOKEN_RECOGNITION",
+    "OMISSION_ADDITION_ORDER",
+    "ORTHOGRAPHY",
+    "MEANING_FIDELITY",
+    "DETAIL_AND_NUANCE",
+    "ORIGIN_NATURALNESS",
+    "PRONUNCIATION",
+    "PROSODY_RHYTHM",
+    "FLUENCY",
+    "COMPLETENESS",
+    "ANSWER_ACCURACY",
+    "GIST_COVERAGE",
+    "KEY_POINT_COVERAGE",
+    "LANGUAGE_CLARITY",
+]);

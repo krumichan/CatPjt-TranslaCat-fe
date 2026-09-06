@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { LanguageLearningStateCard } from "@/components/language-learning/common/LanguageLearningStateCard";
 import { LanguageLearningPageLayout } from "@/components/language-learning/layout/LanguageLearningPageLayout";
 import { ListeningAssistancePanel } from "@/components/language-learning/listening/session/ListeningAssistancePanel";
+import { ListeningChoiceAnswerPanel } from "@/components/language-learning/listening/session/ListeningChoiceAnswerPanel";
 import { ListeningRepeatRecorderPanel } from "@/components/language-learning/listening/session/ListeningRepeatRecorderPanel";
 import { ListeningTextAnswerPanel } from "@/components/language-learning/listening/session/ListeningTextAnswerPanel";
 import { ReferenceAudioPlayer } from "@/components/language-learning/listening/session/ReferenceAudioPlayer";
@@ -37,13 +38,11 @@ export function ListeningSessionPage({ sessionId }: { sessionId: number }) {
     if (!controller.attempt || !controller.item) {
         return (
             <LanguageLearningPageLayout title={t("session.title")} description={t("session.description")}>
-                <section className="rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm dark:border-white/10 dark:bg-slate-900" data-testid="listening-session-complete-ready">
-                    <h2 className="text-xl font-black text-slate-900 dark:text-white">{t("session.allItemsDone")}</h2>
-                    <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{t("session.allItemsDoneDescription")}</p>
-                    <button type="button" onClick={() => void controller.complete()} disabled={controller.isCompleting} className="mt-5 rounded-xl bg-blue-600 px-5 py-3 text-sm font-black text-white disabled:opacity-50">
-                        {controller.isCompleting ? t("session.completing") : t("session.complete")}
-                    </button>
-                </section>
+                <LanguageLearningStateCard
+                    variant="loading"
+                    title={t("session.allItemsDone")}
+                    message={t("session.redirectingToResult")}
+                />
             </LanguageLearningPageLayout>
         );
     }
@@ -67,7 +66,7 @@ export function ListeningSessionPage({ sessionId }: { sessionId: number }) {
                             </h2>
                         </div>
                         <div className="text-right text-xs font-bold text-slate-400">
-                            <p>{t("session.completedCount", { completed: session.completedItemCount, total: session.attempts.filter((candidate) => candidate.evaluationPurpose === "OFFICIAL").length })}</p>
+                            <p>{t("session.progressCount", { completed: controller.progressedItemCount, total: session.attempts.filter((candidate) => candidate.evaluationPurpose === "OFFICIAL").length })}</p>
                             <p className="mt-1">{t(`attemptStatus.${attempt.status}`)}</p>
                         </div>
                     </div>
@@ -101,6 +100,26 @@ export function ListeningSessionPage({ sessionId }: { sessionId: number }) {
                                 onChange={(value) => controller.updateDraft("INTERPRETATION", value)}
                             />
                         )}
+                        {controller.selectedTaskTypes.includes("COMPREHENSION") && (
+                            <ListeningChoiceAnswerPanel
+                                question={item.question}
+                                options={item.options}
+                                value={controller.drafts.COMPREHENSION ?? ""}
+                                disabled={attempt.answerRevealed}
+                                correctOptionKey={item.correctOptionKey}
+                                onChange={(value) => controller.updateDraft("COMPREHENSION", value)}
+                            />
+                        )}
+                        {controller.selectedTaskTypes.includes("SUMMARY") && (
+                            <ListeningTextAnswerPanel
+                                taskType="SUMMARY"
+                                value={controller.drafts.SUMMARY ?? ""}
+                                disabled={attempt.answerRevealed}
+                                originLanguage={controller.entry?.setting?.originLanguage ?? ""}
+                                learningLanguage={controller.entry?.setting?.learningLanguage ?? ""}
+                                onChange={(value) => controller.updateDraft("SUMMARY", value)}
+                            />
+                        )}
                         {controller.selectedTaskTypes.includes("REPEAT_AFTER_AUDIO") && <ListeningRepeatRecorderPanel controller={controller} />}
                         <ListeningAssistancePanel controller={controller} />
                     </>
@@ -121,14 +140,25 @@ export function ListeningSessionPage({ sessionId }: { sessionId: number }) {
 
                 {!evaluating && (
                     <div className="sticky bottom-3 z-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur dark:border-white/10 dark:bg-slate-900/95">
-                        <button type="button" onClick={() => {
-                            if (window.confirm(t("session.skipConfirm"))) void controller.skip();
-                        }} className="rounded-xl px-4 py-2.5 text-sm font-black text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5">
-                            {t("session.skip")}
-                        </button>
-                        <button type="button" onClick={() => void controller.submit()} disabled={!controller.canSubmit} className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-black text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50">
-                            {controller.isSubmitting ? t("session.submitting") : attempt.answerRevealed ? t("session.submitPractice") : t("session.submit")}
-                        </button>
+                        {attempt.answerRevealed ? (
+                            <>
+                                <p className="text-sm font-bold text-amber-700 dark:text-amber-200">{t("session.answerReviewNotice")}</p>
+                                <button type="button" onClick={() => void controller.continueAfterReveal()} className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-black text-white hover:bg-blue-500">
+                                    {t("session.nextAfterReveal")}
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <button type="button" onClick={() => {
+                                    if (window.confirm(t("session.skipConfirm"))) void controller.skip();
+                                }} className="rounded-xl px-4 py-2.5 text-sm font-black text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5">
+                                    {t("session.skip")}
+                                </button>
+                                <button type="button" onClick={() => void controller.submit()} disabled={!controller.canSubmit} className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-black text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50">
+                                    {controller.isSubmitting ? t("session.submitting") : t("session.submit")}
+                                </button>
+                            </>
+                        )}
                     </div>
                 )}
             </div>

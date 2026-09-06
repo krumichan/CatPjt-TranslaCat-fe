@@ -7,6 +7,7 @@ import { SpeakingAssistancePanel } from "@/components/language-learning/speaking
 import { SpeakingConversationHistory } from "@/components/language-learning/speaking/session/SpeakingConversationHistory";
 import { SpeakingEvaluationProgress } from "@/components/language-learning/speaking/session/SpeakingEvaluationProgress";
 import { SpeakingRecorderPanel } from "@/components/language-learning/speaking/session/SpeakingRecorderPanel";
+import { SpeakingPracticePromptPanel } from "@/components/language-learning/speaking/session/SpeakingPracticePromptPanel";
 import { SpeakingSessionHeader } from "@/components/language-learning/speaking/session/SpeakingSessionHeader";
 import type { SpeakingSessionController } from "@/hooks/language-learning/speaking/useSpeakingSessionController";
 
@@ -25,6 +26,7 @@ export function SpeakingSessionView({
     return (
         <div className="space-y-5" data-testid="speaking-session-page">
             <SpeakingSessionHeader detail={detail} />
+            <SpeakingPracticePromptPanel detail={detail} />
 
             {controller.actionError && (
                 <div role="alert" className="flex gap-2 rounded-2xl bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700 dark:bg-rose-500/10 dark:text-rose-200">

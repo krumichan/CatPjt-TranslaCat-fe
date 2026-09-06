@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 
 import { SpeakingActiveSessionCard } from "@/components/language-learning/speaking/start/SpeakingActiveSessionCard";
 import { SpeakingSessionConfig } from "@/components/language-learning/speaking/start/SpeakingSessionConfig";
+import { SpeakingPracticeModeSelector } from "@/components/language-learning/speaking/start/SpeakingPracticeModeSelector";
 import { SpeakingTopicSelector } from "@/components/language-learning/speaking/start/SpeakingTopicSelector";
 import type { SpeakingStartPageController } from "@/hooks/language-learning/speaking/useSpeakingStartPageController";
 
@@ -77,8 +78,14 @@ export function SpeakingStartView({
                 </section>
             )}
 
-            <SpeakingTopicSelector controller={controller} />
-            <SpeakingSessionConfig controller={controller} />
+            <SpeakingPracticeModeSelector controller={controller} />
+
+            {controller.practiceMode && (
+                <>
+                    <SpeakingTopicSelector controller={controller} />
+                    <SpeakingSessionConfig controller={controller} />
+                </>
+            )}
 
             {controller.createError && (
                 <p role="alert" className="text-sm font-bold text-rose-600 dark:text-rose-300">
@@ -86,6 +93,7 @@ export function SpeakingStartView({
                 </p>
             )}
 
+            {controller.practiceMode && (
             <div className="sticky bottom-4 z-20 flex justify-end">
                 <button
                     type="button"
@@ -97,6 +105,7 @@ export function SpeakingStartView({
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </button>
             </div>
+            )}
         </div>
     );
 }

@@ -1025,7 +1025,8 @@
             "TOPIC_RECOMMENDED": {
               "label": "Topic 추천",
               "help": "Topic의 권장 방식으로 시작합니다."
-            }
+            },
+            "aiPromptRequired": "따라 말하기와 가이드 말하기는 먼저 AI가 연습 문장이나 가이드를 제시하는 방식으로 시작합니다."
           },
           "correctionMode": {
             "title": "교정 방식",
@@ -1052,6 +1053,31 @@
           "persona": "AI 역할",
           "personaPlaceholder": "예: 호텔 직원",
           "applyPolicy": "Session 시작 시 선택한 설정과 정책이 Snapshot으로 고정됩니다."
+        },
+        "mode": {
+          "title": "오늘 어떤 방식으로 Speaking을 연습할까요?",
+          "description": "유형을 먼저 선택한 뒤 주제와 세부 설정을 정합니다. 문제/가이드는 Session을 시작할 때 생성됩니다.",
+          "READ_ALOUD": {
+            "title": "듣고 따라 말하기",
+            "description": "AI Audio와 스크립트를 함께 보고 같은 문장을 말하며 발음·억양·유창성을 연습합니다."
+          },
+          "GUIDED": {
+            "title": "가이드 말하기",
+            "description": "주어진 사실·전달할 내용·답변 조건을 보고 자신의 말로 구성해 발화합니다."
+          },
+          "FREE": {
+            "title": "자유 말하기",
+            "description": "간단한 주제나 최소한의 힌트만 보고 자신의 의견·경험·상상을 자유롭게 말합니다."
+          },
+          "select": "이 유형 선택",
+          "selected": "선택됨",
+          "startAgain": "다시 연습하기",
+          "resume": "이어서 학습",
+          "result": "결과 보기",
+          "completed": "완료",
+          "progress": "진행 {value}",
+          "evaluating": "AI 평가 중…",
+          "viewEvaluationProgress": "평가 진행 상황 보기"
         }
       },
       "audio": {
@@ -1229,6 +1255,21 @@
           "confirmEvaluate": "Speaking Session을 종료하고 평가를 시작할까요? 종료 후에는 새 Turn을 추가할 수 없습니다.",
           "confirmWithoutEvaluation": "평가 기준을 충족하지 않은 상태로 Session을 종료할까요? 점수와 Profile에는 반영되지 않습니다.",
           "withoutEvaluationNotice": "평가 없이 종료해도 History와 학습 시간·Streak는 유지되며, 점수와 Learning Profile에는 반영되지 않습니다."
+        },
+        "practice": {
+          "mode": {
+            "READ_ALOUD": "따라 말할 스크립트",
+            "GUIDED": "말하기 가이드",
+            "FREE": "자유 말하기"
+          },
+          "script": "따라 말할 문장",
+          "providedFacts": "주어진 사실",
+          "requiredIntents": "반드시 전달할 내용",
+          "responseConstraints": "답변 조건",
+          "noteTitle": "내 메모",
+          "noteHelp": "말할 내용을 자유롭게 정리하세요. 이 메모는 AI 평가에 전송되지 않습니다.",
+          "notePlaceholder": "키워드, 표현, 말할 순서 등을 메모해 보세요.",
+          "noteSaved": "자동 임시저장됨 · 새로고침해도 복구됩니다."
         }
       },
       "evaluation": {
@@ -1291,7 +1332,7 @@
     },
     "listening": {
       "title": "AI Listening",
-      "description": "Reference Audio를 듣고 받아쓰기·의미 쓰기·따라 말하기를 선택해 연습하고 평가받습니다.",
+      "description": "받아쓰기·객관식 이해·핵심 요약 중 원하는 유형을 선택해 5문제씩 연습하고 상세 평가를 받습니다.",
       "difficulty": {
         "EASY": "쉬움",
         "MY_LEVEL": "내 레벨",
@@ -1300,7 +1341,9 @@
       "task": {
         "DICTATION": "받아쓰기",
         "INTERPRETATION": "의미 쓰기",
-        "REPEAT_AFTER_AUDIO": "따라 말하기"
+        "REPEAT_AFTER_AUDIO": "따라 말하기",
+        "COMPREHENSION": "듣고 답 고르기",
+        "SUMMARY": "핵심 정리"
       },
       "dailyStatus": {
         "GENERATING": "문제 준비 중",
@@ -1362,7 +1405,7 @@
       },
       "session": {
         "title": "AI Listening Session",
-        "description": "Audio를 듣고 선택한 Task를 모두 완료한 뒤 평가를 요청합니다.",
+        "description": "Audio를 듣고 답안을 제출하면 AI 평가는 백그라운드에서 진행되며 바로 다음 문제로 이동합니다.",
         "loading": "Session 상태를 복원하고 있습니다.",
         "loadFailed": "Listening Session을 불러오지 못했습니다.",
         "expiredTitle": "Session이 만료되었습니다",
@@ -1374,14 +1417,17 @@
         "completing": "완료 처리 중...",
         "itemProgress": "문제 {current}/{total}",
         "completedCount": "완료 {completed}/{total}",
+        "progressCount": "진행 {completed}/{total}",
         "evaluating": "선택한 Task를 평가하고 있습니다. 성공한 결과는 유지하며 실패한 Task만 재시도할 수 있습니다.",
-        "evaluatingTitle": "평가 중입니다…",
-        "evaluatingDescription": "평가가 완료되면 자동으로 다음 단계로 이동합니다.",
+        "evaluatingTitle": "AI 평가가 백그라운드에서 진행 중입니다…",
+        "evaluatingDescription": "평가를 기다리지 않고 다음 문제를 계속 풀 수 있습니다.",
         "skip": "건너뛰기",
         "skipConfirm": "이 문제를 건너뛸까요? 오늘 완료 수에는 포함되지 않습니다.",
         "submit": "선택 답안 제출",
         "submitPractice": "연습 답안 제출",
         "submitting": "답안 저장·평가 요청 중...",
+        "answerReviewNotice": "정답을 확인했습니다. 내용을 검토한 뒤 다음 문제로 이동하세요.",
+        "nextAfterReveal": "다음 문제",
         "audio": {
           "play": "재생 / 다시 듣기",
           "slow": "0.75x 천천히",
@@ -1399,6 +1445,18 @@
             "description": "들은 의미를 {language}로 자연스럽게 작성하세요.",
             "label": "의미 쓰기 답안",
             "placeholder": "이해한 내용을 자연스럽게 작성해 주세요."
+          },
+          "COMPREHENSION": {
+            "title": "듣고 답 고르기",
+            "description": "Audio의 내용을 이해하고 가장 알맞은 답을 선택하세요.",
+            "label": "객관식 답안",
+            "correct": "정답"
+          },
+          "SUMMARY": {
+            "title": "핵심 정리",
+            "description": "들은 내용의 핵심을 {language}로 정리하세요.",
+            "label": "핵심 정리 답안",
+            "placeholder": "핵심 내용과 중요한 정보를 간결하게 정리해 주세요."
           }
         },
         "recorder": {
@@ -1440,8 +1498,13 @@
           },
           "topicHintValue": "Topic: {value}",
           "keywordHintValue": "Keyword: {value}",
-          "hintUnavailable": "표시할 힌트가 없습니다."
-        }
+          "hintUnavailable": "표시할 힌트가 없습니다.",
+          "sourceAnswer": "원문 정답",
+          "correctChoice": "정답: {key}. {value}",
+          "summaryKeyPoints": "핵심 포인트",
+          "referenceMeanings": "참고 의미"
+        },
+        "redirectingToResult": "마지막 답안을 저장했습니다. AI 평가는 백그라운드에서 계속 진행되며 결과 화면으로 이동합니다."
       },
       "result": {
         "title": "Listening 평가 결과",
@@ -1458,6 +1521,11 @@
         "notSelected": "미선택",
         "confidence": "Confidence {value}%",
         "notEvaluable": "평가할 수 없었습니다: {reason}",
+        "answerRevealedExcluded": "정답을 먼저 확인하여 공식 평가와 학습 진척에서 제외된 문제입니다.",
+        "referenceAudioTitle": "이 문제 다시 듣기",
+        "referenceAudioPlay": "Reference Audio 재생",
+        "referenceAudioLoading": "Audio 불러오는 중...",
+        "referenceAudioFailed": "Reference Audio를 불러오지 못했습니다.",
         "retryEvaluation": "평가 다시 시도",
         "strengths": "잘한 점",
         "improvements": "개선할 점",
@@ -1471,7 +1539,9 @@
         "task": {
           "DICTATION": "받아쓰기",
           "INTERPRETATION": "의미 쓰기",
-          "REPEAT_AFTER_AUDIO": "따라 말하기"
+          "REPEAT_AFTER_AUDIO": "따라 말하기",
+          "COMPREHENSION": "듣고 답 고르기",
+          "SUMMARY": "핵심 정리"
         },
         "status": {
           "READY": "준비",
@@ -1483,6 +1553,22 @@
           "NOT_SELECTED": "미선택",
           "NOT_EVALUABLE": "평가 불가",
           "SKIPPED": "건너뜀"
+        },
+        "metrics": {
+          "TOKEN_RECOGNITION": "단어·토큰 인식",
+          "OMISSION_ADDITION_ORDER": "누락·추가·어순",
+          "ORTHOGRAPHY": "표기 정확도",
+          "MEANING_FIDELITY": "의미 충실도",
+          "DETAIL_AND_NUANCE": "세부 의미·뉘앙스",
+          "ORIGIN_NATURALNESS": "해석 자연스러움",
+          "PRONUNCIATION": "발음",
+          "PROSODY_RHYTHM": "억양·리듬",
+          "FLUENCY": "유창성",
+          "COMPLETENESS": "완전성",
+          "ANSWER_ACCURACY": "정답 정확도",
+          "GIST_COVERAGE": "핵심 주제 파악",
+          "KEY_POINT_COVERAGE": "중요 정보 포함",
+          "LANGUAGE_CLARITY": "표현 명확성"
         },
         "report": {
           "title": "음성 인식·평가 오류 신고",
@@ -1511,7 +1597,16 @@
           "independence": "독립 청취",
           "playback": "재생 · 정상속도 {normal}회 / 0.75x {slow}회",
           "help": "첫 정상속도 재생은 감점되지 않습니다. 추가 재생과 느리게 듣기는 독립 청취 점수에만 반영됩니다."
-        }
+        },
+        "evaluatingEyebrow": "AI 평가 진행 중",
+        "evaluatingTitle": "5문제 평가를 마무리하고 있습니다…",
+        "evaluatingDescription": "문제 풀이가 모두 끝났습니다. 모든 문제의 평가 처리가 끝날 때까지 점수는 공개하지 않습니다.",
+        "evaluatingSolvedProgress": "문제 풀이 {completed}/{total} 완료",
+        "evaluatingProgress": "AI 평가 처리 {completed}/{total}",
+        "evaluatingHint": "이 페이지를 벗어나거나 새로고침해도 평가는 계속 진행됩니다.",
+        "evaluationCoverage": "평가 반영 {evaluated}/{total}",
+        "partialEvaluationNotice": "전체 {total}문제 중 {evaluated}문제만 최종 점수에 반영되었습니다. 평가 오류·평가 제외 문제는 0점 처리하지 않고 최종 평균에서 제외합니다.",
+        "itemExcludedFromScore": "이 문제는 평가가 완전하게 끝나지 않아 최종 Listening 점수에서 제외되었습니다. 성공한 Task 결과와 실패 사유는 아래에서 확인할 수 있습니다."
       },
       "errors": {
         "LISTENING_SETTING_REQUIRED": "학습 설정을 먼저 완료해 주세요.",
@@ -1535,6 +1630,44 @@
         "AI_EVALUATION_FAILED": "평가에 실패했습니다. 실패한 Task만 다시 시도할 수 있습니다.",
         "AI_SCHEMA_INVALID": "평가 결과 형식을 확인할 수 없습니다.",
         "UNKNOWN": "요청 처리에 실패했습니다. Server 상태를 다시 확인해 주세요."
+      },
+      "modeSelector": {
+        "title": "오늘 어떤 방식으로 Listening을 연습할까요?",
+        "description": "유형을 선택할 때만 해당 5문제를 준비합니다. 한 유형만 풀어도 되고, 다른 유형을 이어서 추가로 풀어도 됩니다.",
+        "start": "이 유형 시작하기",
+        "continue": "이어서 학습하기",
+        "resume": "계속하기",
+        "result": "결과 보기",
+        "completed": "완료",
+        "inProgress": "진행 중",
+        "failed": "준비 실패",
+        "retry": "다시 준비하기",
+        "progress": "진행 {value}",
+        "preparing": "문제와 Audio 준비 중…",
+        "preparationProgress": "문제 생성 {generated}/{total} · Audio 준비 {ready}/{total}",
+        "learningProgress": "학습 진행 {completed}/{total}",
+        "learningCompleted": "학습 완료 {completed}/{total}",
+        "evaluationCoverageDetail": "평가 반영 {evaluated}/{total}",
+        "answerRevealedCount": "정답 공개 {count}개",
+        "otherExcludedCount": "평가 제외 {count}개",
+        "evaluationProcessing": "AI 평가 처리 {completed}/{total}",
+        "evaluationProgress": "평가 진행 상황 보기",
+        "evaluating": "AI 평가 중",
+        "evaluationProgressCount": "AI 평가 처리 {value}"
+      },
+      "mode": {
+        "DICTATION": {
+          "title": "받아쓰기 + 해석",
+          "description": "들은 문장을 학습 언어로 정확히 받아쓰고, 모국어로 의미를 해석합니다."
+        },
+        "COMPREHENSION": {
+          "title": "듣고 답 고르기",
+          "description": "내용·의도·세부 정보·추론을 듣고 가장 알맞은 답을 고릅니다."
+        },
+        "SUMMARY": {
+          "title": "핵심 정리",
+          "description": "들은 내용의 요점과 중요한 정보를 학습 언어로 직접 정리합니다."
+        }
       }
     }
   }

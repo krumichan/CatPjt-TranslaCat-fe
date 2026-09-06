@@ -31,43 +31,49 @@ export function SpeakingSessionConfig({
                 </p>
             </div>
 
-            <fieldset className="mt-6">
-                <legend className="text-sm font-black text-slate-800 dark:text-slate-100">
-                    {t("startMode.title")}
-                </legend>
-                <div className="mt-3 grid gap-3 md:grid-cols-3">
-                    {SPEAKING_START_MODES.map((mode) => (
-                        <label
-                            key={mode}
-                            className={cn(
-                                "cursor-pointer rounded-2xl border p-4 transition",
-                                controller.startMode === mode
-                                    ? "border-blue-500 bg-blue-50 dark:bg-blue-500/10"
-                                    : "border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5",
-                            )}
-                        >
-                            <span className="flex items-start gap-3">
-                                <input
-                                    type="radio"
-                                    name="speaking-start-mode"
-                                    value={mode}
-                                    checked={controller.startMode === mode}
-                                    onChange={() => controller.setStartMode(mode)}
-                                    className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500"
-                                />
-                                <span>
-                                    <span className="block text-sm font-black text-slate-900 dark:text-white">
-                                        {t(`startMode.${mode}.label`)}
-                                    </span>
-                                    <span className="mt-1 block text-xs leading-5 text-slate-500 dark:text-slate-400">
-                                        {t(`startMode.${mode}.help`)}
+            {controller.practiceMode === "FREE" ? (
+                <fieldset className="mt-6">
+                    <legend className="text-sm font-black text-slate-800 dark:text-slate-100">
+                        {t("startMode.title")}
+                    </legend>
+                    <div className="mt-3 grid gap-3 md:grid-cols-3">
+                        {SPEAKING_START_MODES.map((mode) => (
+                            <label
+                                key={mode}
+                                className={cn(
+                                    "cursor-pointer rounded-2xl border p-4 transition",
+                                    controller.startMode === mode
+                                        ? "border-blue-500 bg-blue-50 dark:bg-blue-500/10"
+                                        : "border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5",
+                                )}
+                            >
+                                <span className="flex items-start gap-3">
+                                    <input
+                                        type="radio"
+                                        name="speaking-start-mode"
+                                        value={mode}
+                                        checked={controller.startMode === mode}
+                                        onChange={() => controller.setStartMode(mode)}
+                                        className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500"
+                                    />
+                                    <span>
+                                        <span className="block text-sm font-black text-slate-900 dark:text-white">
+                                            {t(`startMode.${mode}.label`)}
+                                        </span>
+                                        <span className="mt-1 block text-xs leading-5 text-slate-500 dark:text-slate-400">
+                                            {t(`startMode.${mode}.help`)}
+                                        </span>
                                     </span>
                                 </span>
-                            </span>
-                        </label>
-                    ))}
+                            </label>
+                        ))}
+                    </div>
+                </fieldset>
+            ) : (
+                <div className="mt-6 rounded-2xl bg-blue-50 px-4 py-3 text-sm font-bold text-blue-800 dark:bg-blue-500/10 dark:text-blue-200">
+                    {t("startMode.aiPromptRequired")}
                 </div>
-            </fieldset>
+            )}
 
             <fieldset className="mt-6">
                 <legend className="text-sm font-black text-slate-800 dark:text-slate-100">

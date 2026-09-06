@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { createIdempotencyKey } from "@/features/language-learning/listening/idempotency";
 import { useQuery } from "@/hooks/useQuery";
@@ -33,6 +33,34 @@ export function useListeningResultController(sessionId: number) {
                     : 0,
         },
     });
+
+
+    const evaluationState = useMemo(() => {
+        const result = resultQuery.data;
+        const official = result?.attempts.filter((attempt) =>
+            attempt.evaluationPurpose === "OFFICIAL"
+        ) ?? [];
+        const submitted = official.filter((attempt) =>
+            ["SUBMITTED", "EVALUATING", "EVALUATED", "NOT_EVALUABLE", "SKIPPED"].includes(attempt.status)
+        );
+        const terminal = official.filter((attempt) =>
+            ["EVALUATED", "NOT_EVALUABLE", "SKIPPED"].includes(attempt.status)
+        );
+        const fullyEvaluated = official.filter((attempt) =>
+            attempt.overallScore !== null
+            && attempt.coverage >= 1
+            && attempt.tasks
+                .filter((task) => task.status !== "NOT_SELECTED")
+                .every((task) => task.status === "EVALUATED")
+        );
+        return {
+            officialCount: official.length,
+            submittedCount: submitted.length,
+            terminalCount: terminal.length,
+            fullyEvaluatedCount: fullyEvaluated.length,
+            allSettled: official.length > 0 && terminal.length === official.length,
+        };
+    }, [resultQuery.data]);
 
     const retryEvaluation = useCallback(async (attemptId: number, taskType: ListeningTaskType) => {
         const key = `retry-${attemptId}-${taskType}`;
@@ -104,6 +132,7 @@ export function useListeningResultController(sessionId: number) {
         loadError: resultQuery.isError,
         busyKey,
         errorCode,
+        evaluationState,
         retryEvaluation,
         startPractice,
         report,

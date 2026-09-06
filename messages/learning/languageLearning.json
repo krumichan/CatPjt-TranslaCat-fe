@@ -1025,7 +1025,8 @@
             "TOPIC_RECOMMENDED": {
               "label": "Topic推奨",
               "help": "Topicの推奨方法で開始します。"
-            }
+            },
+            "aiPromptRequired": "リピート練習とガイド付きSpeakingは、最初にAIが練習文またはガイドを提示してから開始します。"
           },
           "correctionMode": {
             "title": "訂正モード",
@@ -1052,6 +1053,31 @@
           "persona": "AIの役割",
           "personaPlaceholder": "例：ホテルスタッフ",
           "applyPolicy": "Session開始時に選択した設定とPolicy Snapshotが固定されます。"
+        },
+        "mode": {
+          "title": "今日はどの方法でSpeakingを練習しますか？",
+          "description": "先に形式を選び、その後トピックと詳細設定を決めます。問題やガイドはSession開始時に生成されます。",
+          "READ_ALOUD": {
+            "title": "聞いてリピート",
+            "description": "AI Audioとスクリプトを見ながら同じ文を発話し、発音・イントネーション・流暢さを練習します。"
+          },
+          "GUIDED": {
+            "title": "ガイド付きSpeaking",
+            "description": "与えられた事実・伝える内容・回答条件をもとに、自分の言葉で発話します。"
+          },
+          "FREE": {
+            "title": "自由Speaking",
+            "description": "短いテーマや最小限のヒントだけを見て、自分の意見・経験・想像を自由に話します。"
+          },
+          "select": "この形式を選択",
+          "selected": "選択済み",
+          "startAgain": "もう一度練習",
+          "resume": "続きから学習",
+          "result": "結果を見る",
+          "completed": "完了",
+          "progress": "進捗 {value}",
+          "evaluating": "AI評価中…",
+          "viewEvaluationProgress": "評価の進行状況を見る"
         }
       },
       "audio": {
@@ -1229,6 +1255,21 @@
           "confirmEvaluate": "Speaking Sessionを終了して評価を開始しますか？終了後は新しいTurnを追加できません。",
           "confirmWithoutEvaluation": "評価基準を満たさない状態でSessionを終了しますか？ScoreとProfileには反映されません。",
           "withoutEvaluationNotice": "評価なしで終了してもHistory・学習時間・Streakは保持されますが、ScoreとLearning Profileには反映されません。"
+        },
+        "practice": {
+          "mode": {
+            "READ_ALOUD": "リピート用スクリプト",
+            "GUIDED": "Speakingガイド",
+            "FREE": "自由Speaking"
+          },
+          "script": "リピートする文",
+          "providedFacts": "与えられた事実",
+          "requiredIntents": "必ず伝える内容",
+          "responseConstraints": "回答条件",
+          "noteTitle": "自分用メモ",
+          "noteHelp": "話す内容を自由に整理できます。このメモはAI評価には送信されません。",
+          "notePlaceholder": "キーワード、表現、話す順番などをメモしてください。",
+          "noteSaved": "自動保存済み · 更新しても復元されます。"
         }
       },
       "evaluation": {
@@ -1291,7 +1332,7 @@
     },
     "listening": {
       "title": "AI Listening",
-      "description": "Reference Audioを聞き、ディクテーション・意味記述・リピート発話を選択して練習・評価します。",
+      "description": "ディクテーション・選択式理解・要約から好きな形式を選び、各5問ずつ練習して詳細評価を受けます。",
       "difficulty": {
         "EASY": "やさしい",
         "MY_LEVEL": "自分のレベル",
@@ -1300,7 +1341,9 @@
       "task": {
         "DICTATION": "ディクテーション",
         "INTERPRETATION": "意味記述",
-        "REPEAT_AFTER_AUDIO": "リピート発話"
+        "REPEAT_AFTER_AUDIO": "リピート発話",
+        "COMPREHENSION": "聞いて答えを選ぶ",
+        "SUMMARY": "要点をまとめる"
       },
       "dailyStatus": {
         "GENERATING": "問題準備中",
@@ -1362,7 +1405,7 @@
       },
       "session": {
         "title": "AI Listening Session",
-        "description": "Audioを聞いて選択Taskを完了し、評価を依頼します。",
+        "description": "Audioを聞いて回答を提出すると、AI評価はバックグラウンドで進み、すぐ次の問題へ進みます。",
         "loading": "Session状態を復元しています。",
         "loadFailed": "Listening Sessionを読み込めませんでした。",
         "expiredTitle": "Sessionの有効期限が切れました",
@@ -1374,14 +1417,17 @@
         "completing": "完了処理中...",
         "itemProgress": "問題 {current}/{total}",
         "completedCount": "完了 {completed}/{total}",
+        "progressCount": "進行 {completed}/{total}",
         "evaluating": "選択したTaskを評価中です。成功結果は保持し、失敗Taskのみ再試行できます。",
-        "evaluatingTitle": "評価中です…",
-        "evaluatingDescription": "評価が完了すると自動的に次へ進みます。",
+        "evaluatingTitle": "AI評価をバックグラウンドで実行中です…",
+        "evaluatingDescription": "評価を待たずに次の問題を続けて解けます。",
         "skip": "スキップ",
         "skipConfirm": "この問題をスキップしますか？今日の完了数には含まれません。",
         "submit": "選択回答を提出",
         "submitPractice": "練習回答を提出",
         "submitting": "回答保存・評価依頼中...",
+        "answerReviewNotice": "正解を確認しました。内容を確認してから次の問題へ進んでください。",
+        "nextAfterReveal": "次の問題",
         "audio": {
           "play": "再生 / もう一度",
           "slow": "0.75x ゆっくり",
@@ -1399,6 +1445,18 @@
             "description": "聞いた意味を{language}で自然に書いてください。",
             "label": "意味記述回答",
             "placeholder": "理解した内容を自然に書いてください。"
+          },
+          "COMPREHENSION": {
+            "title": "聞いて答えを選ぶ",
+            "description": "Audioの内容を理解し、最も適切な答えを選んでください。",
+            "label": "選択式回答",
+            "correct": "正解"
+          },
+          "SUMMARY": {
+            "title": "要点をまとめる",
+            "description": "聞いた内容の要点を{language}でまとめてください。",
+            "label": "要約回答",
+            "placeholder": "要点と重要な情報を簡潔にまとめてください。"
           }
         },
         "recorder": {
@@ -1440,8 +1498,13 @@
           },
           "topicHintValue": "Topic: {value}",
           "keywordHintValue": "Keyword: {value}",
-          "hintUnavailable": "表示できるヒントがありません。"
-        }
+          "hintUnavailable": "表示できるヒントがありません。",
+          "sourceAnswer": "原文の正解",
+          "correctChoice": "正解: {key}. {value}",
+          "summaryKeyPoints": "要点",
+          "referenceMeanings": "参考の意味"
+        },
+        "redirectingToResult": "最後の回答を保存しました。AI評価はバックグラウンドで続行し、結果画面へ移動します。"
       },
       "result": {
         "title": "Listening評価結果",
@@ -1458,6 +1521,11 @@
         "notSelected": "未選択",
         "confidence": "Confidence {value}%",
         "notEvaluable": "評価できませんでした: {reason}",
+        "answerRevealedExcluded": "先に正解を確認したため、正式評価と学習進捗の対象外になった問題です。",
+        "referenceAudioTitle": "この問題をもう一度聞く",
+        "referenceAudioPlay": "Reference Audioを再生",
+        "referenceAudioLoading": "Audio読み込み中...",
+        "referenceAudioFailed": "Reference Audioを読み込めませんでした。",
         "retryEvaluation": "評価を再試行",
         "strengths": "良かった点",
         "improvements": "改善点",
@@ -1471,7 +1539,9 @@
         "task": {
           "DICTATION": "ディクテーション",
           "INTERPRETATION": "意味記述",
-          "REPEAT_AFTER_AUDIO": "リピート発話"
+          "REPEAT_AFTER_AUDIO": "リピート発話",
+          "COMPREHENSION": "聞いて答えを選ぶ",
+          "SUMMARY": "要点をまとめる"
         },
         "status": {
           "READY": "準備",
@@ -1483,6 +1553,22 @@
           "NOT_SELECTED": "未選択",
           "NOT_EVALUABLE": "評価不可",
           "SKIPPED": "スキップ"
+        },
+        "metrics": {
+          "TOKEN_RECOGNITION": "語・Token認識",
+          "OMISSION_ADDITION_ORDER": "脱落・追加・語順",
+          "ORTHOGRAPHY": "表記の正確さ",
+          "MEANING_FIDELITY": "意味の忠実度",
+          "DETAIL_AND_NUANCE": "詳細・ニュアンス",
+          "ORIGIN_NATURALNESS": "意味記述の自然さ",
+          "PRONUNCIATION": "発音",
+          "PROSODY_RHYTHM": "抑揚・リズム",
+          "FLUENCY": "流暢さ",
+          "COMPLETENESS": "完全性",
+          "ANSWER_ACCURACY": "回答正確度",
+          "GIST_COVERAGE": "要旨理解",
+          "KEY_POINT_COVERAGE": "重要情報の網羅",
+          "LANGUAGE_CLARITY": "表現の明確さ"
         },
         "report": {
           "title": "音声認識・評価エラー報告",
@@ -1511,7 +1597,16 @@
           "independence": "独立リスニング",
           "playback": "再生 · 通常速度 {normal}回 / 0.75x {slow}回",
           "help": "最初の通常速度再生は減点されません。追加再生と低速再生は独立リスニングスコアにのみ反映されます。"
-        }
+        },
+        "evaluatingEyebrow": "AI評価進行中",
+        "evaluatingTitle": "5問の評価を完了しています…",
+        "evaluatingDescription": "問題の回答はすべて完了しました。全問題の評価処理が終了するまでスコアは表示しません。",
+        "evaluatingSolvedProgress": "問題回答 {completed}/{total} 完了",
+        "evaluatingProgress": "AI評価処理 {completed}/{total}",
+        "evaluatingHint": "このページを離れたり再読み込みしても評価はバックグラウンドで続行されます。",
+        "evaluationCoverage": "評価反映 {evaluated}/{total}",
+        "partialEvaluationNotice": "全{total}問のうち{evaluated}問のみ最終スコアに反映されています。評価エラー・評価対象外の問題は0点扱いせず、最終平均から除外します。",
+        "itemExcludedFromScore": "この問題は評価が完全に終了していないため、最終Listeningスコアから除外されています。成功したTask結果と失敗理由は下で確認できます。"
       },
       "errors": {
         "LISTENING_SETTING_REQUIRED": "先に学習設定を完了してください。",
@@ -1535,6 +1630,44 @@
         "AI_EVALUATION_FAILED": "評価に失敗しました。失敗Taskのみ再試行できます。",
         "AI_SCHEMA_INVALID": "評価結果の形式を確認できません。",
         "UNKNOWN": "処理に失敗しました。Server状態を再確認してください。"
+      },
+      "modeSelector": {
+        "title": "今日はどの方法でListeningを練習しますか？",
+        "description": "形式を選んだときだけ、その5問を準備します。1形式だけでも、続けて別形式を追加しても構いません。",
+        "start": "この形式を始める",
+        "continue": "続きから学習",
+        "resume": "続ける",
+        "result": "結果を見る",
+        "completed": "完了",
+        "inProgress": "進行中",
+        "failed": "準備失敗",
+        "retry": "もう一度準備する",
+        "progress": "進捗 {value}",
+        "preparing": "問題とAudioを準備中…",
+        "preparationProgress": "問題生成 {generated}/{total} · Audio準備 {ready}/{total}",
+        "learningProgress": "学習進捗 {completed}/{total}",
+        "learningCompleted": "学習完了 {completed}/{total}",
+        "evaluationCoverageDetail": "評価反映 {evaluated}/{total}",
+        "answerRevealedCount": "解答公開 {count}問",
+        "otherExcludedCount": "評価対象外 {count}問",
+        "evaluationProcessing": "AI評価処理 {completed}/{total}",
+        "evaluationProgress": "評価進捗を見る",
+        "evaluating": "AI評価中",
+        "evaluationProgressCount": "AI評価処理 {value}"
+      },
+      "mode": {
+        "DICTATION": {
+          "title": "ディクテーション + 意味",
+          "description": "聞いた文を学習言語で正確に書き取り、母語で意味を書きます。"
+        },
+        "COMPREHENSION": {
+          "title": "聞いて答えを選ぶ",
+          "description": "内容・意図・詳細・推論を聞き取り、最も適切な答えを選びます。"
+        },
+        "SUMMARY": {
+          "title": "要点をまとめる",
+          "description": "聞いた内容の要点と重要情報を学習言語で自分の言葉にまとめます。"
+        }
       }
     }
   }

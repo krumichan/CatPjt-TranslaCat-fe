@@ -1,21 +1,41 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { createIdempotencyKey } from "@/features/language-learning/listening/idempotency";
 import { useLanguageLearningEntryState } from "@/hooks/language-learning/useLanguageLearningEntryState";
 import { useQuery } from "@/hooks/useQuery";
-import { learningHistoryService } from "@/services/language-learning/learningHistoryService";
+import { useRouter } from "@/navigation";
 import { listeningService } from "@/services/language-learning/listeningService";
+import { ApiResponseError } from "@/services/common/responseParser";
+import type {
+    ListeningDailySet,
+    ListeningLearningMode,
+    ListeningTaskType,
+} from "@/types/language-learning/listening";
+
+const MODE_TASKS: Record<ListeningLearningMode, ListeningTaskType[]> = {
+    DICTATION: ["DICTATION", "INTERPRETATION"],
+    COMPREHENSION: ["COMPREHENSION"],
+    SUMMARY: ["SUMMARY"],
+};
 
 export function useListeningLandingController() {
+    const router = useRouter();
     const entry = useLanguageLearningEntryState();
     const canLoad = entry.setting?.configured === true && entry.levelStatus?.profileState !== "LEVEL_TEST_REQUIRED";
+    const [selectedMode, setSelectedMode] = useState<ListeningLearningMode | null>(null);
+    const [currentSet, setCurrentSet] = useState<ListeningDailySet | null>(null);
+    const [isStarting, setIsStarting] = useState(false);
+    const [actionErrorCode, setActionErrorCode] = useState<string | null>(null);
+    const sessionKeyRef = useRef<string | null>(null);
+    const startInFlightRef = useRef(false);
 
-    const todayQuery = useQuery({
-        keys: canLoad ? (["listening-today"] as const) : null,
-        fetcher: () => listeningService.getToday(),
+    const statusQuery = useQuery({
+        keys: canLoad ? (["listening-today-mode-status"] as const) : null,
+        fetcher: () => listeningService.getTodayStatus(),
         enabled: canLoad,
-        config: { revalidateOnMount: true },
+        config: { revalidateOnMount: true, shouldRetryOnError: false },
     });
 
     const policyQuery = useQuery({
@@ -32,82 +52,136 @@ export function useListeningLandingController() {
         config: { revalidateOnMount: true, shouldRetryOnError: false },
     });
 
-    const today = todayQuery.data ?? null;
-    const todayCompleted = today !== null && (
-        today.status === "COMPLETED" ||
-        (today.targetItemCount > 0 && today.completedItemCount >= today.targetItemCount)
+    const statuses = statusQuery.data ?? [];
+    const activeSession = activeSessionQuery.data?.active ? activeSessionQuery.data.session : null;
+    const hasLiveMode = statuses.some((value) =>
+        value.status === "GENERATING"
+        || value.status === "PARTIAL"
+        || value.latestSessionStatus === "EVALUATING"
     );
 
-    const completedHistoryQuery = useQuery({
-        keys: canLoad && todayCompleted && today
-            ? (["listening-today-completed-history", today.learningDate] as const)
-            : null,
-        fetcher: () => learningHistoryService.getAll({
-            source: "LISTENING",
-            period: "30d",
-        }),
-        enabled: canLoad && todayCompleted,
-        config: { revalidateOnMount: true, shouldRetryOnError: false },
-    });
-
-    const completedSessionId = (() => {
-        if (!todayCompleted || !today) return null;
-        const activity = (completedHistoryQuery.data ?? []).find((item) =>
-            item.source === "LISTENING" &&
-            item.learningDate === today.learningDate &&
-            item.completionStatus === "COMPLETED",
-        );
-        if (!activity) return null;
-        const matched = /^LISTENING:(\d+)$/.exec(activity.activityId);
-        return matched ? Number(matched[1]) : null;
-    })();
-
     useEffect(() => {
-        if (!todayQuery.data || !["GENERATING", "PARTIAL"].includes(todayQuery.data.status)) return;
-        const timer = window.setInterval(
-            () => void todayQuery.mutate((current) => current, true),
-            2000,
-        );
+        if (!hasLiveMode) return;
+        const timer = window.setInterval(() => {
+            void statusQuery.mutate((current) => current, true);
+        }, 2000);
         return () => window.clearInterval(timer);
-    }, [todayQuery]);
+    }, [hasLiveMode, statusQuery]);
 
-    const retryTts = useCallback(async (itemId: number) => {
+    const beginSession = useCallback(async (set: ListeningDailySet) => {
+        if (startInFlightRef.current || activeSession) return false;
+        if (set.status !== "READY" || set.readyItemCount <= 0) return false;
+        startInFlightRef.current = true;
+        setIsStarting(true);
+        setActionErrorCode(null);
+        const key = sessionKeyRef.current ?? createIdempotencyKey(`listening-${set.learningMode.toLowerCase()}`);
+        sessionKeyRef.current = key;
         try {
-            const updated = await listeningService.retryTts(itemId);
-            await todayQuery.mutate(updated, false);
+            const session = await listeningService.createSession({
+                dailySetId: set.dailySetId,
+                selectedTaskTypes: MODE_TASKS[set.learningMode],
+                idempotencyKey: key,
+            });
+            sessionKeyRef.current = null;
+            router.push(`/language-learning/listening/session/${session.sessionId}`);
             return true;
         } catch (error) {
-            console.error("Failed to retry Listening TTS.", error);
+            const code = error instanceof ApiResponseError ? error.errorCode : "UNKNOWN";
+            setActionErrorCode(code);
+            if (code === "LISTENING_ACTIVE_SESSION_EXISTS") {
+                const active = await listeningService.getActiveSession().catch(() => null);
+                if (active?.active && active.session) {
+                    router.push(`/language-learning/listening/session/${active.session.sessionId}`);
+                    return true;
+                }
+            }
             return false;
+        } finally {
+            startInFlightRef.current = false;
+            setIsStarting(false);
         }
-    }, [todayQuery]);
+    }, [activeSession, router]);
+
+    const selectMode = useCallback(async (mode: ListeningLearningMode) => {
+        setSelectedMode(mode);
+        setCurrentSet(null);
+        setActionErrorCode(null);
+        if (activeSession) {
+            router.push(`/language-learning/listening/session/${activeSession.sessionId}`);
+            return true;
+        }
+        setIsStarting(true);
+        try {
+            const existing = statuses.find((value) => value.learningMode === mode);
+            const set = existing?.status === "FAILED" && existing.dailySetId
+                ? await listeningService.retryGeneration(existing.dailySetId)
+                : await listeningService.createDailySet({
+                    learningMode: mode,
+                    idempotencyKey: createIdempotencyKey(`listening-set-${mode.toLowerCase()}`),
+                });
+            setCurrentSet(set);
+            await statusQuery.mutate((current) => current, true);
+            if (set.status === "READY") {
+                return await beginSession(set);
+            }
+            return true;
+        } catch (error) {
+            setActionErrorCode(error instanceof ApiResponseError ? error.errorCode : "UNKNOWN");
+            return false;
+        } finally {
+            setIsStarting(false);
+        }
+    }, [activeSession, beginSession, router, statusQuery, statuses]);
+
+    useEffect(() => {
+        if (!selectedMode || !currentSet || currentSet.status === "READY" || currentSet.status === "FAILED") return;
+        const timer = window.setInterval(async () => {
+            try {
+                const next = await listeningService.createDailySet({ learningMode: selectedMode });
+                setCurrentSet(next);
+                await statusQuery.mutate((current) => current, true);
+                if (next.status === "READY") {
+                    window.clearInterval(timer);
+                    await beginSession(next);
+                }
+            } catch (error) {
+                setActionErrorCode(error instanceof ApiResponseError ? error.errorCode : "UNKNOWN");
+                window.clearInterval(timer);
+            }
+        }, 2000);
+        return () => window.clearInterval(timer);
+    }, [beginSession, currentSet, selectedMode, statusQuery]);
+
+    const statusByMode = useMemo(
+        () => Object.fromEntries(statuses.map((value) => [value.learningMode, value])) as Partial<Record<ListeningLearningMode, (typeof statuses)[number]>>,
+        [statuses],
+    );
 
     return {
         entry,
-        today,
         policy: policyQuery.data ?? null,
-        activeSession: activeSessionQuery.data?.active ? activeSessionQuery.data.session : null,
-        todayCompleted,
-        completedSessionId,
+        statuses,
+        statusByMode,
+        activeSession,
+        selectedMode,
+        currentSet,
+        isStarting,
+        actionErrorCode,
         isLoading: canLoad && (
-            (todayQuery.data == null && todayQuery.isLoading) ||
+            (statusQuery.data == null && statusQuery.isLoading) ||
             (policyQuery.data == null && policyQuery.isLoading) ||
-            (activeSessionQuery.data == null && activeSessionQuery.isLoading) ||
-            (todayCompleted &&
-                completedHistoryQuery.data == null &&
-                completedHistoryQuery.isLoading)
+            (activeSessionQuery.data == null && activeSessionQuery.isLoading)
         ),
-        loadError: todayQuery.isError || policyQuery.isError || activeSessionQuery.isError,
+        loadError: statusQuery.isError || policyQuery.isError || activeSessionQuery.isError,
+        selectMode,
         reload: async () => {
             await Promise.all([
                 entry.reload(),
-                todayQuery.mutate((current) => current, true),
-                policyQuery.mutate((current) => current, true),
-                activeSessionQuery.mutate((current) => current, true),
-                completedHistoryQuery.mutate((current) => current, true),
+                statusQuery.mutate(undefined, true),
+                policyQuery.mutate(undefined, true),
+                activeSessionQuery.mutate(undefined, true),
             ]);
         },
-        retryTts,
     };
 }
 

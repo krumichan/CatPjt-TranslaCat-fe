@@ -18,6 +18,8 @@ import type {
 } from "@/types/language-learning/listening";
 
 const TERMINAL_ATTEMPT = new Set(["EVALUATED", "NOT_EVALUABLE", "SKIPPED"]);
+const SUBMITTED_ATTEMPT = new Set(["SUBMITTED", "EVALUATING", "EVALUATED", "NOT_EVALUABLE", "SKIPPED"]);
+const EDITABLE_ATTEMPT = new Set(["READY", "IN_PROGRESS"]);
 
 export function useListeningSessionController(sessionId: number) {
     const router = useRouter();
@@ -36,6 +38,7 @@ export function useListeningSessionController(sessionId: number) {
     const [isUploading, setIsUploading] = useState(false);
     const [isCompleting, setIsCompleting] = useState(false);
     const [assistanceNotice, setAssistanceNotice] = useState<ListeningAssistanceType | null>(null);
+    const [isAssistanceBusy, setIsAssistanceBusy] = useState(false);
 
     const sessionQuery = useQuery({
         keys: ["listening-session", sessionId] as const,
@@ -64,7 +67,7 @@ export function useListeningSessionController(sessionId: number) {
 
     const currentAttempt = useMemo(() => {
         if (!session) return null;
-        return session.attempts.find((attempt) => !TERMINAL_ATTEMPT.has(attempt.status)) ?? null;
+        return session.attempts.find((attempt) => EDITABLE_ATTEMPT.has(attempt.status)) ?? null;
     }, [session]);
 
     const itemQuery = useQuery({
@@ -105,8 +108,7 @@ export function useListeningSessionController(sessionId: number) {
             draftAttemptIdRef.current = item.attempt.attemptId;
             const next: Partial<Record<ListeningTaskType, string>> = {};
             for (const task of item.attempt.tasks) {
-                if (task.taskType === "DICTATION"
-                    || task.taskType === "INTERPRETATION") {
+                if (task.taskType !== "REPEAT_AFTER_AUDIO") {
                     next[task.taskType] = task.answerText ?? "";
                 }
             }
@@ -132,17 +134,6 @@ export function useListeningSessionController(sessionId: number) {
             });
         }
     }, [item]);
-
-    useEffect(() => {
-        if (!attempt || !["SUBMITTED", "EVALUATING"].includes(attempt.status)) return;
-        const timer = window.setInterval(async () => {
-            await Promise.all([
-                sessionQuery.mutate((current) => current, true),
-                itemQuery.mutate((current) => current, true),
-            ]);
-        }, 2000);
-        return () => window.clearInterval(timer);
-    }, [attempt, itemQuery, sessionQuery]);
 
     useEffect(() => {
         return () => {
@@ -212,28 +203,21 @@ export function useListeningSessionController(sessionId: number) {
     }, [item, session]);
 
     const recordAssistance = useCallback(async (type: ListeningAssistanceType) => {
-        if (!attempt || !session) return;
-
-        const requests = selectedTaskTypes.map((taskType) => {
-            const task = attempt.tasks.find((candidate) => candidate.taskType === taskType);
-            const currentUsage = task?.assistanceUsage ?? [];
-            const nextUsage = currentUsage.some((usage) => usage.type === type)
-                ? currentUsage.map((usage) => usage.type === type
-                    ? { ...usage, count: usage.count + 1 }
-                    : usage)
-                : [...currentUsage, { type, count: 1 }];
-
-            return listeningService.saveAssistance(attempt.attemptId, taskType, nextUsage);
-        });
-
+        if (!attempt || !session || isAssistanceBusy || attempt.answerRevealed) return false;
+        setIsAssistanceBusy(true);
+        setActionErrorCode(null);
         try {
-            await Promise.all(requests);
+            await listeningService.useAttemptAssistance(attempt.attemptId, type);
             setAssistanceNotice(type);
-            await itemQuery.mutate(undefined, true);
+            await itemQuery.mutate((current) => current, true);
+            return true;
         } catch (error) {
             setActionErrorCode(error instanceof ApiResponseError ? error.errorCode : "UNKNOWN");
+            return false;
+        } finally {
+            setIsAssistanceBusy(false);
         }
-    }, [attempt, itemQuery, selectedTaskTypes, session]);
+    }, [attempt, isAssistanceBusy, itemQuery, session]);
 
     const playReference = useCallback(async (audio: HTMLAudioElement | null, slow = false) => {
         if (!audio || !attempt) return false;
@@ -281,18 +265,31 @@ export function useListeningSessionController(sessionId: number) {
     }, [attempt, isUploading, itemQuery, recorder.audioBlob, recorder.elapsedSeconds]);
 
     const revealAnswer = useCallback(async () => {
-        if (!attempt) return false;
+        if (!attempt || isAssistanceBusy || attempt.answerRevealed) return false;
+        setIsAssistanceBusy(true);
         setActionErrorCode(null);
         try {
             const answer = await listeningService.revealAnswer(attempt.attemptId);
             setRevealedAnswer(answer);
-            await Promise.all([itemQuery.mutate(undefined, true), sessionQuery.mutate(undefined, true)]);
+            // Keep the current item on screen so the learner can actually review
+            // the revealed answer. Session refresh happens when they continue.
+            await itemQuery.mutate((current) => current, true);
             return true;
         } catch (error) {
             setActionErrorCode(error instanceof ApiResponseError ? error.errorCode : "UNKNOWN");
             return false;
+        } finally {
+            setIsAssistanceBusy(false);
         }
-    }, [attempt, itemQuery, sessionQuery]);
+    }, [attempt, isAssistanceBusy, itemQuery]);
+
+    const continueAfterReveal = useCallback(async () => {
+        if (!attempt?.answerRevealed) return false;
+        setRevealedAnswer(null);
+        setAssistanceNotice(null);
+        await sessionQuery.mutate((current) => current, true);
+        return true;
+    }, [attempt, sessionQuery]);
 
     const canSubmit = useMemo(() => {
         if (!attempt || !session || isSubmitting) return false;
@@ -328,7 +325,10 @@ export function useListeningSessionController(sessionId: number) {
             });
             setDrafts({});
             recorder.reset();
-            await Promise.all([sessionQuery.mutate(undefined, true), itemQuery.mutate(undefined, true)]);
+            await Promise.all([
+                sessionQuery.mutate((current) => current, true),
+                itemQuery.mutate((current) => current, true),
+            ]);
             return true;
         } catch (error) {
             setActionErrorCode(error instanceof ApiResponseError ? error.errorCode : "UNKNOWN");
@@ -370,7 +370,14 @@ export function useListeningSessionController(sessionId: number) {
         if (!session || currentAttempt || isCompleting) return false;
         setIsCompleting(true);
         try {
-            if (session.status !== "COMPLETED") {
+            const official = session.attempts.filter((candidate) =>
+                candidate.evaluationPurpose === "OFFICIAL"
+            );
+            const allTerminal = official.length > 0
+                && official.every((candidate) => TERMINAL_ATTEMPT.has(candidate.status));
+            if (session.status !== "COMPLETED"
+                    && session.status !== "EVALUATING"
+                    && allTerminal) {
                 await listeningService.complete(
                     session.sessionId,
                     Date.now() - pageStartedAt.current,
@@ -385,6 +392,46 @@ export function useListeningSessionController(sessionId: number) {
             setIsCompleting(false);
         }
     }, [currentAttempt, isCompleting, router, session]);
+
+    useEffect(() => {
+        if (!session || currentAttempt || isCompleting) return;
+        const official = session.attempts.filter((candidate) =>
+            candidate.evaluationPurpose === "OFFICIAL"
+        );
+        const allSubmitted = official.length > 0
+            && official.every((candidate) => SUBMITTED_ATTEMPT.has(candidate.status));
+        const practicePending = session.attempts.some((candidate) =>
+            candidate.evaluationPurpose === "PRACTICE"
+            && ["SUBMITTED", "EVALUATING"].includes(candidate.status)
+        );
+        if (allSubmitted || practicePending || session.status === "COMPLETED") {
+            void complete();
+        }
+    }, [complete, currentAttempt, isCompleting, session]);
+
+    const progressedItemCount = useMemo(() => {
+        if (!session) return 0;
+        const terminalAttemptIds = new Set(
+            session.attempts
+                .filter((candidate) =>
+                    candidate.evaluationPurpose === "OFFICIAL"
+                    && SUBMITTED_ATTEMPT.has(candidate.status),
+                )
+                .map((candidate) => candidate.attemptId),
+        );
+
+        // reveal-answer finalizes the current attempt on the server, while we
+        // intentionally delay refreshing the session until the learner has
+        // reviewed the answer. Reflect that progress immediately without
+        // advancing the visible item.
+        if (attempt?.evaluationPurpose === "OFFICIAL"
+                && attempt.answerRevealed
+                && !terminalAttemptIds.has(attempt.attemptId)) {
+            terminalAttemptIds.add(attempt.attemptId);
+        }
+
+        return terminalAttemptIds.size;
+    }, [attempt, session]);
 
     return {
         entry,
@@ -401,6 +448,8 @@ export function useListeningSessionController(sessionId: number) {
         playbackRate,
         revealedAnswer,
         assistanceNotice,
+        isAssistanceBusy,
+        progressedItemCount,
         actionErrorCode,
         isLoading:
             (session === null && sessionQuery.isLoading) ||
@@ -417,11 +466,15 @@ export function useListeningSessionController(sessionId: number) {
         recordAssistance,
         confirmRecording,
         revealAnswer,
+        continueAfterReveal,
         submit,
         skip,
         complete,
         reload: async () => {
-            await Promise.all([sessionQuery.mutate(undefined, true), itemQuery.mutate(undefined, true)]);
+            await Promise.all([
+                sessionQuery.mutate((current) => current, true),
+                itemQuery.mutate((current) => current, true),
+            ]);
         },
     };
 }

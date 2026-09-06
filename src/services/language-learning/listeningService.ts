@@ -2,9 +2,11 @@ import { apiClient } from "@/lib/apiClient";
 import { parseResponseBody } from "@/services/common/responseParser";
 import type {
     ListeningActiveSession,
+    ListeningAssistanceType,
     ListeningAssistanceUsage,
     ListeningAttempt,
     ListeningAudioUpload,
+    ListeningDailyModeStatus,
     ListeningDailySet,
     ListeningDailySetCreateRequest,
     ListeningEvaluationReport,
@@ -30,6 +32,11 @@ function jsonBody(value: unknown): RequestInit {
 }
 
 export const listeningService = {
+    getTodayStatus: async (): Promise<ListeningDailyModeStatus[]> => {
+        const response = await apiClient("/language-learning/listening/today/status", { method: "GET" });
+        return parseResponseBody<ListeningDailyModeStatus[]>(response, "ListeningTodayStatus");
+    },
+
     getToday: async (): Promise<ListeningDailySet> => {
         const response = await apiClient("/language-learning/listening/today", { method: "GET" });
         return parseResponseBody<ListeningDailySet>(response, "ListeningToday");
@@ -38,6 +45,11 @@ export const listeningService = {
     createDailySet: async (request: ListeningDailySetCreateRequest = {}): Promise<ListeningDailySet> => {
         const response = await apiClient("/language-learning/listening/daily-sets", jsonBody(request));
         return parseResponseBody<ListeningDailySet>(response, "ListeningDailySet");
+    },
+
+    retryGeneration: async (dailySetId: number): Promise<ListeningDailySet> => {
+        const response = await apiClient(`/language-learning/listening/daily-sets/${dailySetId}/retry-generation`, { method: "POST" });
+        return parseResponseBody<ListeningDailySet>(response, "ListeningRetryGeneration");
     },
 
     retryTts: async (itemId: number): Promise<ListeningDailySet> => {
@@ -114,6 +126,17 @@ export const listeningService = {
     ): Promise<ListeningTask> => {
         const response = await apiClient(`/language-learning/listening/attempts/${attemptId}/responses/${taskType}/assistance`, jsonBody(usage));
         return parseResponseBody<ListeningTask>(response, "ListeningAssistance");
+    },
+
+    useAttemptAssistance: async (
+        attemptId: number,
+        assistanceType: ListeningAssistanceType,
+    ): Promise<ListeningAttempt> => {
+        const response = await apiClient(
+            `/language-learning/listening/attempts/${attemptId}/assistance/${assistanceType}`,
+            { method: "POST" },
+        );
+        return parseResponseBody<ListeningAttempt>(response, "ListeningAttemptAssistance");
     },
 
     uploadAudio: async (

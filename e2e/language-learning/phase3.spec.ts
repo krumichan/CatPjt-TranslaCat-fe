@@ -11,11 +11,7 @@ import {
 } from "../support/language-learning-mocks";
 import { responseDto } from "../support/mock-data";
 
-const TASK_LABELS = {
-    DICTATION: /받아쓰기/,
-    INTERPRETATION: /의미 쓰기/,
-    REPEAT_AFTER_AUDIO: /따라 말하기/,
-} as const;
+
 
 test.describe("Language Learning Phase 3", () => {
     test.beforeEach(async ({ page }) => {
@@ -23,57 +19,90 @@ test.describe("Language Learning Phase 3", () => {
         await mockLanguageLearningPhase3(page);
     });
 
-    test("LL3-01 Listening 진입에서 오늘의 Set과 시작 동선을 표시한다", async ({ page }) => {
+    test("LL3-01 Listening 진입만으로 문제를 생성하지 않고 3가지 학습 유형을 표시한다", async ({ page }) => {
+        let createCalls = 0;
+        page.on("request", (request) => {
+            if (request.url().endsWith("/language-learning/listening/daily-sets") && request.method() === "POST") {
+                createCalls += 1;
+            }
+        });
+
         await page.goto("/language-learning/listening");
         await expect(page.getByTestId("listening-landing-page")).toBeVisible();
-        await expect(page.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "20");
-        await expect(page.getByTestId("listening-start-link")).toBeVisible();
-        await expect(page.getByTestId("listening-start-link")).toHaveAttribute("href", /listening\/setup/);
+        await expect(page.getByTestId("listening-mode-DICTATION")).toContainText(/받아쓰기/);
+        await expect(page.getByTestId("listening-mode-COMPREHENSION")).toContainText(/답 고르기/);
+        await expect(page.getByTestId("listening-mode-SUMMARY")).toContainText(/핵심 정리/);
+        expect(createCalls).toBe(0);
     });
 
-    for (const [name, tasks] of [
-        ["D", ["DICTATION"]],
-        ["R", ["REPEAT_AFTER_AUDIO"]],
-        ["D+I", ["DICTATION", "INTERPRETATION"]],
-        ["R+I", ["REPEAT_AFTER_AUDIO", "INTERPRETATION"]],
-        ["D+R", ["DICTATION", "REPEAT_AFTER_AUDIO"]],
-        ["D+I+R", ["DICTATION", "INTERPRETATION", "REPEAT_AFTER_AUDIO"]],
+    for (const [mode, tasks] of [
+        ["DICTATION", ["DICTATION", "INTERPRETATION"]],
+        ["COMPREHENSION", ["COMPREHENSION"]],
+        ["SUMMARY", ["SUMMARY"]],
     ] as const) {
-        test(`LL3-02-${name} 허용 Task 조합을 Session 생성 Payload로 전송한다`, async ({ page }) => {
-            await page.goto("/language-learning/listening/setup");
-            for (const task of Object.keys(TASK_LABELS) as Array<keyof typeof TASK_LABELS>) {
-                const checkbox = page.getByRole("checkbox", { name: TASK_LABELS[task] });
-                const shouldCheck = (tasks as readonly string[]).includes(task);
-                if ((await checkbox.isChecked()) !== shouldCheck) {
-                    await page.getByTestId(`listening-task-option-${task}`).click();
-                }
-            }
+        test(`LL3-02-${mode} 선택한 유형만 Daily Set과 Session으로 시작한다`, async ({ page }) => {
+            await page.goto("/language-learning/listening");
 
-            const requestPromise = page.waitForRequest((request) =>
+            const setRequestPromise = page.waitForRequest((request) =>
+                request.url().endsWith("/language-learning/listening/daily-sets") &&
+                request.method() === "POST",
+            );
+            const sessionRequestPromise = page.waitForRequest((request) =>
                 request.url().endsWith("/language-learning/listening/sessions") &&
                 request.method() === "POST",
             );
-            await page.getByRole("button", { name: /Listening 시작/ }).click();
-            const request = await requestPromise;
-            const payload = request.postDataJSON() as {
-                dailySetId: number;
-                selectedTaskTypes: string[];
-                idempotencyKey: string;
-            };
-            expect(payload.dailySetId).toBe(701);
+
+            await page.getByTestId(`listening-mode-${mode}`).getByRole("button").click();
+
+            const setRequest = await setRequestPromise;
+            expect(setRequest.postDataJSON()).toMatchObject({ learningMode: mode });
+
+            const sessionRequest = await sessionRequestPromise;
+            const payload = sessionRequest.postDataJSON() as { selectedTaskTypes: string[] };
             expect([...payload.selectedTaskTypes].sort()).toEqual([...tasks].sort());
-            expect(payload.idempotencyKey).toBeTruthy();
         });
     }
 
-    test("LL3-03 Interpretation 단독 선택을 차단한다", async ({ page }) => {
-        await page.goto("/language-learning/listening/setup");
-        await page.getByTestId("listening-task-option-DICTATION").click();
-        await page.getByTestId("listening-task-option-INTERPRETATION").click();
-        await expect(
-            page.getByRole("alert").filter({ hasText: /받아쓰기 또는 따라 말하기 중 하나 이상이 필요/ }),
-        ).toBeVisible();
-        await expect(page.getByRole("button", { name: /Listening 시작/ })).toBeDisabled();
+    test("LL3-03 유형 상태에서 진행 중인 받아쓰기를 이어서 할 수 있다", async ({ page }) => {
+        await page.route("**/language-learning/listening/sessions/active", (route) =>
+            fulfillApiJson(route, responseDto({ active: true, session: LANGUAGE_LEARNING_LISTENING_SESSION })),
+        );
+        await page.goto("/language-learning/listening");
+        const card = page.getByTestId("listening-mode-DICTATION");
+        await expect(card).toContainText(/진행 중/);
+        await expect(card.getByRole("link")).toHaveAttribute("href", /listening\/session\/702/);
+    });
+
+    test("LL3-03A 준비 중 카드에서 문제 생성 수와 Audio 준비 수를 분리해 표시한다", async ({ page }) => {
+        await page.route("**/language-learning/listening/today/status", (route) =>
+            fulfillApiJson(route, responseDto([
+                { learningMode: "DICTATION", dailySetId: null, latestSessionId: null, status: null, latestSessionStatus: null, completedItemCount: 0, evaluatedItemCount: 0, submittedItemCount: 0, terminalItemCount: 0, answerRevealedItemCount: 0, physicalItemCount: 0, readyItemCount: 0, targetItemCount: 0, completed: false },
+                { learningMode: "COMPREHENSION", dailySetId: 703, latestSessionId: null, status: "PARTIAL", latestSessionStatus: null, completedItemCount: 0, evaluatedItemCount: 0, submittedItemCount: 0, terminalItemCount: 0, answerRevealedItemCount: 0, physicalItemCount: 5, readyItemCount: 2, targetItemCount: 5, completed: false },
+                { learningMode: "SUMMARY", dailySetId: null, latestSessionId: null, status: null, latestSessionStatus: null, completedItemCount: 0, evaluatedItemCount: 0, submittedItemCount: 0, terminalItemCount: 0, answerRevealedItemCount: 0, physicalItemCount: 0, readyItemCount: 0, targetItemCount: 0, completed: false },
+            ])),
+        );
+
+        await page.goto("/language-learning/listening");
+        const card = page.getByTestId("listening-mode-COMPREHENSION");
+        await expect(card).toContainText(/문제 생성 5\/5/);
+        await expect(card).toContainText(/Audio 준비 2\/5/);
+    });
+
+    test("LL3-03B 정답 공개 문항은 학습 완료 수에 포함하고 평가 반영 수와 별도로 설명한다", async ({ page }) => {
+        await page.route("**/language-learning/listening/today/status", (route) =>
+            fulfillApiJson(route, responseDto([
+                { learningMode: "DICTATION", dailySetId: 701, latestSessionId: 702, status: "READY", latestSessionStatus: "COMPLETED", completedItemCount: 4, evaluatedItemCount: 4, submittedItemCount: 5, terminalItemCount: 5, answerRevealedItemCount: 1, physicalItemCount: 5, readyItemCount: 5, targetItemCount: 5, completed: true },
+                { learningMode: "COMPREHENSION", dailySetId: null, latestSessionId: null, status: null, latestSessionStatus: null, completedItemCount: 0, evaluatedItemCount: 0, submittedItemCount: 0, terminalItemCount: 0, answerRevealedItemCount: 0, physicalItemCount: 0, readyItemCount: 0, targetItemCount: 0, completed: false },
+                { learningMode: "SUMMARY", dailySetId: null, latestSessionId: null, status: null, latestSessionStatus: null, completedItemCount: 0, evaluatedItemCount: 0, submittedItemCount: 0, terminalItemCount: 0, answerRevealedItemCount: 0, physicalItemCount: 0, readyItemCount: 0, targetItemCount: 0, completed: false },
+            ])),
+        );
+
+        await page.goto("/language-learning/listening");
+        const card = page.getByTestId("listening-mode-DICTATION");
+        await expect(card).toContainText(/학습 완료 5\/5/);
+        await expect(card).toContainText(/평가 반영 4\/5/);
+        await expect(card).toContainText(/정답 공개 1개/);
+        await expect(card).not.toContainText(/진행 4\/5/);
     });
 
     test("LL3-04 Session에서 제출 전 원문을 노출하지 않고 Reference Audio와 선택 Task를 표시한다", async ({ page }) => {
@@ -90,6 +119,53 @@ test.describe("Language Learning Phase 3", () => {
         await expect(page.getByTestId("listening-task-result-DICTATION").getByText("88", { exact: true })).toBeVisible();
         await expect(page.getByTestId("listening-task-result-INTERPRETATION")).toContainText(/미선택/);
         await expect(page.getByTestId("listening-task-result-REPEAT_AFTER_AUDIO")).toContainText(/80/);
+    });
+
+    test("LL3-05A 마지막 답안 뒤에는 중간 점수를 숨기고 전체 평가 완료를 기다린다", async ({ page }) => {
+        const pending = structuredClone(LANGUAGE_LEARNING_LISTENING_RESULT);
+        pending.status = "EVALUATING";
+        pending.learnedItemCount = 0;
+        pending.evaluatedItemCount = 0;
+        pending.averageScore = null;
+        pending.attempts[0].status = "EVALUATING";
+        pending.attempts[0].overallScore = null;
+        pending.attempts[0].coverage = 0;
+        pending.attempts[0].tasks = pending.attempts[0].tasks.map((task) =>
+            task.status === "NOT_SELECTED"
+                ? task
+                : { ...task, status: "EVALUATING", evaluation: null }
+        );
+        await page.route("**/language-learning/listening/sessions/702/result", (route) =>
+            fulfillApiJson(route, responseDto(pending)),
+        );
+
+        await page.goto("/language-learning/listening/session/702/result");
+        await expect(page.getByTestId("listening-result-evaluating")).toBeVisible();
+        await expect(page.getByTestId("listening-result-evaluating")).toContainText(/문제 풀이 1\/1 완료/);
+        await expect(page.getByTestId("listening-result-evaluating")).toContainText(/AI 평가 처리 0\/1/);
+        await expect(page.getByText("84", { exact: true })).toHaveCount(0);
+    });
+
+    test("LL3-05B 평가 오류로 제외된 문항은 0점 처리하지 않고 결과 반영 수를 표시한다", async ({ page }) => {
+        const partial = structuredClone(LANGUAGE_LEARNING_LISTENING_RESULT);
+        partial.evaluatedItemCount = 0;
+        partial.learnedItemCount = 0;
+        partial.averageScore = null;
+        partial.attempts[0].status = "EVALUATED";
+        partial.attempts[0].overallScore = 88;
+        partial.attempts[0].coverage = 0.5;
+        partial.attempts[0].tasks[0].status = "EVALUATED";
+        partial.attempts[0].tasks[2].status = "EVALUATION_FAILED";
+        partial.attempts[0].tasks[2].evaluation = null;
+        partial.attempts[0].tasks[2].evaluationErrorCode = "AI_EVALUATION_FAILED";
+        await page.route("**/language-learning/listening/sessions/702/result", (route) =>
+            fulfillApiJson(route, responseDto(partial)),
+        );
+
+        await page.goto("/language-learning/listening/session/702/result");
+        await expect(page.getByTestId("listening-result-page")).toBeVisible();
+        await expect(page.getByTestId("listening-result-partial-notice")).toContainText(/0문제만 최종 점수에 반영/);
+        await expect(page.getByTestId("listening-task-result-REPEAT_AFTER_AUDIO")).toContainText(/평가 실패/);
     });
 
     test("LL3-06 실패 Task만 평가 Retry한다", async ({ page }) => {
@@ -219,6 +295,21 @@ test.describe("Language Learning Phase 3", () => {
         await repeat.getByRole("button", { name: /내 Audio 재생/ }).click();
         await requestPromise;
         await expect(repeat.locator("audio")).toBeVisible();
+    });
+
+    test("LL3-15A 결과 화면은 선택한 Task만 표시하고 Reference Audio를 다시 들을 수 있다", async ({ page }) => {
+        await page.goto("/language-learning/listening/session/702/result");
+        await expect(page.getByTestId("listening-task-result-INTERPRETATION")).toHaveCount(0);
+        await expect(page.getByText("표기 정확도")).toBeVisible();
+
+        const player = page.getByTestId("listening-result-reference-audio-711");
+        const requestPromise = page.waitForRequest((request) =>
+            request.url().includes("/language-learning/listening/items/711/audio") &&
+            request.method() === "GET",
+        );
+        await player.getByRole("button", { name: /Reference Audio/ }).click();
+        await requestPromise;
+        await expect(player.locator("audio")).toBeVisible();
     });
 
     test("LL3-16 Learning Settings에서 Listening 목표와 기본 Task 조합을 저장한다", async ({ page }) => {

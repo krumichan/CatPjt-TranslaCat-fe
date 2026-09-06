@@ -22,9 +22,15 @@ test.describe("Language Learning Phase 2", () => {
         await mockLanguageLearningPhase2(page);
     });
 
-    test("LL2-01 Speaking Topic과 3가지 시작 방식을 표시한다", async ({ page }) => {
+    test("LL2-01 Speaking 진입에서 3가지 연습 유형을 먼저 선택한다", async ({ page }) => {
         await page.goto("/language-learning/speaking");
         await expect(page.getByTestId("speaking-start-page")).toBeVisible();
+        await expect(page.getByTestId("speaking-mode-READ_ALOUD")).toContainText(/듣고 따라 말하기/);
+        await expect(page.getByTestId("speaking-mode-GUIDED")).toContainText(/가이드 말하기/);
+        await expect(page.getByTestId("speaking-mode-FREE")).toContainText(/자유 말하기/);
+        await expect(page.getByText("週末の予定", { exact: true })).toHaveCount(0);
+
+        await page.getByTestId("speaking-mode-FREE").getByRole("button", { name: /이 유형 선택/ }).click();
         await expect(page.getByText("週末の予定", { exact: true })).toBeVisible();
         await expect(page.getByRole("radio", { name: /AI 먼저/ })).toBeAttached();
         await expect(page.getByRole("radio", { name: /내가 먼저/ })).toBeAttached();
@@ -65,6 +71,18 @@ test.describe("Language Learning Phase 2", () => {
         await expect(
             assistance.getByText(/학습 보조를 6회 사용했습니다/),
         ).toBeVisible();
+    });
+
+    test("LL2-02A 자유/가이드 말하기 메모는 새로고침 후에도 복구된다", async ({ page }) => {
+        await page.goto("/language-learning/speaking/301");
+        const note = page.getByRole("textbox", { name: "내 메모" });
+        await expect(note).toBeVisible();
+        await note.fill("장소 → 이유 → 경험 순서로 말하기");
+        await page.waitForTimeout(450);
+        await page.reload();
+        await expect(page.getByRole("textbox", { name: "내 메모" })).toHaveValue(
+            "장소 → 이유 → 경험 순서로 말하기",
+        );
     });
 
     test("LL2-03 마이크 녹음 후 Turn 전송 UI가 동작한다", async ({ page }) => {
@@ -496,10 +514,12 @@ test.describe("Language Learning Phase 2", () => {
         await expect(page.getByRole("button", { name: "종료하고 평가받기" })).toBeVisible();
     });
 
-    test("LL2-20 일본어 Locale에서도 Speaking 시작 UI를 표시한다", async ({ page }) => {
+    test("LL2-20 일본어 Locale에서도 연습 유형 선택 후 Speaking 시작 UI를 표시한다", async ({ page }) => {
         await page.goto("/ja/language-learning/speaking");
 
         await expect(page.getByTestId("speaking-start-page")).toBeVisible();
+        await expect(page.getByTestId("speaking-mode-READ_ALOUD")).toContainText("聞いてリピート");
+        await page.getByTestId("speaking-mode-FREE").getByRole("button", { name: "この形式を選択" }).click();
         await expect(
             page.getByRole("group", { name: "会話開始方法" }),
         ).toBeVisible();

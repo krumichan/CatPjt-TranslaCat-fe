@@ -15,6 +15,7 @@ import { speakingTopicService } from "@/services/language-learning/speakingTopic
 import type {
     ConversationStartMode,
     CorrectionMode,
+    SpeakingPracticeMode,
     SpeakingSessionCreateRequest,
     SpeakingTopicCategory,
 } from "@/types/language-learning/speaking";
@@ -24,6 +25,7 @@ interface SpeakingSessionDraft {
     customTopic: string | null;
     goal: string | null;
     persona: string | null;
+    practiceMode: SpeakingPracticeMode;
     conversationStartMode: ConversationStartMode;
     correctionMode: CorrectionMode;
     targetMinutes: number;
@@ -41,6 +43,7 @@ export function useSpeakingStartPageController() {
     const [category, setCategory] = useState<SpeakingTopicCategory | "ALL">(
         "ALL",
     );
+    const [practiceMode, setPracticeMode] = useState<SpeakingPracticeMode | null>(null);
     const [selectedTopicId, setSelectedTopicId] = useState<number | null>(null);
     const [useCustomTopic, setUseCustomTopic] = useState(false);
     const [customTopic, setCustomTopic] = useState("");
@@ -80,6 +83,26 @@ export function useSpeakingStartPageController() {
         fetcher: () => speakingSessionService.getActive(),
         config: { revalidateOnMount: true },
     });
+    const modeStatusQuery = useQuery({
+        keys: canLoad ? (["speaking-today-mode-status"] as const) : null,
+        fetcher: () => speakingSessionService.getTodayStatus(),
+        config: { revalidateOnMount: true, shouldRetryOnError: false },
+    });
+
+    const hasPendingModeEvaluation = (modeStatusQuery.data ?? []).some(
+        (status) =>
+            status.sessionStatus === "EVALUATING" ||
+            status.evaluationStatus === "PENDING" ||
+            status.evaluationStatus === "EVALUATING",
+    );
+
+    useEffect(() => {
+        if (!hasPendingModeEvaluation) return;
+        const timer = window.setInterval(() => {
+            void modeStatusQuery.mutate(undefined, true);
+        }, 2000);
+        return () => window.clearInterval(timer);
+    }, [hasPendingModeEvaluation, modeStatusQuery.mutate]);
 
     useEffect(() => {
         const setting = entry.setting;
@@ -115,6 +138,7 @@ export function useSpeakingStartPageController() {
     const isValid =
         activeSessionResolved &&
         !activeSessionQuery.data &&
+        practiceMode !== null &&
         hasTopic &&
         targetMinutes >= minGoal &&
         targetMinutes <= maxGoal &&
@@ -128,6 +152,7 @@ export function useSpeakingStartPageController() {
             customTopic: useCustomTopic ? customTopic.trim() : null,
             goal: goal.trim() || null,
             persona: persona.trim() || null,
+            practiceMode: practiceMode!,
             conversationStartMode: startMode,
             correctionMode,
             targetMinutes,
@@ -165,6 +190,7 @@ export function useSpeakingStartPageController() {
         isCreating,
         isValid,
         persona,
+        practiceMode,
         playbackSpeed,
         router,
         selectedTopicId,
@@ -182,6 +208,9 @@ export function useSpeakingStartPageController() {
         activeSession: activeSessionQuery.data ?? null,
         activeSessionLoading: activeSessionQuery.isLoading,
         activeSessionError: Boolean(activeSessionQuery.isError),
+        modeStatuses: modeStatusQuery.data ?? [],
+        modeStatusError: Boolean(modeStatusQuery.isError),
+        practiceMode,
         category,
         selectedTopicId,
         selectedTopic,
@@ -199,6 +228,13 @@ export function useSpeakingStartPageController() {
         isCreating,
         createError,
         isValid,
+        setPracticeMode: (mode: SpeakingPracticeMode) => {
+            setPracticeMode(mode);
+            if (mode !== "FREE") {
+                setStartMode("AI_FIRST");
+            }
+            setCreateError(false);
+        },
         setCategory,
         selectTopic: (topicId: number) => {
             setUseCustomTopic(false);
@@ -223,6 +259,7 @@ export function useSpeakingStartPageController() {
             await Promise.all([
                 topicQuery.mutate(undefined, true),
                 activeSessionQuery.mutate(undefined, true),
+                modeStatusQuery.mutate(undefined, true),
             ]);
         },
     };

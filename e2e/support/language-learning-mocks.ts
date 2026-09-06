@@ -363,6 +363,7 @@ export const LANGUAGE_LEARNING_LISTENING_DAILY_SET = {
     learningDate: "2026-08-23",
     originLanguage: "ko",
     learningLanguage: "ja",
+    learningMode: "DICTATION",
     difficulty: "MY_LEVEL",
     status: "READY",
     targetItemCount: 5,
@@ -475,6 +476,11 @@ export const LANGUAGE_LEARNING_LISTENING_ITEM = {
     audioDurationMs: 8000,
     topicHint: "週末の予定",
     keywordHints: ["友達", "映画"],
+    question: null,
+    options: [],
+    comprehensionFocus: null,
+    correctOptionKey: null,
+    summaryKeyPoints: [],
     sourceText: null,
     referenceMeanings: null,
     attempt: LANGUAGE_LEARNING_LISTENING_ATTEMPT,
@@ -517,10 +523,10 @@ const LISTENING_REPEAT_EVALUATION = {
 export const LANGUAGE_LEARNING_LISTENING_RESULT = {
     sessionId: 702,
     status: "COMPLETED",
-    learnedItemCount: 5,
-    evaluatedItemCount: 5,
+    learnedItemCount: 1,
+    evaluatedItemCount: 1,
     averageScore: 84,
-    coverage: 2 / 3,
+    coverage: 1,
     attempts: [
         {
             ...LANGUAGE_LEARNING_LISTENING_ATTEMPT,
@@ -534,7 +540,7 @@ export const LANGUAGE_LEARNING_LISTENING_RESULT = {
                 policyVersion: "listening-independence-v1",
             },
             evaluatedTaskCount: 2,
-            coverage: 2 / 3,
+            coverage: 1,
             tasks: [
                 {
                     ...LANGUAGE_LEARNING_LISTENING_ATTEMPT.tasks[0],
@@ -574,12 +580,26 @@ export async function mockLanguageLearningPhase3(page: Page) {
     await page.route("**/language-learning/listening/policy", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LISTENING_POLICY)),
     );
+    await page.route("**/language-learning/listening/today/status", (route) =>
+        fulfillApiJson(route, responseDto([
+            { learningMode: "DICTATION", dailySetId: 701, latestSessionId: 702, status: "READY", latestSessionStatus: "IN_PROGRESS", completedItemCount: 1, evaluatedItemCount: 1, submittedItemCount: 1, terminalItemCount: 1, answerRevealedItemCount: 0, physicalItemCount: 5, readyItemCount: 5, targetItemCount: 5, completed: false },
+            { learningMode: "COMPREHENSION", dailySetId: null, latestSessionId: null, status: null, latestSessionStatus: null, completedItemCount: 0, evaluatedItemCount: 0, submittedItemCount: 0, terminalItemCount: 0, answerRevealedItemCount: 0, physicalItemCount: 0, readyItemCount: 0, targetItemCount: 0, completed: false },
+            { learningMode: "SUMMARY", dailySetId: null, latestSessionId: null, status: null, latestSessionStatus: null, completedItemCount: 0, evaluatedItemCount: 0, submittedItemCount: 0, terminalItemCount: 0, answerRevealedItemCount: 0, physicalItemCount: 0, readyItemCount: 0, targetItemCount: 0, completed: false },
+        ])),
+    );
     await page.route("**/language-learning/listening/today", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LISTENING_DAILY_SET)),
     );
-    await page.route("**/language-learning/listening/daily-sets", (route) =>
-        fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LISTENING_DAILY_SET)),
-    );
+    await page.route("**/language-learning/listening/daily-sets", async (route) => {
+        const request = route.request().postDataJSON() as { learningMode?: "DICTATION" | "COMPREHENSION" | "SUMMARY" } | null;
+        await fulfillApiJson(
+            route,
+            responseDto({
+                ...LANGUAGE_LEARNING_LISTENING_DAILY_SET,
+                learningMode: request?.learningMode ?? "DICTATION",
+            }),
+        );
+    });
     await page.route("**/language-learning/listening/sessions", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LISTENING_SESSION)),
     );
@@ -602,6 +622,9 @@ export async function mockLanguageLearningPhase3(page: Page) {
         if (route.request().resourceType() === "document") return route.fallback();
         await route.fulfill({ status: 200, contentType: "audio/webm", body: "mock-audio" });
     });
+    await page.route("**/language-learning/listening/attempts/801/assistance/**", (route) =>
+        fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LISTENING_ATTEMPT)),
+    );
     await page.route("**/language-learning/listening/attempts/801/responses/**", (route) => {
         const url = route.request().url();
         const taskType = url.includes("REPEAT_AFTER_AUDIO") ? "REPEAT_AFTER_AUDIO" : url.includes("INTERPRETATION") ? "INTERPRETATION" : "DICTATION";
@@ -695,6 +718,7 @@ export const LANGUAGE_LEARNING_SPEAKING_SESSION = {
     learningLanguage: "ja",
     status: "IN_PROGRESS",
     evaluationStatus: "NOT_REQUESTED",
+    practiceMode: "FREE",
     conversationStartMode: "AI_FIRST",
     resolvedStartMode: "AI_FIRST",
     correctionMode: "CONVERSATION",
@@ -705,6 +729,7 @@ export const LANGUAGE_LEARNING_SPEAKING_SESSION = {
     voiceId: "Aoede",
     playbackSpeed: "NORMAL",
     openingAssistantText: "今週末は何をする予定ですか？",
+    openingPromptGuide: { scriptText: null, providedFacts: [], requiredIntents: [], responseConstraints: [] },
     openingAssistantAudioUrl: "/api/v1/language-learning/speaking/sessions/301/audio/opening",
     sessionSummary: "週末の予定について会話中",
     startedAt: "2026-08-15T08:00:00",
@@ -721,6 +746,7 @@ export const LANGUAGE_LEARNING_SPEAKING_TURNS = Array.from({ length: 5 }, (_, in
     sttConfidence: 0.94,
     userAudioUrl: `/api/v1/language-learning/speaking/sessions/301/turns/${401 + index}/audio/user`,
     assistantText: index === 0 ? "いいですね。どんな映画を見る予定ですか？" : `AI response ${index + 1}`,
+    promptGuide: { scriptText: null, providedFacts: [], requiredIntents: [], responseConstraints: [] },
     assistantAudioUrl: `/api/v1/language-learning/speaking/sessions/301/turns/${401 + index}/audio`,
     assistanceUsage:
         index === 0
@@ -850,6 +876,13 @@ export const LANGUAGE_LEARNING_ADMIN_SETTING = {
 export async function mockLanguageLearningPhase2(page: Page) {
     await page.route("**/language-learning/speaking/topics**", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_SPEAKING_TOPICS)),
+    );
+    await page.route("**/language-learning/speaking/sessions/today/status", (route) =>
+        fulfillApiJson(route, responseDto([
+            { practiceMode: "READ_ALOUD", sessionId: null, sessionStatus: null, evaluationStatus: null, completedTurns: 0, maxTurns: 0, completed: false },
+            { practiceMode: "GUIDED", sessionId: null, sessionStatus: null, evaluationStatus: null, completedTurns: 0, maxTurns: 0, completed: false },
+            { practiceMode: "FREE", sessionId: null, sessionStatus: null, evaluationStatus: null, completedTurns: 0, maxTurns: 0, completed: false },
+        ])),
     );
     await page.route("**/language-learning/speaking/sessions/active", (route) =>
         fulfillApiJson(route, responseDto(null)),

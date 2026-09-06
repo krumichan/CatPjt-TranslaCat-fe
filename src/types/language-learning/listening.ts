@@ -1,7 +1,11 @@
 export type ListeningTaskType =
     | "DICTATION"
     | "INTERPRETATION"
-    | "REPEAT_AFTER_AUDIO";
+    | "REPEAT_AFTER_AUDIO"
+    | "COMPREHENSION"
+    | "SUMMARY";
+
+export type ListeningLearningMode = "DICTATION" | "COMPREHENSION" | "SUMMARY";
 
 export type ListeningAssistanceType =
     | "REPLAY"
@@ -15,7 +19,7 @@ export type ListeningPlaybackType = "NORMAL" | "SLOW";
 export type ListeningDifficulty = "EASY" | "MY_LEVEL" | "CHALLENGE";
 export type ListeningDailySetStatus = "GENERATING" | "READY" | "PARTIAL" | "COMPLETED" | "FAILED";
 export type ListeningItemStatus = "TTS_PENDING" | "READY" | "NOT_EVALUABLE" | "REPLACED";
-export type ListeningSessionStatus = "READY" | "IN_PROGRESS" | "COMPLETED" | "ABANDONED";
+export type ListeningSessionStatus = "READY" | "IN_PROGRESS" | "EVALUATING" | "COMPLETED" | "ABANDONED";
 export type ListeningAttemptStatus =
     | "READY"
     | "IN_PROGRESS"
@@ -58,6 +62,7 @@ export interface ListeningAssistanceUsage {
 export interface ListeningDailySetCreateRequest {
     itemCount?: number | null;
     difficulty?: ListeningDifficulty | null;
+    learningMode?: ListeningLearningMode | null;
     idempotencyKey?: string | null;
 }
 
@@ -75,6 +80,7 @@ export interface ListeningDailySet {
     learningDate: string;
     originLanguage: string;
     learningLanguage: string;
+    learningMode: ListeningLearningMode;
     difficulty: ListeningDifficulty;
     status: ListeningDailySetStatus;
     targetItemCount: number;
@@ -83,6 +89,29 @@ export interface ListeningDailySet {
     completedItemCount: number;
     failureReason: string | null;
     items: ListeningItemSummary[];
+}
+
+
+export interface ListeningDailyModeStatus {
+    learningMode: ListeningLearningMode;
+    dailySetId: number | null;
+    latestSessionId: number | null;
+    status: ListeningDailySetStatus | null;
+    latestSessionStatus: ListeningSessionStatus | null;
+    completedItemCount: number;
+    evaluatedItemCount: number;
+    submittedItemCount: number;
+    terminalItemCount: number;
+    answerRevealedItemCount: number;
+    physicalItemCount: number;
+    readyItemCount: number;
+    targetItemCount: number;
+    completed: boolean;
+}
+
+export interface ListeningChoiceOption {
+    key: string;
+    text: string;
 }
 
 export interface ListeningSessionCreateRequest {
@@ -185,6 +214,11 @@ export interface ListeningItem {
     audioDurationMs: number | null;
     topicHint: string | null;
     keywordHints: string[];
+    question: string | null;
+    options: ListeningChoiceOption[];
+    comprehensionFocus: "GIST" | "DETAIL" | "INTENT" | "INFERENCE" | "NEXT_ACTION" | null;
+    correctOptionKey: string | null;
+    summaryKeyPoints: string[];
     sourceText: string | null;
     referenceMeanings: string[] | null;
     attempt: ListeningAttempt;
@@ -297,12 +331,15 @@ export const LISTENING_TASKS: ListeningTaskType[] = [
     "DICTATION",
     "INTERPRETATION",
     "REPEAT_AFTER_AUDIO",
+    "COMPREHENSION",
+    "SUMMARY",
 ];
 
 export function isValidListeningTaskSelection(tasks: ListeningTaskType[]): boolean {
     const unique = new Set(tasks);
-    if (unique.size !== tasks.length) return false;
-    if (unique.size === 0) return false;
+    if (unique.size !== tasks.length || unique.size === 0) return false;
+    if (unique.size === 1 && (unique.has("COMPREHENSION") || unique.has("SUMMARY"))) return true;
+    if (unique.has("COMPREHENSION") || unique.has("SUMMARY")) return false;
     if (unique.has("INTERPRETATION") && unique.size === 1) return false;
     return unique.has("DICTATION") || unique.has("REPEAT_AFTER_AUDIO");
 }

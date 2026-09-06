@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, ClipboardCheck, FileText, Headphones, LoaderCircle } from "lucide-react";
+import { CheckCircle2, ClipboardCheck, FileText, Headphones, LoaderCircle, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { LanguageLearningOnboardingCard } from "@/components/language-learning/common/LanguageLearningOnboardingCard";
@@ -59,6 +59,7 @@ export function ListeningLandingPage() {
                             const evaluating = status?.latestSessionStatus === "EVALUATING";
                             const failed = status?.status === "FAILED" || (controller.selectedMode === mode && liveSet?.status === "FAILED");
                             const preparing = status?.status === "GENERATING" || status?.status === "PARTIAL" || (liveSet?.status !== undefined && liveSet.status !== "FAILED" && liveSet.status !== "READY");
+                            const preparationDelayed = controller.preparationDelayedByMode[mode] === true;
                             const targetCount = status?.targetItemCount || liveSet?.targetItemCount || 0;
                             const submittedCount = status?.submittedItemCount ?? 0;
                             const terminalCount = status?.terminalItemCount ?? 0;
@@ -133,9 +134,16 @@ export function ListeningLandingPage() {
                                             <p className="text-xs font-black text-slate-500 dark:text-slate-300">
                                                 {t("modeSelector.preparationProgress", { generated: generatedCount, ready: readyCount, total: targetCount })}
                                             </p>
-                                            <p className="inline-flex items-center gap-2 text-xs font-black text-blue-600 dark:text-blue-300">
-                                                <LoaderCircle className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />
-                                                {t("modeSelector.preparing")}
+                                            <p
+                                                data-testid={`listening-mode-${mode}-preparation-state`}
+                                                className={`inline-flex items-center gap-2 text-xs font-black ${preparationDelayed ? "text-amber-600 dark:text-amber-300" : "text-blue-600 dark:text-blue-300"}`}
+                                            >
+                                                {preparationDelayed ? (
+                                                    <RefreshCw className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+                                                ) : (
+                                                    <LoaderCircle className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+                                                )}
+                                                {preparationDelayed ? t("modeSelector.recoveryChecking") : t("modeSelector.preparing")}
                                             </p>
                                         </div>
                                     )}

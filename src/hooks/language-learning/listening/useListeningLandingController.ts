@@ -20,6 +20,9 @@ const MODE_TASKS: Record<ListeningLearningMode, ListeningTaskType[]> = {
     SUMMARY: ["SUMMARY"],
 };
 
+const LISTENING_MODES: ListeningLearningMode[] = ["DICTATION", "COMPREHENSION", "SUMMARY"];
+const PREPARATION_DELAY_NOTICE_MS = 30_000;
+
 export function useListeningLandingController() {
     const router = useRouter();
     const entry = useLanguageLearningEntryState();
@@ -28,6 +31,7 @@ export function useListeningLandingController() {
     const [currentSet, setCurrentSet] = useState<ListeningDailySet | null>(null);
     const [isStarting, setIsStarting] = useState(false);
     const [actionErrorCode, setActionErrorCode] = useState<string | null>(null);
+    const [preparationDelayedByMode, setPreparationDelayedByMode] = useState<Partial<Record<ListeningLearningMode, boolean>>>({});
     const sessionKeyRef = useRef<string | null>(null);
     const startInFlightRef = useRef(false);
 
@@ -59,6 +63,40 @@ export function useListeningLandingController() {
         || value.status === "PARTIAL"
         || value.latestSessionStatus === "EVALUATING"
     );
+
+    const preparationSignature = useMemo(() => LISTENING_MODES.map((mode) => {
+        const status = statuses.find((value) => value.learningMode === mode);
+        const liveSet = selectedMode === mode ? currentSet : null;
+        const target = status?.targetItemCount ?? liveSet?.targetItemCount ?? 0;
+        const physical = Math.max(status?.physicalItemCount ?? 0, liveSet?.physicalItemCount ?? 0);
+        const ready = Math.max(status?.readyItemCount ?? 0, liveSet?.readyItemCount ?? 0);
+        return `${mode}:${status?.status ?? liveSet?.status ?? "NONE"}:${physical}:${ready}:${target}`;
+    }).join("|"), [currentSet, selectedMode, statuses]);
+
+    useEffect(() => {
+        const timers: number[] = [];
+        const next: Partial<Record<ListeningLearningMode, boolean>> = {};
+
+        for (const part of preparationSignature.split("|")) {
+            const [modeValue, statusValue, physicalValue, readyValue, targetValue] = part.split(":");
+            const mode = modeValue as ListeningLearningMode;
+            const target = Number(targetValue);
+            const physical = Number(physicalValue);
+            const ready = Number(readyValue);
+            const preparing = (statusValue === "GENERATING" || statusValue === "PARTIAL")
+                && target > 0
+                && (physical < target || ready < target);
+
+            if (!preparing) continue;
+            next[mode] = false;
+            timers.push(window.setTimeout(() => {
+                setPreparationDelayedByMode((current) => ({ ...current, [mode]: true }));
+            }, PREPARATION_DELAY_NOTICE_MS));
+        }
+
+        setPreparationDelayedByMode(next);
+        return () => timers.forEach((timer) => window.clearTimeout(timer));
+    }, [preparationSignature]);
 
     useEffect(() => {
         if (!hasLiveMode) return;
@@ -167,6 +205,7 @@ export function useListeningLandingController() {
         currentSet,
         isStarting,
         actionErrorCode,
+        preparationDelayedByMode,
         isLoading: canLoad && (
             (statusQuery.data == null && statusQuery.isLoading) ||
             (policyQuery.data == null && policyQuery.isLoading) ||

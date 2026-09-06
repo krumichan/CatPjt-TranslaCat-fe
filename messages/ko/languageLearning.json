@@ -1644,6 +1644,7 @@
         "retry": "다시 준비하기",
         "progress": "진행 {value}",
         "preparing": "문제와 Audio 준비 중…",
+        "recoveryChecking": "준비가 지연되고 있습니다. 서버 재시작·중단 상태에서 자동 복구할 수 있는지 확인 중입니다…",
         "preparationProgress": "문제 생성 {generated}/{total} · Audio 준비 {ready}/{total}",
         "learningProgress": "학습 진행 {completed}/{total}",
         "learningCompleted": "학습 완료 {completed}/{total}",

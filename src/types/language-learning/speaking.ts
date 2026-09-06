@@ -135,6 +135,9 @@ export interface SpeakingSession {
 export interface SpeakingTurn {
     id: number;
     turnIndex: number;
+    problemIndex: number | null;
+    attemptIndex: number | null;
+    recordingRevision: number;
     status: SpeakingTurnStatus;
     durationSeconds: number;
     transcript: string | null;
@@ -170,6 +173,17 @@ export interface SpeakingPracticeModeStatus {
     completed: boolean;
 }
 
+export interface SpeakingReadAloudProblemEvaluation {
+    problemIndex: number;
+    attemptCount: number;
+    status: "PENDING" | "EVALUATING" | "EVALUATED" | "INSUFFICIENT_EVIDENCE" | "FAILED" | string;
+    overallScore: number | null;
+    evaluationConfidence: number | null;
+    errorMessage: string | null;
+    submittedAt: string;
+    evaluatedAt: string | null;
+}
+
 export interface SpeakingEvaluationEligibility {
     validUserTurns: number;
     validUserSpeechSeconds: number;
@@ -186,12 +200,14 @@ export interface SpeakingSessionDetail {
     session: SpeakingSession;
     dailyUsage: SpeakingDailyUsage;
     turns: SpeakingTurn[];
+    readAloudProblemEvaluations: SpeakingReadAloudProblemEvaluation[];
     evaluationEligibility: SpeakingEvaluationEligibility;
     resumable: boolean;
 }
 
 export interface SpeakingSessionCreateRequest {
     topicId: number | null;
+    keywordBasedTopic: boolean;
     customTopic: string | null;
     goal: string | null;
     persona: string | null;
@@ -217,6 +233,7 @@ export interface SpeakingTurnProcessRequest {
     uploadToken: string;
     durationSeconds: number;
     assistanceUsage: AssistanceType[];
+    rerecord: boolean;
 }
 
 export interface SpeakingMetric {

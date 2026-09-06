@@ -23,7 +23,7 @@ export function SpeakingConversationHistory({
             </h2>
 
             <div className="mt-4 space-y-4">
-                {session.openingAssistantText && (
+                {session.practiceMode !== "READ_ALOUD" && session.openingAssistantText && (
                     <article className="max-w-[88%] rounded-2xl rounded-bl-md bg-white px-4 py-3 shadow-sm dark:bg-slate-900">
                         <p className="text-xs font-black text-slate-400">AI</p>
                         <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-slate-800 dark:text-slate-100">
@@ -35,7 +35,7 @@ export function SpeakingConversationHistory({
                     </article>
                 )}
 
-                {detail.turns.length === 0 && !session.openingAssistantText && (
+                {detail.turns.length === 0 && (session.practiceMode === "READ_ALOUD" || !session.openingAssistantText) && (
                     <div className="py-10 text-center">
                         <MessageCircleMore className="mx-auto h-9 w-9 text-slate-300" aria-hidden="true" />
                         <p className="mt-3 text-sm text-slate-400">{t("empty")}</p>
@@ -47,6 +47,7 @@ export function SpeakingConversationHistory({
                         key={turn.id}
                         turn={turn}
                         controller={controller}
+                        practiceMode={session.practiceMode}
                     />
                 ))}
             </div>

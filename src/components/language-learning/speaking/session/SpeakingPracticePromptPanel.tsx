@@ -4,16 +4,42 @@ import { useEffect, useMemo, useState } from "react";
 import { BookOpenText, ListChecks, NotebookPen, Volume2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import type { SpeakingSessionDetail, SpeakingPromptGuide } from "@/types/language-learning/speaking";
+import { AudioPlaybackButton } from "@/components/language-learning/speaking/common/AudioPlaybackButton";
+import type { SpeakingSessionController } from "@/hooks/language-learning/speaking/useSpeakingSessionController";
+import type { SpeakingPromptGuide } from "@/types/language-learning/speaking";
 
 function emptyGuide(): SpeakingPromptGuide {
     return { scriptText: null, providedFacts: [], requiredIntents: [], responseConstraints: [] };
 }
 
-export function SpeakingPracticePromptPanel({ detail }: { detail: SpeakingSessionDetail }) {
+export function SpeakingPracticePromptPanel({ controller }: { controller: SpeakingSessionController }) {
     const t = useTranslations("LanguageLearning.speaking.session.practice");
+    const detail = controller.detail!;
     const session = detail.session;
+    const readAloudPromptTurn = useMemo(() => {
+        if (session.practiceMode !== "READ_ALOUD" || controller.readAloudActiveProblemIndex <= 1) {
+            return null;
+        }
+        return [...detail.turns].reverse().find((turn) =>
+            turn.problemIndex === controller.readAloudActiveProblemIndex - 1 &&
+            Boolean(turn.assistantText?.trim()),
+        ) ?? null;
+    }, [controller.readAloudActiveProblemIndex, detail.turns, session.practiceMode]);
     const latestPrompt = useMemo(() => {
+        if (session.practiceMode === "READ_ALOUD") {
+            if (readAloudPromptTurn) {
+                return {
+                    ...readAloudPromptTurn.promptGuide,
+                    scriptText: readAloudPromptTurn.promptGuide?.scriptText?.trim()
+                        ? readAloudPromptTurn.promptGuide.scriptText
+                        : readAloudPromptTurn.assistantText,
+                };
+            }
+            return session.openingPromptGuide ?? {
+                ...emptyGuide(),
+                scriptText: session.openingAssistantText,
+            };
+        }
         const latest = [...detail.turns].reverse().find((turn) => {
             const guide = turn.promptGuide;
             return Boolean(guide?.scriptText?.trim()) ||
@@ -22,7 +48,10 @@ export function SpeakingPracticePromptPanel({ detail }: { detail: SpeakingSessio
                 (guide?.responseConstraints?.length ?? 0) > 0;
         });
         return latest?.promptGuide ?? session.openingPromptGuide ?? emptyGuide();
-    }, [detail.turns, session.openingPromptGuide]);
+    }, [detail.turns, readAloudPromptTurn, session.openingAssistantText, session.openingPromptGuide, session.practiceMode]);
+    const referenceAudioUrl = session.practiceMode === "READ_ALOUD"
+        ? readAloudPromptTurn?.assistantAudioUrl ?? session.openingAssistantAudioUrl
+        : null;
 
     const noteKey = `language-learning:speaking:note:${session.id}`;
     const [note, setNote] = useState("");
@@ -68,6 +97,12 @@ export function SpeakingPracticePromptPanel({ detail }: { detail: SpeakingSessio
                 <div className="mt-4 rounded-2xl bg-blue-50 px-4 py-4 dark:bg-blue-500/10">
                     <p className="text-xs font-black uppercase tracking-[0.12em] text-blue-500">{t("script")}</p>
                     <p className="mt-2 whitespace-pre-wrap text-base font-bold leading-7 text-slate-900 dark:text-white">{latestPrompt.scriptText}</p>
+                    {session.practiceMode === "READ_ALOUD" && (
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                            <AudioPlaybackButton url={referenceAudioUrl} />
+                            <AudioPlaybackButton url={referenceAudioUrl} slow />
+                        </div>
+                    )}
                 </div>
             )}
 

@@ -18,6 +18,7 @@ import { useMicrophonePermission } from "@/hooks/language-learning/speaking/useM
 import { useQuery } from "@/hooks/useQuery";
 import { useRouter } from "@/navigation";
 import { speakingAssistanceService } from "@/services/language-learning/speakingAssistanceService";
+import { speakingReadAloudService } from "@/services/language-learning/speakingReadAloudService";
 import { speakingSessionService } from "@/services/language-learning/speakingSessionService";
 import { speakingTurnService } from "@/services/language-learning/speakingTurnService";
 import { sttErrorReportService } from "@/services/language-learning/sttErrorReportService";
@@ -28,11 +29,16 @@ import type {
     SttErrorReportCreateRequest,
 } from "@/types/language-learning/speaking";
 
+const READ_ALOUD_PROBLEM_COUNT = 5;
+const READ_ALOUD_REQUIRED_ATTEMPTS = 2;
+const READ_ALOUD_MAX_ATTEMPTS = 3;
+
 export type SpeakingTurnUiPhase =
     | "IDLE"
     | "PREPARING_UPLOAD"
     | "PROCESSING"
     | "RETRYING"
+    | "EVALUATING_PROBLEM"
     | "COMPLETING";
 
 export type SpeakingRecordingValidationError =
@@ -65,6 +71,12 @@ export function useSpeakingSessionController(sessionId: number) {
     const [localAudioUrls, setLocalAudioUrls] = useState<
         Record<number, string>
     >({});
+    const [rerecordTargetTurnId, setRerecordTargetTurnId] = useState<
+        number | null
+    >(null);
+    const [thirdAttemptProblemIndex, setThirdAttemptProblemIndex] = useState<
+        number | null
+    >(null);
     const localAudioUrlsRef = useRef<Record<number, string>>({});
 
     const sessionQuery = useQuery({
@@ -104,6 +116,90 @@ export function useSpeakingSessionController(sessionId: number) {
     const microphone = useMicrophonePermission();
     const detail = sessionQuery.data ?? null;
     const eligibility = detail?.evaluationEligibility ?? null;
+    const isReadAloud = detail?.session.practiceMode === "READ_ALOUD";
+
+    const readAloudProblemEvaluations = useMemo(
+        () => detail?.readAloudProblemEvaluations ?? [],
+        [detail?.readAloudProblemEvaluations],
+    );
+    const readAloudSubmittedProblemCount = useMemo(
+        () =>
+            new Set(
+                readAloudProblemEvaluations.map((item) => item.problemIndex),
+            ).size,
+        [readAloudProblemEvaluations],
+    );
+    const readAloudActiveProblemIndex = Math.min(
+        readAloudSubmittedProblemCount + 1,
+        READ_ALOUD_PROBLEM_COUNT,
+    );
+    const readAloudActiveTurns = useMemo(
+        () =>
+            (detail?.turns ?? [])
+                .filter(
+                    (turn) =>
+                        turn.problemIndex === readAloudActiveProblemIndex,
+                )
+                .sort(
+                    (a, b) =>
+                        (a.attemptIndex ?? 0) - (b.attemptIndex ?? 0),
+                ),
+        [detail?.turns, readAloudActiveProblemIndex],
+    );
+    const readAloudEvaluationTurns = useMemo(
+        () =>
+            readAloudActiveTurns.filter(
+                (turn) => !turn.excludedFromEvaluation,
+            ),
+        [readAloudActiveTurns],
+    );
+    const readAloudIncludedTurns = useMemo(
+        () =>
+            readAloudEvaluationTurns.filter((turn) =>
+                Boolean(turn.transcript?.trim()),
+            ),
+        [readAloudEvaluationTurns],
+    );
+    const readAloudSttRatio =
+        readAloudEvaluationTurns.length === 0
+            ? 0
+            : readAloudIncludedTurns.length / readAloudEvaluationTurns.length;
+    const readAloudNextAttemptIndex = Math.min(
+        readAloudActiveTurns.length + 1,
+        READ_ALOUD_MAX_ATTEMPTS,
+    );
+    const readAloudCurrentProblemSubmitted = readAloudProblemEvaluations.some(
+        (item) => item.problemIndex === readAloudActiveProblemIndex,
+    );
+    const readAloudNextProblemPrepared =
+        readAloudActiveProblemIndex >= READ_ALOUD_PROBLEM_COUNT ||
+        readAloudActiveTurns.some((turn) => Boolean(turn.assistantText?.trim()));
+    const readAloudCanEvaluate =
+        isReadAloud &&
+        !readAloudCurrentProblemSubmitted &&
+        readAloudEvaluationTurns.length >= READ_ALOUD_REQUIRED_ATTEMPTS &&
+        readAloudEvaluationTurns.length <= READ_ALOUD_MAX_ATTEMPTS &&
+        readAloudSttRatio >= 0.8 &&
+        readAloudNextProblemPrepared;
+    const readAloudCanAddThird =
+        isReadAloud &&
+        !readAloudCurrentProblemSubmitted &&
+        readAloudActiveTurns.length === READ_ALOUD_REQUIRED_ATTEMPTS;
+    const readAloudThirdAttemptEnabled =
+        thirdAttemptProblemIndex === readAloudActiveProblemIndex;
+    const readAloudShouldOfferThird =
+        readAloudCanAddThird &&
+        (readAloudIncludedTurns.length < READ_ALOUD_REQUIRED_ATTEMPTS ||
+            readAloudActiveTurns.some(
+                (turn) =>
+                    turn.sttConfidence !== null && turn.sttConfidence < 0.7,
+            ));
+    const rerecordTargetTurn = useMemo(
+        () =>
+            detail?.turns.find((turn) => turn.id === rerecordTargetTurnId) ??
+            null,
+        [detail?.turns, rerecordTargetTurnId],
+    );
 
     const recordingValidationError = useMemo<SpeakingRecordingValidationError>(
         () => {
@@ -115,14 +211,23 @@ export function useSpeakingSessionController(sessionId: number) {
                 return "TOO_LARGE";
             }
             return null;
-        }, [recorder.audioBlob, recorder.elapsedSeconds],
+        },
+        [recorder.audioBlob, recorder.elapsedSeconds],
     );
 
     const isBusy = turnPhase !== "IDLE";
+    const readAloudCanCreateAttempt =
+        !isReadAloud ||
+        rerecordTargetTurn !== null ||
+        readAloudActiveTurns.length < READ_ALOUD_REQUIRED_ATTEMPTS ||
+        (readAloudActiveTurns.length < READ_ALOUD_MAX_ATTEMPTS &&
+            (readAloudThirdAttemptEnabled ||
+                readAloudIncludedTurns.length < READ_ALOUD_REQUIRED_ATTEMPTS));
     const canRecord =
         detail?.session.status === "IN_PROGRESS" &&
         microphone.canRecord &&
-        !isBusy;
+        !isBusy &&
+        readAloudCanCreateAttempt;
 
     const submitRecording = useCallback(async () => {
         const session = sessionQuery.data?.session;
@@ -139,6 +244,29 @@ export function useSpeakingSessionController(sessionId: number) {
         setActionError(false);
         setTurnPhase("PREPARING_UPLOAD");
         try {
+            if (session.practiceMode === "READ_ALOUD" && rerecordTargetTurn) {
+                const grant =
+                    await speakingTurnService.createRerecordUploadGrant(
+                        sessionId,
+                        rerecordTargetTurn.id,
+                    );
+                setTurnPhase("PROCESSING");
+                const turn = await speakingTurnService.process(
+                    sessionId,
+                    grant,
+                    recorder.audioBlob,
+                    recorder.elapsedSeconds,
+                    [],
+                    true,
+                );
+                rememberLocalAudio(turn.id, recorder.audioBlob);
+                await sessionQuery.mutate(undefined, true);
+                setHighlightedTurnId(turn.id);
+                setRerecordTargetTurnId(null);
+                recorder.reset();
+                return true;
+            }
+
             const highestTurnIndex = turns.reduce(
                 (highest, turn) => Math.max(highest, turn.turnIndex),
                 0,
@@ -150,10 +278,21 @@ export function useSpeakingSessionController(sessionId: number) {
                     sessionId,
                     nextTurnIndex,
                 );
+
+            const problemIndex =
+                session.practiceMode === "READ_ALOUD"
+                    ? readAloudActiveProblemIndex
+                    : null;
+            const attemptIndex =
+                session.practiceMode === "READ_ALOUD"
+                    ? readAloudNextAttemptIndex
+                    : null;
             const grant = await speakingTurnService.createUploadGrant(
                 sessionId,
                 nextTurnIndex,
                 idempotencyKey,
+                problemIndex,
+                attemptIndex,
             );
 
             setTurnPhase("PROCESSING");
@@ -162,7 +301,9 @@ export function useSpeakingSessionController(sessionId: number) {
                 grant,
                 recorder.audioBlob,
                 recorder.elapsedSeconds,
-                selectedAssistance,
+                session.practiceMode === "READ_ALOUD"
+                    ? []
+                    : selectedAssistance,
             );
             rememberLocalAudio(turn.id, recorder.audioBlob);
             clearSpeakingTurnIdempotencyKey(storageKey);
@@ -182,10 +323,86 @@ export function useSpeakingSessionController(sessionId: number) {
         }
     }, [
         isBusy,
+        readAloudActiveProblemIndex,
+        readAloudNextAttemptIndex,
         recorder,
         recordingValidationError,
         rememberLocalAudio,
+        rerecordTargetTurn,
         selectedAssistance,
+        sessionId,
+        sessionQuery,
+    ]);
+
+    const prepareRerecord = useCallback(
+        (turn: SpeakingTurn) => {
+            if (!isReadAloud || isBusy || controllerProblemSubmitted(
+                readAloudProblemEvaluations,
+                turn.problemIndex,
+            )) {
+                return false;
+            }
+            setRerecordTargetTurnId(turn.id);
+            recorder.reset();
+            document.getElementById("speaking-recorder")?.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+            });
+            return true;
+        },
+        [isBusy, isReadAloud, readAloudProblemEvaluations, recorder],
+    );
+
+    const cancelRerecord = useCallback(() => {
+        setRerecordTargetTurnId(null);
+        recorder.reset();
+    }, [recorder]);
+
+    const enableThirdReadAloudAttempt = useCallback(() => {
+        if (!readAloudCanAddThird) return;
+        setThirdAttemptProblemIndex(readAloudActiveProblemIndex);
+        recorder.reset();
+        document.getElementById("speaking-recorder")?.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+        });
+    }, [readAloudActiveProblemIndex, readAloudCanAddThird, recorder]);
+
+    const evaluateReadAloudProblem = useCallback(async () => {
+        if (!readAloudCanEvaluate || isBusy) return false;
+
+        setActionError(false);
+        setTurnPhase("EVALUATING_PROBLEM");
+        try {
+            await speakingReadAloudService.evaluateProblem(
+                sessionId,
+                readAloudActiveProblemIndex,
+            );
+            setThirdAttemptProblemIndex(null);
+            setRerecordTargetTurnId(null);
+            recorder.reset();
+            await sessionQuery.mutate(undefined, true);
+            if (readAloudActiveProblemIndex === READ_ALOUD_PROBLEM_COUNT) {
+                router.push(
+                    `/language-learning/speaking/${sessionId}/evaluation`,
+                );
+            } else {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+            return true;
+        } catch (error) {
+            console.error("Failed to evaluate read-aloud problem.", error);
+            setActionError(true);
+            return false;
+        } finally {
+            setTurnPhase("IDLE");
+        }
+    }, [
+        isBusy,
+        readAloudActiveProblemIndex,
+        readAloudCanEvaluate,
+        recorder,
+        router,
         sessionId,
         sessionQuery,
     ]);
@@ -231,7 +448,9 @@ export function useSpeakingSessionController(sessionId: number) {
 
     const requestAssistance = useCallback(
         async (type: AssistanceType) => {
-            if (isBusy || assistanceLoadingType !== null) return null;
+            if (isReadAloud || isBusy || assistanceLoadingType !== null) {
+                return null;
+            }
 
             const targetTurn = detail?.turns
                 .filter((turn) => Boolean(turn.assistantText?.trim()))
@@ -261,7 +480,13 @@ export function useSpeakingSessionController(sessionId: number) {
                 setAssistanceLoadingType(null);
             }
         },
-        [assistanceLoadingType, detail?.turns, isBusy, sessionId],
+        [
+            assistanceLoadingType,
+            detail?.turns,
+            isBusy,
+            isReadAloud,
+            sessionId,
+        ],
     );
 
     const createSttReport = useCallback(
@@ -328,6 +553,15 @@ export function useSpeakingSessionController(sessionId: number) {
         [isBusy, router, sessionId, sessionQuery],
     );
 
+    const isReadAloudProblemSubmitted = useCallback(
+        (problemIndex: number | null) =>
+            controllerProblemSubmitted(
+                readAloudProblemEvaluations,
+                problemIndex,
+            ),
+        [readAloudProblemEvaluations],
+    );
+
     return {
         detail,
         isLoading: sessionQuery.isLoading,
@@ -347,6 +581,23 @@ export function useSpeakingSessionController(sessionId: number) {
         lastReportReference,
         localAudioUrls,
         canRecord,
+        isReadAloud,
+        readAloudProblemCount: READ_ALOUD_PROBLEM_COUNT,
+        readAloudRequiredAttempts: READ_ALOUD_REQUIRED_ATTEMPTS,
+        readAloudMaxAttempts: READ_ALOUD_MAX_ATTEMPTS,
+        readAloudSubmittedProblemCount,
+        readAloudActiveProblemIndex,
+        readAloudActiveTurns,
+        readAloudEvaluationTurns,
+        readAloudIncludedTurns,
+        readAloudSttRatio,
+        readAloudNextAttemptIndex,
+        readAloudCanEvaluate,
+        readAloudCanAddThird,
+        readAloudThirdAttemptEnabled,
+        readAloudShouldOfferThird,
+        readAloudProblemEvaluations,
+        rerecordTargetTurn,
         setHighlightedTurnId,
         requestAssistance,
         clearAssistance: () => {
@@ -355,6 +606,11 @@ export function useSpeakingSessionController(sessionId: number) {
             setAssistanceError(false);
         },
         submitRecording,
+        prepareRerecord,
+        cancelRerecord,
+        enableThirdReadAloudAttempt,
+        evaluateReadAloudProblem,
+        isReadAloudProblemSubmitted,
         retryTurn,
         excludeTurn,
         createSttReport,
@@ -364,6 +620,16 @@ export function useSpeakingSessionController(sessionId: number) {
             await sessionQuery.mutate(undefined, true);
         },
     };
+}
+
+function controllerProblemSubmitted(
+    evaluations: Array<{ problemIndex: number }>,
+    problemIndex: number | null,
+) {
+    return (
+        problemIndex !== null &&
+        evaluations.some((item) => item.problemIndex === problemIndex)
+    );
 }
 
 export type SpeakingSessionController = ReturnType<

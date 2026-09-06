@@ -28,13 +28,60 @@ test.describe("Language Learning Phase 2", () => {
         await expect(page.getByTestId("speaking-mode-READ_ALOUD")).toContainText(/듣고 따라 말하기/);
         await expect(page.getByTestId("speaking-mode-GUIDED")).toContainText(/가이드 말하기/);
         await expect(page.getByTestId("speaking-mode-FREE")).toContainText(/자유 말하기/);
-        await expect(page.getByText("週末の予定", { exact: true })).toHaveCount(0);
 
         await page.getByTestId("speaking-mode-FREE").getByRole("button", { name: /이 유형 선택/ }).click();
-        await expect(page.getByText("週末の予定", { exact: true })).toBeVisible();
+        await expect(page.getByTestId("speaking-topic-mode-keywords")).toHaveAttribute("aria-pressed", "true");
+        await expect(page.getByTestId("speaking-keyword-topic-panel")).toContainText("IT");
+        await expect(page.getByRole("radio", { name: /AI 먼저/ })).toHaveCount(0);
+
+        await page.getByTestId("speaking-topic-mode-custom").click();
         await expect(page.getByRole("radio", { name: /AI 먼저/ })).toBeAttached();
         await expect(page.getByRole("radio", { name: /내가 먼저/ })).toBeAttached();
         await expect(page.getByRole("radio", { name: /Topic 추천/ })).toBeAttached();
+    });
+
+    test("LL2-01A Speaking Topic은 사용자 키워드 기반/자유로 분리하고 회화 목표·AI 역할은 자유 Speaking에만 노출한다", async ({ page }) => {
+        await page.goto("/language-learning/speaking");
+        await page.getByTestId("speaking-mode-FREE").getByRole("button", { name: /이 유형 선택/ }).click();
+
+        await expect(page.getByTestId("speaking-topic-mode-keywords")).toHaveAttribute("aria-pressed", "true");
+        await expect(page.getByTestId("speaking-keyword-topic-panel")).toBeVisible();
+        await expect(page.getByTestId("speaking-keyword-topic-panel")).toContainText("IT");
+        await expect(page.getByTestId("speaking-free-session-details")).toBeVisible();
+
+        await page.getByTestId("speaking-topic-mode-custom").click();
+        await expect(page.getByTestId("speaking-custom-topic-panel")).toBeVisible();
+        await expect(page.getByTestId("speaking-keyword-topic-panel")).toHaveCount(0);
+        await page.getByTestId("speaking-custom-topic-input").fill("호텔 체크인 상황을 연습하고 싶어요");
+        await page.getByTestId("speaking-free-goal").fill("예약 정보를 자연스럽게 전달하기");
+        await page.getByTestId("speaking-free-persona").fill("호텔 프런트 직원");
+
+        await page.getByTestId("speaking-topic-mode-keywords").click();
+        await page.getByTestId("speaking-mode-READ_ALOUD").getByRole("button", { name: /이 유형 선택/ }).click();
+        await expect(page.getByTestId("speaking-free-session-details")).toHaveCount(0);
+
+        const createRequest = page.waitForRequest((request) =>
+            request.url().includes("/language-learning/speaking/sessions") &&
+            !request.url().includes("/active") &&
+            !request.url().includes("/today/status") &&
+            request.method() === "POST",
+        );
+        await expect(page.getByRole("button", { name: "Speaking 시작" })).toBeEnabled();
+        await page.getByRole("button", { name: "Speaking 시작" }).click();
+        const payload = (await createRequest).postDataJSON() as {
+            practiceMode: string;
+            topicId: number | null;
+            keywordBasedTopic: boolean;
+            customTopic: string | null;
+            goal: string | null;
+            persona: string | null;
+        };
+        expect(payload.practiceMode).toBe("READ_ALOUD");
+        expect(payload.topicId).toBeNull();
+        expect(payload.keywordBasedTopic).toBe(true);
+        expect(payload.customTopic).toBeNull();
+        expect(payload.goal).toBeNull();
+        expect(payload.persona).toBeNull();
     });
 
     test("LL2-02 진행 중 Session에서 평가 준비도와 6개 학습 보조를 실제 제공한다", async ({ page }) => {

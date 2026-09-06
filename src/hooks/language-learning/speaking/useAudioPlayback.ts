@@ -34,10 +34,18 @@ export function useAudioPlayback(url: string | null) {
         setIsLoading(true);
         setError(false);
         try {
-            const blob = await speakingAudioService.load(url);
-            const objectUrl = URL.createObjectURL(blob);
-            const audio = new Audio(objectUrl);
-            objectUrlRef.current = objectUrl;
+            let audio: HTMLAudioElement;
+            if (url.startsWith("blob:")) {
+                // Local recorder previews are already browser-managed object URLs.
+                // Do not send them through apiClient or revoke them here because
+                // useSpeakingSessionController owns their lifecycle.
+                audio = new Audio(url);
+            } else {
+                const blob = await speakingAudioService.load(url);
+                const objectUrl = URL.createObjectURL(blob);
+                audio = new Audio(objectUrl);
+                objectUrlRef.current = objectUrl;
+            }
             audioRef.current = audio;
 
             audio.addEventListener("timeupdate", () => {

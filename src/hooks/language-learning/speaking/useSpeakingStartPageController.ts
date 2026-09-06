@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { SPEAKING_VOICE_OPTIONS } from "@/constants/language-learning/speaking";
@@ -10,18 +11,18 @@ import {
 import { useLanguageLearningEntryState } from "@/hooks/language-learning/useLanguageLearningEntryState";
 import { useQuery } from "@/hooks/useQuery";
 import { useRouter } from "@/navigation";
+import { languageLearningKeywordService } from "@/services/language-learning/languageLearningKeywordService";
 import { speakingSessionService } from "@/services/language-learning/speakingSessionService";
-import { speakingTopicService } from "@/services/language-learning/speakingTopicService";
 import type {
     ConversationStartMode,
     CorrectionMode,
     SpeakingPracticeMode,
     SpeakingSessionCreateRequest,
-    SpeakingTopicCategory,
 } from "@/types/language-learning/speaking";
 
 interface SpeakingSessionDraft {
     topicId: number | null;
+    keywordBasedTopic: boolean;
     customTopic: string | null;
     goal: string | null;
     persona: string | null;
@@ -39,12 +40,9 @@ function createRequestFingerprint(draft: SpeakingSessionDraft): string {
 
 export function useSpeakingStartPageController() {
     const router = useRouter();
+    const locale = useLocale();
     const entry = useLanguageLearningEntryState();
-    const [category, setCategory] = useState<SpeakingTopicCategory | "ALL">(
-        "ALL",
-    );
     const [practiceMode, setPracticeMode] = useState<SpeakingPracticeMode | null>(null);
-    const [selectedTopicId, setSelectedTopicId] = useState<number | null>(null);
     const [useCustomTopic, setUseCustomTopic] = useState(false);
     const [customTopic, setCustomTopic] = useState("");
     const [goal, setGoal] = useState("");
@@ -62,20 +60,12 @@ export function useSpeakingStartPageController() {
     const [createError, setCreateError] = useState(false);
 
     const canLoad = entry.setting?.configured === true;
-    const topicQuery = useQuery({
+    const keywordQuery = useQuery({
         keys: canLoad
-            ? ([
-                  "speaking-topics",
-                  entry.setting?.learningLanguage ?? null,
-                  category,
-              ] as const)
+            ? (["speaking-keyword-topic-context", locale] as const)
             : null,
-        fetcher: (_key, learningLanguage, selectedCategory) =>
-            speakingTopicService.getAll({
-                learningLanguage,
-                category:
-                    selectedCategory === "ALL" ? null : selectedCategory,
-            }),
+        fetcher: (_key, uiLocale) =>
+            languageLearningKeywordService.getAll(uiLocale),
         config: { revalidateOnMount: true },
     });
     const activeSessionQuery = useQuery({
@@ -115,31 +105,28 @@ export function useSpeakingStartPageController() {
         setPlaybackSpeed(setting.speakingPlaybackSpeed || "NORMAL");
     }, [entry.setting]);
 
-    const selectedTopic = useMemo(
-        () =>
-            topicQuery.data?.find((topic) => topic.id === selectedTopicId) ??
-            null,
-        [selectedTopicId, topicQuery.data],
-    );
-
-    useEffect(() => {
-        if (selectedTopic?.recommendedStartMode) {
-            setStartMode(selectedTopic.recommendedStartMode);
-        }
-    }, [selectedTopic]);
+    const selectedKeywords = useMemo(() => {
+        const data = keywordQuery.data;
+        if (!data) return [];
+        return [...data.systemKeywords, ...data.customKeywords]
+            .filter((keyword) => keyword.active && keyword.selected)
+            .sort((left, right) => left.sortOrder - right.sortOrder);
+    }, [keywordQuery.data]);
 
     const minGoal = entry.setting?.minDailySpeakingGoalMinutes ?? 3;
     const maxGoal = entry.setting?.maxDailySpeakingGoalMinutes ?? 20;
     const hasTopic = useCustomTopic
         ? customTopic.trim().length >= 2
-        : selectedTopicId !== null;
+        : selectedKeywords.length > 0;
     const activeSessionResolved =
         !activeSessionQuery.isLoading && !activeSessionQuery.isError;
+    const startModeValid = useCustomTopic || startMode === "AI_FIRST";
     const isValid =
         activeSessionResolved &&
         !activeSessionQuery.data &&
         practiceMode !== null &&
         hasTopic &&
+        startModeValid &&
         targetMinutes >= minGoal &&
         targetMinutes <= maxGoal &&
         Boolean(voiceId);
@@ -147,13 +134,17 @@ export function useSpeakingStartPageController() {
     const createSession = useCallback(async () => {
         if (!isValid || isCreating) return false;
 
+        const freeGoal = practiceMode === "FREE" ? goal.trim() || null : null;
+        const freePersona =
+            practiceMode === "FREE" ? persona.trim() || null : null;
         const draft: SpeakingSessionDraft = {
-            topicId: useCustomTopic ? null : selectedTopicId,
+            topicId: null,
+            keywordBasedTopic: !useCustomTopic,
             customTopic: useCustomTopic ? customTopic.trim() : null,
-            goal: goal.trim() || null,
-            persona: persona.trim() || null,
+            goal: freeGoal,
+            persona: freePersona,
             practiceMode: practiceMode!,
-            conversationStartMode: startMode,
+            conversationStartMode: useCustomTopic ? startMode : "AI_FIRST",
             correctionMode,
             targetMinutes,
             voiceId,
@@ -193,7 +184,6 @@ export function useSpeakingStartPageController() {
         practiceMode,
         playbackSpeed,
         router,
-        selectedTopicId,
         startMode,
         targetMinutes,
         useCustomTopic,
@@ -202,18 +192,15 @@ export function useSpeakingStartPageController() {
 
     return {
         entry,
-        topics: topicQuery.data ?? [],
-        topicsLoading: topicQuery.isLoading,
-        topicsError: Boolean(topicQuery.isError),
+        selectedKeywords,
+        keywordsLoading: keywordQuery.isLoading,
+        keywordsError: Boolean(keywordQuery.isError),
         activeSession: activeSessionQuery.data ?? null,
         activeSessionLoading: activeSessionQuery.isLoading,
         activeSessionError: Boolean(activeSessionQuery.isError),
         modeStatuses: modeStatusQuery.data ?? [],
         modeStatusError: Boolean(modeStatusQuery.isError),
         practiceMode,
-        category,
-        selectedTopicId,
-        selectedTopic,
         useCustomTopic,
         customTopic,
         goal,
@@ -230,20 +217,18 @@ export function useSpeakingStartPageController() {
         isValid,
         setPracticeMode: (mode: SpeakingPracticeMode) => {
             setPracticeMode(mode);
-            if (mode !== "FREE") {
+            if (mode !== "FREE" || !useCustomTopic) {
                 setStartMode("AI_FIRST");
             }
             setCreateError(false);
         },
-        setCategory,
-        selectTopic: (topicId: number) => {
+        selectKeywordTopics: () => {
             setUseCustomTopic(false);
-            setSelectedTopicId(topicId);
+            setStartMode("AI_FIRST");
             setCreateError(false);
         },
         selectCustomTopic: () => {
             setUseCustomTopic(true);
-            setSelectedTopicId(null);
             setCreateError(false);
         },
         setCustomTopic,
@@ -257,7 +242,7 @@ export function useSpeakingStartPageController() {
         createSession,
         reload: async () => {
             await Promise.all([
-                topicQuery.mutate(undefined, true),
+                keywordQuery.mutate(undefined, true),
                 activeSessionQuery.mutate(undefined, true),
                 modeStatusQuery.mutate(undefined, true),
             ]);

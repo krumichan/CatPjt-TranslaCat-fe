@@ -29,6 +29,29 @@ export function SpeakingRecorderPanel({
         >
             <MicrophonePermissionPanel microphone={controller.microphone} />
 
+            {controller.isReadAloud && (
+                <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 dark:bg-white/5">
+                    <p className="text-xs font-black text-blue-600 dark:text-blue-300">
+                        {controller.rerecordTargetTurn
+                            ? t("readAloudRerecordLabel", {
+                                  problem: controller.rerecordTargetTurn.problemIndex ?? 0,
+                                  attempt: controller.rerecordTargetTurn.attemptIndex ?? 0,
+                              })
+                            : t("readAloudAttemptLabel", {
+                                  problem: controller.readAloudActiveProblemIndex,
+                                  total: controller.readAloudProblemCount,
+                                  attempt: controller.readAloudNextAttemptIndex,
+                                  required: controller.readAloudRequiredAttempts,
+                              })}
+                    </p>
+                    <p className="mt-1 text-[11px] leading-5 text-slate-500 dark:text-slate-400">
+                        {controller.rerecordTargetTurn
+                            ? t("readAloudRerecordHelp")
+                            : t("readAloudAttemptHelp")}
+                    </p>
+                </div>
+            )}
+
             <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <div className="flex items-center gap-2">
@@ -114,7 +137,9 @@ export function SpeakingRecorderPanel({
                                     ? t("uploading")
                                     : controller.turnPhase === "PROCESSING"
                                       ? t("processing")
-                                      : t("submit")}
+                                      : controller.rerecordTargetTurn
+                                        ? t("replaceRecording")
+                                        : t("submit")}
                             </button>
                         </>
                     )}
@@ -161,20 +186,31 @@ export function SpeakingRecorderPanel({
                     role="status"
                     className="mt-4 rounded-xl bg-blue-50 px-4 py-3 text-xs font-bold leading-5 text-blue-700 dark:bg-blue-500/10 dark:text-blue-200"
                 >
-                    <p>{t("processingStages")}</p>
-                    <ol className="mt-2 grid gap-2 sm:grid-cols-3">
-                        {["stt", "conversation", "tts"].map((stage, index) => (
-                            <li
-                                key={stage}
-                                className="rounded-lg bg-white/70 px-3 py-2 dark:bg-white/5"
-                            >
-                                {index + 1}. {t(`pipeline.${stage}`)}
-                            </li>
-                        ))}
-                    </ol>
-                    <p className="mt-2 text-[11px] font-medium opacity-80">
-                        {t("pipelineNotice")}
-                    </p>
+                    {controller.isReadAloud ? (
+                        <>
+                            <p>{t("readAloudProcessing")}</p>
+                            <p className="mt-2 text-[11px] font-medium opacity-80">
+                                {t("readAloudProcessingNotice")}
+                            </p>
+                        </>
+                    ) : (
+                        <>
+                            <p>{t("processingStages")}</p>
+                            <ol className="mt-2 grid gap-2 sm:grid-cols-3">
+                                {["stt", "conversation", "tts"].map((stage, index) => (
+                                    <li
+                                        key={stage}
+                                        className="rounded-lg bg-white/70 px-3 py-2 dark:bg-white/5"
+                                    >
+                                        {index + 1}. {t(`pipeline.${stage}`)}
+                                    </li>
+                                ))}
+                            </ol>
+                            <p className="mt-2 text-[11px] font-medium opacity-80">
+                                {t("pipelineNotice")}
+                            </p>
+                        </>
+                    )}
                 </div>
             )}
         </section>

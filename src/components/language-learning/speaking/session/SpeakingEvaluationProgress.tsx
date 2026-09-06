@@ -3,12 +3,17 @@
 import { CheckCircle2, Circle } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import type { SpeakingEvaluationEligibility } from "@/types/language-learning/speaking";
+import type {
+    SpeakingEvaluationEligibility,
+    SpeakingPracticeMode,
+} from "@/types/language-learning/speaking";
 
 export function SpeakingEvaluationProgress({
     eligibility,
+    practiceMode,
 }: {
     eligibility: SpeakingEvaluationEligibility;
+    practiceMode: SpeakingPracticeMode;
 }) {
     const t = useTranslations("LanguageLearning.speaking.session.eligibility");
     const sttRatioPercent = eligibility.validSttTurnRatio * 100;
@@ -18,21 +23,34 @@ export function SpeakingEvaluationProgress({
             key: "turns",
             complete:
                 eligibility.validUserTurns >= eligibility.requiredUserTurns,
-            value: t("turnsValue", {
-                current: eligibility.validUserTurns,
-                required: eligibility.requiredUserTurns,
-            }),
+            value: t(
+                practiceMode === "READ_ALOUD"
+                    ? "readAloudItemsValue"
+                    : "turnsValue",
+                {
+                    current: eligibility.validUserTurns,
+                    required: eligibility.requiredUserTurns,
+                },
+            ),
         },
-        {
-            key: "duration",
-            complete:
-                eligibility.validUserSpeechSeconds >=
-                eligibility.requiredUserSpeechSeconds,
-            value: t("durationValue", {
-                current: Math.floor(eligibility.validUserSpeechSeconds),
-                required: Math.floor(eligibility.requiredUserSpeechSeconds),
-            }),
-        },
+        ...(eligibility.requiredUserSpeechSeconds > 0
+            ? [
+                  {
+                      key: "duration",
+                      complete:
+                          eligibility.validUserSpeechSeconds >=
+                          eligibility.requiredUserSpeechSeconds,
+                      value: t("durationValue", {
+                          current: Math.floor(
+                              eligibility.validUserSpeechSeconds,
+                          ),
+                          required: Math.floor(
+                              eligibility.requiredUserSpeechSeconds,
+                          ),
+                      }),
+                  },
+              ]
+            : []),
         {
             key: "stt",
             complete:
@@ -50,7 +68,13 @@ export function SpeakingEvaluationProgress({
             <h2 className="text-sm font-black text-slate-900 dark:text-white">
                 {t("title")}
             </h2>
-            <div className="mt-3 grid gap-2 sm:grid-cols-3">
+            <div
+                className={`mt-3 grid gap-2 ${
+                    practiceMode === "READ_ALOUD"
+                        ? "sm:grid-cols-2"
+                        : "sm:grid-cols-3"
+                }`}
+            >
                 {items.map((item) => {
                     const Icon = item.complete ? CheckCircle2 : Circle;
                     return (

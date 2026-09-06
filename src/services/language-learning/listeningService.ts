@@ -6,6 +6,7 @@ import type {
     ListeningAssistanceUsage,
     ListeningAttempt,
     ListeningAudioUpload,
+    ListeningBulkRetryResult,
     ListeningDailyModeStatus,
     ListeningDailySet,
     ListeningDailySetCreateRequest,
@@ -161,6 +162,11 @@ export const listeningService = {
     retryEvaluation: async (attemptId: number, request: ListeningRetryRequest): Promise<ListeningAttempt> => {
         const response = await apiClient(`/language-learning/listening/attempts/${attemptId}/retry-evaluation`, jsonBody(request));
         return parseResponseBody<ListeningAttempt>(response, "ListeningRetryEvaluation");
+    },
+
+    retryFailedEvaluations: async (sessionId: number): Promise<ListeningBulkRetryResult> => {
+        const response = await apiClient(`/language-learning/listening/sessions/${sessionId}/retry-failed-evaluations`, { method: "POST" });
+        return parseResponseBody<ListeningBulkRetryResult>(response, "ListeningBulkRetryEvaluation");
     },
 
     revealAnswer: async (attemptId: number): Promise<ListeningRevealAnswer> => {

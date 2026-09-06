@@ -72,8 +72,9 @@ export default function AuthSessionGuard({
             return;
         }
 
-        const retryAt = session.refreshRetryAt ?? Date.now();
+        const retryAt = session?.refreshRetryAt ?? Date.now();
         const delay = Math.max(retryAt - Date.now(), 0);
+
         const timeoutId = window.setTimeout(() => {
             void update();
         }, delay + 50);

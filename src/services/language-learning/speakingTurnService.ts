@@ -12,6 +12,8 @@ export const speakingTurnService = {
         sessionId: number,
         turnIndex: number,
         idempotencyKey: string,
+        problemIndex: number | null = null,
+        attemptIndex: number | null = null,
     ): Promise<SpeakingTurnUploadGrant> => {
         const response = await apiClient(
             `/language-learning/speaking/sessions/${sessionId}/turns/upload-url`,
@@ -19,6 +21,8 @@ export const speakingTurnService = {
                 method: "POST",
                 body: JSON.stringify({
                     turnIndex,
+                    problemIndex,
+                    attemptIndex,
                     idempotencyKey,
                 }),
             },
@@ -36,12 +40,14 @@ export const speakingTurnService = {
         audio: Blob,
         durationSeconds: number,
         assistanceUsage: AssistanceType[],
+        rerecord = false,
     ): Promise<SpeakingTurn> => {
         const context: SpeakingTurnProcessRequest = {
             turnId: grant.turnId,
             uploadToken: grant.uploadToken,
             durationSeconds,
             assistanceUsage,
+            rerecord,
         };
         const formData = new FormData();
         formData.append(
@@ -67,6 +73,20 @@ export const speakingTurnService = {
         return parseResponseBody<SpeakingTurn>(
             response,
             "SpeakingTurn",
+        );
+    },
+
+    createRerecordUploadGrant: async (
+        sessionId: number,
+        turnId: number,
+    ): Promise<SpeakingTurnUploadGrant> => {
+        const response = await apiClient(
+            `/language-learning/speaking/sessions/${sessionId}/turns/${turnId}/rerecord/upload-url`,
+            { method: "POST" },
+        );
+        return parseResponseBody<SpeakingTurnUploadGrant>(
+            response,
+            "SpeakingTurnRerecordUploadGrant",
         );
     },
 

@@ -247,6 +247,12 @@ export interface ListeningRetryRequest {
     idempotencyKey: string;
 }
 
+export interface ListeningBulkRetryResult {
+    failedTaskCount: number;
+    retriedTaskCount: number;
+    exhaustedTaskCount: number;
+}
+
 export interface ListeningPracticeAttemptRequest {
     idempotencyKey: string;
     selectedTaskTypes: ListeningTaskType[];

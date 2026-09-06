@@ -24,6 +24,7 @@ export function ListeningTaskResultCard({
     const [reportOpen, setReportOpen] = useState(false);
     const evaluation = task.evaluation;
     const notSelected = task.status === "NOT_SELECTED";
+    const evaluationPending = ["SUBMITTED", "EVALUATING"].includes(task.status);
     const notEvaluable = ["NOT_EVALUABLE", "EVALUATION_FAILED"].includes(task.status) || evaluation?.evaluable === false;
 
     return (
@@ -42,6 +43,12 @@ export function ListeningTaskResultCard({
             </div>
 
             {task.answerText && <p className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm leading-6 text-slate-700 dark:bg-white/5 dark:text-slate-200">{task.answerText}</p>}
+
+            {evaluationPending && (
+                <div className="mt-4 rounded-2xl bg-blue-50 p-4 text-sm font-bold text-blue-800 dark:bg-blue-500/10 dark:text-blue-200" role="status">
+                    {t("evaluationPending")}
+                </div>
+            )}
 
             {notEvaluable && (
                 <div className="mt-4 rounded-2xl bg-amber-50 p-4 text-sm text-amber-800 dark:bg-amber-500/10 dark:text-amber-200">

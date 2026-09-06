@@ -7,6 +7,7 @@ import { SpeakingAssistancePanel } from "@/components/language-learning/speaking
 import { SpeakingConversationHistory } from "@/components/language-learning/speaking/session/SpeakingConversationHistory";
 import { SpeakingEvaluationProgress } from "@/components/language-learning/speaking/session/SpeakingEvaluationProgress";
 import { SpeakingRecorderPanel } from "@/components/language-learning/speaking/session/SpeakingRecorderPanel";
+import { SpeakingReadAloudProblemPanel } from "@/components/language-learning/speaking/session/SpeakingReadAloudProblemPanel";
 import { SpeakingPracticePromptPanel } from "@/components/language-learning/speaking/session/SpeakingPracticePromptPanel";
 import { SpeakingSessionHeader } from "@/components/language-learning/speaking/session/SpeakingSessionHeader";
 import type { SpeakingSessionController } from "@/hooks/language-learning/speaking/useSpeakingSessionController";
@@ -26,7 +27,7 @@ export function SpeakingSessionView({
     return (
         <div className="space-y-5" data-testid="speaking-session-page">
             <SpeakingSessionHeader detail={detail} />
-            <SpeakingPracticePromptPanel detail={detail} />
+            <SpeakingPracticePromptPanel controller={controller} />
 
             {controller.actionError && (
                 <div role="alert" className="flex gap-2 rounded-2xl bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700 dark:bg-rose-500/10 dark:text-rose-200">
@@ -49,25 +50,31 @@ export function SpeakingSessionView({
                     {!sessionEnded && (
                         <>
                             <SpeakingRecorderPanel controller={controller} />
-                            <SpeakingAssistancePanel
-                                usage={controller.selectedAssistance}
-                                results={controller.assistanceResults}
-                                loadingType={controller.assistanceLoadingType}
-                                hasAssistantPrompt={Boolean(
-                                    latestTurn?.assistantText?.trim() ||
-                                        detail.session.openingAssistantText?.trim(),
-                                )}
-                                error={controller.assistanceError}
-                                onRequest={controller.requestAssistance}
-                            />
+                            {detail.session.practiceMode === "READ_ALOUD" ? (
+                                <SpeakingReadAloudProblemPanel controller={controller} />
+                            ) : (
+                                <SpeakingAssistancePanel
+                                    usage={controller.selectedAssistance}
+                                    results={controller.assistanceResults}
+                                    loadingType={controller.assistanceLoadingType}
+                                    hasAssistantPrompt={Boolean(
+                                        latestTurn?.assistantText?.trim() ||
+                                            detail.session.openingAssistantText?.trim(),
+                                    )}
+                                    error={controller.assistanceError}
+                                    onRequest={controller.requestAssistance}
+                                />
+                            )}
                         </>
                     )}
-                    {controller.eligibility && (
+                    {detail.session.practiceMode !== "READ_ALOUD" && controller.eligibility && (
                         <SpeakingEvaluationProgress
                             eligibility={controller.eligibility}
+                            practiceMode={detail.session.practiceMode}
                         />
                     )}
 
+                    {detail.session.practiceMode !== "READ_ALOUD" && (
                     <section className="rounded-2xl border border-slate-200 bg-white/90 p-4 dark:border-white/10 dark:bg-slate-900/75">
                         <h2 className="text-sm font-black text-slate-900 dark:text-white">
                             {t("finish.title")}
@@ -75,7 +82,9 @@ export function SpeakingSessionView({
                         <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
                             {controller.eligibility?.eligible === true
                                 ? t("finish.ready")
-                                : t("finish.insufficient")}
+                                : detail.session.practiceMode === "READ_ALOUD"
+                                  ? t("finish.insufficientReadAloud")
+                                  : t("finish.insufficient")}
                         </p>
 
                         {controller.eligibility?.eligible === true ? (
@@ -145,6 +154,7 @@ export function SpeakingSessionView({
                             </p>
                         )}
                     </section>
+                    )}
                 </div>
             </div>
         </div>

@@ -222,7 +222,9 @@
         "task": {
           "DICTATION": "받아쓰기",
           "INTERPRETATION": "의미 쓰기",
-          "REPEAT_AFTER_AUDIO": "따라 말하기"
+          "REPEAT_AFTER_AUDIO": "따라 말하기",
+          "COMPREHENSION": "듣고 답 고르기",
+          "SUMMARY": "핵심 정리"
         },
         "metric": {
           "LISTENING_RECOGNITION": "듣기 인식",
@@ -246,7 +248,11 @@
           "EXPRESSIVENESS": "표현력",
           "EXPRESSION": "표현력",
           "OVERALL": "종합",
-          "LISTENING_INDEPENDENCE": "독립 청취"
+          "LISTENING_INDEPENDENCE": "독립 청취",
+          "ANSWER_ACCURACY": "정답 정확도",
+          "GIST_COVERAGE": "핵심 주제 파악",
+          "KEY_POINT_COVERAGE": "중요 정보 포함",
+          "LANGUAGE_CLARITY": "표현 명확성"
         }
       }
     },
@@ -666,7 +672,9 @@
         "task": {
           "DICTATION": "받아쓰기",
           "INTERPRETATION": "의미 쓰기",
-          "REPEAT_AFTER_AUDIO": "따라 말하기"
+          "REPEAT_AFTER_AUDIO": "따라 말하기",
+          "COMPREHENSION": "듣고 답 고르기",
+          "SUMMARY": "핵심 정리"
         },
         "notSelected": "미선택",
         "userAudioExpired": "사용자 Audio 보관 기간이 종료되었습니다.",
@@ -985,7 +993,17 @@
         },
         "topic": {
           "title": "대화 Topic",
-          "description": "추천 Topic을 고르거나 자유 Topic을 직접 입력할 수 있습니다.",
+          "description": "내 학습 키워드 기반 Topic과 자유 Topic 중 이번 Session에 사용할 방식을 선택합니다.",
+          "selectionType": "Topic 선택 방식",
+          "keywordTitle": "내 키워드 기반 Topic",
+          "keywordDescription": "학습 설정의 키워드를 바탕으로 AI가 이번 Session의 문제와 상황을 만듭니다.",
+          "keywordLoading": "학습 키워드를 확인하고 있습니다...",
+          "keywordLoadFailed": "학습 키워드를 불러오지 못했습니다.",
+          "keywordPreviewTitle": "현재 선택한 학습 키워드",
+          "keywordHelp": "Session 시작 시 이 키워드들 중 일부를 조합해 현재 Level과 Speaking 유형에 맞는 문제를 AI가 생성합니다.",
+          "keywordEmpty": "사용할 학습 키워드가 없습니다.",
+          "keywordEmptyHelp": "학습 설정에서 키워드를 선택한 뒤 다시 시도하거나 자유 Topic을 이용해 주세요.",
+          "openSettings": "학습 설정 열기",
           "category": "주제 카테고리",
           "all": "전체",
           "loading": "Topic을 불러오는 중...",
@@ -1007,11 +1025,12 @@
           "customDescription": "원하는 상황이나 주제를 직접 정합니다.",
           "customLabel": "자유 Topic",
           "customPlaceholder": "예: 호텔 체크인 상황을 연습하고 싶어요",
+          "customHelp": "상황, 연습하고 싶은 내용, 원하는 대화 맥락을 한 문장으로 적어도 충분합니다.",
           "minutes": "목표 {value}분"
         },
         "config": {
           "title": "Session 설정",
-          "description": "대화 시작 방식, 교정 강도, 목표 시간과 음성을 설정합니다.",
+          "description": "교정 방식, 목표 시간과 음성을 설정합니다. 자유 Speaking에서는 회화 목표와 AI 역할도 직접 지정할 수 있습니다.",
           "startMode": {
             "title": "대화 시작 방식",
             "AI_FIRST": {
@@ -1026,7 +1045,8 @@
               "label": "Topic 추천",
               "help": "Topic의 권장 방식으로 시작합니다."
             },
-            "aiPromptRequired": "따라 말하기와 가이드 말하기는 먼저 AI가 연습 문장이나 가이드를 제시하는 방식으로 시작합니다."
+            "aiPromptRequired": "따라 말하기와 가이드 말하기는 먼저 AI가 연습 문장이나 가이드를 제시하는 방식으로 시작합니다.",
+            "keywordTopicAiRequired": "내 키워드 기반 Topic은 AI가 이번 Session의 Topic과 첫 문제를 생성한 뒤 시작합니다."
           },
           "correctionMode": {
             "title": "교정 방식",
@@ -1048,6 +1068,10 @@
             "SLOW": "느리게",
             "NORMAL": "보통"
           },
+          "freeDetails": {
+            "title": "자유 Speaking 추가 설정",
+            "description": "선택 사항입니다. 오늘의 회화 목표나 AI에게 맡길 역할이 있다면 직접 지정할 수 있습니다."
+          },
           "goal": "이번 대화 목표",
           "goalPlaceholder": "예: 자연스럽게 질문을 이어가기",
           "persona": "AI 역할",
@@ -1059,7 +1083,7 @@
           "description": "유형을 먼저 선택한 뒤 주제와 세부 설정을 정합니다. 문제/가이드는 Session을 시작할 때 생성됩니다.",
           "READ_ALOUD": {
             "title": "듣고 따라 말하기",
-            "description": "AI Audio와 스크립트를 함께 보고 같은 문장을 말하며 발음·억양·유창성을 연습합니다."
+            "description": "AI Audio와 스크립트를 보고 따라 말하는 오늘의 5문제를 순서대로 연습합니다. 5문제를 완료하면 발화 시간이 60초보다 짧아도 STT 기준을 충족한 경우 평가를 시작합니다."
           },
           "GUIDED": {
             "title": "가이드 말하기",
@@ -1097,8 +1121,10 @@
         "reportCreated": "STT 오류 신고가 접수되었습니다. Reference: {reference}",
         "header": {
           "customTopic": "사용자 지정 주제",
+          "keywordTopic": "내 키워드 기반 Topic",
           "freeTalk": "자유 대화",
           "turns": "턴",
+          "items": "문제",
           "sessionTime": "말한 시간",
           "dailyUsage": "오늘 사용량",
           "minutes": "{value}분",
@@ -1150,11 +1176,19 @@
             "stt": "음성 인식(STT)",
             "conversation": "AI 답변 생성",
             "tts": "음성 생성(TTS)"
-          }
+          },
+          "readAloudAttemptLabel": "문제 {problem}/{total} · 발화 {attempt}/{required}",
+          "readAloudRerecordLabel": "문제 {problem} · 발화 {attempt} 다시 녹음",
+          "readAloudRerecordHelp": "새 녹음이 완료되면 같은 발화 Slot의 기존 음성을 교체합니다.",
+          "readAloudAttemptHelp": "같은 문장을 최소 2번 말합니다. 필요하면 3번째 발화를 추가할 수 있습니다.",
+          "replaceRecording": "이 발화 교체하기",
+          "readAloudProcessing": "음성을 인식하고 발화 결과를 저장하고 있습니다.",
+          "readAloudProcessingNotice": "2번째 발화가 끝나면 다음 문제도 미리 준비합니다."
         },
         "eligibility": {
           "title": "Speaking 평가 준비도",
           "turnsValue": "유효 Turn {current} / {required}",
+          "readAloudItemsValue": "유효 문제 {current} / {required}",
           "durationValue": "말한 시간 {current} / {required}초",
           "sttValue": "유효 STT {current}% / {required}%"
         },
@@ -1180,6 +1214,7 @@
         },
         "turn": {
           "number": "Turn {value}",
+          "itemNumber": "문제 {value}",
           "you": "나",
           "confidence": "STT 신뢰도 {value}%",
           "noTranscript": "인식된 문장이 없습니다.",
@@ -1208,7 +1243,12 @@
           "userAudio": "내가 방금 녹음한 음성",
           "rerecord": "다시 녹음",
           "rerecordConfirm": "이 Turn은 History에 남기되 평가에서 제외하고 새로 녹음할까요?",
-          "excludeConfirm": "이 Turn을 평가에서 제외할까요? History에는 유지되지만 점수와 Profile에는 반영되지 않습니다."
+          "excludeConfirm": "이 Turn을 평가에서 제외할까요? History에는 유지되지만 점수와 Profile에는 반영되지 않습니다.",
+          "problemAttemptNumber": "문제 {problem} · 발화 {attempt}",
+          "spokenText": "내가 말한 내용",
+          "lowConfidenceRerecord": "STT 신뢰도가 낮습니다. 필요하면 이 발화만 다시 녹음해 교체할 수 있습니다.",
+          "rerecordReplaceConfirm": "이 발화를 다시 녹음할까요? 새 녹음이 완료되면 같은 발화 Slot을 교체합니다.",
+          "rerecording": "재녹음 중"
         },
         "sttReport": {
           "title": "STT 오류 신고",
@@ -1245,6 +1285,7 @@
           "title": "Session 종료",
           "ready": "현재 데이터로 Speaking 평가 조건을 충족했습니다.",
           "insufficient": "아직 평가 기준(5 Turn · 60초 · STT 80%)을 모두 충족하지 않았습니다.",
+          "insufficientReadAloud": "듣고 따라 말하기는 오늘의 5문제와 STT 80%를 충족하면 평가할 수 있습니다. 발화 60초 조건은 적용하지 않습니다.",
           "action": "Session 종료",
           "completing": "종료 처리 중...",
           "confirm": "Speaking Session을 종료할까요? 종료 후에는 새 Turn을 추가할 수 없습니다.",
@@ -1270,6 +1311,32 @@
           "noteHelp": "말할 내용을 자유롭게 정리하세요. 이 메모는 AI 평가에 전송되지 않습니다.",
           "notePlaceholder": "키워드, 표현, 말할 순서 등을 메모해 보세요.",
           "noteSaved": "자동 임시저장됨 · 새로고침해도 복구됩니다."
+        },
+        "readAloudProblem": {
+          "dailyProgress": "오늘의 문제 {problem}/{total}",
+          "title": "듣고 리피트 진행",
+          "description": "각 문제의 문장을 2번 따라 말한 뒤 평가를 요청하세요. 필요하면 3번째 발화를 추가할 수 있습니다.",
+          "attemptProgress": "필수 발화 {current}/{required}",
+          "rerecording": "발화 {attempt}을 다시 녹음하고 있습니다.",
+          "cancelRerecord": "취소",
+          "attemptItem": "발화 {attempt}",
+          "thirdRecommended": "한 번 더 말하기 (권장)",
+          "thirdOptional": "한 번 더 말하기 (선택)",
+          "thirdEnabled": "3번째 발화를 녹음할 수 있습니다.",
+          "evaluateLast": "마지막 문제 평가하기",
+          "evaluateAndNext": "이 문제 평가하고 다음으로",
+          "evaluating": "평가 요청 중...",
+          "notReady": "평가하려면 유효한 발화가 최소 2개 필요합니다. STT 실패/평가 제외 발화는 다시 녹음하거나 보완해 주세요.",
+          "submittedTitle": "문제별 평가 상태",
+          "submittedItem": "문제 {problem} · {status}",
+          "status": {
+            "PENDING": "대기",
+            "EVALUATING": "평가 중",
+            "EVALUATED": "완료",
+            "FAILED": "실패",
+            "OTHER": "처리 완료",
+            "INSUFFICIENT_EVIDENCE": "근거 부족"
+          }
         }
       },
       "evaluation": {
@@ -1598,6 +1665,19 @@
           "playback": "재생 · 정상속도 {normal}회 / 0.75x {slow}회",
           "help": "첫 정상속도 재생은 감점되지 않습니다. 추가 재생과 느리게 듣기는 독립 청취 점수에만 반영됩니다."
         },
+        "evaluationPending": "AI 평가를 처리하고 있습니다. 평가가 끝나면 결과가 자동으로 갱신됩니다.",
+        "evaluationStatusEyebrow": "AI 평가 상태",
+        "evaluationStatusInProgressTitle": "AI 평가를 진행하고 있습니다…",
+        "evaluationStatusFailedTitle": "완료되지 않은 평가가 있습니다.",
+        "evaluationStatusInProgressDescription": "완료된 결과는 그대로 확인할 수 있습니다. 평가 중인 문제만 백그라운드에서 계속 처리됩니다.",
+        "evaluationStatusFailedDescription": "평가에 실패한 Task는 최종 Listening 점수에서 제외됩니다. 실패한 평가를 개별 또는 한 번에 다시 시도할 수 있습니다.",
+        "evaluationStatusApplied": "평가 반영",
+        "evaluationStatusFailed": "평가 실패 문제",
+        "evaluationStatusEvaluating": "평가·재시도 중",
+        "retryAllFailedEvaluations": "실패한 평가 {count}개 모두 다시 시도",
+        "retryAllFailedEvaluationsBusy": "실패한 평가를 다시 시도하는 중…",
+        "scoreUpdating": "평가 진행 중 · 완료된 결과는 아래에서 확인할 수 있습니다.",
+        "itemEvaluationPending": "이 문제의 AI 평가가 진행 중입니다. 완료된 Task 결과는 유지되며 평가가 끝나면 자동으로 갱신됩니다.",
         "evaluatingEyebrow": "AI 평가 진행 중",
         "evaluatingTitle": "5문제 평가를 마무리하고 있습니다…",
         "evaluatingDescription": "문제 풀이가 모두 끝났습니다. 모든 문제의 평가 처리가 끝날 때까지 점수는 공개하지 않습니다.",

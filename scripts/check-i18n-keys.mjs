@@ -99,6 +99,41 @@ for (const locale of LOCALES.filter((candidate) => candidate !== BASE_LOCALE)) {
     }
 }
 
+// Dynamic next-intl keys cannot be inferred from locale-to-locale parity alone.
+// Keep the namespaces that render Listening task/metric enums in sync with the
+// canonical Listening labels so missing runtime keys fail CI instead of leaking
+// `LanguageLearning....` strings into the UI.
+for (const locale of LOCALES) {
+    const languageLearningFile = localeFiles.get(locale)?.get("languageLearning.json");
+    const languageLearning = languageLearningFile?.LanguageLearning;
+    if (!languageLearning) {
+        errors.push(`[${locale}] languageLearning.json: missing LanguageLearning root`);
+        continue;
+    }
+
+    const canonicalTasks = languageLearning.listening?.task ?? {};
+    const taskTargets = [
+        ["LanguageLearning.history.listening.task", languageLearning.history?.listening?.task ?? {}],
+        ["LanguageLearning.dashboard.v3.task", languageLearning.dashboard?.v3?.task ?? {}],
+    ];
+
+    for (const taskKey of Object.keys(canonicalTasks)) {
+        for (const [targetPath, target] of taskTargets) {
+            if (!(taskKey in target)) {
+                errors.push(`[${locale}] languageLearning.json: missing dynamic key ${targetPath}.${taskKey}`);
+            }
+        }
+    }
+
+    const listeningMetrics = languageLearning.listening?.result?.metrics ?? {};
+    const dashboardMetrics = languageLearning.dashboard?.v3?.metric ?? {};
+    for (const metricKey of Object.keys(listeningMetrics)) {
+        if (!(metricKey in dashboardMetrics)) {
+            errors.push(`[${locale}] languageLearning.json: missing dynamic key LanguageLearning.dashboard.v3.metric.${metricKey}`);
+        }
+    }
+}
+
 if (errors.length > 0) {
     console.error(`i18n validation failed with ${errors.length} issue(s):`);
     for (const error of errors) {

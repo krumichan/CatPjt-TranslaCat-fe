@@ -44,11 +44,12 @@ test.describe("Language Learning Phase 1", () => {
     });
 
     test("LL-03 Daily Writing에서 5대 평가축과 추천 답안을 표시한다", async ({ page }) => {
-        await page.route("**/language-learning/writing/daily", (route) =>
+        await page.route("**/language-learning/writing/daily?**", (route) =>
             fulfillJson(route, responseDto(LANGUAGE_LEARNING_DAILY_SET)),
         );
 
         await page.goto("/language-learning/writing");
+        await page.getByTestId("daily-writing-type-translation").click();
         await expect(page.getByTestId("daily-writing-page")).toBeVisible();
         await expect(page.getByText("표현력", { exact: true })).toBeVisible();
 
@@ -61,6 +62,224 @@ test.describe("Language Learning Phase 1", () => {
         ).toContainText(
             LANGUAGE_LEARNING_EVALUATION.recommendedAnswers[0],
         );
+    });
+
+    test("LL-03A Daily Writing은 일괄 평가를 백그라운드에서 계속하고 완료 유형을 결과 보기로 표시한다", async ({ page }) => {
+        const todayParts = new Intl.DateTimeFormat("en-US", {
+            timeZone: LANGUAGE_LEARNING_SETTING.timezone,
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+        }).formatToParts(new Date());
+        const todayValues = Object.fromEntries(
+            todayParts.map((part) => [part.type, part.value]),
+        );
+        const today = `${todayValues.year}-${todayValues.month}-${todayValues.day}`;
+        const submittedAnswers = new Map<number, string>();
+        let evaluationPollCount = 0;
+        let resumeRequestCount = 0;
+        let allowEvaluationCompletion = false;
+        const batchSet = {
+            ...LANGUAGE_LEARNING_DAILY_SET,
+            learningDate: today,
+            status: "READY",
+            items: LANGUAGE_LEARNING_DAILY_SET.items.map((item) => ({
+                ...item,
+                answered: false,
+                answeredToday: false,
+                canSubmit: true,
+                attempts: [],
+            })),
+        };
+
+        await page.route("**/language-learning/writing/daily?**", (route) => {
+            const allSubmitted = submittedAnswers.size === batchSet.items.length;
+            const completed =
+                allSubmitted &&
+                allowEvaluationCompletion &&
+                evaluationPollCount >= 1;
+            if (allSubmitted && allowEvaluationCompletion) {
+                evaluationPollCount += 1;
+            }
+
+            return fulfillJson(
+                route,
+                responseDto({
+                    ...batchSet,
+                    status: completed ? "COMPLETED" : "READY",
+                    items: batchSet.items.map((item) => {
+                        const answer = submittedAnswers.get(item.itemId);
+                        if (!answer) return item;
+                        return {
+                            ...item,
+                            answered: true,
+                            answeredToday: true,
+                            canSubmit: false,
+                            attempts: [
+                                {
+                                    answerId: 7000 + item.itemId,
+                                    attemptDate: today,
+                                    answer,
+                                    submittedAt: `${today}T12:00:00`,
+                                    evaluationStatus: completed
+                                        ? "SUCCESS"
+                                        : "PENDING",
+                                    evaluationFailureMessage: null,
+                                    evaluation: completed
+                                        ? LANGUAGE_LEARNING_EVALUATION
+                                        : null,
+                                },
+                            ],
+                        };
+                    }),
+                }),
+            );
+        });
+        await page.route(
+            "**/language-learning/writing/daily/items/*/answers",
+            (route) => {
+                const match = route.request().url().match(/items\/(\d+)\/answers/);
+                const itemId = Number(match?.[1]);
+                const answer = route.request().postDataJSON().answer as string;
+                submittedAnswers.set(itemId, answer);
+                return fulfillJson(
+                    route,
+                    responseDto({
+                        answerId: 7000 + itemId,
+                        itemId,
+                        attemptDate: today,
+                        evaluationStatus: "PENDING",
+                        evaluationFailureMessage: null,
+                        evaluation: null,
+                    }),
+                );
+            },
+        );
+        await page.route(
+            "**/language-learning/writing/daily/items/*/evaluation/resume",
+            (route) => {
+                resumeRequestCount += 1;
+                allowEvaluationCompletion = true;
+                return fulfillJson(route, responseDto(null));
+            },
+        );
+        await page.route("**/language-learning/history?**", (route) => {
+            const allSubmitted = submittedAnswers.size === batchSet.items.length;
+            const completed =
+                allSubmitted &&
+                allowEvaluationCompletion &&
+                evaluationPollCount >= 2;
+            return fulfillJson(
+                route,
+                responseDto(
+                    allSubmitted
+                        ? [
+                              {
+                                  activityId: "WRITING:101",
+                                  source: "WRITING",
+                                  learningDate: today,
+                                  title: "Daily Writing · TRANSLATION",
+                                  topic: "TRANSLATION",
+                                  durationSeconds: 0,
+                                  overallScore: completed ? 84 : null,
+                                  completionStatus: completed
+                                      ? "COMPLETED"
+                                      : "READY",
+                                  evaluationStatus: completed
+                                      ? "SUCCESS"
+                                      : "PENDING",
+                              },
+                          ]
+                        : [],
+                ),
+            );
+        });
+
+        await page.goto("/language-learning/writing");
+        await page.getByTestId("daily-writing-type-translation").click();
+
+        const answers = page.locator("textarea");
+        await expect(answers).toHaveCount(5);
+        for (let index = 0; index < 5; index += 1) {
+            await answers.nth(index).fill(`一括評価の回答 ${index + 1}`);
+        }
+
+        const bulkEvaluation = page.getByTestId(
+            "daily-writing-bulk-evaluation",
+        );
+        await expect(bulkEvaluation).toContainText("5개에 답변을 작성했습니다");
+        await bulkEvaluation
+            .getByRole("button", { name: "5개 모두 AI 평가" })
+            .click();
+
+        await expect.poll(() => submittedAnswers.size).toBe(5);
+        await expect(bulkEvaluation).toContainText(
+            "페이지를 새로고침하거나 다른 메뉴로 이동해도 평가가 계속됩니다",
+        );
+
+        await page.reload();
+        const evaluatingCard = page.getByTestId(
+            "daily-writing-type-translation",
+        );
+        await expect(evaluatingCard).toHaveAttribute(
+            "data-state",
+            "EVALUATING",
+        );
+        await expect(evaluatingCard).toContainText("평가 중");
+        await evaluatingCard.click();
+
+        await expect.poll(() => resumeRequestCount).toBeGreaterThan(0);
+        await expect(
+            page.getByText("오늘의 학습 완료!", { exact: true }),
+        ).toBeVisible();
+
+        await page.getByRole("button", { name: "다른 유형 선택" }).click();
+        const translationCard = page.getByTestId(
+            "daily-writing-type-translation",
+        );
+        await expect(translationCard).toHaveAttribute(
+            "data-state",
+            "COMPLETED",
+        );
+        await expect(translationCard).toContainText("완료");
+        await expect(
+            translationCard.getByText("결과 보기", { exact: true }),
+        ).toBeVisible();
+    });
+
+    test("LL-03B Daily Writing 작성 중 답변은 새로고침 후에도 자동 복구한다", async ({ page }) => {
+        const draftSet = {
+            ...LANGUAGE_LEARNING_DAILY_SET,
+            status: "READY",
+            items: LANGUAGE_LEARNING_DAILY_SET.items.map((item) => ({
+                ...item,
+                answered: false,
+                answeredToday: false,
+                canSubmit: true,
+                attempts: [],
+            })),
+        };
+
+        await page.route("**/language-learning/writing/daily?**", (route) =>
+            fulfillJson(route, responseDto(draftSet)),
+        );
+
+        await page.goto("/language-learning/writing");
+        await page.getByTestId("daily-writing-type-translation").click();
+
+        const answers = page.locator("textarea");
+        await answers.nth(0).fill("保存される回答 1");
+        await answers.nth(1).fill("保存される回答 2");
+        await answers.nth(2).fill("保存される回答 3");
+        await expect(page.getByText("자동 임시 저장됨").first()).toBeVisible();
+
+        await page.reload();
+        await page.getByTestId("daily-writing-type-translation").click();
+
+        const restored = page.locator("textarea");
+        await expect(restored.nth(0)).toHaveValue("保存される回答 1");
+        await expect(restored.nth(1)).toHaveValue("保存される回答 2");
+        await expect(restored.nth(2)).toHaveValue("保存される回答 3");
     });
 
     test("LL-04 학습 설정에서 Admin Min/Max와 Keyword Type을 표시한다", async ({ page }) => {
@@ -245,6 +464,8 @@ test.describe("Language Learning Phase 1", () => {
                     answerId: 6001,
                     itemId: 1001,
                     attemptDate: "2026-08-13",
+                    evaluationStatus: "SUCCESS",
+                    evaluationFailureMessage: null,
                     evaluation: LANGUAGE_LEARNING_EVALUATION,
                 }),
             ),

@@ -17,6 +17,11 @@ export type DailyWritingDifficulty =
     | "NORMAL"
     | "CHALLENGE";
 
+export type DailyWritingType =
+    | "TRANSLATION"
+    | "GUIDED"
+    | "FREE";
+
 export type WritingMetric =
     | "MEANING"
     | "GRAMMAR"

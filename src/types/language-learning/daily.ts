@@ -2,6 +2,7 @@ import type {
     BilingualMessage,
     DailySetStatus,
     DailyWritingDifficulty,
+    DailyWritingType,
     WritingCorrection,
     WritingEvaluationContext,
     WritingMetric,
@@ -27,11 +28,15 @@ export interface WritingEvaluation {
     evaluatedAt: string;
 }
 
+export type WritingEvaluationStatus = "PENDING" | "SUCCESS" | "FAILED";
+
 export interface WritingAnswerAttempt {
     answerId: number;
     attemptDate: string;
     answer: string;
     submittedAt: string;
+    evaluationStatus: WritingEvaluationStatus | null;
+    evaluationFailureMessage: string | null;
     evaluation: WritingEvaluation | null;
 }
 
@@ -43,6 +48,9 @@ export interface DailyWritingItem {
     keywords: string[];
     focusMetrics: WritingMetric[];
     focusReason: string;
+    providedFacts: string[];
+    requiredIntents: string[];
+    responseConstraints: string[];
     answered: boolean;
     answeredToday: boolean;
     canSubmit: boolean;
@@ -52,6 +60,7 @@ export interface DailyWritingItem {
 export interface DailyWritingSet {
     dailySetId: number;
     learningDate: string;
+    writingType: DailyWritingType;
     snapshotId: string;
     status: DailySetStatus;
     sentenceCount: number;
@@ -69,5 +78,7 @@ export interface AnswerResult {
     answerId: number;
     itemId: number;
     attemptDate: string;
-    evaluation: WritingEvaluation;
+    evaluationStatus: WritingEvaluationStatus | null;
+    evaluationFailureMessage: string | null;
+    evaluation: WritingEvaluation | null;
 }

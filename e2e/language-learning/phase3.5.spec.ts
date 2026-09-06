@@ -385,10 +385,11 @@ test.describe("Language Learning Phase 3.5", () => {
 
         await page.goto("/language-learning");
         await expect(page.getByText(/독립 청취/).first()).toBeVisible();
-        await page.route("**/language-learning/writing/daily", (route) =>
+        await page.route("**/language-learning/writing/daily?**", (route) =>
             fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_DAILY_SET)),
         );
         await page.goto("/language-learning/writing");
+        await page.getByTestId("daily-writing-type-translation").click();
         await expect(page.getByText(/복잡한 문법·어휘·표현/)).toBeVisible();
     });
 

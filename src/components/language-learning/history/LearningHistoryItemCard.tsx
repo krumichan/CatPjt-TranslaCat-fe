@@ -2,11 +2,14 @@
 
 import { useTranslations } from "next-intl";
 
+import { DailyWritingPromptBlock } from "@/components/language-learning/writing/DailyWritingPromptBlock";
 import { WritingEvaluationPanel } from "@/components/language-learning/writing/WritingEvaluationPanel";
+import type { DailyWritingType } from "@/types/language-learning/common";
 import type { DailyWritingItem } from "@/types/language-learning/daily";
 
 interface LearningHistoryItemCardProps {
     item: DailyWritingItem;
+    writingType: DailyWritingType;
     reviewAvailable: boolean;
     draft: string;
     isSubmitting: boolean;
@@ -16,6 +19,7 @@ interface LearningHistoryItemCardProps {
 
 export function LearningHistoryItemCard({
     item,
+    writingType,
     reviewAvailable,
     draft,
     isSubmitting,
@@ -33,9 +37,13 @@ export function LearningHistoryItemCard({
                 <span>{t(`difficulty.${item.difficulty}`)}</span>
             </div>
 
-            <p className="mt-3 text-lg font-bold leading-8 text-slate-900 dark:text-white">
-                {item.originText}
-            </p>
+            <div className="mt-3">
+                <DailyWritingPromptBlock
+                    item={item}
+                    writingType={writingType}
+                    showFocusReason={false}
+                />
+            </div>
 
             <div className="mt-5 space-y-4">
                 {item.attempts.length === 0 ? (

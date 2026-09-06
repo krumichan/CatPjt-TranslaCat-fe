@@ -5,12 +5,15 @@ import type {
     AnswerSubmitRequest,
     DailyWritingSet,
 } from "@/types/language-learning/daily";
+import type { DailyWritingType } from "@/types/language-learning/common";
 
 export const dailyWritingService = {
-    getToday: async (): Promise<DailyWritingSet> => {
-        const response = await apiClient("/language-learning/writing/daily", {
-            method: "GET",
-        });
+    getToday: async (writingType: DailyWritingType): Promise<DailyWritingSet> => {
+        const params = new URLSearchParams({ writingType });
+        const response = await apiClient(
+            `/language-learning/writing/daily?${params.toString()}`,
+            { method: "GET" },
+        );
 
         return parseResponseBody<DailyWritingSet>(
             response,
@@ -18,9 +21,13 @@ export const dailyWritingService = {
         );
     },
 
-    getHistory: async (date: string): Promise<DailyWritingSet> => {
+    getHistory: async (
+        date: string,
+        writingType: DailyWritingType = "FREE",
+    ): Promise<DailyWritingSet> => {
+        const params = new URLSearchParams({ writingType });
         const response = await apiClient(
-            `/language-learning/writing/daily/history/${encodeURIComponent(date)}`,
+            `/language-learning/writing/daily/history/${encodeURIComponent(date)}?${params.toString()}`,
             { method: "GET" },
         );
 
@@ -41,6 +48,18 @@ export const dailyWritingService = {
         return parseResponseBody<DailyWritingSet>(
             response,
             "DailyWritingRegeneration",
+        );
+    },
+
+    resumeEvaluation: async (itemId: number): Promise<void> => {
+        const response = await apiClient(
+            `/language-learning/writing/daily/items/${itemId}/evaluation/resume`,
+            { method: "POST" },
+        );
+
+        await parseResponseBody<null>(
+            response,
+            "DailyWritingEvaluationResume",
         );
     },
 

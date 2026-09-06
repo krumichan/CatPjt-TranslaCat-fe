@@ -6,18 +6,28 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/navigation";
 import type { DailyWritingItem } from "@/types/language-learning/daily";
 
-export function DailyWritingCompletionCard({ items }: { items: DailyWritingItem[] }) {
+export function DailyWritingCompletionCard({
+    items,
+    onChooseType,
+}: {
+    items: DailyWritingItem[];
+    onChooseType: () => void;
+}) {
     const t = useTranslations("LanguageLearning.writing.completed");
     const scores = items
         .map((item) => item.attempts.at(-1)?.evaluation?.overall)
         .filter((score): score is number => typeof score === "number");
-    const average = scores.length > 0
-        ? scores.reduce((sum, score) => sum + score, 0) / scores.length
-        : null;
+    const average =
+        scores.length > 0
+            ? scores.reduce((sum, score) => sum + score, 0) / scores.length
+            : null;
 
     return (
         <section className="rounded-3xl border border-emerald-200 bg-emerald-50 p-6 text-center dark:border-emerald-400/20 dark:bg-emerald-500/10">
-            <CheckCircle2 className="mx-auto h-10 w-10 text-emerald-600 dark:text-emerald-300" aria-hidden="true" />
+            <CheckCircle2
+                className="mx-auto h-10 w-10 text-emerald-600 dark:text-emerald-300"
+                aria-hidden="true"
+            />
             <h2 className="mt-3 text-xl font-black text-emerald-950 dark:text-emerald-100">
                 {t("title")}
             </h2>
@@ -29,9 +39,21 @@ export function DailyWritingCompletionCard({ items }: { items: DailyWritingItem[
                     {average.toFixed(1)}
                 </p>
             )}
-            <Link href="/language-learning" className="mt-5 inline-flex rounded-xl bg-emerald-700 px-5 py-2.5 text-sm font-black text-white hover:bg-emerald-600">
-                {t("dashboard")}
-            </Link>
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+                <button
+                    type="button"
+                    onClick={onChooseType}
+                    className="inline-flex rounded-xl border border-emerald-300 bg-white px-5 py-2.5 text-sm font-black text-emerald-800 transition hover:bg-emerald-100 dark:border-emerald-300/30 dark:bg-white/10 dark:text-emerald-100 dark:hover:bg-white/15"
+                >
+                    {t("chooseType")}
+                </button>
+                <Link
+                    href="/language-learning"
+                    className="inline-flex rounded-xl bg-emerald-700 px-5 py-2.5 text-sm font-black text-white hover:bg-emerald-600"
+                >
+                    {t("dashboard")}
+                </Link>
+            </div>
         </section>
     );
 }

@@ -482,12 +482,13 @@
     },
     "writing": {
       "title": "今日のAdaptive Writing",
-      "description": "今日のSnapshotで固定された問題に回答し、AI評価を次の学習日のLearning Profileへ反映します。",
+      "description": "翻訳・ガイド作文・自由作文から学習したい形式を選び、詳細なAI評価を次のLearning Profileへ反映します。",
       "loadingEntry": "学習設定とレベル状態を確認しています。",
       "generatingTitle": "今日の問題を準備しています",
       "generatingMessage": "現在の設定とLearning Profileをもとに今日のDaily Setを生成しています。",
       "loadFailed": "今日のWriting問題を読み込めませんでした。",
       "progress": "{completed} / {total} 完了",
+      "evaluationProgress": "AI評価中 · {count}問",
       "snapshotNotice": "今日の問題は生成時点のSnapshotで維持され、設定やKeywordの変更は明日から反映されます。",
       "actionFailed": "処理に失敗しました。入力した回答は保持されているため再試行できます。",
       "regenerate": {
@@ -508,18 +509,87 @@
         "answer": "自分の回答",
         "placeholder": "学習言語で文章を書いてください。",
         "submit": "AI評価を受ける",
+        "queueing": "評価を依頼中...",
+        "retry": "AI評価を再試行",
         "evaluating": "評価中...",
+        "draftSaved": "自動保存済み",
+        "pending": {
+          "title": "AI評価中です",
+          "description": "回答はサーバーに保存されています。再読み込みや別メニューへの移動後も評価は継続します。"
+        },
+        "failed": {
+          "title": "AI評価に失敗しました",
+          "description": "入力した回答は保持されています。修正しても、そのままでも再評価できます。"
+        },
         "answeredToday": "本日のこの問題の回答と評価は完了しています。",
         "reviewExpired": "現在、この問題に新しい回答を送信できません。過去の記録は引き続き確認できます。",
         "latestAnswer": "最新の回答",
         "difficultyDescription": {
           "CHALLENGE": "より複雑な文法・語彙・表現に挑戦します。"
+        },
+        "promptLabel": {
+          "TRANSLATION": "翻訳する文",
+          "GUIDED": "状況",
+          "FREE": "テーマ"
+        },
+        "guidance": {
+          "providedFacts": "与えられた事実",
+          "requiredIntents": "必ず伝える内容",
+          "responseConstraints": "回答条件"
         }
       },
       "completed": {
         "title": "今日の学習完了！",
         "description": "今日の評価結果がLearning Profileへ反映され、次回学習日から活用されます。",
-        "dashboard": "ダッシュボードで結果を見る"
+        "dashboard": "ダッシュボードで結果を見る",
+        "chooseType": "別のタイプを選ぶ"
+      },
+      "types": {
+        "label": "作文タイプ",
+        "TRANSLATION": "翻訳作文",
+        "GUIDED": "ガイド作文",
+        "FREE": "自由作文"
+      },
+      "typeSelector": {
+        "eyebrow": "今日のWriting",
+        "title": "どの形式で練習しますか？",
+        "description": "タイプを選択した時点で、そのDaily Setだけを生成します。1種類だけでも、タブを切り替えて複数種類でも学習できます。",
+        "start": "このタイプを始める",
+        "notice": "各タイプは独立した問題セットです。現在の設定が5問なら、タイプごとに5問が提供されます。",
+        "types": {
+          "TRANSLATION": {
+            "title": "翻訳作文",
+            "description": "母語の文を読み、意味を保ちながら学習言語へ自然に翻訳します。"
+          },
+          "GUIDED": {
+            "title": "ガイド作文",
+            "description": "与えられた事実・伝える内容・回答条件に沿って文章を組み立てます。"
+          },
+          "FREE": {
+            "title": "自由作文",
+            "description": "意見・経験・計画、または明確な仮定の状況をもとに自由に表現します。"
+          }
+        },
+        "continue": "続きから学習する",
+        "viewProgress": "評価状況を見る",
+        "result": "結果を見る",
+        "averageScore": "平均 {score}点",
+        "status": {
+          "completed": "完了",
+          "evaluating": "評価中",
+          "inProgress": "進行中"
+        }
+      },
+      "bulkEvaluation": {
+        "title": "まとめて評価",
+        "description": "未評価の{total}問のうち、{filled}問に回答を入力しました。",
+        "backgroundDescription": "依頼した回答をバックグラウンドで順番にAI評価しています。",
+        "leaveSafe": "再読み込みや別メニューへ移動しても評価は継続します。",
+        "missing": "残り{count}問にも回答すると、まとめて評価できます。",
+        "action": "{count}問をまとめてAI評価",
+        "queueing": "評価を依頼中 {completed} / {total}",
+        "evaluating": "評価完了 {completed} / {total}",
+        "failed": "{count}問の評価に失敗しました。保存された回答から再評価できます。"
       }
     },
     "evaluation": {

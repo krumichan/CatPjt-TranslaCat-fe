@@ -3,18 +3,26 @@
     "common": {
       "loadingTitle": "불러오는 중",
       "loadFailedTitle": "데이터를 불러오지 못했습니다",
-      "retry": "다시 시도"
+      "retry": "다시 시도",
+      "accordion": {
+        "expand": "펼치기",
+        "collapse": "접기",
+        "expandAll": "모두 펼치기",
+        "collapseAll": "모두 접기"
+      }
     },
     "navigation": {
       "eyebrow": "Language Learning",
       "ariaLabel": "언어 학습 메뉴",
       "dashboard": "대시보드",
-      "writing": "오늘의 Writing",
-      "history": "학습 기록",
+      "todayLearning": "오늘의 학습",
+      "todayLearningDescription": "학습 메뉴",
+      "writing": "Writing",
+      "history": "학습 이력",
       "profile": "학습 프로필",
-      "settings": "학습 설정",
-      "speaking": "AI Speaking",
-      "listening": "AI Listening"
+      "settings": "설정",
+      "speaking": "Speaking",
+      "listening": "Listening"
     },
     "onboarding": {
       "SETTING": {
@@ -254,6 +262,10 @@
           "KEY_POINT_COVERAGE": "중요 정보 포함",
           "LANGUAGE_CLARITY": "표현 명확성"
         }
+      },
+      "sections": {
+        "overview": "학습 현황",
+        "overviewDescription": "현재 실력, 학습 성과, 추이, 약점과 추천을 한 곳에서 확인합니다."
       }
     },
     "levelTest": {
@@ -560,7 +572,7 @@
         "eyebrow": "오늘의 Writing",
         "title": "어떤 방식으로 연습할까요?",
         "description": "유형을 선택한 뒤에만 해당 Daily Set을 생성합니다. 하나만 풀어도 되고, 탭을 바꿔 다른 유형도 이어서 풀 수 있습니다.",
-        "start": "이 유형 시작하기",
+        "start": "이 형식 시작하기",
         "notice": "각 유형은 서로 독립된 문제 세트입니다. 현재 설정이 5문제라면 유형별로 5문제가 제공됩니다.",
         "types": {
           "TRANSLATION": {
@@ -741,6 +753,9 @@
         "history": "이전 결과",
         "recheck": "다시 측정하기",
         "start": "레벨 테스트 시작"
+      },
+      "sections": {
+        "overview": "Skill 프로필"
       }
     },
     "settings": {
@@ -1093,7 +1108,7 @@
             "title": "자유 말하기",
             "description": "간단한 주제나 최소한의 힌트만 보고 자신의 의견·경험·상상을 자유롭게 말합니다."
           },
-          "select": "이 유형 선택",
+          "select": "이 형식 시작하기",
           "selected": "선택됨",
           "startAgain": "다시 연습하기",
           "resume": "이어서 학습",
@@ -1101,7 +1116,8 @@
           "completed": "완료",
           "progress": "진행 {value}",
           "evaluating": "AI 평가 중…",
-          "viewEvaluationProgress": "평가 진행 상황 보기"
+          "viewEvaluationProgress": "평가 진행 상황 보기",
+          "eyebrow": "오늘의 Speaking"
         }
       },
       "audio": {
@@ -1734,7 +1750,8 @@
         "evaluationProcessing": "AI 평가 처리 {completed}/{total}",
         "evaluationProgress": "평가 진행 상황 보기",
         "evaluating": "AI 평가 중",
-        "evaluationProgressCount": "AI 평가 처리 {value}"
+        "evaluationProgressCount": "AI 평가 처리 {value}",
+        "eyebrow": "오늘의 Listening"
       },
       "mode": {
         "DICTATION": {

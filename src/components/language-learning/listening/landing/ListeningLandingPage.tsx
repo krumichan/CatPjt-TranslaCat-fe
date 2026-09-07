@@ -46,9 +46,18 @@ export function ListeningLandingPage() {
                     </section>
                 )}
 
-                <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-slate-900">
-                    <h2 className="text-xl font-black text-slate-900 dark:text-white">{t("modeSelector.title")}</h2>
-                    <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">{t("modeSelector.description")}</p>
+                <section className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm dark:border-white/10 dark:bg-slate-900/75 sm:p-6">
+                    <div className="max-w-2xl">
+                        <p className="text-xs font-black uppercase tracking-[0.16em] text-blue-600 dark:text-blue-300">
+                            {t("modeSelector.eyebrow")}
+                        </p>
+                        <h2 className="mt-2 text-xl font-black leading-tight text-slate-950 sm:text-2xl dark:text-white">
+                            {t("modeSelector.title")}
+                        </h2>
+                        <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
+                            {t("modeSelector.description")}
+                        </p>
+                    </div>
 
                     <div className="mt-6 grid gap-4 lg:grid-cols-3">
                         {MODES.map(([mode, Icon]) => {
@@ -102,7 +111,7 @@ export function ListeningLandingPage() {
                                 <article
                                     key={mode}
                                     data-testid={`listening-mode-${mode}`}
-                                    className={`rounded-3xl border p-5 ${completed ? "border-emerald-300 bg-emerald-50/70 dark:border-emerald-400/30 dark:bg-emerald-500/10" : failed ? "border-rose-300 bg-rose-50/70 dark:border-rose-400/30 dark:bg-rose-500/10" : activeForMode ? "border-blue-300 bg-blue-50/70 dark:border-blue-400/30 dark:bg-blue-500/10" : "border-slate-200 bg-slate-50/70 dark:border-white/10 dark:bg-white/5"}`}
+                                    className={`flex h-full flex-col rounded-3xl border p-5 transition ${completed ? "border-emerald-300 bg-emerald-50/70 dark:border-emerald-400/30 dark:bg-emerald-500/10" : failed ? "border-rose-300 bg-rose-50/70 dark:border-rose-400/30 dark:bg-rose-500/10" : activeForMode ? "border-blue-300 bg-blue-50/70 dark:border-blue-400/30 dark:bg-blue-500/10" : "border-slate-200 bg-slate-50/70 hover:border-blue-300 hover:bg-blue-50/40 dark:border-white/10 dark:bg-white/5 dark:hover:border-blue-400/40 dark:hover:bg-blue-500/10"}`}
                                 >
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-blue-600 shadow-sm dark:bg-white/10 dark:text-blue-300">
@@ -127,7 +136,7 @@ export function ListeningLandingPage() {
                                             <span className="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-black text-blue-700 dark:bg-blue-500/20 dark:text-blue-200">{t("modeSelector.inProgress")}</span>
                                         )}
                                     </div>
-                                    <h3 className="mt-5 text-lg font-black text-slate-950 dark:text-white">{t(`mode.${mode}.title`)}</h3>
+                                    <h3 className="mt-5 text-base font-black text-slate-950 sm:text-lg dark:text-white">{t(`mode.${mode}.title`)}</h3>
                                     <p className="mt-2 min-h-18 text-sm leading-6 text-slate-500 dark:text-slate-400">{t(`mode.${mode}.description`)}</p>
                                     {targetCount > 0 && preparing && (
                                         <div className="mt-3 space-y-1" aria-live="polite">
@@ -170,20 +179,22 @@ export function ListeningLandingPage() {
                                             {t("modeSelector.learningProgress", { completed: submittedCount, total: targetCount })}
                                         </p>
                                     )}
-                                    {href ? (
-                                        <Link href={href} className="mt-5 inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-sm font-black text-white hover:bg-blue-500">
-                                            {actionLabel}
-                                        </Link>
-                                    ) : (
-                                        <button
-                                            type="button"
-                                            onClick={() => void controller.selectMode(mode)}
-                                            disabled={controller.isStarting || Boolean(controller.activeSession) || preparing}
-                                            className="mt-5 inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-sm font-black text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
-                                        >
-                                            {preparing ? t("modeSelector.preparing") : actionLabel}
-                                        </button>
-                                    )}
+                                    <div className="mt-auto pt-5">
+                                        {href ? (
+                                            <Link href={href} className="inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-base font-black text-white transition hover:bg-blue-500">
+                                                {actionLabel}
+                                            </Link>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                onClick={() => void controller.selectMode(mode)}
+                                                disabled={controller.isStarting || Boolean(controller.activeSession) || preparing}
+                                                className="inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-base font-black text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+                                            >
+                                                {preparing ? t("modeSelector.preparing") : actionLabel}
+                                            </button>
+                                        )}
+                                    </div>
                                 </article>
                             );
                         })}

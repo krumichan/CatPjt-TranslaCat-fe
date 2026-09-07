@@ -5,6 +5,8 @@ import { useCallback, useState } from "react";
 import { useLanguageLearningEntryState } from "@/hooks/language-learning/useLanguageLearningEntryState";
 import { useQuery } from "@/hooks/useQuery";
 import { languageLearningDashboardService } from "@/services/language-learning/languageLearningDashboardService";
+import { languageLearningLevelService } from "@/services/language-learning/languageLearningLevelService";
+import { languageLearningProfileService } from "@/services/language-learning/languageLearningProfileService";
 import { listeningService } from "@/services/language-learning/listeningService";
 import type { DashboardPeriod, DashboardSourceFilter } from "@/types/language-learning/dashboard";
 
@@ -18,6 +20,20 @@ export function useLanguageLearningDashboardPageController() {
     const dashboardQuery = useQuery({
         keys: canLoadLearningData ? (["language-learning-dashboard", period, source] as const) : null,
         fetcher: (_key, selectedPeriod, selectedSource) => languageLearningDashboardService.get(selectedPeriod, selectedSource),
+        enabled: canLoadLearningData,
+        config: { revalidateOnMount: true },
+    });
+
+    const profileQuery = useQuery({
+        keys: canLoadLearningData ? (["language-learning-dashboard-profile"] as const) : null,
+        fetcher: () => languageLearningProfileService.get(),
+        enabled: canLoadLearningData,
+        config: { revalidateOnMount: true },
+    });
+
+    const levelHistoryQuery = useQuery({
+        keys: canLoadLearningData ? (["language-learning-dashboard-level-history"] as const) : null,
+        fetcher: () => languageLearningLevelService.getHistory(),
         enabled: canLoadLearningData,
         config: { revalidateOnMount: true },
     });
@@ -37,9 +53,19 @@ export function useLanguageLearningDashboardPageController() {
         }
     }, [dashboardQuery, dismissingId]);
 
+    const reloadProfile = useCallback(async () => {
+        await Promise.all([
+            profileQuery.mutate(undefined, true),
+            levelHistoryQuery.mutate(undefined, true),
+            entry.reload(),
+        ]);
+    }, [entry, levelHistoryQuery, profileQuery]);
+
     return {
         entry,
         dashboard: dashboardQuery.data ?? null,
+        profile: profileQuery.data ?? null,
+        latestLevelTest: levelHistoryQuery.data?.[0] ?? null,
         period,
         source,
         setPeriod,
@@ -48,8 +74,15 @@ export function useLanguageLearningDashboardPageController() {
         dismissRecommendation,
         isLoadingData: canLoadLearningData && dashboardQuery.isLoading,
         loadError: dashboardQuery.isError,
+        isLoadingProfile: canLoadLearningData && profileQuery.isLoading,
+        profileLoadError: Boolean(profileQuery.isError),
+        reloadProfile,
         reloadData: async () => {
-            await dashboardQuery.mutate(undefined, true);
+            await Promise.all([
+                dashboardQuery.mutate(undefined, true),
+                profileQuery.mutate(undefined, true),
+                levelHistoryQuery.mutate(undefined, true),
+            ]);
         },
     };
 }

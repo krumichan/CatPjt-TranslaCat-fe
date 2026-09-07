@@ -83,7 +83,7 @@ export function LevelTestResultView({ result }: LevelTestResultViewProps) {
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
                 <Link
-                    href="/language-learning/profile"
+                    href="/language-learning#learning-profile"
                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-100 px-5 py-3 text-sm font-black text-slate-700 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-200"
                 >
                     <UserRound className="h-4 w-4" aria-hidden="true" />

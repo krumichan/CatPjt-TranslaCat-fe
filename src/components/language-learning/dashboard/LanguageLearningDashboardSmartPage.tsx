@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { useTranslations } from "next-intl";
 
 import { LanguageLearningOnboardingCard } from "@/components/language-learning/common/LanguageLearningOnboardingCard";
@@ -12,6 +14,20 @@ export function LanguageLearningDashboardSmartPage() {
     const t = useTranslations("LanguageLearning.dashboard");
     const common = useTranslations("LanguageLearning.common");
     const controller = useLanguageLearningDashboardPageController();
+
+    useEffect(() => {
+        if (controller.isLoadingData || !controller.dashboard || controller.isLoadingProfile) return;
+        if (window.location.hash !== "#learning-profile") return;
+
+        const frame = window.requestAnimationFrame(() => {
+            document.getElementById("learning-profile")?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            });
+        });
+
+        return () => window.cancelAnimationFrame(frame);
+    }, [controller.dashboard, controller.isLoadingData, controller.isLoadingProfile]);
 
     const content = (() => {
         if (controller.entry.isLoading) {
@@ -32,6 +48,11 @@ export function LanguageLearningDashboardSmartPage() {
         return (
             <LanguageLearningDashboardView
                 dashboard={controller.dashboard}
+                profile={controller.profile}
+                levelStatus={controller.entry.levelStatus}
+                latestLevelTest={controller.latestLevelTest}
+                isLoadingProfile={controller.isLoadingProfile}
+                profileLoadError={controller.profileLoadError}
                 recheckRecommended={controller.entry.levelStatus?.recheckRecommended ?? false}
                 period={controller.period}
                 source={controller.source}
@@ -39,6 +60,7 @@ export function LanguageLearningDashboardSmartPage() {
                 onPeriodChange={controller.setPeriod}
                 onSourceChange={controller.setSource}
                 onDismissRecommendation={(id) => void controller.dismissRecommendation(id)}
+                onRetryProfile={() => void controller.reloadProfile()}
             />
         );
     })();

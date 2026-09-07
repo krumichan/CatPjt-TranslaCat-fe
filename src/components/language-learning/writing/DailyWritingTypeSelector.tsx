@@ -41,7 +41,7 @@ export function DailyWritingTypeSelector({
                 <p className="text-xs font-black uppercase tracking-[0.16em] text-blue-600 dark:text-blue-300">
                     {t("eyebrow")}
                 </p>
-                <h2 className="mt-2 text-2xl font-black text-slate-950 dark:text-white">
+                <h2 className="mt-2 text-xl font-black leading-tight text-slate-950 sm:text-2xl dark:text-white">
                     {t("title")}
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
@@ -68,18 +68,24 @@ export function DailyWritingTypeSelector({
                           ? "bg-white text-amber-600 dark:bg-amber-500/15 dark:text-amber-300"
                           : "bg-white text-blue-600 dark:bg-white/10 dark:text-blue-300";
 
+                    const actionLabel = isCompleted
+                        ? t("result")
+                        : isEvaluating
+                          ? t("viewProgress")
+                          : isInProgress
+                            ? t("continue")
+                            : t("start");
+
                     return (
-                        <button
+                        <article
                             key={type}
-                            type="button"
-                            onClick={() => onSelect(type)}
-                            className={`group rounded-2xl border p-5 text-left transition hover:-translate-y-0.5 hover:shadow-md ${cardClass}`}
+                            className={`flex h-full flex-col rounded-3xl border p-5 transition hover:-translate-y-0.5 hover:shadow-md ${cardClass}`}
                             data-testid={`daily-writing-type-${type.toLowerCase()}`}
                             data-state={typeProgress.state}
                         >
                             <div className="flex items-start justify-between gap-3">
                                 <span
-                                    className={`inline-flex h-11 w-11 items-center justify-center rounded-xl shadow-sm ${iconClass}`}
+                                    className={`inline-flex h-11 w-11 items-center justify-center rounded-2xl shadow-sm ${iconClass}`}
                                 >
                                     <Icon className="h-5 w-5" aria-hidden="true" />
                                 </span>
@@ -94,7 +100,7 @@ export function DailyWritingTypeSelector({
                                 ) : isEvaluating ? (
                                     <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-black text-amber-700 dark:bg-amber-400/15 dark:text-amber-200">
                                         <LoaderCircle
-                                            className="h-3.5 w-3.5 animate-spin"
+                                            className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none"
                                             aria-hidden="true"
                                         />
                                         {t("status.evaluating")}
@@ -105,10 +111,10 @@ export function DailyWritingTypeSelector({
                                     </span>
                                 ) : null}
                             </div>
-                            <h3 className="mt-4 text-lg font-black text-slate-900 dark:text-white">
+                            <h3 className="mt-5 text-base font-black text-slate-900 sm:text-lg dark:text-white">
                                 {t(`types.${type}.title`)}
                             </h3>
-                            <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
+                            <p className="mt-2 min-h-18 text-sm leading-6 text-slate-500 dark:text-slate-400">
                                 {t(`types.${type}.description`)}
                             </p>
                             {isCompleted && typeProgress.overallScore != null && (
@@ -118,24 +124,16 @@ export function DailyWritingTypeSelector({
                                     })}
                                 </p>
                             )}
-                            <p
-                                className={`mt-4 text-sm font-black ${
-                                    isCompleted
-                                        ? "text-emerald-700 dark:text-emerald-200"
-                                        : isEvaluating
-                                          ? "text-amber-700 dark:text-amber-200"
-                                          : "text-blue-600 dark:text-blue-300"
-                                }`}
-                            >
-                                {isCompleted
-                                    ? t("result")
-                                    : isEvaluating
-                                      ? t("viewProgress")
-                                      : isInProgress
-                                        ? t("continue")
-                                        : t("start")}
-                            </p>
-                        </button>
+                            <div className="mt-auto pt-5">
+                                <button
+                                    type="button"
+                                    onClick={() => onSelect(type)}
+                                    className="inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-base font-black text-white transition hover:bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900"
+                                >
+                                    {actionLabel}
+                                </button>
+                            </div>
+                        </article>
                     );
                 })}
             </div>

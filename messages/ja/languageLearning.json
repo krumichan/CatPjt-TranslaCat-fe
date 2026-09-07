@@ -3,18 +3,26 @@
     "common": {
       "loadingTitle": "読み込み中",
       "loadFailedTitle": "データを読み込めませんでした",
-      "retry": "再試行"
+      "retry": "再試行",
+      "accordion": {
+        "expand": "展開",
+        "collapse": "閉じる",
+        "expandAll": "すべて展開",
+        "collapseAll": "すべて閉じる"
+      }
     },
     "navigation": {
       "eyebrow": "Language Learning",
       "ariaLabel": "言語学習メニュー",
       "dashboard": "ダッシュボード",
-      "writing": "今日のWriting",
+      "todayLearning": "今日の学習",
+      "todayLearningDescription": "学習メニュー",
+      "writing": "Writing",
       "history": "学習履歴",
       "profile": "学習プロフィール",
-      "settings": "学習設定",
-      "speaking": "AI Speaking",
-      "listening": "AI Listening"
+      "settings": "設定",
+      "speaking": "Speaking",
+      "listening": "Listening"
     },
     "onboarding": {
       "SETTING": {
@@ -254,6 +262,10 @@
           "KEY_POINT_COVERAGE": "重要情報の網羅",
           "LANGUAGE_CLARITY": "表現の明確さ"
         }
+      },
+      "sections": {
+        "overview": "学習状況",
+        "overviewDescription": "現在の実力・学習実績・推移・弱点・おすすめをまとめて確認します。"
       }
     },
     "levelTest": {
@@ -560,7 +572,7 @@
         "eyebrow": "今日のWriting",
         "title": "どの形式で練習しますか？",
         "description": "タイプを選択した時点で、そのDaily Setだけを生成します。1種類だけでも、タブを切り替えて複数種類でも学習できます。",
-        "start": "このタイプを始める",
+        "start": "この形式を始める",
         "notice": "各タイプは独立した問題セットです。現在の設定が5問なら、タイプごとに5問が提供されます。",
         "types": {
           "TRANSLATION": {
@@ -741,6 +753,9 @@
         "history": "過去の結果",
         "recheck": "再測定する",
         "start": "レベルテスト開始"
+      },
+      "sections": {
+        "overview": "Skillプロフィール"
       }
     },
     "settings": {
@@ -1093,7 +1108,7 @@
             "title": "自由Speaking",
             "description": "短いテーマや最小限のヒントだけを見て、自分の意見・経験・想像を自由に話します。"
           },
-          "select": "この形式を選択",
+          "select": "この形式を始める",
           "selected": "選択済み",
           "startAgain": "もう一度練習",
           "resume": "続きから学習",
@@ -1101,7 +1116,8 @@
           "completed": "完了",
           "progress": "進捗 {value}",
           "evaluating": "AI評価中…",
-          "viewEvaluationProgress": "評価の進行状況を見る"
+          "viewEvaluationProgress": "評価の進行状況を見る",
+          "eyebrow": "今日のSpeaking"
         }
       },
       "audio": {
@@ -1734,7 +1750,8 @@
         "evaluationProcessing": "AI評価処理 {completed}/{total}",
         "evaluationProgress": "評価進捗を見る",
         "evaluating": "AI評価中",
-        "evaluationProgressCount": "AI評価処理 {value}"
+        "evaluationProgressCount": "AI評価処理 {value}",
+        "eyebrow": "今日のListening"
       },
       "mode": {
         "DICTATION": {

@@ -352,8 +352,10 @@ test.describe("Language Learning Phase 3.5", () => {
         await expect(item.getByRole("button", { name: /답안 예시 듣기/ })).toBeVisible();
     });
 
-    test("LL35-19 Profile과 공통 History에서 Level Test 결과에 접근할 수 있다", async ({ page }) => {
+    test("LL35-19 Dashboard의 Learning Profile과 공통 History에서 Level Test 결과에 접근할 수 있다", async ({ page }) => {
         await page.goto("/language-learning/profile");
+        await expect(page).toHaveURL(/language-learning#learning-profile$/);
+        await expect(page.getByTestId("dashboard-learning-profile")).toBeVisible();
         await expect(page.getByRole("link", { name: /최근 결과/ })).toBeVisible();
         await page.goto("/language-learning/history");
         await expect(page.getByRole("button", { name: "레벨 테스트" })).toBeVisible();
@@ -385,6 +387,8 @@ test.describe("Language Learning Phase 3.5", () => {
 
         await page.goto("/language-learning");
         await expect(page.getByText(/독립 청취/).first()).toBeVisible();
+        await expect(page.getByTestId("language-learning-tab-profile")).toHaveCount(0);
+        await expect(page.getByTestId("language-learning-today-menu")).toBeVisible();
         await page.route("**/language-learning/writing/daily?**", (route) =>
             fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_DAILY_SET)),
         );

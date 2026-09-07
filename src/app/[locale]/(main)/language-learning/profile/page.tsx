@@ -1,5 +1,15 @@
-import { LanguageLearningProfilePage } from "@/components/language-learning/profile/LanguageLearningProfilePage";
+import { redirect } from "next/navigation";
 
-export default function LanguageLearningProfileRoutePage() {
-    return <LanguageLearningProfilePage />;
+interface LanguageLearningProfileRoutePageProps {
+    params: Promise<{
+        locale: string;
+    }>;
+}
+
+export default async function LanguageLearningProfileRoutePage({
+    params,
+}: LanguageLearningProfileRoutePageProps) {
+    const { locale } = await params;
+
+    redirect(`/${locale}/language-learning#learning-profile`);
 }

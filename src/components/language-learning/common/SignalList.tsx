@@ -21,12 +21,12 @@ export function SignalList({ items, emptyText }: SignalListProps) {
             {items.slice(0, 8).map((item) => (
                 <li
                     key={item.key}
-                    className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 px-3 py-2 text-sm dark:bg-white/5"
+                    className="flex min-w-0 items-start justify-between gap-2 rounded-xl bg-slate-50 px-3 py-2 text-sm dark:bg-white/5 sm:gap-3"
                 >
-                    <span className="min-w-0 truncate font-bold text-slate-700 dark:text-slate-200">
+                    <span className="min-w-0 flex-1 whitespace-normal break-words font-bold leading-5 text-slate-700 [overflow-wrap:anywhere] dark:text-slate-200">
                         {item.key}
                     </span>
-                    <span className="shrink-0 rounded-full bg-slate-200 px-2 py-0.5 text-xs font-black text-slate-600 dark:bg-white/10 dark:text-slate-300">
+                    <span className="mt-0.5 shrink-0 rounded-full bg-slate-200 px-2 py-0.5 text-xs font-black text-slate-600 dark:bg-white/10 dark:text-slate-300">
                         {item.occurrenceCount}
                     </span>
                 </li>

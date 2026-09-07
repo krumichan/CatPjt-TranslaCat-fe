@@ -1,4 +1,5 @@
 import type { LearningProfileState } from "@/types/language-learning/common";
+import type { VocabularyMasterySummary } from "@/types/language-learning/practice";
 
 export interface SkillScores {
     meaning: number | null;
@@ -43,4 +44,5 @@ export interface LanguageLearningProfile {
     strengths: ProfileSignal[];
     weaknesses: ProfileSignal[];
     recommendedFocus: ProfileSignal[];
+    vocabularyMastery: VocabularyMasterySummary;
 }

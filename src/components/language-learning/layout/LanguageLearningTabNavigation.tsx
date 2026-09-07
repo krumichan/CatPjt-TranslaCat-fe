@@ -3,12 +3,14 @@
 import {
     BarChart3,
     BookOpen,
+    BookText,
     ChevronDown,
     Ear,
     History,
     Mic2,
     PencilLine,
     Settings,
+    LibraryBig,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -30,6 +32,16 @@ const LEARNING_MODE_ITEMS = [
         href: "/language-learning/listening",
         key: "listening",
         icon: Ear,
+    },
+    {
+        href: "/language-learning/reading",
+        key: "reading",
+        icon: BookText,
+    },
+    {
+        href: "/language-learning/vocabulary",
+        key: "vocabulary",
+        icon: LibraryBig,
     },
 ] as const;
 

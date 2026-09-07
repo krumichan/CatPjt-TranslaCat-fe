@@ -23,7 +23,8 @@ type ProfileSectionKey =
     | "focus"
     | "grammar"
     | "errors"
-    | "keywords";
+    | "keywords"
+    | "vocabularyMastery";
 
 const PROFILE_DESKTOP_DEFAULTS: Record<ProfileSectionKey, boolean> = {
     overview: true,
@@ -34,6 +35,7 @@ const PROFILE_DESKTOP_DEFAULTS: Record<ProfileSectionKey, boolean> = {
     grammar: true,
     errors: true,
     keywords: true,
+    vocabularyMastery: true,
 };
 const PROFILE_MOBILE_DEFAULTS: Record<ProfileSectionKey, boolean> = {
     overview: true,
@@ -44,6 +46,7 @@ const PROFILE_MOBILE_DEFAULTS: Record<ProfileSectionKey, boolean> = {
     grammar: false,
     errors: false,
     keywords: false,
+    vocabularyMastery: false,
 };
 
 export function LanguageLearningProfileView({
@@ -58,6 +61,7 @@ export function LanguageLearningProfileView({
     const t = useTranslations("LanguageLearning.profile");
     const common = useTranslations("LanguageLearning.common");
     const bandT = useTranslations("LanguageLearning.levelTest.band");
+    const vocabularyEvaluatedCount = profile.vocabularyMastery.total - profile.vocabularyMastery.newCount;
     const disclosure = usePersistentDisclosureMap<ProfileSectionKey>({
         storageKey: "translacat.language-learning.profile.sections.v1",
         desktopDefaults: PROFILE_DESKTOP_DEFAULTS,
@@ -218,6 +222,52 @@ export function LanguageLearningProfileView({
                         <div className="mt-4"><SignalList items={profile.errorPatterns} emptyText={t("errors.empty")} /></div>
                     </DisclosureContent>
                 </article>
+            </section>
+
+            <section className="min-w-0 rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm dark:border-white/10 dark:bg-slate-900/75">
+                <div className="flex items-center justify-between gap-3">
+                    <h2 className="text-lg font-black text-slate-900 dark:text-white">{t("vocabularyMastery.title")}</h2>
+                    <DisclosureToggleButton {...toggleProps("vocabularyMastery", "profile-vocabulary-mastery-content")} />
+                </div>
+                <DisclosureContent id="profile-vocabulary-mastery-content" isOpen={disclosure.state.vocabularyMastery}>
+                    {profile.vocabularyMastery.total === 0 ? (
+                        <p className="mt-4 text-sm text-slate-400">{t("vocabularyMastery.empty")}</p>
+                    ) : (
+                        <div className="mt-4 space-y-4">
+                            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-blue-50 p-4 dark:bg-blue-500/10">
+                                <span className="text-sm font-black text-blue-800 dark:text-blue-100">{t("vocabularyMastery.average", { score: vocabularyEvaluatedCount > 0 ? Math.round(profile.vocabularyMastery.averageScore) : "—" })}</span>
+                                <span className="text-2xl font-black text-blue-700 dark:text-blue-200">{vocabularyEvaluatedCount > 0 ? Math.round(profile.vocabularyMastery.averageScore) : "—"}</span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+                                {[
+                                    ["new", profile.vocabularyMastery.newCount],
+                                    ["learning", profile.vocabularyMastery.learningCount],
+                                    ["familiar", profile.vocabularyMastery.familiarCount],
+                                    ["strong", profile.vocabularyMastery.strongCount],
+                                    ["mastered", profile.vocabularyMastery.masteredCount],
+                                ].map(([key, value]) => (
+                                    <div key={String(key)} className="rounded-xl bg-slate-50 p-3 text-center dark:bg-white/5">
+                                        <p className="text-lg font-black text-slate-900 dark:text-white">{value}</p>
+                                        <p className="mt-1 text-[11px] font-bold text-slate-400">{t(`vocabularyMastery.${key}`)}</p>
+                                    </div>
+                                ))}
+                            </div>
+                            {profile.vocabularyMastery.weakest.length > 0 && (
+                                <div>
+                                    <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">{t("vocabularyMastery.weakest")}</p>
+                                    <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                                        {profile.vocabularyMastery.weakest.slice(0, 12).map((item) => (
+                                            <div key={item.canonicalKey} className="flex min-w-0 items-center justify-between gap-3 rounded-xl bg-slate-50 p-3 dark:bg-white/5">
+                                                <span className="min-w-0 flex-1 break-words text-sm font-black text-slate-700 [overflow-wrap:anywhere] dark:text-slate-200">{item.displayExpression}</span>
+                                                <span className="shrink-0 text-sm font-black text-blue-600 dark:text-blue-300">{Math.round(item.score)}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </DisclosureContent>
             </section>
 
             <section className="min-w-0 rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm dark:border-white/10 dark:bg-slate-900/75">

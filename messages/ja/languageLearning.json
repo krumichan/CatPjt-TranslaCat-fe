@@ -22,7 +22,9 @@
       "profile": "学習プロフィール",
       "settings": "設定",
       "speaking": "Speaking",
-      "listening": "Listening"
+      "listening": "Listening",
+      "reading": "Reading",
+      "vocabulary": "Vocabulary"
     },
     "onboarding": {
       "SETTING": {
@@ -260,7 +262,20 @@
           "ANSWER_ACCURACY": "回答正確度",
           "GIST_COVERAGE": "要旨理解",
           "KEY_POINT_COVERAGE": "重要情報の網羅",
-          "LANGUAGE_CLARITY": "表現の明確さ"
+          "LANGUAGE_CLARITY": "表現の明確さ",
+          "CONTENT": "内容理解",
+          "DETAIL": "詳細情報",
+          "INFERENCE": "推論",
+          "GIST": "要点把握",
+          "STRUCTURE": "構造理解",
+          "CONTEXT_INFERENCE": "文脈推論",
+          "SYNONYM": "類義語",
+          "ANTONYM": "反意語",
+          "DISTINCTION": "類似語の使い分け",
+          "COLLOCATION": "コロケーション",
+          "REGISTER": "場面別表現",
+          "CONTEXT_USAGE": "文脈適用",
+          "COMPOSITION": "組み合わせ・構成"
         }
       },
       "sections": {
@@ -656,7 +671,8 @@
           "SPEAKING": "スピーキング",
           "LISTENING": "リスニング",
           "READING": "リーディング",
-          "LEVEL_TEST": "レベルテスト"
+          "LEVEL_TEST": "レベルテスト",
+          "VOCABULARY": "Vocabulary"
         },
         "freeTalk": "フリートーク",
         "speakingSummary": "{turns}ターン · {minutes}分",
@@ -755,7 +771,19 @@
         "start": "レベルテスト開始"
       },
       "sections": {
-        "overview": "Skillプロフィール"
+        "overview": "Skillプロフィール",
+        "vocabularyMastery": "Vocabulary習熟度"
+      },
+      "vocabularyMastery": {
+        "title": "Vocabulary累積習熟度",
+        "average": "平均習熟度 {score}",
+        "empty": "Vocabularyの学習履歴はまだありません。",
+        "new": "新規",
+        "learning": "学習中",
+        "familiar": "慣れている",
+        "strong": "強い",
+        "mastered": "習熟",
+        "weakest": "復習優先の表現"
       }
     },
     "settings": {
@@ -1766,6 +1794,187 @@
           "title": "要点をまとめる",
           "description": "聞いた内容の要点と重要情報を学習言語で自分の言葉にまとめます。"
         }
+      }
+    },
+    "reading": {
+      "title": "AI Reading",
+      "description": "文章を読み、内容理解・文章構造・文脈推論の力を練習します。",
+      "loading": "Reading学習情報を読み込んでいます。",
+      "loadFailed": "Reading学習情報を読み込めませんでした。",
+      "startFailed": "今日のReading問題を準備できませんでした。もう一度お試しください。",
+      "selector": {
+        "eyebrow": "今日のReading",
+        "title": "今日はどの方法でReadingを練習しますか？",
+        "description": "異なる読解力を集中的に練習できます。必要な形式だけ選んで学習しても構いません。",
+        "start": "この形式を始める",
+        "starting": "問題を準備中",
+        "notice": "今日生成した問題は、再度アクセスしても同じ内容が維持されます。",
+        "completed": "今日完了",
+        "continue": "続きから",
+        "viewResult": "結果を見る",
+        "progress": "進行中 · {answered}/{total}",
+        "score": "今日のスコア {score}",
+        "completedCount": "今日完了した形式 {completed}/{total}"
+      },
+      "modes": {
+        "COMPREHENSION": {
+          "title": "読解問題",
+          "description": "文章を読み、内容・詳細情報・原因と結果・意図・推論に関する問題に答えます。"
+        },
+        "STRUCTURE": {
+          "title": "要点・構成をつかむ",
+          "description": "主題、タイトル、段落の役割、文章全体の流れを読み取ります。"
+        },
+        "CONTEXT_INFERENCE": {
+          "title": "文脈から推論する",
+          "description": "指示対象、省略された意味、文の意図や次の展開を文脈から推論します。"
+        }
+      },
+      "difficulty": {
+        "EASIER": "やや易しい",
+        "CURRENT": "現在レベル",
+        "CHALLENGE": "チャレンジ"
+      },
+      "skills": {
+        "CONTENT": "内容理解",
+        "DETAIL": "詳細情報",
+        "INFERENCE": "推論",
+        "GIST": "要点把握",
+        "STRUCTURE": "構造理解",
+        "CONTEXT_INFERENCE": "文脈推論"
+      },
+      "session": {
+        "loading": "Reading問題を読み込んでいます。",
+        "submitFailed": "回答を処理できませんでした。もう一度お試しください。",
+        "progress": "問題 {current} / {total}",
+        "band": "難易度 Band {band}",
+        "passage": "文章",
+        "correct": "正解です。",
+        "incorrect": "残念、不正解です。",
+        "evidence": "根拠：",
+        "vocabularyCandidates": "Readingで理解が難しかった表現です。次回以降のVocabulary学習の復習候補に反映されます。",
+        "retryNotice": "公式スコアは最初の回答を基準にします。この問題は復習として再挑戦できます。",
+        "back": "Readingに戻る",
+        "next": "次の問題",
+        "submit": "回答する",
+        "submitting": "採点中",
+        "retry": "もう一度答える",
+        "reviewTarget": "復習",
+        "ordering": {
+          "yourOrder": "選んだ順序",
+          "empty": "下のパーツを押して順序を作ってください。",
+          "chunks": "文のパーツ",
+          "reset": "順序をリセット"
+        },
+        "backToResult": "結果に戻る"
+      },
+      "result": {
+        "eyebrow": "今日のReading完了",
+        "title": "学習結果",
+        "score": "初回回答で {correct} / {total} 問正解",
+        "metrics": "詳細スキル",
+        "samples": "{count}問",
+        "noMetrics": "詳細評価データはまだありません。",
+        "reviewWrong": "間違えた問題を復習",
+        "recovered": "復習で正解",
+        "back": "Reading形式選択に戻る"
+      }
+    },
+    "vocabulary": {
+      "title": "AI Vocabulary",
+      "description": "単語・表現の意味、使い分け、組み合わせを反復し、習熟度を積み上げます。",
+      "loading": "Vocabulary学習情報を読み込んでいます。",
+      "loadFailed": "Vocabulary学習情報を読み込めませんでした。",
+      "startFailed": "今日のVocabulary問題を準備できませんでした。もう一度お試しください。",
+      "selector": {
+        "eyebrow": "今日のVocabulary",
+        "title": "今日はどの方法でVocabularyを練習しますか？",
+        "description": "短い問題を反復し、単語や表現を実際の文脈で使えるように練習します。",
+        "start": "この形式を始める",
+        "starting": "問題を準備中",
+        "notice": "学習履歴が蓄積すると、新規40%・復習60%を目安に弱い表現を優先して再出題します。",
+        "completed": "今日完了",
+        "continue": "続きから",
+        "viewResult": "結果を見る",
+        "progress": "進行中 · {answered}/{total}",
+        "score": "今日のスコア {score}",
+        "completedCount": "今日完了した形式 {completed}/{total}"
+      },
+      "modes": {
+        "MEANING_RELATION": {
+          "title": "意味・関係",
+          "description": "単語の意味、類義語、反意語、近い表現の関係を練習します。"
+        },
+        "USAGE_DISTINCTION": {
+          "title": "使い分け",
+          "description": "似た語の違い、文脈に合う語、コロケーション、自然な表現を練習します。"
+        },
+        "COMPOSITION": {
+          "title": "組み合わせ・構成",
+          "description": "単語やチャンクを正しい順序に並べ、表現や空欄を完成させます。"
+        }
+      },
+      "difficulty": {
+        "EASIER": "やや易しい",
+        "CURRENT": "現在レベル",
+        "CHALLENGE": "チャレンジ"
+      },
+      "skills": {
+        "MEANING": "意味理解",
+        "SYNONYM": "類義語",
+        "ANTONYM": "反意語",
+        "DISTINCTION": "類似語の使い分け",
+        "COLLOCATION": "コロケーション",
+        "REGISTER": "場面別表現",
+        "CONTEXT_USAGE": "文脈適用",
+        "COMPOSITION": "組み合わせ・構成"
+      },
+      "session": {
+        "loading": "Vocabulary問題を読み込んでいます。",
+        "submitFailed": "回答を処理できませんでした。もう一度お試しください。",
+        "progress": "問題 {current} / {total}",
+        "band": "難易度 Band {band}",
+        "passage": "文脈",
+        "correct": "正解です。",
+        "incorrect": "残念、不正解です。",
+        "evidence": "根拠：",
+        "retryNotice": "公式スコアは最初の回答を基準にし、再挑戦は復習記録として反映します。",
+        "back": "Vocabularyに戻る",
+        "next": "次の問題",
+        "submit": "回答する",
+        "submitting": "採点中",
+        "retry": "もう一度答える",
+        "reviewTarget": "復習問題",
+        "ordering": {
+          "yourOrder": "選んだ順序",
+          "empty": "下のパーツを押して順序を作ってください。",
+          "chunks": "表現パーツ",
+          "reset": "順序をリセット"
+        },
+        "backToResult": "結果に戻る",
+        "targetExpression": "今回の表現"
+      },
+      "result": {
+        "eyebrow": "今日のVocabulary完了",
+        "title": "学習結果",
+        "score": "初回回答で {correct} / {total} 問正解",
+        "metrics": "詳細スキル",
+        "samples": "{count}問",
+        "noMetrics": "詳細評価データはまだありません。",
+        "reviewWrong": "間違えた表現を復習",
+        "recovered": "復習で正解",
+        "back": "Vocabulary形式選択に戻る"
+      },
+      "mastery": {
+        "eyebrow": "Vocabulary Mastery",
+        "title": "単語・表現の習熟度",
+        "newCount": "新規",
+        "learningCount": "学習中",
+        "familiarCount": "慣れている",
+        "strongCount": "強い",
+        "masteredCount": "習熟",
+        "averageLabel": "平均習熟度",
+        "note": "一度正解しただけでは習熟扱いになりません。別の日や別の問題でも繰り返し正解するほど、習熟度が上がります。"
       }
     }
   }

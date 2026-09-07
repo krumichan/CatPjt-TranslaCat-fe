@@ -22,7 +22,9 @@
       "profile": "학습 프로필",
       "settings": "설정",
       "speaking": "Speaking",
-      "listening": "Listening"
+      "listening": "Listening",
+      "reading": "Reading",
+      "vocabulary": "Vocabulary"
     },
     "onboarding": {
       "SETTING": {
@@ -260,7 +262,20 @@
           "ANSWER_ACCURACY": "정답 정확도",
           "GIST_COVERAGE": "핵심 주제 파악",
           "KEY_POINT_COVERAGE": "중요 정보 포함",
-          "LANGUAGE_CLARITY": "표현 명확성"
+          "LANGUAGE_CLARITY": "표현 명확성",
+          "CONTENT": "내용 이해",
+          "DETAIL": "세부 정보",
+          "INFERENCE": "추론",
+          "GIST": "요점 파악",
+          "STRUCTURE": "구조 이해",
+          "CONTEXT_INFERENCE": "문맥 추론",
+          "SYNONYM": "유의어",
+          "ANTONYM": "반의어",
+          "DISTINCTION": "유사어 구별",
+          "COLLOCATION": "연어",
+          "REGISTER": "상황별 표현",
+          "CONTEXT_USAGE": "문맥 적용",
+          "COMPOSITION": "조합·구성"
         }
       },
       "sections": {
@@ -656,7 +671,8 @@
           "SPEAKING": "말하기",
           "LISTENING": "듣기",
           "READING": "읽기",
-          "LEVEL_TEST": "레벨 테스트"
+          "LEVEL_TEST": "레벨 테스트",
+          "VOCABULARY": "단어"
         },
         "freeTalk": "자유 대화",
         "speakingSummary": "{turns}턴 · {minutes}분",
@@ -755,7 +771,19 @@
         "start": "레벨 테스트 시작"
       },
       "sections": {
-        "overview": "Skill 프로필"
+        "overview": "Skill 프로필",
+        "vocabularyMastery": "Vocabulary 숙련도"
+      },
+      "vocabularyMastery": {
+        "title": "Vocabulary 누적 숙련도",
+        "average": "평균 숙련도 {score}",
+        "empty": "Vocabulary 학습 기록이 아직 없습니다.",
+        "new": "신규",
+        "learning": "학습 중",
+        "familiar": "익숙함",
+        "strong": "강함",
+        "mastered": "숙련",
+        "weakest": "복습 우선 표현"
       }
     },
     "settings": {
@@ -1766,6 +1794,187 @@
           "title": "핵심 정리",
           "description": "들은 내용의 요점과 중요한 정보를 학습 언어로 직접 정리합니다."
         }
+      }
+    },
+    "reading": {
+      "title": "AI Reading",
+      "description": "지문을 읽고 내용 이해, 글의 구조, 문맥 추론 능력을 연습합니다.",
+      "loading": "Reading 학습 정보를 불러오는 중입니다.",
+      "loadFailed": "Reading 학습 정보를 불러오지 못했습니다.",
+      "startFailed": "오늘의 Reading 문제를 준비하지 못했습니다. 다시 시도해 주세요.",
+      "selector": {
+        "eyebrow": "오늘의 Reading",
+        "title": "오늘은 어떤 방식으로 Reading을 연습할까요?",
+        "description": "서로 다른 읽기 능력을 집중적으로 연습할 수 있습니다. 원하는 형식만 골라 진행해도 됩니다.",
+        "start": "이 형식 시작하기",
+        "starting": "문제 준비 중",
+        "notice": "오늘 생성된 문제는 다시 진입해도 그대로 유지됩니다.",
+        "completed": "오늘 완료",
+        "continue": "계속하기",
+        "viewResult": "결과 보기",
+        "progress": "진행 중 · {answered}/{total}",
+        "score": "오늘 점수 {score}",
+        "completedCount": "오늘 완료한 형식 {completed}/{total}"
+      },
+      "modes": {
+        "COMPREHENSION": {
+          "title": "독해 문제",
+          "description": "지문을 읽고 내용, 세부 정보, 원인·결과, 의도와 추론 문제에 답합니다."
+        },
+        "STRUCTURE": {
+          "title": "요점·구조 파악",
+          "description": "글의 핵심 내용, 제목, 문단 역할과 글의 흐름을 파악합니다."
+        },
+        "CONTEXT_INFERENCE": {
+          "title": "문맥 추론",
+          "description": "지시 대상, 생략된 의미, 문장의 의도와 다음 전개를 문맥에서 추론합니다."
+        }
+      },
+      "difficulty": {
+        "EASIER": "조금 쉬움",
+        "CURRENT": "현재 수준",
+        "CHALLENGE": "도전"
+      },
+      "skills": {
+        "CONTENT": "내용 이해",
+        "DETAIL": "세부 정보",
+        "INFERENCE": "추론",
+        "GIST": "요점 파악",
+        "STRUCTURE": "구조 이해",
+        "CONTEXT_INFERENCE": "문맥 추론"
+      },
+      "session": {
+        "loading": "Reading 문제를 불러오는 중입니다.",
+        "submitFailed": "답변을 처리하지 못했습니다. 다시 시도해 주세요.",
+        "progress": "문제 {current} / {total}",
+        "band": "난이도 Band {band}",
+        "passage": "지문",
+        "correct": "정답입니다.",
+        "incorrect": "아쉽지만 정답이 아닙니다.",
+        "evidence": "근거:",
+        "vocabularyCandidates": "Reading에서 이해가 어려웠던 표현입니다. 다음 Vocabulary 학습의 복습 후보로 반영됩니다.",
+        "retryNotice": "공식 점수는 첫 제출 기준이며, 이 문제는 복습으로 다시 풀 수 있습니다.",
+        "back": "Reading으로 돌아가기",
+        "next": "다음 문제",
+        "submit": "답변 제출",
+        "submitting": "채점 중",
+        "retry": "다시 답하기",
+        "reviewTarget": "복습",
+        "ordering": {
+          "yourOrder": "내가 정한 순서",
+          "empty": "아래 조각을 눌러 순서를 만들어 보세요.",
+          "chunks": "문장 조각",
+          "reset": "순서 초기화"
+        },
+        "backToResult": "결과로 돌아가기"
+      },
+      "result": {
+        "eyebrow": "오늘의 Reading 완료",
+        "title": "학습 결과",
+        "score": "첫 제출 기준 {correct} / {total}문제 정답",
+        "metrics": "세부 능력",
+        "samples": "{count}문제",
+        "noMetrics": "아직 세부 평가 데이터가 없습니다.",
+        "reviewWrong": "틀린 문제 다시 보기",
+        "recovered": "복습 정답",
+        "back": "Reading 형식 선택으로 돌아가기"
+      }
+    },
+    "vocabulary": {
+      "title": "AI Vocabulary",
+      "description": "단어와 표현의 의미, 쓰임, 조합을 반복해서 익히고 숙련도를 쌓습니다.",
+      "loading": "Vocabulary 학습 정보를 불러오는 중입니다.",
+      "loadFailed": "Vocabulary 학습 정보를 불러오지 못했습니다.",
+      "startFailed": "오늘의 Vocabulary 문제를 준비하지 못했습니다. 다시 시도해 주세요.",
+      "selector": {
+        "eyebrow": "오늘의 Vocabulary",
+        "title": "오늘은 어떤 방식으로 Vocabulary를 연습할까요?",
+        "description": "짧은 문제를 반복하며 단어와 표현을 실제 문맥에서 사용할 수 있도록 훈련합니다.",
+        "start": "이 형식 시작하기",
+        "starting": "문제 준비 중",
+        "notice": "학습 기록이 쌓이면 신규 40%·복습 60%를 목표로 약한 표현을 우선 다시 출제합니다.",
+        "completed": "오늘 완료",
+        "continue": "계속하기",
+        "viewResult": "결과 보기",
+        "progress": "진행 중 · {answered}/{total}",
+        "score": "오늘 점수 {score}",
+        "completedCount": "오늘 완료한 형식 {completed}/{total}"
+      },
+      "modes": {
+        "MEANING_RELATION": {
+          "title": "의미·관계",
+          "description": "단어 뜻, 유의어, 반의어와 가까운 표현의 관계를 연습합니다."
+        },
+        "USAGE_DISTINCTION": {
+          "title": "사용·구별",
+          "description": "비슷한 단어의 차이, 문맥 선택, Collocation과 자연스러운 표현을 연습합니다."
+        },
+        "COMPOSITION": {
+          "title": "조합·구성",
+          "description": "단어와 Chunk를 올바른 순서로 조합하고 표현과 빈칸을 완성합니다."
+        }
+      },
+      "difficulty": {
+        "EASIER": "조금 쉬움",
+        "CURRENT": "현재 수준",
+        "CHALLENGE": "도전"
+      },
+      "skills": {
+        "MEANING": "의미 이해",
+        "SYNONYM": "유의어",
+        "ANTONYM": "반의어",
+        "DISTINCTION": "유사어 구별",
+        "COLLOCATION": "Collocation",
+        "REGISTER": "상황별 표현",
+        "CONTEXT_USAGE": "문맥 적용",
+        "COMPOSITION": "조합·구성"
+      },
+      "session": {
+        "loading": "Vocabulary 문제를 불러오는 중입니다.",
+        "submitFailed": "답변을 처리하지 못했습니다. 다시 시도해 주세요.",
+        "progress": "문제 {current} / {total}",
+        "band": "난이도 Band {band}",
+        "passage": "문맥",
+        "correct": "정답입니다.",
+        "incorrect": "아쉽지만 정답이 아닙니다.",
+        "evidence": "근거:",
+        "retryNotice": "공식 점수는 첫 제출 기준이며, 재도전 결과는 복습 기록으로 반영됩니다.",
+        "back": "Vocabulary로 돌아가기",
+        "next": "다음 문제",
+        "submit": "답변 제출",
+        "submitting": "채점 중",
+        "retry": "다시 답하기",
+        "reviewTarget": "복습 문제",
+        "ordering": {
+          "yourOrder": "내가 정한 순서",
+          "empty": "아래 조각을 눌러 순서를 만들어 보세요.",
+          "chunks": "표현 조각",
+          "reset": "순서 초기화"
+        },
+        "backToResult": "결과로 돌아가기",
+        "targetExpression": "이번 표현"
+      },
+      "result": {
+        "eyebrow": "오늘의 Vocabulary 완료",
+        "title": "학습 결과",
+        "score": "첫 제출 기준 {correct} / {total}문제 정답",
+        "metrics": "세부 능력",
+        "samples": "{count}문제",
+        "noMetrics": "아직 세부 평가 데이터가 없습니다.",
+        "reviewWrong": "틀린 표현 복습",
+        "recovered": "복습 정답",
+        "back": "Vocabulary 형식 선택으로 돌아가기"
+      },
+      "mastery": {
+        "eyebrow": "Vocabulary Mastery",
+        "title": "단어·표현 숙련도",
+        "newCount": "신규",
+        "learningCount": "학습 중",
+        "familiarCount": "익숙함",
+        "strongCount": "강함",
+        "masteredCount": "숙련",
+        "averageLabel": "평균 숙련도",
+        "note": "한 번 맞힌 표현은 바로 숙련으로 처리하지 않습니다. 다른 날과 다른 문제에서도 반복해서 성공할수록 숙련도가 올라갑니다."
       }
     }
   }

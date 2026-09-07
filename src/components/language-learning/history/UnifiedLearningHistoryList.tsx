@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, ClipboardCheck, Ear, MessageCircleMore, PencilLine } from "lucide-react";
+import { BookOpen, ClipboardCheck, Ear, LibraryBig, MessageCircleMore, PencilLine } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { AppSelect } from "@/components/common/AppSelect";
@@ -14,7 +14,7 @@ export function UnifiedLearningHistoryList({ controller }: { controller: Learnin
     return (
         <aside className="rounded-3xl border border-slate-200 bg-white/90 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/75">
             <div className="grid grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1 dark:bg-white/5">
-                {(["ALL", "WRITING", "SPEAKING", "LISTENING", "READING", "LEVEL_TEST"] as const).map((source) => (
+                {(["ALL", "WRITING", "SPEAKING", "LISTENING", "READING", "VOCABULARY", "LEVEL_TEST"] as const).map((source) => (
                     <button key={source} type="button" onClick={() => controller.setSource(source)} className={cn("rounded-lg px-2 py-2 text-xs font-black transition", controller.source === source ? "bg-white text-blue-700 shadow-sm dark:bg-slate-800 dark:text-blue-200" : "text-slate-500 dark:text-slate-400")}>
                         <span className="block w-full min-w-0 truncate leading-tight">{t(`source.${source}`)}</span>
                     </button>
@@ -49,7 +49,9 @@ export function UnifiedLearningHistoryList({ controller }: { controller: Learnin
                           ? Ear
                           : item.source === "READING"
                             ? BookOpen
-                            : item.source === "LEVEL_TEST"
+                            : item.source === "VOCABULARY"
+                              ? LibraryBig
+                              : item.source === "LEVEL_TEST"
                               ? ClipboardCheck
                               : PencilLine;
                     return (

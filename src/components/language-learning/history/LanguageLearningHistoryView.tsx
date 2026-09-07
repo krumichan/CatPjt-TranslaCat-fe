@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 
 import { LanguageLearningStateCard } from "@/components/language-learning/common/LanguageLearningStateCard";
 import { ListeningHistoryDetail } from "@/components/language-learning/history/ListeningHistoryDetail";
+import { PracticeHistoryDetail } from "@/components/language-learning/history/PracticeHistoryDetail";
 import { LevelTestHistoryDetailView } from "@/components/language-learning/level-test/LevelTestHistoryDetailView";
 import { SpeakingHistoryDetail } from "@/components/language-learning/history/SpeakingHistoryDetail";
 import { UnifiedLearningHistoryList } from "@/components/language-learning/history/UnifiedLearningHistoryList";
@@ -64,12 +65,14 @@ export function LanguageLearningHistoryView({
         detailContent = <SpeakingHistoryDetail detail={controller.detail.detail} />;
     } else if (controller.detail.source === "LISTENING") {
         detailContent = <ListeningHistoryDetail detail={controller.detail.detail} />;
+    } else if (controller.detail.source === "READING" || controller.detail.source === "VOCABULARY") {
+        detailContent = <PracticeHistoryDetail detail={controller.detail.detail} />;
     } else if (controller.detail.source === "LEVEL_TEST") {
         detailContent = (
             <LevelTestHistoryDetailView detail={controller.detail.detail} />
         );
     } else {
-        detailContent = <LanguageLearningStateCard variant="loading" title={common("loadingTitle")} message={t("readingPreparing")} />;
+        detailContent = <LanguageLearningStateCard variant="error" title={common("loadFailedTitle")} message={t("historyLoadFailed")} />;
     }
 
     return (

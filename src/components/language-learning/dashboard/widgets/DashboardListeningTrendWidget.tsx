@@ -21,7 +21,7 @@ export function DashboardListeningTrendWidget({
     metrics: ListeningMetricTrendPoint[];
     disclosure: DisclosureControlProps;
 }) {
-    const t = useTranslations("LanguageLearning.dashboard.v3");
+    const t = useTranslations("LanguageLearning.dashboard");
     const taskLatest = latestBy(tasks, (item) => item.taskType);
     const metricLatest = latestBy(metrics, (item) => `${item.taskType}:${item.metric}`);
     const contentId = "dashboard-listening-trends-content";

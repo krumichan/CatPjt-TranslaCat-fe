@@ -25,11 +25,11 @@ export function DashboardActivityPerformanceWidget({
     data: DashboardActivityPerformance;
     disclosure: DisclosureControlProps;
 }) {
-    const t = useTranslations("LanguageLearning.dashboard.v3");
+    const t = useTranslations("LanguageLearning.dashboard");
     const contentId = "dashboard-activity-performance-content";
 
     return (
-        <section data-testid="dashboard-learning-progress-v2">
+        <section data-testid="dashboard-learning-progress">
             <div className="mb-3 flex items-end justify-between gap-3">
                 <div>
                     <p className="text-xs font-black uppercase tracking-wide text-blue-600 dark:text-blue-300">

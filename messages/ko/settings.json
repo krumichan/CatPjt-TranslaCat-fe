@@ -236,7 +236,7 @@
     "chatAiPage": {
       "eyebrow": "Admin · Chat AI",
       "title": "채팅 AI 운영 설정",
-      "description": "Docs #9에서 확정한 Phase 2 AI 기본 운영값을 관리합니다. 실제 운영 품질과 비용에 따라 코드 수정 없이 튜닝할 수 있습니다.",
+      "description": "AI 기본 운영값을 관리합니다. 실제 운영 품질과 비용에 따라 코드 수정 없이 튜닝할 수 있습니다.",
       "form": {
         "title": "시스템 운영값",
         "description": "모든 GROUP/OPEN 방에 적용되는 상한과 기본 동작값입니다.",

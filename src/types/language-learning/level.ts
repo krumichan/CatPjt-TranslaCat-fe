@@ -3,7 +3,6 @@ import type {
     LevelTestSessionType,
 } from "@/types/language-learning/common";
 
-export type LevelTestAssessmentVersion = "WRITING_ONLY" | "MULTI_SKILL";
 export type LevelTestProficiencyBand =
     | "FOUNDATION"
     | "BASIC"
@@ -65,7 +64,6 @@ export interface LevelTestStatus {
 export interface LevelTestSession {
     sessionId: number;
     sessionType: LevelTestSessionType;
-    assessmentVersion: LevelTestAssessmentVersion;
     status: LevelTestSessionStatus;
     totalQuestions: number;
     currentQuestionNumber: number;
@@ -151,7 +149,6 @@ export interface LevelTestDomainScores {
 
 export interface LevelTestResult {
     sessionId: number;
-    assessmentVersion: LevelTestAssessmentVersion;
     sessionType: LevelTestSessionType;
     overallScore: number | null;
     proficiencyBand: LevelTestProficiencyBand | null;
@@ -162,7 +159,6 @@ export interface LevelTestResult {
 
 export interface LevelTestHistoryItem {
     sessionId: number;
-    assessmentVersion: LevelTestAssessmentVersion;
     sessionType: LevelTestSessionType;
     overallScore: number | null;
     proficiencyBand: LevelTestProficiencyBand | null;

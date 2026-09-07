@@ -14,13 +14,12 @@ interface LevelTestResultViewProps {
 export function LevelTestResultView({ result }: LevelTestResultViewProps) {
     const t = useTranslations("LanguageLearning.levelTest.result");
     const levelTestT = useTranslations("LanguageLearning.levelTest");
-    const legacy = result.assessmentVersion === "WRITING_ONLY";
 
     return (
         <div className="space-y-5">
             <section className="rounded-3xl border border-emerald-200 bg-white/90 p-6 text-center shadow-sm dark:border-emerald-500/20 dark:bg-slate-900/75 sm:p-9">
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-300">
-                    {legacy ? t("legacyBadge") : t("multiSkillBadge")}
+                    {t("multiSkillBadge")}
                 </p>
                 <h2 className="mt-3 text-xl font-black text-slate-950 dark:text-white">
                     {t("overall")}
@@ -38,16 +37,14 @@ export function LevelTestResultView({ result }: LevelTestResultViewProps) {
                 </p>
             </section>
 
-            {!legacy && (
-                <section className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm dark:border-white/10 dark:bg-slate-900/75">
-                    <h3 className="text-lg font-black text-slate-950 dark:text-white">
-                        {t("domainScores")}
-                    </h3>
-                    <div className="mt-4">
-                        <LevelTestScoreGrid scores={result.domainScores} />
-                    </div>
-                </section>
-            )}
+            <section className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm dark:border-white/10 dark:bg-slate-900/75">
+                <h3 className="text-lg font-black text-slate-950 dark:text-white">
+                    {t("domainScores")}
+                </h3>
+                <div className="mt-4">
+                    <LevelTestScoreGrid scores={result.domainScores} />
+                </div>
+            </section>
 
             <section className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm dark:border-white/10 dark:bg-slate-900/75">
                 <div className="grid gap-4 sm:grid-cols-2">

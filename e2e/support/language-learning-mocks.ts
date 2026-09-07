@@ -155,9 +155,9 @@ export const LANGUAGE_LEARNING_EVALUATION = {
         originText: "전체적으로 의미 전달이 좋습니다.",
         learningText: "全体的に意味伝達が良好です。",
     },
-    evaluationRubricVersion: "writing-rubric-v1",
-    scoringPolicyVersion: "writing-score-v1",
-    promptVersion: "writing-eval-v1",
+    evaluationRubricVersion: "writing-evaluation-rubric",
+    scoringPolicyVersion: "writing-scoring-policy",
+    promptVersion: "writing-evaluation",
     evaluatedAt: "2026-08-13T12:00:00",
 };
 
@@ -169,7 +169,7 @@ export const LANGUAGE_LEARNING_DAILY_SET = {
     status: "READY",
     sentenceCount: 5,
     regenerationCount: 0,
-    promptVersion: "daily-writing-v1",
+    promptVersion: "writing-generation-modes-diversity",
     reviewAvailable: true,
     items: [
         {
@@ -218,7 +218,7 @@ export const LANGUAGE_LEARNING_DAILY_SET = {
 };
 
 export const LANGUAGE_LEARNING_PROFILE = {
-    profileVersion: "profile-v1",
+    profileVersion: "PROFILE",
     state: "ACTIVE",
     baseLevelScore: 72.5,
     calibrationStartedDate: "2026-08-01",
@@ -305,7 +305,7 @@ export const LANGUAGE_LEARNING_DASHBOARD = {
             { taskType: "REPEAT_AFTER_AUDIO", metric: "PRONUNCIATION", date: "2026-08-23", averageScore: 80, sampleCount: 5 },
         ],
     },
-    // Keep the Phase 2 widget-isolation regression payload marker.
+    // Keep the widget-isolation regression payload marker.
     speakingSummary: { sessions: 4 },
 };
 
@@ -353,8 +353,8 @@ export const LANGUAGE_LEARNING_LISTENING_POLICY = {
     automaticRetryLimit: 2,
     manualRetryLimit: 1,
     practiceAttemptLimit: 1,
-    profilePolicyVersion: "listening-profile-v1",
-    modelConfigVersion: "listening-model-v1",
+    profilePolicyVersion: "listening-PROFILE",
+    modelConfigVersion: "listening-model-config",
     referenceTtsRegenerationEnabled: false,
 };
 
@@ -537,7 +537,7 @@ export const LANGUAGE_LEARNING_LISTENING_RESULT = {
             playbackSummary: {
                 normalPlaybackCount: 2,
                 slowPlaybackCount: 1,
-                policyVersion: "listening-independence-v1",
+                policyVersion: "listening-independence",
             },
             evaluatedTaskCount: 2,
             coverage: 1,
@@ -576,7 +576,7 @@ export const LANGUAGE_LEARNING_LISTENING_HISTORY_DETAIL = {
     ],
 };
 
-export async function mockLanguageLearningPhase3(page: Page) {
+export async function mockLanguageLearningListening(page: Page) {
     await page.route("**/language-learning/listening/policy", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LISTENING_POLICY)),
     );
@@ -811,9 +811,9 @@ export const LANGUAGE_LEARNING_SPEAKING_EVALUATION = {
     recommendedExpressionsJson: JSON.stringify([{ original: "映画を見る", recommended: "映画を観に行く", explanation: "상황에 더 자연스러운 표현입니다." }]),
     pronunciationPracticeJson: JSON.stringify([{ target: "予定です", practicePhrase: "週末の予定です。", reason: "장음을 의식해서 천천히 연습해 보세요.", evidenceTurnIds: ["401"] }]),
     eligibilityJson: JSON.stringify({ validTurns: 5, speakingSeconds: 72, sttValidRatio: 1 }),
-    evaluationVersion: "speaking-eval-v1",
-    scoringPolicyVersion: "speaking-score-v1",
-    promptVersion: "speaking-eval-prompt-v1",
+    evaluationVersion: "speaking-evaluation",
+    scoringPolicyVersion: "speaking-scoring-policy",
+    promptVersion: "speaking-evaluation-prompt",
     evaluatedAt: "2026-08-15T08:10:00",
 };
 
@@ -873,7 +873,7 @@ export const LANGUAGE_LEARNING_ADMIN_SETTING = {
     evaluationTimeoutSeconds: 60,
 };
 
-export async function mockLanguageLearningPhase2(page: Page) {
+export async function mockLanguageLearningSpeaking(page: Page) {
     await page.route("**/language-learning/speaking/topics**", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_SPEAKING_TOPICS)),
     );

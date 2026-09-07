@@ -63,7 +63,7 @@ export function LanguageLearningProfileView({
     const bandT = useTranslations("LanguageLearning.levelTest.band");
     const vocabularyEvaluatedCount = profile.vocabularyMastery.total - profile.vocabularyMastery.newCount;
     const disclosure = usePersistentDisclosureMap<ProfileSectionKey>({
-        storageKey: "translacat.language-learning.profile.sections.v1",
+        storageKey: "translacat.language-learning.profile.sections",
         desktopDefaults: PROFILE_DESKTOP_DEFAULTS,
         mobileDefaults: PROFILE_MOBILE_DEFAULTS,
     });

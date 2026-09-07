@@ -16,7 +16,6 @@ export const LEVEL_TEST_STATUS = {
 export const LEVEL_TEST_SESSION = {
     sessionId: 3101,
     sessionType: "RECHECK",
-    assessmentVersion: "MULTI_SKILL",
     status: "IN_PROGRESS",
     totalQuestions: 20,
     currentQuestionNumber: 1,
@@ -180,7 +179,6 @@ export const LEVEL_TEST_SPEAKING_OPEN = {
 
 export const LEVEL_TEST_RESULT = {
     sessionId: 3101,
-    assessmentVersion: "MULTI_SKILL",
     sessionType: "RECHECK",
     overallScore: 81,
     proficiencyBand: "UPPER_INTERMEDIATE",
@@ -199,21 +197,11 @@ export const LEVEL_TEST_RESULT = {
 export const LEVEL_TEST_HISTORY = [
     {
         sessionId: 3101,
-        assessmentVersion: "MULTI_SKILL",
         sessionType: "RECHECK",
         overallScore: 81,
         proficiencyBand: "UPPER_INTERMEDIATE",
         domainScores: LEVEL_TEST_RESULT.domainScores,
         completedAt: "2026-08-29T10:24:00",
-    },
-    {
-        sessionId: 1101,
-        assessmentVersion: "WRITING_ONLY",
-        sessionType: "INITIAL",
-        overallScore: 72,
-        proficiencyBand: "INTERMEDIATE",
-        domainScores: null,
-        completedAt: "2026-07-01T09:20:00",
     },
 ];
 
@@ -285,7 +273,7 @@ export const LEVEL_TEST_HISTORY_DETAIL = {
     ],
 };
 
-export async function mockLanguageLearningPhase35(
+export async function mockLanguageLearningLevelTest(
     page: Page,
     question = LEVEL_TEST_QUESTION,
 ) {
@@ -358,12 +346,6 @@ export async function mockLanguageLearningPhase35(
     );
     await page.route("**/language-learning/level-test/history/3101", (route) =>
         fulfillApiJson(route, responseDto(LEVEL_TEST_HISTORY_DETAIL)),
-    );
-    await page.route("**/language-learning/level-test/history/1101", (route) =>
-        fulfillApiJson(
-            route,
-            responseDto({ summary: LEVEL_TEST_HISTORY[1], items: [] }),
-        ),
     );
     await page.route("**/language-learning/history?**", (route) =>
         fulfillApiJson(

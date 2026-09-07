@@ -10,12 +10,12 @@ interface LevelTestPromptTextProps {
 
 const HTML_LIKE_TAG_PATTERN = /<\/?[A-Za-z][^>]*>/g;
 
-function stripLegacyMarkup(text: string): string {
+function stripPromptMarkup(text: string): string {
     return text.replace(HTML_LIKE_TAG_PATTERN, "");
 }
 
 function renderStructuredEmphasis(text: string, emphasisText: string): ReactNode[] {
-    const plainText = stripLegacyMarkup(text);
+    const plainText = stripPromptMarkup(text);
     const target = emphasisText.trim();
     if (!target) return [plainText];
 
@@ -41,7 +41,7 @@ function renderPromptText(text: string, emphasisText?: string | null): ReactNode
     if (emphasisText?.trim()) {
         return renderStructuredEmphasis(text, emphasisText);
     }
-    return [stripLegacyMarkup(text)];
+    return [stripPromptMarkup(text)];
 }
 
 export function LevelTestPromptText({

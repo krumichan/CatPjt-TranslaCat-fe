@@ -16,7 +16,7 @@ export function DashboardIntegratedAbilityWidget({
     data: DashboardIntegratedAbility;
     disclosure: DisclosureControlProps;
 }) {
-    const t = useTranslations("LanguageLearning.dashboard.v3");
+    const t = useTranslations("LanguageLearning.dashboard");
     const contentId = "dashboard-integrated-ability-content";
 
     return (

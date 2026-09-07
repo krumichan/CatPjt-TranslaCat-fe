@@ -236,7 +236,7 @@
     "chatAiPage": {
       "eyebrow": "Admin · Chat AI",
       "title": "チャットAI運用設定",
-      "description": "Docs #9で確定したPhase 2 AIの初期運用値を管理します。実運用品質とコストに応じてコード変更なしで調整できます。",
+      "description": "AIの初期運用値を管理します。実運用品質とコストに応じてコード変更なしで調整できます。",
       "form": {
         "title": "システム運用値",
         "description": "すべてのGROUP/OPENルームへ適用する上限・基本動作値です。",

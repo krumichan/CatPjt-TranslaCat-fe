@@ -114,7 +114,7 @@ for (const locale of LOCALES) {
     const canonicalTasks = languageLearning.listening?.task ?? {};
     const taskTargets = [
         ["LanguageLearning.history.listening.task", languageLearning.history?.listening?.task ?? {}],
-        ["LanguageLearning.dashboard.v3.task", languageLearning.dashboard?.v3?.task ?? {}],
+        ["LanguageLearning.dashboard.task", languageLearning.dashboard?.task ?? {}],
     ];
 
     for (const taskKey of Object.keys(canonicalTasks)) {
@@ -126,10 +126,10 @@ for (const locale of LOCALES) {
     }
 
     const listeningMetrics = languageLearning.listening?.result?.metrics ?? {};
-    const dashboardMetrics = languageLearning.dashboard?.v3?.metric ?? {};
+    const dashboardMetrics = languageLearning.dashboard?.metric ?? {};
     for (const metricKey of Object.keys(listeningMetrics)) {
         if (!(metricKey in dashboardMetrics)) {
-            errors.push(`[${locale}] languageLearning.json: missing dynamic key LanguageLearning.dashboard.v3.metric.${metricKey}`);
+            errors.push(`[${locale}] languageLearning.json: missing dynamic key LanguageLearning.dashboard.metric.${metricKey}`);
         }
     }
 }

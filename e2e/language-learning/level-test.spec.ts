@@ -16,13 +16,13 @@ import {
     LEVEL_TEST_SPEAKING_AUDIO_ONLY,
     LEVEL_TEST_SPEAKING_OPEN,
     LEVEL_TEST_WRITING,
-    mockLanguageLearningPhase35,
-} from "../support/language-learning-phase35-mocks";
+    mockLanguageLearningLevelTest,
+} from "../support/language-learning-level-test-mocks";
 import {
     LANGUAGE_LEARNING_DAILY_SET,
     LANGUAGE_LEARNING_LISTENING_RESULT,
     mockLanguageLearningBase,
-    mockLanguageLearningPhase3,
+    mockLanguageLearningListening,
 } from "../support/language-learning-mocks";
 import { mockSpeakingMediaRecorder } from "../support/media-recorder-mock";
 import { errorDto, responseDto } from "../support/mock-data";
@@ -46,13 +46,13 @@ async function mockPlayableAudio(page: Page) {
     });
 }
 
-test.describe("Language Learning Phase 3.5", () => {
+test.describe("Language Learning Level Test", () => {
     test.beforeEach(async ({ page }) => {
         await mockLanguageLearningBase(page);
-        await mockLanguageLearningPhase35(page);
+        await mockLanguageLearningLevelTest(page);
     });
 
-    test("LL35-01 Landing에 20문항·6영역·마이크 안내를 표시한다", async ({ page }) => {
+    test("LLT-01 Landing에 20문항·6영역·마이크 안내를 표시한다", async ({ page }) => {
         await page.goto("/language-learning/level-test");
         await expect(page.getByText(/총 20문항/)).toBeVisible();
         for (const domain of ["어휘", "문법", "읽기", "듣기", "쓰기", "말하기"]) {
@@ -61,7 +61,7 @@ test.describe("Language Learning Phase 3.5", () => {
         await expect(page.getByText(/마이크가 필요/)).toBeVisible();
     });
 
-    test("LL35-02 Start는 POST /sessions와 idempotencyKey를 사용한다", async ({ page }) => {
+    test("LLT-02 Start는 POST /sessions와 idempotencyKey를 사용한다", async ({ page }) => {
         await page.goto("/language-learning/level-test");
         const requestPromise = page.waitForRequest((request) =>
             request.url().endsWith("/language-learning/level-test/sessions") &&
@@ -74,7 +74,7 @@ test.describe("Language Learning Phase 3.5", () => {
         await expect(page).toHaveURL(/level-test\/session\/3101/);
     });
 
-    test("LL35-03 진행 중 Session은 새 테스트 대신 이어하기를 제공한다", async ({ page }) => {
+    test("LLT-03 진행 중 Session은 새 테스트 대신 이어하기를 제공한다", async ({ page }) => {
         await page.route("**/language-learning/level-test/status", (route) =>
             fulfillApiJson(route, responseDto({
                 profileState: "ACTIVE",
@@ -91,7 +91,7 @@ test.describe("Language Learning Phase 3.5", () => {
         await expect(page).toHaveURL(/level-test\/session\/3101/);
     });
 
-    test("LL35-04 Progress와 Domain Stepper를 표시하고 내부 Complexity Band는 숨긴다", async ({ page }) => {
+    test("LLT-04 Progress와 Domain Stepper를 표시하고 내부 Complexity Band는 숨긴다", async ({ page }) => {
         await page.goto("/language-learning/level-test/session/3101");
         await expect(page.getByText("1 / 20", { exact: true })).toBeVisible();
         await expect(page.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "1");
@@ -99,7 +99,7 @@ test.describe("Language Learning Phase 3.5", () => {
         await expect(page.getByText(/band 4/i)).toHaveCount(0);
     });
 
-    test("LL35-05 Choice는 선택 후 명시적 제출하고 item 단위 Payload를 전송한다", async ({ page }) => {
+    test("LLT-05 Choice는 선택 후 명시적 제출하고 item 단위 Payload를 전송한다", async ({ page }) => {
         await page.goto("/language-learning/level-test/session/3101");
         await page.getByRole("radio").first().click();
         const requestPromise = page.waitForRequest((request) =>
@@ -111,7 +111,7 @@ test.describe("Language Learning Phase 3.5", () => {
         expect(request.postDataJSON().idempotencyKey).toBeTruthy();
     });
 
-    test("LL35-06 Sentence Order는 정답 문장을 노출하지 않고 버튼·키보드로 완성할 수 있다", async ({ page }) => {
+    test("LLT-06 Sentence Order는 정답 문장을 노출하지 않고 버튼·키보드로 완성할 수 있다", async ({ page }) => {
         await overrideQuestion(page, LEVEL_TEST_SENTENCE_ORDER);
         await page.goto("/language-learning/level-test/session/3101");
 
@@ -130,7 +130,7 @@ test.describe("Language Learning Phase 3.5", () => {
         await expect(page.getByRole("button", { name: /답변 제출/ })).toBeEnabled();
     });
 
-    test("LL35-07 Reading 계열도 공통 Question Shell에서 Prompt와 답변 방식을 분리한다", async ({ page }) => {
+    test("LLT-07 Reading 계열도 공통 Question Shell에서 Prompt와 답변 방식을 분리한다", async ({ page }) => {
         await overrideQuestion(page, {
             ...LEVEL_TEST_QUESTION,
             itemId: 3207,
@@ -150,7 +150,7 @@ test.describe("Language Learning Phase 3.5", () => {
         );
     });
 
-    test("LL35-08 Level Test Listening은 정상속도만 제공하고 최대 2회 재생한다", async ({ page }) => {
+    test("LLT-08 Level Test Listening은 정상속도만 제공하고 최대 2회 재생한다", async ({ page }) => {
         await mockPlayableAudio(page);
         await overrideQuestion(page, LEVEL_TEST_LISTENING);
         await page.goto("/language-learning/level-test/session/3101");
@@ -161,20 +161,20 @@ test.describe("Language Learning Phase 3.5", () => {
         await expect(page.getByText(/0\.75/)).toHaveCount(0);
     });
 
-    test("LL35-09 Dictation은 학습 언어 답변 Badge와 Text 입력을 제공한다", async ({ page }) => {
+    test("LLT-09 Dictation은 학습 언어 답변 Badge와 Text 입력을 제공한다", async ({ page }) => {
         await overrideQuestion(page, LEVEL_TEST_DICTATION);
         await page.goto("/language-learning/level-test/session/3101");
         await expect(page.getByText(/답변 언어: 日本語/)).toBeVisible();
         await expect(page.getByRole("textbox")).toBeVisible();
     });
 
-    test("LL35-10 Interpretation은 원문 언어 답변 Badge를 표시한다", async ({ page }) => {
+    test("LLT-10 Interpretation은 원문 언어 답변 Badge를 표시한다", async ({ page }) => {
         await overrideQuestion(page, LEVEL_TEST_INTERPRETATION);
         await page.goto("/language-learning/level-test/session/3101");
         await expect(page.getByText(/답변 언어: 한국어/)).toBeVisible();
     });
 
-    test("LL35-11 Writing은 BE maxAnswerLength를 Textarea에 반영한다", async ({ page }) => {
+    test("LLT-11 Writing은 BE maxAnswerLength를 Textarea에 반영한다", async ({ page }) => {
         await overrideQuestion(page, LEVEL_TEST_WRITING);
         await page.goto("/language-learning/level-test/session/3101");
         await expect(page.getByRole("textbox")).toHaveAttribute("maxlength", "800");
@@ -183,7 +183,7 @@ test.describe("Language Learning Phase 3.5", () => {
         await expect(page.getByText(LEVEL_TEST_WRITING.promptText, { exact: true })).toHaveCount(1);
     });
 
-    test("LL35-12 Speaking Repeat은 원본 음성을 먼저 재생하고 Recorder로 녹음·미리듣기·업로드한다", async ({ page }) => {
+    test("LLT-12 Speaking Repeat은 원본 음성을 먼저 재생하고 Recorder로 녹음·미리듣기·업로드한다", async ({ page }) => {
         await mockPlayableAudio(page);
         await mockSpeakingMediaRecorder(page);
         await overrideQuestion(page, LEVEL_TEST_SPEAKING);
@@ -208,7 +208,7 @@ test.describe("Language Learning Phase 3.5", () => {
         await requestPromise;
     });
 
-    test("LL35-12A 두 번째 Repeat은 텍스트를 숨기고 원본 음성을 최대 3회 재생한다", async ({ page }) => {
+    test("LLT-12A 두 번째 Repeat은 텍스트를 숨기고 원본 음성을 최대 3회 재생한다", async ({ page }) => {
         await mockPlayableAudio(page);
         await mockSpeakingMediaRecorder(page);
         await overrideQuestion(page, LEVEL_TEST_SPEAKING_AUDIO_ONLY);
@@ -223,7 +223,7 @@ test.describe("Language Learning Phase 3.5", () => {
         await expect(page.getByText(/남은 0회/)).toBeVisible();
     });
 
-    test("LL35-12B 마지막 Speaking은 Repeat이 아닌 가이드형 논술 응답을 제공한다", async ({ page }) => {
+    test("LLT-12B 마지막 Speaking은 Repeat이 아닌 가이드형 논술 응답을 제공한다", async ({ page }) => {
         await mockSpeakingMediaRecorder(page);
         await overrideQuestion(page, LEVEL_TEST_SPEAKING_OPEN);
         await page.goto("/language-learning/level-test/session/3101");
@@ -233,7 +233,7 @@ test.describe("Language Learning Phase 3.5", () => {
         await expect(page.getByTestId("speaking-repeat-reference-audio")).toHaveCount(0);
     });
 
-    test("LL35-13 마이크 거부·장치 없음·사용 중을 서로 다른 안내로 구분한다", async ({ browser }) => {
+    test("LLT-13 마이크 거부·장치 없음·사용 중을 서로 다른 안내로 구분한다", async ({ browser }) => {
         for (const [mode, expected] of [
             ["denied", /권한이 거부/],
             ["no-device", /마이크를 찾을 수 없/],
@@ -243,7 +243,7 @@ test.describe("Language Learning Phase 3.5", () => {
             const page = await context.newPage();
             await mockSpeakingMediaRecorder(page, mode);
             await mockLanguageLearningBase(page);
-            await mockLanguageLearningPhase35(page, LEVEL_TEST_SPEAKING);
+            await mockLanguageLearningLevelTest(page, LEVEL_TEST_SPEAKING);
             await page.goto("/language-learning/level-test/session/3101");
             await page.getByRole("button", { name: /마이크 허용/ }).click();
             await expect(page.getByText(expected)).toBeVisible();
@@ -251,7 +251,7 @@ test.describe("Language Learning Phase 3.5", () => {
         }
     });
 
-    test("LL35-14 평가 중 Polling에서도 기존 Question을 유지하고 Loading 화면으로 깜빡이지 않는다", async ({ page }) => {
+    test("LLT-14 평가 중 Polling에서도 기존 Question을 유지하고 Loading 화면으로 깜빡이지 않는다", async ({ page }) => {
         await page.route("**/language-learning/level-test/sessions/3101", (route) =>
             fulfillApiJson(route, responseDto({ ...LEVEL_TEST_SESSION, status: "EVALUATING" })),
         );
@@ -262,7 +262,7 @@ test.describe("Language Learning Phase 3.5", () => {
         await expect(page.getByText(LEVEL_TEST_QUESTION.promptText)).toBeVisible();
     });
 
-    test("LL35-15 평가 실패는 답변을 유지하고 해당 문항 평가만 Retry한다", async ({ page }) => {
+    test("LLT-15 평가 실패는 답변을 유지하고 해당 문항 평가만 Retry한다", async ({ page }) => {
         await overrideQuestion(page, { ...LEVEL_TEST_WRITING, status: "EVALUATION_FAILED" });
         await page.goto("/language-learning/level-test/session/3101");
         await expect(page.getByText(/답변은 저장/)).toBeVisible();
@@ -273,7 +273,7 @@ test.describe("Language Learning Phase 3.5", () => {
         await requestPromise;
     });
 
-    test("LL35-15A 음성 인식 불가 평가 결과는 평가 재시도 대신 재녹음을 요구한다", async ({ page }) => {
+    test("LLT-15A 음성 인식 불가 평가 결과는 평가 재시도 대신 재녹음을 요구한다", async ({ page }) => {
         await mockSpeakingMediaRecorder(page);
         await overrideQuestion(page, {
             ...LEVEL_TEST_SPEAKING,
@@ -295,7 +295,7 @@ test.describe("Language Learning Phase 3.5", () => {
         await requestPromise;
     });
 
-    test("LL35-16 새로고침 후 서버의 current-item을 기준으로 같은 문항을 복구한다", async ({ page }) => {
+    test("LLT-16 새로고침 후 서버의 current-item을 기준으로 같은 문항을 복구한다", async ({ page }) => {
         await overrideQuestion(page, { ...LEVEL_TEST_WRITING, questionNumber: 17 });
         await page.goto("/language-learning/level-test/session/3101");
         await expect(page.getByText("17 / 20", { exact: true })).toBeVisible();
@@ -303,7 +303,7 @@ test.describe("Language Learning Phase 3.5", () => {
         await expect(page.getByText("17 / 20", { exact: true })).toBeVisible();
     });
 
-    test("LL35-17 Result에 종합 점수·Band·6영역·내부 기준 안내를 표시한다", async ({ page }) => {
+    test("LLT-17 Result에 종합 점수·Band·6영역·내부 기준 안내를 표시한다", async ({ page }) => {
         await page.goto("/language-learning/level-test/result/3101");
         await expect(page.getByText("81", { exact: true })).toBeVisible();
         await expect(page.getByText(/UPPER INTERMEDIATE/)).toBeVisible();
@@ -313,17 +313,16 @@ test.describe("Language Learning Phase 3.5", () => {
         await expect(page.getByText(/CEFR/)).toBeVisible();
     });
 
-    test("LL35-18 전용 History에서 Legacy와 Multi-skill을 함께 표시하고 0점으로 보정하지 않는다", async ({ page }) => {
+    test("LLT-18 전용 History에서 현재 Multi-skill 결과를 표시하고 0점으로 보정하지 않는다", async ({ page }) => {
         await page.goto("/language-learning/level-test/history");
-        await expect(page.getByText(/Legacy Writing Level Test/)).toBeVisible();
         await expect(page.getByText(/Multi-skill Level Test/)).toBeVisible();
-        await page.getByRole("link", { name: /Legacy Writing Level Test/ }).click();
-        await expect(page.getByText(/기존 Writing Level Test는/)).toBeVisible();
+        await expect(page.getByText(/종합 81/)).toBeVisible();
         await expect(page.getByText("0", { exact: true })).toHaveCount(0);
-        expect(LEVEL_TEST_HISTORY[1].domainScores).toBeNull();
+        await page.getByRole("link", { name: /Multi-skill Level Test/ }).click();
+        await expect(page).toHaveURL(/level-test\/history\/3101/);
     });
 
-    test("LL35-18A 상세 피드백은 피드백이 없는 객관식도 문제·선택지·내 답·정답을 함께 표시한다", async ({ page }) => {
+    test("LLT-18A 상세 피드백은 피드백이 없는 객관식도 문제·선택지·내 답·정답을 함께 표시한다", async ({ page }) => {
         await page.goto("/language-learning/level-test/history/3101");
 
         const item = page.getByTestId("level-test-history-item-1");
@@ -341,7 +340,7 @@ test.describe("Language Learning Phase 3.5", () => {
         await expect(item.getByText("—", { exact: true })).toHaveCount(0);
     });
 
-    test("LL35-18B Speaking 결과는 STT·내 음성·답안 예시·예시 음성을 함께 제공한다", async ({ page }) => {
+    test("LLT-18B Speaking 결과는 STT·내 음성·답안 예시·예시 음성을 함께 제공한다", async ({ page }) => {
         await page.goto("/language-learning/level-test/history/3101");
 
         const item = page.getByTestId("level-test-history-item-18");
@@ -352,7 +351,7 @@ test.describe("Language Learning Phase 3.5", () => {
         await expect(item.getByRole("button", { name: /답안 예시 듣기/ })).toBeVisible();
     });
 
-    test("LL35-19 Dashboard의 Learning Profile과 공통 History에서 Level Test 결과에 접근할 수 있다", async ({ page }) => {
+    test("LLT-19 Dashboard의 Learning Profile과 공통 History에서 Level Test 결과에 접근할 수 있다", async ({ page }) => {
         await page.goto("/language-learning/profile");
         await expect(page).toHaveURL(/language-learning#learning-profile$/);
         await expect(page.getByTestId("dashboard-learning-profile")).toBeVisible();
@@ -363,8 +362,8 @@ test.describe("Language Learning Phase 3.5", () => {
         await expect(page.getByTestId("history-activity-LEVEL_TEST:3101")).toBeVisible();
     });
 
-    test("LL35-20 Listening Playback·Independence와 Dashboard·Writing Complexity UI를 회귀 검증한다", async ({ page }) => {
-        await mockLanguageLearningPhase3(page);
+    test("LLT-20 Listening Playback·Independence와 Dashboard·Writing Complexity UI를 회귀 검증한다", async ({ page }) => {
+        await mockLanguageLearningListening(page);
         await mockPlayableAudio(page);
         await page.goto("/language-learning/listening/session/702");
         const playbackRequest = page.waitForRequest((request) =>
@@ -397,7 +396,7 @@ test.describe("Language Learning Phase 3.5", () => {
         await expect(page.getByText(/복잡한 문법·어휘·표현/)).toBeVisible();
     });
 
-    test("LL35-21 실패 후 같은 문항 재제출은 동일 idempotencyKey를 재사용한다", async ({ page }) => {
+    test("LLT-21 실패 후 같은 문항 재제출은 동일 idempotencyKey를 재사용한다", async ({ page }) => {
         const keys: string[] = [];
         let attempts = 0;
         await page.unroute("**/language-learning/level-test/sessions/3101/items/*/answers");
@@ -436,7 +435,7 @@ test.describe("Language Learning Phase 3.5", () => {
         expect(keys[1]).toBe(keys[0]);
     });
 
-    test("LL35-22 빠른 이중 클릭은 같은 문항 POST를 한 번만 전송한다", async ({ page }) => {
+    test("LLT-22 빠른 이중 클릭은 같은 문항 POST를 한 번만 전송한다", async ({ page }) => {
         let submitCount = 0;
         await page.unroute("**/language-learning/level-test/sessions/3101/items/*/answers");
         await page.route("**/language-learning/level-test/sessions/3101/items/*/answers", async (route) => {
@@ -468,7 +467,7 @@ test.describe("Language Learning Phase 3.5", () => {
         await expect.poll(() => submitCount).toBe(1);
     });
 
-    test("LL35-23 답변 성공 후 다음 문제 조회 실패가 이전 문항 재제출로 돌아가지 않는다", async ({ page }) => {
+    test("LLT-23 답변 성공 후 다음 문제 조회 실패가 이전 문항 재제출로 돌아가지 않는다", async ({ page }) => {
         let answerAccepted = false;
         let submitCount = 0;
         await page.unroute("**/language-learning/level-test/sessions/3101");

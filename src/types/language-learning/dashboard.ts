@@ -123,11 +123,6 @@ export interface DashboardTrends {
     listeningMetrics: ListeningMetricTrendPoint[];
 }
 
-/**
- * Phase 3 improves the existing dashboard contract instead of introducing a
- * versioned endpoint. Integrated ability and activity performance deliberately
- * remain separate dimensions.
- */
 export interface LanguageLearningDashboard {
     learningLanguage: string;
     from: string;
@@ -140,7 +135,4 @@ export interface LanguageLearningDashboard {
     recommendations: DashboardRecommendation[];
     trends: DashboardTrends;
 
-    // Optional legacy marker used only so the Phase 2 widget isolation regression
-    // test can keep asserting that a malformed legacy payload does not break the page.
-    speakingSummary?: unknown;
 }

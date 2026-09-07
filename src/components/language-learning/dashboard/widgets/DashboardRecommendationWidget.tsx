@@ -22,7 +22,7 @@ export function DashboardRecommendationWidget({
     onDismiss: (id: number) => void;
     disclosure: DisclosureControlProps;
 }) {
-    const t = useTranslations("LanguageLearning.dashboard.v3");
+    const t = useTranslations("LanguageLearning.dashboard");
     const visible = data.filter((item) => item.status === "ACTIVE").slice(0, 2);
     const contentId = "dashboard-recommendations-content";
 

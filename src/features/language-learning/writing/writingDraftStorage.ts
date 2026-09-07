@@ -1,10 +1,8 @@
 import type { DailyWritingType } from "@/types/language-learning/common";
 
-const STORAGE_PREFIX = "translacat:language-learning:writing:draft:v1";
-const STORAGE_VERSION = 1;
+const STORAGE_PREFIX = "translacat:language-learning:writing:draft";
 
 export interface WritingDraftStorageState {
-    version: 1;
     dailySetId: number;
     learningDate: string;
     writingType: DailyWritingType;
@@ -49,7 +47,6 @@ export function loadWritingDraftState(
 
         const parsed: unknown = JSON.parse(raw);
         if (!isRecord(parsed)) return null;
-        if (parsed.version !== STORAGE_VERSION) return null;
         if (parsed.dailySetId !== dailySetId) return null;
         if (typeof parsed.learningDate !== "string") return null;
         if (
@@ -61,7 +58,6 @@ export function loadWritingDraftState(
         }
 
         return {
-            version: STORAGE_VERSION,
             dailySetId,
             learningDate: parsed.learningDate,
             writingType: parsed.writingType,
@@ -81,13 +77,12 @@ export function loadWritingDraftState(
 
 export function saveWritingDraftState(
     publicId: string,
-    state: Omit<WritingDraftStorageState, "version" | "updatedAt">,
+    state: Omit<WritingDraftStorageState, "updatedAt">,
 ): void {
     if (typeof window === "undefined") return;
 
     try {
         const value: WritingDraftStorageState = {
-            version: STORAGE_VERSION,
             ...state,
             updatedAt: new Date().toISOString(),
         };

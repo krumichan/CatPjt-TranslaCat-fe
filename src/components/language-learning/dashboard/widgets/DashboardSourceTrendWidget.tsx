@@ -31,8 +31,8 @@ export function DashboardSourceTrendWidget({
     onSourceChange,
     disclosure,
 }: DashboardSourceTrendWidgetProps) {
-    const t = useTranslations("LanguageLearning.dashboard.v2");
-    const metricT = useTranslations("LanguageLearning.dashboard.v3.metric");
+    const t = useTranslations("LanguageLearning.dashboard");
+    const metricT = useTranslations("LanguageLearning.dashboard.metric");
     const entries = Object.entries(data.metrics ?? {});
     const contentId = "dashboard-source-trend-content";
 

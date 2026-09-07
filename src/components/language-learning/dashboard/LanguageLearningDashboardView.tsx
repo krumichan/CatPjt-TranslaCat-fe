@@ -83,9 +83,6 @@ const DASHBOARD_MOBILE_DEFAULTS: Record<DashboardSectionKey, boolean> = {
     recommendation: false,
 };
 
-function MalformedLegacySpeakingWidget(): ReactNode {
-    throw new Error("Malformed legacy speaking summary");
-}
 
 export function LanguageLearningDashboardView({
     dashboard,
@@ -106,12 +103,12 @@ export function LanguageLearningDashboardView({
     const t = useTranslations("LanguageLearning.dashboard");
     const common = useTranslations("LanguageLearning.common");
     const majorDisclosure = usePersistentDisclosureMap<MajorSectionKey>({
-        storageKey: "translacat.language-learning.dashboard.major.v1",
+        storageKey: "translacat.language-learning.dashboard.major",
         desktopDefaults: MAJOR_DESKTOP_DEFAULTS,
         mobileDefaults: MAJOR_MOBILE_DEFAULTS,
     });
     const dashboardDisclosure = usePersistentDisclosureMap<DashboardSectionKey>({
-        storageKey: "translacat.language-learning.dashboard.sections.v1",
+        storageKey: "translacat.language-learning.dashboard.sections",
         desktopDefaults: DASHBOARD_DESKTOP_DEFAULTS,
         mobileDefaults: DASHBOARD_MOBILE_DEFAULTS,
     });
@@ -124,7 +121,7 @@ export function LanguageLearningDashboardView({
 
     const widgetFallback = (
         <section className="rounded-3xl border border-amber-200 bg-amber-50 p-5 text-sm font-bold text-amber-800 dark:border-amber-400/20 dark:bg-amber-500/10 dark:text-amber-200">
-            {t("v2.widgetFailed")}
+            {t("widgetFailed")}
         </section>
     );
 
@@ -140,10 +137,6 @@ export function LanguageLearningDashboardView({
         expandLabel: common("accordion.expand"),
         collapseLabel: common("accordion.collapse"),
     });
-
-    const legacySpeakingMalformed =
-        Object.prototype.hasOwnProperty.call(dashboard, "speakingSummary") &&
-        dashboard.speakingSummary === null;
 
     const overviewContentId = "dashboard-overview-disclosure-content";
 
@@ -205,7 +198,6 @@ export function LanguageLearningDashboardView({
                             disclosure={disclosureFor("activity")}
                         />,
                     )}
-                    {legacySpeakingMalformed && isolate("legacy-speaking-malformed", <MalformedLegacySpeakingWidget />)}
                     {isolate(
                         `source-trend-${period}-${source}`,
                         <DashboardSourceTrendWidget

@@ -17,7 +17,7 @@ export function DashboardGrowthWidget({
     data: DashboardGrowth[];
     disclosure: DisclosureControlProps;
 }) {
-    const t = useTranslations("LanguageLearning.dashboard.v3");
+    const t = useTranslations("LanguageLearning.dashboard");
     const sourceLabels: Record<string, string> = {
         WRITING: t("activity.writing"),
         SPEAKING: t("activity.speaking"),

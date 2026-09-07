@@ -19,7 +19,7 @@ export function DashboardActivityPerformanceCard({
     data,
     href,
 }: DashboardActivityPerformanceCardProps) {
-    const t = useTranslations("LanguageLearning.dashboard.v3");
+    const t = useTranslations("LanguageLearning.dashboard");
     const target = data.today?.target ?? 0;
     const completed = data.today?.completed ?? 0;
     const percent = target <= 0 ? 0 : Math.min(100, Math.round((completed / target) * 100));

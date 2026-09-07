@@ -7,7 +7,7 @@ import {
     LANGUAGE_LEARNING_SPEAKING_EVALUATION,
     LANGUAGE_LEARNING_SPEAKING_TURNS,
     mockLanguageLearningBase,
-    mockLanguageLearningPhase2,
+    mockLanguageLearningSpeaking,
 } from "../support/language-learning-mocks";
 import { mockSpeakingMediaRecorder } from "../support/media-recorder-mock";
 import { responseDto } from "../support/mock-data";
@@ -16,13 +16,13 @@ const SESSION_DETAIL_URL = "**/language-learning/speaking/sessions/301";
 const EVALUATION_URL =
     "**/language-learning/speaking/sessions/301/evaluation";
 
-test.describe("Language Learning Phase 2", () => {
+test.describe("Language Learning Speaking", () => {
     test.beforeEach(async ({ page }) => {
         await mockLanguageLearningBase(page);
-        await mockLanguageLearningPhase2(page);
+        await mockLanguageLearningSpeaking(page);
     });
 
-    test("LL2-01 Speaking 진입에서 3가지 연습 유형을 먼저 선택한다", async ({ page }) => {
+    test("LLS-01 Speaking 진입에서 3가지 연습 유형을 먼저 선택한다", async ({ page }) => {
         await page.goto("/language-learning/speaking");
         await expect(page.getByTestId("speaking-start-page")).toBeVisible();
         await expect(page.getByTestId("speaking-mode-READ_ALOUD")).toContainText(/듣고 따라 말하기/);
@@ -40,7 +40,7 @@ test.describe("Language Learning Phase 2", () => {
         await expect(page.getByRole("radio", { name: /Topic 추천/ })).toBeAttached();
     });
 
-    test("LL2-01A Speaking Topic은 사용자 키워드 기반/자유로 분리하고 회화 목표·AI 역할은 자유 Speaking에만 노출한다", async ({ page }) => {
+    test("LLS-01A Speaking Topic은 사용자 키워드 기반/자유로 분리하고 회화 목표·AI 역할은 자유 Speaking에만 노출한다", async ({ page }) => {
         await page.goto("/language-learning/speaking");
         await page.getByTestId("speaking-mode-FREE").getByRole("button", { name: /이 유형 선택/ }).click();
 
@@ -84,7 +84,7 @@ test.describe("Language Learning Phase 2", () => {
         expect(payload.persona).toBeNull();
     });
 
-    test("LL2-02 진행 중 Session에서 평가 준비도와 6개 학습 보조를 실제 제공한다", async ({ page }) => {
+    test("LLS-02 진행 중 Session에서 평가 준비도와 6개 학습 보조를 실제 제공한다", async ({ page }) => {
         await page.goto("/language-learning/speaking/301");
         await expect(page.getByTestId("speaking-session-page")).toBeVisible();
         await expect(page.getByText("유효 Turn 5 / 5")).toBeVisible();
@@ -120,7 +120,7 @@ test.describe("Language Learning Phase 2", () => {
         ).toBeVisible();
     });
 
-    test("LL2-02A 자유/가이드 말하기 메모는 새로고침 후에도 복구된다", async ({ page }) => {
+    test("LLS-02A 자유/가이드 말하기 메모는 새로고침 후에도 복구된다", async ({ page }) => {
         await page.goto("/language-learning/speaking/301");
         const note = page.getByRole("textbox", { name: "내 메모" });
         await expect(note).toBeVisible();
@@ -132,7 +132,7 @@ test.describe("Language Learning Phase 2", () => {
         );
     });
 
-    test("LL2-03 마이크 녹음 후 Turn 전송 UI가 동작한다", async ({ page }) => {
+    test("LLS-03 마이크 녹음 후 Turn 전송 UI가 동작한다", async ({ page }) => {
         await mockSpeakingMediaRecorder(page);
         await page.goto("/language-learning/speaking/301");
         await expect(page.getByText("마이크 사용 가능")).toBeVisible();
@@ -145,7 +145,7 @@ test.describe("Language Learning Phase 2", () => {
         await expect(page.getByTestId("speaking-session-page")).toBeVisible();
     });
 
-    test("LL2-04 Speaking 평가에서 8대 Metric과 Evidence를 표시한다", async ({ page }) => {
+    test("LLS-04 Speaking 평가에서 8대 Metric과 Evidence를 표시한다", async ({ page }) => {
         await page.goto("/language-learning/speaking/301/evaluation");
         await expect(page.getByTestId("speaking-evaluation-result")).toBeVisible();
         await expect(page.getByRole("heading", { name: "공통 5대 Skill" })).toBeVisible();
@@ -173,16 +173,16 @@ test.describe("Language Learning Phase 2", () => {
         await expect(page.getByText("1회", { exact: true }).first()).toBeVisible();
     });
 
-    test("LL2-05 Dashboard V2에서 Writing/Speaking 진행과 Source 필터를 표시한다", async ({ page }) => {
+    test("LLS-05 Dashboard에서 Writing/Speaking 진행과 Source 필터를 표시한다", async ({ page }) => {
         await page.goto("/language-learning");
-        await expect(page.getByTestId("dashboard-learning-progress-v2")).toBeVisible();
+        await expect(page.getByTestId("dashboard-learning-progress")).toBeVisible();
         await expect(page.getByTestId("dashboard-speaking-summary")).toBeVisible();
         const trend = page.getByTestId("dashboard-source-trend");
         await expect(trend).toBeVisible();
         await trend.getByRole("combobox").first().selectOption("SPEAKING");
     });
 
-    test("LL2-06 통합 History에서 User Audio와 Assistance 이력을 포함한 Speaking 상세를 표시한다", async ({ page }) => {
+    test("LLS-06 통합 History에서 User Audio와 Assistance 이력을 포함한 Speaking 상세를 표시한다", async ({ page }) => {
         await page.goto("/language-learning/history");
         await page.getByRole("button", { name: /Speaking/ }).first().click();
         const speakingDetail = page.getByTestId("speaking-history-detail");
@@ -203,14 +203,14 @@ test.describe("Language Learning Phase 2", () => {
         await expect(firstTurn.getByRole("button", { name: "재생" }).first()).toBeVisible();
     });
 
-    test("LL2-07 사용자 설정에 Speaking 목표와 Voice를 표시한다", async ({ page }) => {
+    test("LLS-07 사용자 설정에 Speaking 목표와 Voice를 표시한다", async ({ page }) => {
         await page.goto("/language-learning/settings");
         await expect(page.getByText("하루 Speaking 목표")).toBeVisible();
         await expect(page.getByText("기본 Speaking Voice")).toBeVisible();
         await expect(page.getByRole("option", { name: "Aoede" })).toBeAttached();
     });
 
-    test("LL2-08 진행 중 Speaking Session을 우선 복구한다", async ({ page }) => {
+    test("LLS-08 진행 중 Speaking Session을 우선 복구한다", async ({ page }) => {
         await page.route(
             "**/language-learning/speaking/sessions/active",
             (route) =>
@@ -226,7 +226,7 @@ test.describe("Language Learning Phase 2", () => {
         await expect(page.getByRole("button", { name: "Speaking 시작" })).toBeDisabled();
     });
 
-    test("LL2-09 TTS 부분 실패 시 AI Text를 유지하고 TTS 재시도를 제공한다", async ({ page }) => {
+    test("LLS-09 TTS 부분 실패 시 AI Text를 유지하고 TTS 재시도를 제공한다", async ({ page }) => {
         const failedTurn = {
             ...LANGUAGE_LEARNING_SPEAKING_TURNS[0],
             status: "PARTIAL_FAILURE",
@@ -253,7 +253,7 @@ test.describe("Language Learning Phase 2", () => {
         ).toBeVisible();
     });
 
-    test("LL2-10 NOT_EVALUABLE Metric을 0점으로 표시하지 않는다", async ({ page }) => {
+    test("LLS-10 NOT_EVALUABLE Metric을 0점으로 표시하지 않는다", async ({ page }) => {
         const metrics = LANGUAGE_LEARNING_SPEAKING_EVALUATION.metrics.map(
             (metric) =>
                 metric.metricType === "PRONUNCIATION"
@@ -286,7 +286,7 @@ test.describe("Language Learning Phase 2", () => {
         await expect(pronunciationCard.getByText("0", { exact: true })).toHaveCount(0);
     });
 
-    test("LL2-11 마이크 권한 거부와 브라우저 미지원을 구분한다", async ({ page }) => {
+    test("LLS-11 마이크 권한 거부와 브라우저 미지원을 구분한다", async ({ page }) => {
         await mockSpeakingMediaRecorder(page, "denied");
         await page.goto("/language-learning/speaking/301");
         await expect(
@@ -295,7 +295,7 @@ test.describe("Language Learning Phase 2", () => {
 
         const unsupportedPage = await page.context().newPage();
         await mockLanguageLearningBase(unsupportedPage);
-        await mockLanguageLearningPhase2(unsupportedPage);
+        await mockLanguageLearningSpeaking(unsupportedPage);
         await mockSpeakingMediaRecorder(unsupportedPage, "unsupported");
         await unsupportedPage.goto("/language-learning/speaking/301");
         await expect(
@@ -304,7 +304,7 @@ test.describe("Language Learning Phase 2", () => {
         await unsupportedPage.close();
     });
 
-    test("LL2-12 마이크 장치 없음과 사용 중 상태를 구분한다", async ({ page }) => {
+    test("LLS-12 마이크 장치 없음과 사용 중 상태를 구분한다", async ({ page }) => {
         await mockSpeakingMediaRecorder(page, "no-device");
         await page.goto("/language-learning/speaking/301");
         await page.getByRole("button", { name: "마이크 권한 요청" }).click();
@@ -312,7 +312,7 @@ test.describe("Language Learning Phase 2", () => {
 
         const busyPage = await page.context().newPage();
         await mockLanguageLearningBase(busyPage);
-        await mockLanguageLearningPhase2(busyPage);
+        await mockLanguageLearningSpeaking(busyPage);
         await mockSpeakingMediaRecorder(busyPage, "busy");
         await busyPage.goto("/language-learning/speaking/301");
         await busyPage.getByRole("button", { name: "마이크 권한 요청" }).click();
@@ -322,7 +322,7 @@ test.describe("Language Learning Phase 2", () => {
         await busyPage.close();
     });
 
-    test("LL2-13 낮은 STT Confidence에서 다시 녹음·평가 제외·오류 신고를 제공한다", async ({ page }) => {
+    test("LLS-13 낮은 STT Confidence에서 다시 녹음·평가 제외·오류 신고를 제공한다", async ({ page }) => {
         const lowConfidenceTurn = {
             ...LANGUAGE_LEARNING_SPEAKING_TURNS[0],
             sttConfidence: 0.42,
@@ -408,7 +408,7 @@ test.describe("Language Learning Phase 2", () => {
         ).toBeVisible();
     });
 
-    test("LL2-14 평가 생성 전 EVALUATION_PENDING을 정상 대기 상태로 처리한다", async ({ page }) => {
+    test("LLS-14 평가 생성 전 EVALUATION_PENDING을 정상 대기 상태로 처리한다", async ({ page }) => {
         await page.route(EVALUATION_URL, (route) =>
             fulfillJson(
                 route,
@@ -441,7 +441,7 @@ test.describe("Language Learning Phase 2", () => {
         await expect(page.getByText("Speaking 평가 중")).toBeVisible();
     });
 
-    test("LL2-15 평가 실패 시 Session 기록을 유지하고 평가만 재시도한다", async ({ page }) => {
+    test("LLS-15 평가 실패 시 Session 기록을 유지하고 평가만 재시도한다", async ({ page }) => {
         await page.route(EVALUATION_URL, (route) =>
             fulfillApiJson(
                 route,
@@ -464,7 +464,7 @@ test.describe("Language Learning Phase 2", () => {
         await retryRequest;
     });
 
-    test("LL2-16 평가 기준 미달 시 계속 대화와 평가 없이 종료를 제공한다", async ({ page }) => {
+    test("LLS-16 평가 기준 미달 시 계속 대화와 평가 없이 종료를 제공한다", async ({ page }) => {
         const shortTurns = LANGUAGE_LEARNING_SPEAKING_TURNS.slice(0, 2).map(
             (turn) => ({ ...turn, durationSeconds: 8 }),
         );
@@ -507,7 +507,7 @@ test.describe("Language Learning Phase 2", () => {
         expect(completeRequest.postDataJSON()).toEqual({ skipEvaluation: true });
     });
 
-    test("LL2-17 Dashboard Widget 하나가 실패해도 나머지 Widget을 유지한다", async ({ page }) => {
+    test("LLS-17 Dashboard Widget 하나가 실패해도 나머지 Widget을 유지한다", async ({ page }) => {
         await page.route("**/language-learning/dashboard**", (route) =>
             fulfillApiJson(
                 route,
@@ -519,14 +519,14 @@ test.describe("Language Learning Phase 2", () => {
         );
 
         await page.goto("/language-learning");
-        await expect(page.getByTestId("dashboard-learning-progress-v2")).toBeVisible();
+        await expect(page.getByTestId("dashboard-learning-progress")).toBeVisible();
         await expect(
             page.getByText(/이 위젯을 표시하지 못했습니다/),
         ).toBeVisible();
         await expect(page.getByTestId("language-learning-dashboard")).toBeVisible();
     });
 
-    test("LL2-18 Admin Speaking 설정에서 범위 검증으로 잘못된 저장을 막는다", async ({ page }) => {
+    test("LLS-18 Admin Speaking 설정에서 범위 검증으로 잘못된 저장을 막는다", async ({ page }) => {
         await page.route("**/api/auth/session", (route) =>
             fulfillJson(route, {
                 user: {
@@ -551,7 +551,7 @@ test.describe("Language Learning Phase 2", () => {
         await expect(page.getByRole("button", { name: "저장" })).toBeDisabled();
     });
 
-    test("LL2-19 Mobile viewport에서도 Speaking 핵심 조작을 제공한다", async ({ page }) => {
+    test("LLS-19 Mobile viewport에서도 Speaking 핵심 조작을 제공한다", async ({ page }) => {
         await page.setViewportSize({ width: 390, height: 844 });
         await mockSpeakingMediaRecorder(page);
         await page.goto("/language-learning/speaking/301");
@@ -561,7 +561,7 @@ test.describe("Language Learning Phase 2", () => {
         await expect(page.getByRole("button", { name: "종료하고 평가받기" })).toBeVisible();
     });
 
-    test("LL2-20 일본어 Locale에서도 연습 유형 선택 후 Speaking 시작 UI를 표시한다", async ({ page }) => {
+    test("LLS-20 일본어 Locale에서도 연습 유형 선택 후 Speaking 시작 UI를 표시한다", async ({ page }) => {
         await page.goto("/ja/language-learning/speaking");
 
         await expect(page.getByTestId("speaking-start-page")).toBeVisible();

@@ -12,7 +12,7 @@ import {
 } from "../support/language-learning-mocks";
 import { responseDto } from "../support/mock-data";
 
-test.describe("Language Learning Phase 1", () => {
+test.describe("Language Learning Core & Writing", () => {
     test.beforeEach(async ({ page }) => {
         await mockLanguageLearningBase(page);
     });

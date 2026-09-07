@@ -26,7 +26,7 @@ export function DashboardWeaknessInsightsWidget({
     data: DashboardWeakness[];
     disclosure: DisclosureControlProps;
 }) {
-    const t = useTranslations("LanguageLearning.dashboard.v3");
+    const t = useTranslations("LanguageLearning.dashboard");
     const sourceLabels = {
         WRITING: t("activity.writing"),
         SPEAKING: t("activity.speaking"),
@@ -37,7 +37,7 @@ export function DashboardWeaknessInsightsWidget({
     const contentId = "dashboard-weaknesses-content";
 
     return (
-        <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900" data-testid="dashboard-weaknesses-v3">
+        <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900" data-testid="dashboard-weaknesses">
             <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                     <Target className="h-5 w-5 text-amber-600" aria-hidden="true" />

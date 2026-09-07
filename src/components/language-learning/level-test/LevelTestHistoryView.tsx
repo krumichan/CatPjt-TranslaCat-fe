@@ -44,9 +44,8 @@ export function LevelTestHistoryView({ controller }: LevelTestHistoryViewProps) 
             ) : (
                 <ul className="space-y-3">
                     {controller.items.map((item) => {
-                        const legacy = item.assessmentVersion === "WRITING_ONLY";
                         return (
-                            <li key={`${item.assessmentVersion}-${item.sessionId}`}>
+                            <li key={item.sessionId}>
                                 <Link
                                     href={`/language-learning/level-test/history/${item.sessionId}`}
                                     className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm transition hover:border-blue-300 dark:border-white/10 dark:bg-slate-900/75"
@@ -58,7 +57,7 @@ export function LevelTestHistoryView({ controller }: LevelTestHistoryViewProps) 
                                                 : "—"}
                                         </p>
                                         <p className="mt-2 text-base font-black text-slate-950 dark:text-white">
-                                            {legacy ? t("legacy") : t("multiSkill")}
+                                            {t("multiSkill")}
                                         </p>
                                         <p className="mt-1 text-sm font-bold text-slate-500 dark:text-slate-400">
                                             {t("overall", { score: item.overallScore ?? "—" })}

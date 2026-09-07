@@ -54,7 +54,6 @@ export function LevelTestHistoryDetailView({ detail }: LevelTestHistoryDetailVie
     const itemT = useTranslations("LanguageLearning.levelTest.itemType");
     const domainT = useTranslations("LanguageLearning.levelTest.domain");
     const bandT = useTranslations("LanguageLearning.levelTest.band");
-    const legacy = detail.summary.assessmentVersion === "WRITING_ONLY";
 
     return (
         <div className="space-y-5">
@@ -62,7 +61,7 @@ export function LevelTestHistoryDetailView({ detail }: LevelTestHistoryDetailVie
                 <div className="flex flex-wrap items-end justify-between gap-4">
                     <div>
                         <p className="text-xs font-black uppercase tracking-[0.14em] text-blue-600 dark:text-blue-300">
-                            {legacy ? t("legacy") : t("multiSkill")}
+                            {t("multiSkill")}
                         </p>
                         <h2 className="mt-2 text-2xl font-black text-slate-950 dark:text-white">
                             {t("overall", { score: detail.summary.overallScore ?? "—" })}
@@ -80,19 +79,12 @@ export function LevelTestHistoryDetailView({ detail }: LevelTestHistoryDetailVie
                     </p>
                 </div>
 
-                {!legacy && (
-                    <div className="mt-5">
-                        <LevelTestScoreGrid scores={detail.summary.domainScores} />
-                    </div>
-                )}
+                <div className="mt-5">
+                    <LevelTestScoreGrid scores={detail.summary.domainScores} />
+                </div>
             </section>
 
-            {legacy ? (
-                <section className="rounded-3xl border border-slate-200 bg-white/90 p-6 text-sm leading-6 text-slate-500 dark:border-white/10 dark:bg-slate-900/75 dark:text-slate-400">
-                    {t("legacyDetailNotice")}
-                </section>
-            ) : (
-                <ol className="space-y-4">
+            <ol className="space-y-4">
                     {detail.items.map((item) => {
                         const correctAnswer = correctAnswerText(item);
                         const answerText = userAnswerText(item);
@@ -390,7 +382,6 @@ export function LevelTestHistoryDetailView({ detail }: LevelTestHistoryDetailVie
                         );
                     })}
                 </ol>
-            )}
         </div>
     );
 }

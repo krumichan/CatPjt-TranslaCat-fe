@@ -11,6 +11,7 @@ type SpeakingNumberField = Exclude<
     | "aiEvaluationEnabled"
     | "speakingEnabled"
     | "speakingEvaluationEnabled"
+    | "levelTestQuestionPoolReplenishmentEnabled"
     | "defaultDailySentenceCount"
     | "minDailySentenceCount"
     | "maxDailySentenceCount"

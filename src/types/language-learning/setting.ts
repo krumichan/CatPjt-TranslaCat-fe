@@ -67,6 +67,7 @@ export interface LanguageLearningAdminSetting {
     sttTimeoutSeconds: number;
     ttsTimeoutSeconds: number;
     evaluationTimeoutSeconds: number;
+    levelTestQuestionPoolReplenishmentEnabled: boolean;
 }
 
 export type LanguageLearningAdminSettingUpdateRequest =

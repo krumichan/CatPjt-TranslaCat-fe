@@ -30,6 +30,7 @@ const NUMBER_FIELDS: Array<{
 const BOOLEAN_FIELDS = [
     "adaptiveWritingEnabled",
     "aiEvaluationEnabled",
+    "levelTestQuestionPoolReplenishmentEnabled",
 ] as const;
 
 export function AdminLanguageLearningSettingsForm({

@@ -985,6 +985,10 @@
         "evaluationTimeoutSeconds": {
           "label": "평가 Timeout(초)",
           "help": "Speaking 평가 Timeout입니다."
+        },
+        "levelTestQuestionPoolReplenishmentEnabled": {
+          "label": "レベルテスト問題生成バッチ",
+          "help": "レベルテスト問題プールを補充するバックグラウンドバッチを有効・無効にします。実行中の処理は完了し、次回実行から設定が反映されます。"
         }
       },
       "speaking": {

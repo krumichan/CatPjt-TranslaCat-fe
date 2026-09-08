@@ -871,6 +871,7 @@ export const LANGUAGE_LEARNING_ADMIN_SETTING = {
     sttTimeoutSeconds: 30,
     ttsTimeoutSeconds: 30,
     evaluationTimeoutSeconds: 60,
+    levelTestQuestionPoolReplenishmentEnabled: false,
 };
 
 export async function mockLanguageLearningSpeaking(page: Page) {

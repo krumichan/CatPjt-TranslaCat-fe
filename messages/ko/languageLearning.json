@@ -985,6 +985,10 @@
         "evaluationTimeoutSeconds": {
           "label": "평가 Timeout(초)",
           "help": "Speaking 평가 Timeout입니다."
+        },
+        "levelTestQuestionPoolReplenishmentEnabled": {
+          "label": "레벨 테스트 문제 생성 배치",
+          "help": "레벨 테스트 문제 풀을 보충하는 백그라운드 배치를 켜거나 끕니다. 실행 중인 작업은 완료되고 다음 실행부터 설정이 반영됩니다."
         }
       },
       "speaking": {

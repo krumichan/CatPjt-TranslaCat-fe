@@ -526,4 +526,29 @@ test.describe("Language Learning Level Test", () => {
         await expect.poll(() => submitCount).toBe(1);
     });
 
+    test("LLT-24 관리자는 레벨 테스트 문제 생성 배치 ON/OFF 설정을 확인할 수 있다", async ({ page }) => {
+        await page.route("**/api/auth/session", (route) =>
+            fulfillJson(route, {
+                user: {
+                    name: "Admin",
+                    email: "admin@example.com",
+                    image: null,
+                    role: "ADMIN",
+                    publicId: "admin-e2e",
+                    accessToken: "mock-admin-access-token",
+                },
+                accessToken: "mock-admin-access-token",
+                expires: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+            }),
+        );
+
+        await page.goto("/settings/admin/language-learning");
+
+        const toggle = page.getByLabel("레벨 테스트 문제 생성 배치");
+        await expect(toggle).toBeVisible();
+        await expect(toggle).not.toBeChecked();
+        await toggle.check();
+        await expect(toggle).toBeChecked();
+    });
+
 });

@@ -1,4 +1,5 @@
 import { apiClient } from "@/lib/apiClient";
+import { listeningPreparationRetryTargets } from "@/features/language-learning/generationState";
 import { parseResponseBody } from "@/services/common/responseParser";
 import type {
     ListeningActiveSession,
@@ -53,9 +54,22 @@ export const listeningService = {
         return parseResponseBody<ListeningDailySet>(response, "ListeningRetryGeneration");
     },
 
+    getDailySet: async (dailySetId: number): Promise<ListeningDailySet> => {
+        const response = await apiClient(`/language-learning/listening/daily-sets/${dailySetId}`, { method: "GET" });
+        return parseResponseBody<ListeningDailySet>(response, "ListeningDailySet");
+    },
+
     retryTts: async (itemId: number): Promise<ListeningDailySet> => {
         const response = await apiClient(`/language-learning/listening/items/${itemId}/retry-tts`, { method: "POST" });
         return parseResponseBody<ListeningDailySet>(response, "ListeningRetryTts");
+    },
+
+    retryPreparation: async (dailySetId: number): Promise<ListeningDailySet> => {
+        let set = await listeningService.getDailySet(dailySetId);
+        const targets = listeningPreparationRetryTargets(set);
+        if (targets.missingItems) set = await listeningService.retryGeneration(dailySetId);
+        for (const itemId of targets.ttsItemIds) set = await listeningService.retryTts(itemId);
+        return set;
     },
 
     referenceAudioUrl: (itemId: number) => `/language-learning/listening/items/${itemId}/audio`,

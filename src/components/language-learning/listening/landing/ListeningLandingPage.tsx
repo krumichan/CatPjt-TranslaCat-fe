@@ -66,8 +66,8 @@ export function ListeningLandingPage() {
                             const activeForMode = controller.activeSession && status?.dailySetId === controller.activeSession.dailySetId;
                             const completed = status?.completed === true;
                             const evaluating = status?.latestSessionStatus === "EVALUATING";
-                            const failed = status?.status === "FAILED" || (controller.selectedMode === mode && liveSet?.status === "FAILED");
-                            const preparing = status?.status === "GENERATING" || status?.status === "PARTIAL" || (liveSet?.status !== undefined && liveSet.status !== "FAILED" && liveSet.status !== "READY");
+                            const failed = status?.status === "FAILED" || Boolean(status?.failureReason || liveSet?.failureReason);
+                            const preparing = !failed && (status?.status === "GENERATING" || status?.status === "PARTIAL" || (liveSet?.status !== undefined && liveSet.status !== "FAILED" && liveSet.status !== "READY"));
                             const preparationDelayed = controller.preparationDelayedByMode[mode] === true;
                             const targetCount = status?.targetItemCount || liveSet?.targetItemCount || 0;
                             const submittedCount = status?.submittedItemCount ?? 0;
@@ -188,10 +188,10 @@ export function ListeningLandingPage() {
                                             <button
                                                 type="button"
                                                 onClick={() => void controller.selectMode(mode)}
-                                                disabled={controller.isStarting || Boolean(controller.activeSession) || preparing}
+                                                disabled={controller.isStarting || Boolean(controller.activeSession) || (preparing && readyCount === 0)}
                                                 className="inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-base font-black text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
                                             >
-                                                {preparing ? t("modeSelector.preparing") : actionLabel}
+                                                {preparing && readyCount === 0 ? t("modeSelector.preparing") : actionLabel}
                                             </button>
                                         )}
                                     </div>

@@ -63,6 +63,14 @@ export const dailyWritingService = {
         );
     },
 
+    retryGeneration: async (dailySetId: number): Promise<DailyWritingSet> => {
+        const response = await apiClient(
+            `/language-learning/writing/daily/${dailySetId}/retry-generation`,
+            { method: "POST" },
+        );
+        return parseResponseBody<DailyWritingSet>(response, "DailyWritingRetryGeneration");
+    },
+
     submitAnswer: async (
         itemId: number,
         request: AnswerSubmitRequest,

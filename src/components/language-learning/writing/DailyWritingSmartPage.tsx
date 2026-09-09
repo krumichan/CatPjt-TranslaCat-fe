@@ -62,7 +62,7 @@ export function DailyWritingSmartPage() {
         }
 
         let selectedContent;
-        if (controller.isLoadingDaily || controller.isDailyGenerating) {
+        if (!controller.dailySet && (controller.isLoadingDaily || controller.isDailyGenerating)) {
             selectedContent = (
                 <LanguageLearningStateCard
                     variant="loading"
@@ -70,7 +70,7 @@ export function DailyWritingSmartPage() {
                     message={t("generatingMessage")}
                 />
             );
-        } else if (controller.dailyLoadError || !controller.dailySet) {
+        } else if (!controller.dailySet) {
             selectedContent = (
                 <LanguageLearningStateCard
                     variant="error"

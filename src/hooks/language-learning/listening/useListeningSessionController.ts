@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { createIdempotencyKey } from "@/features/language-learning/listening/idempotency";
+import { hasCompleteListeningCoverage, selectListeningAttempt, shouldPollListeningSession } from "@/features/language-learning/generationState";
 import { useAudioRecorder } from "@/hooks/language-learning/speaking/useAudioRecorder";
 import { useLanguageLearningEntryState } from "@/hooks/language-learning/useLanguageLearningEntryState";
 import { useMicrophonePermission } from "@/hooks/language-learning/speaking/useMicrophonePermission";
@@ -19,7 +20,6 @@ import type {
 
 const TERMINAL_ATTEMPT = new Set(["EVALUATED", "NOT_EVALUABLE", "SKIPPED"]);
 const SUBMITTED_ATTEMPT = new Set(["SUBMITTED", "EVALUATING", "EVALUATED", "NOT_EVALUABLE", "SKIPPED"]);
-const EDITABLE_ATTEMPT = new Set(["READY", "IN_PROGRESS"]);
 
 export function useListeningSessionController(sessionId: number) {
     const router = useRouter();
@@ -37,16 +37,33 @@ export function useListeningSessionController(sessionId: number) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [isCompleting, setIsCompleting] = useState(false);
+    const [isRetryingGeneration, setIsRetryingGeneration] = useState(false);
+    const [activeAttemptId, setActiveAttemptId] = useState<number | null>(null);
     const [assistanceNotice, setAssistanceNotice] = useState<ListeningAssistanceType | null>(null);
     const [isAssistanceBusy, setIsAssistanceBusy] = useState(false);
 
     const sessionQuery = useQuery({
         keys: ["listening-session", sessionId] as const,
         fetcher: (_key, id) => listeningService.getSession(id),
-        config: { revalidateOnMount: true, shouldRetryOnError: false },
+        config: {
+            revalidateOnMount: true,
+            shouldRetryOnError: (error: unknown) => !(error instanceof ApiResponseError)
+                || error.status >= 500 || error.status === 408 || error.status === 429,
+            errorRetryCount: 3,
+            errorRetryInterval: 2000,
+            refreshInterval: (data) => shouldPollListeningSession(data) ? 1500 : 0,
+        },
     });
 
     const session = sessionQuery.data ?? null;
+    const targetItemCount = session?.targetItemCount ?? 5;
+    const attachedItemCount = new Set(session?.attempts
+        .filter((candidate) => candidate.evaluationPurpose === "OFFICIAL")
+        .map((candidate) => candidate.itemIndex ?? candidate.itemId)).size;
+    const readyItemIndices = session?.attempts.filter((candidate) => candidate.evaluationPurpose === "OFFICIAL" && candidate.itemIndex != null).map((candidate) => candidate.itemIndex!) ?? [];
+    const allItemsAttached = hasCompleteListeningCoverage(session);
+    const generationFailureMessage = session?.generationFailureMessage ?? null;
+    const isGenerating = shouldPollListeningSession(session ?? undefined);
 
     useEffect(() => {
         if (!session || resumeRequestedRef.current) return;
@@ -67,8 +84,14 @@ export function useListeningSessionController(sessionId: number) {
 
     const currentAttempt = useMemo(() => {
         if (!session) return null;
-        return session.attempts.find((attempt) => EDITABLE_ATTEMPT.has(attempt.status)) ?? null;
-    }, [session]);
+        // TTS may make an earlier slot READY while this answer is being edited.
+        // Keep the visible attempt stable, including deliberate answer review.
+        return selectListeningAttempt(session.attempts, activeAttemptId, revealedAnswer?.attemptId);
+    }, [activeAttemptId, revealedAnswer?.attemptId, session]);
+
+    useEffect(() => {
+        setActiveAttemptId(currentAttempt?.attemptId ?? null);
+    }, [currentAttempt?.attemptId]);
 
     const itemQuery = useQuery({
         keys: currentAttempt ? (["listening-item", sessionId, currentAttempt.itemId] as const) : null,
@@ -367,13 +390,13 @@ export function useListeningSessionController(sessionId: number) {
     }, [attempt, recorder, sessionQuery]);
 
     const complete = useCallback(async () => {
-        if (!session || currentAttempt || isCompleting) return false;
+        if (!session || !allItemsAttached || currentAttempt || isCompleting) return false;
         setIsCompleting(true);
         try {
             const official = session.attempts.filter((candidate) =>
                 candidate.evaluationPurpose === "OFFICIAL"
             );
-            const allTerminal = official.length > 0
+            const allTerminal = official.length >= targetItemCount
                 && official.every((candidate) => TERMINAL_ATTEMPT.has(candidate.status));
             if (session.status !== "COMPLETED"
                     && session.status !== "EVALUATING"
@@ -391,14 +414,14 @@ export function useListeningSessionController(sessionId: number) {
         } finally {
             setIsCompleting(false);
         }
-    }, [currentAttempt, isCompleting, router, session]);
+    }, [allItemsAttached, currentAttempt, isCompleting, router, session, targetItemCount]);
 
     useEffect(() => {
-        if (!session || currentAttempt || isCompleting) return;
+        if (!session || !allItemsAttached || currentAttempt || isCompleting) return;
         const official = session.attempts.filter((candidate) =>
             candidate.evaluationPurpose === "OFFICIAL"
         );
-        const allSubmitted = official.length > 0
+        const allSubmitted = official.length >= targetItemCount
             && official.every((candidate) => SUBMITTED_ATTEMPT.has(candidate.status));
         const practicePending = session.attempts.some((candidate) =>
             candidate.evaluationPurpose === "PRACTICE"
@@ -407,17 +430,35 @@ export function useListeningSessionController(sessionId: number) {
         if (allSubmitted || practicePending || session.status === "COMPLETED") {
             void complete();
         }
-    }, [complete, currentAttempt, isCompleting, session]);
+    }, [allItemsAttached, complete, currentAttempt, isCompleting, session, targetItemCount]);
+
+    const retryGeneration = useCallback(async () => {
+        if (!session || isRetryingGeneration || !generationFailureMessage) return false;
+        setIsRetryingGeneration(true);
+        setActionErrorCode(null);
+        try {
+            await listeningService.retryPreparation(session.dailySetId);
+            return true;
+        } catch (error) {
+            setActionErrorCode(error instanceof ApiResponseError ? error.errorCode : "UNKNOWN");
+            return false;
+        } finally {
+            // Some TTS retries may have succeeded before another failed.
+            // Discover that progress even when the combined retry reports an error.
+            await sessionQuery.mutate((current) => current, true).catch(() => undefined);
+            setIsRetryingGeneration(false);
+        }
+    }, [generationFailureMessage, isRetryingGeneration, session, sessionQuery]);
 
     const progressedItemCount = useMemo(() => {
         if (!session) return 0;
-        const terminalAttemptIds = new Set(
+        const progressedSlots = new Set(
             session.attempts
                 .filter((candidate) =>
                     candidate.evaluationPurpose === "OFFICIAL"
                     && SUBMITTED_ATTEMPT.has(candidate.status),
                 )
-                .map((candidate) => candidate.attemptId),
+                .map((candidate) => candidate.itemIndex ?? candidate.itemId),
         );
 
         // reveal-answer finalizes the current attempt on the server, while we
@@ -426,12 +467,12 @@ export function useListeningSessionController(sessionId: number) {
         // advancing the visible item.
         if (attempt?.evaluationPurpose === "OFFICIAL"
                 && attempt.answerRevealed
-                && !terminalAttemptIds.has(attempt.attemptId)) {
-            terminalAttemptIds.add(attempt.attemptId);
+                && !progressedSlots.has(attempt.itemIndex ?? attempt.itemId)) {
+            progressedSlots.add(attempt.itemIndex ?? attempt.itemId);
         }
 
-        return terminalAttemptIds.size;
-    }, [attempt, session]);
+        return Math.min(targetItemCount, progressedSlots.size);
+    }, [attempt, session, targetItemCount]);
 
     return {
         entry,
@@ -450,6 +491,13 @@ export function useListeningSessionController(sessionId: number) {
         assistanceNotice,
         isAssistanceBusy,
         progressedItemCount,
+        targetItemCount,
+        attachedItemCount,
+        readyItemIndices,
+        allItemsAttached,
+        generationFailureMessage,
+        isGenerating,
+        isRetryingGeneration,
         actionErrorCode,
         isLoading:
             (session === null && sessionQuery.isLoading) ||
@@ -470,6 +518,7 @@ export function useListeningSessionController(sessionId: number) {
         submit,
         skip,
         complete,
+        retryGeneration,
         reload: async () => {
             await Promise.all([
                 sessionQuery.mutate((current) => current, true),

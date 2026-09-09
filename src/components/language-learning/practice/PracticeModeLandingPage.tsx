@@ -8,6 +8,7 @@ import { LanguageLearningOnboardingCard } from "@/components/language-learning/c
 import { LanguageLearningStateCard } from "@/components/language-learning/common/LanguageLearningStateCard";
 import { LanguageLearningPageLayout } from "@/components/language-learning/layout/LanguageLearningPageLayout";
 import { useLanguageLearningEntryState } from "@/hooks/language-learning/useLanguageLearningEntryState";
+import { isGenerationPending } from "@/features/language-learning/generationState";
 import { useRouter } from "@/navigation";
 import { readingVocabularyService } from "@/services/language-learning/readingVocabularyService";
 import type {
@@ -34,6 +35,7 @@ export function PracticeModeLandingPage({ domain }: { domain: PracticeDomain }) 
     const ns = domain === "READING" ? "LanguageLearning.reading" : "LanguageLearning.vocabulary";
     const t = useTranslations(ns);
     const common = useTranslations("LanguageLearning.common");
+    const generation = useTranslations("LanguageLearning.generation");
     const [startingMode, setStartingMode] = useState<string | null>(null);
     const [error, setError] = useState(false);
     const [mastery, setMastery] = useState<VocabularyMasterySummary | null>(null);
@@ -60,6 +62,25 @@ export function PracticeModeLandingPage({ domain }: { domain: PracticeDomain }) 
             .catch(() => undefined);
         return () => { cancelled = true; };
     }, [domain, entry.setting?.configured]);
+
+    const hasGeneratingMode = todayStatuses.some((status) => isGenerationPending(status.generationStatus));
+    useEffect(() => {
+        if (!hasGeneratingMode) return;
+        let cancelled = false;
+        let timer: number;
+        const poll = async () => {
+            try {
+                const statuses = await readingVocabularyService.getTodayStatus(domain);
+                if (!cancelled) setTodayStatuses(statuses);
+            } catch {
+                // Keep displayed progress through a transient status read failure.
+            } finally {
+                if (!cancelled) timer = window.setTimeout(poll, 2000);
+            }
+        };
+        timer = window.setTimeout(poll, 2000);
+        return () => { cancelled = true; window.clearTimeout(timer); };
+    }, [domain, hasGeneratingMode]);
 
     const start = async (mode: string) => {
         if (startingMode) return;
@@ -139,6 +160,8 @@ export function PracticeModeLandingPage({ domain }: { domain: PracticeDomain }) 
                             const todayStatus = statusByMode.get(key);
                             const completed = todayStatus?.status === "COMPLETED";
                             const active = todayStatus?.status === "ACTIVE";
+                            const generating = isGenerationPending(todayStatus?.generationStatus);
+                            const generationFailed = todayStatus?.generationStatus === "PARTIAL" || todayStatus?.generationStatus === "FAILED";
                             const actionLabel = completed
                                 ? t("selector.viewResult")
                                 : active
@@ -171,6 +194,12 @@ export function PracticeModeLandingPage({ domain }: { domain: PracticeDomain }) 
                                     </div>
                                     <h3 className="mt-5 text-base font-black text-slate-900 sm:text-lg dark:text-white">{t(`modes.${key}.title`)}</h3>
                                     <p className="mt-2 min-h-18 text-sm leading-6 text-slate-500 dark:text-slate-400">{t(`modes.${key}.description`)}</p>
+                                    {(generating || generationFailed) && todayStatus && (
+                                        <div className="mt-3 text-xs leading-5" aria-live="polite">
+                                            <p className="font-black text-blue-700 dark:text-blue-200">{generation("progress", { ready: todayStatus.generatedQuestionCount ?? 0, total: todayStatus.questionCount })}</p>
+                                            <p className={generationFailed ? "text-amber-700 dark:text-amber-200" : "text-slate-500 dark:text-slate-400"}>{generation(generationFailed ? "failed" : "background")}</p>
+                                        </div>
+                                    )}
                                     {completed && todayStatus.officialScore != null && (
                                         <p className="mt-3 text-xs font-black text-emerald-700 dark:text-emerald-200">
                                             {t("selector.score", { score: Math.round(todayStatus.officialScore) })}

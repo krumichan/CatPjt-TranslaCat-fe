@@ -2,6 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { hasCompleteItemCoverage } from "@/features/language-learning/generationState";
 
 import {
     clearWritingDraftState,
@@ -135,7 +136,10 @@ export function useDailyWritingPageController() {
         fetcher: (_key, writingType) =>
             dailyWritingService.getToday(writingType),
         enabled: canLoadDaily && selectedWritingType !== null,
-        config: { revalidateOnMount: true },
+        config: {
+            revalidateOnMount: true,
+            refreshInterval: (data) => data?.status === "GENERATING" ? 1500 : 0,
+        },
     });
 
     const [drafts, setDrafts] = useState<Record<number, string>>({});
@@ -149,6 +153,7 @@ export function useDailyWritingPageController() {
     const [bulkCompletedCount, setBulkCompletedCount] = useState(0);
     const [bulkTotalCount, setBulkTotalCount] = useState(0);
     const [isRegenerating, setIsRegenerating] = useState(false);
+    const [isRetryingGeneration, setIsRetryingGeneration] = useState(false);
     const [actionError, setActionError] = useState(false);
     const [lastAnswerResult, setLastAnswerResult] =
         useState<AnswerResult | null>(null);
@@ -158,13 +163,18 @@ export function useDailyWritingPageController() {
     const dailyErrorCode = getLanguageLearningErrorCode(dailyQuery.isError);
     const isDailyGenerating =
         selectedWritingType !== null &&
-        dailyErrorCode === LANGUAGE_LEARNING_ERROR_CODES.DAILY_SET_GENERATING;
+        (dailyQuery.data?.status === "GENERATING" ||
+            dailyErrorCode === LANGUAGE_LEARNING_ERROR_CODES.DAILY_SET_GENERATING);
+    const generationFailureMessage = dailyQuery.data?.generationFailureMessage
+        || (["PARTIAL", "FAILED"].includes(dailyQuery.data?.status ?? "") ? "GENERATION_FAILED" : null);
+    const allItemsGenerated = hasCompleteItemCoverage(dailyQuery.data?.items.map((item) => item.itemId) ?? [], dailyQuery.data?.sentenceCount ?? 0);
 
     useEffect(() => {
-        if (!isDailyGenerating) return;
+        // Successful partial responses use SWR polling without clearing cached drafts.
+        if (!isDailyGenerating || dailyQuery.data) return;
 
         const timer = window.setTimeout(() => {
-            void dailyQuery.mutate(undefined, true);
+            void dailyQuery.mutate((current) => current, true);
         }, 1200);
 
         return () => window.clearTimeout(timer);
@@ -416,7 +426,7 @@ export function useDailyWritingPageController() {
                     { answer },
                 );
                 setLastAnswerResult(result);
-                await dailyQuery.mutate(undefined, true);
+                await dailyQuery.mutate((current) => current, true);
                 return true;
             } catch (error) {
                 console.error("Failed to submit daily writing answer.", error);
@@ -432,6 +442,7 @@ export function useDailyWritingPageController() {
     const submitAllAnswers = useCallback(async () => {
         if (
             !dailyQuery.data ||
+            !allItemsGenerated ||
             submittingItemId !== null ||
             isSubmittingAll ||
             draftsHydratedSetId !== dailyQuery.data.dailySetId
@@ -482,13 +493,14 @@ export function useDailyWritingPageController() {
                 }
             }
 
-            await dailyQuery.mutate(undefined, true);
+            await dailyQuery.mutate((current) => current, true);
             return succeeded;
         } finally {
             setSubmittingItemId(null);
             setIsSubmittingAll(false);
         }
     }, [
+        allItemsGenerated,
         changeBulkEvaluationRequested,
         dailyQuery,
         drafts,
@@ -549,7 +561,7 @@ export function useDailyWritingPageController() {
         }
 
         const timer = window.setTimeout(() => {
-            void dailyQuery.mutate(undefined, true);
+            void dailyQuery.mutate((current) => current, true);
             void writingHistoryQuery.mutate(undefined, true);
         }, EVALUATION_POLL_INTERVAL_MS);
         return () => window.clearTimeout(timer);
@@ -574,6 +586,7 @@ export function useDailyWritingPageController() {
     );
     const bulkPendingCount = bulkAnswerableItems.length;
     const canSubmitAll =
+        allItemsGenerated &&
         bulkPendingCount > 0 &&
         bulkFilledCount === bulkPendingCount &&
         submittingItemId === null &&
@@ -630,6 +643,7 @@ export function useDailyWritingPageController() {
     const regenerate = useCallback(async () => {
         if (
             !dailyQuery.data ||
+            !["READY", "COMPLETED"].includes(dailyQuery.data.status) ||
             isRegenerating ||
             isSubmittingAll ||
             pendingEvaluationItems.length > 0
@@ -659,6 +673,23 @@ export function useDailyWritingPageController() {
         pendingEvaluationItems.length,
     ]);
 
+    const retryGeneration = useCallback(async () => {
+        if (!dailyQuery.data || !generationFailureMessage || isRetryingGeneration || isRegenerating) return false;
+        setIsRetryingGeneration(true);
+        setActionError(false);
+        try {
+            const updated = await dailyWritingService.retryGeneration(dailyQuery.data.dailySetId);
+            await dailyQuery.mutate(updated, false);
+            return true;
+        } catch (error) {
+            console.error("Failed to resume Daily Writing generation.", error);
+            setActionError(true);
+            return false;
+        } finally {
+            setIsRetryingGeneration(false);
+        }
+    }, [dailyQuery, generationFailureMessage, isRegenerating, isRetryingGeneration]);
+
     const remainingRegenerations = Math.max(
         0,
         3 - (dailyQuery.data?.regenerationCount ?? 0),
@@ -677,8 +708,11 @@ export function useDailyWritingPageController() {
         dailyLoadError:
             selectedWritingType !== null &&
             dailyQuery.isError &&
-            !isDailyGenerating,
+            dailyErrorCode !== LANGUAGE_LEARNING_ERROR_CODES.DAILY_SET_GENERATING,
         isDailyGenerating,
+        generationFailureMessage,
+        allItemsGenerated,
+        isRetryingGeneration,
         drafts,
         draftsHydrated:
             dailyQuery.data != null &&
@@ -705,9 +739,10 @@ export function useDailyWritingPageController() {
         submitAnswer,
         submitAllAnswers,
         regenerate,
+        retryGeneration,
         reloadDaily: async () => {
             if (selectedWritingType === null) return;
-            await dailyQuery.mutate(undefined, true);
+            await dailyQuery.mutate((current) => current, true);
         },
     };
 }

@@ -41,6 +41,8 @@ export function useListeningLandingController() {
         enabled: canLoad,
         config: { revalidateOnMount: true, shouldRetryOnError: false },
     });
+    const statusRefreshRef = useRef(statusQuery.mutate);
+    useEffect(() => { statusRefreshRef.current = statusQuery.mutate; }, [statusQuery.mutate]);
 
     const policyQuery = useQuery({
         keys: canLoad ? (["listening-policy"] as const) : null,
@@ -108,7 +110,7 @@ export function useListeningLandingController() {
 
     const beginSession = useCallback(async (set: ListeningDailySet) => {
         if (startInFlightRef.current || activeSession) return false;
-        if (set.status !== "READY" || set.readyItemCount <= 0) return false;
+        if (set.readyItemCount <= 0 || set.status === "FAILED") return false;
         startInFlightRef.current = true;
         setIsStarting(true);
         setActionErrorCode(null);
@@ -151,15 +153,15 @@ export function useListeningLandingController() {
         setIsStarting(true);
         try {
             const existing = statuses.find((value) => value.learningMode === mode);
-            const set = existing?.status === "FAILED" && existing.dailySetId
-                ? await listeningService.retryGeneration(existing.dailySetId)
+            const set = (existing?.status === "FAILED" || existing?.failureReason || (currentSet?.learningMode === mode && currentSet.failureReason)) && existing?.dailySetId
+                ? await listeningService.retryPreparation(existing.dailySetId)
                 : await listeningService.createDailySet({
                     learningMode: mode,
                     idempotencyKey: createIdempotencyKey(`listening-set-${mode.toLowerCase()}`),
                 });
             setCurrentSet(set);
             await statusQuery.mutate((current) => current, true);
-            if (set.status === "READY") {
+            if (set.readyItemCount > 0) {
                 return await beginSession(set);
             }
             return true;
@@ -169,26 +171,35 @@ export function useListeningLandingController() {
         } finally {
             setIsStarting(false);
         }
-    }, [activeSession, beginSession, router, statusQuery, statuses]);
+    }, [activeSession, beginSession, currentSet, router, statusQuery, statuses]);
 
     useEffect(() => {
-        if (!selectedMode || !currentSet || currentSet.status === "READY" || currentSet.status === "FAILED") return;
-        const timer = window.setInterval(async () => {
+        if (!selectedMode || !currentSet || currentSet.readyItemCount > 0 || currentSet.status === "FAILED") return;
+        if (currentSet.failureReason && !currentSet.generationInProgress && !currentSet.items.some((item) => item.status === "TTS_PENDING")) return;
+        let cancelled = false;
+        let timer: number;
+        const poll = async () => {
             try {
-                const next = await listeningService.createDailySet({ learningMode: selectedMode });
-                setCurrentSet(next);
-                await statusQuery.mutate((current) => current, true);
-                if (next.status === "READY") {
-                    window.clearInterval(timer);
+                const next = await listeningService.getDailySet(currentSet.dailySetId);
+                if (cancelled) return;
+                if (next.readyItemCount > 0) {
+                    // Start before publishing READY locally: publishing changes the
+                    // effect dependency and cancels this polling invocation.
                     await beginSession(next);
+                    if (!cancelled) setCurrentSet(next);
+                    return;
                 }
+                setCurrentSet(next);
+                void statusRefreshRef.current((current) => current, true).catch(() => undefined);
             } catch (error) {
+                if (cancelled) return;
                 setActionErrorCode(error instanceof ApiResponseError ? error.errorCode : "UNKNOWN");
-                window.clearInterval(timer);
             }
-        }, 2000);
-        return () => window.clearInterval(timer);
-    }, [beginSession, currentSet, selectedMode, statusQuery]);
+            if (!cancelled) timer = window.setTimeout(poll, 2000);
+        };
+        timer = window.setTimeout(poll, 2000);
+        return () => { cancelled = true; window.clearTimeout(timer); };
+    }, [beginSession, currentSet, selectedMode]);
 
     const statusByMode = useMemo(
         () => Object.fromEntries(statuses.map((value) => [value.learningMode, value])) as Partial<Record<ListeningLearningMode, (typeof statuses)[number]>>,

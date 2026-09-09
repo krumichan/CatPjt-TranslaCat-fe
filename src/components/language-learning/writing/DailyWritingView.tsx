@@ -3,6 +3,8 @@
 import { ListChecks, LoaderCircle, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { GenerationProgress } from "@/components/language-learning/common/GenerationProgress";
+import { LanguageLearningStateCard } from "@/components/language-learning/common/LanguageLearningStateCard";
 import { DailyWritingCompletionCard } from "@/components/language-learning/writing/DailyWritingCompletionCard";
 import { DailyWritingItemCard } from "@/components/language-learning/writing/DailyWritingItemCard";
 import type { DailyWritingPageController } from "@/hooks/language-learning/useDailyWritingPageController";
@@ -13,9 +15,11 @@ interface DailyWritingViewProps {
 
 export function DailyWritingView({ controller }: DailyWritingViewProps) {
     const t = useTranslations("LanguageLearning.writing");
+    const common = useTranslations("LanguageLearning.common");
     const dailySet = controller.dailySet!;
-    const isCompleted = controller.completedCount >= dailySet.sentenceCount;
+    const isCompleted = controller.allItemsGenerated && controller.completedCount >= dailySet.sentenceCount;
     const canRegenerate =
+        ["READY", "COMPLETED"].includes(dailySet.status) &&
         controller.remainingRegenerations > 0 &&
         dailySet.items.some((item) => !item.answered) &&
         !controller.isSubmittingAll &&
@@ -36,6 +40,16 @@ export function DailyWritingView({ controller }: DailyWritingViewProps) {
 
     return (
         <div className="space-y-5" data-testid="daily-writing-page">
+            {controller.dailyLoadError && <LanguageLearningStateCard variant="error" title={common("loadFailedTitle")} message={t("loadFailed")} actionLabel={common("retry")} onAction={() => void controller.reloadDaily()} />}
+            <GenerationProgress
+                readyCount={dailySet.items.length}
+                targetCount={dailySet.sentenceCount}
+                generating={controller.isDailyGenerating}
+                failureMessage={controller.generationFailureMessage}
+                retrying={controller.isRetryingGeneration}
+                onRetry={() => void controller.retryGeneration()}
+                waiting={dailySet.items.length === 0 || dailySet.items.every((item) => !item.canSubmit)}
+            />
             <section className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm dark:border-white/10 dark:bg-slate-900/75 sm:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>

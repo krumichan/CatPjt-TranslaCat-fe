@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
+import { GenerationProgress } from "@/components/language-learning/common/GenerationProgress";
 import { LanguageLearningStateCard } from "@/components/language-learning/common/LanguageLearningStateCard";
 import { LanguageLearningPageLayout } from "@/components/language-learning/layout/LanguageLearningPageLayout";
 import { ListeningAssistancePanel } from "@/components/language-learning/listening/session/ListeningAssistancePanel";
@@ -20,7 +21,7 @@ export function ListeningSessionPage({ sessionId }: { sessionId: number }) {
     if (controller.isLoading) {
         return <LanguageLearningPageLayout title={t("session.title")} description={t("session.description")}><LanguageLearningStateCard variant="loading" title={common("loadingTitle")} message={t("session.loading")} /></LanguageLearningPageLayout>;
     }
-    if (controller.loadError || !controller.session) {
+    if (!controller.session || (controller.loadError && controller.attempt && !controller.item)) {
         return <LanguageLearningPageLayout title={t("session.title")} description={t("session.description")}><LanguageLearningStateCard variant="error" title={common("loadFailedTitle")} message={t("session.loadFailed")} actionLabel={common("retry")} onAction={() => void controller.reload()} /></LanguageLearningPageLayout>;
     }
     if (controller.session.status === "ABANDONED" || controller.actionErrorCode === "LISTENING_SESSION_EXPIRED") {
@@ -38,27 +39,34 @@ export function ListeningSessionPage({ sessionId }: { sessionId: number }) {
     if (!controller.attempt || !controller.item) {
         return (
             <LanguageLearningPageLayout title={t("session.title")} description={t("session.description")}>
-                <LanguageLearningStateCard
-                    variant="loading"
-                    title={t("session.allItemsDone")}
-                    message={t("session.redirectingToResult")}
-                />
+                {controller.allItemsAttached ? (
+                    <LanguageLearningStateCard
+                        variant="loading"
+                        title={t("session.allItemsDone")}
+                        message={t("session.redirectingToResult")}
+                    />
+                ) : (
+                    <GenerationProgress readyCount={controller.attachedItemCount} readyIndices={controller.readyItemIndices} targetCount={controller.targetItemCount} generating={controller.isGenerating} failureMessage={controller.generationFailureMessage} retrying={controller.isRetryingGeneration} onRetry={() => void controller.retryGeneration()} waiting />
+                )}
+                {controller.actionErrorCode && <p role="alert" className="mt-4 text-sm font-bold text-rose-700">{t(`errors.${controller.actionErrorCode}`)}</p>}
+                {controller.loadError && <LanguageLearningStateCard variant="error" title={common("loadFailedTitle")} message={t("session.loadFailed")} actionLabel={common("retry")} onAction={() => void controller.reload()} />}
             </LanguageLearningPageLayout>
         );
     }
 
     const item = controller.item;
     const attempt = controller.attempt;
-    const session = controller.session;
     const evaluating = ["SUBMITTED", "EVALUATING"].includes(attempt.status);
 
     return (
         <LanguageLearningPageLayout title={t("session.title")} description={t("session.description")}>
             <div className="space-y-5" data-testid="listening-session-page">
+                {controller.loadError && <LanguageLearningStateCard variant="error" title={common("loadFailedTitle")} message={t("session.loadFailed")} actionLabel={common("retry")} onAction={() => void controller.reload()} />}
+                <GenerationProgress readyCount={controller.attachedItemCount} readyIndices={controller.readyItemIndices} targetCount={controller.targetItemCount} generating={controller.isGenerating} failureMessage={controller.generationFailureMessage} retrying={controller.isRetryingGeneration} onRetry={() => void controller.retryGeneration()} />
                 <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
-                            <p className="text-xs font-black uppercase text-slate-400">{t("session.itemProgress", { current: item.itemIndex, total: session.attempts.filter((candidate) => candidate.evaluationPurpose === "OFFICIAL").length })}</p>
+                            <p className="text-xs font-black uppercase text-slate-400">{t("session.itemProgress", { current: item.itemIndex, total: controller.targetItemCount })}</p>
                             <h2 className="mt-1 text-xl font-black text-slate-900 dark:text-white">
                                 {evaluating
                                     ? t("session.evaluatingTitle")
@@ -66,7 +74,7 @@ export function ListeningSessionPage({ sessionId }: { sessionId: number }) {
                             </h2>
                         </div>
                         <div className="text-right text-xs font-bold text-slate-400">
-                            <p>{t("session.progressCount", { completed: controller.progressedItemCount, total: session.attempts.filter((candidate) => candidate.evaluationPurpose === "OFFICIAL").length })}</p>
+                            <p>{t("session.progressCount", { completed: controller.progressedItemCount, total: controller.targetItemCount })}</p>
                             <p className="mt-1">{t(`attemptStatus.${attempt.status}`)}</p>
                         </div>
                     </div>

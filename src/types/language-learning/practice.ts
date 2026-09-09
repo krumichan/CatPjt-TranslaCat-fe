@@ -5,6 +5,7 @@ export type PracticeMode = ReadingMode | VocabularyMode;
 export type PracticeQuestionType = "SINGLE_CHOICE" | "ORDERING";
 export type PracticeDifficulty = "EASIER" | "CURRENT" | "CHALLENGE";
 export type PracticeSetStatus = "ACTIVE" | "COMPLETED";
+export type PracticeGenerationStatus = "PENDING" | "GENERATING" | "READY" | "PARTIAL" | "FAILED";
 
 export interface PracticeOption {
     key: string;
@@ -56,6 +57,9 @@ export interface PracticeSet {
     domain: PracticeDomain;
     mode: string;
     status: PracticeSetStatus;
+    generationStatus?: PracticeGenerationStatus;
+    generatedQuestionCount?: number;
+    generationFailureMessage?: string | null;
     questionCount: number;
     answeredCount: number;
     correctCount: number;
@@ -70,6 +74,9 @@ export interface PracticeTodayModeStatus {
     mode: string;
     practiceSetId: number;
     status: PracticeSetStatus;
+    generationStatus?: PracticeGenerationStatus;
+    generatedQuestionCount?: number;
+    generationFailureMessage?: string | null;
     answeredCount: number;
     questionCount: number;
     officialScore: number | null;

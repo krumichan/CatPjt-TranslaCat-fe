@@ -48,6 +48,13 @@ export const readingVocabularyService = {
         return parseResponseBody<PracticeAnswerResult>(response, "ReadingVocabularyAnswer");
     },
 
+    retryGeneration: async (setId: number): Promise<PracticeSet> => {
+        const response = await apiClient(`/language-learning/practice/sets/${setId}/retry-generation`, {
+            method: "POST",
+        });
+        return parseResponseBody<PracticeSet>(response, "ReadingVocabularyRetryGeneration");
+    },
+
     getVocabularyMastery: async (): Promise<VocabularyMasterySummary> => {
         const response = await apiClient("/language-learning/practice/vocabulary/mastery", {
             method: "GET",

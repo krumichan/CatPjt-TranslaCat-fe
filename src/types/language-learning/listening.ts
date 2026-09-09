@@ -88,6 +88,7 @@ export interface ListeningDailySet {
     readyItemCount: number;
     completedItemCount: number;
     failureReason: string | null;
+    generationInProgress?: boolean;
     items: ListeningItemSummary[];
 }
 
@@ -97,6 +98,8 @@ export interface ListeningDailyModeStatus {
     dailySetId: number | null;
     latestSessionId: number | null;
     status: ListeningDailySetStatus | null;
+    failureReason?: string | null;
+    generationInProgress?: boolean;
     latestSessionStatus: ListeningSessionStatus | null;
     completedItemCount: number;
     evaluatedItemCount: number;
@@ -171,6 +174,7 @@ export interface ListeningPlaybackRequest {
 export interface ListeningAttempt {
     attemptId: number;
     itemId: number;
+    itemIndex?: number;
     attemptNo: number;
     evaluationPurpose: ListeningEvaluationPurpose;
     status: ListeningAttemptStatus;
@@ -194,6 +198,12 @@ export interface ListeningSession {
     sessionId: number;
     dailySetId: number;
     status: ListeningSessionStatus;
+    dailySetStatus?: ListeningDailySetStatus;
+    targetItemCount?: number;
+    attachedItemCount?: number;
+    generationFailureMessage?: string | null;
+    pendingItemCount?: number;
+    generationInProgress?: boolean;
     selectedTaskTypes: ListeningTaskType[];
     completedItemCount: number;
     evaluatedItemCount: number;

@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "check:i18n": "node scripts/check-i18n-keys.mjs",
+    "test:generation": "node --experimental-strip-types --test tests/language-learning/generation-state.test.mjs",
     "test:e2e:gate": "playwright test --project=mock-chromium --grep \"SOCIAL-01|FRIEND-09|ROOM-01|CHAT-01\"",
     "test:e2e": "playwright test --project=mock-chromium",
     "test:e2e:all": "playwright test",

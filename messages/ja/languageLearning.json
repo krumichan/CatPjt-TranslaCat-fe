@@ -1,5 +1,16 @@
 {
   "LanguageLearning": {
+    "generation": {
+      "progress": "問題の準備 {ready}/{total}",
+      "background": "準備できた問題から解答できます。残りの問題はバックグラウンドで作成しています。",
+      "waiting": "次の問題を準備しています。入力中・提出済みの解答は保持されます。",
+      "failed": "残りの問題の準備が中断されました。既存の問題と解答を保持して再試行できます。",
+      "retry": "残りの問題の準備を再試行",
+      "retrying": "再準備中…",
+      "slots": "全問題の準備状況",
+      "slotReady": "問題{number} 準備完了",
+      "slotWaiting": "問題{number} 準備待ち"
+    },
     "common": {
       "loadingTitle": "読み込み中",
       "loadFailedTitle": "データを読み込めませんでした",

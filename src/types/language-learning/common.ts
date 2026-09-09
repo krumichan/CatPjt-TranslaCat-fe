@@ -8,6 +8,7 @@ export type KeywordType = "TOPIC" | "VOCABULARY";
 
 export type DailySetStatus =
     | "GENERATING"
+    | "PARTIAL"
     | "READY"
     | "COMPLETED"
     | "FAILED";

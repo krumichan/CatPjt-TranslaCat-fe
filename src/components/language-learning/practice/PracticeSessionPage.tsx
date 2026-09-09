@@ -2,8 +2,10 @@
 
 import { ArrowLeft, CheckCircle2, ChevronRight, GripVertical, RotateCcw, Trophy, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { GenerationProgress } from "@/components/language-learning/common/GenerationProgress";
+import { hasCompleteItemCoverage, isGenerationPending } from "@/features/language-learning/generationState";
 import { LanguageLearningStateCard } from "@/components/language-learning/common/LanguageLearningStateCard";
 import { LanguageLearningPageLayout } from "@/components/language-learning/layout/LanguageLearningPageLayout";
 import { cn } from "@/lib/utils";
@@ -31,23 +33,75 @@ export function PracticeSessionPage({ setId, expectedDomain }: { setId: number; 
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState(false);
     const [reviewMode, setReviewMode] = useState(false);
+    const [retryingGeneration, setRetryingGeneration] = useState(false);
+    // Invalidate reads started before a submit/retry so stale polls cannot undo it.
+    const readEpoch = useRef(0);
+    const mounted = useRef(true);
+
+    useEffect(() => {
+        mounted.current = true;
+        return () => { mounted.current = false; readEpoch.current += 1; };
+    }, []);
 
     const load = useCallback(async () => {
+        const epoch = ++readEpoch.current;
         setLoading(true);
         setError(false);
         try {
             const next = await readingVocabularyService.getSet(setId);
             if (next.domain !== expectedDomain) throw new Error("domain mismatch");
+            if (!mounted.current || epoch !== readEpoch.current) return;
             setSet(next);
             setIndex(firstWorkingIndex(next));
         } catch {
-            setError(true);
+            if (mounted.current && epoch === readEpoch.current) setError(true);
         } finally {
-            setLoading(false);
+            if (mounted.current && epoch === readEpoch.current) setLoading(false);
         }
     }, [expectedDomain, setId]);
 
     useEffect(() => { void load(); }, [load]);
+
+    const generating = isGenerationPending(set?.generationStatus);
+    const generationFailure = set?.generationFailureMessage
+        || (set?.generationStatus === "PARTIAL" || set?.generationStatus === "FAILED" ? "GENERATION_FAILED" : null);
+
+    useEffect(() => {
+        if (!generating || submitting || retryingGeneration) return;
+        let cancelled = false;
+        let timer: number;
+        const poll = async () => {
+            const epoch = readEpoch.current;
+            try {
+                const next = await readingVocabularyService.getSet(setId);
+                if (!cancelled && mounted.current && epoch === readEpoch.current && next.domain === expectedDomain) {
+                    // Keep the current question/selection: only append server state.
+                    setSet(next);
+                }
+            } catch {
+                // A transient read failure does not discard usable questions or stop polling.
+            } finally {
+                if (!cancelled) timer = window.setTimeout(poll, 1500);
+            }
+        };
+        timer = window.setTimeout(poll, 1500);
+        return () => { cancelled = true; window.clearTimeout(timer); };
+    }, [expectedDomain, generating, retryingGeneration, setId, submitting]);
+
+    const retryGeneration = async () => {
+        if (retryingGeneration || submitting) return;
+        ++readEpoch.current;
+        setRetryingGeneration(true);
+        setError(false);
+        try {
+            const next = await readingVocabularyService.retryGeneration(setId);
+            if (mounted.current && next.domain === expectedDomain) setSet(next);
+        } catch {
+            if (mounted.current) setError(true);
+        } finally {
+            if (mounted.current) setRetryingGeneration(false);
+        }
+    };
 
     const question = set?.questions[index] ?? null;
     useEffect(() => {
@@ -70,20 +124,22 @@ export function PracticeSessionPage({ setId, expectedDomain }: { setId: number; 
 
     const submit = async () => {
         if (!question || !canSubmit) return;
+        ++readEpoch.current;
         setSubmitting(true);
         setError(false);
         try {
             await readingVocabularyService.submitAnswer(question.questionId, answerForSubmit);
             const refreshed = await readingVocabularyService.getSet(setId);
+            if (!mounted.current) return;
             setSet(refreshed);
             const refreshedQuestion = refreshed.questions.find((item) => item.questionId === question.questionId);
             const refreshedIndex = refreshed.questions.findIndex((item) => item.questionId === question.questionId);
             if (refreshedIndex >= 0) setIndex(refreshedIndex);
             if (refreshedQuestion?.correct) setSelected([]);
         } catch {
-            setError(true);
+            if (mounted.current) setError(true);
         } finally {
-            setSubmitting(false);
+            if (mounted.current) setSubmitting(false);
         }
     };
 
@@ -112,9 +168,11 @@ export function PracticeSessionPage({ setId, expectedDomain }: { setId: number; 
         content = <LanguageLearningStateCard variant="loading" title={common("loadingTitle")} message={t("session.loading")} />;
     } else if (error && !set) {
         content = <LanguageLearningStateCard variant="error" title={common("loadFailedTitle")} message={t("loadFailed")} actionLabel={common("retry")} onAction={() => void load()} />;
+    } else if (set && !question && (generating || generationFailure)) {
+        content = <GenerationProgress readyCount={set.questions.length} targetCount={set.questionCount} generating={generating} waiting failureMessage={generationFailure} retrying={retryingGeneration} onRetry={() => void retryGeneration()} />;
     } else if (!set || !question) {
         content = <LanguageLearningStateCard variant="error" title={common("loadFailedTitle")} message={t("loadFailed")} />;
-    } else if (set.status === "COMPLETED" && set.questions.every((item) => item.answered) && !reviewMode) {
+    } else if (set.status === "COMPLETED" && !generating && hasCompleteItemCoverage(set.questions.map((item) => item.questionId), set.questionCount) && set.questions.every((item) => item.answered) && !reviewMode) {
         content = <PracticeCompleted set={set} t={t} onReview={(nextIndex) => { setIndex(nextIndex); setReviewMode(true); }} onBack={() => router.push(expectedDomain === "READING" ? "/language-learning/reading" : "/language-learning/vocabulary")} />;
     } else {
         const latest = question.attempts.at(-1) ?? null;
@@ -122,6 +180,7 @@ export function PracticeSessionPage({ setId, expectedDomain }: { setId: number; 
         const displayedSelection = selected.length > 0 ? selected : (latest?.answer ?? []);
         content = (
             <div className="space-y-5">
+                <GenerationProgress readyCount={set.questions.length} targetCount={set.questionCount} generating={generating} waiting={question.answered && index === set.questions.length - 1} failureMessage={generationFailure} retrying={retryingGeneration} onRetry={() => void retryGeneration()} />
                 {error && <LanguageLearningStateCard variant="error" title={common("loadFailedTitle")} message={t("session.submitFailed")} />}
                 <section className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm dark:border-white/10 dark:bg-slate-900/75 sm:p-6">
                     <div className="flex flex-wrap items-center justify-between gap-3">

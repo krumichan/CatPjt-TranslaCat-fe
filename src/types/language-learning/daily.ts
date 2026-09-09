@@ -63,6 +63,8 @@ export interface DailyWritingSet {
     writingType: DailyWritingType;
     snapshotId: string;
     status: DailySetStatus;
+    generatedItemCount?: number;
+    generationFailureMessage?: string | null;
     sentenceCount: number;
     regenerationCount: number;
     promptVersion: string | null;

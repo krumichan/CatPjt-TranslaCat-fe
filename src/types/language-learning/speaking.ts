@@ -182,6 +182,8 @@ export interface SpeakingReadAloudProblemEvaluation {
     errorMessage: string | null;
     submittedAt: string;
     evaluatedAt: string | null;
+    manualRetryCount?: number;
+    manualRetryLimit?: number;
 }
 
 export interface SpeakingEvaluationEligibility {

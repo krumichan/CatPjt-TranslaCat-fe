@@ -1436,6 +1436,26 @@
           },
           "usageSummary": "이번 Session에서 학습 보조를 총 {count}회 사용했습니다.",
           "count": "{count}회"
+        },
+        "notRequestedTitle": "평가를 진행하지 않았어요",
+        "notRequestedDescription": "평가 없이 종료했거나 평가 기능이 비활성화되어 있어요. 학습 기록은 저장되어 있어요.",
+        "problemResults": {
+          "title": "문제별 평가",
+          "description": "세션을 종료한 뒤에도 실패한 문제의 평가만 다시 시도할 수 있어요. 녹음 내용은 변경되지 않아요.",
+          "problem": "문제 {number}",
+          "retry": "이 문제 평가 다시 시도",
+          "retrying": "재시도 중…",
+          "retryFailed": "재시도하지 못했어요. 상태를 확인한 뒤 다시 시도해 주세요.",
+          "limitReached": "이 문제의 평가 재시도 횟수를 모두 사용했어요.",
+          "status": {
+            "PENDING": "평가 대기",
+            "EVALUATING": "평가 중",
+            "EVALUATED": "평가 완료",
+            "INSUFFICIENT_EVIDENCE": "평가 근거 부족",
+            "FAILED": "평가 실패",
+            "NOT_REQUESTED": "평가 생략",
+            "UNKNOWN": "상태 확인 중"
+          }
         }
       }
     },

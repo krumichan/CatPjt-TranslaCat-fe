@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 
 import { LanguageLearningStateCard } from "@/components/language-learning/common/LanguageLearningStateCard";
 import { LanguageLearningPageLayout } from "@/components/language-learning/layout/LanguageLearningPageLayout";
+import { SpeakingReadAloudEvaluationList } from "@/components/language-learning/speaking/evaluation/SpeakingReadAloudEvaluationList";
 import { SpeakingEvaluationView } from "@/components/language-learning/speaking/evaluation/SpeakingEvaluationView";
 import { useSpeakingEvaluationController } from "@/hooks/language-learning/speaking/useSpeakingEvaluationController";
 
@@ -17,7 +18,10 @@ export function SpeakingEvaluationSmartPage({ sessionId }: { sessionId: number }
     ) : controller.loadError ? (
         <LanguageLearningStateCard variant="error" title={common("loadFailedTitle")} message={t("loadFailed")} actionLabel={common("retry")} onAction={() => void controller.reload()} />
     ) : (
-        <SpeakingEvaluationView controller={controller} />
+        <div className="space-y-6">
+            <SpeakingEvaluationView controller={controller} />
+            <SpeakingReadAloudEvaluationList controller={controller} />
+        </div>
     );
 
     return (

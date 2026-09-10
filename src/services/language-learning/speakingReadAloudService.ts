@@ -3,6 +3,16 @@ import { parseResponseBody } from "@/services/common/responseParser";
 import type { SpeakingReadAloudProblemEvaluation } from "@/types/language-learning/speaking";
 
 export const speakingReadAloudService = {
+    retryProblem: async (
+        sessionId: number,
+        problemIndex: number,
+    ): Promise<SpeakingReadAloudProblemEvaluation> => {
+        const response = await apiClient(
+            `/language-learning/speaking/sessions/${sessionId}/read-aloud/problems/${problemIndex}/evaluation/retry`,
+            { method: "POST" },
+        );
+        return parseResponseBody<SpeakingReadAloudProblemEvaluation>(response, "SpeakingReadAloudProblemRetry");
+    },
     evaluateProblem: async (
         sessionId: number,
         problemIndex: number,

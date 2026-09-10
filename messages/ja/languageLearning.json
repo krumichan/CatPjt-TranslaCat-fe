@@ -1436,6 +1436,26 @@
           },
           "usageSummary": "このSessionでは学習サポートを合計{count}回利用しました。",
           "count": "{count}回"
+        },
+        "notRequestedTitle": "評価は実行されていません",
+        "notRequestedDescription": "評価を省略したか、評価機能が無効になっています。学習記録は保存されています。",
+        "problemResults": {
+          "title": "問題ごとの評価",
+          "description": "セッション終了後も、失敗した問題の評価だけを再試行できます。録音内容は変更されません。",
+          "problem": "問題 {number}",
+          "retry": "この問題の評価を再試行",
+          "retrying": "再試行中…",
+          "retryFailed": "再試行できませんでした。状態を確認して、もう一度お試しください。",
+          "limitReached": "この問題の評価の再試行回数上限に達しました。",
+          "status": {
+            "PENDING": "評価待ち",
+            "EVALUATING": "評価中",
+            "EVALUATED": "評価完了",
+            "INSUFFICIENT_EVIDENCE": "評価に必要な情報が不足",
+            "FAILED": "評価失敗",
+            "NOT_REQUESTED": "評価なし",
+            "UNKNOWN": "状態を確認中"
+          }
         }
       }
     },

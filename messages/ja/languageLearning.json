@@ -160,7 +160,8 @@
         "WRITING": "ライティング",
         "SPEAKING": "スピーキング",
         "LISTENING": "リスニング",
-        "READING": "リーディング"
+        "READING": "リーディング",
+        "VOCABULARY": "語彙"
       },
       "metric": {
         "GRAMMAR": "文法",
@@ -228,6 +229,7 @@
         "speaking": "スピーキング",
         "listening": "リスニング",
         "reading": "リーディング",
+        "vocabulary": "語彙",
         "recentScore": "最近のスコア",
         "samples": "Sample {count}",
         "coverage": "評価範囲 {evaluated}/{total}",
@@ -399,7 +401,7 @@
           "error": {
             "DENIED": "マイク権限が拒否されました。",
             "NO_DEVICE": "利用可能なマイクが見つかりません。",
-            "IN_USE": "マイクが他のアプリで使用中です。",
+            "DEVICE_BUSY": "マイクが他のアプリで使用中です。",
             "UNSUPPORTED": "このブラウザでは音声録音を利用できません。",
             "UNKNOWN": "マイクを利用できません。"
           },

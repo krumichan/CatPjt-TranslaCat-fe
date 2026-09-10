@@ -1,6 +1,7 @@
+import { formatDuration } from "@/utils/time/formatDuration";
 import { Pause, Play, Rabbit } from "lucide-react";
-import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useRef, useState } from "react";
 
 export function ReferenceAudioPlayer({
     loading,
@@ -49,15 +50,10 @@ export function ReferenceAudioPlayer({
                     {t("slow")}
                 </button>
                 <p className="text-xs font-bold text-blue-700/70 dark:text-blue-200/70" aria-live="polite">
-                    {formatSeconds(current)} / {formatSeconds(duration)} · {playbackRate}x
+                    {formatDuration(current)} / {formatDuration(duration)} · {playbackRate}x
                 </p>
             </div>
             <p className="mt-3 text-xs text-blue-700/70 dark:text-blue-200/70">{t("notice")}</p>
         </section>
     );
-}
-
-function formatSeconds(value: number) {
-    const total = Math.max(0, Math.floor(value));
-    return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
 }

@@ -1,34 +1,19 @@
 "use client";
 
-import {
-    Bot,
-    Edit3,
-    EyeOff,
-    ImagePlus,
-    Loader2,
-    Plus,
-    RefreshCw,
-    Save,
-    Trash2,
-    UserRound,
-    X,
-} from "lucide-react";
-import { useTranslations } from "next-intl";
-import { createPortal } from "react-dom";
-import type { RefObject } from "react";
-
+import { ChatAiAvatar } from "@/components/chat/ai/ChatAiAvatar";
+import { ChatAiImagePicker } from "@/components/chat/ai/ChatAiImagePicker";
 import { ChatAiPolicyNotice } from "@/components/chat/ai/ChatAiPolicyNotice";
+import { ChatAiSettingToggle } from "@/components/chat/ai/ChatAiSettingToggle";
+import { ChatAiTextField } from "@/components/chat/ai/ChatAiTextField";
 import ConfirmModal from "@/components/common/ConfirmModal";
 import FeedbackMessage from "@/components/common/FeedbackMessage";
 import { CHAT_LANGUAGE_OPTIONS } from "@/constants/chatLanguages";
 import type { ChatAiManagementController } from "@/hooks/chat/useChatAiManagement";
-import type {
-    ChatAiDisclosureType,
-    ChatAiMember,
-    ChatAiMentionPermission,
-    ChatRoomType,
-} from "@/types/chat";
-import { PROFILE_IMAGE_ACCEPT } from "@/utils/profileImageValidation";
+import type { ChatAiDisclosureType, ChatAiMentionPermission, ChatRoomType } from "@/types/chat";
+import { Bot, Edit3, EyeOff, Loader2, Plus, RefreshCw, Save, Trash2, X } from "lucide-react";
+import { useTranslations } from "next-intl";
+import type { RefObject } from "react";
+import { createPortal } from "react-dom";
 
 interface ChatAiManagementModalProps {
     isOpen: boolean;
@@ -214,7 +199,7 @@ export function ChatAiManagementModal({
                                     </div>
 
                                     <div className="mt-4 grid gap-3 md:grid-cols-2">
-                                        <SettingToggle
+                                        <ChatAiSettingToggle
                                             label={t("policy.conversation.title")}
                                             description={t("policy.conversation.description")}
                                             checked={setting.conversationEnabled}
@@ -222,7 +207,7 @@ export function ChatAiManagementModal({
                                             testId="chat-ai-conversation-toggle"
                                             onChange={(checked) => void updateSetting({ conversationEnabled: checked })}
                                         />
-                                        <SettingToggle
+                                        <ChatAiSettingToggle
                                             label={t("policy.revival.title")}
                                             description={t("policy.revival.description")}
                                             checked={setting.revivalEnabled}
@@ -283,7 +268,7 @@ export function ChatAiManagementModal({
                                             </div>
 
                                             <div className="mt-4 grid gap-4 md:grid-cols-2">
-                                                <TextField
+                                                <ChatAiTextField
                                                     label={t("editor.nickname")}
                                                     value={form.nickname}
                                                     maxLength={50}
@@ -336,7 +321,7 @@ export function ChatAiManagementModal({
                                             </label>
 
                                             <div className="mt-4 grid gap-3 md:grid-cols-2">
-                                                <ImagePicker
+                                                <ChatAiImagePicker
                                                     label={t("editor.profileImage")}
                                                     currentUrl={profilePreview}
                                                     selectedFile={form.profileFile}
@@ -350,7 +335,7 @@ export function ChatAiManagementModal({
                                                     deleteLabel={t("editor.image.delete")}
                                                     restoreLabel={t("editor.image.restore")}
                                                 />
-                                                <ImagePicker
+                                                <ChatAiImagePicker
                                                     label={t("editor.backgroundImage")}
                                                     currentUrl={backgroundPreview}
                                                     selectedFile={form.backgroundFile}
@@ -434,7 +419,7 @@ export function ChatAiManagementModal({
                                                     />
                                                     <div className="p-4">
                                                         <div className="flex items-start gap-3">
-                                                            <AiAvatar member={member} />
+                                                            <ChatAiAvatar member={member} />
                                                             <div className="min-w-0 flex-1">
                                                                 <div className="flex flex-wrap items-center gap-2">
                                                                     <h4 className="truncate font-black text-slate-900 dark:text-white">
@@ -502,161 +487,5 @@ export function ChatAiManagementModal({
             />
         </>,
         document.body,
-    );
-}
-
-function SettingToggle({
-    label,
-    description,
-    checked,
-    disabled,
-    testId,
-    onChange,
-}: {
-    label: string;
-    description: string;
-    checked: boolean;
-    disabled: boolean;
-    testId: string;
-    onChange: (checked: boolean) => void;
-}) {
-    return (
-        <label className="flex cursor-pointer items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-slate-900">
-            <span>
-                <span className="block text-sm font-black text-slate-800 dark:text-slate-100">{label}</span>
-                <span className="mt-1 block text-xs leading-5 text-slate-400">{description}</span>
-            </span>
-            <input
-                data-testid={testId}
-                type="checkbox"
-                checked={checked}
-                disabled={disabled}
-                onChange={(event) => onChange(event.target.checked)}
-                className="mt-1 h-5 w-5 accent-violet-600"
-            />
-        </label>
-    );
-}
-
-function TextField({
-    label,
-    value,
-    maxLength,
-    testId,
-    onChange,
-}: {
-    label: string;
-    value: string;
-    maxLength: number;
-    testId: string;
-    onChange: (value: string) => void;
-}) {
-    return (
-        <label className="text-sm font-bold text-slate-700 dark:text-slate-200">
-            {label}
-            <input
-                data-testid={testId}
-                value={value}
-                maxLength={maxLength}
-                onChange={(event) => onChange(event.target.value)}
-                className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-3 py-3 text-sm outline-none focus:border-violet-400 dark:border-white/10 dark:bg-slate-900"
-            />
-        </label>
-    );
-}
-
-function ImagePicker({
-    label,
-    currentUrl,
-    selectedFile,
-    removeSelected,
-    disabled,
-    inputTestId,
-    onFile,
-    onRemove,
-    onRestore,
-    chooseLabel,
-    deleteLabel,
-    restoreLabel,
-}: {
-    label: string;
-    currentUrl: string | null;
-    selectedFile: File | null;
-    removeSelected: boolean;
-    disabled: boolean;
-    inputTestId: string;
-    onFile: (file: File | null) => void;
-    onRemove: () => void;
-    onRestore: () => void;
-    chooseLabel: string;
-    deleteLabel: string;
-    restoreLabel: string;
-}) {
-    return (
-        <div className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-slate-900">
-            <p className="text-sm font-black text-slate-700 dark:text-slate-100">{label}</p>
-            <div className="mt-2 flex min-h-20 items-center justify-center overflow-hidden rounded-xl bg-slate-100 dark:bg-white/5">
-                {selectedFile ? (
-                    <span className="max-w-full truncate px-3 text-xs font-bold text-violet-600 dark:text-violet-200">
-                        {selectedFile.name}
-                    </span>
-                ) : currentUrl && !removeSelected ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={currentUrl} alt="" className="h-20 w-full object-cover" />
-                ) : (
-                    <ImagePlus className="h-7 w-7 text-slate-300" aria-hidden="true" />
-                )}
-            </div>
-            <div className="mt-3 flex flex-wrap gap-2">
-                <label className={`inline-flex cursor-pointer items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 text-xs font-black text-slate-600 dark:border-white/10 dark:text-slate-200 ${disabled ? "pointer-events-none opacity-50" : ""}`}>
-                    <ImagePlus className="h-3.5 w-3.5" aria-hidden="true" />
-                    {chooseLabel}
-                    <input
-                        data-testid={inputTestId}
-                        type="file"
-                        accept={PROFILE_IMAGE_ACCEPT}
-                        disabled={disabled}
-                        className="sr-only"
-                        onChange={(event) => {
-                            onFile(event.target.files?.[0] ?? null);
-                            event.target.value = "";
-                        }}
-                    />
-                </label>
-                {(currentUrl || selectedFile) && !removeSelected && (
-                    <button
-                        type="button"
-                        onClick={onRemove}
-                        disabled={disabled}
-                        className="rounded-xl border border-rose-200 px-3 py-2 text-xs font-black text-rose-500 dark:border-rose-400/30 dark:text-rose-200"
-                    >
-                        {deleteLabel}
-                    </button>
-                )}
-                {removeSelected && (
-                    <button
-                        type="button"
-                        onClick={onRestore}
-                        disabled={disabled}
-                        className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-black text-slate-500 dark:border-white/10 dark:text-slate-300"
-                    >
-                        {restoreLabel}
-                    </button>
-                )}
-            </div>
-        </div>
-    );
-}
-
-function AiAvatar({ member }: { member: ChatAiMember }) {
-    return (
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-violet-200 bg-violet-50 text-violet-500 dark:border-violet-400/30 dark:bg-violet-500/10 dark:text-violet-200">
-            {member.profileImageUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={member.profileImageUrl} alt={member.nickname} className="h-full w-full object-cover" />
-            ) : (
-                <UserRound className="h-5 w-5" aria-hidden="true" />
-            )}
-        </div>
     );
 }

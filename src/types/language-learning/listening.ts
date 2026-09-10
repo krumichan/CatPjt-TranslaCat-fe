@@ -1,3 +1,5 @@
+
+
 export type ListeningTaskType =
     | "DICTATION"
     | "INTERPRETATION"
@@ -15,11 +17,17 @@ export type ListeningAssistanceType =
     | "SHOW_ANSWER";
 
 export type ListeningAssistanceLevel = "INDEPENDENT" | "ASSISTED" | "GUIDED";
+
 export type ListeningPlaybackType = "NORMAL" | "SLOW";
+
 export type ListeningDifficulty = "EASY" | "MY_LEVEL" | "CHALLENGE";
+
 export type ListeningDailySetStatus = "GENERATING" | "READY" | "PARTIAL" | "COMPLETED" | "FAILED";
+
 export type ListeningItemStatus = "TTS_PENDING" | "READY" | "NOT_EVALUABLE" | "REPLACED";
+
 export type ListeningSessionStatus = "READY" | "IN_PROGRESS" | "EVALUATING" | "COMPLETED" | "ABANDONED";
+
 export type ListeningAttemptStatus =
     | "READY"
     | "IN_PROGRESS"
@@ -28,6 +36,7 @@ export type ListeningAttemptStatus =
     | "EVALUATED"
     | "NOT_EVALUABLE"
     | "SKIPPED";
+
 export type ListeningTaskStatus =
     | "READY"
     | "IN_PROGRESS"
@@ -38,9 +47,13 @@ export type ListeningTaskStatus =
     | "NOT_SELECTED"
     | "NOT_EVALUABLE"
     | "SKIPPED";
+
 export type ListeningEvaluationPurpose = "OFFICIAL" | "PRACTICE";
+
 export type ListeningWeaknessState = "DATA_COLLECTING" | "ACTIVE" | "IMPROVING" | "RESOLVED";
+
 export type ListeningRecommendationStatus = "ACTIVE" | "DISMISSED" | "RESOLVED" | "EXPIRED";
+
 export type ListeningProfileMetric =
     | "LISTENING_RECOGNITION"
     | "LISTENING_INDEPENDENCE"
@@ -91,7 +104,6 @@ export interface ListeningDailySet {
     generationInProgress?: boolean;
     items: ListeningItemSummary[];
 }
-
 
 export interface ListeningDailyModeStatus {
     learningMode: ListeningLearningMode;
@@ -341,21 +353,4 @@ export interface ListeningHistoryAttemptDetail {
 export interface ListeningHistoryDetail {
     session: ListeningSession;
     attempts: ListeningHistoryAttemptDetail[];
-}
-
-export const LISTENING_TASKS: ListeningTaskType[] = [
-    "DICTATION",
-    "INTERPRETATION",
-    "REPEAT_AFTER_AUDIO",
-    "COMPREHENSION",
-    "SUMMARY",
-];
-
-export function isValidListeningTaskSelection(tasks: ListeningTaskType[]): boolean {
-    const unique = new Set(tasks);
-    if (unique.size !== tasks.length || unique.size === 0) return false;
-    if (unique.size === 1 && (unique.has("COMPREHENSION") || unique.has("SUMMARY"))) return true;
-    if (unique.has("COMPREHENSION") || unique.has("SUMMARY")) return false;
-    if (unique.has("INTERPRETATION") && unique.size === 1) return false;
-    return unique.has("DICTATION") || unique.has("REPEAT_AFTER_AUDIO");
 }

@@ -58,7 +58,7 @@ export function useListeningLandingController() {
         config: { revalidateOnMount: true, shouldRetryOnError: false },
     });
 
-    const statuses = statusQuery.data ?? [];
+    const statuses = useMemo(() => statusQuery.data ?? [], [statusQuery.data]);
     const activeSession = activeSessionQuery.data?.active ? activeSessionQuery.data.session : null;
     const hasLiveMode = statuses.some((value) =>
         value.status === "GENERATING"

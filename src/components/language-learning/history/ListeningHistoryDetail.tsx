@@ -1,12 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
-
+import { ListeningHistoryReferenceAudio } from "@/components/language-learning/history/ListeningHistoryReferenceAudio";
 import { ListeningUserAudioPlayer } from "@/components/language-learning/listening/common/ListeningUserAudioPlayer";
 import { ListeningIndependenceSummary } from "@/components/language-learning/listening/result/ListeningIndependenceSummary";
-import { listeningService } from "@/services/language-learning/listeningService";
 import type { ListeningHistoryDetail as ListeningHistoryDetailType } from "@/types/language-learning/listening";
+import { useTranslations } from "next-intl";
 
 export function ListeningHistoryDetail({ detail }: { detail: ListeningHistoryDetailType }) {
     const t = useTranslations("LanguageLearning.history.listening");
@@ -43,7 +41,7 @@ export function ListeningHistoryDetail({ detail }: { detail: ListeningHistoryDet
                         </ul>
                     )}
 
-                    <HistoryReferenceAudio itemId={row.itemId} available={row.referenceAudio.available} expired={row.referenceAudio.expired} retentionUntil={row.referenceAudio.retentionUntil} />
+                    <ListeningHistoryReferenceAudio itemId={row.itemId} available={row.referenceAudio.available} expired={row.referenceAudio.expired} retentionUntil={row.referenceAudio.retentionUntil} />
 
                     <div className="mt-4 grid gap-3 xl:grid-cols-3">
                         {row.attempt.tasks.map((task) => (
@@ -80,37 +78,6 @@ export function ListeningHistoryDetail({ detail }: { detail: ListeningHistoryDet
                     </div>
                 </article>
             ))}
-        </div>
-    );
-}
-
-function HistoryReferenceAudio({ itemId, available, expired, retentionUntil }: { itemId: number; available: boolean; expired: boolean; retentionUntil: string | null }) {
-    const t = useTranslations("LanguageLearning.history.listening");
-    const [url, setUrl] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false);
-
-    useEffect(() => () => { if (url) URL.revokeObjectURL(url); }, [url]);
-
-    if (expired) {
-        return <p className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm text-slate-500 dark:bg-white/5 dark:text-slate-400">{t("referenceAudioExpired")}</p>;
-    }
-    if (!available) return null;
-
-    const load = async () => {
-        if (url || loading) return;
-        setLoading(true);
-        try {
-            const blob = await listeningService.fetchReferenceAudio(itemId);
-            setUrl(URL.createObjectURL(blob));
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <div className="mt-4 rounded-2xl bg-slate-50 p-4 dark:bg-white/5">
-            {url ? <audio controls src={url} className="w-full" /> : <button type="button" onClick={() => void load()} className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-black text-white">{loading ? t("audioLoading") : t("playReference")}</button>}
-            <p className="mt-2 text-xs text-slate-400">{t("retentionUntil", { until: retentionUntil ?? "-" })}</p>
         </div>
     );
 }

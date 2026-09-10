@@ -1,13 +1,14 @@
 "use client";
 
-import { Flag } from "lucide-react";
-import { useState } from "react";
-import { useTranslations } from "next-intl";
-
 import { ListeningUserAudioPlayer } from "@/components/language-learning/listening/common/ListeningUserAudioPlayer";
 import { ListeningEvaluationReportModal } from "@/components/language-learning/listening/result/ListeningEvaluationReportModal";
+import { ListeningResultFeedback } from "@/components/language-learning/listening/result/ListeningResultFeedback";
+import { ListeningResultMetricRow } from "@/components/language-learning/listening/result/ListeningResultMetricRow";
 import type { ListeningResultController } from "@/hooks/language-learning/listening/useListeningResultController";
 import type { ListeningTask } from "@/types/language-learning/listening";
+import { Flag } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
 
 export function ListeningTaskResultCard({
     task,
@@ -70,13 +71,13 @@ export function ListeningTaskResultCard({
                     {evaluation.metrics.length > 0 && (
                         <div className="grid gap-2 sm:grid-cols-2">
                             {evaluation.metrics.map((metric, index) => (
-                                <MetricRow key={index} metric={metric} />
+                                <ListeningResultMetricRow key={index} metric={metric} />
                             ))}
                         </div>
                     )}
-                    {evaluation.strengths.length > 0 && <Feedback title={t("strengths")} items={evaluation.strengths} />}
-                    {evaluation.improvements.length > 0 && <Feedback title={t("improvements")} items={evaluation.improvements} />}
-                    {evaluation.recommendedAnswers.length > 0 && <Feedback title={t("recommendedAnswers")} items={evaluation.recommendedAnswers} />}
+                    {evaluation.strengths.length > 0 && <ListeningResultFeedback title={t("strengths")} items={evaluation.strengths} />}
+                    {evaluation.improvements.length > 0 && <ListeningResultFeedback title={t("improvements")} items={evaluation.improvements} />}
+                    {evaluation.recommendedAnswers.length > 0 && <ListeningResultFeedback title={t("recommendedAnswers")} items={evaluation.recommendedAnswers} />}
                 </div>
             )}
 
@@ -119,47 +120,3 @@ export function ListeningTaskResultCard({
         </article>
     );
 }
-
-function MetricRow({ metric }: { metric: Record<string, unknown> }) {
-    const t = useTranslations("LanguageLearning.listening.result.metrics");
-    const entries = Object.entries(metric);
-    const metricKey = String(metric.metric ?? metric.name ?? metric.type ?? entries[0]?.[0] ?? "metric");
-    const knownMetric = LISTENING_RESULT_METRICS.has(metricKey);
-    const label = knownMetric ? t(metricKey as never) : metricKey;
-    const value = metric.score ?? metric.value ?? entries.find(([key, item]) => key !== "confidence" && typeof item === "number")?.[1];
-    return (
-        <div className="rounded-2xl bg-slate-50 p-3 dark:bg-white/5">
-            <p className="text-xs font-black text-slate-400">{label}</p>
-            <p className="mt-1 font-black text-slate-800 dark:text-slate-100">{typeof value === "number" ? Math.round(value) : "—"}</p>
-        </div>
-    );
-}
-
-function Feedback({ title, items }: { title: string; items: string[] }) {
-    return (
-        <div>
-            <p className="text-xs font-black text-slate-400">{title}</p>
-            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                {items.map((item) => <li key={item}>{item}</li>)}
-            </ul>
-        </div>
-    );
-}
-
-
-const LISTENING_RESULT_METRICS = new Set([
-    "TOKEN_RECOGNITION",
-    "OMISSION_ADDITION_ORDER",
-    "ORTHOGRAPHY",
-    "MEANING_FIDELITY",
-    "DETAIL_AND_NUANCE",
-    "ORIGIN_NATURALNESS",
-    "PRONUNCIATION",
-    "PROSODY_RHYTHM",
-    "FLUENCY",
-    "COMPLETENESS",
-    "ANSWER_ACCURACY",
-    "GIST_COVERAGE",
-    "KEY_POINT_COVERAGE",
-    "LANGUAGE_CLARITY",
-]);

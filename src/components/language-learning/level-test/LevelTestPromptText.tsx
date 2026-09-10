@@ -1,5 +1,7 @@
 "use client";
 
+import { splitPromptEmphasis, stripPromptMarkup } from "@/features/language-learning/level-test/promptText";
+
 import { Fragment, type ReactNode } from "react";
 
 interface LevelTestPromptTextProps {
@@ -8,22 +10,12 @@ interface LevelTestPromptTextProps {
     className?: string;
 }
 
-const HTML_LIKE_TAG_PATTERN = /<\/?[A-Za-z][^>]*>/g;
-
-function stripPromptMarkup(text: string): string {
-    return text.replace(HTML_LIKE_TAG_PATTERN, "");
-}
-
 function renderStructuredEmphasis(text: string, emphasisText: string): ReactNode[] {
-    const plainText = stripPromptMarkup(text);
-    const target = emphasisText.trim();
-    if (!target) return [plainText];
-
-    const index = plainText.indexOf(target);
-    if (index < 0) return [plainText];
+    const { before, target, after } = splitPromptEmphasis(text, emphasisText);
+    if (target === null) return [before];
 
     return [
-        <Fragment key="emphasis-before">{plainText.slice(0, index)}</Fragment>,
+        <Fragment key="emphasis-before">{before}</Fragment>,
         <span
             key="emphasis-target"
             data-level-test-emphasis="true"
@@ -32,7 +24,7 @@ function renderStructuredEmphasis(text: string, emphasisText: string): ReactNode
             {target}
         </span>,
         <Fragment key="emphasis-after">
-            {plainText.slice(index + target.length)}
+            {after}
         </Fragment>,
     ];
 }

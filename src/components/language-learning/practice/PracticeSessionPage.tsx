@@ -1,167 +1,29 @@
 "use client";
 
-import { ArrowLeft, CheckCircle2, ChevronRight, GripVertical, RotateCcw, Trophy, XCircle } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePracticeSessionController } from "@/hooks/language-learning/practice/usePracticeSessionController";
 
 import { GenerationProgress } from "@/components/language-learning/common/GenerationProgress";
-import { hasCompleteItemCoverage, isGenerationPending } from "@/features/language-learning/generationState";
 import { LanguageLearningStateCard } from "@/components/language-learning/common/LanguageLearningStateCard";
 import { LanguageLearningPageLayout } from "@/components/language-learning/layout/LanguageLearningPageLayout";
+import { PracticeCompletedCard } from "@/components/language-learning/practice/PracticeCompletedCard";
+import { PracticeOrderingPanel } from "@/components/language-learning/practice/PracticeOrderingPanel";
 import { cn } from "@/lib/utils";
 import { useRouter } from "@/navigation";
-import { readingVocabularyService } from "@/services/language-learning/readingVocabularyService";
-import type { PracticeDomain, PracticeQuestion, PracticeSet } from "@/types/language-learning/practice";
-
-function firstWorkingIndex(set: PracticeSet) {
-    const unanswered = set.questions.findIndex((item) => !item.answered);
-    if (unanswered >= 0) return unanswered;
-    const retryable = set.questions.findIndex((item) => item.canRetry && !item.correct);
-    if (retryable >= 0) return retryable;
-    return Math.max(0, set.questions.length - 1);
-}
+import type { PracticeDomain } from "@/types/language-learning/practice";
+import { ArrowLeft, CheckCircle2, ChevronRight, XCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function PracticeSessionPage({ setId, expectedDomain }: { setId: number; expectedDomain: PracticeDomain }) {
     const ns = expectedDomain === "READING" ? "LanguageLearning.reading" : "LanguageLearning.vocabulary";
     const t = useTranslations(ns);
     const common = useTranslations("LanguageLearning.common");
     const router = useRouter();
-    const [set, setSet] = useState<PracticeSet | null>(null);
-    const [index, setIndex] = useState(0);
-    const [selected, setSelected] = useState<string[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [submitting, setSubmitting] = useState(false);
-    const [error, setError] = useState(false);
-    const [reviewMode, setReviewMode] = useState(false);
-    const [retryingGeneration, setRetryingGeneration] = useState(false);
-    // Invalidate reads started before a submit/retry so stale polls cannot undo it.
-    const readEpoch = useRef(0);
-    const mounted = useRef(true);
-
-    useEffect(() => {
-        mounted.current = true;
-        return () => { mounted.current = false; readEpoch.current += 1; };
-    }, []);
-
-    const load = useCallback(async () => {
-        const epoch = ++readEpoch.current;
-        setLoading(true);
-        setError(false);
-        try {
-            const next = await readingVocabularyService.getSet(setId);
-            if (next.domain !== expectedDomain) throw new Error("domain mismatch");
-            if (!mounted.current || epoch !== readEpoch.current) return;
-            setSet(next);
-            setIndex(firstWorkingIndex(next));
-        } catch {
-            if (mounted.current && epoch === readEpoch.current) setError(true);
-        } finally {
-            if (mounted.current && epoch === readEpoch.current) setLoading(false);
-        }
-    }, [expectedDomain, setId]);
-
-    useEffect(() => { void load(); }, [load]);
-
-    const generating = isGenerationPending(set?.generationStatus);
-    const generationFailure = set?.generationFailureMessage
-        || (set?.generationStatus === "PARTIAL" || set?.generationStatus === "FAILED" ? "GENERATION_FAILED" : null);
-
-    useEffect(() => {
-        if (!generating || submitting || retryingGeneration) return;
-        let cancelled = false;
-        let timer: number;
-        const poll = async () => {
-            const epoch = readEpoch.current;
-            try {
-                const next = await readingVocabularyService.getSet(setId);
-                if (!cancelled && mounted.current && epoch === readEpoch.current && next.domain === expectedDomain) {
-                    // Keep the current question/selection: only append server state.
-                    setSet(next);
-                }
-            } catch {
-                // A transient read failure does not discard usable questions or stop polling.
-            } finally {
-                if (!cancelled) timer = window.setTimeout(poll, 1500);
-            }
-        };
-        timer = window.setTimeout(poll, 1500);
-        return () => { cancelled = true; window.clearTimeout(timer); };
-    }, [expectedDomain, generating, retryingGeneration, setId, submitting]);
-
-    const retryGeneration = async () => {
-        if (retryingGeneration || submitting) return;
-        ++readEpoch.current;
-        setRetryingGeneration(true);
-        setError(false);
-        try {
-            const next = await readingVocabularyService.retryGeneration(setId);
-            if (mounted.current && next.domain === expectedDomain) setSet(next);
-        } catch {
-            if (mounted.current) setError(true);
-        } finally {
-            if (mounted.current) setRetryingGeneration(false);
-        }
-    };
-
-    const question = set?.questions[index] ?? null;
-    useEffect(() => {
-        const latest = question?.attempts.at(-1);
-        setSelected(question?.canRetry && latest ? [...latest.answer] : []);
-    }, [question?.questionId, question?.attempts.length, question?.canRetry]);
-
-    const currentAnswer = useMemo(() => {
-        if (!question) return [];
-        const latest = question.attempts.at(-1);
-        return latest?.answer ?? [];
-    }, [question]);
-
-    const answerForSubmit = selected.length > 0 ? selected : currentAnswer;
-    const canSubmit = Boolean(question)
-        && !submitting
-        && answerForSubmit.length > 0
-        && (!question?.correct)
-        && (question?.attempts.length === 0 || question?.canRetry);
-
-    const submit = async () => {
-        if (!question || !canSubmit) return;
-        ++readEpoch.current;
-        setSubmitting(true);
-        setError(false);
-        try {
-            await readingVocabularyService.submitAnswer(question.questionId, answerForSubmit);
-            const refreshed = await readingVocabularyService.getSet(setId);
-            if (!mounted.current) return;
-            setSet(refreshed);
-            const refreshedQuestion = refreshed.questions.find((item) => item.questionId === question.questionId);
-            const refreshedIndex = refreshed.questions.findIndex((item) => item.questionId === question.questionId);
-            if (refreshedIndex >= 0) setIndex(refreshedIndex);
-            if (refreshedQuestion?.correct) setSelected([]);
-        } catch {
-            if (mounted.current) setError(true);
-        } finally {
-            if (mounted.current) setSubmitting(false);
-        }
-    };
-
-    const next = () => {
-        if (!set) return;
-        const nextUnanswered = set.questions.findIndex((item, idx) => idx > index && !item.answered);
-        if (nextUnanswered >= 0) {
-            setIndex(nextUnanswered);
-            return;
-        }
-        if (index < set.questions.length - 1) setIndex(index + 1);
-    };
-
-    const moveChunk = (key: string) => {
-        if (!question || question.answered && !question.canRetry) return;
-        setSelected((current) => current.includes(key) ? current.filter((value) => value !== key) : [...current, key]);
-    };
-
-    const setSingleChoice = (key: string) => {
-        if (!question || question.answered && !question.canRetry) return;
-        setSelected([key]);
-    };
+    const {
+        set, index, setIndex, question, selected, setSelected,
+        loading, submitting, error, reviewMode, setReviewMode,
+        retryingGeneration, generating, generationFailure,
+        load, retryGeneration, canSubmit, submit, next, moveChunk, setSingleChoice, completed,
+    } = usePracticeSessionController({ setId, expectedDomain });
 
     let content;
     if (loading) {
@@ -172,8 +34,8 @@ export function PracticeSessionPage({ setId, expectedDomain }: { setId: number; 
         content = <GenerationProgress readyCount={set.questions.length} targetCount={set.questionCount} generating={generating} waiting failureMessage={generationFailure} retrying={retryingGeneration} onRetry={() => void retryGeneration()} />;
     } else if (!set || !question) {
         content = <LanguageLearningStateCard variant="error" title={common("loadFailedTitle")} message={t("loadFailed")} />;
-    } else if (set.status === "COMPLETED" && !generating && hasCompleteItemCoverage(set.questions.map((item) => item.questionId), set.questionCount) && set.questions.every((item) => item.answered) && !reviewMode) {
-        content = <PracticeCompleted set={set} t={t} onReview={(nextIndex) => { setIndex(nextIndex); setReviewMode(true); }} onBack={() => router.push(expectedDomain === "READING" ? "/language-learning/reading" : "/language-learning/vocabulary")} />;
+    } else if (completed && !reviewMode) {
+        content = <PracticeCompletedCard set={set} t={t} onReview={(nextIndex) => { setIndex(nextIndex); setReviewMode(true); }} onBack={() => router.push(expectedDomain === "READING" ? "/language-learning/reading" : "/language-learning/vocabulary")} />;
     } else {
         const latest = question.attempts.at(-1) ?? null;
         const reveal = question.answered;
@@ -228,7 +90,7 @@ export function PracticeSessionPage({ setId, expectedDomain }: { setId: number; 
                             })}
                         </div>
                     ) : (
-                        <OrderingPanel question={question} selection={displayedSelection} editable={!question.correct && (!question.answered || question.canRetry)} onToggle={moveChunk} onReset={() => setSelected([])} t={t} />
+                        <PracticeOrderingPanel question={question} selection={displayedSelection} editable={!question.correct && (!question.answered || question.canRetry)} onToggle={moveChunk} onReset={() => setSelected([])} t={t} />
                     )}
 
                     {reveal && (
@@ -274,43 +136,4 @@ export function PracticeSessionPage({ setId, expectedDomain }: { setId: number; 
     }
 
     return <LanguageLearningPageLayout title={t("title")} description={t("description")}>{content}</LanguageLearningPageLayout>;
-}
-
-function OrderingPanel({ question, selection, editable, onToggle, onReset, t }: { question: PracticeQuestion; selection: string[]; editable: boolean; onToggle: (key: string) => void; onReset: () => void; t: ReturnType<typeof useTranslations> }) {
-    const byKey = new Map(question.options.map((option) => [option.key, option]));
-    const remaining = question.options.filter((option) => !selection.includes(option.key));
-    return (
-        <div className="mt-5 space-y-4">
-            <div className="min-h-24 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/5">
-                <p className="mb-2 text-xs font-black text-slate-400">{t("session.ordering.yourOrder")}</p>
-                {selection.length === 0 ? <p className="text-sm text-slate-400">{t("session.ordering.empty")}</p> : <div className="flex flex-wrap gap-2">{selection.map((key, idx) => <button key={`${key}-${idx}`} type="button" disabled={!editable} onClick={() => onToggle(key)} className="inline-flex items-center gap-1 rounded-xl bg-blue-600 px-3 py-2 text-sm font-bold text-white"><span className="text-blue-200">{idx + 1}.</span>{byKey.get(key)?.text}</button>)}</div>}
-            </div>
-            <div>
-                <p className="mb-2 text-xs font-black text-slate-400">{t("session.ordering.chunks")}</p>
-                <div className="flex flex-wrap gap-2">{remaining.map((option) => <button key={option.key} type="button" disabled={!editable} onClick={() => onToggle(option.key)} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 hover:border-blue-300 dark:border-white/10 dark:bg-white/5 dark:text-slate-200"><GripVertical className="h-3.5 w-3.5 text-slate-400" aria-hidden="true" />{option.text}</button>)}</div>
-            </div>
-            {editable && selection.length > 0 && <button type="button" onClick={onReset} className="inline-flex items-center gap-2 text-xs font-black text-slate-500 hover:text-blue-600"><RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />{t("session.ordering.reset")}</button>}
-        </div>
-    );
-}
-
-function PracticeCompleted({ set, t, onReview, onBack }: { set: PracticeSet; t: ReturnType<typeof useTranslations>; onReview: (index: number) => void; onBack: () => void }) {
-    const wrongOfficial = set.questions.map((q, index) => ({ q, index })).filter(({ q }) => q.attempts.find((a) => a.official)?.correct === false);
-    return (
-        <div className="space-y-5">
-            <section className="rounded-3xl border border-emerald-200 bg-emerald-50/80 p-6 text-center shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/10 sm:p-8">
-                <Trophy className="mx-auto h-10 w-10 text-emerald-600" aria-hidden="true" />
-                <p className="mt-3 text-xs font-black uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-200">{t("result.eyebrow")}</p>
-                <h2 className="mt-2 text-2xl font-black text-slate-950 dark:text-white">{t("result.title")}</h2>
-                <p className="mt-3 text-5xl font-black text-emerald-700 dark:text-emerald-200">{Math.round(set.officialScore ?? 0)}</p>
-                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{t("result.score", { correct: set.correctCount, total: set.questionCount })}</p>
-            </section>
-            <section className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm dark:border-white/10 dark:bg-slate-900/75 sm:p-6">
-                <h3 className="text-lg font-black text-slate-900 dark:text-white">{t("result.metrics")}</h3>
-                {set.metrics.length === 0 ? <p className="mt-3 text-sm text-slate-400">{t("result.noMetrics")}</p> : <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{set.metrics.map((metric) => <div key={metric.skillTag} className="rounded-2xl bg-slate-50 p-4 dark:bg-white/5"><div className="flex items-center justify-between gap-3"><span className="text-sm font-black text-slate-700 dark:text-slate-200">{t(`skills.${metric.skillTag}`)}</span><span className="text-lg font-black text-blue-600 dark:text-blue-300">{Math.round(metric.score)}</span></div><p className="mt-1 text-xs text-slate-400">{t("result.samples", { count: metric.sampleCount })}</p></div>)}</div>}
-                {wrongOfficial.length > 0 && <div className="mt-6 border-t border-slate-200 pt-5 dark:border-white/10"><h4 className="text-sm font-black text-slate-800 dark:text-slate-100">{t("result.reviewWrong")}</h4><div className="mt-3 flex flex-wrap gap-2">{wrongOfficial.map(({ q, index }) => <button key={q.questionId} type="button" onClick={() => onReview(index)} className="rounded-xl bg-amber-50 px-3 py-2 text-sm font-black text-amber-700 hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-200">#{q.order}{q.correct ? ` · ${t("result.recovered")}` : ""}</button>)}</div></div>}
-                <div className="mt-6"><button type="button" onClick={onBack} className="w-full rounded-xl bg-blue-600 px-5 py-3 text-base font-black text-white hover:bg-blue-500 sm:w-auto">{t("result.back")}</button></div>
-            </section>
-        </div>
-    );
 }

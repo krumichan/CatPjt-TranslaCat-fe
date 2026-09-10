@@ -25,8 +25,48 @@ test.describe("Language Learning Core & Writing", () => {
         await expect(page.getByTestId("dashboard-activity-writing")).toBeVisible();
     });
 
+    test("LL-LINT-01 저장된 접힘 상태를 복구하고 변경값을 새로고침 후 유지한다", async ({ page }) => {
+        await page.addInitScript(() => {
+            const key = "translacat.language-learning.dashboard.major";
+            if (localStorage.getItem(key) === null) {
+                localStorage.setItem(key, JSON.stringify({ overview: false, profile: true }));
+            }
+        });
+        await page.goto("/language-learning");
+        const overview = page.locator('button[aria-controls="dashboard-overview-disclosure-content"]');
+        await expect(overview).toHaveAttribute("aria-expanded", "false");
+        await overview.click();
+        await expect(overview).toHaveAttribute("aria-expanded", "true");
+        await page.reload();
+        await expect(overview).toHaveAttribute("aria-expanded", "true");
+    });
+
+    test("LL-LINT-02 모바일에서는 기본 프로필을 접고 해시 진입 시 펼친다", async ({ page }) => {
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.goto("/language-learning");
+        const profile = page.locator('button[aria-controls="dashboard-learning-profile-content"]');
+        await expect(profile).toHaveAttribute("aria-expanded", "false");
+        await page.goto("/language-learning#learning-profile");
+        // A hash-only navigation need not remount the page, so reload to check
+        // the existing deep-link-on-entry contract explicitly.
+        await page.reload();
+        await expect(profile).toHaveAttribute("aria-expanded", "true");
+    });
+
+    test("LL-LINT-03 손상된 저장값에서는 기본 상태로 돌아가며 토글이 동작한다", async ({ page }) => {
+        await page.addInitScript(() => {
+            localStorage.setItem("translacat.language-learning.dashboard.major", "{bad json");
+        });
+        await page.goto("/language-learning");
+        const overview = page.locator('button[aria-controls="dashboard-overview-disclosure-content"]');
+        await expect(overview).toHaveAttribute("aria-expanded", "true");
+        await overview.click();
+        await expect(overview).toHaveAttribute("aria-expanded", "false");
+        expect(await page.evaluate(() => JSON.parse(localStorage.getItem("translacat.language-learning.dashboard.major") ?? "{}"))).toMatchObject({ overview: false });
+    });
+
     test("LL-02 최초 Level Test가 필요한 사용자는 시작 안내를 표시한다", async ({ page }) => {
-        await page.route("**/language-learning/level-test/status", (route) =>
+        await page.route("**/api/v1/language-learning/level-test/status", (route) =>
             fulfillJson(
                 route,
                 responseDto({
@@ -44,12 +84,12 @@ test.describe("Language Learning Core & Writing", () => {
     });
 
     test("LL-03 Daily Writing에서 5대 평가축과 추천 답안을 표시한다", async ({ page }) => {
-        await page.route("**/language-learning/writing/daily?**", (route) =>
+        await page.route("**/api/v1/language-learning/writing/daily?**", (route) =>
             fulfillJson(route, responseDto(LANGUAGE_LEARNING_DAILY_SET)),
         );
 
         await page.goto("/language-learning/writing");
-        await page.getByTestId("daily-writing-type-translation").click();
+        await page.getByTestId("daily-writing-type-translation").getByRole("button").click();
         await expect(page.getByTestId("daily-writing-page")).toBeVisible();
         await expect(page.getByText("표현력", { exact: true })).toBeVisible();
 
@@ -92,7 +132,7 @@ test.describe("Language Learning Core & Writing", () => {
             })),
         };
 
-        await page.route("**/language-learning/writing/daily?**", (route) => {
+        await page.route("**/api/v1/language-learning/writing/daily?**", (route) => {
             const allSubmitted = submittedAnswers.size === batchSet.items.length;
             const completed =
                 allSubmitted &&
@@ -136,7 +176,7 @@ test.describe("Language Learning Core & Writing", () => {
             );
         });
         await page.route(
-            "**/language-learning/writing/daily/items/*/answers",
+            "**/api/v1/language-learning/writing/daily/items/*/answers",
             (route) => {
                 const match = route.request().url().match(/items\/(\d+)\/answers/);
                 const itemId = Number(match?.[1]);
@@ -156,14 +196,13 @@ test.describe("Language Learning Core & Writing", () => {
             },
         );
         await page.route(
-            "**/language-learning/writing/daily/items/*/evaluation/resume",
+            "**/api/v1/language-learning/writing/daily/items/*/evaluation/resume",
             (route) => {
                 resumeRequestCount += 1;
-                allowEvaluationCompletion = true;
                 return fulfillJson(route, responseDto(null));
             },
         );
-        await page.route("**/language-learning/history?**", (route) => {
+        await page.route("**/api/v1/language-learning/history?**", (route) => {
             const allSubmitted = submittedAnswers.size === batchSet.items.length;
             const completed =
                 allSubmitted &&
@@ -196,7 +235,7 @@ test.describe("Language Learning Core & Writing", () => {
         });
 
         await page.goto("/language-learning/writing");
-        await page.getByTestId("daily-writing-type-translation").click();
+        await page.getByTestId("daily-writing-type-translation").getByRole("button").click();
 
         const answers = page.locator("textarea");
         await expect(answers).toHaveCount(5);
@@ -217,6 +256,7 @@ test.describe("Language Learning Core & Writing", () => {
             "페이지를 새로고침하거나 다른 메뉴로 이동해도 평가가 계속됩니다",
         );
 
+        const resumesBeforeReload = resumeRequestCount;
         await page.reload();
         const evaluatingCard = page.getByTestId(
             "daily-writing-type-translation",
@@ -226,9 +266,12 @@ test.describe("Language Learning Core & Writing", () => {
             "EVALUATING",
         );
         await expect(evaluatingCard).toContainText("평가 중");
-        await evaluatingCard.click();
+        await evaluatingCard.getByRole("button").click();
 
-        await expect.poll(() => resumeRequestCount).toBeGreaterThan(0);
+        await expect.poll(() => resumeRequestCount).toBeGreaterThan(resumesBeforeReload);
+        // Do not let automatic resume calls from the first mount finish the
+        // evaluations before the re-entry recovery assertions have run.
+        allowEvaluationCompletion = true;
         await expect(
             page.getByText("오늘의 학습 완료!", { exact: true }),
         ).toBeVisible();
@@ -260,12 +303,12 @@ test.describe("Language Learning Core & Writing", () => {
             })),
         };
 
-        await page.route("**/language-learning/writing/daily?**", (route) =>
+        await page.route("**/api/v1/language-learning/writing/daily?**", (route) =>
             fulfillJson(route, responseDto(draftSet)),
         );
 
         await page.goto("/language-learning/writing");
-        await page.getByTestId("daily-writing-type-translation").click();
+        await page.getByTestId("daily-writing-type-translation").getByRole("button").click();
 
         const answers = page.locator("textarea");
         await answers.nth(0).fill("保存される回答 1");
@@ -274,7 +317,7 @@ test.describe("Language Learning Core & Writing", () => {
         await expect(page.getByText("자동 임시 저장됨").first()).toBeVisible();
 
         await page.reload();
-        await page.getByTestId("daily-writing-type-translation").click();
+        await page.getByTestId("daily-writing-type-translation").getByRole("button").click();
 
         const restored = page.locator("textarea");
         await expect(restored.nth(0)).toHaveValue("保存される回答 1");
@@ -286,8 +329,8 @@ test.describe("Language Learning Core & Writing", () => {
         await page.goto("/language-learning/settings");
         await expect(page.getByTestId("language-learning-settings")).toBeVisible();
         await expect(page.getByText("관리자 허용 범위: 1 ~ 20", { exact: true })).toBeVisible();
-        await expect(page.getByRole("option", { name: "Topic" }).first()).toBeAttached();
-        await expect(page.getByRole("option", { name: "Vocabulary" }).first()).toBeAttached();
+        await expect(page.getByRole("option", { name: "주제", exact: true }).first()).toBeAttached();
+        await expect(page.getByRole("option", { name: "어휘", exact: true }).first()).toBeAttached();
         await expect(
             page.getByText(/첫 Writing Daily Set 또는 Speaking Session/),
         ).toBeVisible();
@@ -321,7 +364,7 @@ test.describe("Language Learning Core & Writing", () => {
             configured: false,
         };
 
-        await page.route("**/language-learning/settings", (route) => {
+        await page.route("**/api/v1/language-learning/settings", (route) => {
             if (route.request().method() === "PATCH") {
                 return fulfillApiJson(
                     route,
@@ -352,7 +395,7 @@ test.describe("Language Learning Core & Writing", () => {
 
         await page.setViewportSize({ width: 390, height: 844 });
 
-        await page.route("**/language-learning/keywords", (route) => {
+        await page.route("**/api/v1/language-learning/keywords", (route) => {
             requestedLocale =
                 route.request().headers()["x-translacat-locale"];
 
@@ -411,7 +454,7 @@ test.describe("Language Learning Core & Writing", () => {
             })),
         };
 
-        await page.route("**/language-learning/dashboard**", (route) =>
+        await page.route("**/api/v1/language-learning/dashboard**", (route) =>
             fulfillJson(
                 route,
                 responseDto({
@@ -427,7 +470,7 @@ test.describe("Language Learning Core & Writing", () => {
                 }),
             ),
         );
-        await page.route("**/language-learning/history?**", (route) =>
+        await page.route("**/api/v1/language-learning/history?**", (route) =>
             fulfillJson(
                 route,
                 responseDto([
@@ -446,7 +489,7 @@ test.describe("Language Learning Core & Writing", () => {
             ),
         );
         await page.route(
-            "**/language-learning/history/WRITING%3A101",
+            "**/api/v1/language-learning/history/WRITING%3A101",
             (route) =>
                 fulfillJson(
                     route,
@@ -457,7 +500,7 @@ test.describe("Language Learning Core & Writing", () => {
                     }),
                 ),
         );
-        await page.route("**/language-learning/writing/daily/items/1001/answers", (route) =>
+        await page.route("**/api/v1/language-learning/writing/daily/items/1001/answers", (route) =>
             fulfillJson(
                 route,
                 responseDto({

@@ -15,5 +15,3 @@ export const localeMetadata: Record<Locale, { name: string; flag: string }> = {
         flag: "🇯🇵🇰🇷"
     }
 };
-
-export const defaultLocale: Locale = 'ko';

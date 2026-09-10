@@ -1,10 +1,10 @@
 "use client";
 
-import { CheckCircle2, CircleDashed, Mic, Sparkles } from "lucide-react";
-import { useTranslations } from "next-intl";
-
+import { normalizeStatus } from "@/features/language-learning/speaking/readAloudState";
 import type { SpeakingSessionController } from "@/hooks/language-learning/speaking/useSpeakingSessionController";
 import { cn } from "@/lib/utils";
+import { CheckCircle2, CircleDashed, Mic, Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function SpeakingReadAloudProblemPanel({
     controller,
@@ -121,9 +121,4 @@ export function SpeakingReadAloudProblemPanel({
             )}
         </section>
     );
-}
-
-function normalizeStatus(status: string) {
-    if (["PENDING", "EVALUATING", "EVALUATED", "INSUFFICIENT_EVIDENCE", "FAILED"].includes(status)) return status;
-    return "OTHER";
 }

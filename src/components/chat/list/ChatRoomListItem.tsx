@@ -1,57 +1,21 @@
 "use client";
 
+import { getRoomTypeTranslationKey, getSourceTypeTranslationKey } from "@/utils/chat/chatRoomTypeLabel";
+
+import { formatActivityDateTime } from "@/utils/time/formatActivityDateTime";
+
 import { ChevronRight, Globe2, MessageCircle, Users } from "lucide-react";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 
 import { ChatRoomAvatar } from "@/components/chat/common/ChatRoomAvatar";
 import { ChatUnreadBadge } from "@/components/chat/list/ChatUnreadBadge";
-import type {
-    ChatRoomListItem as ChatRoomListItemType,
-    ChatRoomSourceType,
-    ChatRoomType,
-} from "@/types/chat";
+import type { ChatRoomListItem as ChatRoomListItemType } from "@/types/chat";
 import { resolveChatRoomDisplay } from "@/utils/chatRoomDisplay";
 
 interface ChatRoomListItemProps {
     room: ChatRoomListItemType;
 }
-
-const getRoomTypeTranslationKey = (roomType: ChatRoomType) => {
-    switch (roomType) {
-        case "DIRECT":
-            return "roomType.direct";
-        case "GROUP":
-            return "roomType.group";
-        case "OPEN":
-            return "roomType.open";
-        default:
-            return "roomType.unknown";
-    }
-};
-
-const getSourceTypeTranslationKey = (sourceType: ChatRoomSourceType) => {
-    switch (sourceType) {
-        case "FRIEND":
-            return "sourceType.friend";
-        case "MANUAL":
-            return "sourceType.manual";
-        case "OPEN":
-            return "sourceType.open";
-        case "AI":
-            return "sourceType.ai";
-        default:
-            return "sourceType.unknown";
-    }
-};
-
-const formatUpdatedAt = (value: string) =>
-    new Intl.DateTimeFormat(undefined, {
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-    }).format(new Date(value));
 
 export function ChatRoomListItem({ room }: ChatRoomListItemProps) {
     const t = useTranslations("ChatRoomList");
@@ -142,7 +106,7 @@ export function ChatRoomListItem({ room }: ChatRoomListItemProps) {
                                     })}
                                 </span>
                                 <span>Room #{room.id}</span>
-                                <span>{formatUpdatedAt(room.updatedAt)}</span>
+                                <span>{formatActivityDateTime(room.updatedAt)}</span>
                             </div>
                         </div>
 

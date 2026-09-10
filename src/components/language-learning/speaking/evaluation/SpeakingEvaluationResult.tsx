@@ -1,16 +1,16 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-
 import { SpeakingAssistanceSummary } from "@/components/language-learning/speaking/evaluation/SpeakingAssistanceSummary";
-import { SpeakingEvaluationMetricCard } from "@/components/language-learning/speaking/evaluation/SpeakingEvaluationMetricCard";
+import { SpeakingEvaluationMetricGroup } from "@/components/language-learning/speaking/evaluation/SpeakingEvaluationMetricGroup";
+import { SpeakingEvaluationTextListCard } from "@/components/language-learning/speaking/evaluation/SpeakingEvaluationTextListCard";
 import {
     parsePronunciationPractice,
     parseRecommendedExpressions,
     parseTextList,
-} from "@/components/language-learning/speaking/evaluation/speakingEvaluationParser";
+} from "@/features/language-learning/speaking/evaluationParser";
 import type { SpeakingEvaluationController } from "@/hooks/language-learning/speaking/useSpeakingEvaluationController";
-import type { SpeakingMetric, SpeakingMetricType } from "@/types/language-learning/speaking";
+import type { SpeakingMetricType } from "@/types/language-learning/speaking";
+import { useTranslations } from "next-intl";
 
 const COMMON_METRICS: SpeakingMetricType[] = [
     "GRAMMAR",
@@ -19,6 +19,7 @@ const COMMON_METRICS: SpeakingMetricType[] = [
     "MEANING",
     "EXPRESSIVENESS",
 ];
+
 const SPEAKING_METRICS: SpeakingMetricType[] = ["FLUENCY", "PRONUNCIATION", "INTERACTION"];
 
 export function SpeakingEvaluationResult({
@@ -60,12 +61,12 @@ export function SpeakingEvaluationResult({
                 )}
             </section>
 
-            <MetricGroup title={t("commonMetrics")} types={COMMON_METRICS} metrics={metricsByType} onEvidence={jumpToTurn} />
-            <MetricGroup title={t("speakingMetrics")} types={SPEAKING_METRICS} metrics={metricsByType} onEvidence={jumpToTurn} />
+            <SpeakingEvaluationMetricGroup title={t("commonMetrics")} types={COMMON_METRICS} metrics={metricsByType} onEvidence={jumpToTurn} />
+            <SpeakingEvaluationMetricGroup title={t("speakingMetrics")} types={SPEAKING_METRICS} metrics={metricsByType} onEvidence={jumpToTurn} />
 
             <div className="grid gap-5 lg:grid-cols-2">
-                <TextListCard title={t("strengths")} items={strengths} empty={t("emptyStrengths")} />
-                <TextListCard title={t("improvements")} items={improvements} empty={t("emptyImprovements")} />
+                <SpeakingEvaluationTextListCard title={t("strengths")} items={strengths} empty={t("emptyStrengths")} />
+                <SpeakingEvaluationTextListCard title={t("improvements")} items={improvements} empty={t("emptyImprovements")} />
             </div>
 
             <SpeakingAssistanceSummary turns={controller.session?.turns ?? []} />
@@ -114,42 +115,5 @@ export function SpeakingEvaluationResult({
                 </section>
             ) : null}
         </div>
-    );
-}
-
-function MetricGroup({
-    title,
-    types,
-    metrics,
-    onEvidence,
-}: {
-    title: string;
-    types: SpeakingMetricType[];
-    metrics: Map<SpeakingMetricType, SpeakingMetric>;
-    onEvidence: (turnId: string, turnIndex?: number) => void;
-}) {
-    const actualMetrics = types.map((type) => metrics.get(type)).filter(Boolean);
-    return (
-        <section>
-            <h2 className="mb-3 text-lg font-black text-slate-900 dark:text-white">{title}</h2>
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                {actualMetrics.map((metric) => metric && (
-                    <SpeakingEvaluationMetricCard key={metric.metricType} metric={metric} onEvidence={onEvidence} />
-                ))}
-            </div>
-        </section>
-    );
-}
-
-function TextListCard({ title, items, empty }: { title: string; items: string[]; empty: string }) {
-    return (
-        <section className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-slate-900">
-            <h2 className="text-lg font-black text-slate-900 dark:text-white">{title}</h2>
-            {items.length ? (
-                <ul className="mt-4 space-y-2">
-                    {items.map((item, index) => <li key={index} className="rounded-xl bg-slate-50 px-3 py-2 text-sm leading-6 text-slate-600 dark:bg-white/5 dark:text-slate-300">{item}</li>)}
-                </ul>
-            ) : <p className="mt-3 text-sm text-slate-400">{empty}</p>}
-        </section>
     );
 }

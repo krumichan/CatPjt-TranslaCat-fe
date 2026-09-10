@@ -1,6 +1,6 @@
 "use client";
 
-import type React from "react";
+import { UserSearchGuideItem } from "@/components/user-search/UserSearchGuideItem";
 import { IdCard, MessageCircle, ShieldCheck, UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -20,17 +20,17 @@ export default function UserSearchGuideCard() {
             </p>
 
             <div className="mt-6 space-y-4">
-                <GuideItem
+                <UserSearchGuideItem
                     icon={<IdCard className="h-5 w-5" aria-hidden="true" />}
                     title={t("items.publicId.title")}
                     description={t("items.publicId.description")}
                 />
-                <GuideItem
+                <UserSearchGuideItem
                     icon={<UserPlus className="h-5 w-5" aria-hidden="true" />}
                     title={t("items.request.title")}
                     description={t("items.request.description")}
                 />
-                <GuideItem
+                <UserSearchGuideItem
                     icon={
                         <MessageCircle
                             className="h-5 w-5"
@@ -40,7 +40,7 @@ export default function UserSearchGuideCard() {
                     title={t("items.chat.title")}
                     description={t("items.chat.description")}
                 />
-                <GuideItem
+                <UserSearchGuideItem
                     icon={
                         <ShieldCheck
                             className="h-5 w-5"
@@ -52,29 +52,5 @@ export default function UserSearchGuideCard() {
                 />
             </div>
         </aside>
-    );
-}
-
-interface GuideItemProps {
-    icon: React.ReactNode;
-    title: string;
-    description: string;
-}
-
-function GuideItem({ icon, title, description }: GuideItemProps) {
-    return (
-        <div className="flex gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-orange-50 text-orange-500 dark:bg-orange-500/10 dark:text-orange-200">
-                {icon}
-            </div>
-            <div>
-                <h3 className="text-sm font-black text-slate-800 dark:text-white">
-                    {title}
-                </h3>
-                <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-300">
-                    {description}
-                </p>
-            </div>
-        </div>
     );
 }

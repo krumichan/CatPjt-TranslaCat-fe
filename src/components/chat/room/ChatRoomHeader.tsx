@@ -1,23 +1,14 @@
 "use client";
 
-import {
-    ChevronLeft,
-    Languages,
-    Loader2,
-    MoreVertical,
-    Users,
-} from "lucide-react";
+import { getRoomTypeTranslationKey, getSourceTypeTranslationKey } from "@/utils/chat/chatRoomTypeLabel";
+
+import { ChevronLeft, Languages, Loader2, MoreVertical, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { ChatPresenceIndicator } from "@/components/chat/common/ChatPresenceIndicator";
 import { ChatRoomAvatar } from "@/components/chat/common/ChatRoomAvatar";
 import { Link } from "@/navigation";
-import type {
-    ChatLanguageSettings,
-    ChatRoom,
-    ChatRoomSourceType,
-    ChatRoomType,
-} from "@/types/chat";
+import type { ChatLanguageSettings, ChatRoom } from "@/types/chat";
 import type { ChatWebSocketConnectionStatus } from "@/types/chatWebSocket";
 import { resolveChatRoomDisplay } from "@/utils/chatRoomDisplay";
 
@@ -48,38 +39,6 @@ function getConnectionStatusLabel(
             return "WS: IDLE";
         default:
             return null;
-    }
-}
-
-function getRoomTypeTranslationKey(
-    roomType: ChatRoomType,
-) {
-    switch (roomType) {
-        case "DIRECT":
-            return "header.roomType.direct";
-        case "GROUP":
-            return "header.roomType.group";
-        case "OPEN":
-            return "header.roomType.open";
-        default:
-            return "header.roomType.unknown";
-    }
-}
-
-function getSourceTypeTranslationKey(
-    sourceType: ChatRoomSourceType,
-) {
-    switch (sourceType) {
-        case "FRIEND":
-            return "header.sourceType.friend";
-        case "MANUAL":
-            return "header.sourceType.manual";
-        case "OPEN":
-            return "header.sourceType.open";
-        case "AI":
-            return "header.sourceType.ai";
-        default:
-            return "header.sourceType.unknown";
     }
 }
 
@@ -213,15 +172,11 @@ export function ChatRoomHeader({
                             })}{" "}
                             ·{" "}
                             {t(
-                                getRoomTypeTranslationKey(
-                                    room.roomType,
-                                ),
+                                `header.${getRoomTypeTranslationKey(room.roomType)}`,
                             )}{" "}
                             ·{" "}
                             {t(
-                                getSourceTypeTranslationKey(
-                                    room.sourceType,
-                                ),
+                                `header.${getSourceTypeTranslationKey(room.sourceType)}`,
                             )}{" "}
                             ·{" "}
                             {t("header.members", {

@@ -3,14 +3,12 @@
 import { History, RotateCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import {
-    DisclosureAllButton,
-    DisclosureContent,
-    DisclosureToggleButton,
-    usePersistentDisclosureMap,
-} from "@/components/language-learning/common/LanguageLearningDisclosure";
+import { DisclosureAllButton } from "@/components/language-learning/common/DisclosureAllButton";
+import { DisclosureContent } from "@/components/language-learning/common/DisclosureContent";
+import { DisclosureToggleButton } from "@/components/language-learning/common/DisclosureToggleButton";
 import { SignalList } from "@/components/language-learning/common/SignalList";
 import { SkillRadarChart } from "@/components/language-learning/common/SkillRadarChart";
+import { usePersistentDisclosureMap } from "@/hooks/language-learning/common/usePersistentDisclosureMap";
 import { Link } from "@/navigation";
 import type { LevelTestHistoryItem, LevelTestStatus } from "@/types/language-learning/level";
 import type { LanguageLearningProfile } from "@/types/language-learning/profile";

@@ -24,12 +24,3 @@ export function calculateExpenseGoalStatus(
         isExceeded,
     };
 }
-
-export function parseYearMonthValue(yearMonth: string) {
-    const [year, month] = yearMonth.split("-").map(Number);
-
-    return {
-        year,
-        month,
-    };
-}

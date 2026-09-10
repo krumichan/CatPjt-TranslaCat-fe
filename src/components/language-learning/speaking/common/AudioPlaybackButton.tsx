@@ -1,16 +1,10 @@
 "use client";
 
+import { formatDuration } from "@/utils/time/formatDuration";
 import { Pause, Play } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useAudioPlayback } from "@/hooks/language-learning/speaking/useAudioPlayback";
-
-function formatSeconds(value: number) {
-    const total = Math.max(0, Math.floor(value));
-    const minutes = Math.floor(total / 60);
-    const seconds = total % 60;
-    return `${minutes}:${String(seconds).padStart(2, "0")}`;
-}
 
 export function AudioPlaybackButton({
     url,
@@ -63,7 +57,7 @@ export function AudioPlaybackButton({
             </button>
             {!compact && (
                 <span className="text-xs tabular-nums text-slate-400">
-                    {formatSeconds(playback.currentTime)} / {formatSeconds(playback.duration)}
+                    {formatDuration(playback.currentTime)} / {formatDuration(playback.duration)}
                 </span>
             )}
             {playback.error && (

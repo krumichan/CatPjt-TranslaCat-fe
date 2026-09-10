@@ -1,15 +1,20 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import {
+    SPEAKING_ASSISTANCE_TYPES,
+    countSpeakingAssistanceUsage,
+    flattenSpeakingAssistanceUsage,
+} from "@/features/language-learning/speaking/assistanceUsage";
 
+import { SpeakingHistoryMeta } from "@/components/language-learning/history/SpeakingHistoryMeta";
 import { AudioPlaybackButton } from "@/components/language-learning/speaking/common/AudioPlaybackButton";
 import { SpeakingEvaluationMetricCard } from "@/components/language-learning/speaking/evaluation/SpeakingEvaluationMetricCard";
 import {
     parsePronunciationPractice,
     parseRecommendedExpressions,
-} from "@/components/language-learning/speaking/evaluation/speakingEvaluationParser";
+} from "@/features/language-learning/speaking/evaluationParser";
 import type { SpeakingHistoryDetail as SpeakingHistoryDetailType } from "@/types/language-learning/history";
-import type { AssistanceType } from "@/types/language-learning/speaking";
+import { useTranslations } from "next-intl";
 
 export function SpeakingHistoryDetail({
     detail,
@@ -29,17 +34,7 @@ export function SpeakingHistoryDetail({
     const pronunciation = parsePronunciationPractice(
         evaluation?.pronunciationPracticeJson ?? null,
     );
-    const assistanceUsage = detail.turns.flatMap(
-        (turn) => turn.assistanceUsage ?? [],
-    );
-    const assistanceTypes: AssistanceType[] = [
-        "REPLAY",
-        "SLOW_PLAYBACK",
-        "SHOW_QUESTION",
-        "HINT",
-        "TRANSLATION",
-        "SAMPLE_ANSWER",
-    ];
+    const assistanceUsage = flattenSpeakingAssistanceUsage(detail.turns);
 
     const jumpToTurn = (turnId: string, turnIndex?: number) => {
         const turn = detail.turns.find(
@@ -74,13 +69,13 @@ export function SpeakingHistoryDetail({
                 </p>
 
                 <dl className="mt-4 grid gap-3 sm:grid-cols-2">
-                    <HistoryMeta
+                    <SpeakingHistoryMeta
                         label={t("startMode")}
                         value={configT(
                             `startMode.${detail.session.resolvedStartMode}.label`,
                         )}
                     />
-                    <HistoryMeta
+                    <SpeakingHistoryMeta
                         label={t("correctionMode")}
                         value={configT(
                             `correctionMode.${detail.session.correctionMode}.label`,
@@ -187,10 +182,8 @@ export function SpeakingHistoryDetail({
                     })}
                 </p>
                 <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                    {assistanceTypes.map((type) => {
-                        const count = assistanceUsage.filter(
-                            (item) => item === type,
-                        ).length;
+                    {SPEAKING_ASSISTANCE_TYPES.map((type) => {
+                        const count = countSpeakingAssistanceUsage(assistanceUsage, [type]);
                         return (
                             <div
                                 key={type}
@@ -250,17 +243,6 @@ export function SpeakingHistoryDetail({
                 ))}
             </section>
 
-        </div>
-    );
-}
-
-function HistoryMeta({ label, value }: { label: string; value: string }) {
-    return (
-        <div className="rounded-xl bg-slate-50 px-3 py-2 dark:bg-white/5">
-            <dt className="text-[11px] font-bold text-slate-400">{label}</dt>
-            <dd className="mt-1 text-sm font-black text-slate-700 dark:text-slate-200">
-                {value}
-            </dd>
         </div>
     );
 }

@@ -5,12 +5,9 @@ import { useEffect } from "react";
 
 import { useTranslations } from "next-intl";
 
-import {
-    DisclosureAllButton,
-    DisclosureContent,
-    DisclosureToggleButton,
-    usePersistentDisclosureMap,
-} from "@/components/language-learning/common/LanguageLearningDisclosure";
+import { DisclosureAllButton } from "@/components/language-learning/common/DisclosureAllButton";
+import { DisclosureContent } from "@/components/language-learning/common/DisclosureContent";
+import { DisclosureToggleButton } from "@/components/language-learning/common/DisclosureToggleButton";
 import { DashboardLearningProfileSection } from "@/components/language-learning/dashboard/DashboardLearningProfileSection";
 import { DashboardActivityPerformanceWidget } from "@/components/language-learning/dashboard/widgets/DashboardActivityPerformanceWidget";
 import { DashboardGrowthWidget } from "@/components/language-learning/dashboard/widgets/DashboardGrowthWidget";
@@ -20,6 +17,7 @@ import { DashboardRecommendationWidget } from "@/components/language-learning/da
 import { DashboardSourceTrendWidget } from "@/components/language-learning/dashboard/widgets/DashboardSourceTrendWidget";
 import { DashboardWeaknessInsightsWidget } from "@/components/language-learning/dashboard/widgets/DashboardWeaknessInsightsWidget";
 import { DashboardWidgetErrorBoundary } from "@/components/language-learning/dashboard/widgets/DashboardWidgetErrorBoundary";
+import { usePersistentDisclosureMap } from "@/hooks/language-learning/common/usePersistentDisclosureMap";
 import { Link } from "@/navigation";
 import type {
     DashboardPeriod,
@@ -113,11 +111,12 @@ export function LanguageLearningDashboardView({
         mobileDefaults: DASHBOARD_MOBILE_DEFAULTS,
     });
 
+    const setMajorSectionOpen = majorDisclosure.setOpen;
     useEffect(() => {
         if (window.location.hash === "#learning-profile") {
-            majorDisclosure.setOpen("profile", true);
+            setMajorSectionOpen("profile", true);
         }
-    }, [majorDisclosure.setOpen]);
+    }, [setMajorSectionOpen]);
 
     const widgetFallback = (
         <section className="rounded-3xl border border-amber-200 bg-amber-50 p-5 text-sm font-bold text-amber-800 dark:border-amber-400/20 dark:bg-amber-500/10 dark:text-amber-200">

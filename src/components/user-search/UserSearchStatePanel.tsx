@@ -1,10 +1,9 @@
 "use client";
 
-import type React from "react";
+import { UserSearchStateCard } from "@/components/user-search/UserSearchStateCard";
+import type { UserSearchErrorCode } from "@/hooks/user-search/usePublicIdUserSearch";
 import { AlertCircle, Search, UserX } from "lucide-react";
 import { useTranslations } from "next-intl";
-
-import type { UserSearchErrorCode } from "@/hooks/user-search/usePublicIdUserSearch";
 
 interface UserSearchStatePanelProps {
     isSearching: boolean;
@@ -21,7 +20,7 @@ export default function UserSearchStatePanel({
 
     if (isSearching) {
         return (
-            <StateCard
+            <UserSearchStateCard
                 icon={<Search className="h-7 w-7 animate-pulse" />}
                 title={t("searchingTitle")}
                 description={t("searchingDescription")}
@@ -31,7 +30,7 @@ export default function UserSearchStatePanel({
 
     if (searchErrorCode === "NOT_FOUND") {
         return (
-            <StateCard
+            <UserSearchStateCard
                 icon={<UserX className="h-7 w-7" />}
                 title={t("notFoundTitle")}
                 description={t("notFoundDescription")}
@@ -41,7 +40,7 @@ export default function UserSearchStatePanel({
 
     if (searchErrorCode === "SEARCH_FAILED") {
         return (
-            <StateCard
+            <UserSearchStateCard
                 icon={<AlertCircle className="h-7 w-7" />}
                 title={t("failedTitle")}
                 description={t("failedDescription")}
@@ -52,7 +51,7 @@ export default function UserSearchStatePanel({
 
     if (hasSearched) {
         return (
-            <StateCard
+            <UserSearchStateCard
                 icon={<UserX className="h-7 w-7" />}
                 title={t("emptyTitle")}
                 description={t("emptyDescription")}
@@ -61,44 +60,10 @@ export default function UserSearchStatePanel({
     }
 
     return (
-        <StateCard
+        <UserSearchStateCard
             icon={<Search className="h-7 w-7" />}
             title={t("initialTitle")}
             description={t("initialDescription")}
         />
-    );
-}
-
-interface StateCardProps {
-    icon: React.ReactNode;
-    title: string;
-    description: string;
-    danger?: boolean;
-}
-
-function StateCard({
-    icon,
-    title,
-    description,
-    danger = false,
-}: StateCardProps) {
-    return (
-        <div
-            className={`rounded-4xl border p-8 text-center ${
-                danger
-                    ? "border-rose-200 bg-rose-50 text-rose-600 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-200"
-                    : "border-slate-200 bg-slate-50 text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-300"
-            }`}
-        >
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-sm dark:bg-slate-900">
-                {icon}
-            </div>
-            <h3 className="mt-5 text-lg font-black text-slate-900 dark:text-white">
-                {title}
-            </h3>
-            <p className="mx-auto mt-2 max-w-md text-sm leading-6">
-                {description}
-            </p>
-        </div>
     );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useLazyAudioResource } from "@/hooks/language-learning/common/useLazyAudioResource";
 
 import { listeningService } from "@/services/language-learning/listeningService";
 
@@ -21,32 +21,13 @@ export function ListeningUserAudioPlayer({
     loadingLabel,
     errorLabel,
 }: ListeningUserAudioPlayerProps) {
-    const [audioUrl, setAudioUrl] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [failed, setFailed] = useState(false);
-
-    useEffect(
-        () => () => {
-            if (audioUrl) URL.revokeObjectURL(audioUrl);
-        },
-        [audioUrl],
-    );
+    const { url: audioUrl, loading, failed, load } = useLazyAudioResource({
+        resourceId: taskResponseId,
+        fetcher: listeningService.fetchUserAudio,
+        enabled: available && !expired,
+    });
 
     if (!available || expired) return null;
-
-    const load = async () => {
-        if (audioUrl || loading) return;
-        setLoading(true);
-        setFailed(false);
-        try {
-            const blob = await listeningService.fetchUserAudio(taskResponseId);
-            setAudioUrl(URL.createObjectURL(blob));
-        } catch {
-            setFailed(true);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     return (
         <div className="mt-3">

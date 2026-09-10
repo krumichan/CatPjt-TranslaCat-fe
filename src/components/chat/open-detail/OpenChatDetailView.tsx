@@ -1,5 +1,12 @@
 "use client";
 
+import { ChatAiDisclosureBadge } from "@/components/chat/ai/ChatAiDisclosureBadge";
+import { ChatAiPolicyNotice } from "@/components/chat/ai/ChatAiPolicyNotice";
+import { OpenChatStatusIcon } from "@/components/chat/open-detail/OpenChatStatusIcon";
+import { OpenChatAvatar } from "@/components/chat/open-profile/OpenChatAvatar";
+import type { OpenChatRoomDetailLoadErrorCode } from "@/hooks/chat/useOpenChatRoomDetail";
+import { Link } from "@/navigation";
+import type { OpenChatRoomDetail } from "@/types/chat";
 import {
     AlertCircle,
     ArrowLeft,
@@ -9,18 +16,10 @@ import {
     Globe2,
     Link2,
     Loader2,
-    LockKeyhole,
     RefreshCw,
     Users,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-
-import { ChatAiDisclosureBadge } from "@/components/chat/ai/ChatAiDisclosureBadge";
-import { ChatAiPolicyNotice } from "@/components/chat/ai/ChatAiPolicyNotice";
-import { OpenChatAvatar } from "@/components/chat/open-profile/OpenChatAvatar";
-import type { OpenChatRoomDetailLoadErrorCode } from "@/hooks/chat/useOpenChatRoomDetail";
-import { Link } from "@/navigation";
-import type { OpenChatRoomDetail } from "@/types/chat";
 
 interface OpenChatDetailViewProps {
     room: OpenChatRoomDetail | null;
@@ -29,16 +28,6 @@ interface OpenChatDetailViewProps {
     loadErrorCode: OpenChatRoomDetailLoadErrorCode | null;
     onRetry: () => Promise<OpenChatRoomDetail | null>;
     onOpenJoin: () => void;
-}
-
-function StatusIcon({ reason }: { reason: OpenChatRoomDetail["joinBlockedReason"] }) {
-    if (reason === "BANNED") {
-        return <Ban className="h-6 w-6" aria-hidden="true" />;
-    }
-    if (reason === "ROOM_FULL" || reason === "ROOM_CLOSED") {
-        return <LockKeyhole className="h-6 w-6" aria-hidden="true" />;
-    }
-    return <ArrowRight className="h-6 w-6" aria-hidden="true" />;
 }
 
 export function OpenChatDetailView({
@@ -221,7 +210,7 @@ export function OpenChatDetailView({
 
                     <aside className="h-fit rounded-4xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
                         <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${isBlocked ? "bg-slate-100 text-slate-500 dark:bg-white/10 dark:text-slate-300" : "bg-orange-50 text-orange-500 dark:bg-orange-500/10 dark:text-orange-200"}`}>
-                            <StatusIcon reason={room.joinBlockedReason} />
+                            <OpenChatStatusIcon reason={room.joinBlockedReason} />
                         </div>
                         <h2 className="mt-4 text-xl font-black text-slate-900 dark:text-white">
                             {room.joined

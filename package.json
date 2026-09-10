@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "check:i18n": "node scripts/check-i18n-keys.mjs",
-    "test:generation": "node --experimental-strip-types --test tests/language-learning/generation-state.test.mjs",
+    "test:generation": "node --import ./tests/helpers/register-source-loader.mjs --test tests/language-learning/generation-state.test.mjs",
     "test:e2e:gate": "playwright test --project=mock-chromium --grep \"SOCIAL-01|FRIEND-09|ROOM-01|CHAT-01\"",
     "test:e2e": "playwright test --project=mock-chromium",
     "test:e2e:all": "playwright test",
@@ -17,7 +17,10 @@
     "test:e2e:report": "playwright show-report",
     "e2e:auth": "node scripts/setup-playwright-auth.mjs",
     "test:e2e:integration": "node scripts/run-integration-e2e.mjs",
-    "test:e2e:integration:open": "node scripts/run-integration-e2e.mjs --grep OPEN-INT"
+    "test:e2e:integration:open": "node scripts/run-integration-e2e.mjs --grep OPEN-INT",
+    "check:structure": "node scripts/check-fe-structure.mjs",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test:unit": "node --import ./tests/helpers/register-source-loader.mjs --test tests/language-learning/*.test.mjs tests/frontend-domain-utils.test.mjs tests/tooling/*.test.mjs"
   },
   "dependencies": {
     "@fontsource/noto-sans-jp": "^5.2.9",

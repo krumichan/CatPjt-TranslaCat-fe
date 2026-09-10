@@ -1,12 +1,12 @@
+import FriendHelpModal from "@/components/friends/FriendHelpModal";
+import { FriendModalSearchState } from "@/components/friends/FriendModalSearchState";
+import UserSearchResultCard from "@/components/user-search/UserSearchResultCard";
+import { usePublicIdUserSearch } from "@/hooks/user-search/usePublicIdUserSearch";
+import { CircleHelp, Loader2, Search, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { CircleHelp, Loader2, Search, X } from "lucide-react";
-import { useTranslations } from "next-intl";
-
-import FriendHelpModal from "@/components/friends/FriendHelpModal";
-import UserSearchResultCard from "@/components/user-search/UserSearchResultCard";
-import { usePublicIdUserSearch } from "@/hooks/user-search/usePublicIdUserSearch";
 
 type FriendSearchModalProps = {
     isOpen: boolean;
@@ -181,7 +181,7 @@ export default function FriendSearchModal({
                         {shouldShowResultArea && (
                             <div className="mt-5">
                                 {userSearch.isSearching ? (
-                                    <ModalSearchState
+                                    <FriendModalSearchState
                                         title={t("state.searchingTitle")}
                                         description={t(
                                             "state.searchingDescription",
@@ -211,7 +211,7 @@ export default function FriendSearchModal({
                                     />
                                 ) : userSearch.searchErrorCode ===
                                   "NOT_FOUND" ? (
-                                    <ModalSearchState
+                                    <FriendModalSearchState
                                         title={t("state.notFoundTitle")}
                                         description={t(
                                             "state.notFoundDescription",
@@ -219,7 +219,7 @@ export default function FriendSearchModal({
                                     />
                                 ) : userSearch.searchErrorCode ===
                                   "SEARCH_FAILED" ? (
-                                    <ModalSearchState
+                                    <FriendModalSearchState
                                         variant="error"
                                         title={t("state.failedTitle")}
                                         description={t(
@@ -240,42 +240,5 @@ export default function FriendSearchModal({
             />
         </>,
         document.body,
-    );
-}
-
-type ModalSearchStateProps = {
-    title: string;
-    description: string;
-    variant?: "default" | "error";
-};
-
-function ModalSearchState({
-    title,
-    description,
-    variant = "default",
-}: ModalSearchStateProps) {
-    const isError = variant === "error";
-
-    return (
-        <div
-            className={`rounded-3xl px-5 py-8 text-center ${
-                isError
-                    ? "border border-rose-200 bg-rose-50 text-rose-600 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-200"
-                    : "border border-slate-200 bg-slate-50 text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-300"
-            }`}
-        >
-            <h3
-                className={`text-lg font-black ${
-                    isError
-                        ? "text-rose-600 dark:text-rose-200"
-                        : "text-slate-950 dark:text-white"
-                }`}
-            >
-                {title}
-            </h3>
-            <p className="mx-auto mt-2 max-w-md text-sm leading-6">
-                {description}
-            </p>
-        </div>
     );
 }

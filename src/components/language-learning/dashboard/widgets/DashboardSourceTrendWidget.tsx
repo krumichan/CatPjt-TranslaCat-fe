@@ -3,16 +3,14 @@
 import { useTranslations } from "next-intl";
 
 import { AppSelect } from "@/components/common/AppSelect";
-import {
-    DisclosureContent,
-    DisclosureToggleButton,
-    type DisclosureControlProps,
-} from "@/components/language-learning/common/LanguageLearningDisclosure";
+import { DisclosureContent } from "@/components/language-learning/common/DisclosureContent";
+import { DisclosureToggleButton } from "@/components/language-learning/common/DisclosureToggleButton";
 import type {
     DashboardPeriod,
     DashboardSourceFilter,
     SourceSkillTrend,
 } from "@/types/language-learning/dashboard";
+import type { DisclosureControlProps } from "@/types/language-learning/disclosure";
 
 interface DashboardSourceTrendWidgetProps {
     data: SourceSkillTrend;

@@ -86,13 +86,14 @@ export function useSpeakingStartPageController() {
             status.evaluationStatus === "EVALUATING",
     );
 
+    const refreshModeStatus = modeStatusQuery.mutate;
     useEffect(() => {
         if (!hasPendingModeEvaluation) return;
         const timer = window.setInterval(() => {
-            void modeStatusQuery.mutate(undefined, true);
+            void refreshModeStatus((current) => current, true);
         }, 2000);
         return () => window.clearInterval(timer);
-    }, [hasPendingModeEvaluation, modeStatusQuery.mutate]);
+    }, [hasPendingModeEvaluation, refreshModeStatus]);
 
     useEffect(() => {
         const setting = entry.setting;

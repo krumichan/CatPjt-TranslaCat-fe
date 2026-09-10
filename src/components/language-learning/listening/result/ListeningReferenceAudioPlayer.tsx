@@ -1,34 +1,17 @@
 "use client";
 
+import { useLazyAudioResource } from "@/hooks/language-learning/common/useLazyAudioResource";
 import { Headphones, Play } from "lucide-react";
-import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { listeningService } from "@/services/language-learning/listeningService";
 
 export function ListeningReferenceAudioPlayer({ itemId }: { itemId: number }) {
     const t = useTranslations("LanguageLearning.listening.result");
-    const [url, setUrl] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [failed, setFailed] = useState(false);
-
-    useEffect(() => () => {
-        if (url) URL.revokeObjectURL(url);
-    }, [url]);
-
-    const load = async () => {
-        if (url || loading) return;
-        setLoading(true);
-        setFailed(false);
-        try {
-            const blob = await listeningService.fetchReferenceAudio(itemId);
-            setUrl(URL.createObjectURL(blob));
-        } catch {
-            setFailed(true);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const { url, loading, failed, load } = useLazyAudioResource({
+        resourceId: itemId,
+        fetcher: listeningService.fetchReferenceAudio,
+    });
 
     return (
         <div className="rounded-2xl border border-blue-100 bg-blue-50/70 p-4 dark:border-blue-400/15 dark:bg-blue-500/10" data-testid={`listening-result-reference-audio-${itemId}`}>

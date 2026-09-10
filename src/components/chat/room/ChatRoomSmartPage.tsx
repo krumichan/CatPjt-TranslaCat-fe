@@ -2,11 +2,9 @@
 
 import { useEffect } from "react";
 
+import { ChatRoomErrorState } from "@/components/chat/room/ChatRoomErrorState";
+import { ChatRoomLoadingState } from "@/components/chat/room/ChatRoomLoadingState";
 import { ChatRoomPageOverlays } from "@/components/chat/room/ChatRoomPageOverlays";
-import {
-    ChatRoomErrorState,
-    ChatRoomLoadingState,
-} from "@/components/chat/room/ChatRoomPageState";
 import { ChatRoomView } from "@/components/chat/room/ChatRoomView";
 import { useChatRoomPageController } from "@/hooks/chat/useChatRoomPageController";
 

@@ -1,4 +1,4 @@
-import type { Page, Route, WebSocketRoute } from "@playwright/test";
+import type { Page, Route } from "@playwright/test";
 
 import { expect, test } from "../fixtures/mock-test";
 import {
@@ -14,7 +14,7 @@ import {
     makeRoom,
     responseDto,
 } from "../support/mock-data";
-import { mockStompBroker, sendStompJson } from "../support/stomp-mock";
+import { mockStompBroker } from "../support/stomp-mock";
 import { TEST_USERS } from "../support/test-users";
 
 const ROOM_ID = 501;
@@ -301,12 +301,8 @@ test.describe("OPEN chat room-scoped profile", () => {
     test("OPEN-PROFILE-04 최신 프로필 Event를 메시지·모달·멤버 목록에 반영하고 역순 Event를 무시한다", async ({
         page,
     }) => {
-        let socket: WebSocketRoute | null = null;
-        await mockStompBroker(page, {
-            onSocket: (nextSocket) => {
-                socket = nextSocket;
-            },
-        });
+        const roomTopic = `/topic/chat/rooms/${ROOM_ID}`;
+        const stompBroker = await mockStompBroker(page);
         await mockChatRoomBase(page, {
             room: openRoom(),
             messages: [
@@ -321,7 +317,7 @@ test.describe("OPEN chat room-scoped profile", () => {
 
         await page.goto(`/chat/rooms/${ROOM_ID}`);
         await expect(page.getByText("WS: CONNECTED")).toBeVisible();
-        await expect.poll(() => socket !== null).toBe(true);
+        await expect.poll(() => stompBroker.hasSubscriber(roomTopic)).toBe(true);
 
         await page.getByTestId("chat-room-menu-button").click();
         await page
@@ -343,9 +339,8 @@ test.describe("OPEN chat room-scoped profile", () => {
             role: "ADMIN",
             occurredAt: "2026-07-20T13:00:00.000Z",
         };
-        sendStompJson(
-            socket as WebSocketRoute,
-            `/topic/chat/rooms/${ROOM_ID}`,
+        stompBroker.sendJsonToSubscribers(
+            roomTopic,
             firstEvent,
         );
 
@@ -368,9 +363,8 @@ test.describe("OPEN chat room-scoped profile", () => {
                 .getByText("실시간고양이", { exact: true }),
         ).toBeVisible();
 
-        sendStompJson(
-            socket as WebSocketRoute,
-            `/topic/chat/rooms/${ROOM_ID}`,
+        stompBroker.sendJsonToSubscribers(
+            roomTopic,
             {
                 ...firstEvent,
                 nickname: "오래된고양이",

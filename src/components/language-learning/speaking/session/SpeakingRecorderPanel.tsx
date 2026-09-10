@@ -1,5 +1,7 @@
 "use client";
 
+import { formatDuration } from "@/utils/time/formatDuration";
+
 import { AlertTriangle, Mic, RotateCcw, Send, Square } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -9,10 +11,6 @@ import {
     SPEAKING_MIN_VALID_AUDIO_SECONDS,
 } from "@/constants/language-learning/speaking";
 import type { SpeakingSessionController } from "@/hooks/language-learning/speaking/useSpeakingSessionController";
-
-function formatSeconds(value: number) {
-    return `${Math.floor(value / 60)}:${String(Math.floor(value % 60)).padStart(2, "0")}`;
-}
 
 export function SpeakingRecorderPanel({
     controller,
@@ -68,7 +66,7 @@ export function SpeakingRecorderPanel({
                         </p>
                     </div>
                     <p className="mt-1 text-2xl font-black tabular-nums text-slate-950 dark:text-white">
-                        {formatSeconds(recorder.elapsedSeconds)} / {formatSeconds(SPEAKING_MAX_TURN_AUDIO_SECONDS)}
+                        {formatDuration(recorder.elapsedSeconds)} / {formatDuration(SPEAKING_MAX_TURN_AUDIO_SECONDS)}
                     </p>
                     <p className="mt-1 text-xs text-slate-400">
                         {t("limits")}

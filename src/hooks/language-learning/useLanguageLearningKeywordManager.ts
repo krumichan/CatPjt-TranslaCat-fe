@@ -1,10 +1,10 @@
 "use client";
 
-import { useCallback, useState } from "react";
 import { useLocale } from "next-intl";
+import { useCallback, useState } from "react";
 
+import { getLanguageLearningErrorCode } from "@/features/language-learning/common/errorMapping";
 import { useQuery } from "@/hooks/useQuery";
-import { getLanguageLearningErrorCode } from "@/hooks/language-learning/languageLearningErrorMapper";
 import { languageLearningKeywordService } from "@/services/language-learning/languageLearningKeywordService";
 import type { KeywordType } from "@/types/language-learning/common";
 import type { LanguageLearningKeyword } from "@/types/language-learning/keyword";

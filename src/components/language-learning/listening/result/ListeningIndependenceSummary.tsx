@@ -1,8 +1,8 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-
+import { ListeningIndependenceScore } from "@/components/language-learning/listening/result/ListeningIndependenceScore";
 import type { ListeningAttempt } from "@/types/language-learning/listening";
+import { useTranslations } from "next-intl";
 
 export function ListeningIndependenceSummary({ attempt }: { attempt: ListeningAttempt }) {
     const t = useTranslations("LanguageLearning.listening.result.independence");
@@ -16,9 +16,9 @@ export function ListeningIndependenceSummary({ attempt }: { attempt: ListeningAt
 
     return (
         <div className="grid gap-3 rounded-3xl border border-cyan-200 bg-cyan-50/50 p-4 dark:border-cyan-500/20 dark:bg-cyan-500/5 sm:grid-cols-3">
-            <Score label={t("overall")} value={attempt.overallScore} />
-            <Score label={t("content")} value={attempt.contentOverallScore} />
-            <Score
+            <ListeningIndependenceScore label={t("overall")} value={attempt.overallScore} />
+            <ListeningIndependenceScore label={t("content")} value={attempt.contentOverallScore} />
+            <ListeningIndependenceScore
                 label={t("independence")}
                 value={attempt.listeningIndependenceScore}
             />
@@ -31,17 +31,6 @@ export function ListeningIndependenceSummary({ attempt }: { attempt: ListeningAt
                 </p>
                 <p className="mt-1">{t("help")}</p>
             </div>
-        </div>
-    );
-}
-
-function Score({ label, value }: { label: string; value: number | null }) {
-    return (
-        <div className="rounded-2xl bg-white p-4 text-center dark:bg-white/5">
-            <p className="text-xs font-black text-slate-500 dark:text-slate-400">{label}</p>
-            <p className="mt-2 text-2xl font-black text-slate-950 dark:text-white">
-                {value == null ? "—" : Math.round(value)}
-            </p>
         </div>
     );
 }

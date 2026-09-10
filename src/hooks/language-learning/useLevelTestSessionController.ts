@@ -2,19 +2,16 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { LANGUAGE_LEARNING_ERROR_CODES } from "@/features/language-learning/common/errorMapping";
 import { createIdempotencyKey } from "@/features/language-learning/listening/idempotency";
 import { useAudioRecorder } from "@/hooks/language-learning/speaking/useAudioRecorder";
 import { useMicrophonePermission } from "@/hooks/language-learning/speaking/useMicrophonePermission";
-import { LANGUAGE_LEARNING_ERROR_CODES } from "@/hooks/language-learning/languageLearningErrorMapper";
 import { useLanguageLearningEntryState } from "@/hooks/language-learning/useLanguageLearningEntryState";
 import { useQuery } from "@/hooks/useQuery";
 import { useRouter } from "@/navigation";
 import { getApiErrorCode } from "@/services/common/responseParser";
 import { languageLearningLevelService } from "@/services/language-learning/languageLearningLevelService";
-import type {
-    LevelTestAnswerResult,
-    LevelTestQuestion,
-} from "@/types/language-learning/level";
+import type { LevelTestAnswerResult } from "@/types/language-learning/level";
 
 const RERECORD_REQUIRED_REASON_CODES = new Set([
     "INVALID_AUDIO",
@@ -76,7 +73,6 @@ export function useLevelTestSessionController(sessionId: number) {
     const [referenceAudioUrl, setReferenceAudioUrl] = useState<string | null>(null);
     const [isAudioLoading, setIsAudioLoading] = useState(false);
     const [referencePlaybackCount, setReferencePlaybackCount] = useState(0);
-    const headingRef = useRef<HTMLHeadingElement | null>(null);
     const submissionAttemptRef = useRef<{
         itemId: number;
         idempotencyKey: string;
@@ -119,7 +115,6 @@ export function useLevelTestSessionController(sessionId: number) {
             if (current) URL.revokeObjectURL(current);
             return null;
         });
-        window.setTimeout(() => headingRef.current?.focus(), 0);
     }, [question?.itemId, resetRecorder]);
 
     useEffect(() => {
@@ -490,7 +485,6 @@ export function useLevelTestSessionController(sessionId: number) {
         referenceAudioUrl,
         referencePlaybackCount,
         isAudioLoading,
-        headingRef,
         setSelectedOptionKey,
         setTextAnswer,
         addOrderKey,

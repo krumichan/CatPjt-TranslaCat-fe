@@ -199,7 +199,7 @@ export function SpeakingTurnCard({
         >
             <div className="flex items-center justify-between gap-3">
                 <span className="text-xs font-black uppercase tracking-[0.12em] text-slate-400">
-                    {t(practiceMode === "READ_ALOUD" ? "itemNumber" : "number", {
+                    {t("number", {
                         value: turn.turnIndex,
                     })}
                 </span>

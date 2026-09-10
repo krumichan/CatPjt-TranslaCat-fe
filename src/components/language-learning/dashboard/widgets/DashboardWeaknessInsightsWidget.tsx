@@ -3,12 +3,11 @@
 import { Target } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import {
-    DisclosureContent,
-    DisclosureToggleButton,
-    type DisclosureControlProps,
-} from "@/components/language-learning/common/LanguageLearningDisclosure";
+import { DisclosureContent } from "@/components/language-learning/common/DisclosureContent";
+import { DisclosureToggleButton } from "@/components/language-learning/common/DisclosureToggleButton";
 import type { DashboardWeakness } from "@/types/language-learning/dashboard";
+import type { LearningSource } from "@/types/language-learning/history";
+import type { DisclosureControlProps } from "@/types/language-learning/disclosure";
 
 const TRANSLATED_METRICS = new Set([
     "LISTENING_RECOGNITION", "LISTENING_INDEPENDENCE", "TOKEN_RECOGNITION", "OMISSION_ADDITION_ORDER",
@@ -27,11 +26,12 @@ export function DashboardWeaknessInsightsWidget({
     disclosure: DisclosureControlProps;
 }) {
     const t = useTranslations("LanguageLearning.dashboard");
-    const sourceLabels = {
+    const sourceLabels: Record<LearningSource, string> = {
         WRITING: t("activity.writing"),
         SPEAKING: t("activity.speaking"),
         LISTENING: t("activity.listening"),
         READING: t("activity.reading"),
+        VOCABULARY: t("activity.vocabulary"),
         LEVEL_TEST: t("activity.levelTest"),
     };
     const contentId = "dashboard-weaknesses-content";

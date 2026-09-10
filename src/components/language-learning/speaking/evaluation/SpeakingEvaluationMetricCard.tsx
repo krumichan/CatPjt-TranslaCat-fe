@@ -3,7 +3,7 @@
 import { ExternalLink } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { parseEvidence } from "@/components/language-learning/speaking/evaluation/speakingEvaluationParser";
+import { parseEvidence } from "@/features/language-learning/speaking/evaluationParser";
 import type { SpeakingMetric } from "@/types/language-learning/speaking";
 
 export function SpeakingEvaluationMetricCard({

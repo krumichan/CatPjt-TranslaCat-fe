@@ -1,3 +1,9 @@
+import { countSpeakingAssistanceUsage } from "@/features/language-learning/speaking/assistanceUsage";
+
+import { AudioPlaybackButton } from "@/components/language-learning/speaking/common/AudioPlaybackButton";
+import { SpeakingAssistanceResult } from "@/components/language-learning/speaking/session/SpeakingAssistanceResult";
+import { cn } from "@/lib/utils";
+import type { AssistanceType, SpeakingAssistanceResponse, } from "@/types/language-learning/speaking";
 import {
     Languages,
     Lightbulb,
@@ -8,13 +14,6 @@ import {
     Volume2,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-
-import { AudioPlaybackButton } from "@/components/language-learning/speaking/common/AudioPlaybackButton";
-import { cn } from "@/lib/utils";
-import type {
-    AssistanceType,
-    SpeakingAssistanceResponse,
-} from "@/types/language-learning/speaking";
 
 const ASSISTANCE_ITEMS: Array<{
     type: AssistanceType;
@@ -45,7 +44,7 @@ export function SpeakingAssistancePanel({
 }) {
     const t = useTranslations("LanguageLearning.speaking.session.assistance");
     const usageCount = (type: AssistanceType) =>
-        usage.filter((item) => item === type).length;
+        countSpeakingAssistanceUsage(usage, [type]);
 
     return (
         <section
@@ -117,16 +116,16 @@ export function SpeakingAssistancePanel({
                 </p>
             )}
 
-            <AssistanceResult
+            <SpeakingAssistanceResult
                 result={results.SHOW_QUESTION}
                 title={t("question")}
             />
-            <AssistanceResult result={results.HINT} title={t("hint")} />
-            <AssistanceResult
+            <SpeakingAssistanceResult result={results.HINT} title={t("hint")} />
+            <SpeakingAssistanceResult
                 result={results.TRANSLATION}
                 title={t("translation")}
             />
-            <AssistanceResult
+            <SpeakingAssistanceResult
                 result={results.SAMPLE_ANSWER}
                 title={t("sampleAnswer")}
             />
@@ -157,24 +156,5 @@ export function SpeakingAssistancePanel({
                 </p>
             )}
         </section>
-    );
-}
-
-function AssistanceResult({
-    result,
-    title,
-}: {
-    result: SpeakingAssistanceResponse | undefined;
-    title: string;
-}) {
-    if (!result?.content) return null;
-
-    return (
-        <div className="mt-3 rounded-xl bg-slate-50 px-3 py-3 text-sm leading-6 text-slate-700 dark:bg-white/5 dark:text-slate-200">
-            <p className="text-[11px] font-black uppercase tracking-wider text-slate-400">
-                {title}
-            </p>
-            <p className="mt-1 whitespace-pre-wrap">{result.content}</p>
-        </div>
     );
 }

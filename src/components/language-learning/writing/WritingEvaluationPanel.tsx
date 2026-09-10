@@ -1,24 +1,10 @@
 "use client";
 
+import { WritingBilingualBlock } from "@/components/language-learning/writing/WritingBilingualBlock";
+import { WritingScoreGrid } from "@/components/language-learning/writing/WritingScoreGrid";
+import type { WritingEvaluation } from "@/types/language-learning/daily";
 import { CheckCircle2, Lightbulb, PencilLine, TriangleAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
-
-import { WritingScoreGrid } from "@/components/language-learning/writing/WritingScoreGrid";
-import type { BilingualMessage } from "@/types/language-learning/common";
-import type { WritingEvaluation } from "@/types/language-learning/daily";
-
-function BilingualBlock({ item }: { item: BilingualMessage }) {
-    return (
-        <div className="rounded-xl bg-slate-50 px-4 py-3 dark:bg-white/5">
-            <p className="text-sm font-bold leading-6 text-slate-800 dark:text-slate-100">
-                {item.originText}
-            </p>
-            <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">
-                {item.learningText}
-            </p>
-        </div>
-    );
-}
 
 export function WritingEvaluationPanel({
     evaluation,
@@ -57,7 +43,7 @@ export function WritingEvaluationPanel({
                     </div>
                     <div className="space-y-2">
                         {evaluation.strengths.map((item, index) => (
-                            <BilingualBlock key={`${item.originText}-${index}`} item={item} />
+                            <WritingBilingualBlock key={`${item.originText}-${index}`} item={item} />
                         ))}
                     </div>
                 </div>
@@ -68,7 +54,7 @@ export function WritingEvaluationPanel({
                     </div>
                     <div className="space-y-2">
                         {evaluation.weaknesses.map((item, index) => (
-                            <BilingualBlock key={`${item.originText}-${index}`} item={item} />
+                            <WritingBilingualBlock key={`${item.originText}-${index}`} item={item} />
                         ))}
                     </div>
                 </div>
@@ -92,7 +78,7 @@ export function WritingEvaluationPanel({
                                     </span>
                                 </div>
                                 <div className="mt-3">
-                                    <BilingualBlock item={correction.explanation} />
+                                    <WritingBilingualBlock item={correction.explanation} />
                                 </div>
                             </div>
                         ))}
@@ -123,7 +109,7 @@ export function WritingEvaluationPanel({
                     {t("explanation")}
                 </h4>
                 <div className="mt-2">
-                    <BilingualBlock item={evaluation.explanation} />
+                    <WritingBilingualBlock item={evaluation.explanation} />
                 </div>
             </div>
         </section>

@@ -3,10 +3,8 @@
 import { UserRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import {
-    DisclosureContent,
-    DisclosureToggleButton,
-} from "@/components/language-learning/common/LanguageLearningDisclosure";
+import { DisclosureContent } from "@/components/language-learning/common/DisclosureContent";
+import { DisclosureToggleButton } from "@/components/language-learning/common/DisclosureToggleButton";
 import { LanguageLearningStateCard } from "@/components/language-learning/common/LanguageLearningStateCard";
 import { LanguageLearningProfileView } from "@/components/language-learning/profile/LanguageLearningProfileView";
 import type { LevelTestHistoryItem, LevelTestStatus } from "@/types/language-learning/level";

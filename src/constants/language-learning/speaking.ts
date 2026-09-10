@@ -1,21 +1,4 @@
-import type {
-    ConversationStartMode,
-    CorrectionMode,
-    SpeakingTopicCategory,
-} from "@/types/language-learning/speaking";
-
-export const SPEAKING_TOPIC_CATEGORIES: SpeakingTopicCategory[] = [
-    "DAILY",
-    "TRAVEL",
-    "FOOD",
-    "SHOPPING",
-    "BUSINESS",
-    "IT",
-    "HOBBY",
-    "GAME",
-    "CULTURE",
-    "FREE_TALK",
-];
+import type { ConversationStartMode, CorrectionMode } from "@/types/language-learning/speaking";
 
 export const SPEAKING_START_MODES: ConversationStartMode[] = [
     "AI_FIRST",
@@ -42,7 +25,3 @@ export const SPEAKING_PLAYBACK_SPEED_OPTIONS = [
 export const SPEAKING_MIN_VALID_AUDIO_SECONDS = 1;
 export const SPEAKING_MAX_TURN_AUDIO_SECONDS = 60;
 export const SPEAKING_MAX_AUDIO_FILE_BYTES = 10 * 1024 * 1024;
-
-export const SPEAKING_EVALUATION_MIN_TURNS = 5;
-export const SPEAKING_EVALUATION_MIN_SECONDS = 60;
-export const SPEAKING_EVALUATION_MIN_STT_RATIO = 80;

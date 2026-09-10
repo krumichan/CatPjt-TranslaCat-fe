@@ -3,8 +3,8 @@
 import { CheckCircle2, LoaderCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import type { DailyWritingTypeProgress } from "@/hooks/language-learning/useDailyWritingPageController";
 import type { DailyWritingType } from "@/types/language-learning/common";
+import type { DailyWritingTypeProgress } from "@/types/language-learning/writingProgress";
 
 const TYPES: DailyWritingType[] = ["TRANSLATION", "GUIDED", "FREE"];
 

@@ -1,12 +1,13 @@
-import { useState } from "react";
-import type { SyntheticEvent } from "react";
-import { createPortal } from "react-dom";
+import ExpenseGoalAmountInput from "@/components/account-book/detail/expense-goal/ExpenseGoalAmountInput";
+import ExpenseGoalYearMonthInput from "@/components/account-book/detail/expense-goal/ExpenseGoalYearMonthInput";
+import type { CurrencyCode } from "@/types/accountBook";
+import { getDefaultYearMonth } from "@/utils/account-book/expenseGoalForm";
+import { parseCommaNumber } from "@/utils/number/formatNumberInput";
 import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { CurrencyCode } from "@/types/accountBook";
-import { parseCommaNumber } from "@/utils/number/formatNumberInput";
-import ExpenseGoalYearMonthInput from "@/components/account-book/detail/expense-goal/ExpenseGoalYearMonthInput";
-import ExpenseGoalAmountInput from "@/components/account-book/detail/expense-goal/ExpenseGoalAmountInput";
+import type { SyntheticEvent } from "react";
+import { useState } from "react";
+import { createPortal } from "react-dom";
 
 type ExpenseGoalEditModalProps = {
     selectedMonth: string;
@@ -20,24 +21,6 @@ type ExpenseGoalEditModalProps = {
         goalAmount: number
     ) => void | Promise<void>;
 };
-
-function getDefaultYearMonth(selectedMonth: string) {
-    if (selectedMonth === "ALL") {
-        const now = new Date();
-
-        return {
-            year: String(now.getFullYear()),
-            month: String(now.getMonth() + 1).padStart(2, "0"),
-        };
-    }
-
-    const [year, month] = selectedMonth.split("-");
-
-    return {
-        year,
-        month,
-    };
-}
 
 export default function ExpenseGoalEditModal({
     selectedMonth,

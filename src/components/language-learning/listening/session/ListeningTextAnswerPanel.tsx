@@ -1,6 +1,5 @@
 import { useTranslations } from "next-intl";
 
-import type { ListeningTaskType } from "@/types/language-learning/listening";
 
 export function ListeningTextAnswerPanel({
     taskType,
@@ -37,8 +36,4 @@ export function ListeningTextAnswerPanel({
             </label>
         </section>
     );
-}
-
-export function isTextTask(taskType: ListeningTaskType): taskType is "DICTATION" | "INTERPRETATION" | "SUMMARY" {
-    return taskType === "DICTATION" || taskType === "INTERPRETATION" || taskType === "SUMMARY";
 }

@@ -1,6 +1,26 @@
 import type { Page } from "@playwright/test";
 
-import { fulfillApiJson, mockCommonPageDependencies } from "./api-mocks";
+import type { LanguageLearningProfile } from "@/types/language-learning/profile";
+import type { LanguageLearningDashboard } from "@/types/language-learning/dashboard";
+import type {
+    SpeakingSession,
+    SpeakingTurn,
+    SpeakingSessionDetail,
+} from "@/types/language-learning/speaking";
+
+import type {
+    ListeningAttempt,
+    ListeningAudioAvailability,
+    ListeningDailySet,
+    ListeningEvaluation,
+    ListeningHistoryDetail,
+    ListeningItem,
+    ListeningItemSummary,
+    ListeningSession,
+    ListeningSessionResult,
+} from "@/types/language-learning/listening";
+
+import { fulfillApiJson, mockCommonPageDependencies, mockIdleWebSocket } from "./api-mocks";
 import { responseDto } from "./mock-data";
 
 export const LANGUAGE_LEARNING_SETTING = {
@@ -242,7 +262,20 @@ export const LANGUAGE_LEARNING_PROFILE = {
     strengths: [{ key: "meaning", occurrenceCount: 7 }],
     weaknesses: [{ key: "particle", occurrenceCount: 4 }],
     recommendedFocus: [{ key: "naturalness", occurrenceCount: 3 }],
-};
+    vocabularyMastery: {
+        total: 2,
+        averageScore: 68,
+        newCount: 0,
+        learningCount: 1,
+        familiarCount: 1,
+        strongCount: 0,
+        masteredCount: 0,
+        weakest: [
+            { canonicalKey: "連絡", displayExpression: "連絡", score: 60, stage: "LEARNING", evaluationCount: 2 },
+            { canonicalKey: "予定", displayExpression: "予定", score: 76, stage: "FAMILIAR", evaluationCount: 3 },
+        ],
+    },
+} satisfies LanguageLearningProfile;
 
 export const LANGUAGE_LEARNING_DASHBOARD = {
     learningLanguage: "ja",
@@ -305,34 +338,34 @@ export const LANGUAGE_LEARNING_DASHBOARD = {
             { taskType: "REPEAT_AFTER_AUDIO", metric: "PRONUNCIATION", date: "2026-08-23", averageScore: 80, sampleCount: 5 },
         ],
     },
-    // Keep the widget-isolation regression payload marker.
-    speakingSummary: { sessions: 4 },
-};
+} satisfies LanguageLearningDashboard;
 
 export async function mockLanguageLearningBase(page: Page) {
     await mockCommonPageDependencies(page);
-    await page.route("**/language-learning/settings", (route) =>
+    // Language-learning mock tests must not connect to a live backend WebSocket.
+    await mockIdleWebSocket(page);
+    await page.route("**/api/v1/language-learning/settings", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_SETTING)),
     );
-    await page.route("**/language-learning/level-test/status", (route) =>
+    await page.route("**/api/v1/language-learning/level-test/status", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LEVEL_STATUS)),
     );
-    await page.route("**/language-learning/level-test/history", (route) =>
+    await page.route("**/api/v1/language-learning/level-test/history", (route) =>
         fulfillApiJson(route, responseDto([])),
     );
-    await page.route("**/language-learning/dashboard**", (route) =>
+    await page.route("**/api/v1/language-learning/dashboard**", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_DASHBOARD)),
     );
-    await page.route("**/language-learning/profile", (route) =>
+    await page.route("**/api/v1/language-learning/profile", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_PROFILE)),
     );
-    await page.route("**/language-learning/history?**", (route) =>
+    await page.route("**/api/v1/language-learning/history?**", (route) =>
         fulfillApiJson(route, responseDto([{ activityId: "WRITING:101", source: "WRITING", learningDate: "2026-08-13", title: "Daily Writing", topic: null, durationSeconds: 0, overallScore: 84, completionStatus: "COMPLETED", evaluationStatus: "EVALUATED" }])),
     );
-    await page.route("**/language-learning/history/WRITING%3A101", (route) =>
+    await page.route("**/api/v1/language-learning/history/WRITING%3A101", (route) =>
         fulfillApiJson(route, responseDto({ activityId: "WRITING:101", source: "WRITING", detail: LANGUAGE_LEARNING_DAILY_SET })),
     );
-    await page.route("**/language-learning/keywords", (route) =>
+    await page.route("**/api/v1/language-learning/keywords", (route) =>
         fulfillApiJson(
             route,
             responseDto(LANGUAGE_LEARNING_KEYWORDS),
@@ -358,7 +391,7 @@ export const LANGUAGE_LEARNING_LISTENING_POLICY = {
     referenceTtsRegenerationEnabled: false,
 };
 
-export const LANGUAGE_LEARNING_LISTENING_DAILY_SET = {
+export const LANGUAGE_LEARNING_LISTENING_DAILY_SET: ListeningDailySet = {
     dailySetId: 701,
     learningDate: "2026-08-23",
     originLanguage: "ko",
@@ -371,7 +404,7 @@ export const LANGUAGE_LEARNING_LISTENING_DAILY_SET = {
     readyItemCount: 5,
     completedItemCount: 1,
     failureReason: null,
-    items: [1, 2, 3, 4, 5].map((itemIndex) => ({
+    items: [1, 2, 3, 4, 5].map((itemIndex): ListeningItemSummary => ({
         itemId: 710 + itemIndex,
         itemIndex,
         replacementSequence: 0,
@@ -381,14 +414,14 @@ export const LANGUAGE_LEARNING_LISTENING_DAILY_SET = {
     })),
 };
 
-const LISTENING_AUDIO_AVAILABILITY = {
+const LISTENING_AUDIO_AVAILABILITY: ListeningAudioAvailability = {
     available: true,
     expired: false,
     retentionUntil: "2026-08-30T12:00:00",
     deletedAt: null,
 };
 
-export const LANGUAGE_LEARNING_LISTENING_ATTEMPT = {
+export const LANGUAGE_LEARNING_LISTENING_ATTEMPT: ListeningAttempt = {
     attemptId: 801,
     itemId: 711,
     attemptNo: 1,
@@ -452,7 +485,7 @@ export const LANGUAGE_LEARNING_LISTENING_ATTEMPT = {
     ],
 };
 
-export const LANGUAGE_LEARNING_LISTENING_SESSION = {
+export const LANGUAGE_LEARNING_LISTENING_SESSION: ListeningSession = {
     sessionId: 702,
     dailySetId: 701,
     status: "IN_PROGRESS",
@@ -471,7 +504,7 @@ export const LANGUAGE_LEARNING_LISTENING_SESSION = {
     attempts: [LANGUAGE_LEARNING_LISTENING_ATTEMPT],
 };
 
-export const LANGUAGE_LEARNING_LISTENING_ITEM = {
+export const LANGUAGE_LEARNING_LISTENING_ITEM: ListeningItem = {
     sessionId: 702,
     itemId: 711,
     itemIndex: 1,
@@ -491,7 +524,7 @@ export const LANGUAGE_LEARNING_LISTENING_ITEM = {
     attempt: LANGUAGE_LEARNING_LISTENING_ATTEMPT,
 };
 
-const LISTENING_DICTATION_EVALUATION = {
+const LISTENING_DICTATION_EVALUATION: ListeningEvaluation = {
     evaluationId: 9501,
     taskType: "DICTATION",
     evaluable: true,
@@ -508,7 +541,7 @@ const LISTENING_DICTATION_EVALUATION = {
     evaluatedAt: "2026-08-23T12:03:00",
 };
 
-const LISTENING_REPEAT_EVALUATION = {
+const LISTENING_REPEAT_EVALUATION: ListeningEvaluation = {
     evaluationId: 9502,
     taskType: "REPEAT_AFTER_AUDIO",
     evaluable: true,
@@ -525,7 +558,7 @@ const LISTENING_REPEAT_EVALUATION = {
     evaluatedAt: "2026-08-23T12:03:00",
 };
 
-export const LANGUAGE_LEARNING_LISTENING_RESULT = {
+export const LANGUAGE_LEARNING_LISTENING_RESULT: ListeningSessionResult = {
     sessionId: 702,
     status: "COMPLETED",
     learnedItemCount: 1,
@@ -567,7 +600,7 @@ export const LANGUAGE_LEARNING_LISTENING_RESULT = {
     ],
 };
 
-export const LANGUAGE_LEARNING_LISTENING_HISTORY_DETAIL = {
+export const LANGUAGE_LEARNING_LISTENING_HISTORY_DETAIL: ListeningHistoryDetail = {
     session: { ...LANGUAGE_LEARNING_LISTENING_SESSION, status: "COMPLETED" },
     attempts: [
         {
@@ -582,20 +615,20 @@ export const LANGUAGE_LEARNING_LISTENING_HISTORY_DETAIL = {
 };
 
 export async function mockLanguageLearningListening(page: Page) {
-    await page.route("**/language-learning/listening/policy", (route) =>
+    await page.route("**/api/v1/language-learning/listening/policy", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LISTENING_POLICY)),
     );
-    await page.route("**/language-learning/listening/today/status", (route) =>
+    await page.route("**/api/v1/language-learning/listening/today/status", (route) =>
         fulfillApiJson(route, responseDto([
             { learningMode: "DICTATION", dailySetId: 701, latestSessionId: 702, status: "READY", latestSessionStatus: "IN_PROGRESS", completedItemCount: 1, evaluatedItemCount: 1, submittedItemCount: 1, terminalItemCount: 1, answerRevealedItemCount: 0, physicalItemCount: 5, readyItemCount: 5, targetItemCount: 5, completed: false },
             { learningMode: "COMPREHENSION", dailySetId: null, latestSessionId: null, status: null, latestSessionStatus: null, completedItemCount: 0, evaluatedItemCount: 0, submittedItemCount: 0, terminalItemCount: 0, answerRevealedItemCount: 0, physicalItemCount: 0, readyItemCount: 0, targetItemCount: 0, completed: false },
             { learningMode: "SUMMARY", dailySetId: null, latestSessionId: null, status: null, latestSessionStatus: null, completedItemCount: 0, evaluatedItemCount: 0, submittedItemCount: 0, terminalItemCount: 0, answerRevealedItemCount: 0, physicalItemCount: 0, readyItemCount: 0, targetItemCount: 0, completed: false },
         ])),
     );
-    await page.route("**/language-learning/listening/today", (route) =>
+    await page.route("**/api/v1/language-learning/listening/today", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LISTENING_DAILY_SET)),
     );
-    await page.route("**/language-learning/listening/daily-sets", async (route) => {
+    await page.route("**/api/v1/language-learning/listening/daily-sets", async (route) => {
         const request = route.request().postDataJSON() as { learningMode?: "DICTATION" | "COMPREHENSION" | "SUMMARY" } | null;
         await fulfillApiJson(
             route,
@@ -605,77 +638,77 @@ export async function mockLanguageLearningListening(page: Page) {
             }),
         );
     });
-    await page.route("**/language-learning/listening/sessions", (route) =>
+    await page.route("**/api/v1/language-learning/listening/sessions", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LISTENING_SESSION)),
     );
-    await page.route("**/language-learning/listening/sessions/active", (route) =>
+    await page.route("**/api/v1/language-learning/listening/sessions/active", (route) =>
         fulfillApiJson(route, responseDto({ active: false, session: null })),
     );
-    await page.route("**/language-learning/listening/sessions/702", (route) =>
+    await page.route("**/api/v1/language-learning/listening/sessions/702", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LISTENING_SESSION)),
     );
-    await page.route("**/language-learning/listening/sessions/702/resume", (route) =>
+    await page.route("**/api/v1/language-learning/listening/sessions/702/resume", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LISTENING_SESSION)),
     );
-    await page.route("**/language-learning/listening/sessions/702/items/711", (route) =>
+    await page.route("**/api/v1/language-learning/listening/sessions/702/items/711", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LISTENING_ITEM)),
     );
-    await page.route("**/language-learning/listening/sessions/702/items/711/playbacks", (route) =>
+    await page.route("**/api/v1/language-learning/listening/sessions/702/items/711/playbacks", (route) =>
         fulfillApiJson(route, responseDto(null)),
     );
-    await page.route("**/language-learning/listening/items/711/audio", async (route) => {
+    await page.route("**/api/v1/language-learning/listening/items/711/audio", async (route) => {
         if (route.request().resourceType() === "document") return route.fallback();
         await route.fulfill({ status: 200, contentType: "audio/webm", body: "mock-audio" });
     });
-    await page.route("**/language-learning/listening/attempts/801/assistance/**", (route) =>
+    await page.route("**/api/v1/language-learning/listening/attempts/801/assistance/**", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LISTENING_ATTEMPT)),
     );
-    await page.route("**/language-learning/listening/attempts/801/responses/**", (route) => {
+    await page.route("**/api/v1/language-learning/listening/attempts/801/responses/**", (route) => {
         const url = route.request().url();
         const taskType = url.includes("REPEAT_AFTER_AUDIO") ? "REPEAT_AFTER_AUDIO" : url.includes("INTERPRETATION") ? "INTERPRETATION" : "DICTATION";
         const task = LANGUAGE_LEARNING_LISTENING_ATTEMPT.tasks.find((item) => item.taskType === taskType) ?? LANGUAGE_LEARNING_LISTENING_ATTEMPT.tasks[0];
         return fulfillApiJson(route, responseDto({ ...task, status: "IN_PROGRESS" }));
     });
-    await page.route("**/language-learning/listening/attempts/801/audio-upload**", (route) =>
+    await page.route("**/api/v1/language-learning/listening/attempts/801/audio-upload**", (route) =>
         fulfillApiJson(route, responseDto({ taskResponseId: 903, durationMs: 8200, rerecordCount: 1, retentionUntil: "2026-08-30T12:00:00" })),
     );
-    await page.route("**/language-learning/listening/attempts/801/answer", (route) =>
+    await page.route("**/api/v1/language-learning/listening/attempts/801/answer", (route) =>
         fulfillApiJson(route, responseDto({ attemptId: 801, sourceText: "明日は友達と映画を見に行きます。", referenceMeanings: ["내일 친구와 영화를 보러 갑니다."], excludedFromProgress: true, excludedFromProfile: true })),
     );
-    await page.route("**/language-learning/listening/attempts/801/submit", (route) =>
+    await page.route("**/api/v1/language-learning/listening/attempts/801/submit", (route) =>
         fulfillApiJson(route, responseDto({ ...LANGUAGE_LEARNING_LISTENING_ATTEMPT, status: "EVALUATING" })),
     );
-    await page.route("**/language-learning/listening/attempts/801/retry-evaluation", (route) =>
+    await page.route("**/api/v1/language-learning/listening/attempts/801/retry-evaluation", (route) =>
         fulfillApiJson(route, responseDto({ ...LANGUAGE_LEARNING_LISTENING_RESULT.attempts[0], status: "EVALUATING" })),
     );
-    await page.route("**/language-learning/listening/sessions/702/items/711/practice-attempts", (route) =>
+    await page.route("**/api/v1/language-learning/listening/sessions/702/items/711/practice-attempts", (route) =>
         fulfillApiJson(route, responseDto({ ...LANGUAGE_LEARNING_LISTENING_ATTEMPT, attemptId: 802, attemptNo: 2, evaluationPurpose: "PRACTICE" })),
     );
-    await page.route("**/language-learning/listening/attempts/801/skip", (route) =>
+    await page.route("**/api/v1/language-learning/listening/attempts/801/skip", (route) =>
         fulfillApiJson(route, responseDto({ ...LANGUAGE_LEARNING_LISTENING_ATTEMPT, status: "SKIPPED" })),
     );
-    await page.route("**/language-learning/listening/responses/**/audio", async (route) => {
+    await page.route("**/api/v1/language-learning/listening/responses/**/audio", async (route) => {
         await route.fulfill({ status: 200, contentType: "audio/webm", body: "mock-user-audio" });
     });
-    await page.route("**/language-learning/listening/responses/**/reports", (route) =>
+    await page.route("**/api/v1/language-learning/listening/responses/**/reports", (route) =>
         fulfillApiJson(route, responseDto({ reportId: 9901, taskResponseId: 903, status: "OPEN", consentToRetainAudio: false, audioRetentionUntil: "2026-08-30T12:00:00" })),
     );
-    await page.route("**/language-learning/listening/sessions/702/complete", (route) =>
+    await page.route("**/api/v1/language-learning/listening/sessions/702/complete", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LISTENING_RESULT)),
     );
-    await page.route("**/language-learning/listening/sessions/702/result", (route) =>
+    await page.route("**/api/v1/language-learning/listening/sessions/702/result", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LISTENING_RESULT)),
     );
-    await page.route("**/language-learning/history?**", (route) =>
+    await page.route("**/api/v1/language-learning/history?**", (route) =>
         fulfillApiJson(route, responseDto([
             { activityId: "LISTENING:702", source: "LISTENING", learningDate: "2026-08-23", title: "AI Listening", topic: "週末", durationSeconds: 320, overallScore: 84, completionStatus: "COMPLETED", evaluationStatus: "EVALUATED", taskTypes: ["DICTATION", "REPEAT_AFTER_AUDIO"] },
             { activityId: "WRITING:101", source: "WRITING", learningDate: "2026-08-13", title: "Daily Writing", topic: null, durationSeconds: 0, overallScore: 84, completionStatus: "COMPLETED", evaluationStatus: "EVALUATED" },
         ])),
     );
-    await page.route("**/language-learning/history/LISTENING%3A702", (route) =>
+    await page.route("**/api/v1/language-learning/history/LISTENING%3A702", (route) =>
         fulfillApiJson(route, responseDto({ activityId: "LISTENING:702", source: "LISTENING", detail: LANGUAGE_LEARNING_LISTENING_HISTORY_DETAIL })),
     );
-    await page.route("**/language-learning/recommendations/**/dismiss", (route) =>
+    await page.route("**/api/v1/language-learning/recommendations/**/dismiss", (route) =>
         fulfillApiJson(route, responseDto(null)),
     );
 }
@@ -740,11 +773,14 @@ export const LANGUAGE_LEARNING_SPEAKING_SESSION = {
     startedAt: "2026-08-15T08:00:00",
     completedAt: null,
     lastActivityAt: "2026-08-15T08:05:00",
-};
+} satisfies SpeakingSession;
 
 export const LANGUAGE_LEARNING_SPEAKING_TURNS = Array.from({ length: 5 }, (_, index) => ({
     id: 401 + index,
     turnIndex: index + 1,
+    problemIndex: null,
+    attemptIndex: null,
+    recordingRevision: 0,
     status: "READY",
     durationSeconds: index === 0 ? 16 : 14,
     transcript: index === 0 ? "友達と映画を見に行く予定です。" : `E2E Speaking answer ${index + 1}`,
@@ -765,7 +801,7 @@ export const LANGUAGE_LEARNING_SPEAKING_TURNS = Array.from({ length: 5 }, (_, in
     errorMessage: null,
     manualRetryCount: 0,
     completedAt: "2026-08-15T08:05:00",
-}));
+} satisfies SpeakingTurn));
 
 export const LANGUAGE_LEARNING_SPEAKING_ELIGIBILITY = {
     validUserTurns: 5,
@@ -789,9 +825,10 @@ export const LANGUAGE_LEARNING_SPEAKING_DETAIL = {
         dailyGoalMinutes: 5,
     },
     turns: LANGUAGE_LEARNING_SPEAKING_TURNS,
+    readAloudProblemEvaluations: [],
     evaluationEligibility: LANGUAGE_LEARNING_SPEAKING_ELIGIBILITY,
     resumable: true,
-};
+} satisfies SpeakingSessionDetail;
 
 export const LANGUAGE_LEARNING_SPEAKING_EVALUATION = {
     evaluationId: 501,
@@ -880,44 +917,53 @@ export const LANGUAGE_LEARNING_ADMIN_SETTING = {
 };
 
 export async function mockLanguageLearningSpeaking(page: Page) {
-    await page.route("**/language-learning/speaking/topics**", (route) =>
+    const detail: SpeakingSessionDetail = structuredClone(LANGUAGE_LEARNING_SPEAKING_DETAIL);
+    await page.route("**/api/v1/language-learning/speaking/topics**", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_SPEAKING_TOPICS)),
     );
-    await page.route("**/language-learning/speaking/sessions/today/status", (route) =>
+    await page.route("**/api/v1/language-learning/speaking/sessions/today/status", (route) =>
         fulfillApiJson(route, responseDto([
             { practiceMode: "READ_ALOUD", sessionId: null, sessionStatus: null, evaluationStatus: null, completedTurns: 0, maxTurns: 0, completed: false },
             { practiceMode: "GUIDED", sessionId: null, sessionStatus: null, evaluationStatus: null, completedTurns: 0, maxTurns: 0, completed: false },
             { practiceMode: "FREE", sessionId: null, sessionStatus: null, evaluationStatus: null, completedTurns: 0, maxTurns: 0, completed: false },
         ])),
     );
-    await page.route("**/language-learning/speaking/sessions/active", (route) =>
+    await page.route("**/api/v1/language-learning/speaking/sessions/active", (route) =>
         fulfillApiJson(route, responseDto(null)),
     );
-    await page.route("**/language-learning/speaking/sessions/301/evaluation/retry", (route) =>
+    await page.route("**/api/v1/language-learning/speaking/sessions/301/evaluation/retry", (route) =>
         fulfillApiJson(route, responseDto(null)),
     );
-    await page.route("**/language-learning/speaking/sessions/301/evaluation", (route) =>
+    await page.route("**/api/v1/language-learning/speaking/sessions/301/evaluation", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_SPEAKING_EVALUATION)),
     );
-    await page.route("**/language-learning/speaking/sessions/301/turns/upload-url", (route) =>
+    await page.route("**/api/v1/language-learning/speaking/sessions/301/turns/upload-url", (route) =>
         fulfillApiJson(route, responseDto({ turnId: 406, turnIndex: 6, uploadToken: "upload-token", uploadUrl: "/mock-upload", expiresAt: "2026-08-15T09:00:00" })),
     );
-    await page.route("**/language-learning/speaking/sessions/301/turns", (route) =>
-        fulfillApiJson(route, responseDto({ ...LANGUAGE_LEARNING_SPEAKING_TURNS[0], id: 406, turnIndex: 6, transcript: "新しい回答です。" })),
-    );
-    await page.route("**/language-learning/speaking/sessions/301/turns/*/retry", (route) =>
+    await page.route("**/api/v1/language-learning/speaking/sessions/301/turns", async (route) => {
+        const turn: SpeakingTurn = {
+            ...LANGUAGE_LEARNING_SPEAKING_TURNS[0], id: 406, turnIndex: 6,
+            transcript: "新しい回答です。", durationSeconds: 2,
+        };
+        // Re-fetching after a successful submission must not drop the returned turn.
+        if (!detail.turns.some((item) => item.id === turn.id)) detail.turns.push(turn);
+        detail.session.completedTurns = detail.turns.length;
+        detail.session.totalDurationSeconds = detail.turns.reduce((total, item) => total + (item.durationSeconds ?? 0), 0);
+        await fulfillApiJson(route, responseDto(turn));
+    });
+    await page.route("**/api/v1/language-learning/speaking/sessions/301/turns/*/retry", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_SPEAKING_TURNS[0])),
     );
-    await page.route("**/language-learning/speaking/sessions/301/turns/*/exclude", (route) =>
+    await page.route("**/api/v1/language-learning/speaking/sessions/301/turns/*/exclude", (route) =>
         fulfillApiJson(route, responseDto({ ...LANGUAGE_LEARNING_SPEAKING_TURNS[0], excludedFromEvaluation: true, status: "EXCLUDED" })),
     );
-    await page.route("**/language-learning/speaking/sessions/301/turns/*/stt-reports", (route) =>
+    await page.route("**/api/v1/language-learning/speaking/sessions/301/turns/*/stt-reports", (route) =>
         fulfillApiJson(route, responseDto({ id: 701, reportReference: "STT-701", sessionId: 301, turnId: 401, reportType: "WRONG_TEXT", reportStatus: "OPEN", expectedText: null, audioAnalysisConsent: true, audioRetentionUntil: "2026-09-14T08:05:00", supportRequested: false, supportReference: null, resolvedAt: null })),
     );
-    await page.route("**/language-learning/speaking/stt-reports/701/support", (route) =>
+    await page.route("**/api/v1/language-learning/speaking/stt-reports/701/support", (route) =>
         fulfillApiJson(route, responseDto({ id: 701, reportReference: "STT-701", sessionId: 301, turnId: 401, reportType: "WRONG_TEXT", reportStatus: "OPEN", expectedText: null, audioAnalysisConsent: true, audioRetentionUntil: "2026-09-14T08:05:00", supportRequested: true, supportReference: "SUP-701", resolvedAt: null })),
     );
-    await page.route("**/language-learning/speaking/sessions/301/assistance", async (route) => {
+    await page.route("**/api/v1/language-learning/speaking/sessions/301/assistance", async (route) => {
         const request = route.request().postDataJSON() as { type: string };
         const payloads: Record<string, { content: string | null; audioUrl: string | null; playbackRate: number }> = {
             REPLAY: { content: null, audioUrl: LANGUAGE_LEARNING_SPEAKING_TURNS[4].assistantAudioUrl, playbackRate: 1 },
@@ -937,7 +983,7 @@ export async function mockLanguageLearningSpeaking(page: Page) {
             }),
         );
     });
-    await page.route("**/language-learning/speaking/sessions/301/complete", async (route) => {
+    await page.route("**/api/v1/language-learning/speaking/sessions/301/complete", async (route) => {
         const request = route.request().postDataJSON() as { skipEvaluation?: boolean };
         await fulfillApiJson(
             route,
@@ -949,22 +995,22 @@ export async function mockLanguageLearningSpeaking(page: Page) {
             }),
         );
     });
-    await page.route("**/language-learning/speaking/sessions/301", (route) =>
-        fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_SPEAKING_DETAIL)),
+    await page.route("**/api/v1/language-learning/speaking/sessions/301", (route) =>
+        fulfillApiJson(route, responseDto(detail)),
     );
-    await page.route("**/language-learning/speaking/sessions", (route) =>
+    await page.route("**/api/v1/language-learning/speaking/sessions", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_SPEAKING_SESSION)),
     );
-    await page.route("**/language-learning/history?**", (route) =>
+    await page.route("**/api/v1/language-learning/history?**", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_UNIFIED_HISTORY)),
     );
-    await page.route("**/language-learning/history/SPEAKING%3A301", (route) =>
+    await page.route("**/api/v1/language-learning/history/SPEAKING%3A301", (route) =>
         fulfillApiJson(route, responseDto({ activityId: "SPEAKING:301", source: "SPEAKING", detail: { session: LANGUAGE_LEARNING_SPEAKING_SESSION, turns: LANGUAGE_LEARNING_SPEAKING_TURNS, evaluation: LANGUAGE_LEARNING_SPEAKING_EVALUATION } })),
     );
-    await page.route("**/language-learning/history/WRITING%3A101", (route) =>
+    await page.route("**/api/v1/language-learning/history/WRITING%3A101", (route) =>
         fulfillApiJson(route, responseDto({ activityId: "WRITING:101", source: "WRITING", detail: LANGUAGE_LEARNING_DAILY_SET })),
     );
-    await page.route("**/admin/language-learning/settings", (route) =>
+    await page.route("**/api/v1/admin/language-learning/settings", (route) =>
         fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_ADMIN_SETTING)),
     );
 }

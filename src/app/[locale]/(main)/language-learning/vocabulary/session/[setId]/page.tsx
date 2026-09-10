@@ -2,5 +2,5 @@ import { PracticeSessionPage } from "@/components/language-learning/practice/Pra
 
 export default async function VocabularySessionPage({ params }: { params: Promise<{ setId: string }> }) {
     const { setId } = await params;
-    return <PracticeSessionPage setId={Number(setId)} expectedDomain="VOCABULARY" />;
+    return <PracticeSessionPage key={`vocabulary:${setId}`} setId={Number(setId)} expectedDomain="VOCABULARY" />;
 }

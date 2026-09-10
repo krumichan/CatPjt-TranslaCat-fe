@@ -1,34 +1,10 @@
-import { CheckCheck, Globe2, MessageCircle, Users } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { formatActivityDateTime } from "@/utils/time/formatActivityDateTime";
 
+import { ChatNotificationRoomIcon } from "@/components/notification/chat/ChatNotificationRoomIcon";
 import { useRouter } from "@/navigation";
 import type { ChatNotificationChatItem as ChatNotificationChatItemType } from "@/types/chatNotification";
-
-const formatDateTime = (value: string) =>
-    new Intl.DateTimeFormat(undefined, {
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-    }).format(new Date(value));
-
-const RoomFallbackIcon = ({
-    roomType,
-}: {
-    roomType: ChatNotificationChatItemType["roomType"];
-}) => {
-    const className = "h-5 w-5";
-
-    if (roomType === "OPEN") {
-        return <Globe2 className={className} aria-hidden="true" />;
-    }
-
-    if (roomType === "GROUP") {
-        return <Users className={className} aria-hidden="true" />;
-    }
-
-    return <MessageCircle className={className} aria-hidden="true" />;
-};
+import { CheckCheck } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function ChatNotificationItem({
     item,
@@ -85,7 +61,7 @@ export default function ChatNotificationItem({
                                 className="h-full w-full object-cover"
                             />
                         ) : (
-                            <RoomFallbackIcon roomType={item.roomType} />
+                            <ChatNotificationRoomIcon roomType={item.roomType} />
                         )}
                     </div>
 
@@ -117,7 +93,7 @@ export default function ChatNotificationItem({
                         </p>
 
                         <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
-                            {formatDateTime(item.latestMessage.createdAt)}
+                            {formatActivityDateTime(item.latestMessage.createdAt)}
                         </p>
                     </div>
                 </button>

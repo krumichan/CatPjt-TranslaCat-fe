@@ -160,7 +160,8 @@
         "WRITING": "쓰기",
         "SPEAKING": "말하기",
         "LISTENING": "듣기",
-        "READING": "읽기"
+        "READING": "읽기",
+        "VOCABULARY": "어휘"
       },
       "metric": {
         "GRAMMAR": "문법",
@@ -228,6 +229,7 @@
         "speaking": "말하기",
         "listening": "듣기",
         "reading": "읽기",
+        "vocabulary": "어휘",
         "recentScore": "최근 점수",
         "samples": "Sample {count}",
         "coverage": "평가 범위 {evaluated}/{total}",
@@ -399,7 +401,7 @@
           "error": {
             "DENIED": "마이크 권한이 거부되었습니다.",
             "NO_DEVICE": "사용 가능한 마이크를 찾을 수 없습니다.",
-            "IN_USE": "마이크가 다른 앱에서 사용 중입니다.",
+            "DEVICE_BUSY": "마이크가 다른 앱에서 사용 중입니다.",
             "UNSUPPORTED": "이 브라우저에서는 음성 녹음을 사용할 수 없습니다.",
             "UNKNOWN": "마이크를 사용할 수 없습니다."
           },

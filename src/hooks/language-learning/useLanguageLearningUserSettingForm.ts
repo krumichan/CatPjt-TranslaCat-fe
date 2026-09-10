@@ -2,10 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { isValidListeningTaskSelection } from "@/features/language-learning/listening/taskSelection";
 import { languageLearningSettingService } from "@/services/language-learning/languageLearningSettingService";
-import type { LanguageLearningUserSetting } from "@/types/language-learning/setting";
 import type { ListeningTaskType } from "@/types/language-learning/listening";
-import { isValidListeningTaskSelection } from "@/types/language-learning/listening";
+import type { LanguageLearningUserSetting } from "@/types/language-learning/setting";
 
 export interface LanguageLearningSettingFormValue {
     originLanguage: string;

@@ -1,5 +1,7 @@
 import type { Page } from "@playwright/test";
 
+import type { LevelTestQuestion } from "@/types/language-learning/level";
+
 import { fulfillApiJson } from "./api-mocks";
 import { responseDto } from "./mock-data";
 
@@ -26,7 +28,7 @@ export const LEVEL_TEST_SESSION = {
     completedAt: null,
 };
 
-export const LEVEL_TEST_QUESTION = {
+export const LEVEL_TEST_QUESTION: LevelTestQuestion = {
     sessionId: 3101,
     sessionType: "RECHECK",
     itemId: 3201,
@@ -72,7 +74,7 @@ export const LEVEL_TEST_SENTENCE_ORDER = {
         { key: "C", text: "映画を" },
         { key: "D", text: "見ました。" },
     ],
-};
+} satisfies LevelTestQuestion;
 
 export const LEVEL_TEST_READING_DISCOURSE = {
     ...LEVEL_TEST_QUESTION,
@@ -82,7 +84,7 @@ export const LEVEL_TEST_READING_DISCOURSE = {
     itemType: "READING_DISCOURSE_FUNCTION",
     promptText: "売上が前年同期比で減少し、競合製品の台頭も確認された。これは、新たな戦略が必要であることを示している。今後は顧客層を再定義し、施策を見直す必要がある。\n\n上記の強調部分は文章全体でどのような役割を果たしているか。",
     emphasisText: "これは、新たな戦略が必要であることを示している。",
-};
+} satisfies LevelTestQuestion;
 
 export const LEVEL_TEST_LISTENING = {
     ...LEVEL_TEST_QUESTION,
@@ -92,7 +94,7 @@ export const LEVEL_TEST_LISTENING = {
     itemType: "LISTENING_GIST_CHOICE",
     promptText: "들은 내용의 요지를 선택하세요.",
     referenceAudioAvailable: true,
-};
+} satisfies LevelTestQuestion;
 
 export const LEVEL_TEST_DICTATION = {
     ...LEVEL_TEST_QUESTION,
@@ -106,7 +108,7 @@ export const LEVEL_TEST_DICTATION = {
     options: [],
     referenceAudioAvailable: true,
     maxAnswerLength: 300,
-};
+} satisfies LevelTestQuestion;
 
 export const LEVEL_TEST_INTERPRETATION = {
     ...LEVEL_TEST_DICTATION,
@@ -115,7 +117,7 @@ export const LEVEL_TEST_INTERPRETATION = {
     itemType: "LISTENING_INTERPRETATION",
     answerLanguage: "ko",
     promptText: "들은 내용의 의미를 한국어로 적어 주세요.",
-};
+} satisfies LevelTestQuestion;
 
 export const LEVEL_TEST_WRITING = {
     ...LEVEL_TEST_QUESTION,
@@ -134,7 +136,7 @@ export const LEVEL_TEST_WRITING = {
         responseConstraints: ["기대되는 효과를 한 가지 포함"],
     },
     maxAnswerLength: 800,
-};
+} satisfies LevelTestQuestion;
 
 export const LEVEL_TEST_SPEAKING = {
     ...LEVEL_TEST_QUESTION,
@@ -150,7 +152,7 @@ export const LEVEL_TEST_SPEAKING = {
     repeatReferenceText: "予定を変更する場合は、できるだけ早く相手に連絡してください。",
     referencePlaybackLimit: 2,
     maxAudioSeconds: 30,
-};
+} satisfies LevelTestQuestion;
 
 export const LEVEL_TEST_SPEAKING_AUDIO_ONLY = {
     ...LEVEL_TEST_SPEAKING,
@@ -158,7 +160,7 @@ export const LEVEL_TEST_SPEAKING_AUDIO_ONLY = {
     questionNumber: 19,
     repeatReferenceText: null,
     referencePlaybackLimit: 3,
-};
+} satisfies LevelTestQuestion;
 
 export const LEVEL_TEST_SPEAKING_OPEN = {
     ...LEVEL_TEST_SPEAKING,
@@ -175,7 +177,7 @@ export const LEVEL_TEST_SPEAKING_OPEN = {
     referenceAudioAvailable: false,
     repeatReferenceText: null,
     referencePlaybackLimit: null,
-};
+} satisfies LevelTestQuestion;
 
 export const LEVEL_TEST_RESULT = {
     sessionId: 3101,
@@ -275,24 +277,29 @@ export const LEVEL_TEST_HISTORY_DETAIL = {
 
 export async function mockLanguageLearningLevelTest(
     page: Page,
-    question = LEVEL_TEST_QUESTION,
+    question: LevelTestQuestion = LEVEL_TEST_QUESTION,
 ) {
-    await page.route("**/language-learning/level-test/status", (route) =>
+    await page.route("**/api/v1/language-learning/level-test/status", (route) =>
         fulfillApiJson(route, responseDto(LEVEL_TEST_STATUS)),
     );
-    await page.route("**/language-learning/level-test/sessions", (route) =>
-        fulfillApiJson(route, responseDto(LEVEL_TEST_SESSION)),
+    const session = {
+        ...LEVEL_TEST_SESSION,
+        currentQuestionNumber: question.questionNumber,
+        status: question.status === "EVALUATING" ? "EVALUATING" : LEVEL_TEST_SESSION.status,
+    };
+    await page.route("**/api/v1/language-learning/level-test/sessions", (route) =>
+        fulfillApiJson(route, responseDto(session)),
     );
-    await page.route("**/language-learning/level-test/sessions/3101", (route) =>
-        fulfillApiJson(route, responseDto(LEVEL_TEST_SESSION)),
+    await page.route("**/api/v1/language-learning/level-test/sessions/3101", (route) =>
+        fulfillApiJson(route, responseDto(session)),
     );
-    await page.route("**/language-learning/level-test/sessions/3101/current-item", (route) =>
+    await page.route("**/api/v1/language-learning/level-test/sessions/3101/current-item", (route) =>
         fulfillApiJson(route, responseDto(question)),
     );
-    await page.route("**/language-learning/level-test/items/*/reference-audio", (route) =>
+    await page.route("**/api/v1/language-learning/level-test/items/*/reference-audio", (route) =>
         route.fulfill({ status: 200, contentType: "audio/wav", body: "mock-level-audio" }),
     );
-    await page.route("**/language-learning/level-test/sessions/3101/items/*/answers", (route) =>
+    await page.route("**/api/v1/language-learning/level-test/sessions/3101/items/*/answers", (route) =>
         fulfillApiJson(
             route,
             responseDto({
@@ -307,7 +314,7 @@ export async function mockLanguageLearningLevelTest(
             }),
         ),
     );
-    await page.route("**/language-learning/level-test/sessions/3101/items/*/answers/audio?**", (route) =>
+    await page.route("**/api/v1/language-learning/level-test/sessions/3101/items/*/answers/audio?**", (route) =>
         fulfillApiJson(
             route,
             responseDto({
@@ -323,7 +330,7 @@ export async function mockLanguageLearningLevelTest(
             }),
         ),
     );
-    await page.route("**/language-learning/level-test/sessions/3101/items/*/evaluation/retry", (route) =>
+    await page.route("**/api/v1/language-learning/level-test/sessions/3101/items/*/evaluation/retry", (route) =>
         fulfillApiJson(
             route,
             responseDto({
@@ -338,16 +345,16 @@ export async function mockLanguageLearningLevelTest(
             }),
         ),
     );
-    await page.route("**/language-learning/level-test/sessions/3101/result", (route) =>
+    await page.route("**/api/v1/language-learning/level-test/sessions/3101/result", (route) =>
         fulfillApiJson(route, responseDto(LEVEL_TEST_RESULT)),
     );
-    await page.route("**/language-learning/level-test/history", (route) =>
+    await page.route("**/api/v1/language-learning/level-test/history", (route) =>
         fulfillApiJson(route, responseDto(LEVEL_TEST_HISTORY)),
     );
-    await page.route("**/language-learning/level-test/history/3101", (route) =>
+    await page.route("**/api/v1/language-learning/level-test/history/3101", (route) =>
         fulfillApiJson(route, responseDto(LEVEL_TEST_HISTORY_DETAIL)),
     );
-    await page.route("**/language-learning/history?**", (route) =>
+    await page.route("**/api/v1/language-learning/history?**", (route) =>
         fulfillApiJson(
             route,
             responseDto([
@@ -365,7 +372,7 @@ export async function mockLanguageLearningLevelTest(
             ]),
         ),
     );
-    await page.route("**/language-learning/history/LEVEL_TEST%3A3101", (route) =>
+    await page.route("**/api/v1/language-learning/history/LEVEL_TEST%3A3101", (route) =>
         fulfillApiJson(
             route,
             responseDto({

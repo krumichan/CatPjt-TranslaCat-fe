@@ -1,16 +1,14 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-
-import {
-    DisclosureContent,
-    DisclosureToggleButton,
-    type DisclosureControlProps,
-} from "@/components/language-learning/common/LanguageLearningDisclosure";
+import { DisclosureContent } from "@/components/language-learning/common/DisclosureContent";
+import { DisclosureToggleButton } from "@/components/language-learning/common/DisclosureToggleButton";
+import { latestBy } from "@/features/language-learning/dashboard/listeningTrend";
 import type {
     ListeningMetricTrendPoint,
     ListeningTaskTrendPoint,
 } from "@/types/language-learning/dashboard";
+import type { DisclosureControlProps } from "@/types/language-learning/disclosure";
+import { useTranslations } from "next-intl";
 
 export function DashboardListeningTrendWidget({
     tasks,
@@ -58,14 +56,4 @@ export function DashboardListeningTrendWidget({
             </DisclosureContent>
         </section>
     );
-}
-
-function latestBy<T extends { date: string }>(items: T[], keyOf: (item: T) => string) {
-    const map = new Map<string, T>();
-    for (const item of items) {
-        const key = keyOf(item);
-        const current = map.get(key);
-        if (!current || current.date <= item.date) map.set(key, item);
-    }
-    return map;
 }

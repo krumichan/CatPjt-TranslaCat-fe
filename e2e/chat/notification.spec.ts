@@ -50,7 +50,7 @@ const chats = {
     hasNext: false,
 };
 
-const activities = {
+const activities: ChatNotificationActivityListResponse = {
     items: [
         {
             id: 301,
@@ -506,7 +506,7 @@ test.describe("FE #15 notification center", () => {
         page,
     }) => {
         let currentSummary = { ...summary };
-        let currentActivities = {
+        let currentActivities: ChatNotificationActivityListResponse = {
             ...activities,
             items: activities.items.map((item) => ({ ...item })),
         };

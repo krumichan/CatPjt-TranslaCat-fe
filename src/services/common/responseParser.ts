@@ -89,10 +89,6 @@ export function getApiErrorCode(error: unknown): string | null {
     return error instanceof ApiResponseError ? error.errorCode : null;
 }
 
-export function isApiErrorCode(error: unknown, errorCode: string): boolean {
-    return getApiErrorCode(error) === errorCode;
-}
-
 export async function parseResponseBody<T>(response: Response, domainName: string): Promise<T> {
     if (!response.ok) {
         const errorResponse = await safeJson<ApiErrorResponseDto>(response);

@@ -1,9 +1,9 @@
 "use client";
 
+import { SpeakingSessionStat } from "@/components/language-learning/speaking/session/SpeakingSessionStat";
+import type { SpeakingSessionDetail } from "@/types/language-learning/speaking";
 import { Clock3, MessageCircleMore, Target } from "lucide-react";
 import { useTranslations } from "next-intl";
-
-import type { SpeakingSessionDetail } from "@/types/language-learning/speaking";
 
 export function SpeakingSessionHeader({
     detail,
@@ -37,7 +37,7 @@ export function SpeakingSessionHeader({
                 </div>
 
                 <dl className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:min-w-107.5">
-                    <Stat
+                    <SpeakingSessionStat
                         icon={MessageCircleMore}
                         label={
                             session.practiceMode === "READ_ALOUD"
@@ -50,30 +50,10 @@ export function SpeakingSessionHeader({
                                 : `${session.completedTurns} / ${session.maxTurns}`
                         }
                     />
-                    <Stat icon={Clock3} label={t("sessionTime")} value={t("minutes", { value: Math.ceil(session.totalDurationSeconds / 60) })} />
-                    <Stat icon={Target} label={t("dailyUsage")} value={t("dailyMinutes", { used: dailyUsage.usedMinutes, limit: dailyUsage.dailySpeakingHardLimitMinutes })} />
+                    <SpeakingSessionStat icon={Clock3} label={t("sessionTime")} value={t("minutes", { value: Math.ceil(session.totalDurationSeconds / 60) })} />
+                    <SpeakingSessionStat icon={Target} label={t("dailyUsage")} value={t("dailyMinutes", { used: dailyUsage.usedMinutes, limit: dailyUsage.dailySpeakingHardLimitMinutes })} />
                 </dl>
             </div>
         </section>
-    );
-}
-
-function Stat({
-    icon: Icon,
-    label,
-    value,
-}: {
-    icon: typeof Clock3;
-    label: string;
-    value: string;
-}) {
-    return (
-        <div className="rounded-2xl bg-slate-50 p-3 dark:bg-white/5">
-            <dt className="flex items-center gap-1.5 text-[11px] font-black text-slate-400">
-                <Icon className="h-3.5 w-3.5" aria-hidden="true" />
-                {label}
-            </dt>
-            <dd className="mt-1 text-sm font-black text-slate-800 dark:text-slate-100">{value}</dd>
-        </div>
     );
 }

@@ -3,13 +3,11 @@
 import { BookOpen, Ear, Mic2, PencilLine } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import {
-    DisclosureContent,
-    DisclosureToggleButton,
-    type DisclosureControlProps,
-} from "@/components/language-learning/common/LanguageLearningDisclosure";
+import { DisclosureContent } from "@/components/language-learning/common/DisclosureContent";
+import { DisclosureToggleButton } from "@/components/language-learning/common/DisclosureToggleButton";
 import { DashboardActivityPerformanceCard } from "@/components/language-learning/dashboard/widgets/DashboardActivityPerformanceCard";
 import type { DashboardActivityPerformance } from "@/types/language-learning/dashboard";
+import type { DisclosureControlProps } from "@/types/language-learning/disclosure";
 
 const ITEMS = [
     ["writing", PencilLine, "/language-learning/writing"],

@@ -1,4 +1,4 @@
-import type { Page, Route, WebSocketRoute } from "@playwright/test";
+import type { Page, Route } from "@playwright/test";
 
 import { expect, test } from "../fixtures/mock-test";
 import {
@@ -13,7 +13,7 @@ import {
     makeRoom,
     responseDto,
 } from "../support/mock-data";
-import { mockStompBroker, sendStompJson } from "../support/stomp-mock";
+import { mockStompBroker } from "../support/stomp-mock";
 import { TEST_USERS } from "../support/test-users";
 
 const ROOM_ID = 845;
@@ -451,33 +451,17 @@ test.describe("OPEN chat moderation and blacklist", () => {
     test("OPEN-MOD-04 chat.member.banned 대상 사용자는 구독을 정리하고 상세로 이동한다", async ({
         page,
     }) => {
-        let socket: WebSocketRoute | null = null;
-        const subscriptions = new Set<string>();
-        await mockStompBroker(page, {
-            onSocket: (nextSocket) => {
-                socket = nextSocket;
-            },
-            onSubscribe: (destination) => {
-                subscriptions.add(destination);
-            },
-        });
+        const roomQueue = `/user/queue/chat/open-rooms/${ROOM_ID}`;
+        const stompBroker = await mockStompBroker(page);
         await mockChatRoomBase(page, { room: roomFor("OWNER"), messages: [] });
         await mockOpenModerationApis(page, { bannedDetail: true });
 
         await page.goto(`/chat/rooms/${ROOM_ID}`);
         await expect(page.getByText("WS: CONNECTED")).toBeVisible();
-        await expect.poll(() => socket !== null).toBe(true);
-        await expect
-            .poll(() =>
-                subscriptions.has(
-                    `/user/queue/chat/open-rooms/${ROOM_ID}`,
-                ),
-            )
-            .toBe(true);
+        await expect.poll(() => stompBroker.hasSubscriber(roomQueue)).toBe(true);
 
-        sendStompJson(
-            socket as WebSocketRoute,
-            `/user/queue/chat/open-rooms/${ROOM_ID}`,
+        stompBroker.sendJsonToSubscribers(
+            roomQueue,
             {
                 eventType: "chat.member.banned",
                 roomId: ROOM_ID,

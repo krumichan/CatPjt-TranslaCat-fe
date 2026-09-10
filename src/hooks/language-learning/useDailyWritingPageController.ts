@@ -1,105 +1,33 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+    LANGUAGE_LEARNING_ERROR_CODES,
+    getLanguageLearningErrorCode,
+} from "@/features/language-learning/common/errorMapping";
+import { resolveLearningDate } from "@/features/language-learning/common/learningDate";
 import { hasCompleteItemCoverage } from "@/features/language-learning/generationState";
-
 import {
     clearWritingDraftState,
     loadWritingDraftState,
     saveWritingDraftState,
 } from "@/features/language-learning/writing/writingDraftStorage";
 import {
-    getLanguageLearningErrorCode,
-    LANGUAGE_LEARNING_ERROR_CODES,
-} from "@/hooks/language-learning/languageLearningErrorMapper";
+    createEmptyWritingTypeProgress,
+    latestAttempt,
+    latestEvaluationStatus,
+    resolveHistoryWritingType,
+} from "@/features/language-learning/writing/writingProgress";
 import { useLanguageLearningEntryState } from "@/hooks/language-learning/useLanguageLearningEntryState";
 import { useQuery } from "@/hooks/useQuery";
 import { dailyWritingService } from "@/services/language-learning/dailyWritingService";
 import { learningHistoryService } from "@/services/language-learning/learningHistoryService";
 import type { DailyWritingType } from "@/types/language-learning/common";
-import type {
-    AnswerResult,
-    DailyWritingItem,
-    WritingAnswerAttempt,
-    WritingEvaluationStatus,
-} from "@/types/language-learning/daily";
+import type { AnswerResult, DailyWritingItem } from "@/types/language-learning/daily";
+import type { DailyWritingTypeProgressState } from "@/types/language-learning/writingProgress";
+import { useSession } from "next-auth/react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-const WRITING_TYPES: DailyWritingType[] = ["TRANSLATION", "GUIDED", "FREE"];
 const EVALUATION_POLL_INTERVAL_MS = 1500;
-
-export type DailyWritingTypeProgressState =
-    | "NOT_STARTED"
-    | "IN_PROGRESS"
-    | "EVALUATING"
-    | "COMPLETED";
-
-export interface DailyWritingTypeProgress {
-    state: DailyWritingTypeProgressState;
-    overallScore: number | null;
-    activityId: string | null;
-}
-
-function resolveLearningDate(timezone: string): string {
-    const parts = new Intl.DateTimeFormat("en-US", {
-        timeZone: timezone,
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-    }).formatToParts(new Date());
-    const values = Object.fromEntries(
-        parts.map((part) => [part.type, part.value]),
-    );
-
-    return `${values.year}-${values.month}-${values.day}`;
-}
-
-function resolveHistoryWritingType(
-    topic: string | null,
-    title: string,
-): DailyWritingType | null {
-    const candidates = [topic, title.split("·").at(-1)?.trim() ?? null];
-    return (
-        candidates.find(
-            (value): value is DailyWritingType =>
-                value != null &&
-                WRITING_TYPES.includes(value as DailyWritingType),
-        ) ?? null
-    );
-}
-
-function createEmptyWritingTypeProgress(): Record<
-    DailyWritingType,
-    DailyWritingTypeProgress
-> {
-    return {
-        TRANSLATION: {
-            state: "NOT_STARTED",
-            overallScore: null,
-            activityId: null,
-        },
-        GUIDED: {
-            state: "NOT_STARTED",
-            overallScore: null,
-            activityId: null,
-        },
-        FREE: {
-            state: "NOT_STARTED",
-            overallScore: null,
-            activityId: null,
-        },
-    };
-}
-
-function latestAttempt(item: DailyWritingItem): WritingAnswerAttempt | null {
-    return item.attempts.at(-1) ?? null;
-}
-
-function latestEvaluationStatus(
-    item: DailyWritingItem,
-): WritingEvaluationStatus | null {
-    return latestAttempt(item)?.evaluationStatus ?? null;
-}
 
 export function useDailyWritingPageController() {
     const { data: session } = useSession();
@@ -142,6 +70,13 @@ export function useDailyWritingPageController() {
         },
     });
 
+    // useQuery/useLanguageLearningEntryState return wrapper objects on every render.
+    // Keep polling effects on the stable mutate callbacks so an unrelated
+    // history refresh cannot continuously cancel and restart their timers.
+    const refreshWritingHistory = writingHistoryQuery.mutate;
+    const refreshDaily = dailyQuery.mutate;
+    const refreshLevelStatus = entry.mutateLevelStatus;
+
     const [drafts, setDrafts] = useState<Record<number, string>>({});
     const [draftsHydratedSetId, setDraftsHydratedSetId] = useState<
         number | null
@@ -157,6 +92,10 @@ export function useDailyWritingPageController() {
     const [actionError, setActionError] = useState(false);
     const [lastAnswerResult, setLastAnswerResult] =
         useState<AnswerResult | null>(null);
+    const hydratedDraftContextRef = useRef<{
+        dailySetId: number;
+        publicId: string | null;
+    } | null>(null);
     const resumedPendingItemsRef = useRef<Set<string>>(new Set());
     const hadPendingEvaluationsRef = useRef(false);
 
@@ -174,11 +113,11 @@ export function useDailyWritingPageController() {
         if (!isDailyGenerating || dailyQuery.data) return;
 
         const timer = window.setTimeout(() => {
-            void dailyQuery.mutate((current) => current, true);
+            void refreshDaily((current) => current, true);
         }, 1200);
 
         return () => window.clearTimeout(timer);
-    }, [dailyQuery, isDailyGenerating]);
+    }, [dailyQuery.data, isDailyGenerating, refreshDaily]);
 
     const writingTypeProgress = useMemo(() => {
         const result = createEmptyWritingTypeProgress();
@@ -229,12 +168,12 @@ export function useDailyWritingPageController() {
         if (!hasPendingHistory) return;
 
         const timer = window.setTimeout(() => {
-            void writingHistoryQuery.mutate(undefined, true);
+            void refreshWritingHistory(undefined, true);
         }, EVALUATION_POLL_INTERVAL_MS);
         return () => window.clearTimeout(timer);
     }, [
         entry.setting?.timezone,
-        writingHistoryQuery,
+        refreshWritingHistory,
         writingHistoryQuery.data,
     ]);
 
@@ -268,6 +207,12 @@ export function useDailyWritingPageController() {
     useEffect(() => {
         const dailySet = dailyQuery.data;
         if (!dailySet) return;
+
+        // A progressive-generation poll replaces the response object, but must
+        // not rehydrate over the learner's current edits or bulk-evaluation flag.
+        const hydrated = hydratedDraftContextRef.current;
+        if (hydrated?.dailySetId === dailySet.dailySetId && hydrated.publicId === publicId) return;
+        hydratedDraftContextRef.current = { dailySetId: dailySet.dailySetId, publicId };
 
         if (!publicId) {
             setDrafts({});
@@ -320,7 +265,7 @@ export function useDailyWritingPageController() {
             drafts: restoredDrafts,
             bulkEvaluationRequested: restoredBulk,
         });
-    }, [dailyQuery.data?.dailySetId, publicId]);
+    }, [dailyQuery.data, publicId]);
 
     useEffect(() => {
         const dailySet = dailyQuery.data;
@@ -366,6 +311,7 @@ export function useDailyWritingPageController() {
     ]);
 
     const selectWritingType = useCallback((writingType: DailyWritingType) => {
+        hydratedDraftContextRef.current = null;
         setSelectedWritingType(writingType);
         setDrafts({});
         setDraftsHydratedSetId(null);
@@ -380,6 +326,7 @@ export function useDailyWritingPageController() {
     }, []);
 
     const showTypeSelector = useCallback(() => {
+        hydratedDraftContextRef.current = null;
         setSelectedWritingType(null);
         setDrafts({});
         setDraftsHydratedSetId(null);
@@ -531,14 +478,15 @@ export function useDailyWritingPageController() {
         [dailyQuery.data],
     );
 
+    const dailySetId = dailyQuery.data?.dailySetId ?? null;
+
     useEffect(() => {
-        const dailySet = dailyQuery.data;
-        if (!dailySet || pendingEvaluationItems.length === 0) {
+        if (dailySetId === null || pendingEvaluationItems.length === 0) {
             if (hadPendingEvaluationsRef.current) {
                 hadPendingEvaluationsRef.current = false;
                 void Promise.all([
-                    entry.mutateLevelStatus(undefined, true),
-                    writingHistoryQuery.mutate(undefined, true),
+                    refreshLevelStatus(undefined, true),
+                    refreshWritingHistory(undefined, true),
                 ]);
             }
             return;
@@ -546,7 +494,7 @@ export function useDailyWritingPageController() {
 
         hadPendingEvaluationsRef.current = true;
         for (const item of pendingEvaluationItems) {
-            const resumeKey = `${dailySet.dailySetId}:${item.itemId}`;
+            const resumeKey = `${dailySetId}:${item.itemId}`;
             if (resumedPendingItemsRef.current.has(resumeKey)) continue;
             resumedPendingItemsRef.current.add(resumeKey);
             void dailyWritingService.resumeEvaluation(item.itemId).catch(
@@ -560,17 +508,38 @@ export function useDailyWritingPageController() {
             );
         }
 
-        const timer = window.setTimeout(() => {
-            void dailyQuery.mutate((current) => current, true);
-            void writingHistoryQuery.mutate(undefined, true);
-        }, EVALUATION_POLL_INTERVAL_MS);
-        return () => window.clearTimeout(timer);
+        // SWR can keep the same cached value when a revalidation returns the
+        // same PENDING payload. Do not rely on a rerender to schedule the next
+        // evaluation check; keep polling until this effect is cleaned up.
+        let disposed = false;
+        let timer: number | null = null;
+
+        const scheduleNextPoll = () => {
+            timer = window.setTimeout(() => {
+                void Promise.allSettled([
+                    refreshDaily((current) => current, true),
+                    refreshWritingHistory(undefined, true),
+                ]).finally(() => {
+                    if (!disposed) {
+                        scheduleNextPoll();
+                    }
+                });
+            }, EVALUATION_POLL_INTERVAL_MS);
+        };
+
+        scheduleNextPoll();
+        return () => {
+            disposed = true;
+            if (timer !== null) {
+                window.clearTimeout(timer);
+            }
+        };
     }, [
-        dailyQuery,
-        dailyQuery.data,
-        entry,
+        dailySetId,
         pendingEvaluationItems,
-        writingHistoryQuery,
+        refreshDaily,
+        refreshLevelStatus,
+        refreshWritingHistory,
     ]);
 
     const bulkAnswerableItems = useMemo(

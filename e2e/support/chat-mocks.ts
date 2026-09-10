@@ -1,5 +1,7 @@
 import type { Page, Route } from "@playwright/test";
 
+import type { ChatRoom } from "@/types/chat";
+
 import { fulfillApiJson } from "./api-mocks";
 import {
     makeDefaultLanguageSettings,
@@ -8,8 +10,12 @@ import {
     responseDto,
 } from "./mock-data";
 
+// Legacy raw room responses may omit a display name. Other fields follow the
+// shared DTO, including optional myRole and directPartner.
+type MockChatRoom = Omit<ChatRoom, "name"> & { name: string | null };
+
 type MockChatRoomBaseOptions = {
-    room?: ReturnType<typeof makeRoom>;
+    room?: MockChatRoom;
     messages?: unknown[];
     hasNext?: boolean;
     nextCursorId?: number | null;

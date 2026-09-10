@@ -1,21 +1,16 @@
 "use client";
 
-import {
-    Pie,
-    PieChart,
-    ResponsiveContainer,
-    Sector,
-    Tooltip,
-} from "recharts";
-import { useTranslations } from "next-intl";
-import {
+import ExpenseRankingChartTooltip from "@/components/account-book/detail/ranking-chart/ExpenseRankingChartTooltip";
+import RankingChartMessageCard from "@/components/account-book/detail/ranking-chart/RankingChartMessageCard";
+import type {
     AccountBookRankingChartItem,
     AccountBookRankingChartResponse,
     CurrencyCode,
 } from "@/types/accountBook";
+import { buildPieChartItems } from "@/utils/account-book/expenseRanking";
 import { formatAmount } from "@/utils/account-book/formatAmount";
-import ExpenseRankingChartTooltip from "@/components/account-book/detail/ranking-chart/ExpenseRankingChartTooltip";
-import RankingChartMessageCard from "@/components/account-book/detail/ranking-chart/RankingChartMessageCard";
+import { useTranslations } from "next-intl";
+import { Pie, PieChart, ResponsiveContainer, Sector, Tooltip } from "recharts";
 
 type ExpenseRankingChartType = "CATEGORY" | "STORE";
 
@@ -41,49 +36,6 @@ const PIE_COLORS = [
 type PieChartItem = AccountBookRankingChartItem & {
     color: string;
 };
-
-function calculatePercentage(amount: number, totalAmount: number) {
-    if (totalAmount <= 0) {
-        return 0;
-    }
-
-    return Number(((amount / totalAmount) * 100).toFixed(2));
-}
-
-function buildPieChartItems(
-    items: AccountBookRankingChartItem[],
-    totalAmount: number,
-    maxItems: number,
-    othersName: string
-): AccountBookRankingChartItem[] {
-    if (items.length <= maxItems) {
-        return items;
-    }
-
-    const visibleCount = Math.max(maxItems - 1, 1);
-    const visibleItems = items.slice(0, visibleCount);
-    const othersItems = items.slice(visibleCount);
-
-    const othersAmount = othersItems.reduce(
-        (total, item) => total + item.amount,
-        0
-    );
-
-    const othersTransactionCount = othersItems.reduce(
-        (total, item) => total + item.transactionCount,
-        0
-    );
-
-    return [
-        ...visibleItems,
-        {
-            name: othersName,
-            amount: othersAmount,
-            transactionCount: othersTransactionCount,
-            percentage: calculatePercentage(othersAmount, totalAmount),
-        },
-    ];
-}
 
 export default function ExpenseRankingChart({
     type,

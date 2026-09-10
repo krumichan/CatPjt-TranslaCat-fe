@@ -82,9 +82,7 @@ export function SpeakingSessionView({
                         <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
                             {controller.eligibility?.eligible === true
                                 ? t("finish.ready")
-                                : detail.session.practiceMode === "READ_ALOUD"
-                                  ? t("finish.insufficientReadAloud")
-                                  : t("finish.insufficient")}
+                                : t("finish.insufficient")}
                         </p>
 
                         {controller.eligibility?.eligible === true ? (

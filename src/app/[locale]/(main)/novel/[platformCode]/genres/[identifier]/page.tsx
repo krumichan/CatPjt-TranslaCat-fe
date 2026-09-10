@@ -90,7 +90,7 @@ export default function GenreRankingPage() {
         };
 
         fetchRanking();
-    }, [currentPeriod, currentPage, navigateWithScroll]);
+    }, [identifier, currentPeriod, currentPage, navigateWithScroll]);
 
     // 6. Navigation Handlers
     const handlePeriodChange = (newPeriod: string) => {

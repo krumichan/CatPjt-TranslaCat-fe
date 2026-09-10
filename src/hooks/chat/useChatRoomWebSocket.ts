@@ -3,10 +3,19 @@
 import { Client, type IMessage } from "@stomp/stompjs";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import type { ChatMessage, ChatMessageTranslation, } from "@/types/chat";
 import type {
-    ChatMessage,
-    ChatMessageTranslation,
-} from "@/types/chat";
+    ChatMemberReadUpdatedEvent,
+    ChatPresenceChangedEvent,
+    ChatReadUpdatedEvent,
+    ChatRoomMembersChangedEvent,
+    ChatWebSocketConnectionStatus,
+    ChatWebSocketEvent,
+    OpenChatMemberBannedEvent,
+    OpenChatMemberRoleUpdatedEvent,
+    OpenChatProfileUpdatedEvent,
+    OpenChatRoomClosedEvent,
+} from "@/types/chatWebSocket";
 import {
     extractChatMemberReadUpdatedEvent,
     extractChatMessageFromEvent,
@@ -19,17 +28,7 @@ import {
     extractOpenChatRoomClosedEvent,
     extractTranslationResultFromEvent,
     getChatWebSocketEventType,
-    type ChatMemberReadUpdatedEvent,
-    type ChatPresenceChangedEvent,
-    type ChatReadUpdatedEvent,
-    type ChatRoomMembersChangedEvent,
-    type ChatWebSocketConnectionStatus,
-    type ChatWebSocketEvent,
-    type OpenChatMemberBannedEvent,
-    type OpenChatMemberRoleUpdatedEvent,
-    type OpenChatProfileUpdatedEvent,
-    type OpenChatRoomClosedEvent,
-} from "@/types/chatWebSocket";
+} from "@/utils/chat/chatWebSocketParser";
 import { getChatWebSocketUrl } from "@/utils/websocket";
 
 type ChatWebSocketSendErrorCode = "NOT_CONNECTED" | "SEND_FAILED";

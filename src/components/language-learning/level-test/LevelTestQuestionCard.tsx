@@ -2,6 +2,7 @@
 
 import { LoaderCircle, RotateCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useEffect, useRef } from "react";
 
 import { ChoiceAnswerPanel } from "@/components/language-learning/level-test/ChoiceAnswerPanel";
 import { LevelTestDomainStepper } from "@/components/language-learning/level-test/LevelTestDomainStepper";
@@ -26,6 +27,12 @@ function languageKey(value: string | null): string {
 export function LevelTestQuestionCard({ controller }: LevelTestQuestionCardProps) {
     const t = useTranslations("LanguageLearning.levelTest");
     const question = controller.question!;
+    // The DOM ref belongs to this view, not to the controller's render data.
+    const headingRef = useRef<HTMLHeadingElement | null>(null);
+    useEffect(() => {
+        const timer = window.setTimeout(() => headingRef.current?.focus(), 0);
+        return () => window.clearTimeout(timer);
+    }, [question.itemId]);
     const progress = Math.round(
         (question.questionNumber / question.totalQuestions) * 100,
     );
@@ -47,7 +54,7 @@ export function LevelTestQuestionCard({ controller }: LevelTestQuestionCardProps
                             })}
                         </p>
                         <h2
-                            ref={controller.headingRef}
+                            ref={headingRef}
                             tabIndex={-1}
                             className="mt-1 text-xl font-black text-slate-950 outline-none dark:text-white"
                         >

@@ -60,7 +60,7 @@ test.describe("Language Learning progressive generation", () => {
     test("Writing exposes the first problem and preserves a draft when the next arrives", async ({ page }) => {
         let append = false;
         const items = LANGUAGE_LEARNING_DAILY_SET.items.map((item) => ({ ...item, canSubmit: true, answered: false, answeredToday: false, attempts: [] }));
-        await page.route("**/language-learning/writing/daily?**", (route) => fulfillApiJson(route, responseDto({
+        await page.route("**/api/v1/language-learning/writing/daily?**", (route) => fulfillApiJson(route, responseDto({
             ...LANGUAGE_LEARNING_DAILY_SET,
             status: "GENERATING",
             sentenceCount: 5,
@@ -69,7 +69,7 @@ test.describe("Language Learning progressive generation", () => {
             items: items.slice(0, append ? 2 : 1),
         })));
         await page.goto("/language-learning/writing");
-        await page.getByTestId("daily-writing-type-translation").click();
+        await page.getByTestId("daily-writing-type-translation").getByRole("button").click();
         await expect(page.getByRole("textbox")).toHaveCount(1);
         await page.getByRole("textbox").fill("入力中の解答を保持してください。");
         append = true;
@@ -83,10 +83,10 @@ test.describe("Language Learning progressive generation", () => {
         let retried = false;
         const first = { ...LANGUAGE_LEARNING_DAILY_SET.items[0], canSubmit: true, answered: false, answeredToday: false, attempts: [] };
         const value = () => ({ ...LANGUAGE_LEARNING_DAILY_SET, sentenceCount: 5, status: retried ? "GENERATING" : "PARTIAL", generationFailureMessage: retried ? null : "third-party generation error", items: [first] });
-        await page.route("**/language-learning/writing/daily?**", (route) => fulfillApiJson(route, responseDto(value())));
-        await page.route(`**/language-learning/writing/daily/${LANGUAGE_LEARNING_DAILY_SET.dailySetId}/retry-generation`, (route) => { retried = true; return fulfillApiJson(route, responseDto(value())); });
+        await page.route("**/api/v1/language-learning/writing/daily?**", (route) => fulfillApiJson(route, responseDto(value())));
+        await page.route(`**/api/v1/language-learning/writing/daily/${LANGUAGE_LEARNING_DAILY_SET.dailySetId}/retry-generation`, (route) => { retried = true; return fulfillApiJson(route, responseDto(value())); });
         await page.goto("/language-learning/writing");
-        await page.getByTestId("daily-writing-type-translation").click();
+        await page.getByTestId("daily-writing-type-translation").getByRole("button").click();
         await page.getByRole("textbox").fill("失敗後も残る解答です。");
         await page.getByRole("button", { name: "나머지 문제 준비 재시도" }).click();
         await expect.poll(() => retried).toBe(true);
@@ -96,7 +96,7 @@ test.describe("Language Learning progressive generation", () => {
 
     test("Reading initially waits for one problem, then preserves the current choice during polling", async ({ page }) => {
         let count = 0;
-        await page.route("**/language-learning/practice/sets/401", (route) => fulfillApiJson(route, responseDto(practiceSet(Array.from({ length: count }, (_, index) => question(index + 1))))));
+        await page.route("**/api/v1/language-learning/practice/sets/401", (route) => fulfillApiJson(route, responseDto(practiceSet(Array.from({ length: count }, (_, index) => question(index + 1))))));
         await page.goto("/language-learning/reading/session/401");
         await expect(page.getByTestId("generation-progress")).toContainText("문제 준비 0/5");
         count = 1;
@@ -112,8 +112,8 @@ test.describe("Language Learning progressive generation", () => {
     test("Reading partial failure retries missing problems without clearing an existing choice", async ({ page }) => {
         let retried = false;
         const value = (): PracticeSet => ({ ...practiceSet([question(1)]), generationStatus: retried ? "GENERATING" : "PARTIAL", generationFailureMessage: retried ? null : "provider failure" });
-        await page.route("**/language-learning/practice/sets/401", (route) => fulfillApiJson(route, responseDto(value())));
-        await page.route("**/language-learning/practice/sets/401/retry-generation", (route) => { retried = true; return fulfillApiJson(route, responseDto(value())); });
+        await page.route("**/api/v1/language-learning/practice/sets/401", (route) => fulfillApiJson(route, responseDto(value())));
+        await page.route("**/api/v1/language-learning/practice/sets/401/retry-generation", (route) => { retried = true; return fulfillApiJson(route, responseDto(value())); });
         await page.goto("/language-learning/reading/session/401");
         const choice = page.getByRole("button", { name: "B 選択肢B", exact: true });
         await choice.click();
@@ -126,7 +126,7 @@ test.describe("Language Learning progressive generation", () => {
     test("Reading does not show completion for an answered partial set", async ({ page }) => {
         const first = { ...question(1), answered: true, correct: true, correctAnswer: ["A"], attempts: [{ attemptId: 901, attemptNo: 1, answer: ["A"], correct: true, official: true, submittedAt: "2026-09-09T12:00:00" }] };
         const value = { ...practiceSet([first]), status: "COMPLETED", answeredCount: 1, correctCount: 1 };
-        await page.route("**/language-learning/practice/sets/401", (route) => fulfillApiJson(route, responseDto(value)));
+        await page.route("**/api/v1/language-learning/practice/sets/401", (route) => fulfillApiJson(route, responseDto(value)));
         await page.goto("/language-learning/reading/session/401");
         await expect(page.getByTestId("generation-progress")).toContainText("문제 준비 1/5");
         await expect(page.getByText("問題1の質問です。", { exact: true })).toBeVisible();
@@ -134,7 +134,7 @@ test.describe("Language Learning progressive generation", () => {
 
     test("Listening starts with one playable item before the other four are generated", async ({ page }) => {
         await mockLanguageLearningListening(page);
-        await page.route("**/language-learning/listening/daily-sets", (route) => fulfillApiJson(route, responseDto({
+        await page.route("**/api/v1/language-learning/listening/daily-sets", (route) => fulfillApiJson(route, responseDto({
             dailySetId: 701,
             learningMode: "DICTATION",
             status: "PARTIAL",
@@ -158,9 +158,9 @@ test.describe("Language Learning progressive generation", () => {
         const second = { ...LANGUAGE_LEARNING_LISTENING_ATTEMPT, attemptId: 802, itemId: 712, itemIndex: 2 };
         const first = { ...LANGUAGE_LEARNING_LISTENING_ATTEMPT, itemIndex: 1 };
         const value = () => ({ ...LANGUAGE_LEARNING_LISTENING_SESSION, targetItemCount: 5, attachedItemCount: earlierReady ? 2 : 1, dailySetStatus: "PARTIAL", generationInProgress: true, attempts: earlierReady ? [first, second] : [second] });
-        await page.route("**/language-learning/listening/sessions/702", (route) => fulfillApiJson(route, responseDto(value())));
-        await page.route("**/language-learning/listening/sessions/702/resume", (route) => fulfillApiJson(route, responseDto(value())));
-        await page.route("**/language-learning/listening/sessions/702/items/712", (route) => fulfillApiJson(route, responseDto({ ...LANGUAGE_LEARNING_LISTENING_ITEM, itemId: 712, itemIndex: 2, attempt: second })));
+        await page.route("**/api/v1/language-learning/listening/sessions/702", (route) => fulfillApiJson(route, responseDto(value())));
+        await page.route("**/api/v1/language-learning/listening/sessions/702/resume", (route) => fulfillApiJson(route, responseDto(value())));
+        await page.route("**/api/v1/language-learning/listening/sessions/702/items/712", (route) => fulfillApiJson(route, responseDto({ ...LANGUAGE_LEARNING_LISTENING_ITEM, itemId: 712, itemIndex: 2, attempt: second })));
         await page.goto("/language-learning/listening/session/702");
         await expect(page.getByTestId("generation-progress")).toContainText("2번 준비됨");
         await expect(page.getByTestId("generation-progress")).toContainText("1번 준비 대기");
@@ -185,8 +185,8 @@ test.describe("Language Learning progressive generation", () => {
             generationInProgress: true,
             items: ready ? [{ itemId: 711, itemIndex: 1, replacementSequence: 0, status: "READY" }] : [],
         });
-        await page.route("**/language-learning/listening/daily-sets", (route) => fulfillApiJson(route, responseDto(value())));
-        await page.route("**/language-learning/listening/daily-sets/701", (route) => fulfillApiJson(route, responseDto(value())));
+        await page.route("**/api/v1/language-learning/listening/daily-sets", (route) => fulfillApiJson(route, responseDto(value())));
+        await page.route("**/api/v1/language-learning/listening/daily-sets/701", (route) => fulfillApiJson(route, responseDto(value())));
         await page.goto("/language-learning/listening");
         await page.getByTestId("listening-mode-DICTATION").getByRole("button").click();
         ready = true;
@@ -198,8 +198,8 @@ test.describe("Language Learning progressive generation", () => {
         let completionRequests = 0;
         page.on("request", (request) => { if (request.url().endsWith("/sessions/702/complete")) completionRequests += 1; });
         const value = { ...LANGUAGE_LEARNING_LISTENING_SESSION, targetItemCount: 5, dailySetStatus: "PARTIAL", generationInProgress: true, attempts: [{ ...LANGUAGE_LEARNING_LISTENING_ATTEMPT, itemIndex: 1, status: "EVALUATED" }] };
-        await page.route("**/language-learning/listening/sessions/702", (route) => fulfillApiJson(route, responseDto(value)));
-        await page.route("**/language-learning/listening/sessions/702/resume", (route) => fulfillApiJson(route, responseDto(value)));
+        await page.route("**/api/v1/language-learning/listening/sessions/702", (route) => fulfillApiJson(route, responseDto(value)));
+        await page.route("**/api/v1/language-learning/listening/sessions/702/resume", (route) => fulfillApiJson(route, responseDto(value)));
         await page.goto("/language-learning/listening/session/702");
         await expect(page.getByTestId("generation-progress")).toContainText("문제 준비 1/5");
         await expect(page).toHaveURL(/listening\/session\/702$/);

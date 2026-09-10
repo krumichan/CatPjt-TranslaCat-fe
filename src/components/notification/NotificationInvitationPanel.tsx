@@ -1,16 +1,13 @@
-import type React from "react";
-import { useMemo, useState } from "react";
-import { BookOpen, UsersRound } from "lucide-react";
-import { useTranslations } from "next-intl";
-
+import { InvitationFilterChip } from "@/components/notification/InvitationFilterChip";
 import InvitationNotificationUnifiedItem from "@/components/notification/InvitationNotificationUnifiedItem";
 import NotificationEmptyState from "@/components/notification/NotificationEmptyState";
+import { getReceiverProfile, getRequesterProfile } from "@/components/notification/friendRequestProfile";
 import type { FriendRequestAction } from "@/components/notification/useNotificationCenter";
 import type { AccountBookInvitation } from "@/types/accountBook";
-import type {
-    FriendRequest,
-} from "@/types/social";
-import {getReceiverProfile, getRequesterProfile} from "@/components/notification/friendRequestProfile";
+import type { FriendRequest, } from "@/types/social";
+import { BookOpen, UsersRound } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useMemo, useState } from "react";
 
 type InvitationFilterType = "FRIEND" | "ACCOUNT_BOOK";
 
@@ -227,13 +224,13 @@ export default function NotificationInvitationPanel({
                 </div>
 
                 <div className="flex gap-2 overflow-x-auto pb-1">
-                    <FilterChip
+                    <InvitationFilterChip
                         label={t("filters.all")}
                         count={items.length}
                         isActive={isAllFilterActive}
                         onClick={handleShowAll}
                     />
-                    <FilterChip
+                    <InvitationFilterChip
                         label={t("filters.friend")}
                         count={counts.FRIEND}
                         isActive={activeFilters.FRIEND}
@@ -242,7 +239,7 @@ export default function NotificationInvitationPanel({
                         activeClassName="border-orange-500 bg-orange-500 text-white"
                         inactiveClassName="border-orange-300 text-orange-600 hover:bg-orange-50 dark:border-orange-400/40 dark:text-orange-200 dark:hover:bg-orange-500/10"
                     />
-                    <FilterChip
+                    <InvitationFilterChip
                         label={t("filters.accountBook")}
                         count={counts.ACCOUNT_BOOK}
                         isActive={activeFilters.ACCOUNT_BOOK}
@@ -287,47 +284,5 @@ export default function NotificationInvitationPanel({
                 </div>
             )}
         </div>
-    );
-}
-
-type FilterChipProps = {
-    label: string;
-    count: number;
-    isActive: boolean;
-    onClick: () => void;
-    icon?: React.ReactNode;
-    activeClassName?: string;
-    inactiveClassName?: string;
-};
-
-function FilterChip({
-    label,
-    count,
-    isActive,
-    onClick,
-    icon,
-    activeClassName = "border-slate-950 bg-slate-950 text-white dark:border-white dark:bg-white dark:text-slate-950",
-    inactiveClassName = "border-slate-200 text-slate-500 hover:bg-slate-100 dark:border-white/15 dark:text-slate-300 dark:hover:bg-white/10",
-}: FilterChipProps) {
-    return (
-        <button
-            type="button"
-            onClick={onClick}
-            className={`inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full border px-3 py-2 text-xs font-black transition ${
-                isActive ? activeClassName : inactiveClassName
-            }`}
-        >
-            {icon}
-            {label}
-            <span
-                className={`rounded-full px-1.5 py-0.5 text-[10px] ${
-                    isActive
-                        ? "bg-black/15 text-current dark:bg-white/20"
-                        : "bg-slate-100 text-current dark:bg-white/10"
-                }`}
-            >
-                {count}
-            </span>
-        </button>
     );
 }

@@ -65,23 +65,26 @@ export default function NovelPage() {
         }
     }, [currentPage, navigateWithScroll]);
 
+    // Depend on the actual title values rather than every new response object's
+    // identity, while keeping platform/novel changes in the dependency list.
+    const recentTitle = novelDetail?.title.rawJa;
+    const recentTitleJa = novelDetail?.title.ja;
+    const recentTitleKo = novelDetail?.title.ko;
     useEffect(() => {
-        // 소설 정보가 로드되었을 때 기록 저장 실행
-        if (novelDetail) {
-            recentViewService.saveRecent(
-                platformCode,
-                RECENT_VIEW_TYPE.NOVEL,
-                novelIdentifier,
-                null,
-                novelDetail.title.rawJa,
-                novelDetail.title.ja,
-                novelDetail.title.ko,
-            ).catch(err => {
-                // 비동기로 처리하되, 실패 시 로그만 남겨서 메인 흐름에 지장이 없게 합니다.
-                console.error("Failed to save recent view history:", err);
-            });
-        }
-    }, [novelIdentifier, !!novelDetail]);
+        if (recentTitle === undefined || recentTitleJa === undefined || recentTitleKo === undefined) return;
+        recentViewService.saveRecent(
+            platformCode,
+            RECENT_VIEW_TYPE.NOVEL,
+            novelIdentifier,
+            null,
+            recentTitle,
+            recentTitleJa,
+            recentTitleKo,
+        ).catch(err => {
+            // 비동기로 처리하되, 실패 시 메인 흐름에 지장이 없게 합니다.
+            console.error("Failed to save recent view history:", err);
+        });
+    }, [novelIdentifier, platformCode, recentTitle, recentTitleJa, recentTitleKo]);
 
     // 6. Event Handlers
     const handlePageChange = (newPage: number) => {

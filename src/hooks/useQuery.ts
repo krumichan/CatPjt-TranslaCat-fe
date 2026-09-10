@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import useSWR, { Key, SWRConfiguration } from "swr";
 
 export type UseQueryMutate<T> = (
@@ -47,7 +48,9 @@ export function useQuery<TData, const TKeys extends readonly unknown[]>({
         }
     );
 
-    const mutate: UseQueryMutate<TData> = async (
+    // Keep polling effects subscribed across unrelated renders. The SWR bound
+    // mutator is stable; a fresh wrapper here would reset their timers each time.
+    const mutate = useCallback<UseQueryMutate<TData>>(async (
         data,
         shouldRevalidate = true
     ) => {
@@ -55,7 +58,7 @@ export function useQuery<TData, const TKeys extends readonly unknown[]>({
             revalidate: shouldRevalidate,
             rollbackOnError: true,
         });
-    };
+    }, [swrMutate]);
 
     return {
         data,

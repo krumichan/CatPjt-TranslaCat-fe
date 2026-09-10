@@ -1,17 +1,10 @@
 "use client";
 
-import type React from "react";
-import {
-    Ban,
-    MessageCircle,
-    Send,
-    ShieldAlert,
-    UserCheck,
-    UserMinus,
-} from "lucide-react";
-import { useTranslations } from "next-intl";
-
+import { UserSearchBlockButton } from "@/components/user-search/UserSearchBlockButton";
+import { UserSearchDisabledAction } from "@/components/user-search/UserSearchDisabledAction";
 import type { UserSearchResult } from "@/types/social";
+import { Ban, MessageCircle, Send, UserCheck, UserMinus } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface UserSearchActionPanelProps {
     result: UserSearchResult;
@@ -53,7 +46,7 @@ export default function UserSearchActionPanel({
                         : t("sendRequest")}
                 </button>
                 {canBlock && (
-                    <BlockButton
+                    <UserSearchBlockButton
                         isBlocking={isBlockingUser}
                         onBlockUser={onBlockUser}
                     />
@@ -78,7 +71,7 @@ export default function UserSearchActionPanel({
                     {isStartingChat ? t("startingChat") : t("startChat")}
                 </button>
                 {canBlock && (
-                    <BlockButton
+                    <UserSearchBlockButton
                         isBlocking={isBlockingUser}
                         onBlockUser={onBlockUser}
                     />
@@ -90,12 +83,12 @@ export default function UserSearchActionPanel({
     if (result.friendStatus === "REQUEST_SENT") {
         return (
             <div className="flex shrink-0 flex-col gap-2">
-                <DisabledAction
+                <UserSearchDisabledAction
                     icon={<UserCheck className="h-4 w-4" />}
                     label={t("requestSent")}
                 />
                 {canBlock && (
-                    <BlockButton
+                    <UserSearchBlockButton
                         isBlocking={isBlockingUser}
                         onBlockUser={onBlockUser}
                     />
@@ -107,12 +100,12 @@ export default function UserSearchActionPanel({
     if (result.friendStatus === "REQUEST_RECEIVED") {
         return (
             <div className="flex shrink-0 flex-col gap-2">
-                <DisabledAction
+                <UserSearchDisabledAction
                     icon={<UserMinus className="h-4 w-4" />}
                     label={t("requestReceived")}
                 />
                 {canBlock && (
-                    <BlockButton
+                    <UserSearchBlockButton
                         isBlocking={isBlockingUser}
                         onBlockUser={onBlockUser}
                     />
@@ -123,7 +116,7 @@ export default function UserSearchActionPanel({
 
     if (result.friendStatus === "BLOCKED") {
         return (
-            <DisabledAction
+            <UserSearchDisabledAction
                 icon={<Ban className="h-4 w-4" />}
                 label={t("blocked")}
                 danger
@@ -132,56 +125,9 @@ export default function UserSearchActionPanel({
     }
 
     return (
-        <DisabledAction
+        <UserSearchDisabledAction
             icon={<UserCheck className="h-4 w-4" />}
             label={t("self")}
         />
-    );
-}
-
-function BlockButton({
-    isBlocking,
-    onBlockUser,
-}: {
-    isBlocking: boolean;
-    onBlockUser: () => Promise<boolean>;
-}) {
-    const t = useTranslations("Social.userSearchPage.actions");
-
-    return (
-        <button
-            type="button"
-            onClick={onBlockUser}
-            disabled={isBlocking}
-            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-100 px-5 py-3 text-sm font-black text-slate-600 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white/10 dark:text-slate-200 dark:hover:bg-white/15"
-        >
-            <ShieldAlert className="h-4 w-4" aria-hidden="true" />
-            {isBlocking ? t("blocking") : t("block")}
-        </button>
-    );
-}
-
-interface DisabledActionProps {
-    icon: React.ReactNode;
-    label: string;
-    danger?: boolean;
-}
-
-function DisabledAction({
-    icon,
-    label,
-    danger = false,
-}: DisabledActionProps) {
-    return (
-        <div
-            className={`inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-black ${
-                danger
-                    ? "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-200"
-                    : "bg-slate-100 text-slate-500 dark:bg-white/10 dark:text-slate-300"
-            }`}
-        >
-            {icon}
-            {label}
-        </div>
     );
 }

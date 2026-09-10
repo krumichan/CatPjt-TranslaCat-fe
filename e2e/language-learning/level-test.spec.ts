@@ -1,11 +1,12 @@
 import type { Page } from "@playwright/test";
 
+import type { LevelTestQuestion } from "@/types/language-learning/level";
+
 import { expect, test } from "../fixtures/mock-test";
 
-import { fulfillApiJson } from "../support/api-mocks";
+import { fulfillApiJson, fulfillJson } from "../support/api-mocks";
 import {
     LEVEL_TEST_DICTATION,
-    LEVEL_TEST_HISTORY,
     LEVEL_TEST_INTERPRETATION,
     LEVEL_TEST_LISTENING,
     LEVEL_TEST_QUESTION,
@@ -19,6 +20,7 @@ import {
     mockLanguageLearningLevelTest,
 } from "../support/language-learning-level-test-mocks";
 import {
+    LANGUAGE_LEARNING_ADMIN_SETTING,
     LANGUAGE_LEARNING_DAILY_SET,
     LANGUAGE_LEARNING_LISTENING_RESULT,
     mockLanguageLearningBase,
@@ -29,12 +31,11 @@ import { errorDto, responseDto } from "../support/mock-data";
 
 async function overrideQuestion(
     page: Page,
-    question: typeof LEVEL_TEST_QUESTION,
+    question: LevelTestQuestion,
 ) {
-    await page.unroute("**/language-learning/level-test/sessions/3101/current-item");
-    await page.route("**/language-learning/level-test/sessions/3101/current-item", (route) =>
-        fulfillApiJson(route, responseDto(question)),
-    );
+    // Keep Session, current item, answer and retry responses on the same logical question.
+    // Playwright gives the most recently registered matching route precedence.
+    await mockLanguageLearningLevelTest(page, question);
 }
 
 async function mockPlayableAudio(page: Page) {
@@ -75,7 +76,7 @@ test.describe("Language Learning Level Test", () => {
     });
 
     test("LLT-03 진행 중 Session은 새 테스트 대신 이어하기를 제공한다", async ({ page }) => {
-        await page.route("**/language-learning/level-test/status", (route) =>
+        await page.route("**/api/v1/language-learning/level-test/status", (route) =>
             fulfillApiJson(route, responseDto({
                 profileState: "ACTIVE",
                 initialLevelTestCompleted: true,
@@ -95,6 +96,7 @@ test.describe("Language Learning Level Test", () => {
         await page.goto("/language-learning/level-test/session/3101");
         await expect(page.getByText("1 / 20", { exact: true })).toBeVisible();
         await expect(page.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "1");
+        await expect(page.getByRole("heading", { name: "어휘", exact: true })).toBeFocused();
         await expect(page.getByText(/complexity/i)).toHaveCount(0);
         await expect(page.getByText(/band 4/i)).toHaveCount(0);
     });
@@ -220,7 +222,7 @@ test.describe("Language Learning Level Test", () => {
         await play.click();
         await play.click();
         await expect(play).toBeDisabled();
-        await expect(page.getByText(/남은 0회/)).toBeVisible();
+        await expect(page.getByText("재생 가능 0회", { exact: true })).toBeVisible();
     });
 
     test("LLT-12B 마지막 Speaking은 Repeat이 아닌 가이드형 논술 응답을 제공한다", async ({ page }) => {
@@ -233,13 +235,13 @@ test.describe("Language Learning Level Test", () => {
         await expect(page.getByTestId("speaking-repeat-reference-audio")).toHaveCount(0);
     });
 
-    test("LLT-13 마이크 거부·장치 없음·사용 중을 서로 다른 안내로 구분한다", async ({ browser }) => {
+    test("LLT-13 마이크 거부·장치 없음·사용 중을 서로 다른 안내로 구분한다", async ({ context }) => {
         for (const [mode, expected] of [
             ["denied", /권한이 거부/],
             ["no-device", /마이크를 찾을 수 없/],
             ["busy", /다른 앱에서 사용 중/],
         ] as const) {
-            const context = await browser.newContext();
+            // Reuse the authenticated test context, but keep media overrides per page.
             const page = await context.newPage();
             await mockSpeakingMediaRecorder(page, mode);
             await mockLanguageLearningBase(page);
@@ -247,12 +249,12 @@ test.describe("Language Learning Level Test", () => {
             await page.goto("/language-learning/level-test/session/3101");
             await page.getByRole("button", { name: /마이크 허용/ }).click();
             await expect(page.getByText(expected)).toBeVisible();
-            await context.close();
+            await page.close();
         }
     });
 
     test("LLT-14 평가 중 Polling에서도 기존 Question을 유지하고 Loading 화면으로 깜빡이지 않는다", async ({ page }) => {
-        await page.route("**/language-learning/level-test/sessions/3101", (route) =>
+        await page.route("**/api/v1/language-learning/level-test/sessions/3101", (route) =>
             fulfillApiJson(route, responseDto({ ...LEVEL_TEST_SESSION, status: "EVALUATING" })),
         );
         await overrideQuestion(page, { ...LEVEL_TEST_QUESTION, status: "EVALUATING" });
@@ -306,7 +308,7 @@ test.describe("Language Learning Level Test", () => {
     test("LLT-17 Result에 종합 점수·Band·6영역·내부 기준 안내를 표시한다", async ({ page }) => {
         await page.goto("/language-learning/level-test/result/3101");
         await expect(page.getByText("81", { exact: true })).toBeVisible();
-        await expect(page.getByText(/UPPER INTERMEDIATE/)).toBeVisible();
+        await expect(page.getByText("중상급", { exact: true })).toBeVisible();
         for (const score of [86, 80, 84, 78, 79, 77]) {
             await expect(page.getByText(String(score), { exact: true })).toBeVisible();
         }
@@ -317,8 +319,9 @@ test.describe("Language Learning Level Test", () => {
         await page.goto("/language-learning/level-test/history");
         await expect(page.getByText(/Multi-skill Level Test/)).toBeVisible();
         await expect(page.getByText(/종합 81/)).toBeVisible();
-        await expect(page.getByText("0", { exact: true })).toHaveCount(0);
-        await page.getByRole("link", { name: /Multi-skill Level Test/ }).click();
+        const historyLink = page.getByRole("link", { name: /Multi-skill Level Test/ });
+        await expect(historyLink.getByText("0", { exact: true })).toHaveCount(0);
+        await historyLink.click();
         await expect(page).toHaveURL(/level-test\/history\/3101/);
     });
 
@@ -357,8 +360,9 @@ test.describe("Language Learning Level Test", () => {
         await expect(page.getByTestId("dashboard-learning-profile")).toBeVisible();
         await expect(page.getByRole("link", { name: /최근 결과/ })).toBeVisible();
         await page.goto("/language-learning/history");
-        await expect(page.getByRole("button", { name: "레벨 테스트" })).toBeVisible();
-        await page.getByRole("button", { name: "레벨 테스트" }).click();
+        const levelTestFilter = page.getByTestId("history-source-LEVEL_TEST");
+        await expect(levelTestFilter).toBeVisible();
+        await levelTestFilter.click();
         await expect(page.getByTestId("history-activity-LEVEL_TEST:3101")).toBeVisible();
     });
 
@@ -369,7 +373,7 @@ test.describe("Language Learning Level Test", () => {
         const playbackRequest = page.waitForRequest((request) =>
             request.url().includes("/items/711/playbacks") && request.method() === "POST",
         );
-        await page.getByRole("button", { name: /정상속도/ }).click();
+        await page.getByTestId("listening-reference-audio").getByRole("button", { name: "재생 / 다시 듣기", exact: true }).click();
         const playback = await playbackRequest;
         expect(playback.postDataJSON()).toMatchObject({
             attemptId: 801,
@@ -377,7 +381,7 @@ test.describe("Language Learning Level Test", () => {
         });
         expect(playback.postDataJSON().clientEventId).toBeTruthy();
 
-        await page.route("**/language-learning/listening/sessions/702/result", (route) =>
+        await page.route("**/api/v1/language-learning/listening/sessions/702/result", (route) =>
             fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_LISTENING_RESULT)),
         );
         await page.goto("/language-learning/listening/session/702/result");
@@ -388,19 +392,19 @@ test.describe("Language Learning Level Test", () => {
         await expect(page.getByText(/독립 청취/).first()).toBeVisible();
         await expect(page.getByTestId("language-learning-tab-profile")).toHaveCount(0);
         await expect(page.getByTestId("language-learning-today-menu")).toBeVisible();
-        await page.route("**/language-learning/writing/daily?**", (route) =>
+        await page.route("**/api/v1/language-learning/writing/daily?**", (route) =>
             fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_DAILY_SET)),
         );
         await page.goto("/language-learning/writing");
-        await page.getByTestId("daily-writing-type-translation").click();
+        await page.getByTestId("daily-writing-type-translation").getByRole("button").click();
         await expect(page.getByText(/복잡한 문법·어휘·표현/)).toBeVisible();
     });
 
     test("LLT-21 실패 후 같은 문항 재제출은 동일 idempotencyKey를 재사용한다", async ({ page }) => {
         const keys: string[] = [];
         let attempts = 0;
-        await page.unroute("**/language-learning/level-test/sessions/3101/items/*/answers");
-        await page.route("**/language-learning/level-test/sessions/3101/items/*/answers", async (route) => {
+        await page.unroute("**/api/v1/language-learning/level-test/sessions/3101/items/*/answers");
+        await page.route("**/api/v1/language-learning/level-test/sessions/3101/items/*/answers", async (route) => {
             attempts += 1;
             keys.push(route.request().postDataJSON().idempotencyKey);
             if (attempts === 1) {
@@ -426,7 +430,7 @@ test.describe("Language Learning Level Test", () => {
         await page.getByRole("radio").first().click();
         const submit = page.getByRole("button", { name: /답변 제출/ });
         await submit.click();
-        await expect(page.getByRole("alert")).toBeVisible();
+        await expect(page.locator('p[role="alert"]')).toBeVisible();
         await expect(submit).toBeEnabled();
         await submit.click();
 
@@ -437,8 +441,8 @@ test.describe("Language Learning Level Test", () => {
 
     test("LLT-22 빠른 이중 클릭은 같은 문항 POST를 한 번만 전송한다", async ({ page }) => {
         let submitCount = 0;
-        await page.unroute("**/language-learning/level-test/sessions/3101/items/*/answers");
-        await page.route("**/language-learning/level-test/sessions/3101/items/*/answers", async (route) => {
+        await page.unroute("**/api/v1/language-learning/level-test/sessions/3101/items/*/answers");
+        await page.route("**/api/v1/language-learning/level-test/sessions/3101/items/*/answers", async (route) => {
             submitCount += 1;
             await new Promise((resolve) => setTimeout(resolve, 250));
             await fulfillApiJson(
@@ -470,11 +474,11 @@ test.describe("Language Learning Level Test", () => {
     test("LLT-23 답변 성공 후 다음 문제 조회 실패가 이전 문항 재제출로 돌아가지 않는다", async ({ page }) => {
         let answerAccepted = false;
         let submitCount = 0;
-        await page.unroute("**/language-learning/level-test/sessions/3101");
-        await page.unroute("**/language-learning/level-test/sessions/3101/current-item");
-        await page.unroute("**/language-learning/level-test/sessions/3101/items/*/answers");
+        await page.unroute("**/api/v1/language-learning/level-test/sessions/3101");
+        await page.unroute("**/api/v1/language-learning/level-test/sessions/3101/current-item");
+        await page.unroute("**/api/v1/language-learning/level-test/sessions/3101/items/*/answers");
 
-        await page.route("**/language-learning/level-test/sessions/3101", (route) =>
+        await page.route("**/api/v1/language-learning/level-test/sessions/3101", (route) =>
             fulfillApiJson(
                 route,
                 responseDto({
@@ -483,7 +487,7 @@ test.describe("Language Learning Level Test", () => {
                 }),
             ),
         );
-        await page.route("**/language-learning/level-test/sessions/3101/current-item", (route) => {
+        await page.route("**/api/v1/language-learning/level-test/sessions/3101/current-item", (route) => {
             if (answerAccepted) {
                 return fulfillApiJson(
                     route,
@@ -493,7 +497,7 @@ test.describe("Language Learning Level Test", () => {
             }
             return fulfillApiJson(route, responseDto(LEVEL_TEST_QUESTION));
         });
-        await page.route("**/language-learning/level-test/sessions/3101/items/*/answers", async (route) => {
+        await page.route("**/api/v1/language-learning/level-test/sessions/3101/items/*/answers", async (route) => {
             submitCount += 1;
             answerAccepted = true;
             await fulfillApiJson(
@@ -540,6 +544,9 @@ test.describe("Language Learning Level Test", () => {
                 accessToken: "mock-admin-access-token",
                 expires: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
             }),
+        );
+        await page.route("**/api/v1/admin/language-learning/settings", (route) =>
+            fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_ADMIN_SETTING)),
         );
 
         await page.goto("/settings/admin/language-learning");

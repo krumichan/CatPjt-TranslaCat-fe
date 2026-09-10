@@ -1,23 +1,9 @@
-import {
-    CheckCheck,
-    ChevronRight,
-    DoorOpen,
-    ShieldAlert,
-    ShieldCheck,
-    UserPlus,
-} from "lucide-react";
+import { formatActivityDateTime } from "@/utils/time/formatActivityDateTime";
+import { CheckCheck, ChevronRight, DoorOpen, ShieldAlert, ShieldCheck, UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useRouter } from "@/navigation";
 import type { ChatNotificationActivityItem } from "@/types/chatNotification";
-
-const formatDateTime = (value: string) =>
-    new Intl.DateTimeFormat(undefined, {
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-    }).format(new Date(value));
 
 const getPayloadString = (
     payload: Record<string, unknown>,
@@ -154,7 +140,7 @@ export default function ChatActivityNotificationItem({
                         </div>
                     </div>
                     <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
-                        {formatDateTime(item.createdAt)}
+                        {formatActivityDateTime(item.createdAt)}
                     </p>
                 </div>
             </div>

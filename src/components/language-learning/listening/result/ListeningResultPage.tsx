@@ -120,7 +120,7 @@ export function ListeningResultPage({ sessionId }: { sessionId: number }) {
                             <h2 className="mt-1 text-xl font-black text-slate-900 dark:text-white">{t("result.summaryTitle")}</h2>
                         </div>
                         <div className="text-right">
-                            <p className="text-4xl font-black text-slate-950 dark:text-white">
+                            <p className="text-4xl font-black text-slate-950 dark:text-white" data-testid="listening-result-average-score">
                                 {evaluationState.hasInFlightEvaluation || result.averageScore === null ? "—" : Math.round(result.averageScore)}
                             </p>
                             <p className="mt-1 text-xs font-bold text-slate-400">

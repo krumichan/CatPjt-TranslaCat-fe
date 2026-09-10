@@ -5,14 +5,13 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 
 import type { ChatMessage } from "@/types/chat";
 import type { ChatNotificationActivityItem } from "@/types/chatNotification";
+import type { ChatReadUpdatedEvent, ChatWebSocketEvent } from "@/types/chatWebSocket";
 import {
     extractChatMessageFromEvent,
     extractChatNotificationCreatedItem,
     extractChatReadUpdatedEvent,
     getChatWebSocketEventType,
-    type ChatReadUpdatedEvent,
-    type ChatWebSocketEvent,
-} from "@/types/chatWebSocket";
+} from "@/utils/chat/chatWebSocketParser";
 import { getChatWebSocketUrl } from "@/utils/websocket";
 
 const MAX_SEEN_MESSAGE_IDS = 500;

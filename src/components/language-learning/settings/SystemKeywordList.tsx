@@ -1,9 +1,11 @@
 "use client";
 
+import { groupSystemKeywords } from "@/features/language-learning/keyword/keywordGrouping";
+
 import clsx from "clsx";
 import { ChevronDown } from "lucide-react";
-import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 
 import {
     getKeywordPrimaryText,
@@ -16,32 +18,12 @@ interface SystemKeywordListProps {
     manager: LanguageLearningKeywordManager;
 }
 
-function sortKeywords(keywords: LanguageLearningKeyword[]) {
-    return [...keywords].sort(
-        (left, right) =>
-            (left.sortOrder ?? 0) - (right.sortOrder ?? 0) ||
-            left.id - right.id,
-    );
-}
-
 export function SystemKeywordList({ manager }: SystemKeywordListProps) {
     const t = useTranslations("LanguageLearning.settings.keywords");
     const [expandedTopicIds, setExpandedTopicIds] = useState<Set<number>>(
         () => new Set(),
     );
-    const keywords = sortKeywords(manager.data?.systemKeywords ?? []);
-    const topics = keywords.filter(
-        (keyword) =>
-            keyword.type === "TOPIC" &&
-            (keyword.parentKeywordId ?? null) === null,
-    );
-    const topicIds = new Set(topics.map((topic) => topic.id));
-    const ungrouped = keywords.filter(
-        (keyword) =>
-            !topicIds.has(keyword.id) &&
-            (!keyword.parentKeywordId ||
-                !topicIds.has(keyword.parentKeywordId)),
-    );
+    const { keywords, topics, ungrouped } = groupSystemKeywords(manager.data?.systemKeywords ?? []);
 
     const toggleExpanded = (topicId: number) => {
         setExpandedTopicIds((current) => {

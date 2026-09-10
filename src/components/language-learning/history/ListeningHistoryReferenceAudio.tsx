@@ -1,0 +1,28 @@
+"use client";
+
+import { useLazyAudioResource } from "@/hooks/language-learning/common/useLazyAudioResource";
+import { listeningService } from "@/services/language-learning/listeningService";
+import { useTranslations } from "next-intl";
+
+export function ListeningHistoryReferenceAudio({ itemId, available, expired, retentionUntil }: { itemId: number; available: boolean; expired: boolean; retentionUntil: string | null }) {
+    const t = useTranslations("LanguageLearning.history.listening");
+    const audioT = useTranslations("LanguageLearning.listening.result");
+    const { url, loading, failed, load } = useLazyAudioResource({
+        resourceId: itemId,
+        fetcher: listeningService.fetchReferenceAudio,
+        enabled: available && !expired,
+    });
+
+    if (expired) {
+        return <p className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm text-slate-500 dark:bg-white/5 dark:text-slate-400">{t("referenceAudioExpired")}</p>;
+    }
+    if (!available) return null;
+
+    return (
+        <div className="mt-4 rounded-2xl bg-slate-50 p-4 dark:bg-white/5">
+            {url ? <audio controls src={url} className="w-full" /> : <button type="button" onClick={() => void load()} disabled={loading} className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-black text-white">{loading ? t("audioLoading") : t("playReference")}</button>}
+            {failed && <p role="alert" className="mt-2 text-xs font-bold text-rose-600 dark:text-rose-300">{audioT("referenceAudioFailed")}</p>}
+            <p className="mt-2 text-xs text-slate-400">{t("retentionUntil", { until: retentionUntil ?? "-" })}</p>
+        </div>
+    );
+}

@@ -200,7 +200,9 @@
         "ANTONYM": "反意語",
         "DISTINCTION": "類似語の使い分け",
         "COLLOCATION": "コロケーション",
+        "NUANCE": "ニュアンス",
         "REGISTER": "場面別表現",
+        "PRAGMATIC_FIT": "語用・場面適合",
         "CONTEXT_USAGE": "文脈適用",
         "COMPOSITION": "組み合わせ・構成"
       },
@@ -1900,17 +1902,17 @@
     },
     "vocabulary": {
       "title": "AI Vocabulary",
-      "description": "単語・表現の意味、使い分け、組み合わせを反復し、習熟度を積み上げます。",
+      "description": "実際の文脈で最も自然で正確な単語・表現を選び、習熟度を高めます。",
       "loading": "Vocabulary学習情報を読み込んでいます。",
       "loadFailed": "Vocabulary学習情報を読み込めませんでした。",
       "startFailed": "今日のVocabulary問題を準備できませんでした。もう一度お試しください。",
       "selector": {
         "eyebrow": "今日のVocabulary",
-        "title": "今日はどの方法でVocabularyを練習しますか？",
-        "description": "短い問題を反復し、単語や表現を実際の文脈で使えるように練習します。",
-        "start": "この形式を始める",
+        "title": "今日のContextual Vocabulary Choice",
+        "description": "1〜2文の実用的な文脈で、最も適切な表現を選ぶ10問に取り組みます。",
+        "start": "今日の10問を始める",
         "starting": "問題を準備中",
-        "notice": "学習履歴が蓄積すると、新規40%・復習60%を目安に弱い表現を優先して再出題します。",
+        "notice": "毎日全10問で、新規は最大8問、復習は最大2問です。",
         "completed": "今日完了",
         "continue": "続きから",
         "viewResult": "結果を見る",
@@ -1919,6 +1921,10 @@
         "completedCount": "今日完了した形式 {completed}/{total}"
       },
       "modes": {
+        "CONTEXTUAL_CHOICE": {
+          "title": "文脈語彙選択",
+          "description": "短い実用文脈から、意味・コロケーション・ニュアンス・レジスター・場面に最も合う表現を選びます。"
+        },
         "MEANING_RELATION": {
           "title": "意味・関係",
           "description": "単語の意味、類義語、反意語、近い表現の関係を練習します。"
@@ -1939,11 +1945,13 @@
       },
       "skills": {
         "MEANING": "意味理解",
+        "NUANCE": "ニュアンス",
         "SYNONYM": "類義語",
         "ANTONYM": "反意語",
         "DISTINCTION": "類似語の使い分け",
         "COLLOCATION": "コロケーション",
         "REGISTER": "場面別表現",
+        "PRAGMATIC_FIT": "語用・場面適合",
         "CONTEXT_USAGE": "文脈適用",
         "COMPOSITION": "組み合わせ・構成"
       },

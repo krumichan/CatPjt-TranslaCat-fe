@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpenText, CheckCircle2, Compass, Layers3, LoaderCircle, Network, Sparkles } from "lucide-react";
+import { BookOpenText, CheckCircle2, Compass, Layers3, LoaderCircle, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
@@ -9,6 +9,7 @@ import { LanguageLearningStateCard } from "@/components/language-learning/common
 import { LanguageLearningPageLayout } from "@/components/language-learning/layout/LanguageLearningPageLayout";
 import { useLanguageLearningEntryState } from "@/hooks/language-learning/useLanguageLearningEntryState";
 import { isGenerationPending } from "@/features/language-learning/generationState";
+import { CURRENT_VOCABULARY_MODE } from "@/features/language-learning/practice/vocabularyPolicy";
 import { useRouter } from "@/navigation";
 import { readingVocabularyService } from "@/services/language-learning/readingVocabularyService";
 import type {
@@ -24,9 +25,7 @@ const READING_MODES = [
 ] as const;
 
 const VOCABULARY_MODES = [
-    { key: "MEANING_RELATION", icon: Network },
-    { key: "USAGE_DISTINCTION", icon: Sparkles },
-    { key: "COMPOSITION", icon: Layers3 },
+    { key: CURRENT_VOCABULARY_MODE, icon: Sparkles },
 ] as const;
 
 export function PracticeModeLandingPage({ domain }: { domain: PracticeDomain }) {
@@ -63,7 +62,10 @@ export function PracticeModeLandingPage({ domain }: { domain: PracticeDomain }) 
         return () => { cancelled = true; };
     }, [domain, entry.setting?.configured]);
 
-    const hasGeneratingMode = todayStatuses.some((status) => isGenerationPending(status.generationStatus));
+    const visibleModeKeys: ReadonlySet<string> = new Set(modes.map(({ key }) => key));
+    const hasGeneratingMode = todayStatuses.some(
+        (status) => visibleModeKeys.has(status.mode) && isGenerationPending(status.generationStatus),
+    );
     useEffect(() => {
         if (!hasGeneratingMode) return;
         let cancelled = false;
@@ -154,7 +156,7 @@ export function PracticeModeLandingPage({ domain }: { domain: PracticeDomain }) 
                             </p>
                         )}
                     </div>
-                    <div className="mt-6 grid gap-4 lg:grid-cols-3">
+                    <div className={`mt-6 grid gap-4 ${domain === "READING" ? "lg:grid-cols-3" : "max-w-2xl"}`}>
                         {modes.map(({ key, icon: Icon }) => {
                             const busy = startingMode === key;
                             const todayStatus = statusByMode.get(key);

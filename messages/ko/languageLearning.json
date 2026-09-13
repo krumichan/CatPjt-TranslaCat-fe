@@ -200,7 +200,9 @@
         "ANTONYM": "반의어",
         "DISTINCTION": "유사어 구별",
         "COLLOCATION": "연어",
+        "NUANCE": "뉘앙스",
         "REGISTER": "상황별 표현",
+        "PRAGMATIC_FIT": "화용·상황 적합성",
         "CONTEXT_USAGE": "문맥 적용",
         "COMPOSITION": "조합·구성"
       },
@@ -1900,17 +1902,17 @@
     },
     "vocabulary": {
       "title": "AI Vocabulary",
-      "description": "단어와 표현의 의미, 쓰임, 조합을 반복해서 익히고 숙련도를 쌓습니다.",
+      "description": "실제 문맥에서 가장 자연스럽고 정확한 단어와 표현을 고르며 숙련도를 쌓습니다.",
       "loading": "Vocabulary 학습 정보를 불러오는 중입니다.",
       "loadFailed": "Vocabulary 학습 정보를 불러오지 못했습니다.",
       "startFailed": "오늘의 Vocabulary 문제를 준비하지 못했습니다. 다시 시도해 주세요.",
       "selector": {
         "eyebrow": "오늘의 Vocabulary",
-        "title": "오늘은 어떤 방식으로 Vocabulary를 연습할까요?",
-        "description": "짧은 문제를 반복하며 단어와 표현을 실제 문맥에서 사용할 수 있도록 훈련합니다.",
-        "start": "이 형식 시작하기",
+        "title": "오늘의 Contextual Vocabulary Choice",
+        "description": "1~2문장의 실제 문맥에서 가장 적절한 표현을 고르는 10문제를 학습합니다.",
+        "start": "오늘의 10문제 시작하기",
         "starting": "문제 준비 중",
-        "notice": "학습 기록이 쌓이면 신규 40%·복습 60%를 목표로 약한 표현을 우선 다시 출제합니다.",
+        "notice": "매일 총 10문제이며 신규는 최대 8문제, 복습은 최대 2문제입니다.",
         "completed": "오늘 완료",
         "continue": "계속하기",
         "viewResult": "결과 보기",
@@ -1919,6 +1921,10 @@
         "completedCount": "오늘 완료한 형식 {completed}/{total}"
       },
       "modes": {
+        "CONTEXTUAL_CHOICE": {
+          "title": "문맥 속 어휘 선택",
+          "description": "짧은 실제 문맥에서 의미·연어·뉘앙스·격식·상황에 가장 알맞은 표현을 고릅니다."
+        },
         "MEANING_RELATION": {
           "title": "의미·관계",
           "description": "단어 뜻, 유의어, 반의어와 가까운 표현의 관계를 연습합니다."
@@ -1939,11 +1945,13 @@
       },
       "skills": {
         "MEANING": "의미 이해",
+        "NUANCE": "뉘앙스",
         "SYNONYM": "유의어",
         "ANTONYM": "반의어",
         "DISTINCTION": "유사어 구별",
         "COLLOCATION": "Collocation",
         "REGISTER": "상황별 표현",
+        "PRAGMATIC_FIT": "화용·상황 적합성",
         "CONTEXT_USAGE": "문맥 적용",
         "COMPOSITION": "조합·구성"
       },

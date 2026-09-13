@@ -1,6 +1,8 @@
 export type PracticeDomain = "READING" | "VOCABULARY";
 export type ReadingMode = "COMPREHENSION" | "STRUCTURE" | "CONTEXT_INFERENCE";
-export type VocabularyMode = "MEANING_RELATION" | "USAGE_DISTINCTION" | "COMPOSITION";
+export type CurrentVocabularyMode = "CONTEXTUAL_CHOICE";
+export type LegacyVocabularyMode = "MEANING_RELATION" | "USAGE_DISTINCTION" | "COMPOSITION";
+export type VocabularyMode = CurrentVocabularyMode | LegacyVocabularyMode;
 export type PracticeMode = ReadingMode | VocabularyMode;
 export type PracticeQuestionType = "SINGLE_CHOICE" | "ORDERING";
 export type PracticeDifficulty = "EASIER" | "CURRENT" | "CHALLENGE";

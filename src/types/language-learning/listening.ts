@@ -86,6 +86,9 @@ export interface ListeningItemSummary {
     status: ListeningItemStatus;
     playable: boolean;
     audioDurationMs: number | null;
+    ttsRetryAllowed?: boolean;
+    durationValidationStatus?: "VALIDATED" | "LEGACY_UNVALIDATED" | "PENDING" | "FAILED";
+    durationPolicyVersion?: string | null;
 }
 
 export interface ListeningDailySet {

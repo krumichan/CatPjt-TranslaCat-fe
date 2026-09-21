@@ -10,7 +10,6 @@ import {
     Mic2,
     PencilLine,
     Settings,
-    LibraryBig,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -37,11 +36,6 @@ const LEARNING_MODE_ITEMS = [
         href: "/language-learning/reading",
         key: "reading",
         icon: BookText,
-    },
-    {
-        href: "/language-learning/vocabulary",
-        key: "vocabulary",
-        icon: LibraryBig,
     },
 ] as const;
 

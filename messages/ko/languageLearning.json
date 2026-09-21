@@ -5,6 +5,7 @@
       "background": "준비된 문제부터 풀 수 있어요. 나머지 문제는 백그라운드에서 계속 만들고 있어요.",
       "waiting": "다음 문제를 준비하고 있어요. 지금까지 작성하거나 제출한 답변은 유지돼요.",
       "failed": "나머지 문제 준비가 중단됐어요. 기존 문제와 답변을 유지한 채 다시 시도할 수 있어요.",
+      "structureDeferred": "고급 구조 분석 문제는 품질 점검 중입니다. 기존 문제와 답변은 그대로 유지됩니다.",
       "retry": "나머지 문제 준비 재시도",
       "retrying": "다시 준비하는 중…",
       "slots": "전체 문제 준비 상태",
@@ -1145,6 +1146,8 @@
           "progress": "진행 {value}",
           "evaluating": "AI 평가 중…",
           "viewEvaluationProgress": "평가 진행 상황 보기",
+          "viewCoachingProgress": "코칭 준비 상황 보기",
+          "coachingResult": "대화 코칭 보기",
           "eyebrow": "오늘의 Speaking"
         }
       },
@@ -1185,11 +1188,14 @@
           "request": "마이크 권한 요청",
           "requesting": "권한 확인 중...",
           "granted": "마이크 사용 가능",
+          "cancel": "확인 취소",
           "reason": {
             "UNSUPPORTED": "이 브라우저는 음성 녹음을 지원하지 않습니다.",
             "DENIED": "마이크 권한이 차단되어 있습니다. 브라우저 설정에서 허용해 주세요.",
             "NO_DEVICE": "사용 가능한 마이크를 찾지 못했습니다.",
             "DEVICE_BUSY": "다른 앱에서 마이크를 사용 중일 수 있습니다.",
+            "TIMED_OUT": "마이크 응답이 없습니다. 브라우저 권한 표시를 확인한 뒤 다시 시도할 수 있습니다.",
+            "CANCELLED": "확인을 취소했습니다. 언제든 다시 시도할 수 있습니다.",
             "UNKNOWN": "마이크를 시작하지 못했습니다."
           }
         },
@@ -1262,6 +1268,7 @@
           "you": "나",
           "confidence": "STT 신뢰도 {value}%",
           "noTranscript": "인식된 문장이 없습니다.",
+          "transcriptObservationNotice": "인식된 문장은 실제 발화와 다를 수 있습니다. 녹음을 다시 듣고, 필요하면 다시 녹음하거나 STT 오류를 신고해 주세요.",
           "lowConfidence": "음성 인식 신뢰도가 낮습니다. 필요하면 오류 신고 또는 평가 제외를 선택할 수 있습니다.",
           "failed": "일부 처리 실패",
           "retry": "실패 단계 재시도",
@@ -1334,6 +1341,9 @@
           "completing": "종료 처리 중...",
           "confirm": "Speaking Session을 종료할까요? 종료 후에는 새 Turn을 추가할 수 없습니다.",
           "serverEvaluationNotice": "평가 기준이 부족한 상태에서 종료하면 결과가 “평가 데이터 부족”으로 표시될 수 있습니다.",
+          "coachingReady": "현재 대화를 종료하면 저장된 발화를 근거로 세션 코칭을 준비합니다. 종합 점수나 능력 프로필에는 반영되지 않습니다.",
+          "coachingAction": "종료하고 코칭 받기",
+          "confirmCoaching": "Speaking Session을 종료하고 대화 코칭을 준비할까요? 종료 후에는 새 Turn을 추가할 수 없습니다.",
           "evaluateAction": "종료하고 평가받기",
           "continueConversation": "계속 대화하기",
           "withoutEvaluationAction": "평가 없이 종료하기",
@@ -1385,6 +1395,34 @@
       },
       "evaluation": {
         "title": "Speaking 평가",
+        "coaching": {
+          "pageTitle": "Speaking 대화 코칭",
+          "pageDescription": "이번 대화에서 실제로 인식된 발화를 바탕으로 다음 대화에 활용할 피드백을 확인합니다.",
+          "title": "이번 대화 코칭",
+          "description": "실제 인식된 발화를 근거로 다음 대화에 바로 쓸 수 있는 피드백을 정리했어요.",
+          "pendingTitle": "대화 코칭을 준비하고 있어요",
+          "pendingDescription": "학습은 완료되었고, 저장된 발화 근거를 연결하고 있어요.",
+          "failedTitle": "코칭을 준비하지 못했어요",
+          "failedDescription": "대화와 학습 기록은 보존되어 있어요. 코칭 작업만 다시 요청할 수 있어요.",
+          "retry": "코칭 다시 요청",
+          "limited": "사용 가능한 근거 범위 안에서 제한된 코칭을 제공해요.",
+          "noEvidence": "코칭에 사용할 수 있는 발화 근거가 없어요. 학습 활동 기록은 보존되어 있어요.",
+          "recognizedSpeech": "인식된 발화",
+          "asrCaution": "음성 인식문에 대한 피드백이며, 실제 발화의 오류로 단정하지 않습니다.",
+          "suggestion": "다음에 써 볼 표현",
+          "notScore": "이 코칭은 공식 점수나 자동 레벨·능력 프로필에 반영되지 않아요.",
+          "kinds": {
+            "OBSERVATION": "관찰",
+            "CORRECTION": "개선",
+            "ALTERNATIVE": "대안 표현"
+          }
+        },
+        "evidencePolicyTitle": "평가 근거와 범위",
+        "transcriptOnlyNotice": "이 점수는 음성 인식 결과를 바탕으로 합니다. 파형을 분석한 발음 평가가 아니며, 인식 오류가 결과에 영향을 줄 수 있습니다.",
+        "evaluatedAxesCoverage": "평가한 축 {count}/8 · 원래 평가 가중치의 적용 범위 {coverage}% (STT 정확도나 학습능력 점수 아님)",
+        "evidencePolicyVersion": "평가 정책 {version}",
+        "scoreComparisonNotice": "정책과 평가한 축이 같은 결과끼리 비교해 주세요.",
+        "readAloudScriptAccuracyNotice": "Listen & Repeat는 인식된 문장과 제시문의 일치도를 평가합니다. 자발적 문법·어휘 능력이나 발음 정확도를 의미하지 않습니다.",
         "description": "Session 전체 대화를 바탕으로 공통 5대 Skill과 Speaking 3대 Skill을 확인합니다.",
         "loading": "Speaking 평가를 불러오고 있습니다.",
         "loadFailed": "Speaking 평가를 불러오지 못했습니다.",
@@ -1396,7 +1434,7 @@
         "retrying": "재요청 중...",
         "retryFailed": "평가 재요청에 실패했습니다.",
         "insufficientTitle": "평가할 데이터가 부족합니다",
-        "insufficientDescription": "유효 Turn, 실제 발화 시간 또는 STT 품질이 평가 기준에 충분하지 않았습니다.",
+        "insufficientDescription": "유효 Turn·발화 시간·STT 품질이나 인식된 문장에 근거한 평가 신뢰도가 충분하지 않았습니다.",
         "overall": "종합 점수",
         "confidence": "평가 신뢰도 {value}%",
         "commonMetrics": "공통 5대 Skill",
@@ -1776,6 +1814,7 @@
         "UNKNOWN": "요청 처리에 실패했습니다. Server 상태를 다시 확인해 주세요."
       },
       "modeSelector": {
+        "durationFailed": "음성 길이 기준을 충족하지 못해 이 문항을 게시하지 않았습니다. 이미 준비된 문항은 유지됩니다.",
         "title": "오늘 어떤 방식으로 Listening을 연습할까요?",
         "description": "유형을 선택할 때만 해당 5문제를 준비합니다. 한 유형만 풀어도 되고, 다른 유형을 이어서 추가로 풀어도 됩니다.",
         "start": "이 유형 시작하기",
@@ -1828,6 +1867,8 @@
         "description": "서로 다른 읽기 능력을 집중적으로 연습할 수 있습니다. 원하는 형식만 골라 진행해도 됩니다.",
         "start": "이 형식 시작하기",
         "starting": "문제 준비 중",
+        "structureDeferred": "고급 구조 분석 문제는 품질 점검 중입니다. 기본 B4의 도전 문항도 B5라면 새 세트가 보류됩니다. 다른 읽기 형식은 직접 선택할 수 있습니다.",
+        "availabilityLoading": "구조 분석 문제의 제공 가능 여부를 확인 중입니다.",
         "notice": "오늘 생성된 문제는 다시 진입해도 그대로 유지됩니다.",
         "completed": "오늘 완료",
         "continue": "계속하기",
@@ -1872,7 +1913,7 @@
         "correct": "정답입니다.",
         "incorrect": "아쉽지만 정답이 아닙니다.",
         "evidence": "근거:",
-        "vocabularyCandidates": "Reading에서 이해가 어려웠던 표현입니다. 다음 Vocabulary 학습의 복습 후보로 반영됩니다.",
+        "vocabularyCandidates": "지문 속 표현 — 원문에서 다시 확인해 보세요.",
         "retryNotice": "공식 점수는 첫 제출 기준이며, 이 문제는 복습으로 다시 풀 수 있습니다.",
         "back": "Reading으로 돌아가기",
         "next": "다음 문제",
@@ -1901,6 +1942,12 @@
       }
     },
     "vocabulary": {
+      "retired": {
+        "title": "독립 Daily Vocabulary 신규 제공을 종료했습니다",
+        "description": "기존 문제와 학습 이력은 보존됩니다. 새 어휘 이해 학습은 Reading의 문맥 추론과 지문 속 표현 복습에서 이어갈 수 있습니다.",
+        "readingAction": "Reading으로 이동",
+        "historyAction": "기존 학습 이력 보기"
+      },
       "title": "AI Vocabulary",
       "description": "실제 문맥에서 가장 자연스럽고 정확한 단어와 표현을 고르며 숙련도를 쌓습니다.",
       "loading": "Vocabulary 학습 정보를 불러오는 중입니다.",

@@ -23,6 +23,7 @@ export function SpeakingSessionView({
 
     const latestTurn = detail.turns.at(-1) ?? null;
     const sessionEnded = detail.session.status !== "IN_PROGRESS";
+    const sessionCoaching = detail.session.resultKind === "SESSION_COACHING";
 
     return (
         <div className="space-y-5" data-testid="speaking-session-page">
@@ -67,7 +68,7 @@ export function SpeakingSessionView({
                             )}
                         </>
                     )}
-                    {detail.session.practiceMode !== "READ_ALOUD" && controller.eligibility && (
+                    {detail.session.practiceMode !== "READ_ALOUD" && !sessionCoaching && controller.eligibility && (
                         <SpeakingEvaluationProgress
                             eligibility={controller.eligibility}
                             practiceMode={detail.session.practiceMode}
@@ -80,17 +81,19 @@ export function SpeakingSessionView({
                             {t("finish.title")}
                         </h2>
                         <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
-                            {controller.eligibility?.eligible === true
+                            {sessionCoaching
+                                ? t("finish.coachingReady")
+                                : controller.eligibility?.eligible === true
                                 ? t("finish.ready")
                                 : t("finish.insufficient")}
                         </p>
 
-                        {controller.eligibility?.eligible === true ? (
+                        {sessionCoaching || controller.eligibility?.eligible === true ? (
                             <button
                                 type="button"
                                 disabled={controller.isBusy || sessionEnded}
                                 onClick={() => {
-                                    if (window.confirm(t("finish.confirmEvaluate"))) {
+                                    if (window.confirm(t(sessionCoaching ? "finish.confirmCoaching" : "finish.confirmEvaluate"))) {
                                         void controller.completeSession(false);
                                     }
                                 }}
@@ -102,7 +105,7 @@ export function SpeakingSessionView({
                                 />
                                 {controller.turnPhase === "COMPLETING"
                                     ? t("finish.completing")
-                                    : t("finish.evaluateAction")}
+                                    : t(sessionCoaching ? "finish.coachingAction" : "finish.evaluateAction")}
                             </button>
                         ) : (
                             <div className="mt-4 grid gap-2">
@@ -146,7 +149,7 @@ export function SpeakingSessionView({
                             </div>
                         )}
 
-                        {controller.eligibility?.eligible === false && (
+                        {!sessionCoaching && controller.eligibility?.eligible === false && (
                             <p className="mt-3 text-[11px] leading-5 text-amber-700 dark:text-amber-300">
                                 {t("finish.withoutEvaluationNotice")}
                             </p>

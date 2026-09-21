@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { canRetryReadAloudEvaluation, readAloudEvaluationStatusKey } from "@/features/language-learning/speaking/evaluationState";
 import type { SpeakingReadAloudProblemEvaluation } from "@/types/language-learning/speaking";
+import { SpeakingEvidenceNotice } from "@/components/language-learning/speaking/evaluation/SpeakingEvidenceNotice";
 
 export function SpeakingReadAloudEvaluationItem({ item, retrying, retryError, onRetry }: {
     item: SpeakingReadAloudProblemEvaluation;
@@ -21,6 +22,7 @@ export function SpeakingReadAloudEvaluationItem({ item, retrying, retryError, on
                     {showScore ? ` · ${Math.round(item.overallScore ?? 0)} / 100` : ""}
                 </p>
             </div>
+            <SpeakingEvidenceNotice evidence={item} readAloud />
             {canRetryReadAloudEvaluation(item) && (
                 <button type="button" data-testid={`speaking-problem-retry-${item.problemIndex}`} disabled={retrying}
                     onClick={() => onRetry(item.problemIndex)}

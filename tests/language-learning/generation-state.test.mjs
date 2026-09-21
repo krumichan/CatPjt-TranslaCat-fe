@@ -138,3 +138,12 @@ test("only the latest replacement in a slot is eligible for TTS retry", () => {
     ];
     assert.deepEqual(listeningPreparationRetryTargets({ targetItemCount: 1, items }), { missingItems: false, ttsItemIds: [] });
 });
+
+test("duration quality exhaustion cannot restart TTS while legacy retry remains compatible", () => {
+    const items = [
+        { itemId: 1, itemIndex: 1, replacementSequence: 1, status: "NOT_EVALUABLE", ttsRetryAllowed: false, durationValidationStatus: "FAILED" },
+        { itemId: 2, itemIndex: 2, replacementSequence: 0, status: "NOT_EVALUABLE" },
+        { itemId: 3, itemIndex: 3, replacementSequence: 0, status: "NOT_EVALUABLE", ttsRetryAllowed: true },
+    ];
+    assert.deepEqual(listeningPreparationRetryTargets({ targetItemCount: 3, items }), { missingItems: false, ttsItemIds: [2, 3] });
+});

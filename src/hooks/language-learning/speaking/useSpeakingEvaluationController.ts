@@ -42,12 +42,15 @@ export function useSpeakingEvaluationController(sessionId: number) {
 
     const isPending = useMemo(() => {
         const status =
-            evaluationQuery.data?.status ??
-            sessionQuery.data?.session.evaluationStatus;
-        return status === "PENDING" || status === "EVALUATING";
+            sessionQuery.data?.session.resultKind === "SESSION_COACHING"
+                ? sessionQuery.data.session.resultStatus
+                : evaluationQuery.data?.status ?? sessionQuery.data?.session.evaluationStatus;
+        return status === "PENDING" || status === "EVALUATING" || status === "RUNNING";
     }, [
         evaluationQuery.data?.status,
         sessionQuery.data?.session.evaluationStatus,
+        sessionQuery.data?.session.resultKind,
+        sessionQuery.data?.session.resultStatus,
     ]);
 
     const refreshSession = sessionQuery.mutate;

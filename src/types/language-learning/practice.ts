@@ -84,6 +84,12 @@ export interface PracticeTodayModeStatus {
     officialScore: number | null;
 }
 
+export interface PracticeModeAvailability {
+    mode: ReadingMode;
+    generationAvailable: boolean;
+    reason: string | null;
+}
+
 export interface PracticeAnswerResult {
     questionId: number;
     attemptNo: number;

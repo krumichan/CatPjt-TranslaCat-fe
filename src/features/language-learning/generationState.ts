@@ -50,6 +50,6 @@ export function listeningPreparationRetryTargets(set: ListeningDailySet) {
     }
     return {
         missingItems: Array.from({ length: set.targetItemCount }, (_, index) => index + 1).some((index) => !byIndex.has(index)),
-        ttsItemIds: [...byIndex.values()].filter((item) => item.status === "NOT_EVALUABLE").map((item) => item.itemId),
+        ttsItemIds: [...byIndex.values()].filter((item) => item.status === "NOT_EVALUABLE" && item.ttsRetryAllowed !== false).map((item) => item.itemId),
     };
 }

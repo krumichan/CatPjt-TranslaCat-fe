@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
     MicrophoneAccessError,
@@ -23,15 +23,21 @@ export function useMicrophonePermission() {
     const [failureReason, setFailureReason] =
         useState<MicrophoneFailureReason | null>(null);
     const [isRequesting, setIsRequesting] = useState(false);
+    const epochRef = useRef(0);
+    const pendingRef = useRef<AbortController | null>(null);
 
     const check = useCallback(async () => {
+        const epoch = ++epochRef.current;
         if (!supportsAudioRecording()) {
-            setState("UNAVAILABLE");
-            setFailureReason("UNSUPPORTED");
+            if (epoch === epochRef.current) {
+                setState("UNAVAILABLE");
+                setFailureReason("UNSUPPORTED");
+            }
             return;
         }
 
         const permission = await queryMicrophonePermission();
+        if (epoch !== epochRef.current) return;
         if (permission === "granted") {
             setState("GRANTED");
             setFailureReason(null);
@@ -48,37 +54,64 @@ export function useMicrophonePermission() {
     }, []);
 
     useEffect(() => {
+        const epoch = epochRef;
+        const pending = pendingRef;
         void check();
+        return () => {
+            epoch.current++;
+            pending.current?.abort();
+            pending.current = null;
+        };
     }, [check]);
 
     const request = useCallback(async () => {
-        if (isRequesting) return false;
+        if (pendingRef.current) return false;
 
+        const controller = new AbortController();
+        pendingRef.current = controller;
+        const epoch = ++epochRef.current;
         setIsRequesting(true);
         try {
-            const stream = await requestMicrophoneStream();
+            const stream = await requestMicrophoneStream({ signal: controller.signal });
             stopMicrophoneStream(stream);
+            if (epoch !== epochRef.current) return false;
             setState("GRANTED");
             setFailureReason(null);
             return true;
         } catch (error) {
+            if (epoch !== epochRef.current) return false;
             const reason =
                 error instanceof MicrophoneAccessError
                     ? error.reason
                     : "UNKNOWN";
             setFailureReason(reason);
-            setState(reason === "UNSUPPORTED" ? "UNAVAILABLE" : "DENIED");
+            setState(reason === "UNSUPPORTED" ? "UNAVAILABLE"
+                : reason === "DENIED" ? "DENIED" : "PROMPT");
             return false;
         } finally {
-            setIsRequesting(false);
+            if (epoch === epochRef.current) {
+                pendingRef.current = null;
+                setIsRequesting(false);
+            }
         }
-    }, [isRequesting]);
+    }, []);
+
+    const cancel = useCallback(() => {
+        if (!pendingRef.current) return;
+        epochRef.current++;
+        pendingRef.current.abort();
+        pendingRef.current = null;
+        setIsRequesting(false);
+        setState("PROMPT");
+        setFailureReason("CANCELLED");
+    }, []);
 
     return {
         state,
         failureReason,
         isRequesting,
         request,
+        cancel,
         check,
         canRecord: state === "GRANTED",
     };

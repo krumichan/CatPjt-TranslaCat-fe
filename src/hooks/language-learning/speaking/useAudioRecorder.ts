@@ -38,6 +38,9 @@ export function useAudioRecorder({
     const startedAtRef = useRef<number | null>(null);
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const maxTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const epochRef = useRef(0);
+    const startingRef = useRef(false);
+    const pendingStreamRef = useRef<AbortController | null>(null);
 
     const clearTimers = useCallback(() => {
         if (intervalRef.current) {
@@ -71,10 +74,14 @@ export function useAudioRecorder({
     }, []);
 
     const start = useCallback(async () => {
-        if (state === "STARTING" || state === "RECORDING") {
+        if (startingRef.current || recorderRef.current?.state === "recording") {
             return false;
         }
 
+        startingRef.current = true;
+        const epoch = ++epochRef.current;
+        const controller = new AbortController();
+        pendingStreamRef.current = controller;
         setState("STARTING");
         setError(false);
         setElapsedSeconds(0);
@@ -83,20 +90,25 @@ export function useAudioRecorder({
         chunksRef.current = [];
 
         try {
-            const stream = await requestMicrophoneStream();
-            const recorder = createMediaRecorder(stream);
-
+            const stream = await requestMicrophoneStream({ signal: controller.signal });
+            if (epoch !== epochRef.current) {
+                stopMicrophoneStream(stream);
+                return false;
+            }
             streamRef.current = stream;
+            const recorder = createMediaRecorder(stream);
             recorderRef.current = recorder;
             startedAtRef.current = Date.now();
 
             recorder.addEventListener("dataavailable", (event) => {
+                if (epoch !== epochRef.current) return;
                 if (event.data.size > 0) {
                     chunksRef.current.push(event.data);
                 }
             });
 
             recorder.addEventListener("stop", () => {
+                if (epoch !== epochRef.current) return;
                 clearTimers();
                 releaseStream();
 
@@ -119,6 +131,7 @@ export function useAudioRecorder({
             });
 
             recorder.addEventListener("error", () => {
+                if (epoch !== epochRef.current) return;
                 setError(true);
                 clearTimers();
                 releaseStream();
@@ -140,11 +153,17 @@ export function useAudioRecorder({
             maxTimerRef.current = setTimeout(stop, maxSeconds * 1000);
             return true;
         } catch {
+            if (epoch !== epochRef.current) return false;
             clearTimers();
             releaseStream();
             setError(true);
             setState("ERROR");
             return false;
+        } finally {
+            if (epoch === epochRef.current) {
+                pendingStreamRef.current = null;
+                startingRef.current = false;
+            }
         }
     }, [
         clearPreview,
@@ -152,14 +171,18 @@ export function useAudioRecorder({
         elapsedSeconds,
         maxSeconds,
         releaseStream,
-        state,
         stop,
     ]);
 
     const reset = useCallback(() => {
+        epochRef.current++;
+        pendingStreamRef.current?.abort();
+        pendingStreamRef.current = null;
+        startingRef.current = false;
         stop();
         clearTimers();
         releaseStream();
+        recorderRef.current = null;
         clearPreview();
         chunksRef.current = [];
         setAudioBlob(null);
@@ -197,12 +220,18 @@ export function useAudioRecorder({
 
     useEffect(
         () => () => {
+            epochRef.current++;
+            pendingStreamRef.current?.abort();
+            pendingStreamRef.current = null;
             clearTimers();
             releaseStream();
-            if (previewUrl) URL.revokeObjectURL(previewUrl);
         },
-        [clearTimers, previewUrl, releaseStream],
+        [clearTimers, releaseStream],
     );
+
+    useEffect(() => () => {
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+    }, [previewUrl]);
 
     return {
         state,

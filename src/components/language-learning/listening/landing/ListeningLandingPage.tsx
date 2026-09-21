@@ -67,6 +67,7 @@ export function ListeningLandingPage() {
                             const completed = status?.completed === true;
                             const evaluating = status?.latestSessionStatus === "EVALUATING";
                             const failed = status?.status === "FAILED" || Boolean(status?.failureReason || liveSet?.failureReason);
+                            const durationFailed = ["AUDIO_TOO_SHORT", "AUDIO_TOO_LONG"].includes(status?.failureReason ?? liveSet?.failureReason ?? "");
                             const preparing = !failed && (status?.status === "GENERATING" || status?.status === "PARTIAL" || (liveSet?.status !== undefined && liveSet.status !== "FAILED" && liveSet.status !== "READY"));
                             const preparationDelayed = controller.preparationDelayedByMode[mode] === true;
                             const targetCount = status?.targetItemCount || liveSet?.targetItemCount || 0;
@@ -138,6 +139,7 @@ export function ListeningLandingPage() {
                                     </div>
                                     <h3 className="mt-5 text-base font-black text-slate-950 sm:text-lg dark:text-white">{t(`mode.${mode}.title`)}</h3>
                                     <p className="mt-2 min-h-18 text-sm leading-6 text-slate-500 dark:text-slate-400">{t(`mode.${mode}.description`)}</p>
+                                    {durationFailed && <p role="status" className="mt-3 text-sm text-amber-700 dark:text-amber-300">{t("modeSelector.durationFailed")}</p>}
                                     {targetCount > 0 && preparing && (
                                         <div className="mt-3 space-y-1" aria-live="polite">
                                             <p className="text-xs font-black text-slate-500 dark:text-slate-300">
@@ -188,7 +190,7 @@ export function ListeningLandingPage() {
                                             <button
                                                 type="button"
                                                 onClick={() => void controller.selectMode(mode)}
-                                                disabled={controller.isStarting || Boolean(controller.activeSession) || (preparing && readyCount === 0)}
+                                                disabled={controller.isStarting || Boolean(controller.activeSession) || ((preparing || durationFailed) && readyCount === 0)}
                                                 className="inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-base font-black text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
                                             >
                                                 {preparing && readyCount === 0 ? t("modeSelector.preparing") : actionLabel}

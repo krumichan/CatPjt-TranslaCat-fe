@@ -2,6 +2,7 @@
 
 import { SpeakingAssistanceSummary } from "@/components/language-learning/speaking/evaluation/SpeakingAssistanceSummary";
 import { SpeakingEvaluationMetricGroup } from "@/components/language-learning/speaking/evaluation/SpeakingEvaluationMetricGroup";
+import { SpeakingEvidenceNotice } from "@/components/language-learning/speaking/evaluation/SpeakingEvidenceNotice";
 import { SpeakingEvaluationTextListCard } from "@/components/language-learning/speaking/evaluation/SpeakingEvaluationTextListCard";
 import {
     parsePronunciationPractice,
@@ -61,6 +62,7 @@ export function SpeakingEvaluationResult({
                 )}
             </section>
 
+            <SpeakingEvidenceNotice evidence={evaluation} readAloud={controller.session?.session.practiceMode === "READ_ALOUD"} />
             <SpeakingEvaluationMetricGroup title={t("commonMetrics")} types={COMMON_METRICS} metrics={metricsByType} onEvidence={jumpToTurn} />
             <SpeakingEvaluationMetricGroup title={t("speakingMetrics")} types={SPEAKING_METRICS} metrics={metricsByType} onEvidence={jumpToTurn} />
 

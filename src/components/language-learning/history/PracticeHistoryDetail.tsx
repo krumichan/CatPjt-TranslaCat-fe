@@ -4,6 +4,7 @@ import { CheckCircle2, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type { PracticeSet } from "@/types/language-learning/practice";
+import { ReadingPassageExpressions } from "@/components/language-learning/practice/ReadingPassageExpressions";
 
 export function PracticeHistoryDetail({ detail }: { detail: PracticeSet }) {
     const ns = detail.domain === "READING" ? "LanguageLearning.reading" : "LanguageLearning.vocabulary";
@@ -57,18 +58,12 @@ export function PracticeHistoryDetail({ detail }: { detail: PracticeSet }) {
                                 <p className="text-slate-500 dark:text-slate-400">{official.answer.map((key) => question.options.find((option) => option.key === key)?.text ?? key).join(" → ")}</p>
                                 {question.explanationOrigin && <p className="text-slate-700 dark:text-slate-200">{question.explanationOrigin}</p>}
                                 {question.evidenceText && <p className="text-slate-500 dark:text-slate-400"><strong>{t("session.evidence")}</strong> {question.evidenceText}</p>}
-                                {detail.domain === "READING" && !official.correct && question.vocabularyCandidates.length > 0 && (
-                                    <div className="flex flex-wrap gap-2 pt-1">
-                                        {question.vocabularyCandidates.map((value) => (
-                                            <span key={value} className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700 dark:bg-amber-500/10 dark:text-amber-200">{value}</span>
-                                        ))}
-                                    </div>
-                                )}
                             </div>
                         )}
                     </article>
                 );
             })}
+            <ReadingPassageExpressions set={detail} />
         </div>
     );
 }

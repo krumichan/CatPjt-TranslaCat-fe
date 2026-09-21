@@ -10,6 +10,15 @@ const detail = (status, problemStatuses = []) => ({
     session: { evaluationStatus: status },
     readAloudProblemEvaluations: problemStatuses.map((status, index) => ({ problemIndex: index + 1, status })),
 });
+const coachingDetail = (resultStatus) => ({
+    session: {
+        evaluationStatus: "NOT_REQUESTED",
+        resultKind: "SESSION_COACHING",
+        resultPolicyVersion: "free-session-coaching-v1",
+        resultStatus,
+    },
+    readAloudProblemEvaluations: [],
+});
 for (const status of ["PENDING", "EVALUATING"]) {
     test(`aggregate ${status} continues polling`, () => {
         assert.equal(isSpeakingEvaluationPending(status), true);
@@ -37,6 +46,12 @@ test("initial data absence retains polling without inventing success", () => {
     assert.equal(shouldPollSpeakingSession(null), true);
     assert.equal(shouldPollSpeakingEvaluation(null, null), true);
 });
+test("coaching polling follows durable result status, not legacy evaluation status", () => {
+    assert.equal(shouldPollSpeakingSession(coachingDetail("PENDING")), true);
+    assert.equal(shouldPollSpeakingSession(coachingDetail("RUNNING")), true);
+    assert.equal(shouldPollSpeakingSession(coachingDetail("SUCCEEDED")), false);
+    assert.equal(shouldPollSpeakingSession(coachingDetail("FAILED")), false);
+});
 test("only a failed problem with remaining manual attempts is retryable", () => {
     assert.equal(canRetryReadAloudEvaluation({ status: "FAILED", manualRetryCount: 0, manualRetryLimit: 1 }), true);
     assert.equal(canRetryReadAloudEvaluation({ status: "FAILED", manualRetryCount: 1, manualRetryLimit: 1 }), false);
@@ -56,6 +71,9 @@ for (const locale of ["ko", "ja", "learning"]) {
         const evaluation = root.LanguageLearning.speaking.evaluation;
         assert.ok(evaluation.notRequestedTitle);
         assert.ok(evaluation.notRequestedDescription);
+        for (const key of ["pageTitle", "pageDescription", "title", "pendingTitle", "failedTitle", "recognizedSpeech", "asrCaution", "suggestion", "notScore"]) {
+            assert.ok(evaluation.coaching[key]);
+        }
         for (const status of ["PENDING", "EVALUATING", "EVALUATED", "INSUFFICIENT_EVIDENCE", "FAILED", "NOT_REQUESTED", "UNKNOWN"]) {
             assert.ok(evaluation.problemResults.status[status]);
         }

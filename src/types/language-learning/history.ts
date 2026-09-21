@@ -4,6 +4,7 @@ import type { LevelTestHistoryDetail } from "@/types/language-learning/level";
 import type { PracticeSet } from "@/types/language-learning/practice";
 import type {
     SpeakingEvaluation,
+    SpeakingCoachingResult,
     SpeakingSession,
     SpeakingTurn,
 } from "@/types/language-learning/speaking";
@@ -33,6 +34,7 @@ export interface SpeakingHistoryDetail {
     session: SpeakingSession;
     turns: SpeakingTurn[];
     evaluation: SpeakingEvaluation | null;
+    coachingResult?: SpeakingCoachingResult | null;
 }
 
 export interface WritingLearningHistoryDetail {

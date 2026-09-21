@@ -43,6 +43,11 @@ export type SpeakingEvaluationStatus =
     | "INSUFFICIENT_EVIDENCE"
     | "FAILED";
 
+export type SpeakingResultKind = "SCORED_EVALUATION" | "SESSION_COACHING";
+export type SpeakingResultStatus = "NOT_REQUESTED" | "PENDING" | "RUNNING" | "SUCCEEDED" | "FAILED";
+export type SpeakingCoachingContentStatus = "GROUNDED" | "LIMITED" | "NO_USABLE_EVIDENCE";
+export type SpeakingCoachingObservationKind = "OBSERVATION" | "CORRECTION" | "ALTERNATIVE";
+
 export type SpeakingTurnStatus =
     | "AWAITING_UPLOAD"
     | "UPLOADED"
@@ -113,6 +118,10 @@ export interface SpeakingSession {
     learningLanguage: string;
     status: SpeakingSessionStatus;
     evaluationStatus: SpeakingEvaluationStatus;
+    /** Missing only on the known legacy API shape; never infer coaching from FREE mode. */
+    resultKind?: SpeakingResultKind;
+    resultPolicyVersion?: string;
+    resultStatus?: SpeakingResultStatus;
     practiceMode: SpeakingPracticeMode;
     conversationStartMode: ConversationStartMode;
     resolvedStartMode: ConversationStartMode;
@@ -168,6 +177,9 @@ export interface SpeakingPracticeModeStatus {
     sessionId: number | null;
     sessionStatus: SpeakingSessionStatus | null;
     evaluationStatus: SpeakingEvaluationStatus | null;
+    resultKind?: SpeakingResultKind | null;
+    resultPolicyVersion?: string | null;
+    resultStatus?: SpeakingResultStatus;
     completedTurns: number;
     maxTurns: number;
     completed: boolean;
@@ -184,6 +196,10 @@ export interface SpeakingReadAloudProblemEvaluation {
     evaluatedAt: string | null;
     manualRetryCount?: number;
     manualRetryLimit?: number;
+    evaluatedAxes?: SpeakingMetricType[] | null;
+    evaluationCoverage?: number | null;
+    evidencePolicyVersion?: string | null;
+    evidenceSource?: string | null;
 }
 
 export interface SpeakingEvaluationEligibility {
@@ -204,7 +220,42 @@ export interface SpeakingSessionDetail {
     turns: SpeakingTurn[];
     readAloudProblemEvaluations: SpeakingReadAloudProblemEvaluation[];
     evaluationEligibility: SpeakingEvaluationEligibility;
+    coachingResult?: SpeakingCoachingResult | null;
     resumable: boolean;
+}
+
+export interface SpeakingCoachingEvidence {
+    turnId: string;
+    turnIndex: number;
+    recordingRevision: number | null;
+    transcriptExcerpt: string;
+    transcriptHash: string;
+    referenceAssistantTurnId: string | null;
+    assistanceUsage: Array<{ type: AssistanceType; count: number }>;
+    sourceProvenance: "AUTOMATIC_SPEECH_RECOGNITION" | string;
+    verbatimAccuracyVerified: boolean;
+}
+
+export interface SpeakingCoachingItem {
+    observationId: string;
+    kind: SpeakingCoachingObservationKind;
+    evidence: SpeakingCoachingEvidence;
+    message: string;
+    suggestedExpression: string | null;
+    suggestionIsLearnerEvidence: false;
+}
+
+export interface SpeakingCoachingResult {
+    id: number;
+    resultKind: "SESSION_COACHING";
+    resultPolicyVersion: string;
+    schemaVersion: string;
+    sourceSnapshotHash: string;
+    contentStatus: SpeakingCoachingContentStatus;
+    limitationReasons: string[];
+    items: SpeakingCoachingItem[];
+    promptVersion: string;
+    createdAt: string;
 }
 
 export interface SpeakingSessionCreateRequest {
@@ -264,6 +315,10 @@ export interface SpeakingEvaluation {
     scoringPolicyVersion: string | null;
     promptVersion: string | null;
     evaluatedAt: string | null;
+    evaluatedAxes?: SpeakingMetricType[] | null;
+    evaluationCoverage?: number | null;
+    evidencePolicyVersion?: string | null;
+    evidenceSource?: string | null;
 }
 
 export interface SpeakingEvaluationEvidence {

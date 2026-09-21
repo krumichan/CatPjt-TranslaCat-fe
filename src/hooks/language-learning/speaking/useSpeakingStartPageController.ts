@@ -81,9 +81,11 @@ export function useSpeakingStartPageController() {
 
     const hasPendingModeEvaluation = (modeStatusQuery.data ?? []).some(
         (status) =>
-            status.sessionStatus === "EVALUATING" ||
+            (status.resultKind === "SESSION_COACHING"
+                ? status.resultStatus === "PENDING" || status.resultStatus === "RUNNING"
+                : status.sessionStatus === "EVALUATING" ||
             status.evaluationStatus === "PENDING" ||
-            status.evaluationStatus === "EVALUATING",
+            status.evaluationStatus === "EVALUATING"),
     );
 
     const refreshModeStatus = modeStatusQuery.mutate;
@@ -102,7 +104,9 @@ export function useSpeakingStartPageController() {
         // Pending goal changes are a next-learning-day policy. A session created
         // today must start from the currently active goal, not the pending value.
         setTargetMinutes(setting.dailySpeakingGoalMinutes ?? 5);
-        setVoiceId(setting.speakingVoiceId || SPEAKING_VOICE_OPTIONS[0].id);
+        setVoiceId(SPEAKING_VOICE_OPTIONS.some((voice) => voice.id === setting.speakingVoiceId)
+            ? (setting.speakingVoiceId ?? SPEAKING_VOICE_OPTIONS[0].id)
+            : SPEAKING_VOICE_OPTIONS[0].id);
         setPlaybackSpeed(setting.speakingPlaybackSpeed || "NORMAL");
     }, [entry.setting]);
 

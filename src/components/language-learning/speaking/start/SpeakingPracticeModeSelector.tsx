@@ -41,8 +41,13 @@ export function SpeakingPracticeModeSelector({
                     const selected = controller.practiceMode === mode;
                     const active = controller.activeSession?.session.practiceMode === mode;
                     const completed = status?.completed === true;
-                    const evaluating = status?.sessionStatus === "EVALUATING" || status?.evaluationStatus === "PENDING" || status?.evaluationStatus === "EVALUATING";
-                    const resultReady = status?.evaluationStatus === "EVALUATED" || status?.evaluationStatus === "INSUFFICIENT_EVIDENCE" || status?.evaluationStatus === "FAILED";
+                    const coaching = status?.resultKind === "SESSION_COACHING";
+                    const evaluating = coaching
+                        ? status?.resultStatus === "PENDING" || status?.resultStatus === "RUNNING"
+                        : status?.sessionStatus === "EVALUATING" || status?.evaluationStatus === "PENDING" || status?.evaluationStatus === "EVALUATING";
+                    const resultReady = coaching
+                        ? status?.resultStatus === "SUCCEEDED" || status?.resultStatus === "FAILED"
+                        : status?.evaluationStatus === "EVALUATED" || status?.evaluationStatus === "INSUFFICIENT_EVIDENCE" || status?.evaluationStatus === "FAILED";
                     const progress = status && status.maxTurns > 0 ? `${status.completedTurns} / ${status.maxTurns}` : null;
 
                     return (
@@ -74,11 +79,11 @@ export function SpeakingPracticeModeSelector({
                                     </Link>
                                 ) : evaluating && status?.sessionId ? (
                                     <Link href={`/language-learning/speaking/${status.sessionId}/evaluation`} className="inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-base font-black text-white transition hover:bg-blue-500">
-                                        {t("mode.viewEvaluationProgress")}
+                                        {t(coaching ? "mode.viewCoachingProgress" : "mode.viewEvaluationProgress")}
                                     </Link>
                                 ) : resultReady && status?.sessionId ? (
                                     <Link href={`/language-learning/speaking/${status.sessionId}/evaluation`} className="inline-flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-3 text-base font-black text-white transition hover:bg-emerald-500">
-                                        {t("mode.result")}
+                                        {t(coaching ? "mode.coachingResult" : "mode.result")}
                                     </Link>
                                 ) : (
                                     <button

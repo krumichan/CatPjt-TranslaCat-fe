@@ -7,6 +7,8 @@ import { LanguageLearningStateCard } from "@/components/language-learning/common
 import { LanguageLearningPageLayout } from "@/components/language-learning/layout/LanguageLearningPageLayout";
 import { PracticeCompletedCard } from "@/components/language-learning/practice/PracticeCompletedCard";
 import { PracticeOrderingPanel } from "@/components/language-learning/practice/PracticeOrderingPanel";
+import { ReadingPassageExpressions } from "@/components/language-learning/practice/ReadingPassageExpressions";
+import { VocabularyRetirementNotice } from "@/components/language-learning/practice/VocabularyRetirementNotice";
 import { cn } from "@/lib/utils";
 import { useRouter } from "@/navigation";
 import type { PracticeDomain } from "@/types/language-learning/practice";
@@ -32,6 +34,8 @@ export function PracticeSessionPage({ setId, expectedDomain }: { setId: number; 
         content = <LanguageLearningStateCard variant="error" title={common("loadFailedTitle")} message={t("loadFailed")} actionLabel={common("retry")} onAction={() => void load()} />;
     } else if (set && !question && (generating || generationFailure)) {
         content = <GenerationProgress readyCount={set.questions.length} targetCount={set.questionCount} generating={generating} waiting failureMessage={generationFailure} retrying={retryingGeneration} onRetry={() => void retryGeneration()} />;
+    } else if (set && !question && expectedDomain === "VOCABULARY") {
+        content = null;
     } else if (!set || !question) {
         content = <LanguageLearningStateCard variant="error" title={common("loadFailedTitle")} message={t("loadFailed")} />;
     } else if (completed && !reviewMode) {
@@ -42,7 +46,7 @@ export function PracticeSessionPage({ setId, expectedDomain }: { setId: number; 
         const displayedSelection = selected.length > 0 ? selected : (latest?.answer ?? []);
         content = (
             <div className="space-y-5">
-                <GenerationProgress readyCount={set.questions.length} targetCount={set.questionCount} generating={generating} waiting={question.answered && index === set.questions.length - 1} failureMessage={generationFailure} retrying={retryingGeneration} onRetry={() => void retryGeneration()} />
+                {expectedDomain === "READING" && <GenerationProgress readyCount={set.questions.length} targetCount={set.questionCount} generating={generating} waiting={question.answered && index === set.questions.length - 1} failureMessage={generationFailure} retrying={retryingGeneration} onRetry={() => void retryGeneration()} />}
                 {error && <LanguageLearningStateCard variant="error" title={common("loadFailedTitle")} message={t("session.submitFailed")} />}
                 <section className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm dark:border-white/10 dark:bg-slate-900/75 sm:p-6">
                     <div className="flex flex-wrap items-center justify-between gap-3">
@@ -102,16 +106,6 @@ export function PracticeSessionPage({ setId, expectedDomain }: { setId: number; 
                             {question.evidenceText && <p className="mt-3 text-sm leading-6 text-slate-700 dark:text-slate-200"><strong>{t("session.evidence")}</strong> {question.evidenceText}</p>}
                             {question.explanationOrigin && <p className="mt-3 text-sm leading-6 text-slate-700 dark:text-slate-200">{question.explanationOrigin}</p>}
                             {question.explanationLearning && <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">{question.explanationLearning}</p>}
-                            {expectedDomain === "READING" && !latest?.correct && question.vocabularyCandidates.length > 0 && (
-                                <div className="mt-4 border-t border-amber-200/70 pt-3 dark:border-amber-500/20">
-                                    <p className="text-xs font-black text-amber-800 dark:text-amber-100">{t("session.vocabularyCandidates")}</p>
-                                    <div className="mt-2 flex flex-wrap gap-2">
-                                        {question.vocabularyCandidates.map((value) => (
-                                            <span key={value} className="rounded-full bg-white/80 px-2.5 py-1 text-xs font-bold text-slate-700 dark:bg-white/10 dark:text-slate-200">{value}</span>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
                             {!latest?.correct && question.canRetry && <p className="mt-3 text-xs font-bold text-amber-700 dark:text-amber-200">{t("session.retryNotice")}</p>}
                         </div>
                     )}
@@ -131,9 +125,10 @@ export function PracticeSessionPage({ setId, expectedDomain }: { setId: number; 
                         </div>
                     </div>
                 </section>
+                {expectedDomain === "READING" && <ReadingPassageExpressions set={set} passageId={question.passageId} />}
             </div>
         );
     }
 
-    return <LanguageLearningPageLayout title={t("title")} description={t("description")}>{content}</LanguageLearningPageLayout>;
+    return <LanguageLearningPageLayout title={t("title")} description={t("description")}><div className="space-y-5">{expectedDomain === "VOCABULARY" && <VocabularyRetirementNotice />}{content}</div></LanguageLearningPageLayout>;
 }

@@ -212,6 +212,28 @@ test.describe("Language Learning Speaking", () => {
         await expect(page.getByText("1회", { exact: true }).first()).toBeVisible();
     });
 
+    test("LLS-04A evidence 범위는 STT 정확도나 학습능력 백분율로 표시하지 않는다", async ({ page }) => {
+        const evaluatedAxes = ["GRAMMAR", "VOCABULARY", "NATURALNESS", "MEANING", "EXPRESSIVENESS", "INTERACTION"];
+        const metrics = LANGUAGE_LEARNING_SPEAKING_EVALUATION.metrics.map((metric) =>
+            metric.metricType === "PRONUNCIATION" || metric.metricType === "FLUENCY"
+                ? { ...metric, state: "NOT_EVALUABLE", score: null, evidenceJson: "[]" }
+                : metric,
+        );
+        await page.route(EVALUATION_URL, (route) => fulfillApiJson(route, responseDto({
+            ...LANGUAGE_LEARNING_SPEAKING_EVALUATION,
+            metrics,
+            pronunciationPracticeJson: "[]",
+            evidencePolicyVersion: "speaking-transcript-evidence-v2",
+            evidenceSource: "TRANSCRIPT_OBSERVATION",
+            evaluatedAxes,
+            evaluationCoverage: 0.65,
+        })));
+        await page.goto("/language-learning/speaking/301/evaluation");
+        const notice = page.getByTestId("speaking-evidence-policy");
+        await expect(notice).toContainText("원래 평가 가중치의 적용 범위 65%");
+        await expect(notice).toContainText("STT 정확도나 학습능력 점수 아님");
+    });
+
     test("LLS-05 Dashboard에서 Writing/Speaking 진행과 Source 필터를 표시한다", async ({ page }) => {
         await page.goto("/language-learning");
         await expect(page.getByTestId("dashboard-activity-writing")).toBeVisible();
@@ -248,7 +270,8 @@ test.describe("Language Learning Speaking", () => {
         await page.goto("/language-learning/settings");
         await expect(page.getByText("하루 Speaking 목표")).toBeVisible();
         await expect(page.getByText("기본 Speaking Voice")).toBeVisible();
-        await expect(page.getByRole("option", { name: "Aoede" })).toBeAttached();
+        await expect(page.getByRole("option", { name: "marin" })).toBeAttached();
+        await expect(page.getByRole("option", { name: "cedar" })).toBeAttached();
     });
 
     test("LLS-08 진행 중 Speaking Session을 우선 복구한다", async ({ page }) => {

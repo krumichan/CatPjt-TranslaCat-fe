@@ -12,7 +12,7 @@ import {
 
 const messageFiles = ["ko", "ja", "learning"];
 
-test("current vocabulary policy exposes one contextual 10-item flow", () => {
+test("legacy vocabulary policy retains contextual 10-item history contracts", () => {
     assert.equal(CURRENT_VOCABULARY_MODE, "CONTEXTUAL_CHOICE");
     assert.equal(VOCABULARY_DAILY_QUESTION_COUNT, 10);
     assert.equal(VOCABULARY_DAILY_NEW_MAX, 8);
@@ -26,7 +26,7 @@ test("current vocabulary policy exposes one contextual 10-item flow", () => {
     ]);
 });
 
-test("landing page exposes only the current vocabulary mode", async () => {
+test("retired landing preserves legacy mode names but does not mount their generation view", async () => {
     const source = await readFile(
         new URL("../../src/components/language-learning/practice/PracticeModeLandingPage.tsx", import.meta.url),
         "utf8",
@@ -35,6 +35,7 @@ test("landing page exposes only the current vocabulary mode", async () => {
     const vocabularyModes = source.match(/const VOCABULARY_MODES = \[(.*?)\] as const;/s)?.[1] ?? "";
     assert.match(vocabularyModes, /CURRENT_VOCABULARY_MODE/);
     assert.doesNotMatch(vocabularyModes, /MEANING_RELATION|USAGE_DISTINCTION|COMPOSITION/);
+    assert.match(source, /if \(domain === "VOCABULARY"\) return <VocabularyRetirementPage/);
 });
 
 for (const locale of messageFiles) {

@@ -5,10 +5,17 @@ import type {
     PracticeDomain,
     PracticeSet,
     PracticeTodayModeStatus,
+    PracticeModeAvailability,
     VocabularyMasterySummary,
 } from "@/types/language-learning/practice";
 
 export const readingVocabularyService = {
+    getReadingAvailability: async (): Promise<PracticeModeAvailability[]> => {
+        const response = await apiClient("/language-learning/practice/today/availability", {
+            method: "GET",
+        });
+        return parseResponseBody<PracticeModeAvailability[]>(response, "ReadingAvailability");
+    },
     getToday: async (domain: PracticeDomain, mode: string): Promise<PracticeSet> => {
         const params = new URLSearchParams({ domain, mode });
         const response = await apiClient(

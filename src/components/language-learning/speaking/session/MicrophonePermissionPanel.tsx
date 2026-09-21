@@ -40,16 +40,24 @@ export function MicrophonePermissionPanel({
                             : t("description")}
                     </p>
                     {!blocked && (
+                        <div className="mt-3 flex flex-wrap gap-2">
                         <button
                             type="button"
                             onClick={() => void microphone.request()}
                             disabled={microphone.isRequesting}
-                            className="mt-3 rounded-xl bg-amber-600 px-4 py-2 text-xs font-black text-white transition hover:bg-amber-500 disabled:opacity-50"
+                            className="rounded-xl bg-amber-600 px-4 py-2 text-xs font-black text-white transition hover:bg-amber-500 disabled:opacity-50"
                         >
                             {microphone.isRequesting
                                 ? t("requesting")
                                 : t("request")}
                         </button>
+                        {microphone.isRequesting && (
+                            <button type="button" onClick={microphone.cancel}
+                                className="rounded-xl border border-amber-600 px-4 py-2 text-xs font-black text-amber-900 dark:text-amber-100">
+                                {t("cancel")}
+                            </button>
+                        )}
+                        </div>
                     )}
                 </div>
             </div>

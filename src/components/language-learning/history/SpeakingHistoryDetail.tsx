@@ -9,6 +9,7 @@ import {
 import { SpeakingHistoryMeta } from "@/components/language-learning/history/SpeakingHistoryMeta";
 import { AudioPlaybackButton } from "@/components/language-learning/speaking/common/AudioPlaybackButton";
 import { SpeakingEvaluationMetricCard } from "@/components/language-learning/speaking/evaluation/SpeakingEvaluationMetricCard";
+import { SpeakingCoachingResultView } from "@/components/language-learning/speaking/evaluation/SpeakingCoachingResult";
 import {
     parsePronunciationPractice,
     parseRecommendedExpressions,
@@ -93,6 +94,10 @@ export function SpeakingHistoryDetail({
                         </p>
                     )}
             </section>
+
+            {detail.session.resultKind === "SESSION_COACHING" && detail.coachingResult ? (
+                <SpeakingCoachingResultView result={detail.coachingResult} history />
+            ) : null}
 
             {evaluation?.metrics.length ? (
                 <section>

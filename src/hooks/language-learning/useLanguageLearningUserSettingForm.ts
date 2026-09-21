@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { SPEAKING_VOICE_OPTIONS } from "@/constants/language-learning/speaking";
 import { isValidListeningTaskSelection } from "@/features/language-learning/listening/taskSelection";
 import { languageLearningSettingService } from "@/services/language-learning/languageLearningSettingService";
 import type { ListeningTaskType } from "@/types/language-learning/listening";
@@ -45,7 +46,9 @@ function toFormValue(
         dailySpeakingGoalMinutes:
             setting.pendingDailySpeakingGoalMinutes ??
             setting.dailySpeakingGoalMinutes,
-        speakingVoiceId: setting.speakingVoiceId?.trim() || "Kore",
+        speakingVoiceId: SPEAKING_VOICE_OPTIONS.some((voice) => voice.id === setting.speakingVoiceId)
+            ? (setting.speakingVoiceId ?? SPEAKING_VOICE_OPTIONS[0].id)
+            : SPEAKING_VOICE_OPTIONS[0].id,
         speakingPlaybackSpeed:
             setting.speakingPlaybackSpeed?.trim() || "NORMAL",
         dailyListeningGoalCount:

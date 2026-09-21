@@ -12,6 +12,7 @@ export function SpeakingEvaluationSmartPage({ sessionId }: { sessionId: number }
     const t = useTranslations("LanguageLearning.speaking.evaluation");
     const common = useTranslations("LanguageLearning.common");
     const controller = useSpeakingEvaluationController(sessionId);
+    const sessionCoaching = controller.session?.session.resultKind === "SESSION_COACHING";
 
     const content = controller.isLoading ? (
         <LanguageLearningStateCard variant="loading" title={common("loadingTitle")} message={t("loading")} />
@@ -25,7 +26,10 @@ export function SpeakingEvaluationSmartPage({ sessionId }: { sessionId: number }
     );
 
     return (
-        <LanguageLearningPageLayout title={t("title")} description={t("description")}>
+        <LanguageLearningPageLayout
+            title={t(sessionCoaching ? "coaching.pageTitle" : "title")}
+            description={t(sessionCoaching ? "coaching.pageDescription" : "description")}
+        >
             {content}
         </LanguageLearningPageLayout>
     );

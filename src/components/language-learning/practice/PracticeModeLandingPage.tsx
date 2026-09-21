@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { LanguageLearningOnboardingCard } from "@/components/language-learning/common/LanguageLearningOnboardingCard";
 import { LanguageLearningStateCard } from "@/components/language-learning/common/LanguageLearningStateCard";
 import { LanguageLearningPageLayout } from "@/components/language-learning/layout/LanguageLearningPageLayout";
+import { VocabularyRetirementPage } from "@/components/language-learning/practice/VocabularyRetirementNotice";
 import { useLanguageLearningEntryState } from "@/hooks/language-learning/useLanguageLearningEntryState";
 import { isGenerationPending } from "@/features/language-learning/generationState";
 import { CURRENT_VOCABULARY_MODE } from "@/features/language-learning/practice/vocabularyPolicy";
@@ -15,6 +16,7 @@ import { readingVocabularyService } from "@/services/language-learning/readingVo
 import type {
     PracticeDomain,
     PracticeTodayModeStatus,
+    PracticeModeAvailability,
     VocabularyMasterySummary,
 } from "@/types/language-learning/practice";
 
@@ -29,6 +31,11 @@ const VOCABULARY_MODES = [
 ] as const;
 
 export function PracticeModeLandingPage({ domain }: { domain: PracticeDomain }) {
+    if (domain === "VOCABULARY") return <VocabularyRetirementPage />;
+    return <AvailablePracticeModeLandingPage domain={domain} />;
+}
+
+function AvailablePracticeModeLandingPage({ domain }: { domain: PracticeDomain }) {
     const entry = useLanguageLearningEntryState();
     const router = useRouter();
     const ns = domain === "READING" ? "LanguageLearning.reading" : "LanguageLearning.vocabulary";
@@ -39,9 +46,11 @@ export function PracticeModeLandingPage({ domain }: { domain: PracticeDomain }) 
     const [error, setError] = useState(false);
     const [mastery, setMastery] = useState<VocabularyMasterySummary | null>(null);
     const [todayStatuses, setTodayStatuses] = useState<PracticeTodayModeStatus[]>([]);
+    const [availability, setAvailability] = useState<PracticeModeAvailability[] | null>(null);
     const modes = domain === "READING" ? READING_MODES : VOCABULARY_MODES;
     const evaluatedVocabularyCount = mastery ? mastery.total - mastery.newCount : 0;
     const statusByMode = new Map(todayStatuses.map((status) => [status.mode, status]));
+    const availabilityByMode = new Map(availability?.map((item) => [item.mode, item]) ?? []);
     const completedModeCount = modes.filter(({ key }) => statusByMode.get(key)?.status === "COMPLETED").length;
 
     useEffect(() => {
@@ -50,6 +59,16 @@ export function PracticeModeLandingPage({ domain }: { domain: PracticeDomain }) 
         void readingVocabularyService.getTodayStatus(domain)
             .then((value) => { if (!cancelled) setTodayStatuses(value); })
             .catch(() => { if (!cancelled) setTodayStatuses([]); });
+        return () => { cancelled = true; };
+    }, [domain, entry.levelStatus?.profileState, entry.setting?.configured]);
+
+    useEffect(() => {
+        if (domain !== "READING" || !entry.setting?.configured
+                || entry.levelStatus?.profileState === "LEVEL_TEST_REQUIRED") return;
+        let cancelled = false;
+        void readingVocabularyService.getReadingAvailability()
+            .then((value) => { if (!cancelled) setAvailability(value); })
+            .catch(() => { if (!cancelled) setAvailability(null); });
         return () => { cancelled = true; };
     }, [domain, entry.levelStatus?.profileState, entry.setting?.configured]);
 
@@ -92,6 +111,8 @@ export function PracticeModeLandingPage({ domain }: { domain: PracticeDomain }) 
             router.push(`/language-learning/${segment}/session/${existing.practiceSetId}`);
             return;
         }
+        if (domain === "READING" && mode === "STRUCTURE"
+                && !availabilityByMode.get("STRUCTURE")?.generationAvailable) return;
         setStartingMode(mode);
         setError(false);
         try {
@@ -160,6 +181,9 @@ export function PracticeModeLandingPage({ domain }: { domain: PracticeDomain }) 
                         {modes.map(({ key, icon: Icon }) => {
                             const busy = startingMode === key;
                             const todayStatus = statusByMode.get(key);
+                            const unavailable = domain === "READING" && key === "STRUCTURE"
+                                && !todayStatus?.practiceSetId
+                                && !availabilityByMode.get("STRUCTURE")?.generationAvailable;
                             const completed = todayStatus?.status === "COMPLETED";
                             const active = todayStatus?.status === "ACTIVE";
                             const generating = isGenerationPending(todayStatus?.generationStatus);
@@ -196,6 +220,10 @@ export function PracticeModeLandingPage({ domain }: { domain: PracticeDomain }) 
                                     </div>
                                     <h3 className="mt-5 text-base font-black text-slate-900 sm:text-lg dark:text-white">{t(`modes.${key}.title`)}</h3>
                                     <p className="mt-2 min-h-18 text-sm leading-6 text-slate-500 dark:text-slate-400">{t(`modes.${key}.description`)}</p>
+                                    {unavailable && <p className="mt-2 text-sm font-bold text-amber-700 dark:text-amber-200" aria-live="polite">
+                                        {availabilityByMode.get("STRUCTURE")?.reason === "READING_B5_STRUCTURE_DEFERRED"
+                                            ? t("selector.structureDeferred") : t("selector.availabilityLoading")}
+                                    </p>}
                                     {(generating || generationFailed) && todayStatus && (
                                         <div className="mt-3 text-xs leading-5" aria-live="polite">
                                             <p className="font-black text-blue-700 dark:text-blue-200">{generation("progress", { ready: todayStatus.generatedQuestionCount ?? 0, total: todayStatus.questionCount })}</p>
@@ -208,7 +236,7 @@ export function PracticeModeLandingPage({ domain }: { domain: PracticeDomain }) 
                                         </p>
                                     )}
                                     <div className="mt-auto pt-5">
-                                        <button type="button" onClick={() => void start(key)} disabled={Boolean(startingMode)} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-base font-black text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60">
+                                        <button type="button" onClick={() => void start(key)} disabled={Boolean(startingMode) || unavailable} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-base font-black text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60">
                                             {busy && <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />}
                                             {busy ? t("selector.starting") : actionLabel}
                                         </button>

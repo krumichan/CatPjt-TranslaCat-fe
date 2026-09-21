@@ -12,9 +12,8 @@ export const SPEAKING_CORRECTION_MODES: CorrectionMode[] = [
 ];
 
 export const SPEAKING_VOICE_OPTIONS = [
-    { id: "Aoede", label: "Aoede" },
-    { id: "Kore", label: "Kore" },
-    { id: "Puck", label: "Puck" },
+    { id: "marin", label: "marin" },
+    { id: "cedar", label: "cedar" },
 ] as const;
 
 export const SPEAKING_PLAYBACK_SPEED_OPTIONS = [

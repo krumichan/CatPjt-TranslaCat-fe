@@ -5,6 +5,7 @@
       "background": "準備できた問題から解答できます。残りの問題はバックグラウンドで作成しています。",
       "waiting": "次の問題を準備しています。入力中・提出済みの解答は保持されます。",
       "failed": "残りの問題の準備が中断されました。既存の問題と解答を保持して再試行できます。",
+      "structureDeferred": "上級の文章構造問題は品質確認中です。既存の問題と解答は保持されます。",
       "retry": "残りの問題の準備を再試行",
       "retrying": "再準備中…",
       "slots": "全問題の準備状況",
@@ -1145,6 +1146,8 @@
           "progress": "進捗 {value}",
           "evaluating": "AI評価中…",
           "viewEvaluationProgress": "評価の進行状況を見る",
+          "viewCoachingProgress": "コーチングの準備状況を見る",
+          "coachingResult": "会話コーチングを見る",
           "eyebrow": "今日のSpeaking"
         }
       },
@@ -1185,11 +1188,14 @@
           "request": "マイク権限を許可",
           "requesting": "確認中...",
           "granted": "マイク利用可能",
+          "cancel": "確認を中止",
           "reason": {
             "UNSUPPORTED": "このブラウザは音声録音をサポートしていません。",
             "DENIED": "マイク権限がブロックされています。ブラウザ設定から許可してください。",
             "NO_DEVICE": "利用可能なマイクが見つかりません。",
             "DEVICE_BUSY": "他のアプリがマイクを使用している可能性があります。",
+            "TIMED_OUT": "マイクの応答がありません。ブラウザの権限表示を確認してから再試行できます。",
+            "CANCELLED": "確認を中止しました。いつでも再試行できます。",
             "UNKNOWN": "マイクを開始できませんでした。"
           }
         },
@@ -1262,6 +1268,7 @@
           "you": "自分",
           "confidence": "STT信頼度 {value}%",
           "noTranscript": "認識された文章がありません。",
+          "transcriptObservationNotice": "認識された文は実際の発話と異なる場合があります。録音を聞き直し、必要なら再録音またはSTTエラー報告を行ってください。",
           "lowConfidence": "音声認識の信頼度が低いです。必要ならエラー報告または評価除外を選べます。",
           "failed": "一部処理失敗",
           "retry": "失敗段階を再試行",
@@ -1334,6 +1341,9 @@
           "completing": "終了処理中...",
           "confirm": "Speaking Sessionを終了しますか？終了後は新しいTurnを追加できません。",
           "serverEvaluationNotice": "評価基準を満たさないまま終了すると、結果が「評価データ不足」と表示される場合があります。",
+          "coachingReady": "会話を終了すると、保存された発話を根拠にセッションコーチングを準備します。総合スコアや能力プロフィールには反映されません。",
+          "coachingAction": "終了してコーチングを受ける",
+          "confirmCoaching": "Speaking Sessionを終了して会話コーチングを準備しますか？終了後は新しいTurnを追加できません。",
           "evaluateAction": "終了して評価を受ける",
           "continueConversation": "会話を続ける",
           "withoutEvaluationAction": "評価なしで終了",
@@ -1385,6 +1395,34 @@
       },
       "evaluation": {
         "title": "Speaking評価",
+        "coaching": {
+          "pageTitle": "Speaking会話コーチング",
+          "pageDescription": "今回の会話で実際に認識された発話をもとに、次の会話で活用できるフィードバックを確認します。",
+          "title": "今回の会話コーチング",
+          "description": "実際に認識された発話を根拠に、次の会話で使えるフィードバックをまとめました。",
+          "pendingTitle": "会話コーチングを準備しています",
+          "pendingDescription": "学習は完了しており、保存された発話根拠を結び付けています。",
+          "failedTitle": "コーチングを準備できませんでした",
+          "failedDescription": "会話と学習記録は保存されています。コーチング処理だけ再依頼できます。",
+          "retry": "コーチングを再依頼",
+          "limited": "利用できる根拠の範囲で限定的なコーチングを提供します。",
+          "noEvidence": "コーチングに利用できる発話根拠がありません。学習活動の記録は保存されています。",
+          "recognizedSpeech": "認識された発話",
+          "asrCaution": "音声認識文に対するフィードバックであり、実際の発話の誤りとは断定しません。",
+          "suggestion": "次に使える表現",
+          "notScore": "このコーチングは公式スコア、自動レベル、能力プロフィールには反映されません。",
+          "kinds": {
+            "OBSERVATION": "観察",
+            "CORRECTION": "改善",
+            "ALTERNATIVE": "別の表現"
+          }
+        },
+        "evidencePolicyTitle": "評価の根拠と範囲",
+        "transcriptOnlyNotice": "この得点は音声認識結果に基づきます。波形を分析した発音評価ではなく、認識の誤りが結果に影響する場合があります。",
+        "evaluatedAxesCoverage": "評価した軸 {count}/8 · 元の評価ウェイトの対象範囲 {coverage}%（STTの正確率や学習能力の得点ではありません）",
+        "evidencePolicyVersion": "評価ポリシー {version}",
+        "scoreComparisonNotice": "ポリシーと評価対象の軸が同じ結果同士で比較してください。",
+        "readAloudScriptAccuracyNotice": "Listen & Repeatでは認識された文と提示文の一致を評価します。自発的な文法・語彙能力や発音の正確さを意味しません。",
         "description": "Session全体をもとに共通5 SkillとSpeaking 3 Skillを確認します。",
         "loading": "Speaking評価を読み込んでいます。",
         "loadFailed": "Speaking評価を取得できませんでした。",
@@ -1396,7 +1434,7 @@
         "retrying": "再依頼中...",
         "retryFailed": "評価の再依頼に失敗しました。",
         "insufficientTitle": "評価データが不足しています",
-        "insufficientDescription": "有効Turn、発話時間またはSTT品質が評価基準を満たしませんでした。",
+        "insufficientDescription": "有効Turn・発話時間・STT品質、または認識文から評価できる根拠と信頼度が十分ではありませんでした。",
         "overall": "総合スコア",
         "confidence": "評価信頼度 {value}%",
         "commonMetrics": "共通5 Skill",
@@ -1776,6 +1814,7 @@
         "UNKNOWN": "処理に失敗しました。Server状態を再確認してください。"
       },
       "modeSelector": {
+        "durationFailed": "音声の長さが基準を満たさないため、この問題は公開されませんでした。準備済みの問題は保持されます。",
         "title": "今日はどの方法でListeningを練習しますか？",
         "description": "形式を選んだときだけ、その5問を準備します。1形式だけでも、続けて別形式を追加しても構いません。",
         "start": "この形式を始める",
@@ -1828,6 +1867,8 @@
         "description": "異なる読解力を集中的に練習できます。必要な形式だけ選んで学習しても構いません。",
         "start": "この形式を始める",
         "starting": "問題を準備中",
+        "structureDeferred": "上級の文章構造問題は品質確認中です。基本B4でもチャレンジ問題がB5の場合は新規セットを保留します。他の読解形式はご自身で選択できます。",
+        "availabilityLoading": "文章構造問題の提供状況を確認しています。",
         "notice": "今日生成した問題は、再度アクセスしても同じ内容が維持されます。",
         "completed": "今日完了",
         "continue": "続きから",
@@ -1872,7 +1913,7 @@
         "correct": "正解です。",
         "incorrect": "残念、不正解です。",
         "evidence": "根拠：",
-        "vocabularyCandidates": "Readingで理解が難しかった表現です。次回以降のVocabulary学習の復習候補に反映されます。",
+        "vocabularyCandidates": "本文の表現 — 原文の中でもう一度確認しましょう。",
         "retryNotice": "公式スコアは最初の回答を基準にします。この問題は復習として再挑戦できます。",
         "back": "Readingに戻る",
         "next": "次の問題",
@@ -1901,6 +1942,12 @@
       }
     },
     "vocabulary": {
+      "retired": {
+        "title": "独立したDaily Vocabularyの新規提供は終了しました",
+        "description": "既存の問題と学習履歴は保持されます。新しい語彙理解の学習はReadingの文脈推論と本文中の表現の復習で続けられます。",
+        "readingAction": "Readingへ移動",
+        "historyAction": "過去の学習履歴を見る"
+      },
       "title": "AI Vocabulary",
       "description": "実際の文脈で最も自然で正確な単語・表現を選び、習熟度を高めます。",
       "loading": "Vocabulary学習情報を読み込んでいます。",

@@ -52,8 +52,8 @@ export function usePracticeSessionController({ setId, expectedDomain }: { setId:
 
     useEffect(() => { void load(); }, [load]);
 
-    const generating = isGenerationPending(set?.generationStatus);
-    const generationFailure = set?.generationFailureMessage
+    const generating = expectedDomain !== "VOCABULARY" && isGenerationPending(set?.generationStatus);
+    const generationFailure = expectedDomain === "VOCABULARY" ? null : set?.generationFailureMessage
         || (set?.generationStatus === "PARTIAL" || set?.generationStatus === "FAILED" ? "GENERATION_FAILED" : null);
 
     useEffect(() => {
@@ -79,7 +79,7 @@ export function usePracticeSessionController({ setId, expectedDomain }: { setId:
     }, [expectedDomain, generating, retryingGeneration, setId, submitting]);
 
     const retryGeneration = async () => {
-        if (retryingGeneration || submitting) return;
+        if (expectedDomain === "VOCABULARY" || retryingGeneration || submitting) return;
         const epoch = ++readEpoch.current;
         const isCurrent = () => mounted.current && epoch === readEpoch.current;
         setRetryingGeneration(true);

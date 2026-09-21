@@ -10,6 +10,9 @@ export function isSpeakingEvaluationPending(status: string | null | undefined): 
 
 export function shouldPollSpeakingSession(detail: SpeakingSessionDetail | null | undefined): boolean {
     if (!detail) return true;
+    if (detail.session.resultKind === "SESSION_COACHING") {
+        return detail.session.resultStatus === "PENDING" || detail.session.resultStatus === "RUNNING";
+    }
     return isSpeakingEvaluationPending(detail.session.evaluationStatus)
         || detail.readAloudProblemEvaluations.some((item) => isSpeakingEvaluationPending(item.status));
 }

@@ -17,6 +17,7 @@ interface GenerationProgressProps {
 /** Generation progress is independent from answer/evaluation progress. */
 export function GenerationProgress({ readyCount, readyIndices, targetCount, generating, failureMessage, retrying, waiting, onRetry }: GenerationProgressProps) {
     const t = useTranslations("LanguageLearning.generation");
+    const deferred = failureMessage === "READING_B5_STRUCTURE_DEFERRED";
     if (readyCount >= targetCount && !failureMessage) return null;
     return (
         <section className="rounded-2xl border border-blue-200 bg-blue-50/70 p-4 dark:border-blue-400/20 dark:bg-blue-500/10" data-testid="generation-progress" aria-live="polite">
@@ -27,10 +28,10 @@ export function GenerationProgress({ readyCount, readyIndices, targetCount, gene
                         {t("progress", { ready: readyCount, total: targetCount })}
                     </p>
                     <p className="mt-1 text-xs leading-5 text-slate-600 dark:text-slate-300">
-                        {failureMessage ? t("failed") : waiting ? t("waiting") : t("background")}
+                        {deferred ? t("structureDeferred") : failureMessage ? t("failed") : waiting ? t("waiting") : t("background")}
                     </p>
                 </div>
-                {failureMessage && onRetry && (
+                {failureMessage && !deferred && onRetry && (
                     <button type="button" onClick={onRetry} disabled={retrying} className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-black text-white disabled:opacity-50">
                         {retrying ? t("retrying") : t("retry")}
                     </button>

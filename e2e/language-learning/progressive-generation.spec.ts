@@ -132,6 +132,46 @@ test.describe("Language Learning progressive generation", () => {
         await expect(page.getByText("問題1の質問です。", { exact: true })).toBeVisible();
     });
 
+    test("B5 deferred partial Reading keeps published answer and offers no generation retry", async ({ page }) => {
+        const first = { ...question(1), answered: true, correct: true, correctAnswer: ["A"],
+            attempts: [{ attemptId: 901, attemptNo: 1, answer: ["A"], correct: true,
+                official: true, submittedAt: "2026-09-09T12:00:00" }] };
+        await page.route("**/api/v1/language-learning/practice/sets/401", (route) => fulfillApiJson(route,
+            responseDto({ ...practiceSet([first]), mode: "STRUCTURE", generationStatus: "PARTIAL",
+                generationFailureMessage: "READING_B5_STRUCTURE_DEFERRED", answeredCount: 1 })));
+        let retried = false;
+        await page.route("**/api/v1/language-learning/practice/sets/401/retry-generation", (route) => {
+            retried = true;
+            return fulfillApiJson(route, responseDto({}));
+        });
+        await page.goto("/language-learning/reading/session/401");
+        await expect(page.getByText("問題1の質問です。", { exact: true })).toBeVisible();
+        await expect(page.getByTestId("generation-progress")).toContainText("고급 구조 분석 문제는 품질 점검 중입니다");
+        await expect(page.getByRole("button", { name: "나머지 문제 준비 재시도" })).toHaveCount(0);
+        expect(retried).toBe(false);
+    });
+
+    test("Reading mode card uses server availability before a new STRUCTURE request", async ({ page }) => {
+        await page.route("**/api/v1/language-learning/practice/today/status?**", (route) =>
+            fulfillApiJson(route, responseDto([])));
+        await page.route("**/api/v1/language-learning/practice/today/availability", (route) =>
+            fulfillApiJson(route, responseDto([
+                { mode: "COMPREHENSION", generationAvailable: true, reason: null },
+                { mode: "STRUCTURE", generationAvailable: false, reason: "READING_B5_STRUCTURE_DEFERRED" },
+                { mode: "CONTEXT_INFERENCE", generationAvailable: true, reason: null },
+            ])));
+        let newRequests = 0;
+        await page.route("**/api/v1/language-learning/practice/today?**", (route) => {
+            newRequests += 1;
+            return fulfillApiJson(route, responseDto({}));
+        });
+        await page.goto("/language-learning/reading");
+        const card = page.locator("article").filter({ hasText: "요점·구조 파악" });
+        await expect(card).toContainText("기본 B4의 도전 문항도 B5");
+        await expect(card.getByRole("button")).toBeDisabled();
+        expect(newRequests).toBe(0);
+    });
+
     test("Listening starts with one playable item before the other four are generated", async ({ page }) => {
         await mockLanguageLearningListening(page);
         await page.route("**/api/v1/language-learning/listening/daily-sets", (route) => fulfillApiJson(route, responseDto({

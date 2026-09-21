@@ -98,6 +98,7 @@ export function SpeakingTurnCard({
 
                 <div className="mt-4">
                     <p className="text-xs font-black text-slate-400">{t("spokenText")}</p>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{t("transcriptObservationNotice")}</p>
                     <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-slate-800 dark:text-slate-100">
                         {turn.transcript || t("noTranscript")}
                     </p>
@@ -225,6 +226,7 @@ export function SpeakingTurnCard({
                     <p className="mt-1 whitespace-pre-wrap text-sm leading-6">
                         {turn.transcript || t("noTranscript")}
                     </p>
+                    <p className="mt-2 text-xs text-blue-100">{t("transcriptObservationNotice")}</p>
                     {userAudioUrl && (
                         <div className="mt-3">
                             {userAudioUrl.startsWith("blob:") ? (

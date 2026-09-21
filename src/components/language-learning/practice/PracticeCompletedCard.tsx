@@ -1,6 +1,7 @@
 "use client";
 
 import { getWrongOfficialPracticeQuestions } from "@/features/language-learning/practice/practiceSessionState";
+import { ReadingPassageExpressions } from "@/components/language-learning/practice/ReadingPassageExpressions";
 
 import type { PracticeSet } from "@/types/language-learning/practice";
 import { Trophy } from "lucide-react";
@@ -10,6 +11,7 @@ export function PracticeCompletedCard({ set, t, onReview, onBack }: { set: Pract
     const wrongOfficial = getWrongOfficialPracticeQuestions(set);
     return (
         <div className="space-y-5">
+            <ReadingPassageExpressions set={set} />
             <section className="rounded-3xl border border-emerald-200 bg-emerald-50/80 p-6 text-center shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/10 sm:p-8">
                 <Trophy className="mx-auto h-10 w-10 text-emerald-600" aria-hidden="true" />
                 <p className="mt-3 text-xs font-black uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-200">{t("result.eyebrow")}</p>

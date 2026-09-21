@@ -57,10 +57,15 @@ export const accountBookTransactionService = {
         return ((await response.json()) as ResponseDto<ReceiptConversion>).body;
     },
 
-    async registerReceiptBatch(accountBookId: number, request: ReceiptBatchRegistrationRequest): Promise<AccountBookTransaction[]> {
+    async registerReceiptBatch(
+        accountBookId: number,
+        request: ReceiptBatchRegistrationRequest,
+        idempotencyKey: string,
+    ): Promise<AccountBookTransaction[]> {
         const response = await apiClient(`/account-books/${accountBookId}/transactions/receipt-batch`, {
             method: "POST",
             body: JSON.stringify(request),
+            headers: { "Idempotency-Key": idempotencyKey },
         });
         if (!response.ok) throw new Error("Failed to register receipt batch.");
         return ((await response.json()) as ResponseDto<AccountBookTransaction[]>).body;

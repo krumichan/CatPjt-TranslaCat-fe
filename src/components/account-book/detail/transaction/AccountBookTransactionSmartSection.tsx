@@ -327,8 +327,12 @@ export default function AccountBookTransactionSmartSection({
                     storeOptions={storeOptions}
                     onAnalyzeReceipt={handleAnalyzeReceipt}
                     onPreviewReceiptConversion={(candidate) => accountBookTransactionService.previewReceiptConversion(accountBookId, candidate)}
-                    onSubmitReceiptBatch={async (request) => {
-                        await accountBookTransactionService.registerReceiptBatch(accountBookId, request);
+                    onSubmitReceiptBatch={async (request, idempotencyKey) => {
+                        await accountBookTransactionService.registerReceiptBatch(
+                            accountBookId,
+                            request,
+                            idempotencyKey,
+                        );
                         // Registration already succeeded: a refresh failure must not offer a duplicate retry.
                         await Promise.allSettled([
                             revalidation.revalidateTransactionRelated(),

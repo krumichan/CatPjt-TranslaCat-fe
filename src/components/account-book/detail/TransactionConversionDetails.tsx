@@ -10,6 +10,11 @@ export default function TransactionConversionDetails({ transaction }: { transact
         [t("requestedDate"), transaction.requestedRateDate],
         [t("effectiveDate"), transaction.effectiveRateDate],
         [t("provider"), transaction.exchangeRateProvider],
+        [t("rateFetchedAt"), transaction.rateFetchedAt],
+        [t("convertedAt"), transaction.convertedAt],
+        [t("roundingPolicy"), transaction.roundingMode && transaction.roundingPrecision != null
+            ? `${transaction.roundingMode} / ${transaction.roundingPrecision} / ${transaction.conversionPolicyVersion ?? "—"}`
+            : null],
     ];
     return (
         <details className="mt-2 min-w-0 max-w-full break-words text-xs text-slate-500 dark:text-slate-400">

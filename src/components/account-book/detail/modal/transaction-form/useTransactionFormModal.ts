@@ -1,4 +1,4 @@
-import { SyntheticEvent, useMemo, useState } from "react";
+import { SyntheticEvent, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
     ReceiptAnalysisMode,
@@ -88,17 +88,31 @@ export function useTransactionFormModal({
     );
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const [receiptFile, setReceiptFile] = useState<File | null>(null);
+    type QueueStatus = "queued" | "analyzing" | "success" | "partial" | "failure" | "canceled";
+    type ReceiptQueueItem = {
+        sourceImageId: string; file: File; previewUrl: string; revision: number;
+        status: QueueStatus; receiptCount: number; error: string | null;
+    };
+    const [receiptQueue, setReceiptQueueState] = useState<ReceiptQueueItem[]>([]);
+    const receiptQueueRef = useRef<ReceiptQueueItem[]>([]);
+    const replaceQueue = (next: ReceiptQueueItem[]) => {
+        receiptQueueRef.current = next;
+        setReceiptQueueState(next);
+    };
+    const updateQueue = (update: (current: ReceiptQueueItem[]) => ReceiptQueueItem[]) =>
+        replaceQueue(update(receiptQueueRef.current));
 
     const [receiptAnalysisMode, setReceiptAnalysisMode] =
         useState<ReceiptAnalysisMode>("VISION_FIRST");
 
-    const [isAnalyzingReceipt, setIsAnalyzingReceipt] = useState(false);
-
     const [receiptAnalysisMessage, setReceiptAnalysisMessage] =
         useState<string | null>(null);
 
-    const receiptReview = useReceiptReview({ onPreviewReceiptConversion, onSubmitReceiptBatch, onClose });
+    const analysisPending = receiptQueue.some((item) => ["queued", "analyzing"].includes(item.status));
+    const isAnalyzingReceipt = receiptQueue.some((item) => item.status === "analyzing");
+    const receiptReview = useReceiptReview(
+        { onPreviewReceiptConversion, onSubmitReceiptBatch, onClose }, analysisPending,
+    );
 
     const isCreateMode = mode === "CREATE";
     const isEditMode = mode === "EDIT";
@@ -125,25 +139,82 @@ export function useTransactionFormModal({
         isDirectCategoryInput,
     ]);
 
+    const analyzeTargets = async (targets: ReceiptQueueItem[]) => {
+        if (!onAnalyzeReceipt || !targets.length || receiptReview.isBusy) return;
+        let cursor = 0;
+        let completed = 0;
+        const worker = async () => {
+            while (cursor < targets.length) {
+                const target = targets[cursor++];
+                const live = receiptQueueRef.current.find((item) =>
+                    item.sourceImageId === target.sourceImageId && item.revision === target.revision);
+                if (!live || live.status !== "queued") continue;
+                updateQueue((current) => current.map((item) => item.sourceImageId === target.sourceImageId
+                    && item.revision === target.revision ? { ...item, status: "analyzing", error: null } : item));
+                try {
+                    const result = await onAnalyzeReceipt(target.file, receiptAnalysisMode);
+                    const current = receiptQueueRef.current.find((item) =>
+                        item.sourceImageId === target.sourceImageId && item.revision === target.revision);
+                    if (!current || current.status !== "analyzing") continue;
+                    receiptReview.applyAnalysis(result, target.sourceImageId, target.revision, target.file.name);
+                    const partial = result.receipts.length === 0
+                        || result.receipts.some((receipt) => receipt.status !== "READY");
+                    updateQueue((queue) => queue.map((item) => item.sourceImageId === target.sourceImageId
+                        && item.revision === target.revision ? {
+                            ...item, status: partial ? "partial" : "success",
+                            receiptCount: result.receipts.length,
+                        } : item));
+                    completed += result.receipts.length;
+                } catch {
+                    const current = receiptQueueRef.current.find((item) =>
+                        item.sourceImageId === target.sourceImageId && item.revision === target.revision);
+                    if (current?.status === "analyzing") updateQueue((queue) => queue.map((item) =>
+                        item.sourceImageId === target.sourceImageId && item.revision === target.revision
+                            ? { ...item, status: "failure", error: t("receipt.analysisFailed") } : item));
+                }
+            }
+        };
+        setReceiptAnalysisMessage(null);
+        await Promise.all(Array.from({ length: Math.min(2, targets.length) }, () => worker()));
+        setReceiptAnalysisMessage(t("receipt.review.analysisCompleted", { count: completed }));
+    };
+
     const handleAnalyzeReceipt = async () => {
-        if (!receiptFile || !onAnalyzeReceipt || isAnalyzingReceipt || receiptReview.isBusy) {
-            return;
-        }
+        await analyzeTargets(receiptQueueRef.current.filter((item) => item.status === "queued"));
+    };
 
-        try {
-            setIsAnalyzingReceipt(true);
-            setReceiptAnalysisMessage(null);
-            receiptReview.reset();
+    const addReceiptFiles = (files: File[]) => {
+        const available = Math.max(0, 10 - receiptQueueRef.current.length);
+        const accepted = files.slice(0, available).map((file): ReceiptQueueItem => ({
+            sourceImageId: crypto.randomUUID(), file,
+            previewUrl: typeof URL !== "undefined" && URL.createObjectURL ? URL.createObjectURL(file) : "",
+            revision: 1, status: "queued", receiptCount: 0, error: null,
+        }));
+        if (accepted.length) updateQueue((current) => [...current, ...accepted]);
+        if (files.length > accepted.length) setReceiptAnalysisMessage(t("receipt.queueLimit", { count: 10 }));
+    };
 
-            const result = await onAnalyzeReceipt(receiptFile, receiptAnalysisMode);
+    const removeReceiptFile = (sourceImageId: string) => {
+        const target = receiptQueueRef.current.find((item) => item.sourceImageId === sourceImageId);
+        if (target?.previewUrl) URL.revokeObjectURL(target.previewUrl);
+        updateQueue((current) => current.filter((item) => item.sourceImageId !== sourceImageId));
+        receiptReview.removeSource(sourceImageId);
+    };
 
-            receiptReview.applyAnalysis(result);
-            setReceiptAnalysisMessage(t("receipt.review.analysisCompleted", { count: result.receipts.length }));
-        } catch {
-            setReceiptAnalysisMessage(t("receipt.analysisFailed"));
-        } finally {
-            setIsAnalyzingReceipt(false);
-        }
+    const cancelReceiptAnalysis = (sourceImageId: string) => {
+        updateQueue((current) => current.map((item) => item.sourceImageId === sourceImageId
+            && item.status === "analyzing" ? { ...item, status: "canceled" } : item));
+        receiptReview.removeSource(sourceImageId);
+    };
+
+    const retryReceiptAnalysis = async (sourceImageId: string) => {
+        const target = receiptQueueRef.current.find((item) =>
+            item.sourceImageId === sourceImageId && item.status === "failure");
+        if (!target) return;
+        const retry = { ...target, revision: target.revision + 1, status: "queued" as const, error: null };
+        receiptReview.removeSource(sourceImageId);
+        updateQueue((current) => current.map((item) => item.sourceImageId === sourceImageId ? retry : item));
+        await analyzeTargets([retry]);
     };
 
     const handleSubmit = async (event: SyntheticEvent<HTMLFormElement>) => {
@@ -217,11 +288,11 @@ export function useTransactionFormModal({
         memo,
         setMemo,
 
-        receiptFile,
-        setReceiptFile: (file: File | null) => {
-            setReceiptFile(file);
-            receiptReview.reset();
-        },
+        receiptQueue,
+        addReceiptFiles,
+        removeReceiptFile,
+        cancelReceiptAnalysis,
+        retryReceiptAnalysis,
         receiptReview,
 
         receiptAnalysisMode,

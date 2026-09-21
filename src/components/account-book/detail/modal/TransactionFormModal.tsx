@@ -1,5 +1,5 @@
 import { createPortal } from "react-dom";
-import { Loader2, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { TransactionFormModalProps } from "./transaction-form/types";
 import { useTransactionFormModal } from "./transaction-form/useTransactionFormModal";
@@ -93,17 +93,20 @@ export default function TransactionFormModal(props: TransactionFormModalProps) {
 
                 {showReceipt && (
                     <ReceiptAnalysisPanel
-                        receiptFile={form.receiptFile}
+                        receiptQueue={form.receiptQueue}
                         receiptAnalysisMode={form.receiptAnalysisMode}
                         receiptAnalysisMessage={form.receiptAnalysisMessage}
                         isAnalyzingReceipt={form.isAnalyzingReceipt}
                         disabled={isBlockingModal}
-                        canAnalyzeReceipt={!!form.receiptFile && !!onAnalyzeReceipt && !isBlockingModal}
+                        canAnalyzeReceipt={form.receiptQueue.some((item) => item.status === "queued") && !!onAnalyzeReceipt && !form.receiptReview.isBusy}
                         onAnalysisModeChange={form.setReceiptAnalysisMode}
-                        onFileChange={(file) => {
-                            form.setReceiptFile(file);
+                        onFilesChange={(files) => {
+                            form.addReceiptFiles(files);
                             form.setReceiptAnalysisMessage(null);
                         }}
+                        onRemove={form.removeReceiptFile}
+                        onCancel={form.cancelReceiptAnalysis}
+                        onRetry={(sourceImageId) => void form.retryReceiptAnalysis(sourceImageId)}
                         onAnalyzeReceipt={form.handleAnalyzeReceipt}
                     />
                 )}
@@ -158,24 +161,6 @@ export default function TransactionFormModal(props: TransactionFormModalProps) {
                     />
                 </form>}
 
-                {form.isAnalyzingReceipt && (
-                    <div className="absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-white/75 backdrop-blur-sm dark:bg-zinc-950/70">
-                        <div className="mx-6 flex max-w-sm flex-col items-center gap-3 rounded-2xl border border-orange-200 bg-white px-6 py-5 text-center shadow-[0_20px_50px_rgba(15,23,42,0.2)] dark:border-orange-500/20 dark:bg-zinc-900">
-                            <Loader2
-                                size={30}
-                                className="animate-spin text-orange-500"
-                            />
-
-                            <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-                                {t("receipt.analyzing")}
-                            </p>
-
-                            <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
-                                {t("receipt.analyzingDescription")}
-                            </p>
-                        </div>
-                    </div>
-                )}
             </div>
         </div>,
         document.body

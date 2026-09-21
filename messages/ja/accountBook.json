@@ -412,8 +412,8 @@
           "description": "{period}基準のカテゴリ別支出割合です。"
         },
         "store": {
-          "title": "店舗別支出",
-          "description": "{period}基準の店舗別支出割合です。"
+          "title": "ブランド・店舗別支出",
+          "description": "{period}基準のブランド・店舗別支出割合です。支店は同じ店舗に集計します。"
         },
         "tooltip": {
           "amount": "支出額",
@@ -482,6 +482,14 @@
           "analyzing": "分析中...",
           "action": "レシートを分析",
           "analysisFailed": "レシート分析に失敗しました。",
+          "queueLimit": "一度に選択できる画像は最大{count}枚です。",
+          "cancelAnalysis": "分析をキャンセル",
+          "retryAnalysis": "失敗した分析を再試行",
+          "removeFile": "画像を削除",
+          "queueStatuses": {
+            "queued": "待機中", "analyzing": "分析中", "success": "完了",
+            "partial": "一部要確認", "failure": "失敗", "canceled": "キャンセル済み"
+          },
           "analyzingDescription": "レシート画像を分析しています。完了するまで画面を操作せずにお待ちください。",
           "review": {
             "unknownWarning": "解析結果に確認が必要な情報があります。原本のレシートと比較してください。",
@@ -525,12 +533,27 @@
             "analysisCompleted": "レシート{count}件を解析しました。下の取引候補を確認してください。",
             "receiptNumber": "レシート {index}",
             "originalAmount": "原本の金額",
+            "branchName": "支店・場所",
+            "transactionTime": "レシート時刻",
+            "purchaseTotal": "購入総額（ポイント利用前）",
+            "paymentBreakdown": "支払根拠",
+            "cashTendered": "現金預り額",
+            "change": "お釣り",
+            "bookAmount": "家計簿に反映する原金額",
+            "paymentTypes": {
+              "LOYALTY_POINTS": "ポイント利用", "CASH": "現金", "CREDIT_CARD": "クレジットカード",
+              "DEBIT_CARD": "デビットカード", "ELECTRONIC_MONEY": "電子マネー", "GIFT_CARD": "商品券",
+              "VOUCHER": "クーポン", "OTHER_PAID": "その他の支払", "UNKNOWN": "要確認"
+            },
             "originalCurrency": "原本の通貨（ISOコード）",
             "convertedAmount": "家計簿への反映額",
             "exchangeRate": "適用為替レート",
             "requestedDate": "照会基準日",
             "effectiveDate": "実際のレート基準日",
             "provider": "為替提供元",
+            "rateFetchedAt": "レート取得時刻 (UTC)",
+            "convertedAt": "換算時刻 (UTC)",
+            "roundingPolicy": "丸め方針",
             "confidence": "解析の信頼度",
             "language": "検出言語",
             "warnings": "確認事項",

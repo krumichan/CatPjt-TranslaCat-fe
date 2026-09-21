@@ -3,6 +3,7 @@ import { expect, test } from "../fixtures/mock-test";
 import { fulfillJson, mockCommonPageDependencies, mockIdleWebSocket } from "../support/api-mocks";
 import { responseDto } from "../support/mock-data";
 import translations from "../../messages/ko/accountBook.json";
+import jaTranslations from "../../messages/ja/accountBook.json";
 
 const longName = "InternationalStoreWithAVeryLongUnbrokenName".repeat(3);
 const book = { id: 1, name: longName, description: longName, category: longName,
@@ -18,29 +19,53 @@ const goal = { id: 1, accountBookId: 1, year: 2026, month: 9,
     remainingAmount: "876543210.000", usageRate: 12.35, exceeded: false };
 
 const receiptLabels = translations.AccountBook.detail.transactionModal;
+const locales = {
+    ko: translations.AccountBook.detail,
+    ja: jaTranslations.AccountBook.detail,
+} as const;
 const receipt = { receiptId: "receipt-1", title: "Coffee", storeName: longName.slice(0, 90),
     originalAmount: "12.34", detectedCurrencyCode: "USD", originalCurrencyCode: "USD",
     transactionDate: "2026-09-15", categoryName: longName.slice(0, 50), memo: longName,
     confidence: 0.97, detectedLanguage: "en", status: "READY", warnings: [],
     accountBookCurrencyCode: "KWD", convertedAmount: "3.784", exchangeRate: "0.30664",
     requestedRateDate: "2026-09-15", effectiveRateDate: "2026-09-15",
-    exchangeRateProvider: "FRANKFURTER", conversionStatus: "CONVERTED", rateDateFallback: false };
+    exchangeRateProvider: "FRANKFURTER", rateFetchedAt: "2026-09-15T09:00:00Z",
+    convertedAt: "2026-09-21T01:00:00Z", roundingPrecision: 3, roundingMode: "HALF_UP",
+    conversionPolicyVersion: "receipt-fx-v1", conversionQuoteId: "a".repeat(64),
+    conversionStatus: "CONVERTED", rateDateFallback: false };
 
-async function openReceiptReview(page: Page) {
+function receiptCandidates(count: number) {
+    const candidates: Array<Record<string, unknown>> = Array.from({ length: count }, (_, index) => ({
+        ...receipt,
+        receiptId: `receipt-${index + 1}`,
+        title: `${longName}-${index + 1}`.slice(0, 100),
+        detectedLanguage: index % 2 === 0 ? "en" : "ja",
+    }));
+    if (count > 1) candidates[1] = {
+        ...candidates[1], title: "Déjeuner", detectedCurrencyCode: "EUR", originalCurrencyCode: "EUR", detectedLanguage: "fr",
+    };
+    if (count > 2) candidates[2] = {
+        ...candidates[2], title: null, originalAmount: null, detectedCurrencyCode: null,
+        originalCurrencyCode: null, transactionDate: null, convertedAmount: null, exchangeRate: null,
+        status: "UNREADABLE", conversionStatus: "NEEDS_REVIEW", warnings: ["AMBIGUOUS_CURRENCY_SYMBOL"],
+    };
+    return candidates;
+}
+
+async function openReceiptReview(page: Page, locale: keyof typeof locales = "ko", receiptCount = 3) {
+    const detail = locales[locale];
+    const labels = detail.transactionModal;
     await page.route("**/transactions/receipt-analysis", route => fulfillJson(route, responseDto({
-        receiptCount: 3, warnings: [], ocrEngine: "vision", usedAi: true,
-        receipts: [receipt, { ...receipt, receiptId: "receipt-2", title: "Déjeuner", detectedCurrencyCode: "EUR", originalCurrencyCode: "EUR", detectedLanguage: "fr" },
-            { ...receipt, receiptId: "receipt-3", title: null, originalAmount: null, detectedCurrencyCode: null,
-                originalCurrencyCode: null, transactionDate: null, convertedAmount: null, exchangeRate: null,
-                status: "UNREADABLE", conversionStatus: "NEEDS_REVIEW", warnings: ["AMBIGUOUS_CURRENCY_SYMBOL"] }],
+        receiptCount, warnings: [], ocrEngine: "vision", usedAi: true,
+        receipts: receiptCandidates(receiptCount),
     })));
-    await page.goto("/ko/account-books/1");
-    await page.getByRole("button", { name: "거래 등록", exact: true }).click();
-    await page.getByRole("button", { name: receiptLabels.inputMode.receipt, exact: true }).click();
+    await page.goto(`/${locale}/account-books/1`);
+    await page.getByRole("button", { name: detail.header.createTransaction, exact: true }).click();
+    await page.getByRole("button", { name: labels.inputMode.receipt, exact: true }).click();
     await page.locator('input[type="file"]').setInputFiles({ name: "three-receipts.png", mimeType: "image/png",
         buffer: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=", "base64") });
-    await page.getByRole("button", { name: receiptLabels.receipt.action, exact: true }).last().click();
-    await expect(page.getByTestId("receipt-review-card")).toHaveCount(3);
+    await page.getByRole("button", { name: labels.receipt.action, exact: true }).last().click();
+    await expect(page.getByTestId("receipt-review-card")).toHaveCount(receiptCount);
 }
 
 async function mockAccountBook(page: Page) {
@@ -96,6 +121,56 @@ async function expectNoPageOverflow(page: Page) {
     expect(outside).toEqual([]);
 }
 
+test("ACCOUNT-RECEIPT multi-file queue keeps one source-linked review per photo", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await mockAccountBook(page);
+    let analysisCalls = 0;
+    await page.route("**/transactions/receipt-analysis", route => {
+        analysisCalls += 1;
+        const candidate = {
+            ...receiptCandidates(1)[0],
+            receiptId: `receipt-${analysisCalls}`,
+            title: `Source receipt ${analysisCalls}`,
+        };
+        return fulfillJson(route, responseDto({
+            receiptCount: 1,
+            warnings: [],
+            ocrEngine: "vision",
+            usedAi: true,
+            receipts: [candidate],
+        }));
+    });
+
+    await page.goto("/ko/account-books/1");
+    await page.getByRole("button", { name: "거래 등록", exact: true }).click();
+    await page.getByRole("button", { name: receiptLabels.inputMode.receipt, exact: true }).click();
+    const pixel = Buffer.from(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=",
+        "base64"
+    );
+    await page.locator('input[type="file"]').setInputFiles([
+        { name: "receipt-a.png", mimeType: "image/png", buffer: pixel },
+        { name: "receipt-b.png", mimeType: "image/png", buffer: pixel },
+        { name: "receipt-c.png", mimeType: "image/png", buffer: pixel },
+    ]);
+
+    const queue = page.getByTestId("receipt-file-queue");
+    await expect(queue.locator("li")).toHaveCount(3);
+    await expect(queue).toContainText("receipt-a.png");
+    await expect(queue).toContainText("receipt-b.png");
+    await expect(queue).toContainText("receipt-c.png");
+    await page.getByRole("button", { name: receiptLabels.receipt.action, exact: true }).last().click();
+
+    const cards = page.getByTestId("receipt-review-card");
+    await expect(cards).toHaveCount(3);
+    expect(analysisCalls).toBe(3);
+    await expect(cards.nth(0)).toContainText("receipt-a.png · r1");
+    await expect(cards.nth(1)).toContainText("receipt-b.png · r1");
+    await expect(cards.nth(2)).toContainText("receipt-c.png · r1");
+    await expect(queue.getByText(/완료/)).toHaveCount(3);
+    await expectNoPageOverflow(page);
+});
+
 for (const width of [320, 375, 390, 430, 768, 1024]) {
     test(`ACCOUNT-MOBILE detail/cards/table/charts/modals ${width}px`, async ({ page }) => {
         test.setTimeout(90_000);
@@ -148,21 +223,25 @@ for (const width of [320, 375, 390, 430, 768, 1024]) {
     });
 
     test(`ACCOUNT-RECEIPT multi/review/edit/recalculate/atomic-error ${width}px`, async ({ page }) => {
+        await page.emulateMedia({ colorScheme: "light" });
         await page.setViewportSize({ width, height: 844 });
         await mockAccountBook(page);
         let batches = 0;
+        const idempotencyKeys: string[] = [];
         await page.route("**/transactions/receipt-conversion", async route => {
             const payload = route.request().postDataJSON();
             expect(payload.originalAmount).toBe("10.12");
             expect(payload.exchangeRate).toBeUndefined();
-            await fulfillJson(route, responseDto({ ...receipt, originalAmount: "10.12", convertedAmount: "3.103" }));
+            await fulfillJson(route, responseDto({ ...receipt, originalAmount: "10.12", convertedAmount: "3.103", conversionQuoteId: "b".repeat(64) }));
         });
         await page.route("**/transactions/receipt-batch", async route => {
             const payload = route.request().postDataJSON();
+            idempotencyKeys.push(route.request().headers()["idempotency-key"] ?? "");
             expect(payload.receipts).toHaveLength(2);
             expect(payload.receipts[0].originalAmount).toBe("10.12");
             expect(payload.receipts[0].convertedAmount).toBeUndefined();
             expect(payload.receipts[0].exchangeRate).toBeUndefined();
+            expect(payload.receipts[0].conversionQuoteId).toBe("b".repeat(64));
             expect(payload.receipts[1].originalCurrencyCode).toBe("EUR");
             await fulfillJson(route, responseDto(batches++ === 0 ? null : [transaction, { ...transaction, id: 2 }]), batches === 1 ? 503 : 200);
         });
@@ -178,7 +257,7 @@ for (const width of [320, 375, 390, 430, 768, 1024]) {
         }
         await cards.nth(1).getByRole("checkbox").uncheck();
         await cards.nth(1).getByRole("checkbox").check();
-        await cards.nth(0).getByLabel(receiptLabels.receipt.review.originalAmount, { exact: true }).fill("10.12");
+        await cards.nth(0).getByLabel(receiptLabels.receipt.review.purchaseTotal, { exact: true }).fill("10.12");
         await expect(page.getByTestId("receipt-submit-selected")).toBeDisabled();
         await page.getByTestId("receipt-recalculate-receipt-1").click();
         await expect(page.getByTestId("receipt-submit-selected")).toBeEnabled();
@@ -190,5 +269,31 @@ for (const width of [320, 375, 390, 430, 768, 1024]) {
         await page.getByTestId("receipt-submit-selected").click();
         await expect(page.getByTestId("receipt-review-list")).toHaveCount(0);
         expect(batches).toBe(2);
+        expect(idempotencyKeys).toHaveLength(2);
+        expect(idempotencyKeys[0]).toBe(idempotencyKeys[1]);
     });
+
+    for (const { locale, colorScheme } of [
+        { locale: "ko", colorScheme: "dark" },
+        { locale: "ja", colorScheme: "light" },
+        { locale: "ja", colorScheme: "dark" },
+    ] as const) {
+        test(`ACCOUNT-RECEIPT many-cards ${locale}/${colorScheme} ${width}px`, async ({ page }) => {
+            await page.emulateMedia({ colorScheme });
+            await page.setViewportSize({ width, height: 844 });
+            await mockAccountBook(page);
+            await openReceiptReview(page, locale, 8);
+            await expect(page.locator("html")).toHaveClass(new RegExp(colorScheme));
+            const cards = page.getByTestId("receipt-review-card");
+            await cards.last().scrollIntoViewIfNeeded();
+            await expect(page.getByTestId("receipt-submit-selected")).toBeVisible();
+            await expectNoPageOverflow(page);
+            if (width === 320 || width === 1024) {
+                await page.screenshot({
+                    path: test.info().outputPath(`receipt-many-${locale}-${colorScheme}.png`),
+                    fullPage: true,
+                });
+            }
+        });
+    }
 }

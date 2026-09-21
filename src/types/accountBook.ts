@@ -13,6 +13,15 @@ export type ReceiptAnalysisMode =
     | "VISION_ONLY"
     | "VISION_FIRST"
     | "OCR_ONLY";
+export type ReceiptPaymentType =
+    | "LOYALTY_POINTS" | "CASH" | "CREDIT_CARD" | "DEBIT_CARD"
+    | "ELECTRONIC_MONEY" | "GIFT_CARD" | "VOUCHER" | "OTHER_PAID" | "UNKNOWN";
+export type ReceiptPaymentItem = {
+    paymentType: ReceiptPaymentType;
+    amount: string;
+    evidence: string | null;
+    duplicateGroup: string | null;
+};
 export type TransactionType = "INCOME" | "EXPENSE";
 export type TransactionFilterType = "ALL" | TransactionType;
 
@@ -165,6 +174,12 @@ export type ReceiptConversion = {
     requestedRateDate: string | null;
     effectiveRateDate: string | null;
     exchangeRateProvider: string | null;
+    rateFetchedAt: string | null;
+    convertedAt: string | null;
+    roundingPrecision: number;
+    roundingMode: string;
+    conversionPolicyVersion: string;
+    conversionQuoteId: string | null;
     conversionStatus: "NOT_REQUIRED" | "CONVERTED" | "RATE_UNAVAILABLE" | "NEEDS_REVIEW";
     rateDateFallback: boolean;
     warnings: string[];
@@ -174,9 +189,19 @@ export type AccountBookReceiptAnalysisItem = ReceiptConversion & {
     receiptId: string;
     title: string | null;
     storeName: string | null;
+    branchName: string | null;
+    purchaseTotal: string | null;
+    paymentBreakdown: ReceiptPaymentItem[];
+    cashTendered: string | null;
+    change: string | null;
+    bookAmount: string | null;
+    amountPolicyVersion: string;
+    amountReason: string | null;
+    reviewStatus: "READY" | "NEEDS_REVIEW" | "EXCLUDED";
     originalAmount: string | null;
     detectedCurrencyCode: string | null;
     transactionDate: string | null;
+    transactionTime: string | null;
     categoryName: string | null;
     memo: string | null;
     confidence: number | null;
@@ -188,11 +213,23 @@ export type ReceiptRegistrationCandidate = {
     receiptId: string;
     title: string;
     storeName: string | null;
+    branchName: string | null;
     categoryName: string;
+    purchaseTotal: string;
+    paymentBreakdown: ReceiptPaymentItem[];
+    cashTendered: string | null;
+    change: string | null;
     originalAmount: string;
     originalCurrencyCode: string;
     transactionDate: string;
+    transactionTime: string | null;
     memo: string | null;
+    conversionQuoteId: string | null;
+    sourceImageId: string;
+    analysisRevision: number;
+    amountPolicyVersion: string;
+    amountReason: string;
+    reviewStatus: "READY" | "NEEDS_REVIEW" | "EXCLUDED";
 };
 
 export type ReceiptBatchRegistrationRequest = {
@@ -310,6 +347,25 @@ export type AccountBookTransaction = {
     requestedRateDate?: string | null;
     effectiveRateDate?: string | null;
     exchangeRateProvider?: string | null;
+    targetCurrencyCode?: string | null;
+    rateFetchedAt?: string | null;
+    convertedAt?: string | null;
+    roundingPrecision?: number | null;
+    roundingMode?: string | null;
+    conversionPolicyVersion?: string | null;
+    conversionQuoteId?: string | null;
+    purchaseTotal?: string | null;
+    bookAmount?: string | null;
+    receiptPaymentBreakdownJson?: string | null;
+    cashTendered?: string | null;
+    changeAmount?: string | null;
+    amountPolicyVersion?: string | null;
+    amountReason?: string | null;
+    amountReviewStatus?: string | null;
+    receiptBranchName?: string | null;
+    receiptSourceImageId?: string | null;
+    receiptAnalysisRevision?: number | null;
+    receiptTransactionTime?: string | null;
 
     sourceType: AccountBookTransactionSourceType | null;
     sourceId: number | null;

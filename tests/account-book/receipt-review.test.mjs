@@ -2,15 +2,18 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
     applyReceiptConversion, buildReceiptBatch, canRegisterReceipt, createReceiptReview,
-    editReceiptReview, hasValidReceiptSource, receiptSourceKey, selectReceiptReview,
+    editReceiptReview, editReceiptPayment, hasValidReceiptSource, receiptSourceKey, selectReceiptReview,
 } from "../../src/utils/account-book/receiptReview.ts";
 
 const ready = {
     receiptId: "receipt-1", title: "Coffee", storeName: "Cafe", originalAmount: "12.34",
-    detectedCurrencyCode: "USD", transactionDate: "2026-09-15", categoryName: "Food",
+    detectedCurrencyCode: "USD", transactionDate: "2026-09-15", transactionTime: "20:13:39", categoryName: "Food",
     memo: "Lunch", confidence: 0.92, detectedLanguage: "en", status: "READY", warnings: [],
     accountBookCurrencyCode: "JPY", convertedAmount: "1826", exchangeRate: "148.00",
     requestedRateDate: "2026-09-15", effectiveRateDate: "2026-09-15", exchangeRateProvider: "FRANKFURTER",
+    rateFetchedAt: "2026-09-15T09:00:00Z", convertedAt: "2026-09-21T01:00:00Z",
+    roundingPrecision: 0, roundingMode: "HALF_UP", conversionPolicyVersion: "receipt-fx-v1",
+    conversionQuoteId: "a".repeat(64),
     conversionStatus: "CONVERTED", rateDateFallback: false,
 };
 const response = (receipts) => ({ receipts, receiptCount: receipts.length, warnings: [], ocrEngine: null, usedAi: true });
@@ -45,10 +48,77 @@ test("selection changes only the requested card and batch sends exactly selected
     assert.equal(items[0].selected, false);
     assert.equal(items[1], initial[1]);
     const batch = buildReceiptBatch(items);
-    assert.deepEqual(batch, { receipts: [{ receiptId: "receipt-2", title: "Coffee", storeName: "Cafe", categoryName: "Food", originalAmount: "12.34", originalCurrencyCode: "USD", transactionDate: "2026-09-15", memo: "Lunch" }] });
+    assert.deepEqual(batch, { receipts: [{
+        receiptId: "receipt-2", title: "Coffee", storeName: "Cafe", branchName: null,
+        categoryName: "Food", purchaseTotal: "12.34", paymentBreakdown: [], cashTendered: null,
+        change: null, originalAmount: "12.34", originalCurrencyCode: "USD",
+        transactionDate: "2026-09-15", transactionTime: "20:13:39", memo: "Lunch", conversionQuoteId: "a".repeat(64),
+        sourceImageId: "legacy-source", analysisRevision: 1,
+        amountPolicyVersion: "receipt-book-amount-v1",
+        amountReason: "PURCHASE_TOTAL_NO_PAYMENT_ALLOCATION", reviewStatus: "READY",
+    }] });
     for (const field of ["exchangeRate", "convertedAmount", "exchangeRateProvider", "confidence", "selected", "conversion"]) {
         assert.equal(field in batch.receipts[0], false, `must not trust client ${field}`);
     }
+});
+
+test("papasu payment facts keep 7089 purchase total and derive 5020 book amount", () => {
+    const papasu = {
+        ...ready, receiptId: "papasu", title: "どらっぐ ぱぱす 船堀店",
+        storeName: "どらっぐ ぱぱす", branchName: "船堀店", purchaseTotal: "7089",
+        paymentBreakdown: [
+            { paymentType: "LOYALTY_POINTS", amount: "2069", evidence: "ポイント支払", duplicateGroup: null },
+            { paymentType: "CREDIT_CARD", amount: "5020", evidence: "クレジット", duplicateGroup: "card-1" },
+            { paymentType: "CREDIT_CARD", amount: "5020", evidence: "カード明細", duplicateGroup: "card-1" },
+        ], change: "0", bookAmount: "5020", originalAmount: "5020", detectedCurrencyCode: "JPY",
+        convertedAmount: "5020", exchangeRate: "1", conversionStatus: "NOT_REQUIRED",
+        amountPolicyVersion: "receipt-book-amount-v1", amountReason: "SETTLED_PAYMENT_EXCLUDING_LOYALTY_POINTS",
+        reviewStatus: "READY",
+    };
+    const [item] = createReceiptReview(response([papasu]), "image-papasu", 3, "papasu.jpg");
+    assert.equal(item.clientId, "image-papasu:3:papasu");
+    assert.equal(item.purchaseTotal, "7089");
+    assert.equal(item.originalAmount, "5020");
+    const changed = editReceiptPayment(item, 0, "2000");
+    assert.equal(changed.reviewStatus, "NEEDS_REVIEW");
+    assert.equal(changed.originalAmount, "");
+    assert.equal(changed.conversionStale, true);
+    assert.equal(changed.selected, true);
+});
+
+test("cash tendered and change determine the settled cash amount without double counting", () => {
+    const cash = {
+        ...ready, purchaseTotal: "9.00", originalAmount: "9.00", bookAmount: "9.00",
+        paymentBreakdown: [{ paymentType: "CASH", amount: "10.00", evidence: "Cash 10.00", duplicateGroup: null }],
+        cashTendered: "10.00", change: "1.00",
+    };
+    const [item] = createReceiptReview(response([cash]));
+    const recalculated = editReceiptPayment(item, 0, "10.00");
+    assert.equal(recalculated.originalAmount, "9");
+    assert.equal(recalculated.reviewStatus, "READY");
+});
+
+test("gross card heading plus points derives the net settlement", () => {
+    const grossCard = {
+        ...ready, purchaseTotal: "7089", originalAmount: "5020", bookAmount: "5020",
+        paymentBreakdown: [
+            { paymentType: "CREDIT_CARD", amount: "7089", evidence: "クレジット(NFC)", duplicateGroup: null },
+            { paymentType: "LOYALTY_POINTS", amount: "2069", evidence: "ポイント支払", duplicateGroup: null },
+        ],
+    };
+    const [item] = createReceiptReview(response([grossCard]));
+    const recalculated = editReceiptPayment(item, 0, "7089");
+    assert.equal(recalculated.originalAmount, "5020");
+    assert.equal(recalculated.reviewStatus, "READY");
+});
+
+test("separate image revisions create source-linked stable candidate identities", () => {
+    const [first] = createReceiptReview(response([ready]), "image-a", 1, "a.jpg");
+    const [retry] = createReceiptReview(response([ready]), "image-a", 2, "a.jpg");
+    const [second] = createReceiptReview(response([ready]), "image-b", 1, "b.jpg");
+    assert.deepEqual([first.clientId, retry.clientId, second.clientId], [
+        "image-a:1:receipt-1", "image-a:2:receipt-1", "image-b:1:receipt-1",
+    ]);
 });
 
 for (const [field, value] of [["originalAmount", "10.125"], ["originalCurrencyCode", "kwd"], ["transactionDate", "2026-09-14"]]) {
@@ -56,10 +126,12 @@ for (const [field, value] of [["originalAmount", "10.125"], ["originalCurrencyCo
         const [initial] = reviews();
         const edited = editReceiptReview(initial, field, value);
         assert.equal(edited.conversionStale, true);
+        assert.equal(edited.selected, true);
         assert.equal(edited.conversion.convertedAmount, null);
         assert.equal(edited.conversion.exchangeRate, null);
         assert.equal(edited.conversion.effectiveRateDate, null);
         assert.equal(edited.conversion.exchangeRateProvider, null);
+        assert.equal(edited.conversion.conversionQuoteId, null);
         assert.equal(canRegisterReceipt(edited), false);
         assert.throws(() => buildReceiptBatch([edited]), /current conversion/);
         assert.equal(initial.conversion.convertedAmount, "1826");
@@ -74,6 +146,17 @@ test("title/category/store/memo edits preserve conversion and direct category te
     const [saved] = buildReceiptBatch([item]).receipts;
     assert.equal(saved.categoryName, "Nouvelle catégorie");
     assert.equal(saved.memo, "Nouvelle catégorie");
+});
+
+test("an idempotency key survives a failed retry and changes with the selected payload", async () => {
+    const { getOrCreateReceiptBatchAttempt } = await import("../../src/utils/account-book/receiptReview.ts");
+    const firstRequest = buildReceiptBatch(reviews());
+    const first = getOrCreateReceiptBatchAttempt(null, firstRequest, () => "receipt-attempt-1");
+    const replay = getOrCreateReceiptBatchAttempt(first, firstRequest, () => "must-not-run");
+    assert.equal(replay, first);
+    const changed = { receipts: [{ ...firstRequest.receipts[0], memo: "changed" }] };
+    const second = getOrCreateReceiptBatchAttempt(first, changed, () => "receipt-attempt-2");
+    assert.equal(second.idempotencyKey, "receipt-attempt-2");
 });
 
 test("late conversion result cannot overwrite a newer source edit", () => {

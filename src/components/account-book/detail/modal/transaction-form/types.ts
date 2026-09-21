@@ -31,5 +31,8 @@ export type TransactionFormModalProps = {
         analysisMode: ReceiptAnalysisMode,
     ) => Promise<AccountBookReceiptAnalysisResponse>;
     onPreviewReceiptConversion?: (candidate: ReceiptRegistrationCandidate) => Promise<ReceiptConversion>;
-    onSubmitReceiptBatch?: (request: ReceiptBatchRegistrationRequest) => Promise<void>;
+    onSubmitReceiptBatch?: (
+        request: ReceiptBatchRegistrationRequest,
+        idempotencyKey: string,
+    ) => Promise<void>;
 };

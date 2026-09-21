@@ -23,11 +23,12 @@ export type AccountBook = {
     category: string;
     currencyCode: CurrencyCode;
     currencySymbol?: string | null;
-    incomeAmount: number;
-    expenseAmount: number;
-    balance: number;
+    currencyDecimalPlaces?: number;
+    incomeAmount: number | string;
+    expenseAmount: number | string;
+    balance: number | string;
     transactionCount?: number;
-    expenseGoalAmount?: number | null;
+    expenseGoalAmount?: number | string | null;
     myRole?: AccountBookMemberRole | null;
 };
 
@@ -46,7 +47,7 @@ export type AccountBookCategoryGroup = {
 };
 
 export type AccountBookEditFormValues = AccountBookUpdateRequest & {
-    expenseGoalAmount: number | null;
+    expenseGoalAmount: number | string | null;
     shouldDeleteMonthlyGoal: boolean;
 };
 
@@ -56,7 +57,7 @@ export type AccountBookFixedCost = {
     title: string;
     storeName: string | null;
     category: string;
-    amount: number;
+    amount: number | string;
     paymentDay: number;
     startYear: number;
     startMonth: number;
@@ -88,7 +89,7 @@ export type AccountBookFixedCostGenerationTarget = {
     title: string;
     storeName: string | null;
     category: string;
-    amount: number;
+    amount: number | string;
     paymentDay: number;
     transactionDate: string;
     memo: string | null;
@@ -105,7 +106,7 @@ export type AccountBookFixedCostRequest = {
     title: string;
     storeName?: string | null;
     category: string;
-    amount: number;
+    amount: number | string;
     paymentDay: number;
     startYear: number;
     startMonth: number;
@@ -149,16 +150,53 @@ export type AccountBookReceiptAnalysisRequest = {
 };
 
 export type AccountBookReceiptAnalysisResponse = {
+    receipts: AccountBookReceiptAnalysisItem[];
+    receiptCount: number;
+    warnings: string[];
+    ocrEngine: string | null;
+    usedAi: boolean;
+};
+
+// Monetary values in the receipt contract stay decimal strings end to end.
+export type ReceiptConversion = {
+    accountBookCurrencyCode: string;
+    convertedAmount: string | null;
+    exchangeRate: string | null;
+    requestedRateDate: string | null;
+    effectiveRateDate: string | null;
+    exchangeRateProvider: string | null;
+    conversionStatus: "NOT_REQUIRED" | "CONVERTED" | "RATE_UNAVAILABLE" | "NEEDS_REVIEW";
+    rateDateFallback: boolean;
+    warnings: string[];
+};
+
+export type AccountBookReceiptAnalysisItem = ReceiptConversion & {
+    receiptId: string;
     title: string | null;
     storeName: string | null;
-    amount: number | null;
+    originalAmount: string | null;
+    detectedCurrencyCode: string | null;
     transactionDate: string | null;
     categoryName: string | null;
     memo: string | null;
     confidence: number | null;
-    rawText: string | null;
-    ocrEngine: string | null;
-    usedAi: boolean;
+    detectedLanguage: string | null;
+    status: "READY" | "NEEDS_REVIEW" | "UNREADABLE";
+};
+
+export type ReceiptRegistrationCandidate = {
+    receiptId: string;
+    title: string;
+    storeName: string | null;
+    categoryName: string;
+    originalAmount: string;
+    originalCurrencyCode: string;
+    transactionDate: string;
+    memo: string | null;
+};
+
+export type ReceiptBatchRegistrationRequest = {
+    receipts: ReceiptRegistrationCandidate[];
 };
 
 export type AccountBookSearchCondition = {
@@ -186,10 +224,10 @@ export type CreateAccountBookRequest = {
 export type AccountBookMonthlyChartItem = {
     year: number;
     month: number;
-    incomeAmount: number;
-    expenseAmount: number;
-    balance: number;
-    expenseGoalAmount: number | null;
+    incomeAmount: number | string;
+    expenseAmount: number | string;
+    balance: number | string;
+    expenseGoalAmount: number | string | null;
 };
 
 export type AccountBookMonthlyChartResponse = {
@@ -202,9 +240,9 @@ export type AccountBookMonthlyGoal = {
     accountBookId: number;
     year: number;
     month: number;
-    goalAmount: number | null;
-    expenseAmount: number;
-    remainingAmount: number;
+    goalAmount: number | string | null;
+    expenseAmount: number | string;
+    remainingAmount: number | string;
     usageRate: number;
     exceeded: boolean;
 };
@@ -214,9 +252,9 @@ export type AccountBookMonthlyGoalListItem = {
     accountBookId: number;
     year: number;
     month: number;
-    goalAmount: number;
-    expenseAmount: number;
-    remainingAmount: number;
+    goalAmount: number | string;
+    expenseAmount: number | string;
+    remainingAmount: number | string;
     usageRate: number;
     exceeded: boolean;
 };
@@ -227,12 +265,12 @@ export type AccountBookMonthlyGoalListResponse =
 export type AccountBookMonthlyGoalRequest = {
     year: number;
     month: number;
-    goalAmount: number;
+    goalAmount: number | string;
 };
 
 export type AccountBookRankingChartItem = {
     name: string;
-    amount: number;
+    amount: number | string;
     transactionCount: number;
     percentage: number;
 };
@@ -240,16 +278,17 @@ export type AccountBookRankingChartItem = {
 export type AccountBookRankingChartResponse = {
     year: number | null;
     month: number | null;
-    totalAmount: number;
+    totalAmount: number | string;
     items: AccountBookRankingChartItem[];
 };
 
 export type AccountBookSummaryResponse = {
     accountBookId: number;
     currencyCode: CurrencyCode;
-    incomeAmount: number;
-    expenseAmount: number;
-    balance: number;
+    currencyDecimalPlaces?: number;
+    incomeAmount: number | string;
+    expenseAmount: number | string;
+    balance: number | string;
     transactionCount: number;
 };
 
@@ -260,10 +299,17 @@ export type AccountBookTransaction = {
     title: string;
     storeName: string | null;
     category: string;
-    amount: number;
+    amount: number | string;
     transactionDate: string;
     memo: string | null;
     createdAt?: string;
+
+    originalAmount?: string | null;
+    originalCurrencyCode?: string | null;
+    exchangeRate?: string | null;
+    requestedRateDate?: string | null;
+    effectiveRateDate?: string | null;
+    exchangeRateProvider?: string | null;
 
     sourceType: AccountBookTransactionSourceType | null;
     sourceId: number | null;
@@ -298,7 +344,7 @@ export type AccountBookTransactionCreateRequest = {
     title: string;
     storeName?: string | null;
     category: string;
-    amount: number;
+    amount: number | string;
     transactionDate: string;
     memo?: string | null;
 };
@@ -308,7 +354,7 @@ export type AccountBookTransactionUpdateRequest = {
     title: string;
     storeName?: string | null;
     category: string;
-    amount: number;
+    amount: number | string;
     transactionDate: string;
     memo?: string | null;
 };
@@ -326,7 +372,7 @@ export type CreateAccountBookFormValues = {
     name: string;
     description?: string;
     currencyCode: CurrencyCode;
-    expenseGoalAmount?: number | null;
+    expenseGoalAmount?: number | string | null;
     categoryMode: "EXISTING" | "NEW";
     categoryId?: string;
     categoryName?: string;
@@ -338,20 +384,7 @@ export type CreateTransactionFormValues = {
     title: string;
     storeName?: string;
     categoryName: string;
-    amount: number;
+    amount: number | string;
     transactionDate: string;
     memo?: string;
-};
-
-export type ReceiptAnalysisResult = {
-    title?: string;
-    storeName?: string;
-    amount?: number;
-    transactionDate?: string;
-    categoryName?: string;
-    memo?: string;
-    confidence?: number;
-    rawText?: string | null;
-    ocrEngine?: string;
-    usedAi?: boolean;
 };

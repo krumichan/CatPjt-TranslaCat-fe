@@ -53,7 +53,7 @@ export default function ReceiptOcrSettingsSection({
                 </p>
             ) : (
                 <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-white/10">
-                    <div className="grid grid-cols-[1fr_1.3fr_0.8fr_0.8fr] bg-slate-50 px-4 py-3 text-xs font-bold uppercase tracking-[0.16em] text-slate-400 dark:bg-black/25">
+                    <div className="hidden grid-cols-[1fr_1.3fr_0.8fr_0.8fr] bg-slate-50 px-4 py-3 text-xs font-bold uppercase tracking-[0.16em] text-slate-400 sm:grid dark:bg-black/25">
                         <span>{t("columns.currency")}</span>
                         <span>{t("columns.language")}</span>
                         <span>{t("columns.enabled")}</span>
@@ -64,13 +64,14 @@ export default function ReceiptOcrSettingsSection({
                         {settings.map((setting) => (
                             <div
                                 key={setting.id}
-                                className="grid grid-cols-[1fr_1.3fr_0.8fr_0.8fr] items-center gap-3 px-4 py-3"
+                                className="grid min-w-0 grid-cols-1 items-center gap-3 px-4 py-3 sm:grid-cols-[1fr_1.3fr_0.8fr_0.8fr]"
                             >
                                 <p className="text-sm font-bold text-slate-900 dark:text-white">
                                     {setting.currencyCode}
                                 </p>
 
                                 <select
+                                    aria-label={`${setting.currencyCode} ${t("columns.language")}`}
                                     value={setting.ocrLanguage}
                                     disabled={savingId !== null}
                                     onChange={(event) =>
@@ -78,7 +79,7 @@ export default function ReceiptOcrSettingsSection({
                                             ocrLanguage: event.target.value,
                                         })
                                     }
-                                    className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-200 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 dark:bg-black/30 dark:text-white dark:focus:ring-orange-500/20"
+                                    className="w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-200 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 dark:bg-black/30 dark:text-white dark:focus:ring-orange-500/20"
                                 >
                                     {languageOptions.map((option) => (
                                         <option

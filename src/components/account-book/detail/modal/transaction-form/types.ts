@@ -6,6 +6,9 @@ import {
     CreateTransactionFormValues,
     CurrencyCode,
     ReceiptAnalysisMode,
+    ReceiptRegistrationCandidate,
+    ReceiptBatchRegistrationRequest,
+    ReceiptConversion,
 } from "@/types/accountBook";
 
 export type TransactionFormMode = "CREATE" | "EDIT";
@@ -27,4 +30,6 @@ export type TransactionFormModalProps = {
         file: File,
         analysisMode: ReceiptAnalysisMode,
     ) => Promise<AccountBookReceiptAnalysisResponse>;
+    onPreviewReceiptConversion?: (candidate: ReceiptRegistrationCandidate) => Promise<ReceiptConversion>;
+    onSubmitReceiptBatch?: (request: ReceiptBatchRegistrationRequest) => Promise<void>;
 };

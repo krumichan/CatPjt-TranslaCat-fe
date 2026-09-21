@@ -20,7 +20,7 @@
     "test:e2e:integration:open": "node scripts/run-integration-e2e.mjs --grep OPEN-INT",
     "check:structure": "node scripts/check-fe-structure.mjs",
     "typecheck": "next typegen && tsc --noEmit",
-    "test:unit": "node --import ./tests/helpers/register-source-loader.mjs --test tests/language-learning/*.test.mjs tests/frontend-domain-utils.test.mjs tests/tooling/*.test.mjs"
+    "test:unit": "node --import ./tests/helpers/register-source-loader.mjs --test tests/language-learning/*.test.mjs tests/frontend-domain-utils.test.mjs tests/account-book/*.test.mjs tests/tooling/*.test.mjs"
   },
   "dependencies": {
     "@fontsource/noto-sans-jp": "^5.2.9",

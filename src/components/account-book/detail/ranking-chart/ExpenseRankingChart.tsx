@@ -8,7 +8,8 @@ import type {
     CurrencyCode,
 } from "@/types/accountBook";
 import { buildPieChartItems } from "@/utils/account-book/expenseRanking";
-import { formatAmount } from "@/utils/account-book/formatAmount";
+import { decimalToUnits } from "@/utils/account-book/decimalMoney";
+import { useAmountFormatter } from "@/components/account-book/AccountBookCurrencyProvider";
 import { useTranslations } from "next-intl";
 import { Pie, PieChart, ResponsiveContainer, Sector, Tooltip } from "recharts";
 
@@ -35,6 +36,7 @@ const PIE_COLORS = [
 
 type PieChartItem = AccountBookRankingChartItem & {
     color: string;
+    plotAmount: number;
 };
 
 export default function ExpenseRankingChart({
@@ -44,6 +46,7 @@ export default function ExpenseRankingChart({
     isLoading = false,
     maxItems = 8,
 }: ExpenseRankingChartProps) {
+    const formatAmount = useAmountFormatter();
     const t = useTranslations("AccountBook.detail.rankingChart");
 
     const typeKey = type === "CATEGORY" ? "category" : "store";
@@ -75,7 +78,7 @@ export default function ExpenseRankingChart({
             })
             : t("period.all");
 
-    const hasData = chart.items.length > 0 && chart.totalAmount > 0;
+    const hasData = chart.items.length > 0 && decimalToUnits(chart.totalAmount) > BigInt(0);
 
     if (!hasData) {
         return (
@@ -94,10 +97,12 @@ export default function ExpenseRankingChart({
     ).map((item, index) => ({
         ...item,
         color: PIE_COLORS[index % PIE_COLORS.length],
+        // Recharts geometry is approximate; labels and tooltips retain item.amount.
+        plotAmount: Number(item.amount),
     }));
 
     return (
-        <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-zinc-900/90 dark:shadow-black/30">
+        <section className="min-w-0 rounded-3xl border border-slate-200 bg-white p-3 shadow-sm dark:border-white/10 dark:bg-zinc-900/90 dark:shadow-black/30 sm:p-5">
             <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                     <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
@@ -111,8 +116,8 @@ export default function ExpenseRankingChart({
                 </div>
             </div>
 
-            <div className="grid gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-center">
-                <div className="relative h-72 w-full">
+            <div className="grid min-w-0 grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-center">
+                <div className="relative h-64 w-full min-w-0 sm:h-72">
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                             <Tooltip
@@ -125,12 +130,12 @@ export default function ExpenseRankingChart({
 
                             <Pie
                                 data={chartItems}
-                                dataKey="amount"
+                                dataKey="plotAmount"
                                 nameKey="name"
                                 cx="50%"
                                 cy="50%"
-                                innerRadius={58}
-                                outerRadius={96}
+                                innerRadius="48%"
+                                outerRadius="78%"
                                 paddingAngle={3}
                                 cornerRadius={6}
                                 stroke="none"
@@ -149,7 +154,7 @@ export default function ExpenseRankingChart({
                     </ResponsiveContainer>
 
                     <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                        <div className="text-center">
+                        <div className="w-[42%] min-w-0 break-all text-center">
                             <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                                 {t("total")}
                             </p>
@@ -160,13 +165,13 @@ export default function ExpenseRankingChart({
                     </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="min-w-0 space-y-2">
                     {chartItems.map((item) => (
                         <div
                             key={item.name}
-                            className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5"
+                            className="flex min-w-0 flex-wrap items-center justify-between gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5"
                         >
-                            <div className="flex min-w-0 items-center gap-2">
+                            <div className="flex min-w-0 max-w-full items-center gap-2">
                                 <span
                                     className="h-2.5 w-2.5 shrink-0 rounded-full"
                                     style={{ backgroundColor: item.color }}
@@ -176,7 +181,7 @@ export default function ExpenseRankingChart({
                                 </span>
                             </div>
 
-                            <div className="shrink-0 text-right">
+                            <div className="ml-auto min-w-0 max-w-full break-all text-right">
                                 <p className="font-bold text-slate-900 dark:text-white">
                                     {item.percentage}%
                                 </p>

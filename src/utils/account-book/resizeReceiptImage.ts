@@ -1,30 +1,36 @@
+import { getReceiptImageDimensions, RECEIPT_IMAGE_MAX_EDGE } from "./receiptImageDimensions";
+import { normalizeReceiptImageFileName } from "./receiptImageFileName";
+
 type ResizeReceiptImageOptions = {
-    maxWidth?: number;
+    maxEdge?: number;
     quality?: number;
     maxSize?: number;
 };
 
-const DEFAULT_MAX_WIDTH = 1400;
-const DEFAULT_QUALITY = 0.82;
+const DEFAULT_QUALITY = 0.9;
 const DEFAULT_MAX_SIZE = 5 * 1024 * 1024;
 
 export async function resizeReceiptImage(
     file: File,
     options: ResizeReceiptImageOptions = {}
 ): Promise<File> {
-    const maxWidth = options.maxWidth ?? DEFAULT_MAX_WIDTH;
+    const maxEdge = options.maxEdge ?? RECEIPT_IMAGE_MAX_EDGE;
     const quality = options.quality ?? DEFAULT_QUALITY;
     const maxSize = options.maxSize ?? DEFAULT_MAX_SIZE;
 
-    if (!file.type.startsWith("image/")) {
-        return file;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+        throw new Error("Unsupported receipt image format.");
     }
 
     const image = await loadImage(file);
 
-    const scale = Math.min(1, maxWidth / image.width);
-    const width = Math.round(image.width * scale);
-    const height = Math.round(image.height * scale);
+    const { width, height } = getReceiptImageDimensions(image.naturalWidth, image.naturalHeight, maxEdge);
+
+    // Keep fine text and original encoding when the upload already fits the limits.
+    if (width === image.naturalWidth && height === image.naturalHeight && file.size <= maxSize) {
+        const name = normalizeReceiptImageFileName(file.name, file.type);
+        return name === file.name ? file : new File([file], name, { type: file.type, lastModified: file.lastModified });
+    }
 
     const canvas = document.createElement("canvas");
     canvas.width = width;
@@ -33,15 +39,17 @@ export async function resizeReceiptImage(
     const context = canvas.getContext("2d");
 
     if (!context) {
-        return file;
+        throw new Error("Failed to prepare receipt image.");
     }
 
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, width, height);
     context.drawImage(image, 0, 0, width, height);
 
     const blob = await canvasToBlob(canvas, "image/jpeg", quality);
 
     if (!blob) {
-        return file;
+        throw new Error("Failed to prepare receipt image.");
     }
 
     if (blob.size > maxSize) {

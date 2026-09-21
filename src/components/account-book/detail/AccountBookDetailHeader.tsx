@@ -38,14 +38,14 @@ export default function AccountBookDetailHeader({
                 {t("backToList")}
             </Link>
 
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                <div>
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                <div className="min-w-0">
                     <p className="mb-2 text-sm font-medium text-orange-500">
                         {t("eyebrow")}
                     </p>
 
                     <div className="flex flex-wrap items-center gap-3">
-                        <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+                        <h1 className="min-w-0 break-all text-2xl font-bold sm:text-3xl tracking-tight text-gray-900 dark:text-white">
                             {accountBook.name}
                         </h1>
 
@@ -55,13 +55,13 @@ export default function AccountBookDetailHeader({
                     </div>
 
                     {accountBook.description && (
-                        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                        <p className="mt-2 break-words text-sm text-slate-500 dark:text-slate-400">
                             {accountBook.description}
                         </p>
                     )}
                 </div>
 
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
                     {actionSlot}
 
                     <button

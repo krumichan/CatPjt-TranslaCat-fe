@@ -4,11 +4,13 @@ import { TransactionType } from "@/types/accountBook";
 type TransactionTypeSelectorProps = {
     type: TransactionType;
     onChange: (type: TransactionType) => void;
+    disabled?: boolean;
 };
 
 export default function TransactionTypeSelector({
     type,
     onChange,
+    disabled,
 }: TransactionTypeSelectorProps) {
     const t = useTranslations("AccountBook.detail.transactionModal");
 
@@ -21,6 +23,7 @@ export default function TransactionTypeSelector({
             <div className="grid grid-cols-2 gap-2">
                 <button
                     type="button"
+                    disabled={disabled}
                     onClick={() => onChange("EXPENSE")}
                     className={`rounded-xl px-4 py-3 text-sm font-semibold transition ${
                         type === "EXPENSE"
@@ -33,6 +36,7 @@ export default function TransactionTypeSelector({
 
                 <button
                     type="button"
+                    disabled={disabled}
                     onClick={() => onChange("INCOME")}
                     className={`rounded-xl px-4 py-3 text-sm font-semibold transition ${
                         type === "INCOME"

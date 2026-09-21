@@ -142,12 +142,12 @@
     "receiptAiPage": {
       "eyebrow": "Admin",
       "title": "영수증 AI 설정",
-      "description": "영수증 이미지 OCR/AI 분석에 사용할 언어 설정과 키워드를 관리합니다.",
+      "description": "기존 OCR 설정을 관리하고 영수증 분석 보조 키워드를 설정합니다. 언어와 원본 통화는 이미지에서 판별합니다.",
       "ocr": {
-        "title": "OCR 언어 설정",
-        "description": "통화별로 사용할 OCR 언어를 설정합니다.",
+        "title": "기존 OCR 언어 매핑",
+        "description": "이 통화별 매핑은 관리용으로 보존되며 현재 자동 영수증 분석에는 적용되지 않습니다. Vision은 이미지에서 언어를 판별하고, OCR 대체 경로는 AI 서버의 기본 언어 설정을 사용합니다. 가계부 통화로 영수증 언어를 정하지 않습니다.",
         "columns": {
-          "currency": "통화",
+          "currency": "기존 통화 키",
           "language": "OCR 언어",
           "enabled": "활성",
           "status": "상태"
@@ -169,7 +169,7 @@
       },
       "keyword": {
         "title": "키워드 설정",
-        "description": "영수증 분석 시 사용할 보조 키워드를 관리합니다.",
+        "description": "통화를 지정하지 않은 공통 키워드만 분석 힌트로 사용됩니다. 통화별 규칙은 관리용으로 보존되며 자동 분석에는 적용되지 않습니다. 키워드는 금액·통화 판별을 강제하지 않습니다.",
         "types": {
           "STOP_AFTER": "제외 시작",
           "IMPORTANT": "중요",

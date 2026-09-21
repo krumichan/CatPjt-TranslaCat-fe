@@ -174,7 +174,7 @@ export default function AccountBookDetailSummarySmartSection({
     const handleSaveExpenseGoalAmount = async (
         year: number,
         month: number,
-        goalAmount: number
+        goalAmount: number | string
     ) => {
         try {
             const response = await accountBookMonthlyGoalService.saveMonthlyGoal(

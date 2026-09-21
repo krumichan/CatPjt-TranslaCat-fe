@@ -8,6 +8,7 @@ import ReceiptAnalysisPanel from "./transaction-form/ReceiptAnalysisPanel";
 import TransactionTypeSelector from "./transaction-form/TransactionTypeSelector";
 import TransactionFormFields from "./transaction-form/TransactionFormFields";
 import TransactionFormActions from "./transaction-form/TransactionFormActions";
+import ReceiptReviewList from "./transaction-form/ReceiptReviewList";
 
 export default function TransactionFormModal(props: TransactionFormModalProps) {
     const {
@@ -41,10 +42,12 @@ export default function TransactionFormModal(props: TransactionFormModalProps) {
         ? t("actions.create")
         : t("actions.save");
 
-    const isBlockingModal = form.isAnalyzingReceipt;
+    const isBlockingModal = form.isAnalyzingReceipt || form.isSubmitting || form.receiptReview.isBusy;
+    const showReceipt = isCreateMode && form.inputMode === "RECEIPT";
+    const conversionLocked = isEditMode && transaction?.originalAmount != null;
 
     return createPortal(
-        <div className="fixed inset-0 z-9999 overflow-y-auto px-4 py-16 sm:py-20">
+        <div className="fixed inset-0 z-9999 overflow-y-auto px-2 py-3 sm:px-4 sm:py-12">
             <button
                 type="button"
                 aria-label={t("actions.close")}
@@ -56,13 +59,13 @@ export default function TransactionFormModal(props: TransactionFormModalProps) {
                 className="fixed inset-0 bg-black/50 backdrop-blur-sm"
             />
 
-            <div className="relative z-10 mx-auto w-full max-w-2xl rounded-2xl border border-slate-200 bg-white/95 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.25)] backdrop-blur-md dark:border-white/10 dark:bg-zinc-900/95">
+            <div role="dialog" aria-modal="true" aria-labelledby="transaction-form-title" className="relative z-10 mx-auto flex max-h-[calc(100dvh-1.5rem)] w-full min-w-0 max-w-2xl flex-col overflow-y-auto rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-[0_20px_60px_rgba(15,23,42,0.25)] backdrop-blur-md sm:max-h-[calc(100dvh-6rem)] sm:p-6 dark:border-white/10 dark:bg-zinc-900/95">
                 <div className="mb-6 flex items-start justify-between gap-4">
-                    <div>
+                    <div className="min-w-0">
                         <p className="mb-1 text-sm font-medium text-orange-500">
                             {badge}
                         </p>
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                        <h2 id="transaction-form-title" className="break-words text-xl font-bold text-gray-900 sm:text-2xl dark:text-white">
                             {modalTitle}
                         </h2>
                         <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
@@ -74,6 +77,7 @@ export default function TransactionFormModal(props: TransactionFormModalProps) {
                         type="button"
                         onClick={onClose}
                         disabled={isBlockingModal}
+                        aria-label={t("actions.close")}
                         className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-white/10 dark:hover:text-white"
                     >
                         <X size={20} />
@@ -83,17 +87,18 @@ export default function TransactionFormModal(props: TransactionFormModalProps) {
                 {isCreateMode && (
                     <TransactionInputModeTabs
                         inputMode={form.inputMode}
-                        onChange={form.setInputMode}
+                        onChange={(mode) => { if (!isBlockingModal) form.setInputMode(mode); }}
                     />
                 )}
 
-                {isCreateMode && form.inputMode === "RECEIPT" && (
+                {showReceipt && (
                     <ReceiptAnalysisPanel
                         receiptFile={form.receiptFile}
                         receiptAnalysisMode={form.receiptAnalysisMode}
                         receiptAnalysisMessage={form.receiptAnalysisMessage}
                         isAnalyzingReceipt={form.isAnalyzingReceipt}
-                        canAnalyzeReceipt={!!form.receiptFile && !!onAnalyzeReceipt}
+                        disabled={isBlockingModal}
+                        canAnalyzeReceipt={!!form.receiptFile && !!onAnalyzeReceipt && !isBlockingModal}
                         onAnalysisModeChange={form.setReceiptAnalysisMode}
                         onFileChange={(file) => {
                             form.setReceiptFile(file);
@@ -103,7 +108,10 @@ export default function TransactionFormModal(props: TransactionFormModalProps) {
                     />
                 )}
 
-                <form
+                {showReceipt && (form.receiptReview.items.length > 0 || form.receiptReview.warnings.length > 0) && <ReceiptReviewList
+                    review={form.receiptReview} categoryNames={form.categoryNames} onClose={onClose} />}
+
+                {!showReceipt && <form
                     onSubmit={form.handleSubmit}
                     className="space-y-5"
                     aria-busy={form.isAnalyzingReceipt}
@@ -111,10 +119,14 @@ export default function TransactionFormModal(props: TransactionFormModalProps) {
                     <TransactionTypeSelector
                         type={form.type}
                         onChange={form.setType}
+                        disabled={conversionLocked}
                     />
+
+                    {conversionLocked && <p className="rounded-xl bg-amber-50 p-3 text-xs text-amber-800 dark:bg-amber-500/10 dark:text-amber-300">{t("receipt.review.conversionLocked")}</p>}
 
                     <TransactionFormFields
                         currencyCode={currencyCode}
+                        conversionLocked={conversionLocked}
                         title={form.title}
                         onTitleChange={form.setTitle}
                         storeName={form.storeName}
@@ -144,7 +156,7 @@ export default function TransactionFormModal(props: TransactionFormModalProps) {
                         submitLabel={submitLabel}
                         onClose={onClose}
                     />
-                </form>
+                </form>}
 
                 {form.isAnalyzingReceipt && (
                     <div className="absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-white/75 backdrop-blur-sm dark:bg-zinc-950/70">

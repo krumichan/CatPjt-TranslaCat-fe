@@ -2,7 +2,7 @@ import { useState } from "react";
 import { List, Pencil } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { CurrencyCode } from "@/types/accountBook";
-import { formatAmount } from "@/utils/account-book/formatAmount";
+import { useAmountFormatter } from "@/components/account-book/AccountBookCurrencyProvider";
 import ExpenseGoalEditModal from "@/components/account-book/detail/expense-goal/ExpenseGoalEditModal";
 import ExpenseGoalEmptyState from "@/components/account-book/detail/expense-goal/ExpenseGoalEmptyState";
 import ExpenseGoalProgress from "@/components/account-book/detail/expense-goal/ExpenseGoalProgress";
@@ -14,14 +14,14 @@ type AccountBookExpenseGoalCardProps = {
     accountBookId: number;
     selectedMonth: string;
     currencyCode: CurrencyCode;
-    goalAmount: number | null;
-    expenseAmount: number;
+    goalAmount: number | string | null;
+    expenseAmount: number | string;
     isLoading?: boolean;
     errorMessage?: string | null;
     onSaveGoalAmount: (
         year: number,
         month: number,
-        goalAmount: number
+        goalAmount: number | string
     ) => void | Promise<void>;
 };
 
@@ -35,6 +35,7 @@ export default function AccountBookExpenseGoalCard({
    errorMessage,
    onSaveGoalAmount,
 }: AccountBookExpenseGoalCardProps) {
+    const formatAmount = useAmountFormatter();
     const t = useTranslations("AccountBook.detail.expenseGoal");
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,7 +45,7 @@ export default function AccountBookExpenseGoalCard({
     const [editingGoal, setEditingGoal] = useState<{
         year: number;
         month: number;
-        goalAmount: number;
+        goalAmount: number | string;
     } | null>(null);
 
     const {
@@ -72,7 +73,7 @@ export default function AccountBookExpenseGoalCard({
     const saveGoalAmount = async (
         year: number,
         month: number,
-        savedGoalAmount: number
+        savedGoalAmount: number | string
     ) => {
         await onSaveGoalAmount(year, month, savedGoalAmount);
 
@@ -87,14 +88,14 @@ export default function AccountBookExpenseGoalCard({
 
     return (
         <>
-            <div className="mb-6 rounded-2xl border border-slate-200 bg-white/95 p-5 shadow-[0_12px_30px_rgba(15,23,42,0.12)] backdrop-blur-md dark:border-white/10 dark:bg-zinc-800/80 dark:shadow-xl">
-                <div className="mb-4 flex items-start justify-between gap-4">
+            <div className="mb-6 rounded-2xl border border-slate-200 bg-white/95 p-3 sm:p-5 shadow-[0_12px_30px_rgba(15,23,42,0.12)] backdrop-blur-md dark:border-white/10 dark:bg-zinc-800/80 dark:shadow-xl">
+                <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
                     <div>
                         <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
                             {t("title")}
                         </p>
 
-                        <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
+                        <p className="mt-1 break-all text-2xl font-bold text-slate-900 dark:text-white">
                             {hasGoal
                                 ? formatAmount(
                                     normalizedGoalAmount,

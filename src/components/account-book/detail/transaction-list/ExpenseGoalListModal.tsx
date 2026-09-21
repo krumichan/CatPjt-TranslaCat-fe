@@ -5,7 +5,7 @@ import {
     CurrencyCode,
 } from "@/types/accountBook";
 import { accountBookMonthlyGoalService } from "@/services/account-book/accountBookMonthlyGoalService";
-import { formatAmount } from "@/utils/account-book/formatAmount";
+import { useAmountFormatter } from "@/components/account-book/AccountBookCurrencyProvider";
 import {useQuery} from "@/hooks/useQuery";
 import {accountBookDetailQueryKeys} from "@/hooks/account-book/detail/accountBookDetailQueryKeys";
 
@@ -17,7 +17,7 @@ type ExpenseGoalListModalProps = {
     onClickEdit: (
         year: number,
         month: number,
-        goalAmount: number
+        goalAmount: number | string
     ) => void;
 };
 
@@ -32,6 +32,7 @@ export default function ExpenseGoalListModal({
     onClose,
     onClickEdit,
 }: ExpenseGoalListModalProps) {
+    const formatAmount = useAmountFormatter();
     const t = useTranslations("AccountBook.detail.expenseGoal.listModal");
 
     const {
@@ -51,7 +52,7 @@ export default function ExpenseGoalListModal({
     const errorMessage = isError ? t("messages.loadFailed") : null;
 
     return createPortal(
-        <div className="fixed inset-0 z-9999 overflow-y-auto px-4 py-16 sm:py-20">
+        <div className="fixed inset-0 z-9999 overflow-y-auto overscroll-contain px-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-4 sm:py-10">
             <button
                 type="button"
                 aria-label={t("actions.close")}
@@ -59,7 +60,7 @@ export default function ExpenseGoalListModal({
                 className="fixed inset-0 bg-black/50 backdrop-blur-sm"
             />
 
-            <div className="relative z-10 mx-auto w-full max-w-4xl rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-white/10 dark:bg-zinc-900">
+            <div className="relative z-10 mx-auto w-full max-w-4xl rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-2xl dark:border-white/10 dark:bg-zinc-900">
                 <div className="mb-6 flex items-start justify-between gap-4">
                     <div>
                         <h2 className="text-xl font-bold text-slate-900 dark:text-white">
@@ -101,7 +102,7 @@ export default function ExpenseGoalListModal({
                     </div>
                 ) : (
                     <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-white/10">
-                        <div className="overflow-x-auto">
+                        <div className="max-w-full overflow-x-auto overscroll-x-contain">
                             <table className="min-w-200 w-full border-collapse text-sm">
                                 <thead className="bg-slate-100 text-xs text-slate-500 dark:bg-white/5 dark:text-slate-400">
                                 <tr>

@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
 import { CurrencyCode } from "@/types/accountBook";
-import { formatAmount } from "@/utils/account-book/formatAmount";
+import { useAmountFormatter } from "@/components/account-book/AccountBookCurrencyProvider";
+import { isPositiveDecimal } from "@/utils/account-book/decimalInput";
 import {
     DIRECT_INPUT_VALUE,
     inputClassName,
@@ -9,6 +10,7 @@ import {
 
 type TransactionFormFieldsProps = {
     currencyCode: CurrencyCode;
+    conversionLocked?: boolean;
 
     title: string;
     onTitleChange: (value: string) => void;
@@ -39,6 +41,7 @@ type TransactionFormFieldsProps = {
 
 export default function TransactionFormFields({
     currencyCode,
+    conversionLocked,
     title,
     onTitleChange,
     storeName,
@@ -61,6 +64,7 @@ export default function TransactionFormFields({
     onMemoChange,
 }: TransactionFormFieldsProps) {
     const t = useTranslations("AccountBook.detail.transactionModal");
+    const formatAmount = useAmountFormatter();
 
     return (
         <>
@@ -158,19 +162,21 @@ export default function TransactionFormFields({
                     </label>
                     <input
                         value={amount}
+                        disabled={conversionLocked}
                         onChange={(event) => onAmountChange(event.target.value)}
                         type="number"
                         min="0"
-                        inputMode="numeric"
+                        step="any"
+                        inputMode="decimal"
                         placeholder="0"
                         className={inputClassName}
                     />
 
-                    {Number(amount) > 0 && (
+                    {isPositiveDecimal(amount) && (
                         <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
                             {t("fields.displayAmount", {
                                 amount: formatAmount(
-                                    Number(amount),
+                                    amount,
                                     currencyCode
                                 ),
                             })}
@@ -186,6 +192,7 @@ export default function TransactionFormFields({
                 </label>
                 <input
                     value={transactionDate}
+                    disabled={conversionLocked}
                     onChange={(event) =>
                         onTransactionDateChange(event.target.value)
                     }

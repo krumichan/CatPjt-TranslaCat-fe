@@ -3,9 +3,10 @@ import {
     AccountBookTransaction,
     CurrencyCode,
 } from "@/types/accountBook";
-import { formatAmount } from "@/utils/account-book/formatAmount";
+import { useAmountFormatter } from "@/components/account-book/AccountBookCurrencyProvider";
 import { formatDateLabel } from "@/components/account-book/detail/transaction-list/transactionListUtils";
 import TransactionTableMemoCell from "@/components/account-book/detail/transaction-list/TransactionTableMemoCell";
+import TransactionConversionDetails from "@/components/account-book/detail/TransactionConversionDetails";
 
 type TransactionTableViewProps = {
     transactions: AccountBookTransaction[];
@@ -22,13 +23,14 @@ export default function TransactionTableView({
     onClickDeleteTransaction,
     t,
 }: TransactionTableViewProps) {
+    const formatAmount = useAmountFormatter();
     const sortedTransactions = [...transactions].sort((a, b) =>
         b.transactionDate.localeCompare(a.transactionDate)
     );
 
     return (
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white/95 shadow-[0_14px_34px_rgba(15,23,42,0.14)] backdrop-blur-md dark:border-white/10 dark:bg-zinc-800/80 dark:shadow-xl">
-            <div className="overflow-x-auto">
+        <div className="min-w-0 max-w-full overflow-hidden rounded-2xl border border-slate-200 bg-white/95 shadow-[0_14px_34px_rgba(15,23,42,0.14)] backdrop-blur-md dark:border-white/10 dark:bg-zinc-800/80 dark:shadow-xl">
+            <div className="max-w-full overflow-x-auto overscroll-x-contain" data-testid="transaction-table-scroll">
                 <table className="min-w-240 w-full border-collapse text-sm">
                     <thead className="bg-slate-100 text-xs text-slate-500 dark:bg-white/5 dark:text-slate-400">
                     <tr>
@@ -100,6 +102,7 @@ export default function TransactionTableView({
                                             </span>
                                         )}
                                     </div>
+                                    <TransactionConversionDetails transaction={transaction} />
                                 </td>
 
                                 <td className="whitespace-nowrap px-4 py-3 text-slate-600 dark:text-slate-300">

@@ -1,11 +1,11 @@
 import { CurrencyCode } from "@/types/accountBook";
-import { formatAmount } from "@/utils/account-book/formatAmount";
+import { useAmountFormatter } from "@/components/account-book/AccountBookCurrencyProvider";
 
 type ExpenseGoalSummaryGridProps = {
     currencyCode: CurrencyCode;
-    expenseAmount: number;
-    remainingAmount: number;
-    exceededAmount: number;
+    expenseAmount: number | string;
+    remainingAmount: number | string;
+    exceededAmount: number | string;
     isExceeded: boolean;
     currentExpenseLabel: string;
     remainingAmountLabel: string;
@@ -22,13 +22,14 @@ export default function ExpenseGoalSummaryGrid({
    remainingAmountLabel,
    exceededAmountLabel,
 }: ExpenseGoalSummaryGridProps) {
+    const formatAmount = useAmountFormatter();
     return (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="rounded-xl bg-slate-50 p-3 dark:bg-black/20">
                 <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                     {currentExpenseLabel}
                 </p>
-                <p className="mt-1 truncate text-base font-bold text-red-500 dark:text-red-400">
+                <p className="mt-1 break-all text-base font-bold text-red-500 dark:text-red-400">
                     {formatAmount(expenseAmount, currencyCode)}
                 </p>
             </div>
@@ -41,8 +42,8 @@ export default function ExpenseGoalSummaryGrid({
                 <p
                     className={
                         isExceeded
-                            ? "mt-1 truncate text-base font-bold text-red-500 dark:text-red-400"
-                            : "mt-1 truncate text-base font-bold text-blue-600 dark:text-blue-400"
+                            ? "mt-1 break-all text-base font-bold text-red-500 dark:text-red-400"
+                            : "mt-1 break-all text-base font-bold text-blue-600 dark:text-blue-400"
                     }
                 >
                     {formatAmount(

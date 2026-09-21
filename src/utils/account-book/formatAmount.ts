@@ -1,4 +1,4 @@
-import { CurrencyCode } from "@/types/accountBook";
+import type { CurrencyCode } from "@/types/accountBook";
 
 function getLocaleByCurrencyCode(currencyCode: CurrencyCode) {
     switch (currencyCode) {
@@ -14,18 +14,26 @@ function getLocaleByCurrencyCode(currencyCode: CurrencyCode) {
 }
 
 export function formatAmount(
-    amount: number | null | undefined,
-    currencyCode: CurrencyCode
+    amount: number | string | null | undefined,
+    currencyCode: CurrencyCode,
+    decimalPlaces?: number,
 ) {
     const safeAmount =
-        typeof amount === "number" && Number.isFinite(amount) ? amount : 0;
+        typeof amount === "string" && /^-?\d+(?:\.\d+)?$/.test(amount)
+            ? amount
+            : typeof amount === "number" && Number.isFinite(amount) ? amount : 0;
+    const precision = Number.isInteger(decimalPlaces) && decimalPlaces! >= 0 && decimalPlaces! <= 8
+        ? { minimumFractionDigits: decimalPlaces, maximumFractionDigits: decimalPlaces }
+        : {};
 
     try {
-        return new Intl.NumberFormat(getLocaleByCurrencyCode(currencyCode), {
+        const formatter = new Intl.NumberFormat(getLocaleByCurrencyCode(currencyCode), {
             style: "currency",
             currency: currencyCode,
-            maximumFractionDigits: 0,
-        }).format(safeAmount);
+            ...precision,
+        });
+        // Intl accepts decimal strings without a lossy intermediate Number conversion.
+        return (formatter.format as (value: number | string) => string)(safeAmount);
     } catch {
         return `${currencyCode} ${safeAmount.toLocaleString()}`;
     }

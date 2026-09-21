@@ -8,9 +8,10 @@ import {
     AccountBookTransaction,
     CurrencyCode,
 } from "@/types/accountBook";
-import { formatAmount } from "@/utils/account-book/formatAmount";
+import { useAmountFormatter } from "@/components/account-book/AccountBookCurrencyProvider";
 import { useTranslations } from "next-intl";
 import TransactionMemoText from "@/components/account-book/detail/TransactionMemoText";
+import TransactionConversionDetails from "@/components/account-book/detail/TransactionConversionDetails";
 
 type TransactionListItemProps = {
     transaction: AccountBookTransaction;
@@ -25,13 +26,14 @@ export default function TransactionListItem({
     onClickEditTransaction,
     onClickDeleteTransaction,
 }: TransactionListItemProps) {
+    const formatAmount = useAmountFormatter();
     const t = useTranslations("AccountBook.detail.transactionList");
     const isFixedCostTransaction = transaction.sourceType === "FIXED_COST";
     const isIncome = transaction.type === "INCOME";
 
     return (
-        <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50/90 p-4 transition hover:-translate-y-0.5 hover:border-orange-300 hover:bg-orange-50/80 hover:shadow-md dark:border-white/10 dark:bg-black/25 dark:hover:border-orange-400/60 dark:hover:bg-zinc-900/80">
-            <div className="flex min-w-0 items-center gap-3">
+        <div className="flex min-w-0 flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50/90 p-3 transition hover:-translate-y-0.5 hover:border-orange-300 hover:bg-orange-50/80 hover:shadow-md dark:border-white/10 dark:bg-black/25 dark:hover:border-orange-400/60 dark:hover:bg-zinc-900/80 sm:flex-row sm:items-center sm:justify-between sm:p-4">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
                 <div
                     className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
                         isIncome
@@ -47,8 +49,8 @@ export default function TransactionListItem({
                 </div>
 
                 <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                        <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex min-w-0 flex-wrap items-center gap-2">
+                        <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">
                             <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
                                 {transaction.title}
                             </p>
@@ -60,7 +62,7 @@ export default function TransactionListItem({
                             )}
                         </div>
 
-                        <span className="shrink-0 rounded-full bg-slate-200 px-2 py-0.5 text-[11px] font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                        <span className="max-w-full break-all rounded-full bg-slate-200 px-2 py-0.5 text-[11px] font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                             {transaction.category}
                         </span>
                     </div>
@@ -72,12 +74,13 @@ export default function TransactionListItem({
                     )}
 
                     <TransactionMemoText memo={transaction.memo} />
+                    <TransactionConversionDetails transaction={transaction} />
                 </div>
             </div>
 
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="flex min-w-0 max-w-full flex-wrap items-center justify-end gap-2">
                 <p
-                    className={`shrink-0 text-right text-sm font-bold ${
+                    className={`min-w-0 break-all text-right text-sm font-bold ${
                         isIncome
                             ? "text-blue-600 dark:text-blue-400"
                             : "text-red-500 dark:text-red-400"
@@ -91,7 +94,7 @@ export default function TransactionListItem({
                     <button
                         type="button"
                         onClick={() => onClickEditTransaction(transaction)}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-200 hover:text-orange-500 dark:hover:bg-white/10 dark:hover:text-orange-400"
+                        className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-200 hover:text-orange-500 dark:hover:bg-white/10 dark:hover:text-orange-400"
                         aria-label={t("actions.editAria")}
                     >
                         <Pencil size={15} />

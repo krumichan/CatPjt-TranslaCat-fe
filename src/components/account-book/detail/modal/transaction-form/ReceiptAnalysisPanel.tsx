@@ -9,6 +9,7 @@ type ReceiptAnalysisPanelProps = {
     receiptAnalysisMode: ReceiptAnalysisMode;
     receiptAnalysisMessage: string | null;
     isAnalyzingReceipt: boolean;
+    disabled: boolean;
     canAnalyzeReceipt: boolean;
     onAnalysisModeChange: (mode: ReceiptAnalysisMode) => void;
     onFileChange: (file: File | null) => void;
@@ -20,6 +21,7 @@ export default function ReceiptAnalysisPanel({
     receiptAnalysisMode,
     receiptAnalysisMessage,
     isAnalyzingReceipt,
+    disabled,
     canAnalyzeReceipt,
     onAnalysisModeChange,
     onFileChange,
@@ -28,7 +30,7 @@ export default function ReceiptAnalysisPanel({
     const t = useTranslations("AccountBook.detail.transactionModal");
 
     return (
-        <div className="mb-5 rounded-2xl border border-slate-200 bg-slate-50/90 p-4 dark:border-white/10 dark:bg-black/25">
+        <div className="mb-5 min-w-0 rounded-2xl border border-slate-200 bg-slate-50/90 p-3 sm:p-4 dark:border-white/10 dark:bg-black/25">
             <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
                 <ImagePlus size={18} />
                 {t("receipt.title")}
@@ -45,7 +47,7 @@ export default function ReceiptAnalysisPanel({
 
                 <select
                     value={receiptAnalysisMode}
-                    disabled={isAnalyzingReceipt}
+                    disabled={disabled}
                     onChange={(event) =>
                         onAnalysisModeChange(
                             event.target.value as ReceiptAnalysisMode,
@@ -75,16 +77,17 @@ export default function ReceiptAnalysisPanel({
 
                 <input
                     type="file"
+                    disabled={disabled}
                     accept="image/jpeg,image/png,image/webp"
                     onChange={(event) =>
                         onFileChange(event.target.files?.[0] ?? null)
                     }
-                    className="block w-full cursor-pointer rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-orange-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-orange-600 hover:file:bg-orange-100 dark:border-white/10 dark:bg-black/30 dark:text-slate-300 dark:file:bg-orange-500/10 dark:file:text-orange-300"
+                    className="block w-full min-w-0 max-w-full cursor-pointer rounded-xl border border-slate-300 bg-white px-2 py-3 text-xs text-slate-600 file:mr-2 file:rounded-lg file:border-0 file:bg-orange-50 file:px-2 file:py-2 file:text-xs file:font-semibold file:text-orange-600 hover:file:bg-orange-100 dark:border-white/10 dark:bg-black/30 dark:text-slate-300 dark:file:bg-orange-500/10 dark:file:text-orange-300"
                 />
             </label>
 
             {receiptFile && (
-                <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                <p className="mt-2 break-all text-xs text-slate-500 dark:text-slate-400">
                     {t("receipt.selectedFile", {
                         filename: `${receiptFile.name} (${(
                             receiptFile.size /
@@ -96,7 +99,7 @@ export default function ReceiptAnalysisPanel({
             )}
 
             {receiptAnalysisMessage && (
-                <p className="mt-3 rounded-xl bg-slate-100 px-3 py-2 text-xs text-slate-600 dark:bg-white/10 dark:text-slate-300">
+                <p role="status" className="mt-3 rounded-xl bg-slate-100 px-3 py-2 text-xs text-slate-600 dark:bg-white/10 dark:text-slate-300">
                     {receiptAnalysisMessage}
                 </p>
             )}

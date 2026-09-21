@@ -1,14 +1,14 @@
-import {
+import type {
     AccountBookCategory,
     AccountBookStoreSuggestion,
     AccountBookTransaction,
     TransactionType,
 } from "@/types/accountBook";
 import { DIRECT_INPUT_VALUE } from "./constants";
-import { TransactionFormMode } from "./types";
+import type { TransactionFormMode } from "./types";
 
-export function getTodayText() {
-    return new Date().toISOString().slice(0, 10);
+export function getTodayText(now = new Date()) {
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 }
 
 export function toCategoryNames(categoryOptions: AccountBookCategory[]) {

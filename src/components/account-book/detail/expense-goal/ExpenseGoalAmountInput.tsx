@@ -1,5 +1,5 @@
 import { CurrencyCode } from "@/types/accountBook";
-import { formatNumberWithComma } from "@/utils/number/formatNumberInput";
+import { formatDecimalInput } from "@/utils/account-book/decimalInput";
 
 type ExpenseGoalAmountInputProps = {
     currencyCode: CurrencyCode;
@@ -22,13 +22,13 @@ export default function ExpenseGoalAmountInput({
 
             <input
                 type="text"
-                inputMode="numeric"
+                inputMode="decimal"
                 value={value}
                 onChange={(event) => {
-                    onChange(formatNumberWithComma(event.target.value));
+                    onChange(formatDecimalInput(event.target.value));
                 }}
                 placeholder={placeholder}
-                className="w-full bg-transparent px-4 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 dark:text-white"
+                className="min-w-0 w-full bg-transparent px-4 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 dark:text-white"
             />
         </div>
     );

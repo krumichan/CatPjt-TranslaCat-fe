@@ -176,19 +176,8 @@ export default function AccountBookTransactionSmartSection({
         memo: toNullableText(values.memo),
     });
 
-    const handleAnalyzeReceipt = async (file: File, analysisMode: ReceiptAnalysisMode) => {
-        try {
-            return await accountBookTransactionService.analyzeReceipt(
-                accountBookId,
-                file,
-                analysisMode,
-            );
-        } catch (error) {
-            console.error(error);
-            alert(t("transaction.messages.receiptAnalysisFailed"));
-            throw error;
-        }
-    };
+    const handleAnalyzeReceipt = (file: File, analysisMode: ReceiptAnalysisMode) =>
+        accountBookTransactionService.analyzeReceipt(accountBookId, file, analysisMode);
 
     const handleCreateTransaction = async (
         values: CreateTransactionFormValues
@@ -337,6 +326,15 @@ export default function AccountBookTransactionSmartSection({
                     categoryOptions={categoryOptions}
                     storeOptions={storeOptions}
                     onAnalyzeReceipt={handleAnalyzeReceipt}
+                    onPreviewReceiptConversion={(candidate) => accountBookTransactionService.previewReceiptConversion(accountBookId, candidate)}
+                    onSubmitReceiptBatch={async (request) => {
+                        await accountBookTransactionService.registerReceiptBatch(accountBookId, request);
+                        // Registration already succeeded: a refresh failure must not offer a duplicate retry.
+                        await Promise.allSettled([
+                            revalidation.revalidateTransactionRelated(),
+                            mutateTransactionMonthOptions((currentData) => currentData, true),
+                        ]);
+                    }}
                     onClose={() => {
                         onCloseCreateModal();
                         setEditingTransaction(null);

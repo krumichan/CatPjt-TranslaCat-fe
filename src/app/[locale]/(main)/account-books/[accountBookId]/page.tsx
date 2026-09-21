@@ -1,5 +1,6 @@
 "use client";
 
+import { AccountBookCurrencyProvider } from "@/components/account-book/AccountBookCurrencyProvider";
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -46,7 +47,7 @@ export default function AccountBookDetailPage() {
     const currencyCode = accountBookDetail?.currencyCode ?? "JPY";
 
     return (
-        <>
+        <AccountBookCurrencyProvider currencyCode={currencyCode} decimalPlaces={accountBookDetail?.currencyDecimalPlaces}>
             <main className="min-h-[calc(100vh-60px)] px-4 pt-24 pb-12 text-gray-800 dark:text-white sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-5xl">
                     {isAccountBookDetailLoading ? (
@@ -111,6 +112,6 @@ export default function AccountBookDetailPage() {
                     onClose={() => setIsMemberModalOpen(false)}
                 />
             )}
-        </>
+        </AccountBookCurrencyProvider>
     );
 }

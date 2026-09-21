@@ -5,7 +5,7 @@ import {
     AccountBookRankingChartItem,
     CurrencyCode,
 } from "@/types/accountBook";
-import { formatAmount } from "@/utils/account-book/formatAmount";
+import { useAmountFormatter } from "@/components/account-book/AccountBookCurrencyProvider";
 
 type TooltipPayloadItem = {
     value?: number;
@@ -23,6 +23,7 @@ export default function ExpenseRankingChartTooltip({
    payload,
    currencyCode,
 }: ExpenseRankingChartTooltipProps) {
+    const formatAmount = useAmountFormatter();
     const t = useTranslations("AccountBook.detail.rankingChart.tooltip");
 
     if (!active || !payload || payload.length === 0) {
@@ -36,13 +37,13 @@ export default function ExpenseRankingChartTooltip({
     }
 
     return (
-        <div className="rounded-xl border border-slate-200 bg-white/95 px-4 py-3 text-sm shadow-lg dark:border-white/10 dark:bg-zinc-900/95">
+        <div className="max-w-[min(18rem,calc(100vw-3rem))] break-words rounded-xl border border-slate-200 bg-white/95 px-4 py-3 text-sm shadow-lg dark:border-white/10 dark:bg-zinc-900/95">
             <p className="mb-2 font-semibold text-slate-900 dark:text-white">
                 {item.name}
             </p>
 
             <div className="space-y-1">
-                <div className="flex items-center justify-between gap-6">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="text-slate-500 dark:text-slate-400">
                         {t("amount")}
                     </span>
@@ -51,7 +52,7 @@ export default function ExpenseRankingChartTooltip({
                     </span>
                 </div>
 
-                <div className="flex items-center justify-between gap-6">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="text-slate-500 dark:text-slate-400">
                         {t("percentage")}
                     </span>
@@ -60,7 +61,7 @@ export default function ExpenseRankingChartTooltip({
                     </span>
                 </div>
 
-                <div className="flex items-center justify-between gap-6">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="text-slate-500 dark:text-slate-400">
                         {t("transactionCount")}
                     </span>

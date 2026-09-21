@@ -2,7 +2,7 @@ import ExpenseGoalAmountInput from "@/components/account-book/detail/expense-goa
 import ExpenseGoalYearMonthInput from "@/components/account-book/detail/expense-goal/ExpenseGoalYearMonthInput";
 import type { CurrencyCode } from "@/types/accountBook";
 import { getDefaultYearMonth } from "@/utils/account-book/expenseGoalForm";
-import { parseCommaNumber } from "@/utils/number/formatNumberInput";
+import { parsePositiveDecimalInput } from "@/utils/account-book/decimalInput";
 import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { SyntheticEvent } from "react";
@@ -12,13 +12,13 @@ import { createPortal } from "react-dom";
 type ExpenseGoalEditModalProps = {
     selectedMonth: string;
     currencyCode: CurrencyCode;
-    initialGoalAmount: number | null;
+    initialGoalAmount: number | string | null;
     isSubmitting?: boolean;
     onClose: () => void;
     onSave: (
         year: number,
         month: number,
-        goalAmount: number
+        goalAmount: number | string
     ) => void | Promise<void>;
 };
 
@@ -37,7 +37,7 @@ export default function ExpenseGoalEditModal({
     const [targetYear, setTargetYear] = useState(initialYearMonth.year);
     const [targetMonth, setTargetMonth] = useState(initialYearMonth.month);
     const [goalAmount, setGoalAmount] = useState(
-        initialGoalAmount ? initialGoalAmount.toLocaleString()  : ""
+        initialGoalAmount ? String(initialGoalAmount) : ""
     );
 
     const handleSubmit = async (event: SyntheticEvent<HTMLFormElement>) => {
@@ -76,9 +76,9 @@ export default function ExpenseGoalEditModal({
             return;
         }
 
-        const parsedGoalAmount = parseCommaNumber(trimmedGoalAmount);
+        const parsedGoalAmount = parsePositiveDecimalInput(trimmedGoalAmount);
 
-        if (Number.isNaN(parsedGoalAmount) || parsedGoalAmount <= 0) {
+        if (parsedGoalAmount === null) {
             alert(t("validation.positiveNumber"));
             return;
         }
@@ -87,7 +87,7 @@ export default function ExpenseGoalEditModal({
     };
 
     return createPortal(
-        <div className="fixed inset-0 z-9999 overflow-y-auto px-4 py-16 sm:py-20">
+        <div className="fixed inset-0 z-9999 overflow-y-auto overscroll-contain px-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-4 sm:py-10">
             <button
                 type="button"
                 aria-label={t("actions.close")}
@@ -95,7 +95,7 @@ export default function ExpenseGoalEditModal({
                 className="fixed inset-0 bg-black/50 backdrop-blur-sm"
             />
 
-            <div className="relative z-10 mx-auto w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-white/10 dark:bg-zinc-900">
+            <div className="relative z-10 mx-auto w-full max-w-md rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-2xl dark:border-white/10 dark:bg-zinc-900">
                 <div className="mb-6 flex items-start justify-between gap-4">
                     <div>
                         <h2 className="text-xl font-bold text-slate-900 dark:text-white">

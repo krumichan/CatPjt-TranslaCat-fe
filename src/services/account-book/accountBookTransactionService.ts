@@ -9,6 +9,9 @@ import {
     AccountBookTransactionMonthOption,
     AccountBookTransactionUpdateRequest,
     ReceiptAnalysisMode,
+    ReceiptBatchRegistrationRequest,
+    ReceiptRegistrationCandidate,
+    ReceiptConversion,
 } from "@/types/accountBook";
 import { ResponseDto } from "@/types/common";
 import {resizeReceiptImage} from "@/utils/account-book/resizeReceiptImage";
@@ -17,7 +20,7 @@ export const accountBookTransactionService = {
     async analyzeReceipt(
         accountBookId: number,
         file: File,
-        analysisMode: ReceiptAnalysisMode = "OCR_WITH_AI",
+        analysisMode: ReceiptAnalysisMode = "VISION_FIRST",
     ): Promise<AccountBookReceiptAnalysisResponse> {
         const resizedFile = await resizeReceiptImage(file);
 
@@ -43,6 +46,24 @@ export const accountBookTransactionService = {
 
         const data = (await response.json()) as ResponseDto<AccountBookReceiptAnalysisResponse>;
         return data.body;
+    },
+
+    async previewReceiptConversion(accountBookId: number, request: ReceiptRegistrationCandidate): Promise<ReceiptConversion> {
+        const response = await apiClient(`/account-books/${accountBookId}/transactions/receipt-conversion`, {
+            method: "POST",
+            body: JSON.stringify(request),
+        });
+        if (!response.ok) throw new Error("Failed to preview receipt conversion.");
+        return ((await response.json()) as ResponseDto<ReceiptConversion>).body;
+    },
+
+    async registerReceiptBatch(accountBookId: number, request: ReceiptBatchRegistrationRequest): Promise<AccountBookTransaction[]> {
+        const response = await apiClient(`/account-books/${accountBookId}/transactions/receipt-batch`, {
+            method: "POST",
+            body: JSON.stringify(request),
+        });
+        if (!response.ok) throw new Error("Failed to register receipt batch.");
+        return ((await response.json()) as ResponseDto<AccountBookTransaction[]>).body;
     },
 
     async listStoreSuggestions(

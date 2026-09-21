@@ -21,8 +21,8 @@ export default function AccountBookSearchPanel({
     const t = useTranslations("AccountBook.search");
 
     return (
-        <div className="grid gap-3 md:grid-cols-[1fr_220px_auto] md:items-center">
-            <div className="relative">
+        <div className="grid min-w-0 grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,220px)_auto] md:items-center">
+            <div className="relative min-w-0">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
                     value={searchKeyword}
@@ -38,7 +38,7 @@ export default function AccountBookSearchPanel({
                 value={selectedCategory}
                 onChange={(event) => onChangeCategory(event.target.value)}
                 className="
-                    w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-gray-800
+                    min-w-0 max-w-full w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-gray-800
                     outline-none transition
                     focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-200
                     dark:border-white/10 dark:dark:bg-black/30 dark:text-white

@@ -1,7 +1,6 @@
 import { SyntheticEvent, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
-    AccountBookReceiptAnalysisResponse,
     ReceiptAnalysisMode,
     TransactionType,
 } from "@/types/accountBook";
@@ -20,7 +19,8 @@ import {
     toCategoryNames,
     toStoreNames,
 } from "./utils";
-import {normalizeCandidateName} from "@/utils/text/normalizeText";
+import { useReceiptReview } from "./useReceiptReview";
+import { isPositiveDecimal } from "@/utils/account-book/decimalInput";
 
 type UseTransactionFormModalParams = Pick<
     TransactionFormModalProps,
@@ -31,6 +31,8 @@ type UseTransactionFormModalParams = Pick<
     | "onSubmit"
     | "onClose"
     | "onAnalyzeReceipt"
+    | "onPreviewReceiptConversion"
+    | "onSubmitReceiptBatch"
 >;
 
 export function useTransactionFormModal({
@@ -41,6 +43,8 @@ export function useTransactionFormModal({
     onSubmit,
     onClose,
     onAnalyzeReceipt,
+    onPreviewReceiptConversion,
+    onSubmitReceiptBatch,
 }: UseTransactionFormModalParams) {
     const t = useTranslations("AccountBook.detail.transactionModal");
 
@@ -87,12 +91,14 @@ export function useTransactionFormModal({
     const [receiptFile, setReceiptFile] = useState<File | null>(null);
 
     const [receiptAnalysisMode, setReceiptAnalysisMode] =
-        useState<ReceiptAnalysisMode>("VISION_ONLY");
+        useState<ReceiptAnalysisMode>("VISION_FIRST");
 
     const [isAnalyzingReceipt, setIsAnalyzingReceipt] = useState(false);
 
     const [receiptAnalysisMessage, setReceiptAnalysisMessage] =
         useState<string | null>(null);
+
+    const receiptReview = useReceiptReview({ onPreviewReceiptConversion, onSubmitReceiptBatch, onClose });
 
     const isCreateMode = mode === "CREATE";
     const isEditMode = mode === "EDIT";
@@ -107,7 +113,7 @@ export function useTransactionFormModal({
         return (
             title.trim().length > 0 &&
             finalCategoryName.length > 0 &&
-            Number(amount) > 0 &&
+            isPositiveDecimal(amount) &&
             transactionDate.trim().length > 0
         );
     }, [
@@ -119,106 +125,21 @@ export function useTransactionFormModal({
         isDirectCategoryInput,
     ]);
 
-    function findMatchedName(candidate: string, options: string[]) {
-        const normalizedCandidate = normalizeCandidateName(candidate);
-
-        return options.find(
-            (option) => normalizeCandidateName(option) === normalizedCandidate
-        );
-    }
-
-    const applyStoreCandidate = (candidate?: string | null) => {
-        const value = candidate?.trim();
-
-        if (!value) {
-            return;
-        }
-
-        const matchedStoreName = findMatchedName(value, storeNames);
-
-        if (matchedStoreName) {
-            setStoreName(matchedStoreName);
-            setDirectStoreName("");
-            return;
-        }
-
-        setStoreName(DIRECT_INPUT_VALUE);
-        setDirectStoreName(value);
-    };
-
-    const applyCategoryCandidate = (candidate?: string | null) => {
-        const value = candidate?.trim();
-
-        if (!value) {
-            return;
-        }
-
-        const matchedCategoryName = findMatchedName(value, categoryNames);
-
-        if (matchedCategoryName) {
-            setCategoryName(matchedCategoryName);
-            setDirectCategoryName("");
-            return;
-        }
-
-        setCategoryName(DIRECT_INPUT_VALUE);
-        setDirectCategoryName(value);
-    };
-
-    const applyReceiptAnalysisResult = (
-        result: AccountBookReceiptAnalysisResponse
-    ) => {
-        setType("EXPENSE");
-
-        const nextTitle = result.title?.trim() || result.storeName?.trim();
-
-        if (nextTitle) {
-            setTitle(nextTitle);
-        }
-
-        applyStoreCandidate(result.storeName);
-        applyCategoryCandidate(result.categoryName);
-
-        if (result.amount !== null && result.amount !== undefined) {
-            setAmount(String(result.amount));
-        }
-
-        if (result.transactionDate) {
-            setTransactionDate(result.transactionDate);
-        }
-
-        if (result.memo) {
-            setMemo(result.memo);
-        }
-    };
-
     const handleAnalyzeReceipt = async () => {
-        if (!receiptFile || !onAnalyzeReceipt || isAnalyzingReceipt) {
+        if (!receiptFile || !onAnalyzeReceipt || isAnalyzingReceipt || receiptReview.isBusy) {
             return;
         }
 
         try {
             setIsAnalyzingReceipt(true);
             setReceiptAnalysisMessage(null);
+            receiptReview.reset();
 
             const result = await onAnalyzeReceipt(receiptFile, receiptAnalysisMode);
 
-            applyReceiptAnalysisResult(result);
-
-            const confidenceText =
-                result.confidence !== null && result.confidence !== undefined
-                    ? `${Math.round(result.confidence * 100)}%`
-                    : null;
-
-            setReceiptAnalysisMessage(
-                confidenceText
-                    ? t("receipt.analysisCompletedWithConfidence", {
-                        confidence: confidenceText,
-                    })
-                    : t("receipt.analysisCompleted")
-            );
-        } catch (error) {
-            console.error(error);
+            receiptReview.applyAnalysis(result);
+            setReceiptAnalysisMessage(t("receipt.review.analysisCompleted", { count: result.receipts.length }));
+        } catch {
             setReceiptAnalysisMessage(t("receipt.analysisFailed"));
         } finally {
             setIsAnalyzingReceipt(false);
@@ -249,7 +170,7 @@ export function useTransactionFormModal({
                     title: title.trim(),
                     storeName: finalStoreName || undefined,
                     categoryName: finalCategoryName,
-                    amount: Number(amount),
+                    amount: amount.trim(),
                     transactionDate,
                     memo: memo.trim() || undefined,
                 },
@@ -297,7 +218,11 @@ export function useTransactionFormModal({
         setMemo,
 
         receiptFile,
-        setReceiptFile,
+        setReceiptFile: (file: File | null) => {
+            setReceiptFile(file);
+            receiptReview.reset();
+        },
+        receiptReview,
 
         receiptAnalysisMode,
         setReceiptAnalysisMode,

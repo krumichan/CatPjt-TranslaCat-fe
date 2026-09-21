@@ -36,7 +36,7 @@ export default function TransactionList({
     const t = useTranslations("AccountBook.detail.transactionList");
 
     const [viewMode, setViewMode] =
-        useState<TransactionViewMode>("TABLE");
+        useState<TransactionViewMode>("CARD");
 
     if (isLoading && transactions.length === 0) {
         return (
@@ -58,7 +58,7 @@ export default function TransactionList({
     }
 
     return (
-        <section className="space-y-4">
+        <section className="min-w-0 space-y-4" data-testid="account-book-transactions">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h2 className="text-lg font-semibold text-slate-900 dark:text-white">

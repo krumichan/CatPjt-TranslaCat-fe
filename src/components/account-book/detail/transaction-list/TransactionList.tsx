@@ -15,6 +15,7 @@ type TransactionListProps = {
     transactions: AccountBookTransaction[];
     currencyCode: CurrencyCode;
     onClickEditTransaction: (transaction: AccountBookTransaction) => void;
+    onClickDetailTransaction: (transaction: AccountBookTransaction) => void;
     onClickDeleteTransaction: (transaction: AccountBookTransaction) => void;
     isLoading?: boolean;
 
@@ -27,6 +28,7 @@ export default function TransactionList({
     transactions,
     currencyCode,
     onClickEditTransaction,
+    onClickDetailTransaction,
     onClickDeleteTransaction,
     isLoading = false,
     page,
@@ -81,6 +83,7 @@ export default function TransactionList({
                     transactions={transactions}
                     currencyCode={currencyCode}
                     onClickEditTransaction={onClickEditTransaction}
+                    onClickDetailTransaction={onClickDetailTransaction}
                     onClickDeleteTransaction={onClickDeleteTransaction}
                 />
             ) : (
@@ -88,6 +91,7 @@ export default function TransactionList({
                     transactions={transactions}
                     currencyCode={currencyCode}
                     onClickEditTransaction={onClickEditTransaction}
+                    onClickDetailTransaction={onClickDetailTransaction}
                     onClickDeleteTransaction={onClickDeleteTransaction}
                     t={t}
                 />

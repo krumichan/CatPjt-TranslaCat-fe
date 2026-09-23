@@ -21,6 +21,8 @@ const eslintConfig = defineConfig([
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
+    // Test and live launchers use isolated Next build directories.
+    ".next-*/**",
     "out/**",
     "build/**",
     "next-env.d.ts",

@@ -12,6 +12,7 @@ type TransactionTableViewProps = {
     transactions: AccountBookTransaction[];
     currencyCode: CurrencyCode;
     onClickEditTransaction: (transaction: AccountBookTransaction) => void;
+    onClickDetailTransaction: (transaction: AccountBookTransaction) => void;
     onClickDeleteTransaction: (transaction: AccountBookTransaction) => void;
     t: ReturnType<typeof useTranslations>;
 };
@@ -20,6 +21,7 @@ export default function TransactionTableView({
     transactions,
     currencyCode,
     onClickEditTransaction,
+    onClickDetailTransaction,
     onClickDeleteTransaction,
     t,
 }: TransactionTableViewProps) {
@@ -110,7 +112,7 @@ export default function TransactionTableView({
                                 </td>
 
                                 <td className="max-w-40 truncate px-4 py-3 text-slate-500 dark:text-slate-400">
-                                    {transaction.storeName || "-"}
+                                    {transaction.storeName ? `${t(transaction.type === "INCOME" ? "labels.incomeSource" : "labels.storeName")}: ${transaction.storeName}` : "-"}
                                 </td>
 
                                 <TransactionTableMemoCell
@@ -134,6 +136,10 @@ export default function TransactionTableView({
 
                                 <td className="whitespace-nowrap px-4 py-3 text-right">
                                     <div className="flex justify-end gap-2">
+                                        <button type="button" onClick={() => onClickDetailTransaction(transaction)}
+                                            className="inline-flex items-center justify-center rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-500 transition hover:border-orange-300 hover:bg-orange-50 hover:text-orange-500 dark:border-white/10 dark:text-slate-400">
+                                            {t("actions.detail")}
+                                        </button>
                                         <button
                                             type="button"
                                             onClick={() => onClickEditTransaction(transaction)}

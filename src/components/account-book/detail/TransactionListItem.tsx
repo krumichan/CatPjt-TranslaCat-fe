@@ -3,6 +3,7 @@ import {
     ArrowUpCircle,
     Pencil,
     Trash2,
+    Eye,
 } from "lucide-react";
 import {
     AccountBookTransaction,
@@ -17,6 +18,7 @@ type TransactionListItemProps = {
     transaction: AccountBookTransaction;
     currencyCode: CurrencyCode;
     onClickEditTransaction?: (transaction: AccountBookTransaction) => void;
+    onClickDetailTransaction: (transaction: AccountBookTransaction) => void;
     onClickDeleteTransaction: (transaction: AccountBookTransaction) => void;
 };
 
@@ -24,6 +26,7 @@ export default function TransactionListItem({
     transaction,
     currencyCode,
     onClickEditTransaction,
+    onClickDetailTransaction,
     onClickDeleteTransaction,
 }: TransactionListItemProps) {
     const formatAmount = useAmountFormatter();
@@ -32,7 +35,7 @@ export default function TransactionListItem({
     const isIncome = transaction.type === "INCOME";
 
     return (
-        <div className="flex min-w-0 flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50/90 p-3 transition hover:-translate-y-0.5 hover:border-orange-300 hover:bg-orange-50/80 hover:shadow-md dark:border-white/10 dark:bg-black/25 dark:hover:border-orange-400/60 dark:hover:bg-zinc-900/80 sm:flex-row sm:items-center sm:justify-between sm:p-4">
+        <div data-testid={`transaction-card-${transaction.id}`} className="flex min-w-0 flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50/90 p-3 transition hover:-translate-y-0.5 hover:border-orange-300 hover:bg-orange-50/80 hover:shadow-md dark:border-white/10 dark:bg-black/25 dark:hover:border-orange-400/60 dark:hover:bg-zinc-900/80 sm:flex-row sm:items-center sm:justify-between sm:p-4">
             <div className="flex min-w-0 flex-1 items-center gap-3">
                 <div
                     className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
@@ -69,7 +72,7 @@ export default function TransactionListItem({
 
                     {transaction.storeName && (
                         <p className="mt-1 truncate text-xs font-medium text-slate-500 dark:text-slate-400">
-                            {transaction.storeName}
+                            {t(isIncome ? "labels.incomeSource" : "labels.storeName")}: {transaction.storeName}
                         </p>
                     )}
 
@@ -89,6 +92,10 @@ export default function TransactionListItem({
                     {isIncome ? "+" : "-"}
                     {formatAmount(transaction.amount, currencyCode)}
                 </p>
+
+                <button type="button" onClick={() => onClickDetailTransaction(transaction)}
+                    className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-200 hover:text-orange-500 dark:hover:bg-white/10 dark:hover:text-orange-400"
+                    aria-label={t("actions.detailAria")}><Eye size={15} /></button>
 
                 {onClickEditTransaction && (
                     <button

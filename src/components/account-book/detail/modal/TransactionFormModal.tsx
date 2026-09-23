@@ -1,14 +1,13 @@
+import ManualTransactionForm from "./transaction-form/ManualTransactionForm";
 import { createPortal } from "react-dom";
+import { useEffect } from "react";
 import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { TransactionFormModalProps } from "./transaction-form/types";
-import { useTransactionFormModal } from "./transaction-form/useTransactionFormModal";
+import { TransactionFormModalProps } from "@/types/accountBookTransactionForm";
+import { useTransactionFormModal } from "@/hooks/account-book/detail/transaction/useTransactionFormModal";
 import TransactionInputModeTabs from "./transaction-form/TransactionInputModeTabs";
 import ReceiptAnalysisPanel from "./transaction-form/ReceiptAnalysisPanel";
-import TransactionTypeSelector from "./transaction-form/TransactionTypeSelector";
-import TransactionFormFields from "./transaction-form/TransactionFormFields";
-import TransactionFormActions from "./transaction-form/TransactionFormActions";
-import ReceiptReviewList from "./transaction-form/ReceiptReviewList";
+import ReceiptReviewSmartSection from "./transaction-form/ReceiptReviewSmartSection";
 
 export default function TransactionFormModal(props: TransactionFormModalProps) {
     const {
@@ -21,6 +20,19 @@ export default function TransactionFormModal(props: TransactionFormModalProps) {
 
     const t = useTranslations("AccountBook.detail.transactionModal");
     const form = useTransactionFormModal(props);
+
+    useEffect(
+        () => {
+            if (!isOpen || typeof document === "undefined")
+                return;
+            const previous = document.body.style.overflow;
+            document.body.style.overflow = "hidden";
+            return () => {
+                document.body.style.overflow = previous;
+            };
+        },
+        [isOpen]
+    );
 
     const isCreateMode = form.isCreateMode;
     const isEditMode = form.isEditMode;
@@ -59,13 +71,22 @@ export default function TransactionFormModal(props: TransactionFormModalProps) {
                 className="fixed inset-0 bg-black/50 backdrop-blur-sm"
             />
 
-            <div role="dialog" aria-modal="true" aria-labelledby="transaction-form-title" className="relative z-10 mx-auto flex max-h-[calc(100dvh-1.5rem)] w-full min-w-0 max-w-2xl flex-col overflow-y-auto rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-[0_20px_60px_rgba(15,23,42,0.25)] backdrop-blur-md sm:max-h-[calc(100dvh-6rem)] sm:p-6 dark:border-white/10 dark:bg-zinc-900/95">
-                <div className="mb-6 flex items-start justify-between gap-4">
+            <div
+                id="transaction-form-dialog"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="transaction-form-title"
+                className="relative z-10 mx-auto flex max-h-[calc(100dvh-1.5rem)] w-full min-w-0 max-w-4xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-[0_20px_60px_rgba(15,23,42,0.25)] backdrop-blur-md sm:max-h-[calc(100dvh-6rem)] sm:p-6 dark:border-white/10 dark:bg-zinc-900/95"
+            >
+                <div className="mb-3 flex shrink-0 items-start justify-between gap-4 sm:mb-5">
                     <div className="min-w-0">
                         <p className="mb-1 text-sm font-medium text-orange-500">
                             {badge}
                         </p>
-                        <h2 id="transaction-form-title" className="break-words text-xl font-bold text-gray-900 sm:text-2xl dark:text-white">
+                        <h2
+                            id="transaction-form-title"
+                            className="break-words text-xl font-bold text-gray-900 sm:text-2xl dark:text-white"
+                        >
                             {modalTitle}
                         </h2>
                         <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
@@ -87,79 +108,61 @@ export default function TransactionFormModal(props: TransactionFormModalProps) {
                 {isCreateMode && (
                     <TransactionInputModeTabs
                         inputMode={form.inputMode}
-                        onChange={(mode) => { if (!isBlockingModal) form.setInputMode(mode); }}
+                        onChange={(mode) => {
+                            if (!isBlockingModal)
+                                form.setInputMode(mode);
+                        }}
                     />
                 )}
 
                 {showReceipt && (
-                    <ReceiptAnalysisPanel
-                        receiptQueue={form.receiptQueue}
-                        receiptAnalysisMode={form.receiptAnalysisMode}
-                        receiptAnalysisMessage={form.receiptAnalysisMessage}
-                        isAnalyzingReceipt={form.isAnalyzingReceipt}
-                        disabled={isBlockingModal}
-                        canAnalyzeReceipt={form.receiptQueue.some((item) => item.status === "queued") && !!onAnalyzeReceipt && !form.receiptReview.isBusy}
-                        onAnalysisModeChange={form.setReceiptAnalysisMode}
-                        onFilesChange={(files) => {
-                            form.addReceiptFiles(files);
-                            form.setReceiptAnalysisMessage(null);
-                        }}
-                        onRemove={form.removeReceiptFile}
-                        onCancel={form.cancelReceiptAnalysis}
-                        onRetry={(sourceImageId) => void form.retryReceiptAnalysis(sourceImageId)}
-                        onAnalyzeReceipt={form.handleAnalyzeReceipt}
-                    />
+                    <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+                        <ReceiptAnalysisPanel
+                            receiptQueue={form.receiptQueue}
+                            receiptAnalysisMode={form.receiptAnalysisMode}
+                            receiptAnalysisMessage={form.receiptAnalysisMessage}
+                            isAnalyzingReceipt={form.isAnalyzingReceipt}
+                            disabled={isBlockingModal}
+                            canAnalyzeReceipt={form.receiptQueue.some((item) => item.status === "queued") && !!onAnalyzeReceipt && !form.receiptReview.isBusy}
+                            onAnalysisModeChange={form.setReceiptAnalysisMode}
+                            onFilesChange={(files) => {
+                                form.addReceiptFiles(files);
+                                form.setReceiptAnalysisMessage(null);
+                            }}
+                            onRemove={form.removeReceiptFile}
+                            onCancel={form.cancelReceiptAnalysis}
+                            onRetry={(sourceImageId) => void form.retryReceiptAnalysis(sourceImageId)}
+                            onAnalyzeReceipt={form.handleAnalyzeReceipt}
+                            reviewAssisted={form.receiptReview.reviewAssisted}
+                            onAddMissingReceipt={form.receiptReview.addManualCandidate}
+                        />
+
+                        {(form.receiptReview.items.length > 0 || form.receiptReview.warnings.length > 0) && (
+                            <ReceiptReviewSmartSection
+                                review={form.receiptReview}
+                                categoryNames={form.categoryNames}
+                                categoryStatus={form.categoryOptionsStatus}
+                                onRetryCategories={form.onRetryCategories}
+                                sourcePreviews={form.receiptQueue.map((item) => ({
+                                    sourceImageId: item.sourceImageId,
+                                    previewUrl: item.previewUrl,
+                                    fileName: item.file.name,
+                                }))}
+                                onClose={onClose}
+                            />
+                        )}
+                    </div>
                 )}
 
-                {showReceipt && (form.receiptReview.items.length > 0 || form.receiptReview.warnings.length > 0) && <ReceiptReviewList
-                    review={form.receiptReview} categoryNames={form.categoryNames} onClose={onClose} />}
-
-                {!showReceipt && <form
-                    onSubmit={form.handleSubmit}
-                    className="space-y-5"
-                    aria-busy={form.isAnalyzingReceipt}
-                >
-                    <TransactionTypeSelector
-                        type={form.type}
-                        onChange={form.setType}
-                        disabled={conversionLocked}
-                    />
-
-                    {conversionLocked && <p className="rounded-xl bg-amber-50 p-3 text-xs text-amber-800 dark:bg-amber-500/10 dark:text-amber-300">{t("receipt.review.conversionLocked")}</p>}
-
-                    <TransactionFormFields
+                {!showReceipt && (
+                    <ManualTransactionForm
+                        form={form}
                         currencyCode={currencyCode}
                         conversionLocked={conversionLocked}
-                        title={form.title}
-                        onTitleChange={form.setTitle}
-                        storeName={form.storeName}
-                        onStoreNameChange={form.setStoreName}
-                        directStoreName={form.directStoreName}
-                        onDirectStoreNameChange={form.setDirectStoreName}
-                        storeNames={form.storeNames}
-                        isDirectStoreInput={form.isDirectStoreInput}
-                        categoryName={form.categoryName}
-                        onCategoryNameChange={form.setCategoryName}
-                        directCategoryName={form.directCategoryName}
-                        onDirectCategoryNameChange={form.setDirectCategoryName}
-                        categoryNames={form.categoryNames}
-                        isDirectCategoryInput={form.isDirectCategoryInput}
-                        amount={form.amount}
-                        onAmountChange={form.setAmount}
-                        transactionDate={form.transactionDate}
-                        onTransactionDateChange={form.setTransactionDate}
-                        memo={form.memo}
-                        onMemoChange={form.setMemo}
-                    />
-
-                    <TransactionFormActions
-                        canSubmit={form.canSubmit}
-                        isSubmitting={form.isSubmitting}
-                        isAnalyzingReceipt={form.isAnalyzingReceipt}
                         submitLabel={submitLabel}
                         onClose={onClose}
                     />
-                </form>}
+                )}
 
             </div>
         </div>,

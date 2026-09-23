@@ -1,4 +1,4 @@
-import {
+import type {
     AccountBookCategory,
     AccountBookReceiptAnalysisResponse,
     AccountBookStoreSuggestion,
@@ -10,8 +10,10 @@ import {
     ReceiptBatchRegistrationRequest,
     ReceiptConversion,
 } from "@/types/accountBook";
+import type { CategoryOptionsStatus } from "@/types/accountBookReceiptReview";
 
 export type TransactionFormMode = "CREATE" | "EDIT";
+
 export type InputMode = "MANUAL" | "RECEIPT";
 
 export type TransactionFormModalProps = {
@@ -20,19 +22,13 @@ export type TransactionFormModalProps = {
     transaction?: AccountBookTransaction | null;
     currencyCode: CurrencyCode;
     categoryOptions: AccountBookCategory[];
+    categoryOptionsStatus?: CategoryOptionsStatus;
+    onRetryCategories?: () => void;
     storeOptions: AccountBookStoreSuggestion[];
+    incomeSourceOptions?: AccountBookStoreSuggestion[];
     onClose: () => void;
-    onSubmit: (
-        values: CreateTransactionFormValues,
-        transactionId?: number
-    ) => void | Promise<void>;
-    onAnalyzeReceipt?: (
-        file: File,
-        analysisMode: ReceiptAnalysisMode,
-    ) => Promise<AccountBookReceiptAnalysisResponse>;
+    onSubmit: (values: CreateTransactionFormValues, transactionId?: number) => void | Promise<void>;
+    onAnalyzeReceipt?: (file: File, analysisMode: ReceiptAnalysisMode, signal?: AbortSignal) => Promise<AccountBookReceiptAnalysisResponse>;
     onPreviewReceiptConversion?: (candidate: ReceiptRegistrationCandidate) => Promise<ReceiptConversion>;
-    onSubmitReceiptBatch?: (
-        request: ReceiptBatchRegistrationRequest,
-        idempotencyKey: string,
-    ) => Promise<void>;
+    onSubmitReceiptBatch?: (request: ReceiptBatchRegistrationRequest, idempotencyKey: string) => Promise<void>;
 };

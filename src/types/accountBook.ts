@@ -22,6 +22,8 @@ export type ReceiptPaymentItem = {
     evidence: string | null;
     duplicateGroup: string | null;
 };
+export type ReceiptCategorySource = "EXISTING" | "DEFAULT" | "NEW" | "FALLBACK" | "USER";
+export type ReceiptCategoryOption = { name: string; source: ReceiptCategorySource };
 export type TransactionType = "INCOME" | "EXPENSE";
 export type TransactionFilterType = "ALL" | TransactionType;
 
@@ -164,6 +166,20 @@ export type AccountBookReceiptAnalysisResponse = {
     warnings: string[];
     ocrEngine: string | null;
     usedAi: boolean;
+    categoryOptions?: ReceiptCategoryOption[];
+    analysisTraceId?: string | null;
+    runtimeIdentity?: ReceiptRuntimeIdentity | null;
+};
+
+export type ReceiptRuntimeIdentity = {
+    runId: string;
+    sourceFingerprint: string;
+    startedAt: string;
+    processId: number;
+    workingDirectory: string;
+    commandFingerprint: string;
+    gitHead: string | null;
+    providerCallCount: number;
 };
 
 // Monetary values in the receipt contract stay decimal strings end to end.
@@ -190,6 +206,13 @@ export type AccountBookReceiptAnalysisItem = ReceiptConversion & {
     title: string | null;
     storeName: string | null;
     branchName: string | null;
+    merchantEvidence?: string | null;
+    branchEvidence?: string | null;
+    boundingBox?: number[] | null;
+    identitySourceBox?: number[] | null;
+    identityVerification?: string | null;
+    financialSourceBox?: number[] | null;
+    financialRecoveryProvenance?: string | null;
     purchaseTotal: string | null;
     paymentBreakdown: ReceiptPaymentItem[];
     cashTendered: string | null;
@@ -203,6 +226,8 @@ export type AccountBookReceiptAnalysisItem = ReceiptConversion & {
     transactionDate: string | null;
     transactionTime: string | null;
     categoryName: string | null;
+    categorySource?: ReceiptCategorySource | null;
+    categoryReason?: string | null;
     memo: string | null;
     confidence: number | null;
     detectedLanguage: string | null;
@@ -215,6 +240,8 @@ export type ReceiptRegistrationCandidate = {
     storeName: string | null;
     branchName: string | null;
     categoryName: string;
+    categorySource: ReceiptCategorySource;
+    categoryReason: string | null;
     purchaseTotal: string;
     paymentBreakdown: ReceiptPaymentItem[];
     cashTendered: string | null;
@@ -230,6 +257,11 @@ export type ReceiptRegistrationCandidate = {
     amountPolicyVersion: string;
     amountReason: string;
     reviewStatus: "READY" | "NEEDS_REVIEW" | "EXCLUDED";
+    reviewMode?: "AUTOMATIC" | "ASSISTED";
+    draftRevision?: number;
+    reviewedRevision?: number | null;
+    sourceRegion?: number[] | null;
+    branchOmittedByUser?: boolean;
 };
 
 export type ReceiptBatchRegistrationRequest = {

@@ -470,6 +470,7 @@
         "receipt": {
           "title": "レシート分析",
           "description": "1枚の写真に複数のレシートがあっても、それぞれ解析します。原本の通貨と換算結果を確認して選択・登録してください。",
+          "summary": "写真 {photos}・レシート {receipts}・処理中 {progress}・失敗 {failures}",
           "file": "レシート画像",
           "selectedFile": "選択中: {filename}",
           "analysisMode": "分析方式",
@@ -500,6 +501,8 @@
               "AMOUNT_REQUIRES_REVIEW": "原本の支払金額を確認して入力してください。",
               "DATE_REQUIRES_REVIEW": "正確な取引日を確認して入力してください。",
               "CATEGORY_REQUIRES_REVIEW": "取引カテゴリを確認して入力してください。",
+              "CATEGORY_CANDIDATES_EMPTY": "有効なカテゴリがないためAIで分類できませんでした。直接入力できます。",
+              "CATEGORY_CANDIDATES_NOT_DELIVERED": "カテゴリ候補が解析サービスへ渡されませんでした。候補を再取得してから再試行してください。",
               "INVALID_AMOUNT": "有効な正の金額を入力してください。",
               "INVALID_DATE": "有効な取引日を入力してください。",
               "UNREADABLE": "読み取れなかったレシート情報を原本と比較して入力してください。",
@@ -509,6 +512,9 @@
               "INVALID_OR_MISSING_AMOUNT": "支払総額を確認して入力してください。",
               "INVALID_OR_AMBIGUOUS_DATE": "取引日がないか曖昧です。正確な日付を入力してください。",
               "CATEGORY_NOT_IN_ACCOUNT_BOOK": "既存のカテゴリを選択するか直接入力してください。",
+              "CATEGORY_NEW_SUGGESTION": "レシート内容に合う新しいカテゴリを提案しました。",
+              "CATEGORY_FALLBACK_USED": "根拠が不足しているため広い「その他」カテゴリを提案しました。",
+              "INVALID_CATEGORY_SUGGESTION": "無効なカテゴリ候補を安全なフォールバックに置き換えました。",
               "MISSING_MERCHANT": "店舗名と取引名を確認してください。",
               "INVALID_CONFIDENCE": "解析の信頼度を確認できません。",
               "INVALID_CURRENCY_CONFIDENCE": "通貨判定の信頼度を確認できません。",
@@ -525,12 +531,15 @@
               "OCR_AI_UNAVAILABLE_RULE_FALLBACK": "AI補完なしでOCRルールにより解析しました。原本と比較してください。",
               "DUPLICATE_RECEIPT_REMOVED": "重複として検出したレシート候補を除外しました。",
               "NO_RECEIPTS_DETECTED": "レシートが見つかりませんでした。より鮮明な写真で再試行してください。",
-              "RECEIPT_LIMIT_REACHED": "一度に解析できるレシート数に達しました。残りは別の写真で解析してください。"
+              "RECEIPT_LIMIT_REACHED": "一度に解析できるレシート数に達しました。残りは別の写真で解析してください。",
+              "USER_ADDED_RECEIPT_REGION": "元画像からユーザーが追加したレシート候補です。必須項目を入力し、原本確認を完了してください。"
             },
             "conversionLocked": "レシートから登録した取引の種別・金額・取引日は、為替記録を保持するため変更できません。取引名・店舗・カテゴリ・メモは編集できます。",
             "title": "レシートごとの取引を確認",
             "description": "各レシートを確認し、登録する取引を選択してください。金額・通貨・取引日を変更した場合は換算結果を再確認してください。",
             "analysisCompleted": "レシート{count}件を解析しました。下の取引候補を確認してください。",
+            "editTitle": "レシート {index} の確認・修正",
+            "receiptDetails": "レシートの決済・為替詳細",
             "receiptNumber": "レシート {index}",
             "originalAmount": "原本の金額",
             "branchName": "支店・場所",
@@ -566,6 +575,59 @@
             "previewFailed": "換算結果を確認できませんでした。入力内容と接続を確認して再試行してください。",
             "registrationFailed": "選択した取引を登録できませんでした。入力内容とレートを確認して再試行してください。取引候補は保持されます。",
             "selected": "全{total}件中{count}件を選択",
+            "selectionSummary": "{selectedCount}件選択・登録可能 {registrableCount}件・要確認 {blockedCount}件",
+            "selectedHasIssues": "選択した取引に確認が必要な項目があります。",
+            "selectRegisterableOnly": "登録可能な項目のみ選択",
+            "selectReceipt": "レシート {index} を選択",
+            "statusReady": "登録可能",
+            "statusNeedsReview": "要確認",
+            "statusRecalculating": "再計算中",
+            "unselected": "未選択",
+            "reviewEdit": "確認・修正",
+            "inlineCategory": "レシート {index} のカテゴリを選択",
+            "inlineAmountInput": "レシート {index} の元通貨反映額",
+            "inlineApply": "適用",
+            "inlineCancel": "金額編集を取消",
+            "inlineAmountPending": "未適用の金額編集または再計算があるため登録できません。",
+            "inlineAmountInvalid": "正のDecimal金額を入力してください。",
+            "inlineAmountFailed": "換算の再計算に失敗しました。入力を保持したまま取消または再試行できます。",
+            "inlineAmountSimpleScope": "購入合計と元通貨反映額を同時に修正します。",
+            "inlineAmountSinglePaymentScope": "購入合計と単一の決済額を同時に修正します。",
+            "inlineAmountCorrectionSummary": "観測 {observed} → ユーザー修正 {corrected}",
+            "inlineAmountDetails": { "points": "ポイント決済があるため詳細確認が必要です。", "multiple_payments": "複数の決済配分は詳細確認が必要です。", "cash_change": "現金・お釣りの事実は詳細確認が必要です。", "ambiguous_payment": "決済の意味が不明確なため詳細確認が必要です。" },
+            "revisionConflict": "編集中に元候補が変更されました。閉じて最新の項目を開き直してください。",
+            "addMissingReceipt": "未検出レシート領域を追加",
+            "regionPickerTitle": "未検出レシートの領域を選択",
+            "regionPickerDescription": "元画像上でレシート1枚の範囲をドラッグしてください。この操作は候補を追加するだけで、取引は保存しません。",
+            "regionPickerCancel": "キャンセル",
+            "useFullImage": "画像全体を使用",
+            "addSelectedRegion": "選択領域を候補に追加",
+            "sourcePreview": "原本と照合",
+            "sourcePreviewAlt": "{fileName} のレシート原本",
+            "sourcePreviewUnavailable": "現在のセッションでは原本プレビューを利用できません。",
+            "omitBranch": "原本に支店表記がないことを確認",
+            "branchOmitted": "支店表記なしとして確認済み",
+            "confirmSourceReview": "現在の原本と入力内容を確認済みにする",
+            "sourceReviewed": "現在の revision の原本確認済み",
+            "categorySources": { "existing": "既存", "default": "基本", "new": "新規", "fallback": "推定", "user": "ユーザー" },
+            "applyChanges": "変更を適用",
+            "discardChanges": "変更を破棄",
+            "currentIssues": "現在の登録不可理由",
+            "viewMode": "レシート確認の表示方法",
+            "viewModes": { "list": "リスト", "table": "表" },
+            "columns": { "select": "選択", "date": "取引日", "title": "取引名", "category": "カテゴリ", "amount": "家計簿反映額", "status": "状態", "action": "確認・修正" },
+            "blockingIssues": {
+              "TITLE_REQUIRED": "取引名を入力してください。", "TITLE_TOO_LONG": "取引名は100文字以内で入力してください。",
+              "CATEGORY_REQUIRED": "カテゴリを選択してください。", "CATEGORY_TOO_LONG": "カテゴリは50文字以内で入力してください。",
+              "STORE_TOO_LONG": "店舗名は100文字以内で入力してください。", "BRANCH_TOO_LONG": "支店・場所は100文字以内で入力してください。",
+              "MEMO_TOO_LONG": "メモは500文字以内で入力してください。", "PURCHASE_TOTAL_INVALID": "有効な購入総額を入力してください。",
+              "PAYMENT_INVALID": "支払方法ごとの金額を確認してください。", "BOOK_AMOUNT_INVALID": "家計簿に反映する原金額を確認してください。",
+              "AMOUNT_POLICY_INVALID": "金額計算ポリシーを再確認してください。", "CURRENCY_INVALID": "3文字の原本通貨コードを入力してください。",
+              "DATE_INVALID": "有効な取引日を入力してください。", "TIME_INVALID": "有効なレシート時刻を入力してください。",
+              "SOURCE_INVALID": "元レシートとの紐付けを確認してください。", "QUOTE_STALE": "金額・通貨・日付が変更されたため換算額の再確認が必要です。",
+              "CONVERSION_UNAVAILABLE": "登録可能な換算結果がありません。", "QUOTE_MISSING": "有効な為替 quote がありません。換算額を再確認してください。",
+              "REVIEW_CONFIRMATION_REQUIRED": "現在の入力内容を原本ともう一度確認してください。"
+            },
             "register": "選択した{count}件を登録",
             "conversionStatuses": {
               "NOT_REQUIRED": "家計簿と同じ通貨です。レートは1です。",
@@ -587,6 +649,7 @@
           "type": "取引種別",
           "title": "取引名",
           "storeName": "店舗名",
+          "incomeSource": "収入元",
           "category": "カテゴリ",
           "amount": "金額",
           "displayAmount": "表示金額: {amount}",
@@ -595,8 +658,15 @@
         },
         "options": {
           "storeNotSet": "未設定",
-          "directInput": "直接入力"
+          "directInput": "直接入力",
+          "categoryNotSelected": "カテゴリを選択してください",
+          "savedValue": "保存済みの値"
         },
+        "categoryStatus": {
+          "loading": "カテゴリ候補を読み込み中です。", "error": "カテゴリ候補の取得に失敗しました。",
+          "empty": "登録済みカテゴリがありません。直接入力できます。", "ready": "カテゴリ候補を読み込みました。", "retry": "再取得"
+        },
+        "validation": { "categoryRequired": "カテゴリを選択してください。" },
         "placeholders": {
           "title": "例: コンビニ",
           "directStoreName": "新しい店舗名を入力",
@@ -610,6 +680,11 @@
           "save": "保存",
           "submitting": "保存中..."
         }
+      },
+      "transactionDetail": {
+        "eyebrow": "取引詳細", "close": "閉じる", "edit": "修正画面へ", "receiptTitle": "レシート・為替スナップショット",
+        "types": { "income": "収入", "expense": "支出" },
+        "fields": { "type": "取引種別", "title": "取引名", "storeName": "店舗名", "incomeSource": "収入元", "category": "カテゴリ", "date": "取引日", "amount": "最終家計簿反映額", "memo": "メモ", "amountReason": "反映原金額の根拠", "quoteId": "保存済み為替 quote ID" }
       },
       "transactionList": {
         "title": "取引履歴",
@@ -629,6 +704,7 @@
           "income": "収入",
           "expense": "支出"
         },
+        "labels": { "storeName": "店舗名", "incomeSource": "収入元" },
         "table": {
           "date": "日付",
           "type": "区分",
@@ -644,9 +720,11 @@
           "next": "次へ"
         },
         "actions": {
+          "detail": "詳細",
           "edit": "修正",
           "delete": "削除",
           "close": "閉じる",
+          "detailAria": "取引詳細を表示",
           "editAria": "取引を修正",
           "deleteAria": "取引を削除"
         },

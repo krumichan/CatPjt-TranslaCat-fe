@@ -24,13 +24,16 @@ export async function resizeReceiptImage(
 
     const image = await loadImage(file);
 
-    const { width, height } = getReceiptImageDimensions(image.naturalWidth, image.naturalHeight, maxEdge);
-
-    // Keep fine text and original encoding when the upload already fits the limits.
-    if (width === image.naturalWidth && height === image.naturalHeight && file.size <= maxSize) {
+    // A multi-receipt photo can contain several narrow columns of small print.
+    // If the original already satisfies the transport limit, preserve every source
+    // pixel instead of applying the OCR fallback's 2400px edge limit in the browser.
+    // The AI service still enforces the same byte limit and validates the image.
+    if (file.size <= maxSize) {
         const name = normalizeReceiptImageFileName(file.name, file.type);
         return name === file.name ? file : new File([file], name, { type: file.type, lastModified: file.lastModified });
     }
+
+    const { width, height } = getReceiptImageDimensions(image.naturalWidth, image.naturalHeight, maxEdge);
 
     const canvas = document.createElement("canvas");
     canvas.width = width;

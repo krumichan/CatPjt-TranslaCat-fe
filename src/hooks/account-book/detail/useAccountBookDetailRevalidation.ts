@@ -52,7 +52,10 @@ export function useAccountBookDetailRevalidation({
         mutate(accountBookDetailQueryKeys.categories(accountBookId));
 
     const revalidateStoreOptions = () =>
-        mutate(accountBookDetailQueryKeys.storeSuggestions(accountBookId));
+        Promise.all([
+            mutate(accountBookDetailQueryKeys.storeSuggestions(accountBookId, "EXPENSE")),
+            mutate(accountBookDetailQueryKeys.storeSuggestions(accountBookId, "INCOME")),
+        ]);
 
     const revalidateFixedCostGenerationTargets = () => {
         if (!selectedYearMonth) {

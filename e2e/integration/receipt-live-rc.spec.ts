@@ -3,7 +3,7 @@ import { encode } from "next-auth/jwt";
 import fs from "node:fs";
 
 const enabled = process.env.E2E_RECEIPT_RC === "1";
-const appUrl = process.env.E2E_BASE_URL ?? "http://127.0.0.1:3000";
+const appUrl = process.env.E2E_BASE_URL ?? "http://localhost:3000";
 const apiUrl = (process.env.E2E_API_BASE_URL ?? "http://127.0.0.1:8080/api/v1").replace(/\/+$/, "");
 
 test("RECEIPT-RC browser to AI, FX and database", async ({ context, page }) => {
@@ -111,6 +111,15 @@ test("RECEIPT-RC browser to AI, FX and database", async ({ context, page }) => {
         if (message.type() === "error") browserErrors.push(message.text());
     });
     page.on("pageerror", error => browserErrors.push(error.message));
+    page.on("response", async response => {
+        if (!response.url().includes("/transactions/receipt-analysis") || response.status() !== 200) return;
+        try {
+            const analysis = await response.json();
+            fs.writeFileSync(evidencePath.replace(/\.json$/, "-analysis-response.json"), JSON.stringify(analysis, null, 2));
+        } catch {
+            // The browser assertions below still report an unreadable response.
+        }
+    });
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`/ko/account-books/${accountBookId}`);
     await expect(page.getByRole("button", { name: "거래 등록", exact: true })).toBeVisible();
@@ -161,21 +170,27 @@ test("RECEIPT-RC browser to AI, FX and database", async ({ context, page }) => {
     await expect(page.getByTestId("receipt-file-queue")).toContainText("대기");
     await page.getByRole("button", { name: "영수증 분석", exact: true }).last().click();
 
-    const card = page.getByTestId("receipt-review-card");
-    await expect(card).toHaveCount(1, { timeout: 180_000 });
-    await expect(card.getByLabel("구매총액 (포인트 사용 전)", { exact: true })).toHaveValue("7089");
-    await expect(card.getByLabel("원본 통화 (ISO 코드)", { exact: true })).toHaveValue("JPY");
-    await expect(card.getByLabel("점포명", { exact: true })).toHaveValue(/ぱぱす/);
-    await expect(card.getByLabel("지점·위치", { exact: true })).toHaveValue(/船堀/);
-    await expect(card.getByLabel("거래명", { exact: true })).toHaveValue(/ぱぱす.*船堀/);
-    await expect(card).toContainText("5020 JPY");
-    await expect(card).toContainText("FRANKFURTER");
-    const category = card.getByLabel("카테고리", { exact: true });
-    if (!(await category.inputValue()).trim()) await category.fill("쇼핑");
-    if (!(await card.getByRole("checkbox").isChecked())) {
-        await card.getByRole("checkbox").check();
+    const row = page.getByTestId("receipt-review-card");
+    await expect(row).toHaveCount(1, { timeout: 180_000 });
+    await expect(row).toContainText(/KakaoTalk_.*\.jpg · r1/);
+    await row.getByRole("button", { name: "확인·수정", exact: true }).click();
+    const editor = page.getByTestId("receipt-review-editor");
+    await editor.locator("summary").click();
+    await expect(editor.getByRole("textbox", { name: /^구매총액 \(포인트 사용 전\)/ })).toHaveValue("7089");
+    await expect(editor.getByRole("textbox", { name: /^원본 통화 \(ISO 코드\)/ })).toHaveValue("JPY");
+    await expect(editor.getByRole("textbox", { name: /^점포명/ })).toHaveValue(/ぱぱす/);
+    await expect(editor.getByRole("textbox", { name: /^지점·위치/ })).toHaveValue(/船堀/);
+    await expect(editor.getByRole("textbox", { name: /^거래명/ })).toHaveValue(/ぱぱす.*船堀/);
+    await expect(editor).toContainText("5020 JPY");
+    await expect(editor).toContainText("FRANKFURTER");
+    const category = editor.getByRole("combobox", { name: "카테고리", exact: true });
+    if (!(await category.inputValue()).trim()) {
+        await category.selectOption("__DIRECT_INPUT__");
+        await editor.getByPlaceholder("새 카테고리명 입력", { exact: true }).fill("쇼핑");
     }
-    await expect(card.getByRole("checkbox")).toBeChecked();
+    await editor.getByRole("button", { name: "변경사항 적용", exact: true }).click();
+    if (!(await row.getByRole("checkbox").isChecked())) await row.getByRole("checkbox").check();
+    await expect(row.getByRole("checkbox")).toBeChecked();
 
     await page.screenshot({ path: evidencePath.replace(/\.json$/, "-review.png"), fullPage: true });
     await page.getByTestId("receipt-submit-selected").click();
@@ -191,12 +206,76 @@ test("RECEIPT-RC browser to AI, FX and database", async ({ context, page }) => {
         .filter(item => String(item.title).includes("ぱぱす"))
         .sort((left, right) => Number(right.id) - Number(left.id))[0];
     expect(transaction).toBeTruthy();
+
+    const receiptMonth = page.locator("select").filter({ has: page.locator('option[value="2026-08"]') });
+    await receiptMonth.selectOption("2026-08");
+    const receiptCard = page.getByTestId(`transaction-card-${String(transaction.id)}`);
+    await expect(receiptCard).toBeVisible();
+    await receiptCard.getByRole("button", { name: "거래 상세보기", exact: true }).click();
+    const receiptDetail = page.getByRole("dialog");
+    await expect(receiptDetail).toContainText(/7089(?:\.0+)? JPY/);
+    await expect(receiptDetail).toContainText("2069");
+    await expect(receiptDetail).toContainText(/5020(?:\.0+)? JPY/);
+    await expect(receiptDetail).toContainText("FRANKFURTER");
+    await receiptDetail.getByRole("button", { name: "닫기", exact: true }).last().click();
+
+    await page.getByRole("button", { name: "거래 등록", exact: true }).click();
+    let transactionDialog = page.getByRole("dialog");
+    await transactionDialog.getByRole("button", { name: "수입", exact: true }).click();
+    await transactionDialog.getByRole("textbox", { name: /^거래명/ }).fill("UI income 20260922");
+    const incomeSource = transactionDialog.getByRole("combobox", { name: /^수입처/ });
+    await incomeSource.selectOption("__DIRECT_INPUT__");
+    await transactionDialog.getByPlaceholder("새 점포명 입력", { exact: true }).fill("UI Income Source");
+    const incomeCategory = transactionDialog.getByRole("combobox", { name: /^카테고리/ });
+    await incomeCategory.selectOption("__DIRECT_INPUT__");
+    await transactionDialog.getByPlaceholder("새 카테고리명 입력", { exact: true }).fill("Salary");
+    await transactionDialog.getByRole("spinbutton", { name: /^금액/ }).fill("123.45");
+    await transactionDialog.getByRole("textbox", { name: /^거래일/ }).fill("2026-09-22");
+    await transactionDialog.getByRole("button", { name: "등록", exact: true }).click();
+    await expect(transactionDialog).toHaveCount(0);
+
+    const incomeResponse = await api.post(`account-books/${accountBookId}/transactions`, {
+        headers: { Authorization: `Bearer ${login.body.accessToken}` },
+        data: { year: 2026, month: 9, page: 0, size: 20, keyword: "UI income 20260922" },
+    });
+    expect(incomeResponse.status()).toBe(200);
+    const incomeEnvelope = await incomeResponse.json() as { body: { page: { content: Array<Record<string, unknown>> } } };
+    const incomeTransaction = incomeEnvelope.body.page.content[0];
+    expect(incomeTransaction).toMatchObject({ type: "INCOME", storeName: "UI Income Source", category: "Salary" });
+    const incomeMonth = page.locator("select").filter({ has: page.locator('option[value="2026-09"]') });
+    await incomeMonth.selectOption("2026-09");
+    const incomeCard = page.getByTestId(`transaction-card-${String(incomeTransaction.id)}`);
+    await expect(incomeCard).toContainText("수입처: UI Income Source");
+    await incomeCard.getByRole("button", { name: "거래 상세보기", exact: true }).click();
+    const incomeDetail = page.getByRole("dialog");
+    await expect(incomeDetail).toContainText("수입처");
+    await expect(incomeDetail).toContainText("UI Income Source");
+    await incomeDetail.getByRole("button", { name: "수정 화면으로 이동", exact: true }).click();
+    transactionDialog = page.getByRole("dialog");
+    await transactionDialog.getByRole("textbox", { name: /^거래명/ }).fill("UI income edited 20260922");
+    await transactionDialog.getByRole("button", { name: "저장", exact: true }).click();
+    await expect(transactionDialog).toHaveCount(0);
+
+    const editedIncomeResponse = await api.post(`account-books/${accountBookId}/transactions`, {
+        headers: { Authorization: `Bearer ${login.body.accessToken}` },
+        data: { year: 2026, month: 9, page: 0, size: 20, keyword: "UI income edited 20260922" },
+    });
+    expect(editedIncomeResponse.status()).toBe(200);
+    const editedIncomeEnvelope = await editedIncomeResponse.json() as { body: { page: { content: Array<Record<string, unknown>> } } };
+    expect(editedIncomeEnvelope.body.page.content[0]).toMatchObject({
+        id: incomeTransaction.id,
+        type: "INCOME",
+        storeName: "UI Income Source",
+        category: "Salary",
+        title: "UI income edited 20260922",
+    });
     fs.writeFileSync(evidencePath, JSON.stringify({
         browserViewport: { width: 390, height: 844 },
         loginStatus: loginResponse.status(),
         receiptCount: 1,
         analysisMode: replayResponsePath ? "CAPTURED_LIVE_RESPONSE_REPLAY" : "LIVE",
         transaction,
+        incomeTransaction: editedIncomeEnvelope.body.page.content[0],
         browserErrors,
     }, null, 2));
     expect(browserErrors).toEqual([]);

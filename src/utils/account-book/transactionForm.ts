@@ -4,8 +4,10 @@ import type {
     AccountBookTransaction,
     TransactionType,
 } from "@/types/accountBook";
-import { DIRECT_INPUT_VALUE } from "./constants";
-import type { TransactionFormMode } from "./types";
+
+export const DIRECT_INPUT_VALUE = "__DIRECT_INPUT__";
+
+import type { TransactionFormMode } from "@/types/accountBookTransactionForm";
 
 export function getTodayText(now = new Date()) {
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
@@ -13,6 +15,7 @@ export function getTodayText(now = new Date()) {
 
 export function toCategoryNames(categoryOptions: AccountBookCategory[]) {
     return categoryOptions
+        .filter((category) => category.active)
         .map((category) => category.name)
         .filter((name) => name.trim().length > 0);
 }
@@ -33,8 +36,7 @@ export function getInitialCategoryValue(
             ? transaction.category
             : DIRECT_INPUT_VALUE;
     }
-
-    return categoryNames[0] ?? DIRECT_INPUT_VALUE;
+    return "";
 }
 
 export function getInitialDirectCategoryName(
@@ -45,71 +47,47 @@ export function getInitialDirectCategoryName(
     if (mode !== "EDIT" || !transaction) {
         return "";
     }
-
     return categoryNames.includes(transaction.category)
         ? ""
         : transaction.category;
 }
 
-export function getInitialStoreValue(
-    transaction: AccountBookTransaction | null | undefined,
-    storeNames: string[]
-) {
+export function getInitialStoreValue(transaction: AccountBookTransaction | null | undefined, storeNames: string[]) {
     if (!transaction?.storeName) {
         return "";
     }
-
     return storeNames.includes(transaction.storeName)
         ? transaction.storeName
         : DIRECT_INPUT_VALUE;
 }
 
-export function getInitialDirectStoreName(
-    transaction: AccountBookTransaction | null | undefined,
-    storeNames: string[]
-) {
+export function getInitialDirectStoreName(transaction: AccountBookTransaction | null | undefined, storeNames: string[]) {
     if (!transaction?.storeName) {
         return "";
     }
-
     return storeNames.includes(transaction.storeName)
         ? ""
         : transaction.storeName;
 }
 
-export function getInitialTitle(
-    mode: TransactionFormMode,
-    transaction: AccountBookTransaction | null | undefined
-) {
+export function getInitialTitle(mode: TransactionFormMode, transaction: AccountBookTransaction | null | undefined) {
     return mode === "EDIT" && transaction ? transaction.title : "";
 }
 
-export function getInitialType(
-    mode: TransactionFormMode,
-    transaction: AccountBookTransaction | null | undefined
-): TransactionType {
+export function getInitialType(mode: TransactionFormMode, transaction: AccountBookTransaction | null | undefined): TransactionType {
     return mode === "EDIT" && transaction ? transaction.type : "EXPENSE";
 }
 
-export function getInitialAmount(
-    mode: TransactionFormMode,
-    transaction: AccountBookTransaction | null | undefined
-) {
+export function getInitialAmount(mode: TransactionFormMode, transaction: AccountBookTransaction | null | undefined) {
     return mode === "EDIT" && transaction ? String(transaction.amount) : "";
 }
 
-export function getInitialTransactionDate(
-    mode: TransactionFormMode,
-    transaction: AccountBookTransaction | null | undefined
-) {
+export function getInitialTransactionDate(mode: TransactionFormMode, transaction: AccountBookTransaction | null | undefined) {
     return mode === "EDIT" && transaction
         ? transaction.transactionDate
         : getTodayText();
 }
 
-export function getInitialMemo(
-    mode: TransactionFormMode,
-    transaction: AccountBookTransaction | null | undefined
-) {
+export function getInitialMemo(mode: TransactionFormMode, transaction: AccountBookTransaction | null | undefined) {
     return mode === "EDIT" && transaction ? transaction.memo ?? "" : "";
 }

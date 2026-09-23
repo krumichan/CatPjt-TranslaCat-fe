@@ -470,6 +470,7 @@
         "receipt": {
           "title": "영수증 분석",
           "description": "사진 한 장에 여러 영수증이 있어도 각각 분석합니다. 원본 통화와 환산 결과를 확인한 후 선택하여 등록하세요.",
+          "summary": "사진 {photos} · 영수증 {receipts} · 진행 {progress} · 실패 {failures}",
           "file": "영수증 이미지",
           "selectedFile": "선택 중: {filename}",
           "analysisMode": "분석 방식",
@@ -500,6 +501,8 @@
               "AMOUNT_REQUIRES_REVIEW": "원본 결제 금액을 확인하고 입력하세요.",
               "DATE_REQUIRES_REVIEW": "정확한 거래일을 확인하고 입력하세요.",
               "CATEGORY_REQUIRES_REVIEW": "거래 카테고리를 확인하고 입력하세요.",
+              "CATEGORY_CANDIDATES_EMPTY": "가계부에 활성 카테고리가 없어 AI가 분류하지 못했습니다. 직접 입력할 수 있습니다.",
+              "CATEGORY_CANDIDATES_NOT_DELIVERED": "카테고리 후보가 분석 서비스에 전달되지 않았습니다. 후보를 다시 조회한 뒤 재시도하세요.",
               "INVALID_AMOUNT": "유효한 양수 금액을 입력하세요.",
               "INVALID_DATE": "유효한 거래일을 입력하세요.",
               "UNREADABLE": "읽지 못한 영수증 정보를 원본과 비교하여 입력하세요.",
@@ -509,6 +512,9 @@
               "INVALID_OR_MISSING_AMOUNT": "결제 총액을 확인하고 입력하세요.",
               "INVALID_OR_AMBIGUOUS_DATE": "거래일이 없거나 모호합니다. 정확한 날짜를 입력하세요.",
               "CATEGORY_NOT_IN_ACCOUNT_BOOK": "기존 카테고리를 선택하거나 직접 입력하세요.",
+              "CATEGORY_NEW_SUGGESTION": "영수증 내용에 맞는 새 카테고리를 제안했습니다.",
+              "CATEGORY_FALLBACK_USED": "분류 근거가 부족해 넓은 기타 분류를 제안했습니다.",
+              "INVALID_CATEGORY_SUGGESTION": "유효하지 않은 카테고리 제안을 안전한 기본 분류로 바꿨습니다.",
               "MISSING_MERCHANT": "점포명과 거래명을 확인하세요.",
               "INVALID_CONFIDENCE": "분석 신뢰도를 확인할 수 없습니다.",
               "INVALID_CURRENCY_CONFIDENCE": "통화 판별 신뢰도를 확인할 수 없습니다.",
@@ -525,12 +531,15 @@
               "OCR_AI_UNAVAILABLE_RULE_FALLBACK": "AI 보완 없이 OCR 규칙으로 분석했습니다. 원본과 비교하세요.",
               "DUPLICATE_RECEIPT_REMOVED": "중복으로 감지한 영수증 후보를 제거했습니다.",
               "NO_RECEIPTS_DETECTED": "영수증을 찾지 못했습니다. 더 선명한 사진으로 다시 시도하세요.",
-              "RECEIPT_LIMIT_REACHED": "한 번에 분석할 수 있는 영수증 수에 도달했습니다. 나머지는 새 사진으로 분석하세요."
+              "RECEIPT_LIMIT_REACHED": "한 번에 분석할 수 있는 영수증 수에 도달했습니다. 나머지는 새 사진으로 분석하세요.",
+              "USER_ADDED_RECEIPT_REGION": "사용자가 원본 사진에서 추가한 영수증 후보입니다. 필수값을 입력하고 원본 확인을 완료하세요."
             },
             "conversionLocked": "영수증에서 등록한 거래의 유형·금액·거래일은 환율 기록을 보존하기 위해 변경할 수 없습니다. 거래명, 점포, 카테고리와 메모는 수정할 수 있습니다.",
             "title": "영수증별 거래 확인",
             "description": "각 영수증을 확인하고 등록할 거래를 선택하세요. 금액·통화·거래일을 변경하면 환산 결과를 다시 확인해야 합니다.",
             "analysisCompleted": "영수증 {count}건을 분석했습니다. 아래 거래 후보를 확인하세요.",
+            "editTitle": "영수증 {index} 확인·수정",
+            "receiptDetails": "영수증 결제·환율 세부 정보",
             "receiptNumber": "영수증 {index}",
             "originalAmount": "원본 금액",
             "branchName": "지점·위치",
@@ -566,6 +575,59 @@
             "previewFailed": "환산 결과를 확인하지 못했습니다. 입력 내용과 연결 상태를 확인한 후 다시 시도하세요.",
             "registrationFailed": "선택한 거래를 등록하지 못했습니다. 입력 내용과 환율을 다시 확인한 후 재시도하세요. 거래 후보는 유지됩니다.",
             "selected": "전체 {total}건 중 {count}건 선택",
+            "selectionSummary": "{selectedCount}건 선택 · 등록 가능 {registrableCount}건 · 확인 필요 {blockedCount}건",
+            "selectedHasIssues": "선택한 거래 중 확인이 필요한 항목이 있습니다.",
+            "selectRegisterableOnly": "등록 가능한 항목만 선택",
+            "selectReceipt": "영수증 {index} 선택",
+            "statusReady": "등록 가능",
+            "statusNeedsReview": "확인 필요",
+            "statusRecalculating": "재계산 중",
+            "unselected": "미선택",
+            "reviewEdit": "확인·수정",
+            "inlineCategory": "영수증 {index} 카테고리 즉시 선택",
+            "inlineAmountInput": "영수증 {index} 원통화 반영액",
+            "inlineApply": "적용",
+            "inlineCancel": "금액 편집 취소",
+            "inlineAmountPending": "적용하지 않은 금액 편집 또는 환율 재계산이 있어 등록할 수 없습니다.",
+            "inlineAmountInvalid": "양수 Decimal 금액을 입력해 주세요.",
+            "inlineAmountFailed": "환율 재계산에 실패했습니다. 입력을 유지했으며 취소하거나 다시 적용할 수 있습니다.",
+            "inlineAmountSimpleScope": "구매총액과 원통화 반영액을 함께 수정합니다.",
+            "inlineAmountSinglePaymentScope": "구매총액과 단일 결제 금액을 함께 수정합니다.",
+            "inlineAmountCorrectionSummary": "관측 {observed} → 사용자 수정 {corrected}",
+            "inlineAmountDetails": { "points": "포인트 결제가 있어 상세 확인이 필요합니다.", "multiple_payments": "복수 결제 배분은 상세 확인이 필요합니다.", "cash_change": "현금·거스름돈 사실은 상세 확인이 필요합니다.", "ambiguous_payment": "결제 의미가 불명확하여 상세 확인이 필요합니다." },
+            "revisionConflict": "편집하는 동안 원본 후보가 변경되었습니다. 창을 닫고 최신 항목을 다시 열어 주세요.",
+            "addMissingReceipt": "누락 영수증 영역 추가",
+            "regionPickerTitle": "누락된 영수증 영역 선택",
+            "regionPickerDescription": "원본 사진에서 영수증 하나의 테두리를 드래그하세요. 이 단계는 후보만 추가하며 거래를 저장하지 않습니다.",
+            "regionPickerCancel": "취소",
+            "useFullImage": "전체 사진 사용",
+            "addSelectedRegion": "선택 영역 후보 추가",
+            "sourcePreview": "원본과 함께 확인",
+            "sourcePreviewAlt": "{fileName} 원본 영수증",
+            "sourcePreviewUnavailable": "현재 세션의 원본 미리보기를 사용할 수 없습니다.",
+            "omitBranch": "원본에 지점 표기가 없음으로 확인",
+            "branchOmitted": "지점 없음으로 표시됨",
+            "confirmSourceReview": "현재 원본과 입력값 확인 완료",
+            "sourceReviewed": "현재 revision 원본 확인 완료",
+            "categorySources": { "existing": "기존", "default": "기본", "new": "신규", "fallback": "추정", "user": "사용자" },
+            "applyChanges": "변경사항 적용",
+            "discardChanges": "변경 취소",
+            "currentIssues": "현재 등록 차단 사유",
+            "viewMode": "영수증 검토 보기 방식",
+            "viewModes": { "list": "목록", "table": "표" },
+            "columns": { "select": "선택", "date": "거래일", "title": "거래명", "category": "카테고리", "amount": "가계부 반영액", "status": "상태", "action": "확인·수정" },
+            "blockingIssues": {
+              "TITLE_REQUIRED": "거래명을 입력해 주세요.", "TITLE_TOO_LONG": "거래명은 100자 이하로 입력해 주세요.",
+              "CATEGORY_REQUIRED": "카테고리를 선택해 주세요.", "CATEGORY_TOO_LONG": "카테고리는 50자 이하로 입력해 주세요.",
+              "STORE_TOO_LONG": "점포명은 100자 이하로 입력해 주세요.", "BRANCH_TOO_LONG": "지점·위치는 100자 이하로 입력해 주세요.",
+              "MEMO_TOO_LONG": "메모는 500자 이하로 입력해 주세요.", "PURCHASE_TOTAL_INVALID": "유효한 구매총액을 입력해 주세요.",
+              "PAYMENT_INVALID": "결제수단별 금액을 확인해 주세요.", "BOOK_AMOUNT_INVALID": "가계부 반영 원금액을 확인해 주세요.",
+              "AMOUNT_POLICY_INVALID": "금액 계산 정책을 다시 확인해 주세요.", "CURRENCY_INVALID": "3자리 원본 통화 코드를 입력해 주세요.",
+              "DATE_INVALID": "유효한 거래일을 입력해 주세요.", "TIME_INVALID": "유효한 영수증 시각을 입력해 주세요.",
+              "SOURCE_INVALID": "원본 영수증 연결 정보를 확인해 주세요.", "QUOTE_STALE": "금액·통화·날짜가 변경되어 환산 금액을 다시 확인해야 합니다.",
+              "CONVERSION_UNAVAILABLE": "등록 가능한 환산 결과가 없습니다.", "QUOTE_MISSING": "유효한 환율 quote가 없습니다. 환산 금액을 다시 확인해 주세요.",
+              "REVIEW_CONFIRMATION_REQUIRED": "현재 입력값을 원본과 다시 확인해 주세요."
+            },
             "register": "선택한 {count}건 등록",
             "conversionStatuses": {
               "NOT_REQUIRED": "가계부와 같은 통화입니다. 환율은 1입니다.",
@@ -587,6 +649,7 @@
           "type": "거래 유형",
           "title": "거래명",
           "storeName": "점포명",
+          "incomeSource": "수입처",
           "category": "카테고리",
           "amount": "금액",
           "displayAmount": "표시 금액: {amount}",
@@ -595,8 +658,15 @@
         },
         "options": {
           "storeNotSet": "미설정",
-          "directInput": "직접 입력"
+          "directInput": "직접 입력",
+          "categoryNotSelected": "카테고리를 선택해 주세요",
+          "savedValue": "저장된 값"
         },
+        "categoryStatus": {
+          "loading": "카테고리 후보를 불러오는 중입니다.", "error": "카테고리 후보 조회에 실패했습니다.",
+          "empty": "등록된 카테고리가 없습니다. 직접 입력할 수 있습니다.", "ready": "카테고리 후보를 불러왔습니다.", "retry": "다시 조회"
+        },
+        "validation": { "categoryRequired": "카테고리를 선택해 주세요." },
         "placeholders": {
           "title": "예: 편의점",
           "directStoreName": "새 점포명 입력",
@@ -610,6 +680,11 @@
           "save": "저장",
           "submitting": "저장 중..."
         }
+      },
+      "transactionDetail": {
+        "eyebrow": "거래 상세", "close": "닫기", "edit": "수정 화면으로 이동", "receiptTitle": "영수증·환율 스냅샷",
+        "types": { "income": "수입", "expense": "지출" },
+        "fields": { "type": "거래 유형", "title": "거래명", "storeName": "점포명", "incomeSource": "수입처", "category": "카테고리", "date": "거래일", "amount": "최종 가계부 반영액", "memo": "메모", "amountReason": "반영 원금액 근거", "quoteId": "저장된 환율 quote ID" }
       },
       "transactionList": {
         "title": "거래 내역",
@@ -629,6 +704,7 @@
           "income": "수입",
           "expense": "지출"
         },
+        "labels": { "storeName": "점포명", "incomeSource": "수입처" },
         "table": {
           "date": "날짜",
           "type": "구분",
@@ -644,9 +720,11 @@
           "next": "다음"
         },
         "actions": {
+          "detail": "상세",
           "edit": "수정",
           "delete": "삭제",
           "close": "닫기",
+          "detailAria": "거래 상세보기",
           "editAria": "거래 수정",
           "deleteAria": "거래 삭제"
         },

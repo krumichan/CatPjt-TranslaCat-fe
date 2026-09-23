@@ -12,6 +12,7 @@ type TransactionCardViewProps = {
     transactions: AccountBookTransaction[];
     currencyCode: CurrencyCode;
     onClickEditTransaction: (transaction: AccountBookTransaction) => void;
+    onClickDetailTransaction: (transaction: AccountBookTransaction) => void;
     onClickDeleteTransaction: (transaction: AccountBookTransaction) => void;
 };
 
@@ -19,6 +20,7 @@ export default function TransactionCardView({
     transactions,
     currencyCode,
     onClickEditTransaction,
+    onClickDetailTransaction,
     onClickDeleteTransaction,
 }: TransactionCardViewProps) {
     const groupedTransactions = groupTransactionsByDate(transactions);
@@ -44,6 +46,7 @@ export default function TransactionCardView({
                                 transaction={transaction}
                                 currencyCode={currencyCode}
                                 onClickEditTransaction={onClickEditTransaction}
+                                onClickDetailTransaction={onClickDetailTransaction}
                                 onClickDeleteTransaction={onClickDeleteTransaction}
                             />
                         ))}

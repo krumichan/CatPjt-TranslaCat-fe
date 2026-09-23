@@ -1,4 +1,4 @@
-import {TransactionFilterType} from "@/types/accountBook";
+import {TransactionFilterType, TransactionType} from "@/types/accountBook";
 
 export const accountBookDetailQueryKeys = {
     detail: (accountBookId: number) =>
@@ -47,8 +47,8 @@ export const accountBookDetailQueryKeys = {
     categories: (accountBookId: number) =>
         ["account-book-categories", accountBookId] as const,
 
-    storeSuggestions: (accountBookId: number) =>
-        ["account-book-store-suggestions", accountBookId] as const,
+    storeSuggestions: (accountBookId: number, type: TransactionType) =>
+        ["account-book-store-suggestions", accountBookId, type] as const,
 
     fixedCostGenerationTargets: (
         accountBookId: number,

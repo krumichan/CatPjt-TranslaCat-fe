@@ -127,7 +127,10 @@ export async function mockCommonPageDependencies(
 }
 
 export async function mockIdleWebSocket(page: Page): Promise<void> {
-    await page.routeWebSocket(/.*/, () => {
+    // Keep the application chat socket idle without intercepting Next.js' own
+    // development HMR socket. Intercepting every WebSocket prevents client
+    // hydration on current Next.js development servers.
+    await page.routeWebSocket(/\/ws\/chat(?:[/?]|$)/, () => {
         // 연결만 수락하고 STOMP CONNECTED frame은 보내지 않는다.
         // 앱은 CONNECTING 상태를 유지하므로 메시지 전송 테스트는 REST fallback을 사용한다.
     });

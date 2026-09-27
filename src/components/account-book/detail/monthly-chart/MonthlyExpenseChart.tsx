@@ -10,12 +10,11 @@ import {
     XAxis,
     YAxis,
 } from "recharts";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
     AccountBookMonthlyChartItem,
     CurrencyCode,
 } from "@/types/accountBook";
-import { formatAmount } from "@/utils/account-book/formatAmount";
 import MonthlyExpenseChartBudgetDot from "@/components/account-book/detail/monthly-chart/MonthlyExpenseChartBudgetDot";
 import MonthlyExpenseChartTooltip from "@/components/account-book/detail/monthly-chart/MonthlyExpenseChartTooltip";
 import MonthlyExpenseChartStatusCard from "@/components/account-book/detail/monthly-chart/MonthlyExpenseChartStatusCard";
@@ -37,10 +36,18 @@ export default function MonthlyExpenseChart({
     isLoading = false,
 }: MonthlyExpenseChartProps) {
     const t = useTranslations("AccountBook.detail.monthlyChart");
+    const locale = useLocale();
+    const axisFormatter = new Intl.NumberFormat(locale, {
+        notation: "compact",
+        maximumFractionDigits: 1,
+    });
 
-    const chartData: MonthlyExpenseChartRow[] = chartItems.map((item) => ({
+    const chartData = chartItems.map((item): MonthlyExpenseChartRow & { expensePlot: number; goalPlot: number | null } => ({
         ...item,
         monthLabel: t("monthLabel", { month: item.month }),
+        // Numeric coordinates are only for drawing; preserve the decimal source fields.
+        expensePlot: Number(item.expenseAmount),
+        goalPlot: item.expenseGoalAmount == null ? null : Number(item.expenseGoalAmount),
     }));
 
     const latestStatusItem = getLatestBudgetStatusItem(chartData);
@@ -49,7 +56,7 @@ export default function MonthlyExpenseChart({
 
     if (isLoading) {
         return (
-            <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-zinc-900/90 dark:shadow-black/30">
+            <section className="min-w-0 rounded-3xl border border-slate-200 bg-white p-3 sm:p-5 shadow-sm dark:border-white/10 dark:bg-zinc-900/90 dark:shadow-black/30">
                 <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
                     {t("title")}
                 </h2>
@@ -62,7 +69,7 @@ export default function MonthlyExpenseChart({
 
     if (!hasData) {
         return (
-            <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-zinc-900/90 dark:shadow-black/30">
+            <section className="min-w-0 rounded-3xl border border-slate-200 bg-white p-3 sm:p-5 shadow-sm dark:border-white/10 dark:bg-zinc-900/90 dark:shadow-black/30">
                 <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
                     {t("title")}
                 </h2>
@@ -74,7 +81,7 @@ export default function MonthlyExpenseChart({
     }
 
     return (
-        <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-zinc-900/90 dark:shadow-black/30">
+        <section className="min-w-0 rounded-3xl border border-slate-200 bg-white p-3 sm:p-5 shadow-sm dark:border-white/10 dark:bg-zinc-900/90 dark:shadow-black/30">
             <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                     <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
@@ -95,14 +102,14 @@ export default function MonthlyExpenseChart({
                 )}
             </div>
 
-            <div className="h-72 w-full">
+            <div className="h-72 w-full min-w-0" aria-label={currencyCode}>
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart
                         data={chartData}
                         margin={{
                             top: 20,
-                            right: 24,
-                            left: 8,
+                            right: 8,
+                            left: 0,
                             bottom: 12,
                         }}
                     >
@@ -120,12 +127,10 @@ export default function MonthlyExpenseChart({
                         />
 
                         <YAxis
-                            tickFormatter={(value) =>
-                                formatAmount(Number(value), currencyCode)
-                            }
+                            tickFormatter={(value) => axisFormatter.format(Number(value))}
                             tickLine={false}
                             axisLine={false}
-                            width={80}
+                            width={48}
                             tick={{ fill: "currentColor" }}
                             className="text-xs text-slate-500 dark:text-slate-400"
                         />
@@ -138,11 +143,11 @@ export default function MonthlyExpenseChart({
                             }
                         />
 
-                        <Legend />
+                        <Legend wrapperStyle={{ fontSize: 12, overflowWrap: "anywhere" }} />
 
                         <Line
                             type="monotone"
-                            dataKey="expenseGoalAmount"
+                            dataKey="goalPlot"
                             name={t("series.expenseGoalAmount")}
                             stroke="#60a5fa"
                             strokeWidth={2.5}
@@ -159,7 +164,7 @@ export default function MonthlyExpenseChart({
 
                         <Line
                             type="monotone"
-                            dataKey="expenseAmount"
+                            dataKey="expensePlot"
                             name={t("series.expenseAmount")}
                             stroke="#f97316"
                             strokeWidth={3}

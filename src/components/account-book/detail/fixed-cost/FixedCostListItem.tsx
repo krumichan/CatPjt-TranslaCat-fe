@@ -3,7 +3,7 @@ import {
     AccountBookFixedCost,
     CurrencyCode,
 } from "@/types/accountBook";
-import { formatAmount } from "@/utils/account-book/formatAmount";
+import { useAmountFormatter } from "@/components/account-book/AccountBookCurrencyProvider";
 import FixedCostFloatingActionMenu from "@/components/account-book/detail/fixed-cost/FixedCostFloatingActionMenu";
 import { formatYearMonth } from "@/components/account-book/detail/fixed-cost/formatYearMonth";
 
@@ -24,6 +24,7 @@ export default function FixedCostListItem({
     onClickDelete,
     onChangeActive,
 }: FixedCostListItemProps) {
+    const formatAmount = useAmountFormatter();
     const t = useTranslations("AccountBook.detail.fixedCost");
 
     const periodText = t("period", {
@@ -36,7 +37,7 @@ export default function FixedCostListItem({
 
     return (
         <div
-            className={`flex items-center justify-between gap-3 rounded-xl bg-slate-50 px-4 py-3 transition dark:bg-black/20 ${
+            className={`flex min-w-0 flex-col items-stretch justify-between gap-3 rounded-xl bg-slate-50 px-3 py-3 transition dark:bg-black/20 sm:flex-row sm:items-center sm:px-4 ${
                 fixedCost.active ? "" : "opacity-55"
             }`}
         >
@@ -46,7 +47,7 @@ export default function FixedCostListItem({
                         {fixedCost.title}
                     </p>
 
-                    <span className="shrink-0 rounded-full bg-slate-200 px-2 py-0.5 text-[11px] font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                    <span className="max-w-full break-all rounded-full bg-slate-200 px-2 py-0.5 text-[11px] font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                         {fixedCost.category}
                     </span>
 
@@ -77,8 +78,8 @@ export default function FixedCostListItem({
                 </p>
             </div>
 
-            <div className="flex shrink-0 items-center gap-2">
-                <p className="text-sm font-bold text-red-500 dark:text-red-400">
+            <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
+                <p className="min-w-0 break-all text-sm font-bold text-red-500 dark:text-red-400">
                     -{formatAmount(fixedCost.amount, currencyCode)}
                 </p>
 

@@ -51,6 +51,7 @@ export default defineConfig({
     reporter: [["html", { open: "never" }], ["list"]],
     use: {
         baseURL,
+        channel: process.env.E2E_BROWSER_CHANNEL,
         trace: "retain-on-failure",
         screenshot: "only-on-failure",
         video: "retain-on-failure",

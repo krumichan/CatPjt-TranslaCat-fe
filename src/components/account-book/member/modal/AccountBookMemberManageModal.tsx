@@ -34,10 +34,10 @@ export default function AccountBookMemberManageModal({
         <>
             <div className="fixed inset-0 z-100 bg-black/50 backdrop-blur-sm" />
 
-            <div className="fixed inset-0 z-101 flex items-start justify-center overflow-hidden px-3 py-4 sm:px-4 sm:py-10">
+            <div className="fixed inset-0 z-101 flex items-start justify-center overflow-hidden px-3 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-4">
                 <div className="relative flex max-h-[calc(100dvh-2rem)] w-full max-w-3xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl dark:border-white/10 dark:bg-zinc-900">
-                    <div className="flex shrink-0 items-start justify-between gap-4 border-b border-slate-100 p-5 dark:border-white/10 sm:p-6">
-                        <div>
+                    <div className="flex shrink-0 items-start justify-between gap-4 border-b border-slate-100 p-3 dark:border-white/10 sm:p-6">
+                        <div className="min-w-0 break-words">
                             <p className="text-xs font-bold uppercase tracking-[0.25em] text-orange-500">
                                 {t("eyebrow")}
                             </p>
@@ -66,7 +66,7 @@ export default function AccountBookMemberManageModal({
                         </button>
                     </div>
 
-                    <div className="min-h-0 flex-1 overflow-y-auto p-5 sm:p-6">
+                    <div className="min-h-0 flex-1 min-w-0 overflow-y-auto p-3 sm:p-6">
                         <div className="space-y-6">
                             <AccountBookMemberInviteForm
                                 publicId={modal.publicId}

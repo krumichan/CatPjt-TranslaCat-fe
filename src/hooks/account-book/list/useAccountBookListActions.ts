@@ -9,6 +9,7 @@ import { UseQueryMutate } from "@/hooks/useQuery";
 import { accountBookService } from "@/services/account-book/accountBookService";
 import { accountBookMonthlyGoalService } from "@/services/account-book/accountBookMonthlyGoalService";
 import { getCurrentYearMonth } from "@/utils/dateUtils";
+import { isPositiveDecimal } from "@/utils/account-book/decimalInput";
 
 type UseAccountBookListActionsProps = {
     mutateAccountBooks: UseQueryMutate<AccountBook[]>;
@@ -57,7 +58,7 @@ export function useAccountBookListActions({
                 currencyCode: values.currencyCode,
             });
 
-            if (values.expenseGoalAmount && values.expenseGoalAmount > 0) {
+            if (values.expenseGoalAmount != null && isPositiveDecimal(String(values.expenseGoalAmount))) {
                 const { year, month } = getCurrentYearMonth();
 
                 await accountBookMonthlyGoalService.saveMonthlyGoal(
@@ -121,7 +122,7 @@ export function useAccountBookListActions({
 
             const { year, month } = getCurrentYearMonth();
 
-            if (expenseGoalAmount && expenseGoalAmount > 0) {
+            if (expenseGoalAmount != null && isPositiveDecimal(String(expenseGoalAmount))) {
                 await accountBookMonthlyGoalService.saveMonthlyGoal(
                     accountBookId,
                     {

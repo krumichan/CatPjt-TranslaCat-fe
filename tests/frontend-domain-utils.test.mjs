@@ -9,6 +9,24 @@ import { buildPieChartItems } from "../src/utils/account-book/expenseRanking.ts"
 import * as websocket from "../src/utils/chat/chatWebSocketParser.ts";
 import { getLanguageLearningErrorCode, LANGUAGE_LEARNING_ERROR_CODES } from "../src/features/language-learning/common/errorMapping.ts";
 import { ApiResponseError } from "../src/services/common/responseParser.ts";
+import { formatAmount } from "../src/utils/account-book/formatAmount.ts";
+import { formatDecimalInput } from "../src/utils/account-book/decimalInput.ts";
+
+test("account book amounts respect currency minor units and configured overrides", () => {
+    assert.equal(formatAmount("12.34", "USD"), "$12.34");
+    assert.match(formatAmount("1280", "JPY"), /1,280/);
+    assert.match(formatAmount("10.125", "KWD"), /10\.125/);
+    assert.equal(formatAmount("12.3456", "USD", 4), "$12.3456");
+    assert.equal(formatAmount("9007199254740993.12", "USD", 2), "$9,007,199,254,740,993.12");
+});
+
+test("goal decimal inputs retain fractions, trailing decimal and large values", () => {
+    assert.equal(formatDecimalInput("1234.56"), "1,234.56");
+    assert.equal(formatDecimalInput("10.125"), "10.125");
+    assert.equal(formatDecimalInput("12."), "12.");
+    assert.equal(formatDecimalInput("9007199254740993.125"), "9,007,199,254,740,993.125");
+    assert.equal(formatDecimalInput("1.2.3"), "1.2.3");
+});
 
 test("activity date formatting preserves browser locale and timezone options", () => {
     const value = "2026-09-09T12:30:00Z";
@@ -60,7 +78,7 @@ test("ranking-chart aggregation preserves ordering and computes the other slice"
     const items = [{ name: "a", amount: 60, transactionCount: 3, percentage: 60 }, { name: "b", amount: 25, transactionCount: 2, percentage: 25 }, { name: "c", amount: 15, transactionCount: 1, percentage: 15 }];
     assert.equal(buildPieChartItems(items, 100, 3, "other"), items);
     const grouped = buildPieChartItems(items, 100, 2, "other");
-    assert.deepEqual(grouped, [items[0], { name: "other", amount: 40, transactionCount: 3, percentage: 40 }]);
+    assert.deepEqual(grouped, [items[0], { name: "other", amount: "40", transactionCount: 3, percentage: 40 }]);
     assert.equal(buildPieChartItems(items, 0, 2, "other")[1].percentage, 0);
     assert.deepEqual(items.map((x) => x.name), ["a", "b", "c"]);
     assert.deepEqual(buildPieChartItems([], 0, 8, "other"), []);

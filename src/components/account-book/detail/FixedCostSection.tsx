@@ -33,8 +33,8 @@ export default function FixedCostSection({
         useState<AccountBookFixedCost | null>(null);
 
     return (
-        <section className="mb-6 rounded-2xl border border-slate-200 bg-white/95 p-5 shadow-[0_12px_30px_rgba(15,23,42,0.12)] backdrop-blur-md dark:border-white/10 dark:bg-zinc-800/80 dark:shadow-xl">
-            <div className="flex items-start justify-between gap-4">
+        <section className="mb-6 min-w-0 rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-[0_12px_30px_rgba(15,23,42,0.12)] backdrop-blur-md dark:border-white/10 dark:bg-zinc-800/80 dark:shadow-xl sm:p-5">
+            <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                     <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
                         {t("eyebrow")}

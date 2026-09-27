@@ -9,7 +9,12 @@ const publicPages = ['/login', '/error'];
 const intlMiddleware = createMiddleware({
     locales,
     defaultLocale: 'ko',
-    localePrefix: 'as-needed'
+    // Next 16 applies proxy middleware again to the internal `/ko` rewrite
+    // produced by `as-needed`.  The second pass canonicalizes back to the
+    // unprefixed URL, which creates an infinite redirect for authenticated
+    // Korean routes.  Keep every locale explicit so protected routes are
+    // handled in one pass.
+    localePrefix: 'always'
 });
 
 const authMiddleware = withAuth(

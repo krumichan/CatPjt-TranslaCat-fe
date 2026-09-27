@@ -8,7 +8,8 @@ import {
     isEndMonthBeforeStartMonth,
     isValidYearMonth,
 } from "@/utils/account-book/fixedCostForm";
-import { formatAmount } from "@/utils/account-book/formatAmount";
+import { useAmountFormatter } from "@/components/account-book/AccountBookCurrencyProvider";
+import { isPositiveDecimal } from "@/utils/account-book/decimalInput";
 import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { SyntheticEvent, useMemo, useState } from "react";
@@ -21,6 +22,7 @@ export function FixedCostFormModalContent({
    onClose,
    onSubmit,
 }: FixedCostFormModalProps) {
+    const formatAmount = useAmountFormatter();
     const t = useTranslations("AccountBook.detail.fixedCost.modal");
     const isEditMode = !!fixedCost;
 
@@ -83,7 +85,7 @@ export function FixedCostFormModalContent({
         return (
             title.trim().length > 0 &&
             finalCategory.length > 0 &&
-            Number(amount) > 0 &&
+            isPositiveDecimal(amount) &&
             Number(paymentDay) >= 1 &&
             Number(paymentDay) <= 31 &&
             isValidYearMonth(startYear, startMonth) &&
@@ -117,7 +119,7 @@ export function FixedCostFormModalContent({
                 title: title.trim(),
                 storeName: finalStoreName || null,
                 category: finalCategory,
-                amount: Number(amount),
+                amount: amount.trim(),
                 paymentDay: Number(paymentDay),
                 startYear: Number(startYear),
                 startMonth: Number(startMonth),
@@ -133,7 +135,7 @@ export function FixedCostFormModalContent({
     };
 
     return (
-        <div className="fixed inset-0 z-9999 overflow-y-auto px-4 py-16 sm:py-20">
+        <div className="fixed inset-0 z-9999 overflow-y-auto overscroll-contain px-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-4 sm:py-10">
             <button
                 type="button"
                 aria-label={t("actions.close")}
@@ -141,7 +143,7 @@ export function FixedCostFormModalContent({
                 className="fixed inset-0 bg-black/50 backdrop-blur-sm"
             />
 
-            <div className="relative z-10 mx-auto w-full max-w-2xl rounded-2xl border border-slate-200 bg-white/95 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.25)] backdrop-blur-md dark:border-white/10 dark:bg-zinc-900/95">
+            <div className="relative z-10 mx-auto w-full max-w-2xl rounded-2xl border border-slate-200 bg-white/95 p-4 sm:p-6 shadow-[0_20px_60px_rgba(15,23,42,0.25)] backdrop-blur-md dark:border-white/10 dark:bg-zinc-900/95">
                 <div className="mb-6 flex items-start justify-between gap-4">
                     <div>
                         <p className="mb-1 text-sm font-medium text-orange-500">
@@ -282,15 +284,16 @@ export function FixedCostFormModalContent({
                                 }
                                 type="number"
                                 min="0"
-                                inputMode="numeric"
+                                step="any"
+                                inputMode="decimal"
                                 placeholder="0"
                                 className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-gray-800 outline-none transition placeholder:text-slate-400 focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-200 dark:border-white/10 dark:bg-black/30 dark:text-white dark:placeholder:text-gray-500 dark:focus:bg-black/40 dark:focus:ring-orange-500/20"
                             />
 
-                            {Number(amount) > 0 && (
+                            {isPositiveDecimal(amount) && (
                                 <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
                                     {t("displayAmount")}{" "}
-                                    {formatAmount(Number(amount), currencyCode)}
+                                    {formatAmount(amount, currencyCode)}
                                 </p>
                             )}
                         </div>
@@ -422,7 +425,7 @@ export function FixedCostFormModalContent({
                         />
                     </div>
 
-                    <div className="flex justify-end gap-3 pt-2">
+                    <div className="flex flex-wrap justify-end gap-3 pt-2">
                         <button
                             type="button"
                             onClick={onClose}

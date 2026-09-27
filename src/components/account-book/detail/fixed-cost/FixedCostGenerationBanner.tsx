@@ -4,7 +4,8 @@ import {
     AccountBookFixedCostGenerationTargetsResponse,
     CurrencyCode,
 } from "@/types/accountBook";
-import { formatAmount } from "@/utils/account-book/formatAmount";
+import { useAmountFormatter } from "@/components/account-book/AccountBookCurrencyProvider";
+import { sumDecimalAmounts } from "@/utils/account-book/decimalMoney";
 
 type FixedCostGenerationBannerProps = {
     generationTargets?: AccountBookFixedCostGenerationTargetsResponse;
@@ -19,16 +20,14 @@ export default function FixedCostGenerationBanner({
     isLoading = false,
     onClickGenerate,
 }: FixedCostGenerationBannerProps) {
+    const formatAmount = useAmountFormatter();
     const t = useTranslations("AccountBook.detail.fixedCost.generation");
 
     if (!generationTargets || generationTargets.count === 0) {
         return null;
     }
 
-    const totalAmount = generationTargets.targets.reduce(
-        (sum, target) => sum + target.amount,
-        0
-    );
+    const totalAmount = sumDecimalAmounts(generationTargets.targets.map((target) => target.amount));
 
     return (
         <section

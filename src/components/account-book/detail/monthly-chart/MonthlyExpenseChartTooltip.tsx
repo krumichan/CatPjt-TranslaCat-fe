@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
 import { CurrencyCode } from "@/types/accountBook";
-import { formatAmount } from "@/utils/account-book/formatAmount";
+import { useAmountFormatter } from "@/components/account-book/AccountBookCurrencyProvider";
+import { unitsToDecimal } from "@/utils/account-book/decimalMoney";
 import {
     getBudgetDiff,
     MonthlyExpenseChartRow,
@@ -26,6 +27,7 @@ export default function MonthlyExpenseChartTooltip({
    payload,
    currencyCode,
 }: MonthlyExpenseChartTooltipProps) {
+    const formatAmount = useAmountFormatter();
     const t = useTranslations("AccountBook.detail.monthlyChart.tooltip");
 
     if (!active || !payload || payload.length === 0) {
@@ -40,40 +42,42 @@ export default function MonthlyExpenseChartTooltip({
             ? t("goalUnset")
             : budgetDiff > 0
                 ? t("over", {
-                    amount: formatAmount(budgetDiff, currencyCode),
+                    amount: formatAmount(unitsToDecimal(budgetDiff), currencyCode),
                 })
                 : budgetDiff < 0
                     ? t("remaining", {
-                        amount: formatAmount(Math.abs(budgetDiff), currencyCode),
+                        amount: formatAmount(unitsToDecimal(-budgetDiff), currencyCode),
                     })
                     : t("just");
 
     return (
-        <div className="rounded-xl border border-slate-200 bg-white/95 px-4 py-3 text-sm shadow-lg dark:border-white/10 dark:bg-zinc-900/95">
+        <div className="max-w-[min(18rem,calc(100vw-3rem))] break-words rounded-xl border border-slate-200 bg-white/95 px-4 py-3 text-sm shadow-lg dark:border-white/10 dark:bg-zinc-900/95">
             <p className="mb-2 font-semibold text-slate-900 dark:text-white">
                 {label}
             </p>
 
             <div className="space-y-1">
-                {payload.map((item) => (
+                {payload.map((item) => {
+                    const rawAmount = item.dataKey === "goalPlot" ? item.payload?.expenseGoalAmount : item.payload?.expenseAmount;
+                    return (
                     <div
                         key={String(item.dataKey)}
-                        className="flex items-center justify-between gap-6"
+                        className="flex flex-wrap items-center justify-between gap-2"
                     >
                         <span className="text-slate-500 dark:text-slate-400">
                             {item.name}
                         </span>
 
                         <span className="font-medium text-slate-900 dark:text-slate-100">
-                            {item.value == null
+                            {rawAmount == null
                                 ? t("unset")
-                                : formatAmount(item.value, currencyCode)}
+                                : formatAmount(rawAmount, currencyCode)}
                         </span>
                     </div>
-                ))}
+                );})}
 
                 <div className="mt-2 border-t border-slate-200 pt-2 dark:border-white/10">
-                    <div className="flex items-center justify-between gap-6">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
                         <span className="text-slate-500 dark:text-slate-400">
                             {t("goalDiff")}
                         </span>

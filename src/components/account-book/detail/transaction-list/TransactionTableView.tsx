@@ -3,14 +3,16 @@ import {
     AccountBookTransaction,
     CurrencyCode,
 } from "@/types/accountBook";
-import { formatAmount } from "@/utils/account-book/formatAmount";
+import { useAmountFormatter } from "@/components/account-book/AccountBookCurrencyProvider";
 import { formatDateLabel } from "@/components/account-book/detail/transaction-list/transactionListUtils";
 import TransactionTableMemoCell from "@/components/account-book/detail/transaction-list/TransactionTableMemoCell";
+import TransactionConversionDetails from "@/components/account-book/detail/TransactionConversionDetails";
 
 type TransactionTableViewProps = {
     transactions: AccountBookTransaction[];
     currencyCode: CurrencyCode;
     onClickEditTransaction: (transaction: AccountBookTransaction) => void;
+    onClickDetailTransaction: (transaction: AccountBookTransaction) => void;
     onClickDeleteTransaction: (transaction: AccountBookTransaction) => void;
     t: ReturnType<typeof useTranslations>;
 };
@@ -19,16 +21,18 @@ export default function TransactionTableView({
     transactions,
     currencyCode,
     onClickEditTransaction,
+    onClickDetailTransaction,
     onClickDeleteTransaction,
     t,
 }: TransactionTableViewProps) {
+    const formatAmount = useAmountFormatter();
     const sortedTransactions = [...transactions].sort((a, b) =>
         b.transactionDate.localeCompare(a.transactionDate)
     );
 
     return (
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white/95 shadow-[0_14px_34px_rgba(15,23,42,0.14)] backdrop-blur-md dark:border-white/10 dark:bg-zinc-800/80 dark:shadow-xl">
-            <div className="overflow-x-auto">
+        <div className="min-w-0 max-w-full overflow-hidden rounded-2xl border border-slate-200 bg-white/95 shadow-[0_14px_34px_rgba(15,23,42,0.14)] backdrop-blur-md dark:border-white/10 dark:bg-zinc-800/80 dark:shadow-xl">
+            <div className="max-w-full overflow-x-auto overscroll-x-contain" data-testid="transaction-table-scroll">
                 <table className="min-w-240 w-full border-collapse text-sm">
                     <thead className="bg-slate-100 text-xs text-slate-500 dark:bg-white/5 dark:text-slate-400">
                     <tr>
@@ -100,6 +104,7 @@ export default function TransactionTableView({
                                             </span>
                                         )}
                                     </div>
+                                    <TransactionConversionDetails transaction={transaction} />
                                 </td>
 
                                 <td className="whitespace-nowrap px-4 py-3 text-slate-600 dark:text-slate-300">
@@ -107,7 +112,7 @@ export default function TransactionTableView({
                                 </td>
 
                                 <td className="max-w-40 truncate px-4 py-3 text-slate-500 dark:text-slate-400">
-                                    {transaction.storeName || "-"}
+                                    {transaction.storeName ? `${t(transaction.type === "INCOME" ? "labels.incomeSource" : "labels.storeName")}: ${transaction.storeName}` : "-"}
                                 </td>
 
                                 <TransactionTableMemoCell
@@ -131,6 +136,10 @@ export default function TransactionTableView({
 
                                 <td className="whitespace-nowrap px-4 py-3 text-right">
                                     <div className="flex justify-end gap-2">
+                                        <button type="button" onClick={() => onClickDetailTransaction(transaction)}
+                                            className="inline-flex items-center justify-center rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-500 transition hover:border-orange-300 hover:bg-orange-50 hover:text-orange-500 dark:border-white/10 dark:text-slate-400">
+                                            {t("actions.detail")}
+                                        </button>
                                         <button
                                             type="button"
                                             onClick={() => onClickEditTransaction(transaction)}

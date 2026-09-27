@@ -1,4 +1,5 @@
-import { AccountBookMonthlyChartItem } from "@/types/accountBook";
+import type { AccountBookMonthlyChartItem } from "@/types/accountBook";
+import { decimalToUnits } from "@/utils/account-book/decimalMoney";
 
 export type MonthlyExpenseChartRow = AccountBookMonthlyChartItem & {
     monthLabel: string;
@@ -9,7 +10,7 @@ export function getBudgetDiff(row: MonthlyExpenseChartRow) {
         return null;
     }
 
-    return row.expenseAmount - row.expenseGoalAmount;
+    return decimalToUnits(row.expenseAmount) - decimalToUnits(row.expenseGoalAmount);
 }
 
 export function getLatestBudgetStatusItem(data: MonthlyExpenseChartRow[]) {
@@ -41,8 +42,8 @@ export function getLatestBudgetStatusItem(data: MonthlyExpenseChartRow[]) {
             .reverse()
             .find(
                 (item) =>
-                    item.expenseAmount > 0 ||
-                    item.incomeAmount > 0 ||
+                    decimalToUnits(item.expenseAmount) > BigInt(0) ||
+                    decimalToUnits(item.incomeAmount) > BigInt(0) ||
                     item.expenseGoalAmount != null
             ) ?? candidates[candidates.length - 1] ?? null
     );
@@ -51,9 +52,9 @@ export function getLatestBudgetStatusItem(data: MonthlyExpenseChartRow[]) {
 export function hasMonthlyChartData(data: MonthlyExpenseChartRow[]) {
     return data.some(
         (item) =>
-            item.incomeAmount > 0 ||
-            item.expenseAmount > 0 ||
-            item.balance !== 0 ||
+            decimalToUnits(item.incomeAmount) > BigInt(0) ||
+            decimalToUnits(item.expenseAmount) > BigInt(0) ||
+            decimalToUnits(item.balance) !== BigInt(0) ||
             item.expenseGoalAmount != null
     );
 }

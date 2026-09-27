@@ -15,6 +15,7 @@ type TransactionListProps = {
     transactions: AccountBookTransaction[];
     currencyCode: CurrencyCode;
     onClickEditTransaction: (transaction: AccountBookTransaction) => void;
+    onClickDetailTransaction: (transaction: AccountBookTransaction) => void;
     onClickDeleteTransaction: (transaction: AccountBookTransaction) => void;
     isLoading?: boolean;
 
@@ -27,6 +28,7 @@ export default function TransactionList({
     transactions,
     currencyCode,
     onClickEditTransaction,
+    onClickDetailTransaction,
     onClickDeleteTransaction,
     isLoading = false,
     page,
@@ -36,7 +38,7 @@ export default function TransactionList({
     const t = useTranslations("AccountBook.detail.transactionList");
 
     const [viewMode, setViewMode] =
-        useState<TransactionViewMode>("TABLE");
+        useState<TransactionViewMode>("CARD");
 
     if (isLoading && transactions.length === 0) {
         return (
@@ -58,7 +60,7 @@ export default function TransactionList({
     }
 
     return (
-        <section className="space-y-4">
+        <section className="min-w-0 space-y-4" data-testid="account-book-transactions">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
@@ -81,6 +83,7 @@ export default function TransactionList({
                     transactions={transactions}
                     currencyCode={currencyCode}
                     onClickEditTransaction={onClickEditTransaction}
+                    onClickDetailTransaction={onClickDetailTransaction}
                     onClickDeleteTransaction={onClickDeleteTransaction}
                 />
             ) : (
@@ -88,6 +91,7 @@ export default function TransactionList({
                     transactions={transactions}
                     currencyCode={currencyCode}
                     onClickEditTransaction={onClickEditTransaction}
+                    onClickDetailTransaction={onClickDetailTransaction}
                     onClickDeleteTransaction={onClickDeleteTransaction}
                     t={t}
                 />

@@ -5,7 +5,7 @@ import {
     AccountBookFixedCost,
     CurrencyCode,
 } from "@/types/accountBook";
-import { formatAmount } from "@/utils/account-book/formatAmount";
+import { useAmountFormatter } from "@/components/account-book/AccountBookCurrencyProvider";
 import DetailRow from "@/components/account-book/detail/fixed-cost/DetailRow";
 import { formatYearMonth } from "@/components/account-book/detail/fixed-cost/formatYearMonth";
 
@@ -20,6 +20,7 @@ export default function FixedCostDetailModal({
     currencyCode,
     onClose,
 }: FixedCostDetailModalProps) {
+    const formatAmount = useAmountFormatter();
     const t = useTranslations("AccountBook.detail.fixedCost");
 
     if (!fixedCost || typeof document === "undefined") {
@@ -37,7 +38,7 @@ export default function FixedCostDetailModal({
             : t("ongoing");
 
     return createPortal(
-        <div className="fixed inset-0 z-9999 overflow-y-auto px-4 py-16 sm:py-20">
+        <div className="fixed inset-0 z-9999 overflow-y-auto overscroll-contain px-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-4 sm:py-10">
             <button
                 type="button"
                 aria-label={t("detail.actions.close")}
@@ -45,7 +46,7 @@ export default function FixedCostDetailModal({
                 className="fixed inset-0 bg-black/50 backdrop-blur-sm"
             />
 
-            <div className="relative z-10 mx-auto w-full max-w-lg rounded-2xl border border-slate-200 bg-white/95 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.25)] backdrop-blur-md dark:border-white/10 dark:bg-zinc-900/95">
+            <div className="relative z-10 mx-auto w-full max-w-lg rounded-2xl border border-slate-200 bg-white/95 p-4 sm:p-6 shadow-[0_20px_60px_rgba(15,23,42,0.25)] backdrop-blur-md dark:border-white/10 dark:bg-zinc-900/95">
                 <div className="mb-5 flex items-start justify-between gap-4">
                     <div>
                         <p className="mb-1 text-sm font-medium text-orange-500">

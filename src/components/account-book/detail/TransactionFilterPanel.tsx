@@ -40,7 +40,7 @@ export default function TransactionFilterPanel({
     return (
         <div className="mb-6 rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-[0_12px_30px_rgba(15,23,42,0.12)] backdrop-blur-md dark:border-white/10 dark:bg-zinc-800/80 dark:shadow-xl">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-                <div className="relative flex-1">
+                <div className="relative min-w-0 flex-1">
                     <Search
                         size={18}
                         className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
@@ -74,7 +74,7 @@ export default function TransactionFilterPanel({
                 <select
                     value={selectedMonth}
                     onChange={(event) => onChangeSelectedMonth(event.target.value)}
-                    className="rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-gray-800 outline-none transition focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-200 dark:border-white/10 dark:bg-black/30 dark:text-white dark:focus:bg-black/40 dark:focus:ring-orange-500/20 [&>option]:bg-white [&>option]:text-gray-800 dark:[&>option]:bg-zinc-900 dark:[&>option]:text-white"
+                    className="min-w-0 max-w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-gray-800 outline-none transition focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-200 dark:border-white/10 dark:bg-black/30 dark:text-white dark:focus:bg-black/40 dark:focus:ring-orange-500/20 [&>option]:bg-white [&>option]:text-gray-800 dark:[&>option]:bg-zinc-900 dark:[&>option]:text-white"
                 >
                     <option value="ALL">{t("period.all")}</option>
 

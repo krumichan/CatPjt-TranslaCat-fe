@@ -6,7 +6,7 @@ import {
     AccountBook,
     AccountBookEditFormValues
 } from "@/types/accountBook";
-import {formatNumberWithComma, onlyDigits} from "@/utils/number/formatNumberInput";
+import { formatDecimalInput, parsePositiveDecimalInput } from "@/utils/account-book/decimalInput";
 
 type AccountBookEditModalContentProps = {
     accountBook: AccountBook;
@@ -44,13 +44,13 @@ export function AccountBookEditModalContent({
     const [isSubmitting, setIsSubmitting] = useState(false);
     const isSubmittingRef = useRef(false);
 
-    const goalAmountDigits = onlyDigits(expenseGoalAmount);
+    const goalAmountDigits = expenseGoalAmount.replaceAll(",", "");
     const hasGoalAmountInput = goalAmountDigits.length > 0;
-    const parsedGoalAmount = hasGoalAmountInput ? Number(goalAmountDigits) : null;
+    const parsedGoalAmount = parsePositiveDecimalInput(goalAmountDigits);
 
     const hasValidGoalAmount =
         !hasGoalAmountInput ||
-        (parsedGoalAmount !== null && parsedGoalAmount > 0);
+        parsedGoalAmount !== null;
 
     const shouldDeleteMonthlyGoal =
         !hasGoalAmountInput && accountBook.expenseGoalAmount != null;
@@ -105,8 +105,8 @@ export function AccountBookEditModalContent({
     };
 
     return (
-        <div className="fixed inset-0 z-9999 flex items-start justify-center overflow-y-auto bg-black/40 px-4 py-10 backdrop-blur-sm">
-            <div className="w-full max-w-xl rounded-3xl border border-white/70 bg-white p-6 shadow-2xl dark:border-white/10 dark:bg-slate-950">
+        <div className="fixed inset-0 z-9999 flex items-start justify-center overflow-y-auto bg-black/40 px-3 py-10 backdrop-blur-sm">
+            <div className="w-full max-w-xl rounded-3xl border border-white/70 bg-white p-4 sm:p-6 shadow-2xl dark:border-white/10 dark:bg-slate-950">
                 <div className="mb-5 flex items-start justify-between gap-4">
                     <div>
                         <p className="text-xs font-black uppercase tracking-[0.3em] text-orange-400">
@@ -157,15 +157,15 @@ export function AccountBookEditModalContent({
                             </span>
 
                             <input
-                                value={formatNumberWithComma(expenseGoalAmount)}
+                                value={formatDecimalInput(expenseGoalAmount)}
                                 onChange={(event) =>
-                                    setExpenseGoalAmount(onlyDigits(event.target.value))
+                                    setExpenseGoalAmount(event.target.value.replaceAll(",", ""))
                                 }
                                 disabled={isSubmitting}
                                 type="text"
-                                inputMode="numeric"
+                                inputMode="decimal"
                                 placeholder={t("placeholders.goalAmount")}
-                                className="w-full bg-transparent px-4 py-3 text-sm text-gray-800 outline-none placeholder:text-slate-400 disabled:cursor-not-allowed disabled:opacity-60 dark:text-white dark:placeholder:text-gray-500"
+                                className="min-w-0 w-full bg-transparent px-4 py-3 text-sm text-gray-800 outline-none placeholder:text-slate-400 disabled:cursor-not-allowed disabled:opacity-60 dark:text-white dark:placeholder:text-gray-500"
                             />
                         </div>
 
@@ -174,7 +174,7 @@ export function AccountBookEditModalContent({
                         </p>
                     </label>
 
-                    <div className="flex justify-end gap-3 pt-2">
+                    <div className="flex flex-wrap justify-end gap-3 pt-2">
                         <button
                             type="button"
                             onClick={onClose}

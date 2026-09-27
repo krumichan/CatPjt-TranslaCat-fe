@@ -41,7 +41,7 @@ export default function ExpenseGoalYearMonthInput({
                         monthInputRef.current?.select();
                     }
                 }}
-                className="w-24 rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-center text-sm text-slate-900 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-200 dark:border-white/10 dark:bg-black/30 dark:text-white dark:focus:ring-orange-500/20"
+                className="min-w-0 w-20 sm:w-24 rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-center text-sm text-slate-900 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-200 dark:border-white/10 dark:bg-black/30 dark:text-white dark:focus:ring-orange-500/20"
                 placeholder="2026"
             />
 
@@ -81,7 +81,7 @@ export default function ExpenseGoalYearMonthInput({
                     const normalizedMonth = String(Number(month)).padStart(2, "0");
                     onChangeMonth(normalizedMonth);
                 }}
-                className="w-20 rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-center text-sm text-slate-900 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-200 dark:border-white/10 dark:bg-black/30 dark:text-white dark:focus:ring-orange-500/20"
+                className="min-w-0 w-16 sm:w-20 rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-center text-sm text-slate-900 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-200 dark:border-white/10 dark:bg-black/30 dark:text-white dark:focus:ring-orange-500/20"
                 placeholder="06"
             />
 

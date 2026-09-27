@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import { InputMode } from "./types";
+import { InputMode } from "@/types/accountBookTransactionForm";
 
 type TransactionInputModeTabsProps = {
     inputMode: InputMode;
@@ -17,11 +17,10 @@ export default function TransactionInputModeTabs({
             <button
                 type="button"
                 onClick={() => onChange("MANUAL")}
-                className={`rounded-xl px-4 py-3 text-sm font-semibold transition ${
-                    inputMode === "MANUAL"
-                        ? "bg-white text-orange-500 shadow-sm dark:bg-zinc-800"
-                        : "text-slate-500 hover:text-orange-500 dark:text-slate-400"
-                }`}
+                className={`rounded-xl px-4 py-3 text-sm font-semibold transition ${inputMode === "MANUAL"
+                    ? "bg-white text-orange-500 shadow-sm dark:bg-zinc-800"
+                    : "text-slate-500 hover:text-orange-500 dark:text-slate-400"
+                    }`}
             >
                 {t("inputMode.manual")}
             </button>
@@ -29,11 +28,10 @@ export default function TransactionInputModeTabs({
             <button
                 type="button"
                 onClick={() => onChange("RECEIPT")}
-                className={`rounded-xl px-4 py-3 text-sm font-semibold transition ${
-                    inputMode === "RECEIPT"
-                        ? "bg-white text-orange-500 shadow-sm dark:bg-zinc-800"
-                        : "text-slate-500 hover:text-orange-500 dark:text-slate-400"
-                }`}
+                className={`rounded-xl px-4 py-3 text-sm font-semibold transition ${inputMode === "RECEIPT"
+                    ? "bg-white text-orange-500 shadow-sm dark:bg-zinc-800"
+                    : "text-slate-500 hover:text-orange-500 dark:text-slate-400"
+                    }`}
             >
                 {t("inputMode.receipt")}
             </button>

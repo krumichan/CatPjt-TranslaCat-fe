@@ -5,6 +5,9 @@ const withNextIntl = createNextIntlPlugin();
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  // Live verification launchers use an isolated build directory so an unrelated
+  // developer server cannot leave this suite attached to an old process/lock.
+  distDir: process.env.NEXT_DIST_DIR ?? '.next',
   reactCompiler: true,
   images: {
     remotePatterns: [

@@ -130,7 +130,8 @@ test("language-learning base mocks isolate live backend WebSocket connections", 
     const page = capturePage();
     await mockLanguageLearningBase(page);
     assert.equal(page.sockets.length, 1);
-    assert.ok(page.sockets[0].pattern.test("ws://localhost:8080/ws"));
+    assert.ok(page.sockets[0].pattern.test("ws://localhost:8080/ws/chat"));
+    assert.equal(page.sockets[0].pattern.test("ws://localhost:3000/_next/webpack-hmr"), false);
 });
 
 test("API fixture still passes document navigation through instead of serving JSON as a page", async () => {

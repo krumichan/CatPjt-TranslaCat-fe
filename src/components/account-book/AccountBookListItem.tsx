@@ -109,45 +109,48 @@ export default function AccountBookListItem({
                 </div>
 
                 {accountBook.description && (
-                    <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
+                    <p className="mt-3 break-words line-clamp-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
                         {accountBook.description}
                     </p>
                 )}
 
                 <div className="mt-4 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
-                    <div className="rounded-xl bg-white px-3 py-2 dark:bg-black/20">
+                    <div className="min-w-0 rounded-xl bg-white px-3 py-2 dark:bg-black/20">
                         <p className="text-slate-400">{t("income")}</p>
-                        <p className="mt-1 font-bold text-emerald-500">
+                        <p className="mt-1 break-all font-bold text-emerald-500">
                             {formatAmount(
                                 accountBook.incomeAmount,
-                                accountBook.currencyCode
+                                accountBook.currencyCode,
+                                accountBook.currencyDecimalPlaces
                             )}
                         </p>
                     </div>
 
-                    <div className="rounded-xl bg-white px-3 py-2 dark:bg-black/20">
+                    <div className="min-w-0 rounded-xl bg-white px-3 py-2 dark:bg-black/20">
                         <p className="text-slate-400">{t("expense")}</p>
-                        <p className="mt-1 font-bold text-rose-500">
+                        <p className="mt-1 break-all font-bold text-rose-500">
                             {formatAmount(
                                 accountBook.expenseAmount,
-                                accountBook.currencyCode
+                                accountBook.currencyCode,
+                                accountBook.currencyDecimalPlaces
                             )}
                         </p>
                     </div>
 
-                    <div className="rounded-xl bg-white px-3 py-2 dark:bg-black/20">
+                    <div className="min-w-0 rounded-xl bg-white px-3 py-2 dark:bg-black/20">
                         <p className="text-slate-400">{t("balance")}</p>
-                        <p className="mt-1 font-bold text-slate-700 dark:text-slate-200">
+                        <p className="mt-1 break-all font-bold text-slate-700 dark:text-slate-200">
                             {formatAmount(
                                 accountBook.balance,
-                                accountBook.currencyCode
+                                accountBook.currencyCode,
+                                accountBook.currencyDecimalPlaces
                             )}
                         </p>
                     </div>
 
-                    <div className="rounded-xl bg-white px-3 py-2 dark:bg-black/20">
+                    <div className="min-w-0 rounded-xl bg-white px-3 py-2 dark:bg-black/20">
                         <p className="text-slate-400">{t("transactions")}</p>
-                        <p className="mt-1 font-bold text-slate-700 dark:text-slate-200">
+                        <p className="mt-1 break-all font-bold text-slate-700 dark:text-slate-200">
                             {t("transactionCount", {
                                 count: accountBook.transactionCount ?? 0,
                             })}

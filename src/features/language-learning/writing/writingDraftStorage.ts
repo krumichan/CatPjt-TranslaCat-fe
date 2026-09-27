@@ -25,7 +25,8 @@ function parseDrafts(value: unknown): Record<number, string> {
     const result: Record<number, string> = {};
     for (const [key, draft] of Object.entries(value)) {
         const itemId = Number(key);
-        if (!Number.isSafeInteger(itemId) || itemId <= 0 || typeof draft !== "string") {
+        // 음수 LL 공개 ID도 보존하며 기존 Core 초안은 별도의 세트 키에 남긴다.
+        if (!Number.isSafeInteger(itemId) || itemId === 0 || typeof draft !== "string") {
             continue;
         }
         result[itemId] = draft;

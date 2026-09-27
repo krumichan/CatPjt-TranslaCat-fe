@@ -450,7 +450,7 @@ export interface ChatRoomReadRequest {
 export interface ChatRoomReadResponse {
     chatRoomId: number;
     lastReadMessageId: number;
-    lastReadAt: string;
+    lastReadAt: string | null;
     unreadCount: number;
 }
 

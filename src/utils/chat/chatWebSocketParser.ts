@@ -340,7 +340,8 @@ const isChatReadUpdatedEvent = (
         typeof value.chatRoomId === "number" &&
         typeof value.userId === "number" &&
         typeof value.lastReadMessageId === "number" &&
-        typeof value.lastReadAt === "string" &&
+        // no-op 읽음은 저장된 null 시각을 그대로 보존한다. 누락/다른 타입은 허용하지 않는다.
+        isNullableString(value.lastReadAt) &&
         typeof value.unreadCount === "number" &&
         typeof value.occurredAt === "string"
     );

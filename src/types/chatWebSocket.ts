@@ -47,7 +47,7 @@ export interface ChatReadUpdatedEvent {
     chatRoomId: number;
     userId: number;
     lastReadMessageId: number;
-    lastReadAt: string;
+    lastReadAt: string | null;
     unreadCount: number;
     occurredAt: string;
 }

@@ -98,6 +98,7 @@ export function useDailyWritingPageController() {
     } | null>(null);
     const resumedPendingItemsRef = useRef<Set<string>>(new Set());
     const hadPendingEvaluationsRef = useRef(false);
+    const bulkSubmissionInFlightRef = useRef(false);
 
     const dailyErrorCode = getLanguageLearningErrorCode(dailyQuery.isError);
     const isDailyGenerating =
@@ -360,6 +361,7 @@ export function useDailyWritingPageController() {
                 !answer ||
                 submittingItemId !== null ||
                 isSubmittingAll ||
+                bulkSubmissionInFlightRef.current ||
                 !item.canSubmit
             ) {
                 return false;
@@ -392,6 +394,7 @@ export function useDailyWritingPageController() {
             !allItemsGenerated ||
             submittingItemId !== null ||
             isSubmittingAll ||
+            bulkSubmissionInFlightRef.current ||
             draftsHydratedSetId !== dailyQuery.data.dailySetId
         ) {
             return false;
@@ -411,6 +414,8 @@ export function useDailyWritingPageController() {
             return false;
         }
 
+        // React 상태 반영 전 들어오는 클릭·자동 복구도 같은 일괄 제출에 중복 진입하지 못하게 한다.
+        bulkSubmissionInFlightRef.current = true;
         changeBulkEvaluationRequested(true);
         setIsSubmittingAll(true);
         setBulkCompletedCount(0);
@@ -440,9 +445,22 @@ export function useDailyWritingPageController() {
                 }
             }
 
-            await dailyQuery.mutate((current) => current, true);
+            // 접수 결과를 서버에서 확인한 뒤 제출 잠금을 푼다. SWR의 비동기 재검증 중인 이전 canSubmit으로 재제출하지 않는다.
+            try {
+                const refreshed = await dailyWritingService.getToday(
+                    dailyQuery.data.writingType,
+                );
+                await dailyQuery.mutate(refreshed, false);
+            } catch (error) {
+                console.error("Failed to refresh queued Writing evaluations.", error);
+                setActionError(true);
+                changeBulkEvaluationRequested(false);
+                return false;
+            }
+
             return succeeded;
         } finally {
+            bulkSubmissionInFlightRef.current = false;
             setSubmittingItemId(null);
             setIsSubmittingAll(false);
         }

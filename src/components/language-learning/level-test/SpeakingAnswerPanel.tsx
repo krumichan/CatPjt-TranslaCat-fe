@@ -76,13 +76,15 @@ export function SpeakingAnswerPanel({ controller }: SpeakingAnswerPanelProps) {
     ) : null;
 
     if (!microphone.canRecord) {
+        const failureReason = microphone.failureReason === "TIMED_OUT" || microphone.failureReason === "CANCELLED"
+            ? "UNKNOWN" : microphone.failureReason;
         return (
             <>
                 {referenceAudioPanel}
                 <div className="rounded-2xl border border-violet-200 bg-violet-50 p-5 dark:border-violet-500/20 dark:bg-violet-500/5">
                     <h3 className="text-sm font-black text-violet-900 dark:text-violet-100">
-                        {microphone.state === "DENIED"
-                            ? t(`error.${microphone.failureReason ?? "DENIED"}`)
+                        {failureReason
+                            ? t(`error.${failureReason}`)
                             : t("permissionTitle")}
                     </h3>
                     <p className="mt-2 text-sm leading-6 text-violet-800/70 dark:text-violet-200/70">

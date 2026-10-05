@@ -252,6 +252,8 @@ export interface SpeakingCoachingResult {
     schemaVersion: string;
     sourceSnapshotHash: string;
     contentStatus: SpeakingCoachingContentStatus;
+    evidenceAvailability?: "AVAILABLE" | "LIMITED" | "UNAVAILABLE";
+    evidenceLimitations?: string[];
     limitationReasons: string[];
     items: SpeakingCoachingItem[];
     promptVersion: string;

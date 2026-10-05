@@ -56,7 +56,8 @@ test("retired landing exits before mounting generation hooks and historical sess
 });
 
 test("B5 structure availability is server-owned and verified history stays reachable", async () => {
-    const landing = await readFile(new URL("../../src/components/language-learning/practice/PracticeModeLandingPage.tsx", import.meta.url), "utf8");
+    // 준비: 가용 모드 렌더링과 생성 제한은 분리된 컴포넌트에서 검사한다.
+    const landing = await readFile(new URL("../../src/components/language-learning/practice/AvailablePracticeModeLandingPage.tsx", import.meta.url), "utf8");
     const service = await readFile(new URL("../../src/services/language-learning/readingVocabularyService.ts", import.meta.url), "utf8");
     const progress = await readFile(new URL("../../src/components/language-learning/common/GenerationProgress.tsx", import.meta.url), "utf8");
     assert.match(service, /\/language-learning\/practice\/today\/availability/);

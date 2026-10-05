@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 
 import { useQuery } from "@/hooks/useQuery";
 import { dailyWritingService } from "@/services/language-learning/dailyWritingService";
@@ -10,12 +10,17 @@ import type { LearningHistorySourceFilter } from "@/types/language-learning/hist
 import type { ListeningTaskType } from "@/types/language-learning/listening";
 
 export function useLearningHistoryPageController() {
+    // 화면 재진입 시 이전 인스턴스의 상세 캐시를 재사용하지 않는다. 권한은 상세 API가 다시 판단한다.
+    const detailReadScope = useId();
     const [source, setSource] =
         useState<LearningHistorySourceFilter>("ALL");
     const [period, setPeriod] = useState("30d");
     const [taskType, setTaskType] = useState<ListeningTaskType | null>(null);
-    const [selectedActivityId, setSelectedActivityId] =
+    const [selectedListActivityId, setSelectedActivityId] =
         useState<string | null>(null);
+    const [evidenceActivityId, setEvidenceActivityId] = useState<string | null>(null);
+    const [detailReadRevision, setDetailReadRevision] = useState(0);
+    const selectedActivityId = evidenceActivityId ?? selectedListActivityId;
     const [reviewDrafts, setReviewDrafts] =
         useState<Record<number, string>>({});
     const [submittingItemId, setSubmittingItemId] =
@@ -42,19 +47,21 @@ export function useLearningHistoryPageController() {
         }
 
         const selectedExists =
-            selectedActivityId !== null &&
-            items.some((item) => item.activityId === selectedActivityId);
+            selectedListActivityId !== null &&
+            items.some((item) => item.activityId === selectedListActivityId);
 
         if (!selectedExists) {
             setSelectedActivityId(items[0].activityId);
         }
-    }, [listQuery.data, selectedActivityId]);
+    }, [listQuery.data, selectedListActivityId]);
 
     const detailQuery = useQuery({
         keys: selectedActivityId
             ? ([
                   "language-learning-history-detail",
                   selectedActivityId,
+                  detailReadScope,
+                  detailReadRevision,
               ] as const)
             : null,
         fetcher: (_key, activityId) =>
@@ -85,7 +92,11 @@ export function useLearningHistoryPageController() {
             setActionError(false);
 
             try {
-                await dailyWritingService.submitAnswer(item.itemId, { answer });
+                // 저장 이력의 복습도 사용자가 확인한 원문의 revision으로 제출한다.
+                await dailyWritingService.submitAnswer(item.itemId, {
+                    answer,
+                    contentRevision: item.contentRevision,
+                });
                 setReviewDrafts((current) => ({
                     ...current,
                     [item.itemId]: "",
@@ -110,7 +121,18 @@ export function useLearningHistoryPageController() {
     );
 
     const selectActivity = useCallback((activityId: string) => {
+        // 같은 원본을 다시 열 때도 새 조회로 권한과 현재 근거를 확인하고 이전 상세를 먼저 숨긴다.
+        setDetailReadRevision((revision) => revision + 1);
+        setEvidenceActivityId(null);
         setSelectedActivityId(activityId);
+        setActionError(false);
+        setReviewDrafts({});
+    }, []);
+
+    const selectEvidence = useCallback((activityId: string) => {
+        // 누적 조회 기간의 원본이 기본 이력 목록 밖이어도 서버의 소유권 검사를 거쳐 상세를 연다.
+        setDetailReadRevision((revision) => revision + 1);
+        setEvidenceActivityId(activityId);
         setActionError(false);
         setReviewDrafts({});
     }, []);
@@ -118,6 +140,7 @@ export function useLearningHistoryPageController() {
     const changeSource = useCallback(
         (value: LearningHistorySourceFilter) => {
             setSource(value);
+            setEvidenceActivityId(null);
             if (value !== "LISTENING" && value !== "ALL") setTaskType(null);
             setSelectedActivityId(null);
             setActionError(false);
@@ -127,6 +150,7 @@ export function useLearningHistoryPageController() {
 
     const changePeriod = useCallback((value: string) => {
         setPeriod(value);
+        setEvidenceActivityId(null);
         setSelectedActivityId(null);
         setActionError(false);
     }, []);
@@ -160,6 +184,7 @@ export function useLearningHistoryPageController() {
         setPeriod: changePeriod,
         setTaskType,
         selectActivity,
+        selectEvidence,
         updateReviewDraft,
         submitReviewAnswer,
         reload,

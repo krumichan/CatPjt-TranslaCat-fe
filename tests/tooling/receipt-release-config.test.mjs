@@ -8,9 +8,11 @@ const readRepositoryFile = (relativePath) =>
     readFileSync(new URL(`../../${relativePath}`, import.meta.url), "utf8");
 
 test("receipt review mode is injected into the production Next build", () => {
+    // 준비: README에 공개한 현재 릴리스 기본값과 빌드 주입 순서를 확인한다.
     const dockerfile = readRepositoryFile("Dockerfile");
 
-    assert.match(dockerfile, /^ARG NEXT_PUBLIC_RECEIPT_REVIEW_ASSISTED=false$/m);
+    // 검증: 검토 보조 모드를 기본 활성화하며 Next 컴파일 전에 값을 공급한다.
+    assert.match(dockerfile, /^ARG NEXT_PUBLIC_RECEIPT_REVIEW_ASSISTED=true$/m);
     assert.match(
         dockerfile,
         /^ENV NEXT_PUBLIC_RECEIPT_REVIEW_ASSISTED=\$NEXT_PUBLIC_RECEIPT_REVIEW_ASSISTED$/m,

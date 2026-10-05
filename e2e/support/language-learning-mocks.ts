@@ -362,6 +362,9 @@ export async function mockLanguageLearningBase(page: Page) {
     await page.route("**/api/v1/language-learning/history?**", (route) =>
         fulfillApiJson(route, responseDto([{ activityId: "WRITING:101", source: "WRITING", learningDate: "2026-08-13", title: "Daily Writing", topic: null, durationSeconds: 0, overallScore: 84, completionStatus: "COMPLETED", evaluationStatus: "EVALUATED" }])),
     );
+    await page.route("**/api/v1/language-learning/history/evidence?**", (route) =>
+        fulfillApiJson(route, responseDto({ items: [], nextCursor: null })),
+    );
     await page.route("**/api/v1/language-learning/history/WRITING%3A101", (route) =>
         fulfillApiJson(route, responseDto({ activityId: "WRITING:101", source: "WRITING", detail: LANGUAGE_LEARNING_DAILY_SET })),
     );

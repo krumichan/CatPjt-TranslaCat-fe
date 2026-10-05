@@ -21,7 +21,7 @@ export function LanguageLearningHistoryView({
     const common = useTranslations("LanguageLearning.common");
 
     let detailContent;
-    if (controller.items.length === 0) {
+    if (!controller.selectedActivityId) {
         detailContent = (
             <section className="rounded-3xl border border-slate-200 bg-white/90 p-10 text-center shadow-sm dark:border-white/10 dark:bg-slate-900/75">
                 <CalendarDays
@@ -78,7 +78,7 @@ export function LanguageLearningHistoryView({
     return (
         <div className="grid gap-6 lg:grid-cols-[300px_minmax(0,1fr)]">
             <UnifiedLearningHistoryList controller={controller} />
-            <section className="min-w-0">{detailContent}</section>
+            <section id="learning-history-detail" tabIndex={-1} className="min-w-0">{detailContent}</section>
         </div>
     );
 }

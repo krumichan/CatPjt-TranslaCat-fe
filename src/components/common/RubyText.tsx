@@ -1,60 +1,27 @@
 "use client";
 
-import {useLocale} from "next-intl";
+import { createElement, type ReactNode } from "react";
+import { useLocale } from "next-intl";
+import { parseRuby, type RubyNode } from "@/features/common/ruby";
 
-interface RubyTextProps {
-    content: string;
-    className?: string;
+function renderRuby(nodes: RubyNode[]): ReactNode {
+    return nodes.map((node, index) => typeof node === "string" ? node
+        : createElement(node.tag, { key: index }, node.tag === "br" ? undefined : renderRuby(node.children)));
 }
 
-export default function RubyText({ content, className }: RubyTextProps) {
+export default function RubyText({ content, className = "" }: { content: string; className?: string }) {
     const locale = useLocale();
+    if (!content?.trim()) return <span className={`block min-h-[1.5em] ${className}`} aria-hidden="true" />;
 
-    // 1. 데이터가 비어있을 경우 (줄바꿈 처리)
-    if (!content || content.trim() === "") {
-        // 텍스트가 없어도 높이를 차지하게 하여 줄바꿈 효과를 줌
-        return <span className={`block min-h-[1.5em] ${className}`} aria-hidden="true" />;
+    // 기존 learning 계약은 표시 경계에서만 해석하고 원문 HTML은 실행하지 않는다.
+    const separator = locale === "learning" ? content.indexOf("||") : -1;
+    if (separator >= 0) {
+        return <span className={`flex flex-col gap-1.5 w-full wrap-break-word ${className}`}>
+            <span lang="ja" className="whitespace-pre-wrap">{renderRuby(parseRuby(content.slice(0, separator)))}</span>
+            <span lang="ko" className="text-[0.85em] text-gray-500 dark:text-zinc-400 border-t pt-1 break-keep">{content.slice(separator + 2)}</span>
+        </span>;
     }
-
-    // 2. learning 모드 처리
-    if (locale === 'learning' && content.includes('||')) {
-        const [ja, ko] = content.split('||');
-        return (
-            <div className={`flex flex-col gap-1.5 w-full wrap-break-word ${className}`}
-                 lang="ja"
-            >
-                <span
-                    className="text-[#2D2D2D] dark:text-zinc-100 whitespace-pre-wrap"
-                    dangerouslySetInnerHTML={{__html: ja}}
-                />
-                <span
-                    className="text-[0.85em] leading-relaxed text-gray-500 dark:text-zinc-400 font-normal border-t border-black/5 dark:border-white/5 pt-1 break-keep"
-                    lang="ko"
-                >
-                    {ko}
-                </span>
-            </div>
-        );
-    }
-
-    // 3. 일반 루비 텍스트 및 기본 텍스트 처리
-    const hasRuby = locale === "ja" && /<ruby>/.test(content);
-    if (hasRuby) {
-        return (
-            <span
-                className={`${className} whitespace-pre-wrap wrap-break-word`}
-                lang="ja"
-                dangerouslySetInnerHTML={{ __html: content }}
-            />
-        );
-    }
-
-    return (
-        <span
-            className={`${className} ${locale === 'ko' ? 'break-keep' : 'wrap-break-word'}`}
-            lang={locale}
-        >
-        {content}
-    </span>
-    );
+    return <span className={`${className} whitespace-pre-wrap ${locale === "ko" ? "break-keep" : "wrap-break-word"}`} lang={locale}>
+        {locale === "ja" || locale === "learning" ? renderRuby(parseRuby(content)) : content}
+    </span>;
 }

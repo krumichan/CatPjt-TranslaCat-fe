@@ -55,6 +55,8 @@ export interface DailyWritingItem {
     answeredToday: boolean;
     canSubmit: boolean;
     attempts: WritingAnswerAttempt[];
+    // 서버가 제공한 문항 내용의 식별값. 구형 응답에는 없을 수 있다.
+    contentRevision?: string | null;
 }
 
 export interface DailyWritingSet {
@@ -74,6 +76,7 @@ export interface DailyWritingSet {
 
 export interface AnswerSubmitRequest {
     answer: string;
+    contentRevision?: string | null;
 }
 
 export interface AnswerResult {

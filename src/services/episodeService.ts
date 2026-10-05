@@ -1,5 +1,6 @@
 import {TranslationUnit} from "@/types/common";
 import {apiClient} from "@/lib/apiClient";
+import {episodeBasePath} from "@/features/novel/readerModel";
 
 export interface PagerInfo {
     prevIdentifier: string | null;
@@ -19,11 +20,8 @@ export const episodeService = {
         novelIdentifier: string,
         episodeIdentifier?: string,
     ): Promise<EpisodeDetail> => {
-        const episodeIdentifierParams =
-            episodeIdentifier === null || episodeIdentifier === "0" ? "" : "/" + episodeIdentifier;
-
         const response = await apiClient(
-            `/${platformCode}/${novelIdentifier}/episodes${episodeIdentifierParams}`, {
+            episodeBasePath(platformCode, novelIdentifier, episodeIdentifier), {
                 method:"GET"
             });
 

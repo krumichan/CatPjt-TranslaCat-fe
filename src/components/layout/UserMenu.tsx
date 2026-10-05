@@ -16,6 +16,7 @@ import {
 } from "react";
 
 import { Link } from "@/navigation";
+import { notifyAuthSignOutStarted } from "@/lib/authEvents";
 
 export default function UserMenu() {
     const { data: session, status } = useSession();
@@ -70,6 +71,7 @@ export default function UserMenu() {
 
     const handleLogout = async () => {
         setIsOpen(false);
+        notifyAuthSignOutStarted();
         await signOut({
             callbackUrl: `/${locale}`,
         });

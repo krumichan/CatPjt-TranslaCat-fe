@@ -27,12 +27,17 @@ test("legacy vocabulary policy retains contextual 10-item history contracts", ()
 });
 
 test("retired landing preserves legacy mode names but does not mount their generation view", async () => {
+    // 준비: 진입 분기와 기존 모드 정의를 각각 실제 소유 컴포넌트에서 읽는다.
     const source = await readFile(
         new URL("../../src/components/language-learning/practice/PracticeModeLandingPage.tsx", import.meta.url),
         "utf8",
     );
+    const available = await readFile(
+        new URL("../../src/components/language-learning/practice/AvailablePracticeModeLandingPage.tsx", import.meta.url),
+        "utf8",
+    );
 
-    const vocabularyModes = source.match(/const VOCABULARY_MODES = \[(.*?)\] as const;/s)?.[1] ?? "";
+    const vocabularyModes = available.match(/const VOCABULARY_MODES = \[(.*?)\] as const;/s)?.[1] ?? "";
     assert.match(vocabularyModes, /CURRENT_VOCABULARY_MODE/);
     assert.doesNotMatch(vocabularyModes, /MEANING_RELATION|USAGE_DISTINCTION|COMPOSITION/);
     assert.match(source, /if \(domain === "VOCABULARY"\) return <VocabularyRetirementPage/);

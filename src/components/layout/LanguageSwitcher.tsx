@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useLocale } from "next-intl";
+import { notifyNavigationStarted } from "@/lib/navigationEvents";
 
 import {
     localeMetadata,
@@ -80,6 +81,7 @@ export default function LanguageSwitcher({
             return;
         }
 
+        notifyNavigationStarted();
         router.replace(pathname, {
             locale: nextLocale,
         });

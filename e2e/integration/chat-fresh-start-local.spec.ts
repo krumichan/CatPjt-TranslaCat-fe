@@ -7,6 +7,7 @@ import {
     type Browser,
     type BrowserContext,
     type Page,
+    type WebSocket as PlaywrightWebSocket,
 } from "@playwright/test";
 import fs from "node:fs";
 import path from "node:path";
@@ -313,7 +314,36 @@ test("CHAT-FRESH-LOCAL real browser OPEN flow with real BE-issued tokens and tes
         });
 
         await test.step("Room-list unread state clears through browser read binding and survives a reload", async () => {
-            await reader.page.goto("/ko/chat");
+            // 목록과 전역 알림의 두 실제 연결이 구독을 보내기 전에는 이벤트를 발송하지 않는다.
+            // socket 송신 관측이며 서버 RECEIPT 완료를 대신하는 것은 아니다.
+            const subscriptions = new Map<PlaywrightWebSocket, string>();
+            const observeSubscriptions = (socket: PlaywrightWebSocket) => {
+                socket.on("framesent", ({ payload }) => {
+                    for (const frame of payload.toString().split("\0")) {
+                        const lines = frame.split("\n");
+                        const id = lines.find((line) => line.startsWith("id:"))?.slice(3);
+                        if (
+                            lines[0] === "SUBSCRIBE"
+                            && lines.includes(`destination:/topic/chat/rooms/${roomId}`)
+                            && id
+                        ) {
+                            subscriptions.set(socket, id);
+                        } else if (lines[0] === "UNSUBSCRIBE" && subscriptions.get(socket) === id) {
+                            subscriptions.delete(socket);
+                        }
+                    }
+                });
+                socket.on("close", () => subscriptions.delete(socket));
+            };
+            reader.page.on("websocket", observeSubscriptions);
+            try {
+                await reader.page.goto("/ko/chat");
+                await expect.poll(() => subscriptions.size, { timeout: 30_000 })
+                    .toBeGreaterThanOrEqual(2);
+            } finally {
+                reader.page.off("websocket", observeSubscriptions);
+            }
+
             const thirdContent = `Fresh-unread-${suffix}`;
             await sendMessage(owner, thirdContent, [member]);
             await expect(reader.page.getByTestId(`chat-room-unread-badge-${roomId}`)).toBeVisible({ timeout: 30_000 });

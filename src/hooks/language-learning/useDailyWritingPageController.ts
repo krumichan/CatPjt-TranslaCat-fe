@@ -372,7 +372,8 @@ export function useDailyWritingPageController() {
             try {
                 const result = await dailyWritingService.submitAnswer(
                     item.itemId,
-                    { answer },
+                    // 학습자가 본 내용의 revision을 보내 다른 탭의 재생성 이후 답안을 구분한다.
+                    { answer, contentRevision: item.contentRevision },
                 );
                 setLastAnswerResult(result);
                 await dailyQuery.mutate((current) => current, true);
@@ -429,7 +430,8 @@ export function useDailyWritingPageController() {
                 try {
                     const result = await dailyWritingService.submitAnswer(
                         target.item.itemId,
-                        { answer: target.answer },
+                        // 일괄 제출도 각 문항을 표시할 때 받은 revision을 유지한다.
+                        { answer: target.answer, contentRevision: target.item.contentRevision },
                     );
                     setLastAnswerResult(result);
                     setBulkCompletedCount(index + 1);

@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 
 import { LanguageLearningStateCard } from "@/components/language-learning/common/LanguageLearningStateCard";
 import { LanguageLearningHistoryView } from "@/components/language-learning/history/LanguageLearningHistoryView";
+import { LearningEvidencePanel } from "@/components/language-learning/history/LearningEvidencePanel";
 import { LanguageLearningPageLayout } from "@/components/language-learning/layout/LanguageLearningPageLayout";
 import { useLearningHistoryPageController } from "@/hooks/language-learning/useLearningHistoryPageController";
 
@@ -35,6 +36,10 @@ export function LanguageLearningHistorySmartPage() {
             title={t("title")}
             description={t("description")}
         >
+            <LearningEvidencePanel onOpen={(activityId) => {
+                controller.selectEvidence(activityId);
+                document.getElementById("learning-history-detail")?.focus();
+            }} />
             {content}
         </LanguageLearningPageLayout>
     );

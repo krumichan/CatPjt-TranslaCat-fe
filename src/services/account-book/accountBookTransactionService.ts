@@ -18,6 +18,10 @@ import {
 import { ResponseDto } from "@/types/common";
 import { resizeReceiptImage } from "@/utils/account-book/resizeReceiptImage";
 
+// 운영에서는 다중 영수증 Vision 분석이 35초를 넘겨도 BE가 정상 응답한다.
+// BE/프록시의 300초 이상 제한보다 짧게 두되, 관측된 121초 응답을 기다린다.
+const RECEIPT_ANALYSIS_TIMEOUT_MS = 180_000;
+
 export const accountBookTransactionService = {
     async receiptRuntimePreflight(accountBookId: number): Promise<ReceiptRuntimeIdentity> {
         const response = await apiClient(`/account-books/${accountBookId}/transactions/receipt-runtime-preflight`);
@@ -45,7 +49,10 @@ export const accountBookTransactionService = {
         const requestController = new AbortController();
         const cancel = () => requestController.abort(signal?.reason);
         signal?.addEventListener("abort", cancel, { once: true });
-        const timeoutId = window.setTimeout(() => requestController.abort(new DOMException("Receipt analysis timed out", "TimeoutError")), 35000);
+        const timeoutId = window.setTimeout(
+            () => requestController.abort(new DOMException("Receipt analysis timed out", "TimeoutError")),
+            RECEIPT_ANALYSIS_TIMEOUT_MS
+        );
         let response: Response;
         try {
             response = await apiClient(

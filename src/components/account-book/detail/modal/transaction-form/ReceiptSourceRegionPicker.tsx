@@ -74,7 +74,7 @@ export default function ReceiptSourceRegionPicker({ source, onAdd, onClose }: Pr
                         onClick={selectFullImage}
                         className="rounded-xl border border-blue-300 px-4 py-2 text-sm font-semibold text-blue-700 dark:text-blue-300"
                     >
-                        {t("selectFullImage")}
+                        {t("useFullImage")}
                     </button>
                     <button
                         type="button"

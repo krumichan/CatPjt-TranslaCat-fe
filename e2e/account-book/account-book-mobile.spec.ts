@@ -198,6 +198,40 @@ test("ACCOUNT-RECEIPT multi-file queue keeps one source-linked review per photo"
     await expectNoPageOverflow(page);
 });
 
+test("ACCOUNT-RECEIPT keeps a slow successful analysis response instead of marking the photo failed", async ({ page }) => {
+    test.setTimeout(90_000);
+
+    // 준비: 운영에서 관측한 35초 초과 응답을 같은 브라우저 요청 경로로 재현한다.
+    await mockAccountBook(page);
+    await page.route("**/transactions/receipt-analysis", async route => {
+        await new Promise(resolve => setTimeout(resolve, 38_000));
+        await fulfillJson(route, responseDto({
+            receiptCount: 1,
+            warnings: [],
+            ocrEngine: "vision",
+            usedAi: true,
+            categoryOptions: [{ name: "Food", source: "EXISTING" }],
+            receipts: receiptCandidates(1),
+        }));
+    });
+    await page.goto("/account-books/1");
+    await page.getByRole("button", { name: "거래 등록", exact: true }).click();
+    await page.getByRole("button", { name: receiptLabels.inputMode.receipt, exact: true }).click();
+    const pixel = Buffer.from(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=",
+        "base64"
+    );
+    await page.locator('input[type="file"]').setInputFiles({ name: "slow-receipt.png", mimeType: "image/png", buffer: pixel });
+
+    // 실행: 사용자가 실제 분석 버튼을 눌러 응답 완료까지 기다린다.
+    await page.getByRole("button", { name: receiptLabels.receipt.action, exact: true }).last().click();
+
+    // 검증: 늦게 도착한 성공 결과가 같은 사진의 검토 목록에 남는다.
+    await expect(page.getByTestId("receipt-review-card")).toHaveCount(1, { timeout: 50_000 });
+    await expect(page.getByTestId("receipt-file-queue")).toContainText("slow-receipt.png");
+    await expect(page.getByTestId("receipt-file-queue")).not.toContainText("실패");
+});
+
 test("ACCOUNT-RECEIPT category blocker focuses the shared selector and resolves without refreshing FX", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await mockAccountBook(page);

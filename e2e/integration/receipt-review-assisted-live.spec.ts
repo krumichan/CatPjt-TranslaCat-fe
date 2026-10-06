@@ -165,6 +165,10 @@ test("LIVE-REVIEW-ASSISTED captured AI response to source review, BE FX, MySQL a
     expect(saved.every(item => item.exchangeRateProvider === "FRANKFURTER")).toBe(true);
 
     await page.reload();
+    // 실행 월이 바뀌어도 저장된 거래의 실제 거래월을 선택해 상세를 확인한다.
+    await page.getByRole("combobox")
+        .filter({ has: page.getByRole("option", { name: "2026.09" }) })
+        .selectOption({ label: "2026.09" });
     const lawson = registration.body.find(item => item.title === "LAWSON 船堀店")!;
     const card = page.getByTestId(`transaction-card-${lawson.id}`);
     await expect(card).toBeVisible();

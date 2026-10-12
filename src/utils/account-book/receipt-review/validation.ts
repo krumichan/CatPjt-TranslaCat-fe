@@ -7,6 +7,7 @@ import type {
     ReceiptBlockingField
 } from "./types";
 import { isValidPositiveMoney } from "./money";
+import { conversionMatchesReceiptSource } from "./conversion";
 
 export function isValidSourceRegion(value: number[] | null): value is [
     number,
@@ -70,7 +71,9 @@ export function validateReceiptForRegistration(item: ReceiptReviewItem): Receipt
         add("PURCHASE_TOTAL_INVALID", "purchaseTotal");
     if (item.paymentBreakdown.some((payment) => !isValidPositiveMoney(payment.amount)))
         add("PAYMENT_INVALID", "paymentBreakdown");
-    if (!isValidPositiveMoney(item.originalAmount) || item.reviewStatus !== "READY")
+    if (item.reviewStatus !== "READY" && item.amountReason === "PAYMENT_TOTAL_MISMATCH")
+        add("PAYMENT_TOTAL_MISMATCH", "paymentBreakdown");
+    else if (!isValidPositiveMoney(item.originalAmount) || item.reviewStatus !== "READY")
         add("BOOK_AMOUNT_INVALID", "originalAmount");
     if (item.amountPolicyVersion !== "receipt-book-amount-v1")
         add("AMOUNT_POLICY_INVALID", "originalAmount");
@@ -87,13 +90,15 @@ export function validateReceiptForRegistration(item: ReceiptReviewItem): Receipt
         add("SOURCE_INVALID", "source");
     else if (item.reviewMode === "ASSISTED" && !isValidSourceRegion(item.sourceRegion))
         add("SOURCE_INVALID", "source");
-    if (item.conversionStale)
+    // 행 상태·모달 적용·선택 요약·batch 모두 같은 quote 검증을 사용한다.
+    const conversionStale = item.conversionStale || !conversionMatchesReceiptSource(item);
+    if (conversionStale)
         add("QUOTE_STALE", "conversion");
     else if (!["CONVERTED", "NOT_REQUIRED"].includes(item.conversion.conversionStatus)
         || typeof item.conversion.convertedAmount !== "string"
         || !isValidPositiveMoney(item.conversion.convertedAmount))
         add("CONVERSION_UNAVAILABLE", "conversion");
-    if (!item.conversionStale && !/^[a-f0-9]{64}$/.test(item.conversion.conversionQuoteId ?? ""))
+    if (!conversionStale && !/^[a-f0-9]{64}$/.test(item.conversion.conversionQuoteId ?? ""))
         add("QUOTE_MISSING", "conversion");
     if (item.reviewMode === "ASSISTED" && item.reviewedRevision !== item.draftRevision)
         add("REVIEW_CONFIRMATION_REQUIRED", "review");

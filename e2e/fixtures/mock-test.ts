@@ -7,7 +7,8 @@ import { encode } from "next-auth/jwt";
 import fs from "node:fs";
 import path from "node:path";
 
-import { TEST_USERS } from "../support/test-users";
+import { TEST_USERS, type E2ETestUser } from "../support/test-users";
+import { mockLoginSessionId } from "../support/mock-login-session";
 
 type MockAuthFixtures = {
     mockAuthCookie: void;
@@ -52,10 +53,12 @@ const mockAuthSecret = nextAuthSecret;
 export async function installMockAuthCookie(
     context: BrowserContext,
     role: "USER" | "ADMIN" = "USER",
+    options: { user?: E2ETestUser; loginSessionId?: string } = {},
 ): Promise<void> {
     const now = Math.floor(Date.now() / 1000);
     const maxAge = 60 * 60;
-    const user = TEST_USERS.A;
+    const user = options.user ?? TEST_USERS.A;
+    const loginSessionId = mockLoginSessionId(context, user, role, options.loginSessionId);
 
     const token = await encode({
         secret: mockAuthSecret,
@@ -69,6 +72,7 @@ export async function installMockAuthCookie(
             refreshToken: `mock-refresh-token-${user.key}`,
             accessTokenExpires: Date.now() + maxAge * 1000,
             role,
+            loginSessionId,
             publicId: user.publicId,
             iat: now,
             exp: now + maxAge,

@@ -19,6 +19,7 @@ export default function AccountInfoCard({
 }: AccountInfoCardProps) {
     const t = useTranslations("Settings.accountInfo");
     const profileT = useTranslations("Social.profileEntry");
+    const authT = useTranslations("Auth");
     const [copied, setCopied] = useState(false);
 
     const handleCopy = async () => {
@@ -62,12 +63,20 @@ export default function AccountInfoCard({
                     </div>
                 </div>
 
-                <Link
-                    href="/settings/profile"
-                    className="inline-flex shrink-0 items-center justify-center rounded-2xl bg-orange-500 px-4 py-3 text-sm font-black text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-orange-600 dark:bg-orange-400 dark:text-slate-950 dark:hover:bg-orange-300"
-                >
-                    {profileT("manage")}
-                </Link>
+                <div className="flex flex-wrap gap-2">
+                    <Link
+                        href="/settings/account"
+                        className="inline-flex items-center justify-center rounded-2xl border border-orange-200 px-4 py-3 text-sm font-bold text-orange-600 dark:border-orange-400/30 dark:text-orange-300"
+                    >
+                        {authT("accountTitle")}
+                    </Link>
+                    <Link
+                        href="/settings/profile"
+                        className="inline-flex shrink-0 items-center justify-center rounded-2xl bg-orange-500 px-4 py-3 text-sm font-black text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-orange-600 dark:bg-orange-400 dark:text-slate-950 dark:hover:bg-orange-300"
+                    >
+                        {profileT("manage")}
+                    </Link>
+                </div>
             </div>
 
             <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">

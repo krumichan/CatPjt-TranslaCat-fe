@@ -1,3 +1,4 @@
+import { formatReceiptAmount, formatExchangeRate } from "@/utils/account-book/formatAmount";
 import { useTranslations } from "next-intl";
 import type { ReceiptReviewItem } from "@/utils/account-book/receiptReview";
 
@@ -14,9 +15,10 @@ export default function ReceiptReviewConversionSummary({ item }: Props) {
                 <p className="text-xs text-orange-700 dark:text-orange-300">
                     {t("receipt.review.bookAmount")}
                 </p>
-                <p className="break-all text-lg font-bold text-orange-800 dark:text-orange-200">{item.originalAmount || "—"} {item.originalCurrencyCode}</p>
+                <p className="break-all text-lg font-bold text-orange-800 dark:text-orange-200">{formatReceiptAmount(item.originalAmount, item.originalCurrencyCode)}</p>
                 <p className="mt-1 break-words text-[11px] text-orange-700/80 dark:text-orange-300/80">
-                    {item.amountReason}
+                    {t(item.amountReason === "PAYMENT_TOTAL_MISMATCH" ? "receipt.review.blockingIssues.PAYMENT_TOTAL_MISMATCH"
+                        : item.reviewStatus === "READY" ? "receipt.review.amountCalculated" : "receipt.review.amountNeedsReview")}
                 </p>
             </div>
 
@@ -26,14 +28,14 @@ export default function ReceiptReviewConversionSummary({ item }: Props) {
                         <dt>
                             {t("receipt.review.convertedAmount")}
                         </dt>
-                        <dd className="break-all text-base font-bold text-slate-900 dark:text-white">{conversion.convertedAmount ?? "—"} {conversion.accountBookCurrencyCode}</dd>
+                        <dd className="break-all text-base font-bold text-slate-900 dark:text-white">{formatReceiptAmount(conversion.convertedAmount, conversion.accountBookCurrencyCode, conversion.roundingPrecision)}</dd>
                     </div>
                     <div>
                         <dt>
                             {t("receipt.review.exchangeRate")}
                         </dt>
                         <dd className="break-all">
-                            {conversion.exchangeRate ? `1 ${item.originalCurrencyCode} = ${conversion.exchangeRate} ${conversion.accountBookCurrencyCode}` : "—"}
+                            {conversion.exchangeRate ? `1 ${item.originalCurrencyCode} = ${formatExchangeRate(conversion.exchangeRate)} ${conversion.accountBookCurrencyCode}` : "—"}
                         </dd>
                     </div>
                     <div>

@@ -85,6 +85,7 @@ export default function NotificationCenterModal({
                             notification.handleMarkAllActivitiesAsRead
                         }
                         onNavigateActivity={onClose}
+                        supportNotification={notification.supportNotification}
                         accountBookInvitations={
                             notification.accountBookInvitations
                         }

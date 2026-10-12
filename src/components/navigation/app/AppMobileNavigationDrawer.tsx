@@ -10,6 +10,7 @@ import {
 
 import Logo from "@/components/layout/Logo";
 import { AppNavigationContent } from "@/components/navigation/app/AppNavigationContent";
+import { AppDeveloperContact } from "@/components/navigation/app/AppDeveloperContact";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher";
 import ThemeSwitcher from "@/components/layout/ThemeSwitcher";
 
@@ -113,6 +114,7 @@ export function AppMobileNavigationDrawer({
     return (
         <div
             aria-hidden={!isOpen}
+            inert={!isOpen}
             className={`fixed inset-0 z-140 lg:hidden ${
                 isOpen
                     ? "pointer-events-auto"
@@ -160,11 +162,18 @@ export function AppMobileNavigationDrawer({
                     </button>
                 </div>
 
-                <div className="min-h-0 flex-1 overflow-y-auto py-5">
-                    <AppNavigationContent
-                        isCollapsed={false}
-                        onNavigate={onClose}
-                    />
+                {/* 짧은 화면에서는 연락처도 메뉴와 함께 스크롤해 항목이 겹치지 않게 합니다. */}
+                <div className="flex min-h-0 flex-1 flex-col overflow-y-auto py-5">
+                    <div className="shrink-0">
+                        <AppNavigationContent
+                            isCollapsed={false}
+                            onNavigate={onClose}
+                        />
+                    </div>
+
+                    <div className="mt-auto shrink-0 pt-5">
+                        <AppDeveloperContact />
+                    </div>
                 </div>
 
                 <div className="shrink-0 border-t border-slate-200 p-4 dark:border-white/10">

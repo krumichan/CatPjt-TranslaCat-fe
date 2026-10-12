@@ -2,7 +2,7 @@
   "Notifications": {
     "button": "알림",
     "close": "닫기",
-    "description": "읽지 않은 채팅, 채팅 활동, 초대를 한 곳에서 확인할 수 있습니다.",
+    "description": "채팅, 서비스 활동, 초대를 한 곳에서 확인할 수 있습니다.",
     "eyebrow": "Notifications",
     "title": "알림 센터",
     "tabs": {
@@ -64,9 +64,9 @@
       "markReadFailed": "채팅 읽음 처리에 실패했습니다."
     },
     "activity": {
-      "emptyTitle": "새로운 채팅 활동이 없습니다",
-      "emptyDescription": "채팅방 초대, 강퇴, 권한 변경, 방 종료 등의 활동이 여기에 표시됩니다.",
-      "loadFailedTitle": "채팅 활동을 불러오지 못했습니다",
+      "emptyTitle": "새로운 활동이 없습니다",
+      "emptyDescription": "채팅 활동, 문의 답변, 운영팀 메시지와 중요 공지가 여기에 표시됩니다.",
+      "loadFailedTitle": "활동 알림을 불러오지 못했습니다",
       "unknownRoom": "채팅방",
       "unread": "읽지 않은 활동",
       "chatInvitation": "「{roomName}」 채팅방에 초대되었습니다.",
@@ -83,6 +83,15 @@
       "markingAllRead": "처리 중...",
       "markAllReadFailed": "활동 알림 전체 읽음 처리에 실패했습니다.",
       "openRoom": "{roomName} 채팅방 열기"
+    },
+    "support": {
+      "SUPPORT_REPLY": "문의에 새 답변이 달렸어요",
+      "SUPPORT_INQUIRY": "확인이 필요한 문의가 있어요",
+      "SUPPORT_NOTICE": "중요한 공지사항이 있어요",
+      "SUPPORT_MESSAGE": "운영팀에서 메시지를 보냈어요",
+      "new": "새 알림",
+      "viewAll": "고객센터에서 전체 내용 보기",
+      "partialLoadFailed": "일부 활동 알림을 불러오지 못했습니다. 잠시 후 다시 확인해 주세요."
     }
   }
 }

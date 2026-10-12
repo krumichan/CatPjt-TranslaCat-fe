@@ -2,6 +2,7 @@
 
 import {
     CircleUserRound,
+    Headset,
     LogIn,
     LogOut,
     Settings,
@@ -144,6 +145,16 @@ export default function UserMenu() {
                                     aria-hidden="true"
                                 />
                                 {t("settings")}
+                            </Link>
+
+                            <Link
+                                href="/support"
+                                role="menuitem"
+                                onClick={() => setIsOpen(false)}
+                                className="flex min-h-11 items-center gap-3 rounded-xl px-3 py-2 text-sm font-bold text-slate-600 transition hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
+                            >
+                                <Headset className="h-4.5 w-4.5" aria-hidden="true" />
+                                {t("support")}
                             </Link>
 
                             <div className="my-1 border-t border-slate-200 dark:border-white/10" />

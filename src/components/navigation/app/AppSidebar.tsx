@@ -7,6 +7,7 @@ import {
 import { useTranslations } from "next-intl";
 
 import { AppNavigationContent } from "@/components/navigation/app/AppNavigationContent";
+import { AppDeveloperContact } from "@/components/navigation/app/AppDeveloperContact";
 
 interface AppSidebarProps {
     isCollapsed: boolean;
@@ -66,6 +67,8 @@ export function AppSidebar({
                     isCollapsed={isCollapsed}
                 />
             </div>
+
+            <AppDeveloperContact isCollapsed={isCollapsed} />
         </aside>
     );
 }

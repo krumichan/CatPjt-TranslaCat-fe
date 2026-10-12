@@ -1,3 +1,4 @@
+import { formatReceiptAmount, formatExchangeRate } from "@/utils/account-book/formatAmount";
 import { useTranslations } from "next-intl";
 import type { AccountBookTransaction } from "@/types/accountBook";
 
@@ -8,8 +9,8 @@ export default function TransactionConversionDetails({ transaction }: {
     if (transaction.originalAmount == null || !transaction.originalCurrencyCode)
         return null;
     const rows = [
-        [t("originalAmount"), `${transaction.originalAmount} ${transaction.originalCurrencyCode}`],
-        [t("exchangeRate"), transaction.exchangeRate],
+        [t("originalAmount"), formatReceiptAmount(transaction.originalAmount, transaction.originalCurrencyCode)],
+        [t("exchangeRate"), transaction.exchangeRate == null ? null : formatExchangeRate(transaction.exchangeRate)],
         [t("requestedDate"), transaction.requestedRateDate],
         [t("effectiveDate"), transaction.effectiveRateDate],
         [t("provider"), transaction.exchangeRateProvider],
@@ -22,7 +23,7 @@ export default function TransactionConversionDetails({ transaction }: {
     return (
         <details className="mt-2 min-w-0 max-w-full break-words text-xs text-slate-500 dark:text-slate-400">
             <summary className="cursor-pointer break-all font-medium">
-                {t("originalAmount")}: {transaction.originalAmount} {transaction.originalCurrencyCode}
+                {t("originalAmount")}: {formatReceiptAmount(transaction.originalAmount, transaction.originalCurrencyCode)}
             </summary>
             <dl className="mt-2 grid min-w-0 gap-1">
                 {rows.filter(([, value]) => value != null).map(([label, value]) => (

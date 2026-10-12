@@ -4,6 +4,7 @@ export const ROUTES = {
     VOICE_SELECT: '/voice',
     ACCOUNT_BOOKS: "/account-books",
     SETTINGS: "/settings",
+    SUPPORT: "/support",
     NOVEL_DETAIL: '/novel/[platformCode]/novels/[identifier]',
     NOVEL_SEARCH: '/novel/[platformCode]/search/novels',
     NOVEL_GENRE: '/novel/[platformCode]/genres/[genreId]',

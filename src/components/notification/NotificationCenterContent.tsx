@@ -11,6 +11,7 @@ import type {
     ChatNotificationChatItem,
 } from "@/types/chatNotification";
 import type { FriendRequest } from "@/types/social";
+import type { useSupportNotifications } from "@/hooks/support/useSupportNotifications";
 
 type NotificationCenterContentProps = {
     activeTab: NotificationTab;
@@ -32,6 +33,7 @@ type NotificationCenterContentProps = {
     ) => Promise<boolean>;
     onMarkAllActivitiesAsRead: () => Promise<boolean>;
     onNavigateActivity: () => void;
+    supportNotification: ReturnType<typeof useSupportNotifications>;
 
     accountBookInvitations: AccountBookInvitation[];
     isAccountBookInvitationLoading: boolean;
@@ -70,6 +72,7 @@ export default function NotificationCenterContent({
     onMarkActivityAsRead,
     onMarkAllActivitiesAsRead,
     onNavigateActivity,
+    supportNotification,
     accountBookInvitations,
     isAccountBookInvitationLoading,
     isAccountBookInvitationError,
@@ -113,6 +116,7 @@ export default function NotificationCenterContent({
                 onMarkRead={onMarkActivityAsRead}
                 onMarkAllRead={onMarkAllActivitiesAsRead}
                 onNavigate={onNavigateActivity}
+                supportNotification={supportNotification}
             />
         );
     }

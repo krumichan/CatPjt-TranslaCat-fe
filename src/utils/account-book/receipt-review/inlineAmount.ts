@@ -1,6 +1,6 @@
 import type { ReceiptReviewItem, ReceiptInlineAmountEditPolicy } from "./types";
-import { decimalUnits, ZERO, PAID_TYPES } from "./money";
-import { editReceiptReview, editReceiptPayment } from "./editing";
+import { decimalUnits, ZERO, PAID_TYPES, recalculateAmountFacts } from "./money";
+import { staleConversion } from "./conversion";
 
 export function classifyReceiptInlineAmountEdit(item: ReceiptReviewItem): ReceiptInlineAmountEditPolicy {
     if (!item.paymentBreakdown.length)
@@ -23,7 +23,7 @@ export function classifyReceiptInlineAmountEdit(item: ReceiptReviewItem): Receip
         };
     const [payment] = item.paymentBreakdown;
     const hasCashFacts = payment.paymentType === "CASH"
-        && (item.cashTendered !== null || decimalUnits(item.change) !== null && decimalUnits(item.change)! > ZERO);
+        && (Boolean(item.cashTendered?.trim()) || Boolean(item.change?.trim()) && decimalUnits(item.change) !== ZERO);
     if (hasCashFacts)
         return {
             mode: "DETAILS_REQUIRED",
@@ -56,14 +56,17 @@ export function applyReceiptInlineAmountCorrection(item: ReceiptReviewItem, valu
         paymentIndex: policy.paymentIndex,
         correctedAmount: value,
     };
-    let next = editReceiptReview(item, "originalAmount", value);
-    if (policy.mode === "SINGLE_PAYMENT") {
-        next = editReceiptReview(item, "purchaseTotal", value);
-        next = editReceiptPayment(next, policy.paymentIndex, value);
-    }
+    // 모달/인라인이 같은 사실을 정정한다. 관측 기록과 결제 배열은 보존한다.
+    const paymentBreakdown = policy.mode === "SINGLE_PAYMENT"
+        ? item.paymentBreakdown.map((payment, index) => index === policy.paymentIndex ? { ...payment, amount: value } : payment)
+        : item.paymentBreakdown;
+    const next = recalculateAmountFacts({ ...item, purchaseTotal: value, paymentBreakdown });
 
     return {
         ...next,
+        conversionStale: true,
+        conversion: staleConversion(next),
+        reviewedRevision: null,
         amountCorrection: { ...observed, correctedAmount: value },
     };
 }

@@ -59,11 +59,12 @@ test("mixed-language and currency receipts retain independent amounts and partia
         { ...ready, receiptId: "receipt-2", detectedLanguage: "ja", detectedCurrencyCode: "JPY", originalAmount: "1280", convertedAmount: "1280", exchangeRate: "1", conversionStatus: "NOT_REQUIRED" },
         { ...ready, receiptId: "receipt-3", detectedLanguage: "fr", detectedCurrencyCode: "EUR", conversionStatus: "RATE_UNAVAILABLE", convertedAmount: null, warnings: ["Provider unavailable"] },
         { ...ready, receiptId: "receipt-4", status: "UNREADABLE", originalAmount: null, detectedCurrencyCode: null, convertedAmount: null });
-    assert.deepEqual(items.map((item) => item.selected), [true, true, false, false]);
+    assert.deepEqual(items.map((item) => item.selected), [true, true, true, true]);
     assert.equal(items[2].analysisWarnings[0], "Provider unavailable");
     assert.equal(items[3].originalAmount, "");
     assert.equal(items[3].originalCurrencyCode, "");
-    assert.equal(buildReceiptBatch(items).receipts.length, 2);
+    assert.throws(() => buildReceiptBatch(items));
+    assert.equal(buildReceiptBatch(selectRegisterableReceiptReviews(items)).receipts.length, 2);
 });
 
 test("selection changes only the requested card and batch sends exactly selected fields", () => {
@@ -277,9 +278,14 @@ test("missing or ambiguous dates and unknown currencies are not invented", () =>
         const [item] = reviews({ ...ready, transactionDate: date });
         assert.equal(item.transactionDate, date ?? "");
         assert.equal(hasValidReceiptSource(item), false);
-        assert.equal(item.selected, false);
+        assert.equal(item.selected, true);
     }
-    for (const currency of [null, "$", "¥", "USDD"]) assert.equal(reviews({ ...ready, detectedCurrencyCode: currency })[0].selected, false);
+    for (const currency of [null, "$", "¥", "USDD"]) {
+        const [item] = reviews({ ...ready, detectedCurrencyCode: currency });
+        assert.equal(item.selected, true);
+        assert.equal(canRegisterReceipt(item), false);
+        assert.throws(() => buildReceiptBatch([item]));
+    }
 });
 
 test("precise decimal amounts including three minor units never pass through Number", () => {
@@ -354,7 +360,7 @@ test("review assisted selection stays separate from source confirmation and bind
         response([{ ...ready, boundingBox: [0.1, 0.2, 0.8, 0.9] }]),
         "image-assisted", 2, "assisted.jpg", true,
     );
-    assert.equal(item.selected, false);
+    assert.equal(item.selected, true);
     assert.deepEqual(validateReceiptForRegistration(item).blockingIssues.map(({ code }) => code), [
         "REVIEW_CONFIRMATION_REQUIRED",
     ]);
@@ -375,9 +381,192 @@ test("manual source-region candidate is added as an unsaved blocked draft", () =
     );
     assert.equal(item.clientId, "image-missing:3:manual-fixed");
     assert.equal(item.manuallyAdded, true);
-    assert.equal(item.selected, false);
+    assert.equal(item.selected, true);
     assert.equal(item.reviewMode, "ASSISTED");
     assert.equal(validateReceiptForRegistration(item).registrable, false);
     assert.ok(validateReceiptForRegistration(item).blockingIssues.some(({ code }) => code === "PURCHASE_TOTAL_INVALID"));
     assert.throws(() => buildReceiptBatch([{ ...item, selected: true }]));
+});
+
+
+test("new receipt candidates default selected while invalid and unreviewed drafts still block the entire batch", () => {
+    // 준비: 정상, 카테고리 누락, 금액 누락을 한 분석에 포함한다.
+    const source = response([ready,
+        { ...ready, receiptId: "missing-category", categoryName: null },
+        { ...ready, receiptId: "missing-amount", originalAmount: null, status: "UNREADABLE" },
+    ]);
+
+    // 실행: 기본 선택은 검토 완료/등록 가능 여부와 별개다.
+    const items = createReceiptReview(source);
+    const assisted = createReceiptReview(response([ready]), "assisted", 1, "source.jpg", true);
+
+    // 검증: 자동 선택으로 누락 필드를 승인하거나 정상 항목만 저장하지 않는다.
+    assert.deepEqual(items.map(item => item.selected), [true, true, true]);
+    assert.deepEqual(summarizeReceiptSelection(items), { selectedCount: 3, registrableCount: 1, blockedCount: 2 });
+    assert.throws(() => buildReceiptBatch(items));
+    assert.equal(assisted[0].selected, true);
+    assert.equal(assisted[0].reviewedRevision, null);
+    assert.throws(() => buildReceiptBatch(assisted));
+    assert.equal(buildReceiptBatch(selectRegisterableReceiptReviews(items)).receipts.length, 1);
+});
+
+
+for (const field of ["originalAmount", "purchaseTotal"]) {
+    test(`modal ${field} correction keeps a single payment and purchase facts consistent`, () => {
+        // 준비: 목록/표의 인라인 입력과 모달이 같은 단일 카드 사실을 수정한다.
+        const [item] = reviews({ ...ready, purchaseTotal: "12.34", bookAmount: "12.34",
+            paymentBreakdown: [{ paymentType: "CREDIT_CARD", amount: "12.34", evidence: "VISA", duplicateGroup: null }] });
+
+        // 실행: 소수점 입력 중간값과 최종값도 모두 보존한다.
+        const partial = editReceiptReview(item, field, "15.");
+        const changed = editReceiptReview(partial, field, "15.00");
+
+        // 검증: 이전 결제금액으로 다시 환산될 수 없고 새 quote가 필요하다.
+        assert.equal(partial[field], "15.");
+        assert.equal(canRegisterReceipt(partial), false);
+        assert.equal(changed.purchaseTotal, "15.00");
+        assert.equal(changed.paymentBreakdown[0].amount, "15.00");
+        assert.equal(Number(changed.originalAmount), 15);
+        assert.equal(changed.amountCorrection.observedOriginalAmount, "12.34");
+        assert.equal(changed.amountCorrection.observedPaymentAmount, "12.34");
+        assert.equal(changed.paymentBreakdown[0].evidence, "VISA");
+        assert.equal(changed.conversionStale, true);
+        assert.equal(changed.conversion.convertedAmount, null);
+        assert.throws(() => buildReceiptBatch([changed]));
+    });
+}
+
+
+test("conversion preview from an old amount or currency cannot mark a new draft ready", () => {
+    // 준비: 새 금액 draft와 이전 금액의 성공 응답을 섞는다.
+    const [item] = reviews();
+    const changed = editReceiptReview(item, "originalAmount", "15.00");
+    const key = receiptSourceKey(changed);
+
+    // 실행 / 검증: Decimal 값이 다르면 quote를 보류하고, 표현만 다른 15/15.00은 허용한다.
+    const oldAmount = applyReceiptConversion(changed, key, item.conversion);
+    assert.equal(oldAmount.conversionStale, true);
+    assert.equal(oldAmount.conversion.convertedAmount, null);
+    assert.equal(canRegisterReceipt(oldAmount), false);
+    const wrongCurrency = applyReceiptConversion(changed, key, { ...item.conversion, originalAmount: "15", originalCurrencyCode: "EUR" });
+    assert.equal(wrongCurrency.conversionStale, true);
+    const correct = applyReceiptConversion(changed, key, { ...item.conversion, originalAmount: "15", originalCurrencyCode: "USD", convertedAmount: "2200" });
+    assert.equal(correct.conversionStale, false);
+    assert.equal(correct.originalAmount, "15.00");
+    assert.equal(canRegisterReceipt(correct), true);
+});
+
+test("complex point receipts derive the book amount only from corrected facts", () => {
+    // 준비: 포인트를 제외한 반영액은 하나의 숫자만으로 정정할 수 없다.
+    const [item] = reviews({ ...ready, purchaseTotal: "7089", bookAmount: "5020", originalAmount: "5020",
+        paymentBreakdown: [
+            { paymentType: "LOYALTY_POINTS", amount: "2069", evidence: "ポイント", duplicateGroup: null },
+            { paymentType: "CREDIT_CARD", amount: "5020", evidence: "カード", duplicateGroup: null },
+        ] });
+
+    // 실행 / 검증: 반영액 단독 변경은 거부하고 정정된 구매총액·카드에서 계산한다.
+    assert.equal(editReceiptReview(item, "originalAmount", "9999"), item);
+    const total = editReceiptReview(item, "purchaseTotal", "7189");
+    assert.equal(total.reviewStatus, "NEEDS_REVIEW");
+    const corrected = editReceiptPayment(total, 1, "5120");
+    assert.equal(corrected.originalAmount, "5120");
+    assert.equal(corrected.paymentBreakdown[0].amount, "2069");
+    assert.equal(corrected.reviewStatus, "READY");
+    assert.equal(corrected.conversionStale, true);
+});
+
+
+test("clearing cash details restores simple amount editing without discarding payment evidence", () => {
+    // 준비: 거스름돈이 있는 현금 영수증에서 상세 사실을 명시적으로 비운다.
+    const [item] = reviews({ ...ready, purchaseTotal: "12.34", bookAmount: "12.34",
+        paymentBreakdown: [{ paymentType: "CASH", amount: "12.34", evidence: "現金", duplicateGroup: null }],
+        cashTendered: "20", change: "7.66" });
+
+    // 실행 / 검증: 빈 문자열은 새로운 현금 지급 근거가 아니다.
+    const cleared = editReceiptReview(editReceiptReview(item, "cashTendered", ""), "change", "");
+    assert.equal(classifyReceiptInlineAmountEdit(cleared).mode, "SINGLE_PAYMENT");
+    const corrected = editReceiptReview(cleared, "originalAmount", "15.00");
+    assert.equal(corrected.paymentBreakdown[0].amount, "15.00");
+    assert.equal(corrected.paymentBreakdown[0].evidence, "現金");
+});
+
+
+test("unrecorded prepayment can be reclassified without changing genuine points policy", () => {
+    // 준비: 4,000 선결제와 4,030 추가 결제를 사용자가 이번에 함께 기록한다.
+    const [item] = reviews({ ...ready, purchaseTotal: "8030", originalAmount: "4030", bookAmount: "4030",
+        reviewStatus: "READY", amountReason: "SETTLED_PAYMENT_EXCLUDING_LOYALTY_POINTS",
+        paymentBreakdown: [
+            { paymentType: "LOYALTY_POINTS", amount: "4000", evidence: "ポイント利用", duplicateGroup: null },
+            { paymentType: "CREDIT_CARD", amount: "4030", evidence: "カード", duplicateGroup: null },
+        ], warnings: ["PAYMENT_TOTAL_MISMATCH"] });
+
+    // 실행: 포인트를 자동 제거하지 않고 명시적인 결제 유형 정정으로만 선결제를 포함한다.
+    const corrected = editReceiptPayment(item, 0, "4000", "OTHER_PAID");
+
+    // 검증: 금액/quote/검토 상태를 함께 갱신하며 원래 관측과 경고는 보존한다.
+    assert.equal(corrected.originalAmount, "8030");
+    assert.equal(corrected.purchaseTotal, "8030");
+    assert.equal(corrected.paymentBreakdown[0].paymentType, "OTHER_PAID");
+    assert.equal(corrected.paymentBreakdown[0].evidence, "ポイント利用");
+    assert.equal(corrected.observedPaymentTypes[0], "LOYALTY_POINTS");
+    assert.equal(corrected.conversionStale, true);
+    assert.equal(corrected.conversion.conversionQuoteId, null);
+    assert.equal(canRegisterReceipt(corrected), false);
+    assert.deepEqual(corrected.analysisWarnings, item.analysisWarnings);
+    assert.equal(corrected.reviewedRevision, null);
+    const reverted = editReceiptPayment(corrected, 0, "4000", "LOYALTY_POINTS");
+    assert.equal(reverted.originalAmount, "4030");
+    assert.equal(reverted.observedPaymentTypes[0], "LOYALTY_POINTS");
+});
+
+test("payment mismatch points to editable payment facts and remains blocked", () => {
+    // 준비 / 실행: 총액과 결제 배분이 일치하지 않는 후보.
+    const [item] = reviews({ ...ready, reviewStatus: "NEEDS_REVIEW", amountReason: "PAYMENT_TOTAL_MISMATCH" });
+    const validation = validateReceiptForRegistration(item);
+
+    // 검증: 모호한 원금액 오류 대신 결제 내역으로 이동할 수 있다.
+    assert.equal(validation.registrable, false);
+    assert.ok(validation.blockingIssues.some(issue => issue.code === "PAYMENT_TOTAL_MISMATCH" && issue.field === "paymentBreakdown"));
+});
+
+
+test("detailed edits refresh a previous inline correction summary", () => {
+    // 준비: 현금 금액을 인라인에서 정정한 뒤 상세 결제 사실을 다시 수정한다.
+    const [item] = reviews({ ...ready, purchaseTotal: "12.34", paymentBreakdown: [
+        { paymentType: "CASH", amount: "12.34", evidence: "現金", duplicateGroup: null },
+    ] });
+    const inline = applyReceiptInlineAmountCorrection(item, "15.00");
+
+    // 실행 / 검증: 오류 중에는 이전 정정액을 표시하지 않고 해결 후 새 반영액을 표시한다.
+    const tendered = editReceiptReview(inline, "cashTendered", "20");
+    assert.equal(tendered.amountCorrection.correctedAmount, "");
+    const changed = editReceiptReview(tendered, "change", "3");
+    const settled = editReceiptPayment(editReceiptReview(changed, "purchaseTotal", "17"), 0, "17");
+    assert.equal(settled.originalAmount, "17");
+    assert.equal(settled.amountCorrection.correctedAmount, "17");
+    assert.equal(settled.amountCorrection.observedOriginalAmount, "12.34");
+});
+
+
+test("registration rejects a stale quote even when the stale flag was missed", () => {
+    // 준비: 화면은 1,540으로 수정됐지만 이전 1,652의 quote/환산액이 남은 상태.
+    const [item] = reviews({ ...ready, originalAmount: "1652", detectedCurrencyCode: "JPY", convertedAmount: "1652", conversionStatus: "NOT_REQUIRED" });
+    const changed = { ...item, originalAmount: "1540", purchaseTotal: "1540", conversionStale: false };
+
+    // 검증: 성공 상태 문자열만으로 등록 가능이라고 표시하거나 batch를 만들지 않는다.
+    assert.equal(canRegisterReceipt(changed), false);
+    assert.ok(validateReceiptForRegistration(changed).blockingIssues.some(issue => issue.code === "QUOTE_STALE"));
+    assert.throws(() => buildReceiptBatch([changed]));
+});
+
+test("conversion for an earlier requested date cannot authorize a new date", () => {
+    // 준비 / 실행: 금액은 같아도 요청일이 다른 환산 응답은 현재 원본에 쓸 수 없다.
+    const [item] = reviews();
+    const changed = editReceiptReview(item, "transactionDate", "2026-09-16");
+    const converted = applyReceiptConversion(changed, receiptSourceKey(changed), item.conversion);
+
+    // 검증: 이전 quote를 제거하고 재계산 상태를 유지한다.
+    assert.equal(converted.conversionStale, true);
+    assert.equal(converted.conversion.conversionQuoteId, null);
+    assert.equal(canRegisterReceipt(converted), false);
 });

@@ -1,92 +1,44 @@
 import { useTranslations } from "next-intl";
 import type { ReceiptReviewItem } from "@/utils/account-book/receiptReview";
 import { receiptRowClassName } from "@/utils/account-book/receiptReviewPresentation";
-import ReceiptInlineAmountCell from "./ReceiptInlineAmountCell";
+import ReceiptInlineTitle from "./ReceiptInlineTitle";
+import ReceiptInlineCategory from "./ReceiptInlineCategory";
+import { ReceiptInlineAmount } from "./ReceiptInlineAmountCell";
 import ReceiptReviewStatusIcon from "./ReceiptReviewStatusIcon";
+import ReceiptReviewCheckbox from "./ReceiptReviewCheckbox";
+import ReceiptRowActionMenu from "./ReceiptRowActionMenu";
 import type { ReceiptReviewContentProps } from "./types";
 
-type Props = ReceiptReviewContentProps & {
-    item: ReceiptReviewItem;
-    index: number;
-};
+type Props = ReceiptReviewContentProps & { item: ReceiptReviewItem; index: number };
 
 export default function ReceiptReviewTableRow({ item, index, review, controller }: Props) {
-    const t = useTranslations("AccountBook.detail.transactionModal");
-    const { hasAmountEdit, amountEdit, categoryOptions, openEditor } = controller;
-    const categoryLabel = (source: string) => t(`receipt.review.categorySources.${source.toLowerCase()}`);
+    const t = useTranslations("AccountBook.detail.transactionModal.receipt.review");
+    const state = controller.getRowState(item);
+    const status = t(state === "PENDING" ? "statusRecalculating" : state === "READY" ? "statusReady" : "statusNeedsReview");
     return (
-        <tr
-            data-testid="receipt-review-card"
-            className={`${receiptRowClassName(controller.getRowState(item))} transition hover:brightness-[0.98] dark:hover:brightness-110`}
-        >
-            <td className="px-3 py-3">
-                <input
-                    type="checkbox"
-                    checked={item.selected}
-                    disabled={review.isBusy || hasAmountEdit}
-                    aria-label={t("receipt.review.selectReceipt", { index: index + 1 })}
-                    onChange={(event) => review.select(item.clientId, event.target.checked)}
-                    className="h-5 w-5 accent-orange-500"
-                />
+        <tr data-testid="receipt-review-card"
+            className={`${receiptRowClassName(state)} transition hover:brightness-[0.98] dark:hover:brightness-110`}>
+            <td className="px-1 py-3">
+                <ReceiptReviewCheckbox item={item} index={index} review={review} controller={controller} />
             </td>
-            <td className="whitespace-nowrap px-3 py-3">
-                {item.transactionDate || "—"}
-            </td>
-            <td className="max-w-55 px-3 py-3">
-                <span className="block truncate font-semibold">
-                    {item.title || "—"}
+            <td className="min-w-0 px-3 py-3">
+                <span className="flex items-center gap-1.5 text-[11px] text-slate-500">
+                    {item.transactionDate || "—"}
+                    <span title={status} className="inline-flex"><ReceiptReviewStatusIcon state={state} /><span className="sr-only">{status}</span></span>
                 </span>
-                <span className="block truncate text-[11px] text-slate-500">{item.sourceFileName} · r{item.analysisRevision}</span>
+                <ReceiptInlineTitle item={item} index={index} review={review} controller={controller} />
+                <span className="block truncate text-[10px] text-slate-500" title={item.sourceFileName}>{item.sourceFileName} · r{item.analysisRevision}</span>
             </td>
-            <td className="px-3 py-3">
-                <select
-                    value={item.categoryName}
-                    disabled={review.isBusy || amountEdit?.clientId === item.clientId}
-                    aria-label={t("receipt.review.inlineCategory", { index: index + 1 })}
-                    onClick={(event) => event.stopPropagation()}
-                    onChange={(event) => {
-                        const option = categoryOptions.find((candidate) => candidate.name === event.target.value);
-                        if (option)
-                            review.updateCategory(
-                                item.clientId,
-                                option.name,
-                                option.source
-                            );
-                    }}
-                    className="w-44 rounded-lg border border-slate-300 bg-white px-2 py-2 text-xs focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-white/10 dark:bg-zinc-900"
-                >
-                    {!item.categoryName && (
-                        <option value="">
-                            {t("receipt.review.blockingIssues.CATEGORY_REQUIRED")}
-                        </option>
-                    )}
-                    {categoryOptions.map((option) => (
-                        <option
-                            key={`${option.source}-${option.name}`}
-                            value={option.name}
-                        >{option.name} · {categoryLabel(option.source)}</option>
-                    ))}
-                </select>
+            <td className="px-2 py-3">
+                <ReceiptInlineCategory item={item} index={index} review={review} controller={controller} />
             </td>
-            <ReceiptInlineAmountCell
-                item={item}
-                index={index}
-                review={review}
-                controller={controller}
-            />
-            <td className="px-3 py-3 text-xs font-semibold text-slate-700 dark:text-slate-200">
-                <span className="flex items-center gap-1.5">
-                    <ReceiptReviewStatusIcon state={controller.getRowState(item)} />
-                </span>
-            </td>
-            <td className="px-3 py-3 text-right">
-                <button
-                    type="button"
-                    onClick={(event) => openEditor(item, event.currentTarget)}
-                    className="rounded-lg border border-orange-300 px-2.5 py-1.5 text-xs font-semibold text-orange-700 dark:text-orange-300"
-                >
-                    {t("receipt.review.reviewEdit")}
-                </button>
+            {/* 상태/작업 전용 열 없이 기본정보의 상태 아이콘과 금액 옆 점 메뉴로 표시한다. */}
+            <td className="px-2 py-3 text-right">
+                <div className="flex min-w-0 items-center justify-end gap-1">
+                    <div className="min-w-0 flex-1"><ReceiptInlineAmount item={item} index={index} review={review} controller={controller} /></div>
+                    <ReceiptRowActionMenu index={index} disabled={review.isBusy || controller.hasInlineEdit}
+                        onEdit={(trigger) => controller.openEditor(item, trigger)} />
+                </div>
             </td>
         </tr>
     );

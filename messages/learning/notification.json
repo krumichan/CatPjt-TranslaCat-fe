@@ -2,7 +2,7 @@
   "Notifications": {
     "button": "通知",
     "close": "閉じる",
-    "description": "未読チャット、チャットアクティビティ、招待をまとめて確認できます。",
+    "description": "チャット、サービスのアクティビティ、招待をまとめて確認できます。",
     "eyebrow": "Notifications",
     "title": "通知センター",
     "tabs": {
@@ -64,9 +64,9 @@
       "markReadFailed": "チャットの既読処理に失敗しました。"
     },
     "activity": {
-      "emptyTitle": "新しいチャットアクティビティはありません",
-      "emptyDescription": "チャットルーム招待、強制退出、Role変更、Room終了などを表示します。",
-      "loadFailedTitle": "チャットアクティビティの取得に失敗しました",
+      "emptyTitle": "新しいアクティビティはありません",
+      "emptyDescription": "チャットのアクティビティ、お問い合わせへの回答、運営からのメッセージ、重要なお知らせを表示します。",
+      "loadFailedTitle": "アクティビティ通知を読み込めませんでした",
       "unknownRoom": "チャットルーム",
       "unread": "未読アクティビティ",
       "chatInvitation": "「{roomName}」チャットルームに招待されました。",
@@ -83,6 +83,15 @@
       "markingAllRead": "処理中...",
       "markAllReadFailed": "アクティビティ通知の一括既読処理に失敗しました。",
       "openRoom": "「{roomName}」チャットルームを開く"
+    },
+    "support": {
+      "SUPPORT_REPLY": "お問い合わせに新しい回答が届きました",
+      "SUPPORT_INQUIRY": "確認が必要なお問い合わせがあります",
+      "SUPPORT_NOTICE": "重要なお知らせがあります",
+      "SUPPORT_MESSAGE": "運営からメッセージが届きました",
+      "new": "新着",
+      "viewAll": "サポートですべての内容を確認",
+      "partialLoadFailed": "一部の通知を読み込めませんでした。しばらくしてから再度ご確認ください。"
     }
   }
 }

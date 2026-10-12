@@ -10,6 +10,7 @@ import { AppMobileNavigationDrawer } from "@/components/navigation/app/AppMobile
 import { AppSidebar } from "@/components/navigation/app/AppSidebar";
 import { useAppSidebarState } from "@/components/navigation/app/useAppSidebarState";
 import { usePathname } from "@/navigation";
+import { UrgentNoticeGate } from "@/components/support/UrgentNoticeGate";
 
 interface AppShellProps {
     children: React.ReactNode;
@@ -74,6 +75,8 @@ export default function AppShell({
                 isOpen={isMobileNavigationOpen}
                 onClose={closeMobileNavigation}
             />
+
+            <UrgentNoticeGate />
 
             <main
                 className={`relative z-10 flex-1 overflow-y-auto overflow-x-hidden transition-[margin] duration-200 motion-reduce:transition-none ${

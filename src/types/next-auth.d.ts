@@ -6,6 +6,7 @@ export type UserRole = "USER" | "ADMIN";
 
 declare module "next-auth" {
     interface Session {
+        loginSessionId?: string;
         accessToken?: string;
         refreshToken?: string;
         error?: AuthSessionError;
@@ -30,6 +31,7 @@ declare module "next-auth" {
 
 declare module "next-auth/jwt" {
     interface JWT {
+        loginSessionId?: string;
         accessToken?: string;
         refreshToken?: string;
         accessTokenExpires?: number;

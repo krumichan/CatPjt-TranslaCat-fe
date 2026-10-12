@@ -17,7 +17,7 @@ interface Props {
 
 export function ParagraphWritingItemCard({ item, draft, maxLength, busy, showWorkload, onDraft, onSubmit, onRetryFeedback }: Props) {
     const t = useTranslations("ParagraphWriting");
-    const groups = [["facts", item.providedFacts], ["intents", item.requiredIntents], ["constraints", item.responseConstraints]] as const;
+    const groups = [["facts", item.providedFacts], ["intents", item.requiredIntents], ["constraints", item.responseConstraints], ["taskRequirements", item.taskRequirements ?? []]] as const;
 
     return (
         <article className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 dark:border-white/10 dark:bg-slate-900" data-testid={`paragraph-item-${item.order}`}>
@@ -49,17 +49,32 @@ export function ParagraphWritingItemCard({ item, draft, maxLength, busy, showWor
                         <p>{t("feedbackReferenceOnly")}</p>
                         <ul className="space-y-2">{attempt.feedback.result.observations.map((row) => <li key={row.requirementId}>
                             <strong>{row.requirementId} · {t(`requirementStates.${row.status}`)}</strong>
+                            {row.evidenceKind === "MISSING_REQUIREMENT" && <p>{t("missingRequirementEvidence")}</p>}
                             <p>{row.originText}</p><p lang="ja">{row.learningText}</p>
-                            {row.answerQuotes.map((quote, index) => <blockquote key={index} lang="ja" className="whitespace-pre-wrap border-l-2 pl-2">{quote}</blockquote>)}
+                            {["curated-writing-feedback-v6", "curated-writing-feedback-v7"].includes(attempt.feedback?.result?.policyVersion ?? "") ? row.requirementParts?.map((part, index) => <div
+                                key={index} data-testid={`paragraph-part-${row.requirementId}-${index + 1}`}
+                                className="mt-2 rounded-lg border border-slate-200 p-2 dark:border-white/10">
+                                <p className="font-medium" data-testid="paragraph-part-status">{t(`requirementPartStates.${part.status}`)}</p>
+                                <p className="whitespace-pre-wrap" data-testid="paragraph-part-requirement">{part.requirementQuote}</p>
+                                {part.status === "ABSENT" ? <p data-testid="paragraph-part-missing">{t("missingRequirementPart")}</p> : <>
+                                    <p className="mt-1 text-xs">{t("requirementPartEvidence")}</p>
+                                    {part.evidence.map((evidence, evidenceIndex) => <blockquote key={evidenceIndex} lang="ja"
+                                        className="whitespace-pre-wrap border-l-2 pl-2">{evidence.quote}</blockquote>)}
+                                </>}
+                            </div>) : row.answerQuotes.map((quote, index) => <blockquote key={index} lang="ja" className="whitespace-pre-wrap border-l-2 pl-2">{quote}</blockquote>)}
                         </li>)}</ul>
                         {attempt.feedback.result.necessaryCorrections.map((row, index) => <div key={`correction-${index}`}>
                             <strong>{t("necessaryCorrection")} · {row.requirementId}</strong>
+                            {row.issueType && <p>{t(`correctionBasis.${row.issueType}`)}</p>}
                             <p lang="ja" className="whitespace-pre-wrap">{row.original} → {row.replacement}</p>
                             <p>{row.originText}</p><p lang="ja">{row.learningText}</p>
                         </div>)}
                         {attempt.feedback.result.optionalAlternatives.map((row, index) => <div key={`optional-${index}`}>
                             <strong>{t("optionalAlternative")}</strong>
-                            <p lang="ja" className="whitespace-pre-wrap">{row.original} → {row.replacement}</p>
+                            {row.suggestionKind === "HYPOTHETICAL_EXAMPLE" ? <>
+                                <p className="font-medium">{t("hypotheticalExample")}</p>
+                                <p lang="ja" className="whitespace-pre-wrap">{row.replacement}</p>
+                            </> : <p lang="ja" className="whitespace-pre-wrap">{row.original} → {row.replacement}</p>}
                             <p>{row.originText}</p><p lang="ja">{row.learningText}</p>
                         </div>)}
                         {attempt.feedback.result.uncertainties.map((row, index) => <p key={`uncertain-${index}`}>{t("uncertainty")} · {row.requirementId}: {row.originText}</p>)}

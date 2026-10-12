@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 
 import { useQuery } from "@/hooks/useQuery";
 import { useChatNotifications } from "@/hooks/chat/useChatNotifications";
+import { useSupportNotifications } from "@/hooks/support/useSupportNotifications";
 import type { AccountBookInvitation } from "@/types/accountBook";
 import type { FriendRequest } from "@/types/social";
 import type {
@@ -42,6 +43,7 @@ export function useNotificationCenter() {
         useState<FriendRequestAction | null>(null);
 
     const chatNotification = useChatNotifications();
+    const supportNotification = useSupportNotifications();
 
     const {
         data: accountBookInvitations = [],
@@ -85,20 +87,26 @@ export function useNotificationCenter() {
     ]);
 
     const unreadCount =
-        invitationUnreadCount + chatNotification.summary.totalAttentionCount;
+        invitationUnreadCount +
+        chatNotification.summary.totalAttentionCount +
+        supportNotification.unreadCount;
 
     const tabCounts = {
         CHAT: chatNotification.summary.unreadChatMessageCount,
-        ACTIVITY: chatNotification.summary.unreadActivityCount,
+        ACTIVITY:
+            chatNotification.summary.unreadActivityCount +
+            supportNotification.unreadCount,
         INVITATION: invitationUnreadCount,
     } satisfies Record<NotificationTab, number>;
 
     const refreshNotifications = async () => {
-        await Promise.all([
+        // 일부 출처의 조회가 실패해도 나머지 알림을 표시하고 각 패널에서 오류를 안내한다.
+        await Promise.allSettled([
             mutateAccountBookInvitations((currentData) => currentData, true),
             mutateReceivedFriendRequests((currentData) => currentData, true),
             mutateSentFriendRequests((currentData) => currentData, true),
             chatNotification.refresh(),
+            supportNotification.refresh(),
         ]);
     };
 
@@ -123,7 +131,14 @@ export function useNotificationCenter() {
     };
 
     const handleMarkAllActivitiesAsRead = async (): Promise<boolean> => {
-        const succeeded = await chatNotification.markAllActivitiesAsRead();
+        // 활동 탭의 모든 출처를 각각 저장하고, 한쪽 실패가 다른 결과를 숨기지 않게 한다.
+        const results = await Promise.all([
+            chatNotification.markAllActivitiesAsRead(),
+            supportNotification.unreadCount > 0
+                ? supportNotification.markAllAsRead()
+                : Promise.resolve(true),
+        ]);
+        const succeeded = results.every(Boolean);
 
         if (!succeeded) {
             window.alert(t("activity.markAllReadFailed"));
@@ -320,6 +335,7 @@ export function useNotificationCenter() {
         chatNotificationSummary: chatNotification.summary,
         chatNotificationItems: chatNotification.chatList.items,
         chatActivityItems: chatNotification.activityList.items,
+        supportNotification,
         isChatNotificationLoading: chatNotification.isChatListLoading,
         isChatNotificationError: chatNotification.chatListError,
         isChatActivityLoading: chatNotification.isActivityListLoading,

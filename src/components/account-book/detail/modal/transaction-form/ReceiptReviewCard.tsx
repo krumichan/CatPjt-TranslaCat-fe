@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "react";
+import ReceiptReviewPaymentFields from "./receipt-review/ReceiptReviewPaymentFields";
 import ReceiptReviewConversionSummary from "./receipt-review/ReceiptReviewConversionSummary";
 import ReceiptReviewField from "./receipt-review/ReceiptReviewField";
 import { receiptFieldId } from "@/utils/account-book/receiptReviewPresentation";
@@ -6,7 +8,6 @@ import {
     completeReceiptReview,
     editReceiptCategorySelection,
     editReceiptDirectCategory,
-    editReceiptPayment,
     editReceiptReview,
     hasValidReceiptSource,
     omitReceiptBranch,
@@ -57,6 +58,14 @@ export default function ReceiptReviewCard({
     sourcePreviewUrl = "",
 }: Props) {
     const t = useTranslations("AccountBook.detail.transactionModal");
+    const needsRecalculation = validation.blockingIssues.some((entry) => entry.field === "conversion");
+    const paymentDetailsRef = useRef<HTMLDetailsElement>(null);
+    const paymentMismatch = item.reviewStatus !== "READY" && item.amountReason === "PAYMENT_TOTAL_MISMATCH";
+    // 합계 오류가 숨겨진 상세 안에서 발생하면 정정할 결제 내역을 바로 펼친다.
+    useEffect(() => {
+        if (paymentMismatch && paymentDetailsRef.current)
+            paymentDetailsRef.current.open = true;
+    }, [paymentMismatch]);
     const issue = (field: ReceiptBlockingField) => validation.blockingIssues.find((entry) => entry.field === field);
 
     const error = (field: ReceiptBlockingField) => {
@@ -160,7 +169,7 @@ export default function ReceiptReviewCard({
                     </div>
                 </div>
 
-                <details className="rounded-xl border border-slate-200 p-3 dark:border-white/10">
+                <details ref={paymentDetailsRef} className="rounded-xl border border-slate-200 p-3 dark:border-white/10">
                     <summary className="cursor-pointer text-sm font-semibold text-slate-700 dark:text-slate-200">
                         {t("receipt.review.receiptDetails")}
                     </summary>
@@ -225,55 +234,7 @@ export default function ReceiptReviewCard({
                             onChange={onChange}
                         />
                     </div>
-                    {item.paymentBreakdown.length > 0 && (
-                        <div className="mt-4 space-y-2">
-                            <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">
-                                {t("receipt.review.paymentBreakdown")}
-                            </p>
-                            {item.paymentBreakdown.map((payment, paymentIndex) => {
-                                const id = paymentIndex === 0 ? receiptFieldId(item.clientId, "paymentBreakdown") : `${receiptFieldId(item.clientId, "paymentBreakdown")}-${paymentIndex}`;
-                                return (
-                                    <label
-                                        key={`${payment.paymentType}-${paymentIndex}`}
-                                        htmlFor={id}
-                                        className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(7rem,0.7fr)] items-end gap-2"
-                                    >
-                                        <span className="min-w-0 text-xs text-slate-600 dark:text-slate-300">
-                                            <span className="block font-semibold">
-                                                {t(`receipt.review.paymentTypes.${payment.paymentType}`)}
-                                            </span>
-                                            <span
-                                                className="block truncate"
-                                                title={payment.evidence ?? ""}
-                                            >
-                                                {payment.evidence ?? "—"}
-                                            </span>
-                                        </span>
-                                        <input
-                                            id={id}
-                                            value={payment.amount}
-                                            inputMode="decimal"
-                                            aria-invalid={Boolean(error("paymentBreakdown"))}
-                                            onChange={(event) => onChange(editReceiptPayment(
-                                                item,
-                                                paymentIndex,
-                                                event.target.value
-                                            ))}
-                                            className={inputClassName}
-                                        />
-                                    </label>
-                                );
-                            })}
-                            {error("paymentBreakdown") && (
-                                <p
-                                    role="alert"
-                                    className="text-xs font-semibold text-red-600 dark:text-red-300"
-                                >
-                                    {error("paymentBreakdown")}
-                                </p>
-                            )}
-                        </div>
-                    )}
+                    <ReceiptReviewPaymentFields item={item} error={error("paymentBreakdown")} onChange={onChange} />
                 </details>
             </fieldset>
 
@@ -295,7 +256,7 @@ export default function ReceiptReviewCard({
                     ))}
                 </ul>
             )}
-            {item.conversionStale && (
+            {needsRecalculation && (
                 <p
                     className="mt-3 text-xs font-semibold text-amber-700 dark:text-amber-300"
                     role="status"
@@ -303,7 +264,7 @@ export default function ReceiptReviewCard({
                     {t("receipt.review.staleConversion")}
                 </p>
             )}
-            <button
+            {(needsRecalculation || previewing) && <button
                 id={receiptFieldId(item.clientId, "conversion")}
                 type="button"
                 data-testid={`receipt-recalculate-${item.receiptId}`}
@@ -312,7 +273,7 @@ export default function ReceiptReviewCard({
                 className="mt-3 w-full rounded-xl border border-orange-300 px-3 py-2 text-sm font-semibold text-orange-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-orange-300"
             >
                 {t(previewing ? "receipt.review.previewing" : "receipt.review.preview")}
-            </button>
+            </button>}
             {item.reviewMode === "ASSISTED" && (
                 <button
                     id={receiptFieldId(item.clientId, "review")}
@@ -338,7 +299,7 @@ export default function ReceiptReviewCard({
                 <button
                     type="button"
                     onClick={onApply}
-                    disabled={disabled || applyDisabled}
+                    disabled={disabled || previewing || applyDisabled || needsRecalculation}
                     className="rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
                 >
                     {t("receipt.review.applyChanges")}

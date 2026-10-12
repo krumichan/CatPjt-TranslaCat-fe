@@ -75,3 +75,42 @@ test("manual create keeps category unselected instead of silently choosing the f
 test("manual default date uses the user's local calendar day", () => {
     assert.equal(getTodayText(new Date(2026, 8, 19, 0, 1)), "2026-09-19");
 });
+
+
+for (const maxEdge of [2000, 1600]) {
+    test(`receipt upload applies the pixel limit even below 5 MiB (${maxEdge})`, async () => {
+        // 준비: 바이트 제한은 통과하지만 1,200만 화소인 휴대전화 사진.
+        const previous = { Image: globalThis.Image, URL: globalThis.URL, document: globalThis.document };
+        const file = new File([new Uint8Array(3_000_000)], "receipts.jpg", { type: "image/jpeg", lastModified: 1 });
+        const encoded = [];
+        const canvas = {
+            width: 0, height: 0,
+            getContext: () => ({ fillRect() {}, drawImage() {}, fillStyle: "" }),
+            toBlob(callback, type, quality) {
+                encoded.push({ width: this.width, height: this.height, type, quality });
+                callback(new Blob([new Uint8Array(400_000)], { type }));
+            },
+        };
+        class LoadedImage {
+            naturalWidth = 3024;
+            naturalHeight = 4032;
+            set src(_value) { queueMicrotask(() => this.onload?.()); }
+        }
+        globalThis.Image = LoadedImage;
+        globalThis.URL = { createObjectURL: () => "blob:test", revokeObjectURL() {} };
+        globalThis.document = { createElement: () => canvas };
+        try {
+            // 실행: 앱이 실제 업로드 전에 호출하는 함수를 사용한다.
+            const prepared = await resizeReceiptImage(file, { maxEdge, quality: 0.85 });
+
+            // 검증: 원본 파일은 남기고 종횡비·JPEG 품질·출력 상한을 맞춘다.
+            const edge = maxEdge;
+            assert.deepEqual(encoded, [{ width: edge * 0.75, height: edge, type: "image/jpeg", quality: 0.85 }]);
+            assert.notEqual(prepared, file);
+            assert.equal(prepared.size, 400_000);
+            assert.equal(file.size, 3_000_000);
+        } finally {
+            Object.assign(globalThis, previous);
+        }
+    });
+}

@@ -1,6 +1,3 @@
-import NextAuth from 'next-auth'
-import {authOptions} from "@/lib/auth";
+import { handleAuthentication } from "@/lib/googleAccountAuth";
 
-const handler = NextAuth(authOptions);
-
-export { handler as GET, handler as POST };
+export { handleAuthentication as GET, handleAuthentication as POST };

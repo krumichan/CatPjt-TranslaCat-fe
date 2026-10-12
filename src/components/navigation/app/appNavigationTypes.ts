@@ -9,7 +9,8 @@ export interface AppNavigationItem {
         | "voice"
         | "accountBook"
         | "chat"
-        | "languageLearning";
+        | "languageLearning"
+        | "support";
     href: string;
     labelKey:
         | "home"
@@ -17,7 +18,8 @@ export interface AppNavigationItem {
         | "voice"
         | "accountBook"
         | "chat"
-        | "languageLearning";
+        | "languageLearning"
+        | "support";
     icon: LucideIcon;
     matchPaths: string[];
     adminOnly?: boolean;

@@ -36,6 +36,12 @@
       "loading": "최근 활동을 불러오는 중입니다.",
       "empty": "최근 활동이 없습니다.",
       "error": "최근 활동을 불러오지 못했습니다."
+    },
+    "support": "고객센터",
+    "developer": {
+      "title": "만든 사람",
+      "github": "개발자 GitHub",
+      "email": "개발자 이메일"
     }
   }
 }

@@ -184,6 +184,8 @@ export type ReceiptRuntimeIdentity = {
 
 // Monetary values in the receipt contract stay decimal strings end to end.
 export type ReceiptConversion = {
+    originalAmount?: string | null;
+    originalCurrencyCode?: string | null;
     accountBookCurrencyCode: string;
     convertedAmount: string | null;
     exchangeRate: string | null;

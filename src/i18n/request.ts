@@ -8,8 +8,10 @@ type Messages = Record<string, unknown>;
 const MESSAGE_FILE_NAMES = [
     "common",
     "login",
+    "auth",
     "navigation",
     "notification",
+    "support",
     "serviceSelect",
     "voice",
     "platform",

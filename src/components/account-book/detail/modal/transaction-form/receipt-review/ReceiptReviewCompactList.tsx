@@ -1,54 +1,58 @@
 import { useTranslations } from "next-intl";
-import type { ReceiptReviewItem } from "@/utils/account-book/receiptReview";
 import { receiptRowClassName } from "@/utils/account-book/receiptReviewPresentation";
+import ReceiptReviewCheckbox from "./ReceiptReviewCheckbox";
 import ReceiptReviewStatusIcon from "./ReceiptReviewStatusIcon";
+import ReceiptInlineTitle from "./ReceiptInlineTitle";
+import ReceiptInlineCategory from "./ReceiptInlineCategory";
+import { ReceiptInlineAmount } from "./ReceiptInlineAmountCell";
 import type { ReceiptReviewContentProps } from "./types";
 
 export default function ReceiptReviewCompactList({ review, controller }: ReceiptReviewContentProps) {
     const t = useTranslations("AccountBook.detail.transactionModal");
-    const { hasAmountEdit, openEditor } = controller;
-
-    const renderStatus = (item: ReceiptReviewItem) => {
-        const state = controller.getRowState(item);
-        return t(state === "PENDING" ? "receipt.review.statusRecalculating"
-            : state === "READY" ? "receipt.review.statusReady" : "receipt.review.statusNeedsReview");
-    };
+    const { hasInlineEdit, openEditor } = controller;
 
     return (
-        <div
-            className="space-y-2"
-            data-testid="receipt-review-compact-list"
-        >
-            {review.items.map((item, index) => (
-                <article
-                    key={item.clientId}
-                    data-testid="receipt-review-card"
-                    className={`grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 rounded-xl border border-slate-200 p-3 transition hover:brightness-[0.98] dark:border-white/10 dark:hover:brightness-110 ${receiptRowClassName(controller.getRowState(item))}`}
-                >
-                    <input
-                        type="checkbox"
-                        checked={item.selected}
-                        disabled={review.isBusy || hasAmountEdit}
-                        aria-label={t("receipt.review.selectReceipt", { index: index + 1 })}
-                        onChange={(event) => review.select(item.clientId, event.target.checked)}
-                        className="mt-1 h-5 w-5 accent-orange-500"
-                    />
-                    <div className="min-w-0">
-                        <p className="truncate text-sm font-bold">
-                            {item.title || "—"}
-                        </p>
-                        <p className="truncate text-xs text-slate-500">{item.sourceFileName} · r{item.analysisRevision} · {item.transactionDate || "—"} · {item.categoryName || t("receipt.review.unselected")}</p>
-                        <p className="flex items-center gap-1.5 truncate text-xs font-semibold text-slate-700 dark:text-slate-200"><ReceiptReviewStatusIcon state={controller.getRowState(item)} />{item.conversion.convertedAmount ?? "—"} {item.conversion.accountBookCurrencyCode} · {renderStatus(item)}</p>
-                    </div>
-                    <button
-                        type="button"
-                        onClick={(event) => openEditor(item, event.currentTarget)}
-                        className="rounded-lg border border-orange-300 px-2.5 py-1.5 text-xs font-semibold text-orange-700 dark:text-orange-300"
-                    >
-                        {t("receipt.review.reviewEdit")}
-                    </button>
-                </article>
-            ))}
+        <div className="space-y-2" data-testid="receipt-review-compact-list">
+            {review.items.map((item, index) => {
+                const state = controller.getRowState(item);
+                const status = t(state === "PENDING" ? "receipt.review.statusRecalculating"
+                    : state === "READY" ? "receipt.review.statusReady" : "receipt.review.statusNeedsReview");
+                return (
+                    <article key={item.clientId} data-testid="receipt-review-card"
+                        className={`grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-1 rounded-xl border border-slate-200 p-2.5 transition dark:border-white/10 ${receiptRowClassName(state)}`}>
+                        <ReceiptReviewCheckbox item={item} index={index} review={review} controller={controller} />
+                        <div className="min-w-0">
+                            <div className="flex min-w-0 items-center justify-between gap-2">
+                                <div className="flex min-w-0 items-center gap-1.5 text-[10px] text-slate-500">
+                                    <span className="shrink-0">{item.transactionDate || "—"}</span>
+                                    <span className="min-w-0 truncate" title={item.sourceFileName}>{item.sourceFileName} · r{item.analysisRevision}</span>
+                                </div>
+                                <button type="button" onClick={(event) => openEditor(item, event.currentTarget)}
+                                    disabled={review.isBusy || hasInlineEdit}
+                                    className="min-h-6 shrink-0 rounded-md px-1 text-[11px] font-semibold text-orange-700 hover:bg-white/60 dark:text-orange-300 dark:hover:bg-black/20">
+                                    {t("receipt.review.reviewEdit")} <span aria-hidden="true">›</span>
+                                </button>
+                            </div>
+                            <ReceiptInlineTitle item={item} index={index} review={review} controller={controller} />
+                            {/* 입력 전에는 한 줄 요약, 편집 중에는 해당 필드에 가로 공간을 준다. */}
+                            <div className="flex min-w-0 flex-wrap items-center justify-between gap-x-2">
+                                <div className={controller.amountEdit?.clientId === item.clientId ? "w-full min-w-0" : "min-w-0 max-w-[45%]"}>
+                                    <div className="flex min-w-0 items-center gap-1.5">
+                                        <span className="shrink-0" title={status}>
+                                            <ReceiptReviewStatusIcon state={state} /><span className="sr-only">{status}</span>
+                                        </span>
+                                        <ReceiptInlineCategory compact item={item} index={index} review={review} controller={controller} />
+                                    </div>
+                                </div>
+                                <div className={controller.amountEdit?.clientId === item.clientId ? "w-full min-w-0" : "min-w-0 max-w-full text-right"}>
+                                    <ReceiptInlineAmount compact item={item} index={index} review={review} controller={controller} />
+                                </div>
+                            </div>
+
+                        </div>
+                    </article>
+                );
+            })}
         </div>
     );
 }

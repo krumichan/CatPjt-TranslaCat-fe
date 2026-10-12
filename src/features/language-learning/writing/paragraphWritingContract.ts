@@ -3,6 +3,8 @@ import {
     type ParagraphWritingConfig,
     type ParagraphWritingPlan,
     type ParagraphWritingPreview,
+    type ParagraphFeedbackResult,
+    type ParagraphFeedbackPatch,
 } from "@/types/language-learning/paragraphWriting";
 
 const difficulties = ["REVIEW", "NORMAL", "CHALLENGE"] as const;
@@ -15,6 +17,64 @@ function requireContract(value: unknown): asserts value {
 
 function integer(value: unknown, minimum = 0): value is number {
     return typeof value === "number" && Number.isSafeInteger(value) && value >= minimum;
+}
+
+function validateRequirementParts(row: ParagraphFeedbackResult["observations"][number], answer: string, requirements?: string[]): void {
+    // 부분 누락에서도 정상 요소의 근거는 남기고, 전체 상태는 요소의 존재 판정으로 집계한다.
+    const parts = row.requirementParts;
+    requireContract(Array.isArray(parts) && parts.length > 0 && /^C[1-9]\d*$/.test(row.requirementId));
+    const statuses = new Set<string>();
+    const segments = new Set<string>();
+    let coverage = "";
+    for (const part of parts) {
+        requireContract(part && typeof part.requirementQuote === "string" && part.requirementQuote.length > 0);
+        requireContract(["PRESENT", "ABSENT", "CONFLICT", "UNCERTAIN"].includes(part.status));
+        requireContract(Array.isArray(part.evidence) && Array.isArray(part.taskFactIds));
+        coverage += part.requirementQuote;
+        statuses.add(part.status);
+        requireContract((part.status === "ABSENT") === (part.evidence.length === 0));
+        for (const evidence of part.evidence) {
+            requireContract(evidence && /^S[1-9]\d*$/.test(evidence.segmentId) && typeof evidence.quote === "string"
+                && evidence.quote.trim().length > 0 && answer.includes(evidence.quote));
+            segments.add(evidence.segmentId);
+        }
+        requireContract(part.taskFactIds.every((id) => typeof id === "string" && /^T[1-9]\d*$/.test(id)));
+    }
+    if (requirements?.length) {
+        const index = Number(row.requirementId.slice(1)) - 1;
+        requireContract(Number.isSafeInteger(index) && index >= 0 && coverage === requirements[index]);
+    }
+
+    // 관계 enum과 부분 근거의 일관성을 검사한다. 의미 판정 자체를 클라이언트가 새로 만들지 않는다.
+    const absent = statuses.has("ABSENT");
+    const conflict = statuses.has("CONFLICT");
+    const uncertain = statuses.has("UNCERTAIN");
+    const missing = segments.size === 0;
+    requireContract(row.status === (absent || conflict ? "UNMET" : uncertain ? "UNCERTAIN" : "MET"));
+    requireContract(row.evidenceKind === (missing ? "MISSING_REQUIREMENT" : "LEARNER_TEXT"));
+    const checks = row.relationChecks;
+    const relations = [checks?.causality, checks?.chronology, checks?.specificity, checks?.stance];
+    requireContract(relations.every((value) => value && ["PRESERVED", "CONFLICT", "NOT_APPLICABLE", "UNCERTAIN"].includes(value)));
+    requireContract(relations.includes("CONFLICT") === conflict && relations.includes("UNCERTAIN") === uncertain);
+    if (!missing) {
+        requireContract(row.segmentIds.length === segments.size && row.segmentIds.every((id, index) => id === [...segments][index]));
+        for (const part of parts) {
+            for (const evidence of part.evidence) {
+                const index = row.segmentIds.indexOf(evidence.segmentId);
+                requireContract(index >= 0 && row.answerQuotes[index]?.includes(evidence.quote));
+            }
+        }
+    }
+}
+
+function validatePatch(row: { original: string; replacement: string; patch?: ParagraphFeedbackPatch }): void {
+    // 패치 밖의 원문은 한 글자도 바뀌지 않아야 하며 삭제 패치는 빈 교체문을 허용한다.
+    const patch = row.patch;
+    requireContract(patch && typeof patch.original === "string" && patch.original.length > 0 && typeof patch.replacement === "string");
+    requireContract(typeof row.original === "string" && typeof row.replacement === "string" && row.replacement.trim().length > 0 && row.replacement.length <= 4000);
+    const index = row.original.indexOf(patch.original);
+    requireContract(index >= 0 && index === row.original.lastIndexOf(patch.original) && patch.original !== patch.replacement);
+    requireContract(row.replacement === row.original.slice(0, index) + patch.replacement + row.original.slice(index + patch.original.length));
 }
 
 export function parseParagraphTarget(value: string, min: number, max: number): number | null {
@@ -71,6 +131,18 @@ export function validateParagraphPreview(preview: ParagraphWritingPreview): Para
 
 export function validateParagraphPlan(plan: ParagraphWritingPlan): ParagraphWritingPlan {
     validateCounts(plan);
+    // 과거 계획의 활동은 조회 때 backfill하지 않는다. 새 활동은 저장 계획의 단위·언어·진행과 일치해야 한다.
+    if (plan.activity != null) {
+        const activity = plan.activity;
+        const metadata = activity.metadata;
+        requireContract(activity.referenceId === `curated-plan:${plan.dailySetId}` && activity.learningDate === plan.learningDate);
+        requireContract(activity.status === (plan.status === "COMPLETED" ? "COMPLETED" : "IN_PROGRESS"));
+        requireContract(metadata?.activityUnit === "PLAN" && metadata.planId === plan.dailySetId);
+        requireContract(metadata.policyVersion === plan.policyVersion && metadata.resultPolicy === "REFERENCE_ONLY");
+        requireContract(metadata.writingType === plan.writingType && metadata.originLanguage === plan.originLanguage && metadata.learningLanguage === plan.learningLanguage);
+        requireContract(metadata.targetItemCount === plan.targetItemCount && metadata.acquiredItemCount === plan.acquiredItemCount && metadata.submittedItemCount === plan.submittedItemCount);
+        requireContract(metadata.submittedItemCount > 0 && metadata.durationStatus === "NOT_MEASURED");
+    }
     requireContract(integer(plan.planRevision, 1) && Number.isSafeInteger(plan.dailySetId));
     requireContract(plan.sentenceCount === plan.targetItemCount && plan.generatedItemCount === plan.acquiredItemCount);
     requireContract(integer(plan.submittedItemCount) && plan.submittedItemCount <= plan.acquiredItemCount);
@@ -97,6 +169,7 @@ export function validateParagraphPlan(plan: ParagraphWritingPlan): ParagraphWrit
         requireContract(typeof item.contentRevision === "string" && item.contentRevision.length > 0);
         requireContract(typeof item.originText === "string" && typeof item.answered === "boolean" && typeof item.canSubmit === "boolean");
         requireContract([item.providedFacts, item.requiredIntents, item.responseConstraints].every((lines) => Array.isArray(lines) && lines.every((line) => typeof line === "string")));
+        requireContract(item.taskRequirements === undefined || (Array.isArray(item.taskRequirements) && item.taskRequirements.every((line) => typeof line === "string" && line.trim().length > 0)));
         requireContract(!("referenceAnswers" in item) && !("checklist" in item) && !("hiddenAnswerKey" in item) && !("score" in item) && !("evaluation" in item));
         requireContract(item.answered || item.reference == null);
         requireContract(integer(item.workload?.sourceCharacterCount) && item.workload.estimatedAnswerCharacters === null && item.workload.estimateStatus === "NOT_SPECIFIED");
@@ -111,7 +184,10 @@ export function validateParagraphPlan(plan: ParagraphWritingPlan): ParagraphWrit
                 requireContract(!feedback.canRetry || ["FAILED", "PROCESSING"].includes(feedback.status));
                 if (feedback.result) {
                     const result = feedback.result;
-                    requireContract(result.policyVersion === "curated-writing-feedback-v1" && result.resultPolicy === "REFERENCE_ONLY");
+                    requireContract(["curated-writing-feedback-v1", "curated-writing-feedback-v2", "curated-writing-feedback-v3", "curated-writing-feedback-v4", "curated-writing-feedback-v5", "curated-writing-feedback-v6", "curated-writing-feedback-v7"].includes(result.policyVersion) && result.resultPolicy === "REFERENCE_ONLY");
+                    const grounded = result.policyVersion !== "curated-writing-feedback-v1";
+                    const typed = ["curated-writing-feedback-v4", "curated-writing-feedback-v5", "curated-writing-feedback-v6", "curated-writing-feedback-v7"].includes(result.policyVersion);
+                    const structured = result.policyVersion === "curated-writing-feedback-v6" || result.policyVersion === "curated-writing-feedback-v7";
                     requireContract(Array.isArray(result.observations) && Array.isArray(result.necessaryCorrections) && Array.isArray(result.optionalAlternatives) && Array.isArray(result.uncertainties));
                     requireContract(result.observations.length === item.reference?.checklist.length);
                     const requirementIds = new Set(result.observations.map((row) => row.requirementId));
@@ -119,9 +195,75 @@ export function validateParagraphPlan(plan: ParagraphWritingPlan): ParagraphWrit
                     for (const row of result.observations) {
                         requireContract(["MET", "UNMET", "UNCERTAIN"].includes(row.status) && Array.isArray(row.answerQuotes));
                         requireContract(row.answerQuotes.every((quote) => typeof quote === "string" && attempt.answer.includes(quote)));
+                        // 옛 저장 결과는 변환하지 않는다. 새 계약에서만 누락과 실제 원문 근거를 구분한다.
+                        if (grounded) {
+                            requireContract(row.evidenceKind === "LEARNER_TEXT" || row.evidenceKind === "MISSING_REQUIREMENT");
+                            requireContract(Array.isArray(row.segmentIds));
+                            if (row.evidenceKind === "MISSING_REQUIREMENT") requireContract(row.status === "UNMET" && row.segmentIds.length === 0 && row.answerQuotes.length === 0);
+                            else requireContract(row.segmentIds.length > 0 && row.answerQuotes.length === row.segmentIds.length);
+                        }
+                        if (structured) validateRequirementParts(row, attempt.answer, item.taskRequirements);
+                        else if (typed) {
+                            // v4는 인용 유무뿐 아니라 관계 판정과 관찰 상태의 모순도 중계하지 않는다.
+                            const checks = row.relationChecks;
+                            const relations = [checks?.causality, checks?.chronology, checks?.specificity, checks?.stance];
+                            requireContract(relations.every((value) => value && ["PRESERVED", "CONFLICT", "NOT_APPLICABLE", "UNCERTAIN"].includes(value)));
+                            const conflict = relations.includes("CONFLICT");
+                            const uncertain = relations.includes("UNCERTAIN");
+                            requireContract(row.status !== "MET" || (!conflict && !uncertain));
+                            requireContract(!conflict || row.status === "UNMET");
+                            requireContract(conflict || !uncertain || row.status === "UNCERTAIN");
+                            if (row.evidenceKind === "MISSING_REQUIREMENT") requireContract(relations.every((value) => value === "NOT_APPLICABLE"));
+                        }
                     }
                     for (const row of [...result.necessaryCorrections, ...result.optionalAlternatives]) {
                         requireContract(attempt.answer.includes(row.original) && typeof row.replacement === "string" && row.replacement.length > 0);
+                        if (structured) validatePatch(row);
+                    }
+                    if (grounded) {
+                        for (const row of result.necessaryCorrections) {
+                            const observation = result.observations.find((entry) => entry.requirementId === row.requirementId);
+                            requireContract(observation?.evidenceKind === "LEARNER_TEXT" && observation.segmentIds.includes(row.segmentId));
+                            if (structured) {
+                                const index = observation.segmentIds.indexOf(row.segmentId);
+                                requireContract(observation.answerQuotes[index] === row.original);
+                                // 사실 교정은 충돌한 사실의 인용에만 적용하고 같은 문장의 정상 사실을 보존한다.
+                                requireContract(observation.requirementParts?.some((part) =>
+                                    (row.issueType !== "TASK_FACT_CONFLICT" || (part.status === "CONFLICT" && part.taskFactIds.includes(row.sourceFactId ?? "")))
+                                    && part.evidence.some((evidence) => evidence.segmentId === row.segmentId && evidence.quote.includes(row.patch?.original ?? ""))));
+                            }
+                            if (typed) {
+                                // 개인 의견 보충을 사실 교정으로 바꾸지 않도록 교정 권한을 유형별로 확인한다.
+                                requireContract(typeof row.sourceFactId === "string");
+                                if (row.issueType === "LANGUAGE_FORM") {
+                                    requireContract(row.sourceFactId === "" && ["SPELLING", "INFLECTION", "SYNTAX"].includes(row.formReason ?? ""));
+                                    const letters = (text: string) => text.normalize("NFKC").replace(/[^\p{L}\p{N}]/gu, "");
+                                    requireContract(letters(row.original) !== letters(row.replacement));
+                                } else {
+                                    requireContract(row.issueType === "TASK_FACT_CONFLICT" && /^T[1-9]\d*$/.test(row.sourceFactId ?? "") && row.formReason === "NONE");
+                                    requireContract(observation?.status === "UNMET" && Object.values(observation.relationChecks ?? {}).includes("CONFLICT"));
+                                }
+                            }
+                        }
+                        for (const row of result.optionalAlternatives) {
+                            requireContract(row.suggestionKind === "EXPRESSION_ONLY" || row.suggestionKind === "HYPOTHETICAL_EXAMPLE");
+                            if (result.policyVersion === "curated-writing-feedback-v5" || structured) {
+                                // 표현 제안의 사실·순서·입장 보존을 확인하며, 가상 예시는 기존 별도 표시를 유지한다.
+                                const checks = row.relationChecks;
+                                const relations = [checks?.causality, checks?.chronology, checks?.specificity, checks?.stance];
+                                requireContract(relations.every((value) => value && ["PRESERVED", "CONFLICT", "NOT_APPLICABLE", "UNCERTAIN"].includes(value)));
+                                if (row.suggestionKind === "EXPRESSION_ONLY") requireContract(!relations.includes("CONFLICT") && !relations.includes("UNCERTAIN"));
+                            }
+                            if (structured) {
+                                const observation = result.observations.find((entry) => entry.requirementId === row.requirementId);
+                                requireContract(observation && /^S[1-9]\d*$/.test(row.segmentId));
+                                if (row.suggestionKind === "EXPRESSION_ONLY") {
+                                    requireContract(observation.status === "MET" && observation.segmentIds.includes(row.segmentId));
+                                    requireContract(observation.answerQuotes[observation.segmentIds.indexOf(row.segmentId)] === row.original);
+                                    requireContract(!result.necessaryCorrections.some((correction) => correction.segmentId === row.segmentId));
+                                }
+                            }
+                        }
                     }
                 }
             } else requireContract(attempt.feedback === undefined);

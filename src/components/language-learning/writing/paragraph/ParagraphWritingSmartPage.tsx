@@ -9,11 +9,12 @@ export function ParagraphWritingSmartPage() {
     const t = useTranslations("ParagraphWriting");
     const { data: session, status } = useSession();
     const owner = session?.user?.publicId;
+    const loginSessionId = session?.loginSessionId;
 
     return (
         <LanguageLearningPageLayout title={t("title")} description={t("description")}>
-            {status === "loading" ? <p role="status">{t("loading")}</p> : owner ? (
-                <ParagraphWritingWorkspace key={owner} owner={owner} />
+            {status === "loading" ? <p role="status">{t("loading")}</p> : owner && loginSessionId ? (
+                <ParagraphWritingWorkspace key={`${owner}:${loginSessionId}`} owner={owner} loginSessionId={loginSessionId} />
             ) : <p role="alert">{t("signedOut")}</p>}
         </LanguageLearningPageLayout>
     );

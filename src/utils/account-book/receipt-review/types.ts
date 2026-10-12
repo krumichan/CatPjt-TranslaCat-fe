@@ -1,4 +1,4 @@
-import type { ReceiptRegistrationCandidate, ReceiptConversion } from "@/types/accountBook";
+import type { ReceiptRegistrationCandidate, ReceiptConversion, ReceiptPaymentType } from "@/types/accountBook";
 
 export type ReceiptReviewItem = ReceiptRegistrationCandidate & {
     clientId: string;
@@ -21,6 +21,7 @@ export type ReceiptReviewItem = ReceiptRegistrationCandidate & {
     branchOmittedByUser: boolean;
     manuallyAdded: boolean;
     amountCorrection: ReceiptAmountCorrection | null;
+    observedPaymentTypes?: Record<number, ReceiptPaymentType>;
 };
 
 export type ReceiptAmountCorrection = {
@@ -57,6 +58,7 @@ export type ReceiptBlockingIssue = {
     | "MEMO_TOO_LONG"
     | "PURCHASE_TOTAL_INVALID"
     | "PAYMENT_INVALID"
+    | "PAYMENT_TOTAL_MISMATCH"
     | "BOOK_AMOUNT_INVALID"
     | "AMOUNT_POLICY_INVALID"
     | "CURRENCY_INVALID"

@@ -16,15 +16,21 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 export const apiClient = async (
     endpoint: string,
     options: RequestInit = {},
+    expectedLoginSessionId?: string,
 ) => {
-    const session = await getSession();
+    const session = await requestSession(options.signal);
+
+    // 세션 조회 중 계정이 바뀌었다면 이전 화면의 요청을 새 사용자로 전송하지 않는다.
+    if (expectedLoginSessionId && session?.loginSessionId !== expectedLoginSessionId) {
+        throw new DOMException("로그인 세션이 변경되었습니다.", "AbortError");
+    }
 
     if (!session) {
         return unauthorizedResponse();
     }
 
     if (isTerminalAuthError(session.error)) {
-        notifyAuthUnauthorized();
+        await notifyRequestUnauthorized(expectedLoginSessionId, options.signal);
         return unauthorizedResponse();
     }
 
@@ -38,7 +44,7 @@ export const apiClient = async (
     }
 
     if (!session.accessToken) {
-        notifyAuthUnauthorized();
+        await notifyRequestUnauthorized(expectedLoginSessionId, options.signal);
         return unauthorizedResponse();
     }
 
@@ -61,11 +67,44 @@ export const apiClient = async (
     const response = await fetch(apiUrl, init);
 
     if (response.status === 401) {
-        notifyAuthUnauthorized();
+        await notifyRequestUnauthorized(expectedLoginSessionId, options.signal);
     }
 
     return response;
 };
+
+async function notifyRequestUnauthorized(expectedLoginSessionId?: string, signal?: AbortSignal | null) {
+    // 이전 계정의 늦은 인증 실패가 현재 계정을 로그아웃시키지 않게 다시 확인한다.
+    if (expectedLoginSessionId) {
+        const currentSession = await requestSession(signal);
+
+        if (currentSession?.loginSessionId !== expectedLoginSessionId) {
+            throw new DOMException("로그인 세션이 변경되었습니다.", "AbortError");
+        }
+    }
+
+    notifyAuthUnauthorized();
+}
+
+async function requestSession(signal?: AbortSignal | null) {
+    if (!signal) {
+        return getSession();
+    }
+
+    // 인증 조회도 요청 제한 시간에 포함해 세션 응답 지연이 화면을 잠그지 않게 한다.
+    signal.throwIfAborted();
+    let onAbort: () => void = () => {};
+    const aborted = new Promise<never>((_, reject) => {
+        onAbort = () => reject(signal.reason ?? new DOMException("요청이 취소되었습니다.", "AbortError"));
+        signal.addEventListener("abort", onAbort, { once: true });
+    });
+
+    try {
+        return await Promise.race([getSession(), aborted]);
+    } finally {
+        signal.removeEventListener("abort", onAbort);
+    }
+}
 
 function unauthorizedResponse(): Response {
     return new Response(null, {

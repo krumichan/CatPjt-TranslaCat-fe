@@ -20,6 +20,12 @@ export function ParagraphWritingProgress({ plan }: { plan: ParagraphWritingPlan 
             </dl>
             <p className="text-sm">{t(plan.personalizedFeedbackStatus === "ACTIVE_QA" ? "feedbackActive" : "feedbackDisabled")}</p>
             <p className="text-sm">{t("noScore")}</p>
+            {plan.activity && <div data-testid="paragraph-activity" className="rounded-xl bg-slate-50 p-3 text-sm dark:bg-slate-800">
+                <p>{t(plan.activity.status === "COMPLETED" ? "activityCompleted" : "activityProgress", {
+                    submitted: plan.activity.metadata.submittedItemCount, target: plan.activity.metadata.targetItemCount,
+                })}</p>
+                <p className="mt-1">{t("activityNote")}</p>
+            </div>}
             {plan.supplyStopReason && <p role="status" className="text-sm">{t(`supplyStops.${plan.supplyStopReason}`)}</p>}
             {plan.remainingItemCount > 0 && <div role="status" className="rounded-xl bg-amber-50 p-3 text-sm text-amber-950 dark:bg-amber-950/40 dark:text-amber-100">
                 <p>{t("partialNotice")}</p>

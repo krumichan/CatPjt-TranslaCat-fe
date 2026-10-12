@@ -1,3 +1,5 @@
+import { formatReceiptAmount, formatAmountNumber } from "@/utils/account-book/formatAmount";
+import { useEffect, useRef } from "react";
 import { Pencil, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { classifyReceiptInlineAmountEdit, type ReceiptReviewItem } from "@/utils/account-book/receiptReview";
@@ -6,9 +8,14 @@ import type { ReceiptReviewContentProps } from "./types";
 type Props = ReceiptReviewContentProps & {
     item: ReceiptReviewItem;
     index: number;
+    compact?: boolean;
 };
 
-export default function ReceiptInlineAmountCell({ item, index, review, controller }: Props) {
+export default function ReceiptInlineAmountCell(props: Props) {
+    return <td className="min-w-44 px-3 py-3 text-right"><ReceiptInlineAmount {...props} /></td>;
+}
+
+export function ReceiptInlineAmount({ item, index, review, controller, compact = false }: Props) {
     const t = useTranslations("AccountBook.detail.transactionModal");
     const {
         amountEdit,
@@ -17,8 +24,14 @@ export default function ReceiptInlineAmountCell({ item, index, review, controlle
         cancelAmountEdit,
         beginAmountEdit
     } = controller;
+    const inputRef = useRef<HTMLInputElement>(null);
+    const active = amountEdit?.clientId === item.clientId;
+    useEffect(() => {
+        if (active)
+            inputRef.current?.focus();
+    }, [active]);
     return (
-        <td className="min-w-48 px-3 py-3 text-right">
+        <div className="min-w-0">
             {amountEdit?.clientId === item.clientId ? (
                 <div
                     className="space-y-1"
@@ -26,6 +39,8 @@ export default function ReceiptInlineAmountCell({ item, index, review, controlle
                 >
                     <div className="flex items-center justify-end gap-1">
                         <input
+                            ref={inputRef}
+                            disabled={review.isBusy}
                             data-receipt-initial-focus
                             value={amountEdit.value}
                             inputMode="decimal"
@@ -33,7 +48,7 @@ export default function ReceiptInlineAmountCell({ item, index, review, controlle
                             aria-invalid={Boolean(amountEdit.error)}
                             onKeyDown={amountKeyDown}
                             onChange={(event) => controller.changeAmountEdit(event.target.value)}
-                            className="w-28 rounded-lg border border-amber-300 bg-white px-2 py-1.5 text-right text-xs dark:bg-zinc-900"
+                            className="h-8 min-w-0 w-24 flex-1 rounded-lg border border-amber-300 bg-white px-1 text-right text-base sm:text-xs dark:bg-zinc-900"
                         />
                         <span className="text-xs">
                             {item.originalCurrencyCode}
@@ -42,7 +57,7 @@ export default function ReceiptInlineAmountCell({ item, index, review, controlle
                             type="button"
                             onClick={() => void applyAmountEdit()}
                             disabled={review.isBusy}
-                            className="rounded bg-orange-500 px-2 py-1.5 text-[11px] font-semibold text-white"
+                            className="h-8 shrink-0 rounded bg-orange-500 px-2 py-1.5 text-[11px] font-semibold text-white"
                         >
                             {t("receipt.review.inlineApply")}
                         </button>
@@ -50,7 +65,7 @@ export default function ReceiptInlineAmountCell({ item, index, review, controlle
                             type="button"
                             onClick={cancelAmountEdit}
                             aria-label={t("receipt.review.inlineCancel")}
-                            className="rounded p-1 text-slate-500"
+                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded text-slate-500"
                         >
                             <X size={15} />
                         </button>
@@ -71,25 +86,25 @@ export default function ReceiptInlineAmountCell({ item, index, review, controlle
                 <button
                     type="button"
                     onClick={(event) => beginAmountEdit(item, event)}
-                    disabled={review.isBusy}
-                    className="group inline-flex items-center gap-1 rounded-lg px-2 py-1.5 font-semibold hover:bg-white/60 focus:outline-none focus:ring-2 focus:ring-orange-500/30 dark:hover:bg-black/20"
+                    disabled={review.isBusy || controller.hasInlineEdit}
+                    className="group max-w-full inline-flex items-center gap-1 rounded-lg min-h-8 py-1 font-semibold hover:bg-white/60 focus:outline-none focus:ring-2 focus:ring-orange-500/30 dark:hover:bg-black/20"
                 >
                     <span>
-                        <span className="block">{item.originalAmount || "—"} {item.originalCurrencyCode}</span>
-                        <span className="block text-[10px] font-normal text-slate-500">{item.conversion.convertedAmount ?? "—"} {item.conversion.accountBookCurrencyCode}</span>
+                        <span className={compact ? "block text-xs" : "block"}>{formatReceiptAmount(item.originalAmount, item.originalCurrencyCode)}</span>
+                        {(!compact || item.originalCurrencyCode !== item.conversion.accountBookCurrencyCode) && <span className="block text-[10px] font-normal text-slate-500">{formatReceiptAmount(item.conversion.convertedAmount, item.conversion.accountBookCurrencyCode, item.conversion.roundingPrecision)}</span>}
                         {item.amountCorrection && (
                             <span className="block max-w-44 text-[10px] font-normal text-slate-500">
                                 {t(
                                     "receipt.review.inlineAmountCorrectionSummary",
                                     {
-                                        observed: item.amountCorrection.observedOriginalAmount,
-                                        corrected: item.amountCorrection.correctedAmount
+                                        observed: formatAmountNumber(item.amountCorrection.observedOriginalAmount, item.originalCurrencyCode),
+                                        corrected: formatAmountNumber(item.amountCorrection.correctedAmount, item.originalCurrencyCode)
                                     }
                                 )}
                             </span>
                         )}
                         {classifyReceiptInlineAmountEdit(item).mode === "DETAILS_REQUIRED" && (
-                            <span className="block max-w-40 text-[10px] font-normal text-amber-700 dark:text-amber-300">
+                            <span className={compact ? "sr-only" : "block max-w-40 text-[10px] font-normal text-amber-700 dark:text-amber-300"}>
                                 {t(`receipt.review.inlineAmountDetails.${classifyReceiptInlineAmountEdit(item).reason!.toLowerCase()}`)}
                             </span>
                         )}
@@ -100,6 +115,6 @@ export default function ReceiptInlineAmountCell({ item, index, review, controlle
                     />
                 </button>
             )}
-        </td>
+        </div>
     );
 }

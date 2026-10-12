@@ -165,7 +165,9 @@ export function useReceiptReview(
     }
 
     function applyDraft(clientId: string, draft: ReceiptReviewItem, baseRevision = draft.draftRevision): boolean {
-        if (isSubmitting || draft.clientId !== clientId)
+        // 화면의 비활성화와 별개로 적용 경계에서도 재계산되지 않은 draft를 차단한다.
+        if (isBusy || draft.clientId !== clientId
+            || validateReceiptForRegistration(draft).blockingIssues.some((issue) => issue.field === "conversion"))
             return false;
         const currentItem = itemsRef.current.find((item) => item.clientId === clientId);
         if (!currentItem || currentItem.draftRevision !== baseRevision
@@ -255,6 +257,10 @@ export function useReceiptReview(
                 || receiptSourceKey(currentItem) !== previousSourceKey)
                 return "FAILED";
             const converted = applyReceiptConversion({ ...changed, selected: currentItem.selected }, sourceKey, conversion);
+            if (validateReceiptForRegistration(converted).blockingIssues.some((issue) => issue.field === "conversion")) {
+                setError(t("previewFailed"));
+                return "FAILED";
+            }
             commitItems((current) => current.map((candidate) => {
                 if (candidate.clientId !== clientId
                     || candidate.draftRevision !== item.draftRevision
@@ -265,6 +271,8 @@ export function useReceiptReview(
             }));
             return "APPLIED";
         } catch {
+            if (amountRequestVersions.current.get(clientId) !== requestVersion)
+                return "CANCELLED";
             setError(t("previewFailed"));
             return "FAILED";
         } finally {
@@ -273,7 +281,7 @@ export function useReceiptReview(
         }
     }
 
-    async function previewDraft(item: ReceiptReviewItem): Promise<ReceiptReviewItem> {
+    async function previewDraft(item: ReceiptReviewItem, isCurrent = () => true): Promise<ReceiptReviewItem> {
         if (!hasValidReceiptSource(item) || !onPreviewReceiptConversion || isBusy)
             return item;
         const sourceKey = receiptSourceKey(item);
@@ -281,9 +289,16 @@ export function useReceiptReview(
         setError(null);
         try {
             const conversion = await onPreviewReceiptConversion(toReceiptCandidate(item));
-            return applyReceiptConversion(item, sourceKey, conversion);
+            // 닫힌 모달의 늦은 응답/오류는 현재 화면에 게시하지 않는다.
+            if (!isCurrent())
+                return item;
+            const converted = applyReceiptConversion(item, sourceKey, conversion);
+            if (validateReceiptForRegistration(converted).blockingIssues.some((issue) => issue.field === "conversion"))
+                setError(t("previewFailed"));
+            return converted;
         } catch {
-            setError(t("previewFailed"));
+            if (isCurrent())
+                setError(t("previewFailed"));
             return item;
         } finally {
             setPreviewingId(null);
@@ -321,6 +336,7 @@ export function useReceiptReview(
         selectionSummary,
         canSubmit,
         reviewAssisted,
+        clearError: () => setError(null),
         applyAnalysis,
         addManualCandidate,
         completeReview,

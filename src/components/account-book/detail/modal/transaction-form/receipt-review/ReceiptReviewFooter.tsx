@@ -7,7 +7,7 @@ type Props = ReceiptReviewContentProps & {
 
 export default function ReceiptReviewFooter({ review, controller, onClose }: Props) {
     const t = useTranslations("AccountBook.detail.transactionModal");
-    const { hasAmountEdit } = controller;
+    const { hasTitleEdit, hasInlineEdit } = controller;
     return (
         <footer className="shrink-0 space-y-2 border-t border-slate-200 bg-white/95 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-3 dark:border-white/10 dark:bg-zinc-900/95">
             <p
@@ -16,12 +16,12 @@ export default function ReceiptReviewFooter({ review, controller, onClose }: Pro
             >
                 {t("receipt.review.selectionSummary", review.selectionSummary)}
             </p>
-            {hasAmountEdit && (
+            {hasInlineEdit && (
                 <p
                     role="status"
                     className="text-xs font-semibold text-amber-700 dark:text-amber-300"
                 >
-                    {t("receipt.review.inlineAmountPending")}
+                    {t(hasTitleEdit ? "receipt.review.inlineTitlePending" : "receipt.review.inlineAmountPending")}
                 </p>
             )}
             <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
@@ -37,7 +37,7 @@ export default function ReceiptReviewFooter({ review, controller, onClose }: Pro
                     type="button"
                     data-testid="receipt-submit-selected"
                     onClick={() => void review.submit()}
-                    disabled={!review.canSubmit || review.isBusy || hasAmountEdit}
+                    disabled={!review.canSubmit || review.isBusy || hasInlineEdit || Boolean(controller.activeDraft)}
                     className="rounded-xl bg-orange-500 px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-700"
                 >
                     {review.isSubmitting ? t("actions.submitting") : t("receipt.review.register", { count: review.selectedCount })}

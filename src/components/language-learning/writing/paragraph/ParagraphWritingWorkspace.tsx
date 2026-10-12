@@ -1,19 +1,20 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { parseParagraphTarget, PARAGRAPH_CONTRACT_ERROR } from "@/features/language-learning/writing/paragraphWritingContract";
 import { paragraphDraftKey, readParagraphDraft, writeParagraphDraft } from "@/features/language-learning/writing/paragraphWritingDrafts";
 import { ApiResponseError } from "@/services/common/responseParser";
-import { paragraphWritingService as service } from "@/services/language-learning/paragraphWritingService";
+import { createParagraphWritingService } from "@/services/language-learning/paragraphWritingService";
 import type { DailyWritingType } from "@/types/language-learning/common";
 import type { ParagraphWritingConfig, ParagraphWritingItem, ParagraphWritingPlan, ParagraphWritingPreview } from "@/types/language-learning/paragraphWriting";
 import { ParagraphWritingControls } from "./ParagraphWritingControls";
 import { ParagraphWritingItemCard } from "./ParagraphWritingItemCard";
 import { ParagraphWritingProgress } from "./ParagraphWritingProgress";
 
-export function ParagraphWritingWorkspace({ owner }: { owner: string }) {
+export function ParagraphWritingWorkspace({ owner, loginSessionId }: { owner: string; loginSessionId: string }) {
     const t = useTranslations("ParagraphWriting");
+    const service = useMemo(() => createParagraphWritingService(loginSessionId), [loginSessionId]);
     const [config, setConfig] = useState<ParagraphWritingConfig | null>(null);
     const [configError, setConfigError] = useState(false);
     const [type, setType] = useState<DailyWritingType>("TRANSLATION");
@@ -121,7 +122,7 @@ export function ParagraphWritingWorkspace({ owner }: { owner: string }) {
             if (active) setConfigError(true);
         });
         return () => { active = false; };
-    }, [acceptPlan, handleError]);
+    }, [acceptPlan, handleError, service]);
 
     function chooseType(next: DailyWritingType) {
         setType(next);
@@ -183,6 +184,23 @@ export function ParagraphWritingWorkspace({ owner }: { owner: string }) {
             {draftUnavailable && <p role="alert">{t("draftUnavailable")}</p>}
             {plan && <>
                 <ParagraphWritingProgress plan={plan} />
+                <button type="button" disabled={busy} className="rounded-lg border border-red-300 px-3 py-2 text-sm text-red-700 disabled:opacity-50" onClick={() => {
+                    if (!window.confirm(t("deleteConfirm"))) return;
+                    void perform(async () => {
+                        await service.delete(plan.dailySetId, plan.planRevision);
+                        if (!mounted.current) return;
+                        // 서버 삭제 성공 후 이 계획의 로컬 초안만 지우고, 다른 계획의 답안은 보존한다.
+                        const removedKeys = plan.items.map((item) => paragraphDraftKey(owner, plan.dailySetId, item.itemId, item.contentRevision));
+                        try { removedKeys.forEach((key) => window.localStorage.removeItem(key)); } catch { setDraftUnavailable(true); }
+                        setDrafts((previous) => Object.fromEntries(Object.entries(previous).filter(([key]) => !removedKeys.includes(key))));
+                        setPlan(null);
+                        setPreview(null);
+                        setPage(0);
+                        const url = new URL(window.location.href);
+                        url.searchParams.delete("planId");
+                        window.history.replaceState(null, "", url);
+                    });
+                }}>{t("deletePlan")}</button>
                 <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={showWorkload} onChange={(event) => setShowWorkload(event.target.checked)} />{t("workloadPreview")}</label>
                 {showWorkload && <p className="text-sm">{t("workloadNotice")}</p>}
                 <nav className="flex flex-wrap items-center gap-3" aria-label={t("page", { page: currentPage + 1, pages, size: config.pageSize })}>

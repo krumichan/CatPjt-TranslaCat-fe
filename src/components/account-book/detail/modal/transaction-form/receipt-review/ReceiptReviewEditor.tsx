@@ -41,6 +41,7 @@ export default function ReceiptReviewEditor({
                     {t("receipt.review.revisionConflict")}
                 </p>
             )}
+            {review.error && <p role="alert" className="mb-3 rounded-xl bg-red-50 p-3 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-300">{review.error}</p>}
             <ReceiptReviewCard
                 item={activeDraft.item}
                 index={index}

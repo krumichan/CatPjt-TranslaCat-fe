@@ -7,7 +7,7 @@ export default function ReceiptReviewSelectionIssues({ review, controller }: Rec
     if (review.selectionSummary.blockedCount === 0)
         return null;
     return (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-3 dark:border-red-500/30 dark:bg-red-500/10">
+        <div className="min-w-0 max-w-full rounded-xl border border-red-200 bg-red-50 p-3 dark:border-red-500/30 dark:bg-red-500/10">
             <p className="text-sm font-semibold text-red-700 dark:text-red-300">
                 {t("receipt.review.selectedHasIssues")}
             </p>
@@ -23,7 +23,7 @@ export default function ReceiptReviewSelectionIssues({ review, controller }: Rec
                                     event.currentTarget,
                                     first.field
                                 )}
-                                className="text-left text-xs font-semibold text-red-700 underline underline-offset-2 dark:text-red-300"
+                                className="max-w-full [overflow-wrap:anywhere] text-left text-xs font-semibold text-red-700 underline underline-offset-2 dark:text-red-300"
                             >{item.title || item.sourceFileName}: {t(`receipt.review.blockingIssues.${first.code}`)}</button>
                         </li>
                     );

@@ -1,3 +1,4 @@
+import { formatReceiptAmount, formatExchangeRate } from "@/utils/account-book/formatAmount";
 import TransactionDetailRow from "../TransactionDetailRow";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
@@ -93,11 +94,11 @@ export default function TransactionDetailModal({ transaction, currencyCode, onCl
                         <dl className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <TransactionDetailRow
                                 label={receiptT("purchaseTotal")}
-                                value={transaction.purchaseTotal == null ? null : `${transaction.purchaseTotal} ${transaction.originalCurrencyCode ?? ""}`.trim()}
+                                value={transaction.purchaseTotal == null ? null : formatReceiptAmount(transaction.purchaseTotal, transaction.originalCurrencyCode ?? "")}
                             />
                             <TransactionDetailRow
                                 label={receiptT("bookAmount")}
-                                value={transaction.bookAmount == null && transaction.originalAmount == null ? null : `${transaction.bookAmount ?? transaction.originalAmount} ${transaction.originalCurrencyCode ?? ""}`.trim()}
+                                value={transaction.bookAmount == null && transaction.originalAmount == null ? null : formatReceiptAmount(transaction.bookAmount ?? transaction.originalAmount, transaction.originalCurrencyCode ?? "")}
                             />
                             <TransactionDetailRow
                                 label={receiptT("convertedAmount")}
@@ -113,11 +114,11 @@ export default function TransactionDetailModal({ transaction, currencyCode, onCl
                             />
                             <TransactionDetailRow
                                 label={receiptT("cashTendered")}
-                                value={transaction.cashTendered == null ? null : `${transaction.cashTendered} ${transaction.originalCurrencyCode ?? ""}`.trim()}
+                                value={transaction.cashTendered == null ? null : formatReceiptAmount(transaction.cashTendered, transaction.originalCurrencyCode ?? "")}
                             />
                             <TransactionDetailRow
                                 label={receiptT("change")}
-                                value={transaction.changeAmount == null ? null : `${transaction.changeAmount} ${transaction.originalCurrencyCode ?? ""}`.trim()}
+                                value={transaction.changeAmount == null ? null : formatReceiptAmount(transaction.changeAmount, transaction.originalCurrencyCode ?? "")}
                             />
                             <TransactionDetailRow
                                 label={t("fields.amountReason")}
@@ -139,7 +140,7 @@ export default function TransactionDetailModal({ transaction, currencyCode, onCl
                                                 {receiptT(`paymentTypes.${payment.paymentType}`)}
                                                 {payment.evidence ? ` · ${payment.evidence}` : ""}
                                             </span>
-                                            <strong>{payment.amount} {transaction.originalCurrencyCode}</strong>
+                                            <strong>{formatReceiptAmount(payment.amount, transaction.originalCurrencyCode ?? "")}</strong>
                                         </li>
                                     ))}
                                 </ul>
@@ -148,7 +149,7 @@ export default function TransactionDetailModal({ transaction, currencyCode, onCl
                         <dl className="mt-4 grid grid-cols-1 gap-4 border-t border-orange-200 pt-4 sm:grid-cols-2 dark:border-orange-500/20">
                             <TransactionDetailRow
                                 label={receiptT("exchangeRate")}
-                                value={transaction.exchangeRate}
+                                value={transaction.exchangeRate == null ? null : formatExchangeRate(transaction.exchangeRate)}
                             />
                             <TransactionDetailRow
                                 label={receiptT("requestedDate")}

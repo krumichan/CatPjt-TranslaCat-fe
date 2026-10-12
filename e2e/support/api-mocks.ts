@@ -2,6 +2,7 @@ import type { Page, Route } from "@playwright/test";
 import { responseDto } from "./mock-data";
 import type { E2ETestUser } from "./test-users";
 import { TEST_USERS } from "./test-users";
+import { mockLoginSessionId } from "./mock-login-session";
 
 export async function fulfillJson(
     route: Route,
@@ -36,6 +37,7 @@ export async function mockAuthenticatedSession(
 ): Promise<void> {
     await page.route("**/api/auth/session", async (route) => {
         await fulfillJson(route, {
+            loginSessionId: mockLoginSessionId(page.context(), user, role),
             user: {
                 name: user.nickname,
                 email: user.email,
@@ -55,6 +57,11 @@ export async function mockAuthenticatedSession(
 
 /** Header의 NotificationBell이 페이지 진입 시 수행하는 배경 조회를 무해한 빈 응답으로 고정한다. */
 export async function mockNotificationBackground(page: Page): Promise<void> {
+    // 긴급 공지 전역 팝업은 관련 시나리오에서만 별도로 채운다.
+    await page.route(/\/support\/notices\/urgent(?:\?.*)?$/, (route) =>
+        fulfillJson(route, responseDto([])),
+    );
+
     await page.route("**/account-book-invitations/received", (route) =>
         fulfillJson(route, responseDto([])),
     );
@@ -95,6 +102,24 @@ export async function mockNotificationBackground(page: Page): Promise<void> {
             }),
         ),
     );
+
+    // 고객센터 알림도 실제 서버에 요청하지 않도록 공통 배경 조회를 고정한다.
+    await page.route(/\/support\/notifications\/unread-count(?:\?.*)?$/, (route) =>
+        fulfillJson(route, responseDto({ count: 0 })),
+    );
+    await page.route(/\/support\/notifications(?:\?.*)?$/, (route) =>
+        fulfillJson(
+            route,
+            responseDto({
+                items: [],
+                page: 0,
+                size: 20,
+                totalElements: 0,
+                totalPages: 0,
+            }),
+        ),
+    );
+
     await page.route("**/chat/rooms", (route) =>
         fulfillJson(
             route,

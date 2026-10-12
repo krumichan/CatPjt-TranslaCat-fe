@@ -1,6 +1,5 @@
 import type { AccountBookReceiptAnalysisResponse } from "@/types/accountBook";
 import type { ReceiptReviewItem } from "./types";
-import { canRegisterReceipt } from "./validation";
 
 export const CONVERSION_WARNING_CODES = new Set([
     "PREVIOUS_PUBLISHED_RATE",
@@ -46,7 +45,7 @@ export function createReceiptReview(
             transactionTime: item.transactionTime ?? null,
             memo: item.memo ?? "",
             conversionQuoteId: item.conversionQuoteId,
-            selected: false,
+            selected: true,
             confidence: item.confidence,
             detectedLanguage: item.detectedLanguage,
             status: item.status,
@@ -62,7 +61,7 @@ export function createReceiptReview(
             amountCorrection: null,
             analysisTraceId: response.analysisTraceId ?? null,
         };
-        review.selected = item.status === "READY" && canRegisterReceipt(review);
+        // 선택은 검토 완료와 별개다. 미완료 항목은 공통 검증이 전체 등록을 차단한다.
         return review;
     });
 }
@@ -103,7 +102,7 @@ export function createManualReceiptReview(
         transactionTime: null,
         memo: null,
         conversionQuoteId: null,
-        selected: false,
+        selected: true,
         confidence: null,
         detectedLanguage: null,
         status: "NEEDS_REVIEW",

@@ -1,5 +1,5 @@
 import { expect, test } from "../fixtures/mock-test";
-import { mockParagraphWriting } from "../support/paragraph-writing-mocks";
+import { mockParagraphWriting, paragraphPlan } from "../support/paragraph-writing-mocks";
 
 test.beforeEach(() => {
     if (process.env.WRITING_PARAGRAPH_QA !== "true") throw new Error("Paragraph mock UI requires an explicitly enabled isolated QA runtime.");
@@ -155,4 +155,57 @@ test("PARAGRAPH deleted or foreign saved plan clears displayed source after a de
     expect(state.starts).toBe(1);
     expect(state.answers).toBe(0);
 });
+
+for (const policy of ["curated-writing-feedback-v6", "curated-writing-feedback-v7"] as const) {
+test(`PARAGRAPH ${policy}: partial absence has no invented quote while grounded correction remains visible`, async ({ page }, testInfo) => {
+    // 준비: 실제로 있는 시각과 없는 이유를 분리한 저장 결과만 합성한다. 모델 품질 검증은 아니다.
+    const state = await mockParagraphWriting(page);
+    const plan = paragraphPlan(1);
+    Object.assign(plan, { status: "COMPLETED", learningLanguage: "ja", personalizedFeedbackStatus: "ACTIVE_QA", submittedItemCount: 1, feedbackCompletedItemCount: 1 });
+    const item = plan.items[0];
+    item.answered = true;
+    item.canSubmit = false;
+    item.taskRequirements = ["시각과 이유 전달"];
+    item.reference = { checklist: ["시각과 이유 전달"], referenceAnswers: ["参考文"], alternativeNote: "다른 표현도 가능합니다.", isOnlyCorrectAnswer: false };
+    const answer = "午前九時に始まります。";
+    item.attempts = [{ answerId: 19001, attemptDate: plan.learningDate, answer, submittedAt: "2026-10-04T00:00:00Z", resultPolicy: "REFERENCE_ONLY", evaluation: null,
+        feedback: { status: "SUCCEEDED", failureCode: null, canRetry: false, result: {
+            policyVersion: policy, resultPolicy: "REFERENCE_ONLY",
+            observations: [{ requirementId: "C1", status: "UNMET", evidenceKind: "LEARNER_TEXT", segmentIds: ["S1"], answerQuotes: [answer],
+                originText: "시각은 있지만 이유 전달 요소가 없습니다.", learningText: "時刻はありますが、理由の説明がありません。",
+                relationChecks: { causality: "NOT_APPLICABLE", chronology: "PRESERVED", specificity: "PRESERVED", stance: "NOT_APPLICABLE" },
+                requirementParts: [{ requirementQuote: "시각과 ", status: "PRESENT", evidence: [{ segmentId: "S1", quote: answer }], taskFactIds: ["T1"] },
+                    { requirementQuote: "이유 전달", status: "ABSENT", evidence: [], taskFactIds: [] }] }],
+            necessaryCorrections: [{ requirementId: "C1", segmentId: "S1", original: answer, replacement: "午前九時に始まりました。",
+                patch: { original: "始まります", replacement: "始まりました" }, issueType: "LANGUAGE_FORM", sourceFactId: "", formReason: "INFLECTION",
+                originText: "활용형을 확인하세요.", learningText: "活用を確認してください。" }], optionalAlternatives: [], uncertainties: [],
+        } } }];
+    state.stored = plan;
+    await page.setViewportSize({ width: 390, height: 844 });
+
+    // 실행: 실제 페이지에서 저장 결과를 열고 다시 읽는다.
+    await page.goto(`/ko/language-learning/writing/paragraph?planId=${plan.dailySetId}`);
+    const panel = page.getByTestId("paragraph-feedback-19001");
+    const present = panel.getByTestId("paragraph-part-C1-1");
+    const absent = panel.getByTestId("paragraph-part-C1-2");
+
+    // 검증: 없는 요소에는 인용이 없고 실제 요소에만 근거가 붙는다. 교정은 실제 구간에 남는다.
+    await expect(present.getByTestId("paragraph-part-status")).toHaveText("답안에 있음");
+    await expect(present.locator("blockquote")).toHaveText(answer);
+    await expect(absent.getByTestId("paragraph-part-status")).toHaveText("답안에 없음");
+    await expect(absent.getByTestId("paragraph-part-requirement")).toHaveText("이유 전달");
+    await expect(absent.getByTestId("paragraph-part-missing")).toHaveText("이 요구 요소에 해당하는 내용이 답안에 없습니다.");
+    await expect(absent.locator("blockquote")).toHaveCount(0);
+    await expect(panel.getByText(`${answer} → 午前九時に始まりました。`, { exact: true })).toBeVisible();
+    await page.reload();
+    await expect(absent.locator("blockquote")).toHaveCount(0);
+    await expect(present.locator("blockquote")).toHaveText(answer);
+    expect(state.writes).toEqual([]);
+    expect(state.answers).toBe(0);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    await panel.scrollIntoViewIfNeeded();
+    await panel.screenshot({ path: testInfo.outputPath("structured-feedback-panel.png") });
+    await page.screenshot({ path: testInfo.outputPath("structured-partial-absence.png"), fullPage: true });
+});
+}
 

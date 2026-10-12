@@ -3,8 +3,9 @@ import { withAuth } from "next-auth/middleware";
 import {NextRequest, NextResponse} from 'next/server';
 import {locales} from "@/i18n/config";
 import {isTerminalAuthError} from "@/lib/authError";
+import {PUBLIC_AUTH_PAGES} from "@/lib/authPolicy";
 
-const publicPages = ['/login', '/error'];
+const publicPages = PUBLIC_AUTH_PAGES;
 
 const intlMiddleware = createMiddleware({
     locales,

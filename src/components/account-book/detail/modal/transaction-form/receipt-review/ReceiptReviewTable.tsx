@@ -9,29 +9,20 @@ export default function ReceiptReviewTable({ review, controller }: ReceiptReview
             className="max-w-full overflow-x-auto overscroll-x-contain rounded-xl border border-slate-200 dark:border-white/10"
             data-testid="receipt-review-table-scroll"
         >
-            <table className="min-w-220 w-full border-collapse text-sm">
+            <table className="min-w-160 w-full table-fixed border-collapse text-sm">
                 <thead className="bg-slate-100 text-xs text-slate-500 dark:bg-white/5 dark:text-slate-400">
                     <tr>
-                        <th className="px-3 py-2 text-left">
-                            {t("receipt.review.columns.select")}
+                        <th className="w-10 px-1 py-2 text-left">
+                            <span className="sr-only">{t("receipt.review.columns.select")}</span>
                         </th>
                         <th className="px-3 py-2 text-left">
-                            {t("receipt.review.columns.date")}
+                            {t("receipt.review.columns.basicInfo")}
                         </th>
-                        <th className="px-3 py-2 text-left">
-                            {t("receipt.review.columns.title")}
-                        </th>
-                        <th className="px-3 py-2 text-left">
+                        <th className="w-36 px-2 py-2 text-left">
                             {t("receipt.review.columns.category")}
                         </th>
-                        <th className="px-3 py-2 text-right">
+                        <th className="w-60 px-2 py-2 text-right">
                             {t("receipt.review.columns.amount")}
-                        </th>
-                        <th className="px-3 py-2 text-left">
-                            {t("receipt.review.columns.status")}
-                        </th>
-                        <th className="px-3 py-2 text-right">
-                            {t("receipt.review.columns.action")}
                         </th>
                     </tr>
                 </thead>

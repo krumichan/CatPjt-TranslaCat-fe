@@ -1,3 +1,4 @@
+import { decimalUnits } from "./money";
 import type { ReceiptReviewItem } from "./types";
 import type { ReceiptConversion, ReceiptRegistrationCandidate } from "@/types/accountBook";
 
@@ -35,9 +36,24 @@ export function receiptSourceKey(item: ReceiptRegistrationCandidate): string {
 }
 
 export function applyReceiptConversion(item: ReceiptReviewItem, sourceKey: string, conversion: ReceiptConversion): ReceiptReviewItem {
-    return receiptSourceKey(item) === sourceKey ? {
-        ...item,
-        conversion,
-        conversionStale: false
-    } : item;
+    if (receiptSourceKey(item) !== sourceKey)
+        return item;
+
+    // 응답의 원금액·통화·요청일이 현재 draft와 다르면 이전 quote를 붙이지 않는다.
+    const successful = ["CONVERTED", "NOT_REQUIRED"].includes(conversion.conversionStatus);
+    if (successful && !conversionMatchesReceiptSource(item, conversion)) {
+        return { ...item, conversion: staleConversion(item), conversionStale: true };
+    }
+    return { ...item, conversion, conversionStale: false };
+}
+
+/** 상태 플래그와 별개로 서버가 계산한 원본과 현재 금융 필드의 일치를 검사한다. */
+export function conversionMatchesReceiptSource(item: ReceiptReviewItem, conversion = item.conversion): boolean {
+    const amountMatches = conversion.originalAmount === undefined
+        || decimalUnits(conversion.originalAmount) === decimalUnits(item.originalAmount);
+    const currencyMatches = conversion.originalCurrencyCode === undefined
+        || conversion.originalCurrencyCode === item.originalCurrencyCode;
+    return amountMatches && currencyMatches
+        && conversion.requestedRateDate === item.transactionDate
+        && conversion.accountBookCurrencyCode === item.conversion.accountBookCurrencyCode;
 }

@@ -473,6 +473,154 @@ test("v6 expression alternatives cannot compete with required corrections or rew
     assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
 });
 
+function prescribedFeedbackPlan() {
+    const value = structuredFeedbackPlan();
+    value.writingType = "GUIDED";
+    value.items[0].requiredIntents = ["", "원래 예정 시각임을 나타낸다.", "원래 예정 시각임을 나타낸다.", "변경 결정을 나타낸다."];
+    const result = value.items[0].attempts[0].feedback.result;
+    result.policyVersion = "curated-writing-feedback-v8";
+    result.observations[0].requirementParts[0].taskConditionIds = ["P1", "P2"];
+    return value;
+}
+
+function conditionCorrection(value) {
+    const result = value.items[0].attempts[0].feedback.result;
+    const observation = result.observations[0];
+    observation.status = "UNMET";
+    observation.relationChecks.chronology = "CONFLICT";
+    observation.requirementParts[0].status = "CONFLICT";
+    const correction = { requirementId: "C1", segmentId: "S1", original: "午前九時に始まります。", replacement: "午前九時に始まる予定でした。",
+        issueType: "TASK_CONDITION_CONFLICT", sourceFactId: "", sourceAuthorityId: "P1", formReason: "NONE",
+        patch: { original: "始まります", replacement: "始まる予定でした" },
+        originText: "과제에 명시된 원래 예정 시각으로 전달하세요.", learningText: "課題の指示に従って元の予定として伝えてください。" };
+    result.necessaryCorrections.push(correction);
+    return correction;
+}
+
+test("v8 guided condition authority stays distinct from facts and language form", () => {
+    // 준비: 명시 지시는 학습자의 사실이나 활용형 오류가 아니다.
+    const value = prescribedFeedbackPlan();
+    const correction = conditionCorrection(value);
+    assert.equal(validateParagraphPlan(value).feedbackCompletedItemCount, 1);
+
+    // 검증: 세 권한을 혼합하거나 P 대신 다른 종류의 ID를 쓰면 거절한다.
+    correction.sourceFactId = "T1";
+    assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
+    Object.assign(correction, { sourceFactId: "", formReason: "INFLECTION" });
+    assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
+    Object.assign(correction, { formReason: "NONE", sourceAuthorityId: "T1" });
+    assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
+});
+
+test("v9 server-assembled result keeps the v8 authority and patch guard", () => {
+    // 준비: 저장 결과의 구조는 유지하고 정책 버전만 새 계약으로 둔다.
+    const value = prescribedFeedbackPlan();
+    const result = value.items[0].attempts[0].feedback.result;
+    result.policyVersion = "curated-writing-feedback-v9";
+    conditionCorrection(value);
+
+    // 실행·검증: 실제 P1을 표시하고 가짜 권한 연결은 거절한다.
+    assert.equal(validateParagraphPlan(value).feedbackCompletedItemCount, 1);
+    result.observations[0].requirementParts[0].taskConditionIds = ["P2"];
+    assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
+});
+
+test("v8 condition IDs use distinct nonblank guided intents without unknown or duplicate authority", () => {
+    // 준비: 빈 값과 중복 제거 후 P1/P2만 남는다.
+    const value = prescribedFeedbackPlan();
+    const part = value.items[0].attempts[0].feedback.result.observations[0].requirementParts[0];
+    part.taskConditionIds = ["P1", "P2"];
+    assert.equal(validateParagraphPlan(value).feedbackCompletedItemCount, 1);
+
+    // 검증: 새 필드 생략·중복·다른 namespace나 없는 번호는 통과하지 않는다.
+    for (const invalid of [undefined, ["P0"], ["P3"], ["T1"], ["C1"], [""], ["P1", "P1"], ["P2"]]) {
+        part.taskConditionIds = invalid;
+        assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
+    }
+});
+
+test("v8 FREE and TRANSLATION cannot acquire prescribed-condition authority", () => {
+    // 준비: requiredIntents가 있어도 개인 선택이나 번역에는 GUIDED P 권한이 생기지 않는다.
+    for (const writingType of ["FREE", "TRANSLATION"]) {
+        const value = prescribedFeedbackPlan();
+        value.writingType = writingType;
+        conditionCorrection(value);
+        assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
+
+        // 실행·검증: 권한을 사용하지 않은 관찰은 계속 읽을 수 있다.
+        const result = value.items[0].attempts[0].feedback.result;
+        result.necessaryCorrections = [];
+        result.observations[0].requirementParts[0].taskConditionIds = [];
+        assert.equal(validateParagraphPlan(value).feedbackCompletedItemCount, 1);
+    }
+});
+
+test("v8 condition patch requires the same conflicting part and actual evidence", () => {
+    // 준비: 같은 문장의 정상 시각과 잘못된 현재/과거 표현의 근거를 분리한다.
+    const value = prescribedFeedbackPlan();
+    const correction = conditionCorrection(value);
+    const observation = value.items[0].attempts[0].feedback.result.observations[0];
+    observation.requirementParts = [
+        { requirementQuote: "시각 ", status: "PRESENT", evidence: [{ segmentId: "S1", quote: "午前九時" }], taskFactIds: ["T1"], taskConditionIds: ["P2"] },
+        { requirementQuote: "전달", status: "CONFLICT", evidence: [{ segmentId: "S1", quote: "始まります" }], taskFactIds: [], taskConditionIds: ["P1"] },
+    ];
+    assert.equal(validateParagraphPlan(value).feedbackCompletedItemCount, 1);
+
+    // 검증: 존재하는 다른 조건이나 정상 부분의 quote를 빌려 교정하지 않는다.
+    correction.sourceAuthorityId = "P2";
+    assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
+    Object.assign(correction, { sourceAuthorityId: "P1", replacement: "午後十時に始まります。", patch: { original: "午前九時", replacement: "午後十時" } });
+    assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
+});
+
+test("v8 language and fact corrections require an explicit empty condition authority", () => {
+    // 준비: 기존 교정 종류는 새 조건 권한을 사용하지 않는다.
+    const value = prescribedFeedbackPlan();
+    const correction = conditionCorrection(value);
+    Object.assign(correction, { issueType: "TASK_FACT_CONFLICT", sourceFactId: "T1", sourceAuthorityId: "" });
+    assert.equal(validateParagraphPlan(value).feedbackCompletedItemCount, 1);
+    correction.sourceAuthorityId = "P1";
+    assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
+
+    // 실행·검증: 언어 오류는 권한 두 필드가 모두 비어야 한다.
+    Object.assign(correction, { issueType: "LANGUAGE_FORM", sourceFactId: "", sourceAuthorityId: "", formReason: "INFLECTION" });
+    assert.equal(validateParagraphPlan(value).feedbackCompletedItemCount, 1);
+    delete correction.sourceAuthorityId;
+    assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
+});
+
+test("v8 compound missing remains UNMET and cannot authorize invented content", () => {
+    // 준비: 답안에 있는 부분과 없는 부분을 별도 상태·인용으로 보존한다.
+    const value = prescribedFeedbackPlan();
+    const observation = value.items[0].attempts[0].feedback.result.observations[0];
+    observation.status = "UNMET";
+    observation.requirementParts[0].requirementQuote = "시각 ";
+    observation.requirementParts[0].taskConditionIds = ["P2"];
+    observation.requirementParts.push({ requirementQuote: "전달", status: "ABSENT", evidence: [], taskFactIds: [], taskConditionIds: ["P1"] });
+    assert.equal(validateParagraphPlan(value).feedbackCompletedItemCount, 1);
+
+    // 검증: 누락을 충족으로 바꾸거나 실제 다른 부분의 인용을 대신 사용하지 않는다.
+    observation.status = "MET";
+    assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
+    observation.status = "UNMET";
+    conditionCorrection(value);
+    assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
+});
+
+test("v8 still requires exact server-restored coverage and a public requirement ID", () => {
+    // 준비·실행: 모델의 원문 재생산을 없애도 서버 저장 결과는 정확한 원문이어야 한다.
+    const value = prescribedFeedbackPlan();
+    assert.equal(validateParagraphPlan(value).feedbackCompletedItemCount, 1);
+    const observation = value.items[0].attempts[0].feedback.result.observations[0];
+
+    // 검증: 복원 문자열이나 요구 ID가 원문에서 벗어나면 표시하지 않는다.
+    observation.requirementParts[0].requirementQuote = "시각을 전달함";
+    assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
+    observation.requirementParts[0].requirementQuote = "시각 전달";
+    observation.requirementId = "C9";
+    assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
+});
+
 test("unsubmitted reference, hidden checklist and official evaluations are rejected", () => {
     for (const field of [{ reference: { checklist: [], referenceAnswers: ["secret"], isOnlyCorrectAnswer: false } }, { checklist: ["secret"] }, { referenceAnswers: ["secret"] }, { hiddenAnswerKey: "secret" }, { evaluation: { score: 80 } }]) {
         const value = plan();

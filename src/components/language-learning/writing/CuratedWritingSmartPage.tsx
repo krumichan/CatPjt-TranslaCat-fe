@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 
 import { LanguageLearningPageLayout } from "@/components/language-learning/layout/LanguageLearningPageLayout";
-import { curatedWritingService } from "@/services/language-learning/curatedWritingService";
+import { createCuratedWritingService } from "@/services/language-learning/curatedWritingService";
 import type { DailyWritingType } from "@/types/language-learning/common";
 import type { CuratedWritingSet } from "@/types/language-learning/curatedWriting";
 
@@ -12,7 +13,20 @@ const types: DailyWritingType[] = ["TRANSLATION", "GUIDED", "FREE"];
 
 export function CuratedWritingSmartPage() {
     const t = useTranslations("LanguageLearning.writing.curated");
+    const { data: session, status } = useSession();
+    const owner = session?.user?.publicId;
+    const loginSessionId = session?.loginSessionId;
+    return <LanguageLearningPageLayout title={t("title")} description={t("description")}>
+        {status === "loading" ? <p role="status">{t("loading")}</p> : owner && loginSessionId ?
+            <CuratedWritingWorkspace key={`${owner}:${loginSessionId}`} loginSessionId={loginSessionId} /> :
+            <p role="alert">{t("signedOut")}</p>}
+    </LanguageLearningPageLayout>;
+}
+
+function CuratedWritingWorkspace({ loginSessionId }: { loginSessionId: string }) {
+    const t = useTranslations("LanguageLearning.writing.curated");
     const writing = useTranslations("LanguageLearning.writing");
+    const curatedWritingService = useMemo(() => createCuratedWritingService(loginSessionId), [loginSessionId]);
     const [type, setType] = useState<DailyWritingType>("TRANSLATION");
     const [dailySet, setDailySet] = useState<CuratedWritingSet | null>(null);
     const [drafts, setDrafts] = useState<Record<number, string>>({});
@@ -41,7 +55,6 @@ export function CuratedWritingSmartPage() {
     }
 
     return (
-        <LanguageLearningPageLayout title={t("title")} description={t("description")}>
             <div className="space-y-5" data-testid="curated-writing-page">
                 <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-100">
                     {t("qaNotice")}
@@ -124,6 +137,5 @@ export function CuratedWritingSmartPage() {
                     </div>
                 )}
             </div>
-        </LanguageLearningPageLayout>
     );
 }

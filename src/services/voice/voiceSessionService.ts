@@ -45,6 +45,7 @@ export const voiceSessionService = {
     get: async (sessionId: string): Promise<VoiceSessionResponse> => {
         const response = await apiClient(`/voice/sessions/${sessionId}`, {
             method: "GET",
+            signal: AbortSignal.timeout(10_000),
         });
 
         return parseResponseBody<VoiceSessionResponse>(
@@ -105,7 +106,8 @@ export const voiceSessionService = {
     complete: async (sessionId: string): Promise<VoiceSessionResponse> => {
         const response = await apiClient(
             `/voice/sessions/${sessionId}/complete`,
-            { method: "POST" },
+            // 서버의 마지막 발화 처리(최대 25초)와 응답 여유를 포함하되 영구 대기는 막는다.
+            { method: "POST", signal: AbortSignal.timeout(35_000) },
         );
 
         return parseResponseBody<VoiceSessionResponse>(
@@ -127,10 +129,11 @@ export const voiceSessionService = {
     issueWebSocketTicket: async (
         sessionId: string,
         channel: VoiceChannel,
+        signal?: AbortSignal,
     ): Promise<VoiceWebSocketTicketResponse> => {
         const response = await apiClient(
             `/voice/sessions/${sessionId}/channels/${channel}/ticket`,
-            { method: "POST" },
+            { method: "POST", signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(10_000)]) : AbortSignal.timeout(10_000) },
         );
 
         return parseResponseBody<VoiceWebSocketTicketResponse>(

@@ -27,11 +27,44 @@ function requireMediaDevices() {
     }
 }
 
-async function requestMicrophone(): Promise<MediaStream> {
+function requestStream(
+    request: () => Promise<MediaStream>,
+    signal?: AbortSignal,
+): Promise<MediaStream> {
+    signal?.throwIfAborted();
+
+    // 권한 창 자체는 취소할 수 없다. 취소 뒤 늦게 받은 트랙도 반드시 반납한다.
+    return new Promise((resolve, reject) => {
+        const abort = () => reject(new DOMException("Voice preparation cancelled.", "AbortError"));
+        signal?.addEventListener("abort", abort, { once: true });
+        let requested: Promise<MediaStream>;
+        try {
+            requested = request();
+        } catch (error) {
+            signal?.removeEventListener("abort", abort);
+            reject(error);
+            return;
+        }
+        requested.then((stream) => {
+            signal?.removeEventListener("abort", abort);
+            if (signal?.aborted) {
+                stopVoiceMediaStream(stream);
+                abort();
+                return;
+            }
+            resolve(stream);
+        }, (error: unknown) => {
+            signal?.removeEventListener("abort", abort);
+            reject(error);
+        });
+    });
+}
+
+async function requestMicrophone(signal?: AbortSignal): Promise<MediaStream> {
     requireMediaDevices();
 
     try {
-        return await navigator.mediaDevices.getUserMedia({
+        return await requestStream(() => navigator.mediaDevices.getUserMedia({
             audio: {
                 channelCount: 1,
                 echoCancellation: true,
@@ -39,8 +72,9 @@ async function requestMicrophone(): Promise<MediaStream> {
                 autoGainControl: true,
             },
             video: false,
-        });
+        }), signal);
     } catch (error) {
+        signal?.throwIfAborted();
         throw new VoiceMediaError(
             "MICROPHONE_PERMISSION",
             error instanceof Error ? error.message : "Microphone permission denied.",
@@ -48,7 +82,7 @@ async function requestMicrophone(): Promise<MediaStream> {
     }
 }
 
-async function requestDisplayAudio(): Promise<MediaStream> {
+async function requestDisplayAudio(signal?: AbortSignal): Promise<MediaStream> {
     requireMediaDevices();
 
     if (!navigator.mediaDevices.getDisplayMedia) {
@@ -60,11 +94,12 @@ async function requestDisplayAudio(): Promise<MediaStream> {
 
     let stream: MediaStream;
     try {
-        stream = await navigator.mediaDevices.getDisplayMedia({
+        stream = await requestStream(() => navigator.mediaDevices.getDisplayMedia({
             video: true,
             audio: true,
-        });
+        }), signal);
     } catch (error) {
+        signal?.throwIfAborted();
         throw new VoiceMediaError(
             "DISPLAY_PERMISSION",
             error instanceof Error ? error.message : "Display permission denied.",
@@ -84,19 +119,20 @@ async function requestDisplayAudio(): Promise<MediaStream> {
 
 export async function prepareVoiceMedia(
     mode: VoiceMode,
+    signal?: AbortSignal,
 ): Promise<PreparedVoiceMedia> {
     if (mode === "MIC") {
-        return { SELF: await requestMicrophone() };
+        return { SELF: await requestMicrophone(signal) };
     }
 
     if (mode === "MEDIA") {
-        return { REMOTE: await requestDisplayAudio() };
+        return { REMOTE: await requestDisplayAudio(signal) };
     }
 
-    // getDisplayMedia has the strictest user-gesture requirement, so request it first.
-    const remote = await requestDisplayAudio();
+    // 사용자 클릭의 활성화가 필요한 화면 공유부터 요청한다.
+    const remote = await requestDisplayAudio(signal);
     try {
-        const self = await requestMicrophone();
+        const self = await requestMicrophone(signal);
         return { SELF: self, REMOTE: remote };
     } catch (error) {
         stopVoiceMediaStream(remote);

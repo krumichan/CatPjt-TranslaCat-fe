@@ -33,6 +33,14 @@ export function VoiceSessionSetup({ controller }: VoiceSessionSetupProps) {
                 </p>
             </div>
 
+            {setup.mode !== "MIC" && (
+                <div className="mb-4 rounded-xl bg-blue-50 p-4 text-sm leading-relaxed text-blue-900 dark:bg-blue-950/30 dark:text-blue-200">
+                    <p className="font-semibold">{t("setup.shareAudioTitle")}</p>
+                    <p className="mt-1">{t("setup.shareAudioHelp")}</p>
+                    <p className="mt-1">{t("setup.meetingAudioHelp")}</p>
+                </div>
+            )}
+
             <div className="grid gap-3 md:grid-cols-3" role="radiogroup" aria-label={t("setup.modeLabel")}>
                 {MODES.map(({ value, icon: Icon }) => {
                     const selected = setup.mode === value;
@@ -45,14 +53,16 @@ export function VoiceSessionSetup({ controller }: VoiceSessionSetupProps) {
                             onClick={() => controller.updateSetup("mode", value)}
                             disabled={controller.isBusy || controller.phase === "STREAMING"}
                             className={cn(
-                                "rounded-2xl border p-4 text-left transition",
+                                "rounded-2xl border p-3 text-left transition",
                                 selected
                                     ? "border-blue-500 bg-blue-50 dark:bg-blue-950/30"
                                     : "border-zinc-200 hover:border-zinc-400 dark:border-zinc-800",
                             )}
                         >
-                            <Icon className="mb-3 h-5 w-5" />
-                            <div className="font-semibold">{t(`mode.${value}.title`)}</div>
+                            <div className="flex items-center gap-2 font-semibold">
+                                <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
+                                <span>{t(`mode.${value}.title`)}</span>
+                            </div>
                             <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                                 {t(`mode.${value}.description`)}
                             </div>
@@ -148,6 +158,11 @@ export function VoiceSessionSetup({ controller }: VoiceSessionSetupProps) {
             </label>
 
             <div className="mt-6 flex justify-end">
+                {controller.phase === "PREPARING" && (
+                    <button type="button" onClick={() => void controller.reset()} className="mr-3 rounded-2xl border border-zinc-300 px-6 py-3 font-semibold dark:border-zinc-700">
+                        {t("action.cancel")}
+                    </button>
+                )}
                 <button
                     type="button"
                     onClick={() => void controller.start()}

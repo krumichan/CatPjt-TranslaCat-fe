@@ -156,7 +156,7 @@ test("PARAGRAPH deleted or foreign saved plan clears displayed source after a de
     expect(state.answers).toBe(0);
 });
 
-for (const policy of ["curated-writing-feedback-v6", "curated-writing-feedback-v7"] as const) {
+for (const policy of ["curated-writing-feedback-v6", "curated-writing-feedback-v7", "curated-writing-feedback-v8"] as const) {
 test(`PARAGRAPH ${policy}: partial absence has no invented quote while grounded correction remains visible`, async ({ page }, testInfo) => {
     // 준비: 실제로 있는 시각과 없는 이유를 분리한 저장 결과만 합성한다. 모델 품질 검증은 아니다.
     const state = await mockParagraphWriting(page);
@@ -174,10 +174,11 @@ test(`PARAGRAPH ${policy}: partial absence has no invented quote while grounded 
             observations: [{ requirementId: "C1", status: "UNMET", evidenceKind: "LEARNER_TEXT", segmentIds: ["S1"], answerQuotes: [answer],
                 originText: "시각은 있지만 이유 전달 요소가 없습니다.", learningText: "時刻はありますが、理由の説明がありません。",
                 relationChecks: { causality: "NOT_APPLICABLE", chronology: "PRESERVED", specificity: "PRESERVED", stance: "NOT_APPLICABLE" },
-                requirementParts: [{ requirementQuote: "시각과 ", status: "PRESENT", evidence: [{ segmentId: "S1", quote: answer }], taskFactIds: ["T1"] },
-                    { requirementQuote: "이유 전달", status: "ABSENT", evidence: [], taskFactIds: [] }] }],
+                requirementParts: [{ requirementQuote: "시각과 ", status: "PRESENT", evidence: [{ segmentId: "S1", quote: answer }], taskFactIds: ["T1"], ...(policy === "curated-writing-feedback-v8" ? { taskConditionIds: [] } : {}) },
+                    { requirementQuote: "이유 전달", status: "ABSENT", evidence: [], taskFactIds: [], ...(policy === "curated-writing-feedback-v8" ? { taskConditionIds: [] } : {}) }] }],
             necessaryCorrections: [{ requirementId: "C1", segmentId: "S1", original: answer, replacement: "午前九時に始まりました。",
                 patch: { original: "始まります", replacement: "始まりました" }, issueType: "LANGUAGE_FORM", sourceFactId: "", formReason: "INFLECTION",
+                ...(policy === "curated-writing-feedback-v8" ? { sourceAuthorityId: "" } : {}),
                 originText: "활용형을 확인하세요.", learningText: "活用を確認してください。" }], optionalAlternatives: [], uncertainties: [],
         } } }];
     state.stored = plan;
@@ -208,4 +209,44 @@ test(`PARAGRAPH ${policy}: partial absence has no invented quote while grounded 
     await page.screenshot({ path: testInfo.outputPath("structured-partial-absence.png"), fullPage: true });
 });
 }
+
+test("PARAGRAPH v8: a guided instruction correction is distinct from a learner fact or language-form error", async ({ page }, testInfo) => {
+    // 준비: 모델/DB를 호출하지 않는 명시 GUIDED 조건 교정의 표시 계약이다.
+    const state = await mockParagraphWriting(page);
+    const plan = paragraphPlan(1, 1, "GUIDED");
+    Object.assign(plan, { status: "COMPLETED", learningLanguage: "ja", personalizedFeedbackStatus: "ACTIVE_QA", submittedItemCount: 1, feedbackCompletedItemCount: 1 });
+    const item = plan.items[0];
+    item.answered = true;
+    item.canSubmit = false;
+    item.requiredIntents = ["현재 안내와 원래 예정 시각을 구분한다."];
+    item.taskRequirements = ["원래 예정 시각을 전달하는가?"];
+    item.reference = { checklist: item.taskRequirements, referenceAnswers: ["午前九時に始まる予定でした。"], alternativeNote: "다른 표현도 가능합니다.", isOnlyCorrectAnswer: false };
+    const answer = "午前九時に始まります。";
+    item.attempts = [{ answerId: 19008, attemptDate: plan.learningDate, answer, submittedAt: "2026-10-12T00:00:00Z", resultPolicy: "REFERENCE_ONLY", evaluation: null,
+        feedback: { status: "SUCCEEDED", failureCode: null, canRetry: false, result: {
+            policyVersion: "curated-writing-feedback-v8", resultPolicy: "REFERENCE_ONLY",
+            observations: [{ requirementId: "C1", status: "UNMET", evidenceKind: "LEARNER_TEXT", segmentIds: ["S1"], answerQuotes: [answer],
+                originText: "원래 예정과 현재 안내를 구분해 주세요.", learningText: "元の予定と現在の案内を区別してください。",
+                relationChecks: { causality: "NOT_APPLICABLE", chronology: "CONFLICT", specificity: "PRESERVED", stance: "NOT_APPLICABLE" },
+                requirementParts: [{ requirementQuote: "원래 예정 시각을 전달하는가?", status: "CONFLICT", evidence: [{ segmentId: "S1", quote: "始まります" }], taskFactIds: [], taskConditionIds: ["P1"] }] }],
+            necessaryCorrections: [{ requirementId: "C1", segmentId: "S1", original: answer, replacement: "午前九時に始まる予定でした。",
+                patch: { original: "始まります", replacement: "始まる予定でした" }, issueType: "TASK_CONDITION_CONFLICT", sourceFactId: "", sourceAuthorityId: "P1", formReason: "NONE",
+                originText: "과제에 명시된 원래 예정 시각으로 전달하세요.", learningText: "課題の指示に従って元の予定として伝えてください。" }],
+            optionalAlternatives: [], uncertainties: [],
+        } } }];
+    state.stored = plan;
+
+    // 실행·검증: 조건 라벨을 유지하고 사실/활용 오류로 잘못 표시하지 않는다.
+    await page.goto(`/ko/language-learning/writing/paragraph?planId=${plan.dailySetId}`);
+    const panel = page.getByTestId("paragraph-feedback-19008");
+    await expect(panel.getByText("과제에 명시된 지시·조건과 충돌하는 내용을 고치는 제안입니다.", { exact: true })).toBeVisible();
+    await expect(panel.getByText("과제에 명시된 사실과 다른 내용을 고치는 제안입니다.", { exact: true })).toHaveCount(0);
+    await expect(panel.getByText("철자·활용·문장 구조의 오류를 고치는 제안입니다.", { exact: true })).toHaveCount(0);
+    await expect(panel.getByTestId("paragraph-part-status")).toHaveText("과제와 충돌");
+    await expect(panel.getByText(`${answer} → 午前九時に始まる予定でした。`, { exact: true })).toBeVisible();
+    await page.reload();
+    await expect(panel.getByText("과제에 명시된 지시·조건과 충돌하는 내용을 고치는 제안입니다.", { exact: true })).toBeVisible();
+    expect(state.writes).toEqual([]);
+    await panel.screenshot({ path: testInfo.outputPath("guided-condition-authority.png") });
+});
 

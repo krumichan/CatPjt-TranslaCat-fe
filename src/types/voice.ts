@@ -179,12 +179,15 @@ export interface VoiceLiveSegment {
     translatedText: string | null;
     translationSkipped: boolean;
     errorCode: string | null;
+    errorStage?: string | null;
     latency: VoicePublicLatency | null;
     completed: boolean;
 }
 
 export interface VoiceLiveState {
     channelStates: Record<VoiceChannel, VoiceClientChannelState>;
+    listening: Record<VoiceChannel, boolean>;
     partials: Record<VoiceChannel, string>;
+    partialUtterances: Record<VoiceChannel, { key: string | null; sequence: number | null } | null>;
     segments: VoiceLiveSegment[];
 }

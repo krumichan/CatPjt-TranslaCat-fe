@@ -9,13 +9,19 @@ export const authInputClass = "w-full rounded-xl border border-slate-300 bg-whit
 export const authButtonClass = "inline-flex min-h-12 items-center justify-center rounded-xl bg-orange-500 px-5 py-3 text-sm font-bold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50";
 export const authSecondaryClass = "inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/20 dark:text-slate-200 dark:hover:bg-white/5";
 
-export function AuthPageFrame({ title, description, children }: {
+export function AuthPageFrame({ title, description, children, paperBackground = false }: {
     title: string;
     description: string;
     children: ReactNode;
+    paperBackground?: boolean;
 }) {
+    // 로그인 화면은 기존 종이 질감 배경을 사용하고 회원가입 화면은 현재 배경을 유지한다.
+    const backgroundClass = paperBackground
+        ? "bg-[url('/images/translacat_common_background.png')] bg-cover bg-center bg-fixed bg-no-repeat"
+        : "bg-orange-50/60 dark:bg-slate-950";
+
     return (
-        <main className="min-h-screen bg-orange-50/60 px-4 py-8 dark:bg-slate-950 sm:py-12">
+        <main className={`min-h-screen px-4 py-8 sm:py-12 ${backgroundClass}`}>
             <div className="mx-auto max-w-md">
                 <Image
                     src="/images/translacat_log_transparent.png"

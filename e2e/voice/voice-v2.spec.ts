@@ -93,7 +93,7 @@ test.describe("Voice Translation V2", () => {
     test("VOICE-V2-01 /voice는 MIC·MEDIA·MEETING 설정을 제공한다", async ({
         page,
     }) => {
-        await page.goto("/voice");
+        await page.goto("/ko/voice");
 
         await expect(page.getByRole("heading", { name: "번역 세션 설정" })).toBeVisible();
         await expect(page.getByRole("radio", { name: /^마이크(?:\s|$)/ })).toBeVisible();
@@ -122,7 +122,7 @@ test.describe("Voice Translation V2", () => {
             );
         });
 
-        await page.goto("/voice");
+        await page.goto("/ko/voice");
         await page.getByRole("button", { name: "번역 시작" }).click();
 
         await expect(page.getByText(SESSION_ID)).toBeVisible();

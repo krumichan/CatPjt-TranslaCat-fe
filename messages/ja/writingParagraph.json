@@ -37,7 +37,7 @@
     "feedbackStates": { "PENDING": "待機", "PROCESSING": "処理中", "SUCCEEDED": "完了", "FAILED": "失敗", "UNCERTAIN": "送信状態の確認が必要" },
     "requirementStates": { "MET": "条件を満たす", "UNMET": "条件を満たさない", "UNCERTAIN": "確認が必要" },
     "necessaryCorrection": "必要な修正",
-    "correctionBasis": { "LANGUAGE_FORM": "表記・活用・文の構造の誤りを直す提案です。", "TASK_FACT_CONFLICT": "課題に明示された事実と異なる内容を直す提案です。" },
+    "correctionBasis": { "LANGUAGE_FORM": "表記・活用・文の構造の誤りを直す提案です。", "TASK_FACT_CONFLICT": "課題に明示された事実と異なる内容を直す提案です。", "TASK_CONDITION_CONFLICT": "課題に明示された指示・条件と矛盾する内容を直す提案です。" },
     "optionalAlternative": "任意の表現",
     "hypotheticalExample": "仮の例です。自分が書いた事実や必須の修正ではありません。",
     "missingRequirementEvidence": "回答にない内容について、課題の必須条件を根拠に案内しています。",

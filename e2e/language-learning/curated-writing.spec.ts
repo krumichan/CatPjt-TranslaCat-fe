@@ -1,7 +1,8 @@
-import { expect, test } from "../fixtures/mock-test";
-import { fulfillApiJson } from "../support/api-mocks";
+import { expect, installMockAuthCookie, test } from "../fixtures/mock-test";
+import { fulfillApiJson, fulfillJson } from "../support/api-mocks";
 import { mockLanguageLearningBase } from "../support/language-learning-mocks";
 import { responseDto } from "../support/mock-data";
+import { TEST_USERS } from "../support/test-users";
 
 const kinds = ["TRANSLATION", "GUIDED", "FREE"] as const;
 
@@ -85,6 +86,43 @@ test("세 유형의 QA 문항·답변·참고·기록은 브라우저에서 점�
     expect(createCalls).toBe(4);
     expect(answerCalls).toBe(2);
     expect(legacyCalls).toBe(0);
+});
+
+test("로그인 계정 전환 뒤 이전 소유자의 문항과 초안을 지우고 새 요청을 새 로그인에 묶는다", async ({ page, context }) => {
+    if (process.env.NEXT_PUBLIC_WRITING_CURATED_QA !== "true") throw new Error("Curated Writing browser QA requires QA flag");
+    await mockLanguageLearningBase(page);
+    let user = TEST_USERS.A;
+    let loginSessionId = "curated-owner-a";
+    await installMockAuthCookie(context, "USER", { user, loginSessionId });
+    await page.route("**/api/auth/session", (route) => fulfillJson(route, {
+        loginSessionId,
+        user: { name: user.nickname, email: user.email, publicId: user.publicId,
+            role: "USER", accessTokenExpires: Date.now() + 3_600_000 },
+        accessToken: `mock-access-token-${user.key}`,
+        expires: new Date(Date.now() + 3_600_000).toISOString(),
+    }));
+    const actors: string[] = [];
+    await page.route("**/api/v1/language-learning/writing/curated/sets", async (route) => {
+        actors.push(route.request().headers().authorization ?? "");
+        await fulfillApiJson(route, responseDto({ ...setFor("TRANSLATION"),
+            items: setFor("TRANSLATION").items.map((item) => ({ ...item, originText: `${user.key} 소유 문항 ${item.order}` })) }));
+    });
+
+    await page.goto("/ko/language-learning/writing");
+    await page.getByRole("button", { name: "오늘 문항 열기" }).click();
+    await expect(page.getByText("A 소유 문항 1")).toBeVisible();
+    await page.locator("#curated-answer--201").fill("A의 저장 전 초안");
+
+    user = TEST_USERS.B;
+    loginSessionId = "curated-owner-b";
+    await installMockAuthCookie(context, "USER", { user, loginSessionId });
+    await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
+    await expect(page.getByText("A 소유 문항 1")).toHaveCount(0);
+    await expect(page.locator("#curated-answer--201")).toHaveCount(0);
+    await page.getByRole("button", { name: "오늘 문항 열기" }).click();
+    await expect(page.getByText("B 소유 문항 1")).toBeVisible();
+    await expect(page.locator("#curated-answer--201")).toHaveValue("");
+    expect(actors).toEqual(["Bearer mock-access-token-A", "Bearer mock-access-token-B"]);
 });
 
 function setFor(writingType: typeof kinds[number]) {

@@ -515,6 +515,7 @@
         "title": "Writing item review",
         "description": "Review answers and reference examples for items under evaluation.",
         "qaNotice": "Local QA items only. These have not received human approval or a production release.",
+        "signedOut": "Sign in to use local review items.",
         "typeLabel": "Writing type",
         "openToday": "Open today's items",
         "rePractice": "Open review items",

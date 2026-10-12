@@ -515,6 +515,7 @@
         "title": "Writing問題の検証",
         "description": "審査中の問題で回答と参考例を確認します。",
         "qaNotice": "ローカルQA専用の問題です。人による承認と本番公開はまだ行われていません。",
+        "signedOut": "ログイン後にローカル検証問題を利用できます。",
         "typeLabel": "作文の種類",
         "openToday": "今日の問題を開く",
         "rePractice": "復習問題を開く",

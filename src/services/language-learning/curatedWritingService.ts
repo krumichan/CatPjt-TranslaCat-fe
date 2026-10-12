@@ -18,22 +18,27 @@ async function read(response: Response): Promise<CuratedWritingSet> {
     return complete(await parseResponseBody<CuratedWritingSet>(response, "CuratedWritingSet"));
 }
 
-export const curatedWritingService = {
-    start: async (writingType: DailyWritingType, rePractice = false) => read(await apiClient(`${root}/sets`, {
-        method: "POST", body: JSON.stringify({ writingType, rePractice }),
-    })),
-    get: async (setId: number) => read(await apiClient(`${root}/sets/${setId}`, { method: "GET" })),
-    history: async (date: string, writingType: DailyWritingType) => read(await apiClient(
-        `${root}/history/${encodeURIComponent(date)}?writingType=${writingType}`, { method: "GET" },
-    )),
-    submit: async (itemId: number, answer: string, contentRevision: string) => read(await apiClient(
-        `${root}/items/${itemId}/answers`, {
-            method: "POST", body: JSON.stringify({ answer, contentRevision }),
-        },
-    )),
-    replace: async (setId: number, rePractice = false) => read(await apiClient(
-        `${root}/sets/${setId}/replace`, {
-            method: "POST", body: JSON.stringify({ rePractice }),
-        },
-    )),
-};
+export function createCuratedWritingService(loginSessionId: string) {
+    if (!loginSessionId) throw new Error("WRITING_LOGIN_SESSION_REQUIRED");
+    // 화면을 연 로그인에 모든 요청을 묶어 계정 전환 뒤 이전 문항을 새 계정으로 전송하지 않는다.
+    const request = (path: string, init: RequestInit) => apiClient(`${root}${path}`, init, loginSessionId);
+    return {
+        start: async (writingType: DailyWritingType, rePractice = false) => read(await request("/sets", {
+            method: "POST", body: JSON.stringify({ writingType, rePractice }),
+        })),
+        get: async (setId: number) => read(await request(`/sets/${setId}`, { method: "GET" })),
+        history: async (date: string, writingType: DailyWritingType) => read(await request(
+            `/history/${encodeURIComponent(date)}?writingType=${writingType}`, { method: "GET" },
+        )),
+        submit: async (itemId: number, answer: string, contentRevision: string) => read(await request(
+            `/items/${itemId}/answers`, {
+                method: "POST", body: JSON.stringify({ answer, contentRevision }),
+            },
+        )),
+        replace: async (setId: number, rePractice = false) => read(await request(
+            `/sets/${setId}/replace`, {
+                method: "POST", body: JSON.stringify({ rePractice }),
+            },
+        )),
+    };
+}

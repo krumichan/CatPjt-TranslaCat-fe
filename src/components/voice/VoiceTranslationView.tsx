@@ -34,7 +34,7 @@ export function VoiceTranslationView({ controller }: VoiceTranslationViewProps) 
                 </div>
             )}
 
-            {controller.live.phase !== "STREAMING" &&
+            {(!controller.live.session || controller.live.session.status === "FAILED" || controller.live.phase === "PREPARING" || controller.live.phase === "COMPLETED") &&
                 controller.live.phase !== "COMPLETING" && (
                     <VoiceSessionSetup controller={controller.live} />
                 )}

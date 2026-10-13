@@ -15,7 +15,7 @@ export function VoiceLiveSessionPanel({
 }: VoiceLiveSessionPanelProps) {
     const t = useTranslations("Voice");
     if (!controller.session) return null;
-    const listeningChannels = controller.channels.filter((channel) => controller.liveState.listening[channel]);
+    const previews = controller.liveState.previews.filter((preview) => controller.channels.includes(preview.channel));
 
     return (
         <>
@@ -70,20 +70,25 @@ export function VoiceLiveSessionPanel({
                         {t("live.transcript")}
                     </h3>
                     {/* 듣는 중인 발화를 결과와 같은 목록에 두고, 확정되면 같은 번호의 결과 카드로 바꾼다. */}
-                    {listeningChannels.map((channel) => (
+                    {[...previews].reverse().map((preview) => (
                         <VoiceListeningCard
-                            key={channel}
-                            channel={channel}
-                            sequence={controller.liveState.partialUtterances[channel]?.sequence ?? null}
-                            partial={controller.liveState.partials[channel]}
+                            key={`${preview.channel}-${preview.key}`}
+                            channel={preview.channel}
+                            sequence={preview.utteranceSequence}
+                            partial={preview.sourceText}
+                            translatedText={preview.translatedText}
+                            active={controller.liveState.listening[preview.channel]
+                                && (controller.liveState.partialUtterances[preview.channel]?.key === preview.key
+                                    || (controller.liveState.partialUtterances[preview.channel]?.key === null
+                                        && preview.key === `listening-${preview.channel}`))}
                         />
                     ))}
                     {controller.liveState.segments.length > 0 ? (
                         [...controller.liveState.segments].reverse().map((segment) => (
-                            <VoiceLiveSegmentCard key={segment.key} segment={segment} />
+                            <VoiceLiveSegmentCard key={`${segment.channel}-${segment.key}`} segment={segment} />
                         ))
                     ) : (
-                        listeningChannels.length === 0 && (
+                        previews.length === 0 && (
                             <div className="rounded-2xl bg-zinc-50 p-5 text-center text-sm text-zinc-500 dark:bg-zinc-900/60">
                                 {t("live.empty")}
                             </div>

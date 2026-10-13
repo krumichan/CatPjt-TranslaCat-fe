@@ -1,5 +1,61 @@
 {
+  "WritingPreparation": {
+    "title": "新しい問題の準備と品質案内",
+    "notice": "自動検査は形式と言語を確認します。意味の正確さと人による確認は未確認のローカル検証用候補です。",
+    "band": "準備する段階",
+    "topic": "話題",
+    "prepare": "新しい候補を準備",
+    "storageFailed": "復旧リクエストをブラウザーに保存できませんでした。この画面で保存結果を確認してください。",
+    "pending": "保存結果を確認中です。新しい候補を自動生成しません。",
+    "refresh": "保存結果を確認",
+    "recover": "同じリクエストを復旧",
+    "failed": "準備結果を使用できません。原本は保持し、自動生成しません。",
+    "apply": "この未回答の問題に適用",
+    "use": "この候補で確保可能数を確認",
+    "savedReason": "保存した依頼理由",
+    "reason": "問題のある部分や希望する改善",
+    "coreRepairNotice": "下の案内と入力した理由を送り、元の意味構造を除いた別の問題を選びます。日付だけの変更ではありません。原文の修正や品質向上を保証するものではありません。",
+    "contentRepairNotice": "下の案内と入力した理由を送り、原文を一度修正します。意見は検討資料として送り、確定した欠陥とは扱いません。",
+    "replace": "理由を送り別の問題を準備",
+    "repair": "理由を送り一度修正",
+    "states": {
+      "RUNNING": "準備結果を待機中",
+      "GENERATED": "保存結果の復旧が必要",
+      "SUCCEEDED": "候補を準備済み・意味の確認は未完了",
+      "FAILED": "準備に失敗",
+      "UNCERTAIN": "実行結果の確認が必要"
+    },
+    "reasons": {
+      "AUTOMATED_CHECK_ONLY": "形式検査は意味の正確さを保証しません。人による確認は未実施です。",
+      "CORE_CONTENT_FIXED": "サーバーに保存された問題から選んだ候補です。原文を自由生成した結果ではありません。",
+      "CONTENT_CHECK_FAILED": "回答が問題形式または言語の検査に合格しませんでした。",
+      "PROVIDER_FAILED": "モデル呼び出し中にエラーが発生しました。",
+      "EXECUTION_UNCERTAIN": "実行の完了が不明です。追加呼び出しをせず保存結果だけを確認します。"
+    },
+    "blocked": {
+      "NOT_FINISHED": "保存結果の確定後に再度準備できます。",
+      "NO_SAVED_CONTENT": "修正に使う元の応答がありません。",
+      "REPAIR_LIMIT": "この原本の修正・代替は一度限りで、既に使用しました。",
+      "CONTENT_EXHAUSTED": "別の問題として提供できる候補がなくなりました。"
+    },
+    "topics": {
+      "library-use": "図書館の利用",
+      "home-task": "家事",
+      "public-transport": "公共交通",
+      "community-meeting": "集まりの案内",
+      "weekend-plan": "週末の計画",
+      "reading-group-change": "読書会の変更",
+      "clinic-appointment": "病院の予約",
+      "rainy-day-choice": "雨の日の選択",
+      "group-presentation": "グループ発表",
+      "gym-repair-notice": "体育館の修理案内"
+    }
+  },
   "ParagraphWriting": {
+    "preparedSelection": "準備した候補だけを選択中です。目標数と段階ごとの不足数を確認して開始してください。",
+    "clearPreparedSelection": "全候補に戻る",
+    "generatedQualityNotice": "この問題は自動形式検査のみ通過した候補です。意味の品質と人による確認は未確認です。",
+    "openPreparation": "品質案内と再準備",
     "title": "段落ライティング・学習目標",
     "description": "問題数を決め、確保できた課題から学習を続けます。",
     "qaNotice": "ローカル検証用の画面です。候補の自動確認は人による承認ではなく、学習段階は公式な能力スコアではありません。",

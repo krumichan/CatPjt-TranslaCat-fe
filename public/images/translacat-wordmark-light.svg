@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 72" role="img" aria-labelledby="title">
+  <title id="title">TranslaCat</title>
+  <text x="3" y="53" fill="#19324a" font-family="Trebuchet MS, Arial Rounded MT Bold, Arial, sans-serif" font-size="46" font-weight="800" letter-spacing="-2" textLength="165" lengthAdjust="spacingAndGlyphs">Transla</text>
+  <g fill="#2f6dac">
+    <path d="m174 22 3-19q1-4 4-2l17 16q-11-1-24 5Z"/>
+    <path d="m207 18 18-17q3-2 4 2l3 20q-13-6-25-5Z"/>
+    <text x="169" y="53" font-family="Trebuchet MS, Arial Rounded MT Bold, Arial, sans-serif" font-size="46" font-weight="800" letter-spacing="-2" textLength="78" lengthAdjust="spacingAndGlyphs">Cat</text>
+  </g>
+  <path d="m181 8 8 8m35-8-8 8" fill="none" stroke="#9fc8f3" stroke-linecap="round" stroke-width="2"/>
+  <path d="M246 50c15 9 34 3 40-11 5-12-1-22-9-20-8 2-7 10-1 11" fill="none" stroke="#2f6dac" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"/>
+</svg>

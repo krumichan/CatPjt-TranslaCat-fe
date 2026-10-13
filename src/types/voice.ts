@@ -184,10 +184,21 @@ export interface VoiceLiveSegment {
     completed: boolean;
 }
 
+export interface VoiceLivePreview {
+    key: string;
+    channel: VoiceChannel;
+    utteranceSequence: number | null;
+    sourceText: string;
+    translatedText: string | null;
+    revision: number | null;
+}
+
 export interface VoiceLiveState {
     channelStates: Record<VoiceChannel, VoiceClientChannelState>;
     listening: Record<VoiceChannel, boolean>;
     partials: Record<VoiceChannel, string>;
     partialUtterances: Record<VoiceChannel, { key: string | null; sequence: number | null } | null>;
+    previews: VoiceLivePreview[];
+    closedPreviewKeys: Record<VoiceChannel, string[]>;
     segments: VoiceLiveSegment[];
 }

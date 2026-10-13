@@ -5,33 +5,37 @@ import { useTranslations } from "next-intl";
 import type { InputHTMLAttributes, ReactNode } from "react";
 import { AUTH_ERROR_MESSAGE_KEYS } from "@/lib/authPolicy";
 
-export const authInputClass = "w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-100 disabled:bg-slate-100 dark:border-white/15 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-orange-500/20";
-export const authButtonClass = "inline-flex min-h-12 items-center justify-center rounded-xl bg-orange-500 px-5 py-3 text-sm font-bold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50";
+export const authInputClass = "w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100 dark:border-white/15 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-blue-500/20";
+export const authButtonClass = "inline-flex min-h-12 items-center justify-center rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50";
 export const authSecondaryClass = "inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/20 dark:text-slate-200 dark:hover:bg-white/5";
 
-export function AuthPageFrame({ title, description, children, paperBackground = false }: {
+export function AuthPageFrame({ title, description, children }: {
     title: string;
     description: string;
     children: ReactNode;
-    paperBackground?: boolean;
 }) {
-    // 로그인 화면은 기존 종이 질감 배경을 사용하고 회원가입 화면은 현재 배경을 유지한다.
-    const backgroundClass = paperBackground
-        ? "bg-[url('/images/translacat_common_background.png')] bg-cover bg-center bg-fixed bg-no-repeat"
-        : "bg-orange-50/60 dark:bg-slate-950";
-
     return (
-        <main className={`min-h-screen px-4 py-8 sm:py-12 ${backgroundClass}`}>
+        <main className="min-h-screen bg-slate-50 px-4 py-8 dark:bg-slate-950 sm:py-12">
             <div className="mx-auto max-w-md">
-                <Image
-                    src="/images/translacat_log_transparent.png"
-                    alt="TranslaCat"
-                    width={180}
-                    height={180}
-                    priority
-                    className="mx-auto -my-6"
-                />
-                <section className="rounded-3xl border border-orange-100 bg-white p-6 shadow-xl shadow-orange-100/40 dark:border-white/10 dark:bg-slate-900 dark:shadow-none sm:p-8">
+                {/* 인증 화면도 앱 헤더와 같은 고양이 워드마크를 사용합니다. */}
+                <div className="mb-7 flex justify-center">
+                    <Image
+                        src="/images/translacat-wordmark-light.svg"
+                        alt="TranslaCat"
+                        width={300}
+                        height={72}
+                        priority
+                        className="h-auto w-[220px] dark:hidden"
+                    />
+                    <Image
+                        src="/images/translacat-wordmark-dark.svg"
+                        alt="TranslaCat"
+                        width={300}
+                        height={72}
+                        className="hidden h-auto w-[220px] dark:block"
+                    />
+                </div>
+                <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/40 dark:border-slate-700 dark:bg-slate-900 dark:shadow-none sm:p-8">
                     <h1 className="text-2xl font-black text-slate-900 dark:text-white">{title}</h1>
                     <p className="mb-6 mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">{description}</p>
                     {children}

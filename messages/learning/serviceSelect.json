@@ -1,17 +1,19 @@
 {
   "ServiceSelect": {
-    "title": "サービス選択",
-    "description": "利用するサービスを選択してください。",
+    "title": "すべてのサービス",
+    "description": "サービスを選ぶと、その画面に直接移動します。",
     "novelTitle": "小説翻訳",
     "novelDesc": "小説の文章を自然に翻訳します。",
-    "voiceTitle": "音声分析",
-    "voiceDesc": "音声ファイルを分析し、テキストに変換します。",
+    "voiceTitle": "音声翻訳",
+    "voiceDesc": "音声をリアルタイムで認識し、翻訳します。",
     "accountBookTitle": "家計簿",
     "accountBookDesc": "収入と支出を管理します。",
     "chatTitle": "チャット",
     "chatDesc": "異なる言語で会話し、メッセージを自分の言語に翻訳して確認できます。",
     "start": "始める",
     "languageLearningTitle": "言語学習",
-    "languageLearningDesc": "毎日のWritingとAI評価を通じて、学習レベル・弱点・Keyword習熟度を管理します。"
+    "languageLearningDesc": "毎日のWritingとAI評価を通じて、学習レベル・弱点・Keyword習熟度を管理します。",
+    "supportTitle": "サポート",
+    "supportDesc": "お問い合わせを確認し、必要なときにサポートを受けられます。"
   }
 }

@@ -33,7 +33,12 @@ function harness(getSession, fetchResponse = async () => new Response("{}")) {
             validateParagraphConfig: (value) => value, validateParagraphPlan: (value) => value, validateParagraphPreview: (value) => value,
         },
     });
-    return { calls, create: service.createParagraphWritingService, unauthorized: () => unauthorized };
+    const preparation = loadSource("services/language-learning/writingPreparationService.ts", {
+        "@/lib/apiClient": api,
+        "@/services/common/responseParser": { parseResponseBody: (response) => response.json() },
+        "@/features/language-learning/writing/writingPreparationContract": { validateWritingPreparation: (value) => value },
+    });
+    return { calls, create: service.createParagraphWritingService, createPreparation: preparation.createWritingPreparationService, unauthorized: () => unauthorized };
 }
 
 const session = (loginSessionId, accessToken = "synthetic-access") => ({ loginSessionId, accessToken, user: { publicId: "same-owner" } });
@@ -46,6 +51,7 @@ test("all Writing reads and mutations reject the previous login before sending H
         () => service.config(), () => service.preview("FREE", 3, false), () => service.start("FREE", 3, false, false),
         () => service.get(1), () => service.history("2026-10-11", "FREE"), () => service.expand(1, 5, 1),
         () => service.restore(1, 1), () => service.delete(1, 1), () => service.submit(2, "answer", "r1"), () => service.retryFeedback(3),
+        () => service.replacePrepared(2, "repair", "r1", 1),
     ];
 
     // 실행·검증: 새로운 답안·시작·재시도 요청까지 전송 수가 0이다.
@@ -95,4 +101,22 @@ test("a late Writing 401 cannot log out the new login", async () => {
 test("Writing cannot construct an unbound anonymous service", () => {
     // 준비·실행·검증
     assert.throws(() => harness(async () => null).create(""), /WRITING_LOGIN_SESSION_REQUIRED/);
+});
+
+test("후보 준비와 조회도 이전 로그인으로 요청하지 않는다", async () => {
+    // 준비
+    const h = harness(async () => session("new-login"));
+    const service = h.createPreparation("old-login");
+    // 실행 / 검증
+    await assert.rejects(() => service.get("old-preparation"), { name: "AbortError" });
+    await assert.rejects(() => service.prepare({ requestKey: "new-key", writingType: "FREE", targetBand: 3, topicKey: "library-use" }), { name: "AbortError" });
+    assert.equal(h.calls.length, 0);
+});
+
+test("후보 준비 전송 실패는 서비스에서 자동 재시도하지 않는다", async () => {
+    // 준비
+    const h = harness(async () => session("current"), async () => { throw new Error("synthetic transport loss"); });
+    // 실행 / 검증
+    await assert.rejects(() => h.createPreparation("current").prepare({ requestKey: "stable-key", writingType: "FREE", targetBand: 3, topicKey: "library-use" }));
+    assert.equal(h.calls.length, 1);
 });

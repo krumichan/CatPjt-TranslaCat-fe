@@ -29,13 +29,13 @@ export function AppSidebarItem({
         </span>
     ) : null;
 
-    const commonClassName = `group relative flex min-h-11 w-full items-center rounded-xl transition ${
+    const commonClassName = `tc-service-accent tc-nav-item group relative flex min-h-11 w-full items-center rounded-xl transition ${
         isCollapsed
             ? "justify-center px-2"
             : "gap-3 px-3"
     } ${
         isActive
-            ? "bg-blue-600 text-white shadow-sm"
+            ? "shadow-sm"
             : "text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
     }`;
 
@@ -47,10 +47,12 @@ export function AppSidebarItem({
                 aria-label={`${label} - ${t(
                     "badges.comingSoon",
                 )}`}
+                data-service={item.key}
+                data-active={isActive}
                 className={`${commonClassName} cursor-not-allowed opacity-55`}
             >
                 <Icon
-                    className="h-5 w-5 shrink-0"
+                    className="tc-nav-icon h-5 w-5 shrink-0"
                     aria-hidden="true"
                 />
 
@@ -77,11 +79,13 @@ export function AppSidebarItem({
             href={item.href}
             aria-current={isActive ? "page" : undefined}
             aria-label={label}
+            data-service={item.key}
+            data-active={isActive}
             onClick={onNavigate}
             className={commonClassName}
         >
             <Icon
-                className="h-5 w-5 shrink-0"
+                className="tc-nav-icon h-5 w-5 shrink-0"
                 aria-hidden="true"
             />
 

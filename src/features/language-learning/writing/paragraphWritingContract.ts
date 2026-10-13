@@ -173,6 +173,8 @@ export function validateParagraphPlan(plan: ParagraphWritingPlan): ParagraphWrit
         requireContract(difficulties.includes(item.difficulty) && integer(item.targetBand, 1) && item.targetBand <= 5);
         actualByDifficulty[item.difficulty] += 1;
         requireContract(typeof item.contentRevision === "string" && item.contentRevision.length > 0);
+        requireContract(item.preparationRequestKey == null ||
+            (typeof item.preparationRequestKey === "string" && /^[a-zA-Z0-9._-]{1,80}$/.test(item.preparationRequestKey)));
         requireContract(typeof item.originText === "string" && typeof item.answered === "boolean" && typeof item.canSubmit === "boolean");
         requireContract([item.providedFacts, item.requiredIntents, item.responseConstraints].every((lines) => Array.isArray(lines) && lines.every((line) => typeof line === "string")));
         requireContract(item.taskRequirements === undefined || (Array.isArray(item.taskRequirements) && item.taskRequirements.every((line) => typeof line === "string" && line.trim().length > 0)));
@@ -190,10 +192,10 @@ export function validateParagraphPlan(plan: ParagraphWritingPlan): ParagraphWrit
                 requireContract(!feedback.canRetry || ["FAILED", "PROCESSING"].includes(feedback.status));
                 if (feedback.result) {
                     const result = feedback.result;
-                    requireContract(["curated-writing-feedback-v1", "curated-writing-feedback-v2", "curated-writing-feedback-v3", "curated-writing-feedback-v4", "curated-writing-feedback-v5", "curated-writing-feedback-v6", "curated-writing-feedback-v7", "curated-writing-feedback-v8", "curated-writing-feedback-v9"].includes(result.policyVersion) && result.resultPolicy === "REFERENCE_ONLY");
+                    requireContract(["curated-writing-feedback-v1", "curated-writing-feedback-v2", "curated-writing-feedback-v3", "curated-writing-feedback-v4", "curated-writing-feedback-v5", "curated-writing-feedback-v6", "curated-writing-feedback-v7", "curated-writing-feedback-v8", "curated-writing-feedback-v9", "curated-writing-feedback-v10"].includes(result.policyVersion) && result.resultPolicy === "REFERENCE_ONLY");
                     const grounded = result.policyVersion !== "curated-writing-feedback-v1";
-                    const typed = ["curated-writing-feedback-v4", "curated-writing-feedback-v5", "curated-writing-feedback-v6", "curated-writing-feedback-v7", "curated-writing-feedback-v8", "curated-writing-feedback-v9"].includes(result.policyVersion);
-                    const prescribed = result.policyVersion === "curated-writing-feedback-v8" || result.policyVersion === "curated-writing-feedback-v9";
+                    const typed = ["curated-writing-feedback-v4", "curated-writing-feedback-v5", "curated-writing-feedback-v6", "curated-writing-feedback-v7", "curated-writing-feedback-v8", "curated-writing-feedback-v9", "curated-writing-feedback-v10"].includes(result.policyVersion);
+                    const prescribed = result.policyVersion === "curated-writing-feedback-v8" || result.policyVersion === "curated-writing-feedback-v9" || result.policyVersion === "curated-writing-feedback-v10";
                     const structured = result.policyVersion === "curated-writing-feedback-v6" || result.policyVersion === "curated-writing-feedback-v7" || prescribed;
                     const conditionIds = new Set(plan.writingType === "GUIDED"
                         ? [...new Set(item.requiredIntents.filter((text) => text.trim().length > 0))].map((_, index) => `P${index + 1}`) : []);

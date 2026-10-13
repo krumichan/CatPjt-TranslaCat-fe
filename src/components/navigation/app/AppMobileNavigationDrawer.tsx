@@ -139,7 +139,7 @@ export function AppMobileNavigationDrawer({
                 aria-label={t("title")}
                 onKeyDown={stopPropagation}
                 data-testid="app-mobile-navigation-drawer"
-                className={`absolute inset-y-0 left-0 flex w-[min(86vw,320px)] flex-col border-r border-slate-200 bg-white shadow-2xl transition-transform duration-200 motion-reduce:transition-none dark:border-white/10 dark:bg-slate-950 ${
+                className={`absolute inset-y-0 left-0 flex w-[min(86vw,320px)] flex-col border-r border-slate-200 bg-white shadow-2xl transition-transform duration-200 motion-reduce:transition-none dark:border-[var(--tc-ocean-border)] dark:bg-[var(--tc-ocean-shell)] ${
                     isOpen
                         ? "translate-x-0"
                         : "-translate-x-full"

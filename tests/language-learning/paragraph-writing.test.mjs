@@ -30,6 +30,16 @@ function plan(target = 5, acquired = target, submitted = 0) {
     };
 }
 
+test("저장 후보 연결은 유효한 준비 키만 허용한다", () => {
+    // 준비
+    const value = plan(1);
+    value.items[0].preparationRequestKey = "owned-request-1";
+    // 실행 / 검증
+    assert.equal(validateParagraphPlan(value), value);
+    value.items[0].preparationRequestKey = "../../foreign";
+    assert.throws(() => validateParagraphPlan(value), /WRITING_PARAGRAPH_CONTRACT_INVALID/);
+});
+
 for (const count of [1, 2, 3, 5, 10, 20, 30, 50, 100]) {
     test(`target N=${count} is independent from page size and sentence count inside a prompt`, () => {
         // 준비 / 실행
@@ -537,6 +547,40 @@ test("v8 condition IDs use distinct nonblank guided intents without unknown or d
         part.taskConditionIds = invalid;
         assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
     }
+});
+
+for (const policyVersion of ["curated-writing-feedback-v8", "curated-writing-feedback-v9", "curated-writing-feedback-v10"]) {
+    test(`${policyVersion} preserves stored results and rejects a mismatched condition patch`, () => {
+        // 준비: 새 의미 판정도 기존 저장 DTO의 권한·부분 교정 경계를 그대로 사용한다.
+        const value = prescribedFeedbackPlan();
+        const result = value.items[0].attempts[0].feedback.result;
+        result.policyVersion = policyVersion;
+        const correction = conditionCorrection(value);
+        const original = JSON.stringify(value);
+
+        // 실행·검증: 읽기로 과거 결과를 재작성하지 않고 원문과 다른 patch는 거절한다.
+        assert.equal(validateParagraphPlan(value), value);
+        assert.equal(JSON.stringify(value), original);
+        correction.patch.original = "答えにない引用";
+        assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
+    });
+}
+
+test("v10 FREE accepts fulfilled personal content without acquiring prescribed authority", () => {
+    // 준비: 자유 작문의 충족 결과는 필수 교정이 없어도 그대로 표시한다.
+    const value = prescribedFeedbackPlan();
+    value.writingType = "FREE";
+    const result = value.items[0].attempts[0].feedback.result;
+    result.policyVersion = "curated-writing-feedback-v10";
+    result.observations[0].requirementParts[0].taskConditionIds = [];
+
+    // 실행·검증: 개인 내용을 교정할 P 권한을 만들거나 모르는 버전을 허용하지 않는다.
+    assert.equal(validateParagraphPlan(value).feedbackCompletedItemCount, 1);
+    result.observations[0].requirementParts[0].taskConditionIds = ["P1"];
+    assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
+    result.observations[0].requirementParts[0].taskConditionIds = [];
+    result.policyVersion = "curated-writing-feedback-v11";
+    assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
 });
 
 test("v8 FREE and TRANSLATION cannot acquire prescribed-condition authority", () => {

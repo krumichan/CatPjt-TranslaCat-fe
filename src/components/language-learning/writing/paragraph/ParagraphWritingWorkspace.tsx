@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { parseParagraphTarget, PARAGRAPH_CONTRACT_ERROR } from "@/features/language-learning/writing/paragraphWritingContract";
-import { paragraphDraftKey, readParagraphDraft, writeParagraphDraft } from "@/features/language-learning/writing/paragraphWritingDrafts";
+import { paragraphDraftKey, paragraphDraftPrefix, readParagraphDraft, removeParagraphPlanDrafts, writeParagraphDraft } from "@/features/language-learning/writing/paragraphWritingDrafts";
 import { ApiResponseError } from "@/services/common/responseParser";
 import { createParagraphWritingService } from "@/services/language-learning/paragraphWritingService";
 import type { DailyWritingType } from "@/types/language-learning/common";
@@ -11,12 +11,14 @@ import type { ParagraphWritingConfig, ParagraphWritingItem, ParagraphWritingPlan
 import { ParagraphWritingControls } from "./ParagraphWritingControls";
 import { ParagraphWritingItemCard } from "./ParagraphWritingItemCard";
 import { ParagraphWritingProgress } from "./ParagraphWritingProgress";
+import { WritingPreparationPanel } from "./WritingPreparationPanel";
 
 export function ParagraphWritingWorkspace({ owner, loginSessionId }: { owner: string; loginSessionId: string }) {
     const t = useTranslations("ParagraphWriting");
     const service = useMemo(() => createParagraphWritingService(loginSessionId), [loginSessionId]);
     const [config, setConfig] = useState<ParagraphWritingConfig | null>(null);
     const [configError, setConfigError] = useState(false);
+    const [initialRestoreComplete, setInitialRestoreComplete] = useState(false);
     const [type, setType] = useState<DailyWritingType>("TRANSLATION");
     const [target, setTarget] = useState("5");
     const [rePractice, setRePractice] = useState(false);
@@ -29,6 +31,8 @@ export function ParagraphWritingWorkspace({ owner, loginSessionId }: { owner: st
     const [error, setError] = useState<string | null>(null);
     const [page, setPage] = useState(0);
     const [showWorkload, setShowWorkload] = useState(false);
+    const [catalogIds, setCatalogIds] = useState<string[] | undefined>();
+    const [openPreparation, setOpenPreparation] = useState<{ key: string; sequence: number } | null>(null);
     const inFlight = useRef(false);
     const mounted = useRef(false);
 
@@ -63,7 +67,7 @@ export function ParagraphWritingWorkspace({ owner, loginSessionId }: { owner: st
 
     const handleError = useCallback((reason: unknown) => {
         if (!mounted.current) return;
-        if (reason instanceof Error && reason.message === PARAGRAPH_CONTRACT_ERROR) {
+        if (reason instanceof Error && [PARAGRAPH_CONTRACT_ERROR, "WRITING_PREPARATION_CONTRACT_INVALID"].includes(reason.message)) {
             setError("contractInvalid");
             setPlan(null);
             setPreview(null);
@@ -82,7 +86,7 @@ export function ParagraphWritingWorkspace({ owner, loginSessionId }: { owner: st
         }
     }, []);
 
-    async function perform(operation: () => Promise<void>) {
+    const perform = useCallback(async (operation: () => Promise<void>) => {
         if (inFlight.current) return;
         inFlight.current = true;
         setBusy(true);
@@ -93,9 +97,9 @@ export function ParagraphWritingWorkspace({ owner, loginSessionId }: { owner: st
             handleError(reason);
         } finally {
             inFlight.current = false;
-            setBusy(false);
+            if (mounted.current) setBusy(false);
         }
-    }
+    }, [handleError]);
 
     useEffect(() => {
         let active = true;
@@ -120,6 +124,8 @@ export function ParagraphWritingWorkspace({ owner, loginSessionId }: { owner: st
             }
         }).catch(() => {
             if (active) setConfigError(true);
+        }).finally(() => {
+            if (active) setInitialRestoreComplete(true);
         });
         return () => { active = false; };
     }, [acceptPlan, handleError, service]);
@@ -130,6 +136,7 @@ export function ParagraphWritingWorkspace({ owner, loginSessionId }: { owner: st
         setPreview(null);
         setError(null);
         setPage(0);
+        setCatalogIds(undefined);
         const url = new URL(window.location.href);
         url.searchParams.delete("planId");
         window.history.replaceState(null, "", url);
@@ -164,14 +171,27 @@ export function ParagraphWritingWorkspace({ owner, loginSessionId }: { owner: st
     return (
         <div className="space-y-5" data-testid="paragraph-writing-page" aria-busy={busy}>
             <p className="rounded-xl bg-amber-50 p-4 text-sm text-amber-950 dark:bg-amber-950/30 dark:text-amber-100">{t("qaNotice")}</p>
+            {initialRestoreComplete && <WritingPreparationPanel owner={owner} loginSessionId={loginSessionId} writingType={type} busy={busy} plan={plan}
+                openRequest={openPreparation} run={perform}
+                onUse={(prepared) => {
+                    setType(prepared.writingType);
+                    setCatalogIds([prepared.catalogId]);
+                    setPreview(null);
+                }}
+                onApply={async (item, prepared) => {
+                    if (plan) acceptPlan(await service.replacePrepared(item.itemId, prepared.requestKey, item.contentRevision, plan.planRevision));
+                }} />}
+            {catalogIds && !plan && <p className="text-sm" role="status">{t("preparedSelection")}
+                <button type="button" disabled={busy} className="ml-2 rounded border p-2" onClick={() => { setCatalogIds(undefined); setPreview(null); }}>{t("clearPreparedSelection")}</button>
+            </p>}
             <ParagraphWritingControls config={config} type={type} target={target} parsedTarget={parsedTarget} rePractice={rePractice}
                 historyDate={historyDate} busy={busy} plan={plan} preview={preview} onType={chooseType}
                 onTarget={(value) => { setTarget(value); setPreview(null); }} onRePractice={(value) => { setRePractice(value); setPreview(null); }}
                 onHistoryDate={setHistoryDate}
-                onPreview={() => void perform(async () => { if (parsedTarget !== null) setPreview(await service.preview(type, parsedTarget, rePractice)); })}
+                onPreview={() => void perform(async () => { if (parsedTarget !== null) setPreview(await service.preview(type, parsedTarget, rePractice, catalogIds)); })}
                 onStart={(allowPartial) => void perform(async () => {
                     if (preview && parsedTarget === preview.targetItemCount) {
-                        acceptPlan(await service.start(type, parsedTarget, rePractice, allowPartial));
+                        acceptPlan(await service.start(type, parsedTarget, rePractice, allowPartial, catalogIds));
                         setPage(0);
                     }
                 })}
@@ -190,9 +210,9 @@ export function ParagraphWritingWorkspace({ owner, loginSessionId }: { owner: st
                         await service.delete(plan.dailySetId, plan.planRevision);
                         if (!mounted.current) return;
                         // 서버 삭제 성공 후 이 계획의 로컬 초안만 지우고, 다른 계획의 답안은 보존한다.
-                        const removedKeys = plan.items.map((item) => paragraphDraftKey(owner, plan.dailySetId, item.itemId, item.contentRevision));
-                        try { removedKeys.forEach((key) => window.localStorage.removeItem(key)); } catch { setDraftUnavailable(true); }
-                        setDrafts((previous) => Object.fromEntries(Object.entries(previous).filter(([key]) => !removedKeys.includes(key))));
+                        const prefix = paragraphDraftPrefix(owner, plan.dailySetId);
+                        try { removeParagraphPlanDrafts(window.localStorage, owner, plan.dailySetId); } catch { setDraftUnavailable(true); }
+                        setDrafts((previous) => Object.fromEntries(Object.entries(previous).filter(([key]) => !key.startsWith(prefix))));
                         setPlan(null);
                         setPreview(null);
                         setPage(0);
@@ -212,6 +232,7 @@ export function ParagraphWritingWorkspace({ owner, loginSessionId }: { owner: st
                     const key = paragraphDraftKey(owner, plan.dailySetId, item.itemId, item.contentRevision);
                     return <ParagraphWritingItemCard key={key} item={item} draft={drafts[key] ?? ""} maxLength={config.answerMaxLength}
                         busy={busy} showWorkload={showWorkload} onDraft={(answer) => changeDraft(item, answer)}
+                        onPreparation={item.preparationRequestKey ? () => setOpenPreparation((previous) => ({ key: item.preparationRequestKey!, sequence: (previous?.sequence ?? 0) + 1 })) : undefined}
                         onRetryFeedback={(answerId) => void perform(async () => { acceptPlan(await service.retryFeedback(answerId)); })}
                         onSubmit={() => void perform(async () => {
                             const saved = await service.submit(item.itemId, drafts[key] ?? "", item.contentRevision);

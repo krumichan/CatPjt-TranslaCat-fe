@@ -19,11 +19,13 @@ export function createParagraphWritingService(loginSessionId: string) {
         config: async () => validateParagraphConfig(await parseResponseBody<ParagraphWritingConfig>(
             await request("/config", { method: "GET" }), "ParagraphWritingConfig",
         )),
-        preview: async (writingType: DailyWritingType, targetItemCount: number, rePractice: boolean) => validateParagraphPreview(
-            await parseResponseBody<ParagraphWritingPreview>(await request("/preview", post({ writingType, targetItemCount, rePractice })), "ParagraphWritingPreview"),
+        preview: async (writingType: DailyWritingType, targetItemCount: number, rePractice: boolean, catalogIds?: string[]) => validateParagraphPreview(
+            await parseResponseBody<ParagraphWritingPreview>(await request("/preview", post({ writingType, targetItemCount, rePractice, ...(catalogIds?.length ? { catalogIds } : {}) })), "ParagraphWritingPreview"),
         ),
-        start: (writingType: DailyWritingType, targetItemCount: number, rePractice: boolean, allowPartial: boolean) =>
-            plan("", post({ writingType, targetItemCount, rePractice, allowPartial })),
+        start: (writingType: DailyWritingType, targetItemCount: number, rePractice: boolean, allowPartial: boolean, catalogIds?: string[]) =>
+            plan("", post({ writingType, targetItemCount, rePractice, allowPartial, ...(catalogIds?.length ? { catalogIds } : {}) })),
+        replacePrepared: (itemId: number, requestKey: string, contentRevision: string, planRevision: number) =>
+            plan(`/items/${itemId}/replacement`, post({ requestKey, contentRevision, planRevision })),
         get: (setId: number) => plan(`/${setId}`, { method: "GET" }),
         history: (date: string, writingType: DailyWritingType) => plan(`/history/${encodeURIComponent(date)}?writingType=${writingType}`, { method: "GET" }),
         expand: (setId: number, targetItemCount: number, planRevision: number) => plan(`/${setId}/target`, post({ targetItemCount, planRevision })),

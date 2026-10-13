@@ -26,7 +26,7 @@ export function AppSidebar({
     return (
         <aside
             data-testid="app-sidebar"
-            className={`fixed bottom-0 left-0 top-[60px] z-[90] hidden flex-col border-r border-slate-200 bg-white/95 py-3 shadow-sm backdrop-blur-xl transition-[width] duration-200 motion-reduce:transition-none dark:border-white/10 dark:bg-slate-950/95 lg:flex ${
+            className={`fixed bottom-0 left-0 top-[60px] z-[90] hidden flex-col border-r border-slate-200 bg-white/95 py-3 shadow-sm backdrop-blur-xl transition-[width] duration-200 motion-reduce:transition-none dark:border-[var(--tc-ocean-border)] dark:bg-[var(--tc-ocean-shell)] lg:flex ${
                 isCollapsed ? "w-[72px]" : "w-64"
             }`}
         >

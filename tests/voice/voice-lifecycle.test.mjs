@@ -16,10 +16,33 @@ test('이력은 stage 없이도 번역 실패를 구분하고 다른 처리 실�
     // 검증: 번역 원문을 재사용할 수 있는 오류에 다시 발화하라는 안내를 표시하지 않는다.
     assert.equal(timeout, 'live.translationFailed');
     assert.equal(failed, 'live.translationFailed');
-    assert.equal(sttFailure, 'live.processingFailed');
+    assert.equal(sttFailure, 'live.recognitionTimeout');
     assert.equal(unknownFailure, 'live.processingFailed');
     assert.equal(voiceErrorMessageKey('OTHER', 'TRANSLATION'), 'live.translationFailed');
     assert.equal(voiceErrorMessageKey('VOICE_AI_UNSUPPORTED_LANGUAGE'), 'live.unsupportedLanguage');
+});
+
+test('서버의 인식 지연·과부하와 입력 오류는 실시간·이력에서 같은 원인으로 안내한다', () => {
+    // 준비: 이력에는 stage가 없으므로 코드만으로도 같은 안내를 선택해야 한다.
+    const cases = [
+        ['VOICE_AI_STT_TIMEOUT', 'STT', 'live.recognitionTimeout'],
+        ['VOICE_AI_BACKPRESSURE', 'STT', 'live.serverBusy'],
+        ['VOICE_BE_BACKPRESSURE', 'STREAM', 'live.serverBusy'],
+        ['VOICE_BACKPRESSURE', 'STREAM', 'live.serverBusy'],
+        ['VOICE_AI_STT_FAILED', 'STT', 'live.recognitionFailed'],
+        ['VOICE_AI_INVALID_AUDIO_FRAME', 'AUDIO', 'live.audioInputFailed'],
+        ['VOICE_INVALID_AUDIO_FRAME', 'AUDIO', 'live.audioInputFailed'],
+        ['VOICE_AI_UNSUPPORTED_AUDIO_FORMAT', 'AUDIO', 'live.audioInputFailed'],
+        ['VOICE_BE_INTERNAL_ERROR', 'STREAM', 'live.serverFailed'],
+        ['VOICE_AI_INTERNAL_ERROR', 'RUNTIME', 'live.serverFailed'],
+        ['VOICE_AI_MODEL_NOT_READY', 'RUNTIME', 'live.serverFailed'],
+    ];
+
+    // 실행 / 검증: 처리 실패를 다시 말하거나 입력 설정을 고치라는 안내로 오분류하지 않는다.
+    for (const [code, stage, expected] of cases) {
+        assert.equal(voiceErrorMessageKey(code, stage), expected);
+        assert.equal(voiceErrorMessageKey(code), expected);
+    }
 });
 
 test('권한 대기 취소는 즉시 끝나고 늦게 허용된 스트림도 반납한다', async () => {

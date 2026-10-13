@@ -13,9 +13,10 @@ interface Props {
     onDraft: (answer: string) => void;
     onSubmit: () => void;
     onRetryFeedback: (answerId: number) => void;
+    onPreparation?: () => void;
 }
 
-export function ParagraphWritingItemCard({ item, draft, maxLength, busy, showWorkload, onDraft, onSubmit, onRetryFeedback }: Props) {
+export function ParagraphWritingItemCard({ item, draft, maxLength, busy, showWorkload, onDraft, onSubmit, onRetryFeedback, onPreparation }: Props) {
     const t = useTranslations("ParagraphWriting");
     const groups = [["facts", item.providedFacts], ["intents", item.requiredIntents], ["constraints", item.responseConstraints], ["taskRequirements", item.taskRequirements ?? []]] as const;
 
@@ -23,6 +24,10 @@ export function ParagraphWritingItemCard({ item, draft, maxLength, busy, showWor
         <article className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 dark:border-white/10 dark:bg-slate-900" data-testid={`paragraph-item-${item.order}`}>
             <h2 className="text-sm font-bold text-blue-700 dark:text-blue-300">{t("item", { order: item.order })} · {t(`difficulty.${item.difficulty}`)} · B{item.targetBand}</h2>
             <p className="mt-3 whitespace-pre-wrap break-words text-base leading-relaxed" data-testid="paragraph-source">{item.originText}</p>
+            {onPreparation && <div className="mt-3 text-sm">
+                <p>{t("generatedQualityNotice")}</p>
+                <button type="button" disabled={busy} className="mt-2 rounded border p-2" onClick={onPreparation}>{t("openPreparation")}</button>
+            </div>}
             {groups.map(([label, lines]) => lines.length > 0 && <div key={label} className="mt-3">
                 <h3 className="text-sm font-bold">{t(label)}</h3>
                 <ul className="list-disc pl-5 text-sm">{lines.map((line, index) => <li key={index} className="whitespace-pre-wrap break-words">{line}</li>)}</ul>
@@ -51,7 +56,7 @@ export function ParagraphWritingItemCard({ item, draft, maxLength, busy, showWor
                             <strong>{row.requirementId} · {t(`requirementStates.${row.status}`)}</strong>
                             {row.evidenceKind === "MISSING_REQUIREMENT" && <p>{t("missingRequirementEvidence")}</p>}
                             <p>{row.originText}</p><p lang="ja">{row.learningText}</p>
-                            {["curated-writing-feedback-v6", "curated-writing-feedback-v7", "curated-writing-feedback-v8", "curated-writing-feedback-v9"].includes(attempt.feedback?.result?.policyVersion ?? "") ? row.requirementParts?.map((part, index) => <div
+                            {["curated-writing-feedback-v6", "curated-writing-feedback-v7", "curated-writing-feedback-v8", "curated-writing-feedback-v9", "curated-writing-feedback-v10"].includes(attempt.feedback?.result?.policyVersion ?? "") ? row.requirementParts?.map((part, index) => <div
                                 key={index} data-testid={`paragraph-part-${row.requirementId}-${index + 1}`}
                                 className="mt-2 rounded-lg border border-slate-200 p-2 dark:border-white/10">
                                 <p className="font-medium" data-testid="paragraph-part-status">{t(`requirementPartStates.${part.status}`)}</p>

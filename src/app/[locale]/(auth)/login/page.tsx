@@ -22,7 +22,7 @@ export default function LoginPage() {
 
     if (status !== "unauthenticated") return <FullPageLoader />;
 
-    return <AuthPageFrame title={t("loginTitle")} description={t("loginDescription")} paperBackground>
+    return <AuthPageFrame title={t("loginTitle")} description={t("loginDescription")}>
         <Suspense fallback={<FullPageLoader />}><LocalLoginForm /></Suspense>
         <div className="my-6 flex items-center gap-3 text-xs text-slate-400"><span className="h-px flex-1 bg-slate-200 dark:bg-white/10" />{t("or")}<span className="h-px flex-1 bg-slate-200 dark:bg-white/10" /></div>
         <div className="flex justify-center"><GoogleLoginButton label={t("googleLogin")} /></div>

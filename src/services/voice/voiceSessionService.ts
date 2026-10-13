@@ -11,6 +11,8 @@ import type {
     VoiceWebSocketTicketResponse,
 } from "@/types/voice";
 
+const pendingCompletions = new Map<string, Promise<VoiceSessionResponse>>();
+
 function withQuery(
     path: string,
     params: Record<string, string | number | null | undefined>,
@@ -103,17 +105,24 @@ export const voiceSessionService = {
         );
     },
 
-    complete: async (sessionId: string): Promise<VoiceSessionResponse> => {
-        const response = await apiClient(
-            `/voice/sessions/${sessionId}/complete`,
-            // 서버의 마지막 발화 처리(최대 25초)와 응답 여유를 포함하되 영구 대기는 막는다.
-            { method: "POST", signal: AbortSignal.timeout(35_000) },
-        );
+    complete: (sessionId: string): Promise<VoiceSessionResponse> => {
+        // 종료 버튼을 누른 뒤 페이지를 떠나도 동일 세션의 진행 중 요청을 함께 기다린다.
+        const existing = pendingCompletions.get(sessionId);
+        if (existing) return existing;
 
-        return parseResponseBody<VoiceSessionResponse>(
-            response,
-            "VoiceSessionComplete",
-        );
+        const pending = (async () => {
+            const response = await apiClient(
+                `/voice/sessions/${sessionId}/complete`,
+                // 서버의 마지막 발화 처리(최대 25초)와 응답 여유를 포함하되 영구 대기는 막는다.
+                { method: "POST", signal: AbortSignal.timeout(35_000) },
+            );
+            return parseResponseBody<VoiceSessionResponse>(response, "VoiceSessionComplete");
+        })().finally(() => {
+            // 요청 실패 뒤에는 사용자가 종료를 다시 시도할 수 있게 한다.
+            pendingCompletions.delete(sessionId);
+        });
+        pendingCompletions.set(sessionId, pending);
+        return pending;
     },
 
     delete: async (sessionId: string): Promise<void> => {

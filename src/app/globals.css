@@ -3,8 +3,17 @@
 @variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f3f7fb;
+  --foreground: #192c3f;
+  --tc-ocean-shell: #ffffff;
+  --tc-ocean-border: #d8e4ef;
+  --tc-service-home: #2f65a5;
+  --tc-service-platform: #a83970;
+  --tc-service-voice: #a84f2d;
+  --tc-service-accountBook: #876000;
+  --tc-service-chat: #7154b8;
+  --tc-service-languageLearning: #087b62;
+  --tc-service-support: #087d94;
   --font-translacat-sans:
     "Noto Sans JP",
     "Hiragino Sans",
@@ -16,13 +25,60 @@
 }
 
 .dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  --background: #0e1824;
+  --foreground: #f2f6fb;
+  --tc-ocean-shell: #111f2e;
+  --tc-ocean-border: #30465a;
+  --tc-service-home: #91b9ff;
+  --tc-service-platform: #f0a9ca;
+  --tc-service-voice: #ffad88;
+  --tc-service-accountBook: #f1cb7a;
+  --tc-service-chat: #bea7ff;
+  --tc-service-languageLearning: #8bdfc5;
+  --tc-service-support: #7fd5e6;
+  --color-slate-500: #8ca3b8;
 }
 
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  /* 기존 slate·zinc·gray 사용처를 하나의 오션 블루 중성 계열로 맞춥니다. */
+  --color-slate-50: #f3f7fb;
+  --color-slate-100: #eaf1f8;
+  --color-slate-200: #d8e4ef;
+  --color-slate-300: #c2d2e0;
+  --color-slate-400: #98aec2;
+  --color-slate-500: #60778b;
+  --color-slate-600: #536b81;
+  --color-slate-700: #3b5268;
+  --color-slate-800: #263c51;
+  --color-slate-900: #192c3f;
+  --color-slate-950: #0e1824;
+  --color-zinc-50: var(--color-slate-50);
+  --color-zinc-100: var(--color-slate-100);
+  --color-zinc-200: var(--color-slate-200);
+  --color-zinc-300: var(--color-slate-300);
+  --color-zinc-400: var(--color-slate-400);
+  --color-zinc-500: var(--color-slate-500);
+  --color-zinc-600: var(--color-slate-600);
+  --color-zinc-700: var(--color-slate-700);
+  --color-zinc-800: var(--color-slate-800);
+  --color-zinc-900: var(--color-slate-900);
+  --color-zinc-950: var(--color-slate-950);
+  --color-gray-50: var(--color-slate-50);
+  --color-gray-100: var(--color-slate-100);
+  --color-gray-200: var(--color-slate-200);
+  --color-gray-300: var(--color-slate-300);
+  --color-gray-400: var(--color-slate-400);
+  --color-gray-500: var(--color-slate-500);
+  --color-gray-600: var(--color-slate-600);
+  --color-gray-700: var(--color-slate-700);
+  --color-gray-800: var(--color-slate-800);
+  --color-gray-900: var(--color-slate-900);
+  --color-gray-950: var(--color-slate-950);
+  --color-blue-400: #8db9ff;
+  --color-blue-500: #3677b8;
+  --color-blue-600: #285f99;
   --font-sans:
     "Noto Sans JP",
     "Hiragino Sans",
@@ -32,6 +88,32 @@
     "Malgun Gothic",
     sans-serif;
 }
+
+/* 서비스별 색은 공통 표면 위의 아이콘, 선택 표시, 주요 동작에만 사용합니다. */
+.tc-service-accent[data-service="home"] { --tc-service-color: var(--tc-service-home); }
+.tc-service-accent[data-service="platform"] { --tc-service-color: var(--tc-service-platform); }
+.tc-service-accent[data-service="voice"] { --tc-service-color: var(--tc-service-voice); }
+.tc-service-accent[data-service="accountBook"] { --tc-service-color: var(--tc-service-accountBook); }
+.tc-service-accent[data-service="chat"] { --tc-service-color: var(--tc-service-chat); }
+.tc-service-accent[data-service="languageLearning"] { --tc-service-color: var(--tc-service-languageLearning); }
+.tc-service-accent[data-service="support"] { --tc-service-color: var(--tc-service-support); }
+
+.tc-nav-item { border-left: 3px solid transparent; }
+.tc-nav-item .tc-nav-icon { color: var(--tc-service-color); }
+.tc-nav-item[data-active="true"] {
+  border-left-color: var(--tc-service-color);
+  background: color-mix(in srgb, var(--tc-service-color) 14%, transparent);
+  color: var(--foreground);
+}
+
+.tc-service-card { border-top: 3px solid var(--tc-service-color); }
+.tc-service-card:hover,
+.tc-service-card:focus-visible { border-color: var(--tc-service-color); }
+.tc-service-card .tc-service-icon-wrap {
+  background: color-mix(in srgb, var(--tc-service-color) 15%, transparent);
+}
+.tc-service-card .tc-service-icon,
+.tc-service-card .tc-service-action { color: var(--tc-service-color); }
 
 html,
 body {

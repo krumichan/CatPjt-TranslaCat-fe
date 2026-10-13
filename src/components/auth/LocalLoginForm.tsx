@@ -88,7 +88,7 @@ export default function LocalLoginForm() {
                 {t("noAccount")}{" "}
                 <Link
                     href="/register"
-                    className="font-bold text-orange-600 hover:underline dark:text-orange-400"
+                    className="font-bold text-blue-600 hover:underline dark:text-blue-400"
                 >
                     {t("register")}
                 </Link>

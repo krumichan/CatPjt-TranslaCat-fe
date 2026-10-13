@@ -282,9 +282,10 @@ export function useVoiceLiveSession(options: UseVoiceLiveSessionOptions = {}) {
             // BE의 마지막 발화 저장을 먼저 기다린다. 실패해도 로컬 캡처는 반드시 종료한다.
             const completed = await voiceSessionService.complete(activeSession.id);
             if (revisionRef.current !== revision) return true;
+            // 자원 반납을 기다리는 사이 화면이 바뀌어도 끝난 세션을 다시 종료하지 않는다.
+            sessionRef.current = completed;
             await cleanupRuntime();
             if (!mountedRef.current || revisionRef.current !== revision) return true;
-            sessionRef.current = completed;
             setSession(completed);
             setPhase(completed.status === "FAILED" ? "ERROR" : "COMPLETED");
             if (completed.status === "FAILED") setErrorCode("FINALIZE_FAILED");

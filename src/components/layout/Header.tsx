@@ -23,7 +23,7 @@ export default function Header({
     return (
         <header
             data-testid="app-header"
-            className="fixed left-0 right-0 top-0 z-100 flex h-15 items-center justify-between border-b border-slate-200 bg-white/90 px-2.5 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/90 sm:px-4"
+            className="fixed left-0 right-0 top-0 z-100 flex h-15 items-center justify-between border-b border-slate-200 bg-white/90 px-2.5 shadow-sm backdrop-blur-xl dark:border-[var(--tc-ocean-border)] dark:bg-[var(--tc-ocean-shell)] sm:px-4"
         >
             <div className="flex min-w-0 items-center gap-2">
                 <button
@@ -42,7 +42,7 @@ export default function Header({
                 </button>
 
                 <div className="min-w-0">
-                    <Logo className="text-xl sm:text-2xl" />
+                    <Logo />
                 </div>
             </div>
 

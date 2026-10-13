@@ -4,6 +4,7 @@ import {
     ArrowRight,
     BookOpen,
     GraduationCap,
+    Headset,
     MessageCircle,
     Mic,
     WalletCards,
@@ -13,11 +14,13 @@ import { useSession } from "next-auth/react";
 
 import { cn } from "@/lib/utils";
 import { Link } from "@/navigation";
+import { ROUTES } from "@/constants/routes";
 
 const SERVICE_CARD_STYLE = cn(
-    "group relative rounded-2xl border-2 border-transparent bg-white/80 p-8",
-    "backdrop-blur-md transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl",
-    "dark:bg-zinc-800/80",
+    "tc-service-accent tc-service-card group flex min-h-48 flex-col rounded-2xl",
+    "border border-slate-200 bg-white/95 p-5 shadow-sm transition duration-200",
+    "hover:-translate-y-1 hover:shadow-lg focus-visible:shadow-lg",
+    "dark:border-slate-700 dark:bg-slate-900 dark:hover:shadow-black/20",
 );
 
 export function ServiceSelectPage() {
@@ -31,30 +34,24 @@ export function ServiceSelectPage() {
             title: t("novelTitle"),
             description: t("novelDesc"),
             icon: BookOpen,
-            href: "/novel",
-            color: "hover:border-blue-400",
-            iconColor: "text-blue-500",
-            titleHoverColor: "group-hover:text-blue-500",
+            href: ROUTES.NOVEL_SELECT,
+            serviceKey: "platform",
         },
         {
             id: "voice",
             title: t("voiceTitle"),
             description: t("voiceDesc"),
             icon: Mic,
-            href: "/voice",
-            color: "hover:border-green-400",
-            iconColor: "text-green-500",
-            titleHoverColor: "group-hover:text-green-500",
+            href: ROUTES.VOICE_SELECT,
+            serviceKey: "voice",
         },
         {
             id: "accountBook",
             title: t("accountBookTitle"),
             description: t("accountBookDesc"),
             icon: WalletCards,
-            href: "/account-books",
-            color: "hover:border-orange-400",
-            iconColor: "text-orange-500",
-            titleHoverColor: "group-hover:text-orange-500",
+            href: ROUTES.ACCOUNT_BOOKS,
+            serviceKey: "accountBook",
         },
         {
             id: "chat",
@@ -62,9 +59,7 @@ export function ServiceSelectPage() {
             description: t("chatDesc"),
             icon: MessageCircle,
             href: "/chat",
-            color: "hover:border-purple-400",
-            iconColor: "text-purple-500",
-            titleHoverColor: "group-hover:text-purple-500",
+            serviceKey: "chat",
         },
         {
             id: "languageLearning",
@@ -72,9 +67,15 @@ export function ServiceSelectPage() {
             description: t("languageLearningDesc"),
             icon: GraduationCap,
             href: "/language-learning",
-            color: "hover:border-cyan-400",
-            iconColor: "text-cyan-500",
-            titleHoverColor: "group-hover:text-cyan-500",
+            serviceKey: "languageLearning",
+        },
+        {
+            id: "support",
+            title: t("supportTitle"),
+            description: t("supportDesc"),
+            icon: Headset,
+            href: ROUTES.SUPPORT,
+            serviceKey: "support",
         },
     ] as const;
 
@@ -85,24 +86,26 @@ export function ServiceSelectPage() {
     return (
         <main
             className={cn(
-                "flex min-h-[calc(100vh-60px)] flex-col items-center",
-                "justify-center p-6",
+                "mx-auto min-h-screen w-full max-w-7xl px-5 pb-12 pt-25",
+                "sm:px-8 lg:pt-29",
             )}
         >
-            <div className="mb-12 text-center">
-                <h1 className="mb-4 text-4xl font-bold text-gray-800 dark:text-white">
+            <div className="mb-8 max-w-2xl">
+                <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-blue-600 dark:text-blue-400">
+                    TranslaCat
+                </p>
+                <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-slate-100 sm:text-4xl">
                     {t("title")}
                 </h1>
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
                     {t("description")}
                 </p>
             </div>
 
             <div
                 className={cn(
-                    "grid w-full max-w-7xl grid-cols-1 gap-6 md:grid-cols-2",
-                    "lg:grid-cols-3",
-                    isAdmin ? "xl:grid-cols-5" : "xl:grid-cols-4",
+                    "grid w-full grid-cols-1 gap-4 sm:grid-cols-2",
+                    "xl:grid-cols-3",
                 )}
             >
                 {visibleServices.map((service) => {
@@ -113,50 +116,30 @@ export function ServiceSelectPage() {
                             key={service.id}
                             href={service.href}
                             data-testid={`service-card-${service.id}`}
-                            className={cn(
-                                SERVICE_CARD_STYLE,
-                                service.color,
-                            )}
+                            data-service={service.serviceKey}
+                            className={SERVICE_CARD_STYLE}
                         >
                             <div
-                                className={cn(
-                                    "mb-8 inline-flex h-20 w-20 items-center justify-center",
-                                    "rounded-2xl bg-gray-50 shadow-inner transition-colors",
-                                    "duration-300 group-hover:bg-white dark:bg-zinc-700",
-                                    "dark:group-hover:bg-zinc-600",
-                                )}
+                                className="tc-service-icon-wrap mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl"
                             >
                                 <Icon
-                                    className={cn(
-                                        "h-12 w-12 transition-transform duration-300",
-                                        "group-hover:scale-110",
-                                        service.iconColor,
-                                    )}
+                                    className="tc-service-icon h-6 w-6"
                                     aria-hidden="true"
                                 />
                             </div>
 
-                            <h2
-                                className={cn(
-                                    "mb-3 text-2xl font-bold text-gray-800 transition-colors",
-                                    "dark:text-white",
-                                    service.titleHoverColor,
-                                )}
-                            >
+                            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
                                 {service.title}
                             </h2>
 
-                            <p className="leading-relaxed text-gray-600 dark:text-gray-400">
+                            <p className="mt-2 text-sm leading-5 text-slate-600 dark:text-slate-300">
                                 {service.description}
                             </p>
 
-                            <div className="mt-6 flex items-center text-sm font-semibold text-blue-500">
+                            <div className="tc-service-action mt-auto flex items-center pt-5 text-sm font-bold">
                                 {t("start")}
                                 <ArrowRight
-                                    className={cn(
-                                        "ml-2 h-4 w-4 transition-transform duration-300",
-                                        "group-hover:translate-x-2",
-                                    )}
+                                    className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
                                     aria-hidden="true"
                                 />
                             </div>

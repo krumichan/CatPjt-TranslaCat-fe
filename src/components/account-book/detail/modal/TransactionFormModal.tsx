@@ -78,18 +78,18 @@ export default function TransactionFormModal(props: TransactionFormModalProps) {
                 aria-labelledby="transaction-form-title"
                 className="relative z-10 mx-auto flex max-h-[calc(100dvh-1.5rem)] w-full min-w-0 max-w-4xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-[0_20px_60px_rgba(15,23,42,0.25)] backdrop-blur-md sm:max-h-[calc(100dvh-6rem)] sm:p-6 dark:border-white/10 dark:bg-zinc-900/95"
             >
-                <div className="mb-3 flex shrink-0 items-start justify-between gap-4 sm:mb-5">
+                <div className={showReceipt ? "mb-2 flex shrink-0 items-start justify-between gap-2 sm:mb-5 sm:gap-4" : "mb-3 flex shrink-0 items-start justify-between gap-4 sm:mb-5"}>
                     <div className="min-w-0">
-                        <p className="mb-1 text-sm font-medium text-orange-500">
+                        <p className={showReceipt ? "mb-1 hidden text-sm font-medium text-orange-500 sm:block" : "mb-1 text-sm font-medium text-orange-500"}>
                             {badge}
                         </p>
                         <h2
                             id="transaction-form-title"
-                            className="break-words text-xl font-bold text-gray-900 sm:text-2xl dark:text-white"
+                            className={showReceipt ? "break-words text-lg font-bold text-gray-900 sm:text-2xl dark:text-white" : "break-words text-xl font-bold text-gray-900 sm:text-2xl dark:text-white"}
                         >
                             {modalTitle}
                         </h2>
-                        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                        <p className={showReceipt ? "mt-2 hidden text-sm text-slate-500 sm:block dark:text-slate-400" : "mt-2 text-sm text-slate-500 dark:text-slate-400"}>
                             {description}
                         </p>
                     </div>
@@ -99,7 +99,7 @@ export default function TransactionFormModal(props: TransactionFormModalProps) {
                         onClick={onClose}
                         disabled={isBlockingModal}
                         aria-label={t("actions.close")}
-                        className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-white/10 dark:hover:text-white"
+                        className={showReceipt ? "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl sm:h-10 sm:w-10 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-white/10 dark:hover:text-white" : "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-white/10 dark:hover:text-white"}
                     >
                         <X size={20} />
                     </button>
@@ -107,6 +107,7 @@ export default function TransactionFormModal(props: TransactionFormModalProps) {
 
                 {isCreateMode && (
                     <TransactionInputModeTabs
+                        compact={showReceipt}
                         inputMode={form.inputMode}
                         onChange={(mode) => {
                             if (!isBlockingModal)
@@ -115,6 +116,7 @@ export default function TransactionFormModal(props: TransactionFormModalProps) {
                     />
                 )}
 
+                {/* 모바일에서는 결과 목록에 높이를 우선 배분하고 공통 안내는 큰 화면에서 표시한다. */}
                 {showReceipt && (
                     <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
                         <ReceiptAnalysisPanel

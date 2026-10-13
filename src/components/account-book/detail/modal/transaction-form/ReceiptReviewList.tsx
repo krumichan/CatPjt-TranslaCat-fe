@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import ReceiptReviewHeader from "./receipt-review/ReceiptReviewHeader";
+import ReceiptWarnings from "./ReceiptWarnings";
 import ReceiptReviewTable from "./receipt-review/ReceiptReviewTable";
 import ReceiptReviewCompactList from "./receipt-review/ReceiptReviewCompactList";
 import ReceiptReviewSelectionIssues from "./receipt-review/ReceiptReviewSelectionIssues";
@@ -36,6 +37,8 @@ export default function ReceiptReviewList({
                 className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain py-4 pr-1"
                 data-testid="receipt-review-scroll-body"
             >
+                {/* 경고도 목록과 함께 스크롤해 모바일에서 검토 영역을 고정으로 잠식하지 않는다. */}
+                <ReceiptWarnings warnings={review.warnings} />
                 {controller.viewMode === "TABLE" ? (
                     <ReceiptReviewTable
                         review={review}

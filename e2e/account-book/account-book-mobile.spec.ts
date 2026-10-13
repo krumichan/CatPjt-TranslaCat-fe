@@ -72,11 +72,12 @@ async function openReceiptReview(
     receiptCount = 3,
     firstReceiptOverride: Record<string, unknown> = {},
     secondReceiptOverride: Record<string, unknown> = {},
+    analysisWarnings: string[] = [],
 ) {
     const detail = locales[locale];
     const labels = detail.transactionModal;
     await page.route("**/transactions/receipt-analysis", route => fulfillJson(route, responseDto({
-        receiptCount, warnings: [], ocrEngine: "vision", usedAi: true,
+        receiptCount, warnings: analysisWarnings, ocrEngine: "vision", usedAi: true,
         categoryOptions: [
             { name: "Food", source: "EXISTING" },
             { name: "생활", source: "DEFAULT" },
@@ -85,7 +86,7 @@ async function openReceiptReview(
         receipts: receiptCandidates(receiptCount).map((candidate, index) =>
             index === 0 ? { ...candidate, ...firstReceiptOverride } : index === 1 ? { ...candidate, ...secondReceiptOverride } : candidate),
     })));
-    await page.goto(locale === "ko" ? "/account-books/1" : `/${locale}/account-books/1`);
+    await page.goto(`/${locale}/account-books/1`);
     await page.getByRole("button", { name: detail.header.createTransaction, exact: true }).click();
     await page.getByRole("button", { name: labels.inputMode.receipt, exact: true }).click();
     await page.locator('input[type="file"]').setInputFiles({ name: "three-receipts.png", mimeType: "image/png",
@@ -1480,3 +1481,75 @@ for (const mode of ["list", "table"] as const) {
         await expectNoPageOverflow(page);
     });
 }
+
+
+test("ACCOUNT-RECEIPT compact phone keeps a usable review viewport", async ({ page }) => {
+    // 준비: 실제 스크린샷처럼 모바일 브라우저의 짧은 가시 높이, 7개 후보와 경고를 재현한다.
+    await page.setViewportSize({ width: 360, height: 620 });
+    await mockAccountBook(page);
+    await openReceiptReview(page, "ja", 7, {}, {}, ["AMBIGUOUS_CURRENCY_SYMBOL"]);
+    const analysisToggle = page.locator('button[aria-controls="receipt-analysis-content"]');
+    if (await analysisToggle.getAttribute("aria-expanded") === "true") {
+        await analysisToggle.click();
+    }
+
+    // 실행: 실제 사용자처럼 결과 목록과 하단 등록 버튼의 화면 위치를 읽는다.
+    const body = page.getByTestId("receipt-review-scroll-body");
+    const submit = page.getByTestId("receipt-submit-selected");
+    const bodyBox = await body.boundingBox();
+    const footerBox = await submit.boundingBox();
+    await page.screenshot({ path: test.info().outputPath("compact-phone-review.png") });
+
+    // 검증: 목록은 적어도 한 카드를 읽고 조작할 높이를 가지며 버튼과 겹치지 않는다.
+    expect(bodyBox!.height).toBeGreaterThanOrEqual(180);
+    expect(bodyBox!.y + bodyBox!.height).toBeLessThanOrEqual(footerBox!.y);
+    expect(footerBox!.y + footerBox!.height).toBeLessThanOrEqual(620);
+    await expect(page.getByTestId("receipt-review-card")).toHaveCount(7);
+    await expectNoPageOverflow(page);
+
+    // 실행 / 검증: 작은 폭에서도 목록 높이와 버튼 접근성을 유지한다.
+    for (const width of [320, 375, 390, 430]) {
+        await page.setViewportSize({ width, height: 620 });
+        const listBounds = await body.boundingBox();
+        const actionBounds = await submit.boundingBox();
+        expect(listBounds!.height, `review height at ${width}px`).toBeGreaterThanOrEqual(180);
+        expect(listBounds!.y + listBounds!.height).toBeLessThanOrEqual(actionBounds!.y);
+        expect(actionBounds!.y + actionBounds!.height).toBeLessThanOrEqual(620);
+        await expectNoPageOverflow(page);
+    }
+
+    // 실행 / 검증: 사용자의 어두운 테마에서도 같은 공간을 유지한다.
+    await page.setViewportSize({ width: 360, height: 620 });
+    await page.emulateMedia({ colorScheme: "dark" });
+    await expect(page.locator("html")).toHaveClass(/dark/);
+    expect((await body.boundingBox())!.height).toBeGreaterThanOrEqual(180);
+    const darkTitle = page.getByTestId("receipt-review-card").first().getByRole("button", {
+        name: locales.ja.transactionModal.receipt.review.inlineTitle.replace("{index}", "1"), exact: true,
+    });
+    const darkAmount = page.getByTestId("receipt-review-card").first().getByRole("button", { name: /12.34 USD/ });
+    for (const label of [darkTitle, darkAmount]) {
+        const brightness = await label.evaluate((element) => {
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d")!;
+            context.fillStyle = getComputedStyle(element).color;
+            context.fillRect(0, 0, 1, 1);
+            return [...context.getImageData(0, 0, 1, 1).data].slice(0, 3).reduce((sum, channel) => sum + channel, 0);
+        });
+        expect(brightness, "dark card primary text brightness").toBeGreaterThan(450);
+    }
+    await page.screenshot({ path: test.info().outputPath("compact-phone-review-dark.png") });
+
+    // 실행 / 검증: 원본 사진 영역을 열어도 결과 한 건을 볼 수 있고 마지막 후보를 편집할 수 있다.
+    await analysisToggle.click();
+    await expect(page.getByTestId("receipt-file-queue")).toBeVisible();
+    const expandedBounds = await body.boundingBox();
+    expect(expandedBounds!.height).toBeGreaterThanOrEqual(120);
+    await page.screenshot({ path: test.info().outputPath("compact-phone-photos-expanded.png") });
+    await analysisToggle.click();
+    const last = page.getByTestId("receipt-review-card").last();
+    await last.scrollIntoViewIfNeeded();
+    await expect(last).toBeInViewport({ ratio: 0.5 });
+    await openReviewEditor(page, last, locales.ja.transactionModal);
+    await expect(page.getByTestId("receipt-review-editor")).toBeVisible();
+    await page.screenshot({ path: test.info().outputPath("compact-phone-last-editor.png") });
+});

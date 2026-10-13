@@ -57,7 +57,7 @@ export default function ReceiptAnalysisPanel({
         closeRegionPicker,
     } = useReceiptAnalysisPanel(receiptQueue);
     return (
-        <div className="mb-3 min-w-0 shrink-0 rounded-2xl border border-slate-200 bg-slate-50/90 p-3 sm:p-4 dark:border-white/10 dark:bg-black/25">
+        <div className="mb-2 min-w-0 shrink-0 rounded-2xl border border-slate-200 bg-slate-50/90 p-2 sm:mb-3 sm:p-4 dark:border-white/10 dark:bg-black/25">
             <button
                 type="button"
                 onClick={toggle}
@@ -90,7 +90,7 @@ export default function ReceiptAnalysisPanel({
             <div
                 id="receipt-analysis-content"
                 hidden={!expanded}
-                className="max-h-[min(48dvh,32rem)] overflow-y-auto overscroll-contain pr-1"
+                className="max-h-[min(24dvh,10rem)] overflow-y-auto overscroll-contain pr-1 sm:max-h-[min(48dvh,32rem)]"
             >
                 <p className="rounded-xl bg-orange-50 px-3 py-2 text-xs text-orange-700 dark:bg-orange-500/10 dark:text-orange-300">
                     {t("receipt.description")}

@@ -156,9 +156,10 @@ test("PARAGRAPH deleted or foreign saved plan clears displayed source after a de
     expect(state.answers).toBe(0);
 });
 
-for (const policy of ["curated-writing-feedback-v6", "curated-writing-feedback-v7", "curated-writing-feedback-v8"] as const) {
+for (const policy of ["curated-writing-feedback-v6", "curated-writing-feedback-v7", "curated-writing-feedback-v8", "curated-writing-feedback-v12"] as const) {
 test(`PARAGRAPH ${policy}: partial absence has no invented quote while grounded correction remains visible`, async ({ page }, testInfo) => {
     // 준비: 실제로 있는 시각과 없는 이유를 분리한 저장 결과만 합성한다. 모델 품질 검증은 아니다.
+    const prescribed = policy === "curated-writing-feedback-v8" || policy === "curated-writing-feedback-v12";
     const state = await mockParagraphWriting(page);
     const plan = paragraphPlan(1);
     Object.assign(plan, { status: "COMPLETED", learningLanguage: "ja", personalizedFeedbackStatus: "ACTIVE_QA", submittedItemCount: 1, feedbackCompletedItemCount: 1 });
@@ -174,11 +175,11 @@ test(`PARAGRAPH ${policy}: partial absence has no invented quote while grounded 
             observations: [{ requirementId: "C1", status: "UNMET", evidenceKind: "LEARNER_TEXT", segmentIds: ["S1"], answerQuotes: [answer],
                 originText: "시각은 있지만 이유 전달 요소가 없습니다.", learningText: "時刻はありますが、理由の説明がありません。",
                 relationChecks: { causality: "NOT_APPLICABLE", chronology: "PRESERVED", specificity: "PRESERVED", stance: "NOT_APPLICABLE" },
-                requirementParts: [{ requirementQuote: "시각과 ", status: "PRESENT", evidence: [{ segmentId: "S1", quote: answer }], taskFactIds: ["T1"], ...(policy === "curated-writing-feedback-v8" ? { taskConditionIds: [] } : {}) },
-                    { requirementQuote: "이유 전달", status: "ABSENT", evidence: [], taskFactIds: [], ...(policy === "curated-writing-feedback-v8" ? { taskConditionIds: [] } : {}) }] }],
+                requirementParts: [{ requirementQuote: "시각과 ", status: "PRESENT", evidence: [{ segmentId: "S1", quote: answer }], taskFactIds: ["T1"], ...(prescribed ? { taskConditionIds: [] } : {}) },
+                    { requirementQuote: "이유 전달", status: "ABSENT", evidence: [], taskFactIds: [], ...(prescribed ? { taskConditionIds: [] } : {}) }] }],
             necessaryCorrections: [{ requirementId: "C1", segmentId: "S1", original: answer, replacement: "午前九時に始まりました。",
                 patch: { original: "始まります", replacement: "始まりました" }, issueType: "LANGUAGE_FORM", sourceFactId: "", formReason: "INFLECTION",
-                ...(policy === "curated-writing-feedback-v8" ? { sourceAuthorityId: "" } : {}),
+                ...(prescribed ? { sourceAuthorityId: "" } : {}),
                 originText: "활용형을 확인하세요.", learningText: "活用を確認してください。" }], optionalAlternatives: [], uncertainties: [],
         } } }];
     state.stored = plan;

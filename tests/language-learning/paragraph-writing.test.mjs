@@ -549,7 +549,7 @@ test("v8 condition IDs use distinct nonblank guided intents without unknown or d
     }
 });
 
-for (const policyVersion of ["curated-writing-feedback-v8", "curated-writing-feedback-v9", "curated-writing-feedback-v10", "curated-writing-feedback-v11"]) {
+for (const policyVersion of ["curated-writing-feedback-v8", "curated-writing-feedback-v9", "curated-writing-feedback-v10", "curated-writing-feedback-v11", "curated-writing-feedback-v12"]) {
     test(`${policyVersion} preserves stored results and rejects a mismatched condition patch`, () => {
         // 준비: 새 의미 판정도 기존 저장 DTO의 권한·부분 교정 경계를 그대로 사용한다.
         const value = prescribedFeedbackPlan();
@@ -566,12 +566,12 @@ for (const policyVersion of ["curated-writing-feedback-v8", "curated-writing-fee
     });
 }
 
-test("v11 FREE accepts fulfilled personal content without acquiring prescribed authority", () => {
+test("v12 FREE accepts fulfilled personal content without acquiring prescribed authority", () => {
     // 준비: 자유 작문의 충족 결과는 필수 교정이 없어도 그대로 표시한다.
     const value = prescribedFeedbackPlan();
     value.writingType = "FREE";
     const result = value.items[0].attempts[0].feedback.result;
-    result.policyVersion = "curated-writing-feedback-v11";
+    result.policyVersion = "curated-writing-feedback-v12";
     result.observations[0].requirementParts[0].taskConditionIds = [];
 
     // 실행·검증: 개인 내용을 교정할 P 권한을 만들거나 모르는 버전을 허용하지 않는다.
@@ -579,7 +579,7 @@ test("v11 FREE accepts fulfilled personal content without acquiring prescribed a
     result.observations[0].requirementParts[0].taskConditionIds = ["P1"];
     assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
     result.observations[0].requirementParts[0].taskConditionIds = [];
-    result.policyVersion = "curated-writing-feedback-v12";
+    result.policyVersion = "curated-writing-feedback-v13";
     assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
 });
 

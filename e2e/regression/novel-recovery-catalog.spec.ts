@@ -18,6 +18,30 @@ test.beforeEach(async ({ page, context }) => {
     await page.route("**/ranking/periods", route => fulfillJson(route, responseDto([{ code: "daily", label: "매일" }])));
 });
 
+test("NOVEL-CATALOG-ERROR-01 rejected genre request stops loading and can reconnect", async ({ page }) => {
+    // 준비: 사용자가 보고한 기존 _201 장르 주소와 API 오류를 재현한다.
+    let rejected = true;
+    await page.route("**/novels/catalog", route => {
+        const body = route.request().postDataJSON();
+        expect(body.genreId).toBe("_201");
+        if (rejected) return route.fulfill({ status: 400, contentType: "application/json",
+            body: JSON.stringify(responseDto({ code: "NOVEL_REQUEST_INVALID", retryable: false })) });
+        return fulfillJson(route, responseDto(catalog(Array.from({ length: 50 }, (_, index) => card(index + 1, index)), body)));
+    });
+    await page.route("**/novels/catalog/*/cancel", route => fulfillJson(route, responseDto({})));
+
+    // 실행 / 검증: 오류가 난 작업을 계속 로딩 중이라고 표시하지 않는다.
+    await page.goto("/novel/syosetu/genres/_201?period=daily");
+    await expect(page.getByRole("alert").filter({ hasText: "NOVEL_REQUEST_INVALID" })).toBeVisible();
+    await expect(page.getByText("원본 목록을 가져오는 중", { exact: true })).toHaveCount(0);
+
+    // 실행 / 검증: 명시 재연결로 정상 목록을 받고 기존 장르 selector를 유지한다.
+    rejected = false;
+    await page.getByRole("button", { name: "상태 다시 확인", exact: true }).click();
+    await expect(page.getByTestId("novel-catalog-card")).toHaveCount(50);
+    await expect(page.getByRole("alert").filter({ hasText: "NOVEL_REQUEST_INVALID" })).toHaveCount(0);
+});
+
 test("NOVEL-CATALOG-PERIOD-01 legacy period API uses canonical platform for alias and switches period", async ({ page }) => {
     const periodPaths: string[] = [];
     let starts = 0;

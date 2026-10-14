@@ -63,7 +63,7 @@ export interface ParagraphFeedbackPatch {
 }
 
 export interface ParagraphFeedbackResult {
-    policyVersion: "curated-writing-feedback-v1" | "curated-writing-feedback-v2" | "curated-writing-feedback-v3" | "curated-writing-feedback-v4" | "curated-writing-feedback-v5" | "curated-writing-feedback-v6" | "curated-writing-feedback-v7" | "curated-writing-feedback-v8" | "curated-writing-feedback-v9" | "curated-writing-feedback-v10" | "curated-writing-feedback-v11";
+    policyVersion: "curated-writing-feedback-v1" | "curated-writing-feedback-v2" | "curated-writing-feedback-v3" | "curated-writing-feedback-v4" | "curated-writing-feedback-v5" | "curated-writing-feedback-v6" | "curated-writing-feedback-v7" | "curated-writing-feedback-v8" | "curated-writing-feedback-v9" | "curated-writing-feedback-v10" | "curated-writing-feedback-v11" | "curated-writing-feedback-v12";
     resultPolicy: "REFERENCE_ONLY";
     observations: (ParagraphFeedbackText & { requirementId: string; status: "MET" | "UNMET" | "UNCERTAIN"; evidenceKind?: "LEARNER_TEXT" | "MISSING_REQUIREMENT"; segmentIds: string[]; answerQuotes: string[]; relationChecks?: ParagraphRelationChecks; requirementParts?: ParagraphRequirementPart[] })[];
     necessaryCorrections: (ParagraphFeedbackText & { requirementId: string; segmentId: string; original: string; replacement: string; issueType?: "LANGUAGE_FORM" | "TASK_FACT_CONFLICT" | "TASK_CONDITION_CONFLICT"; sourceFactId?: string; sourceAuthorityId?: string; formReason?: "SPELLING" | "INFLECTION" | "SYNTAX" | "NONE"; patch?: ParagraphFeedbackPatch })[];

@@ -107,5 +107,6 @@ export function useNovelCatalogController(platform: string, selector: CatalogSel
         finally { if (generation === operation.current) { retries.current.delete(identifier); setRetrying([...retries.current]); } }
     };
     const visible = current.current?.scope === scope ? snapshot : null;
-    return { snapshot: visible, error, loading: !visible && enabled && status !== "unauthenticated", retrying, retry, reconnect: () => setReload(count => count + 1) };
+    // 시작 요청이 실패하면 로딩을 끝낸다. 재연결 시 effect가 오류를 비우고 다시 준비 상태로 전환한다.
+    return { snapshot: visible, error, loading: !visible && !error && enabled && status !== "unauthenticated", retrying, retry, reconnect: () => setReload(count => count + 1) };
 }

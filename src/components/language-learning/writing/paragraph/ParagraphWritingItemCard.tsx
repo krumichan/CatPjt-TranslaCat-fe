@@ -56,7 +56,7 @@ export function ParagraphWritingItemCard({ item, draft, maxLength, busy, showWor
                             <strong>{row.requirementId} · {t(`requirementStates.${row.status}`)}</strong>
                             {row.evidenceKind === "MISSING_REQUIREMENT" && <p>{t("missingRequirementEvidence")}</p>}
                             <p>{row.originText}</p><p lang="ja">{row.learningText}</p>
-                            {["curated-writing-feedback-v6", "curated-writing-feedback-v7", "curated-writing-feedback-v8", "curated-writing-feedback-v9", "curated-writing-feedback-v10", "curated-writing-feedback-v11"].includes(attempt.feedback?.result?.policyVersion ?? "") ? row.requirementParts?.map((part, index) => <div
+                            {["curated-writing-feedback-v6", "curated-writing-feedback-v7", "curated-writing-feedback-v8", "curated-writing-feedback-v9", "curated-writing-feedback-v10", "curated-writing-feedback-v11", "curated-writing-feedback-v12"].includes(attempt.feedback?.result?.policyVersion ?? "") ? row.requirementParts?.map((part, index) => <div
                                 key={index} data-testid={`paragraph-part-${row.requirementId}-${index + 1}`}
                                 className="mt-2 rounded-lg border border-slate-200 p-2 dark:border-white/10">
                                 <p className="font-medium" data-testid="paragraph-part-status">{t(`requirementPartStates.${part.status}`)}</p>

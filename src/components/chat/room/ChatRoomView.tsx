@@ -27,7 +27,7 @@ export function ChatRoomView({
     return (
         <div
             data-testid="chat-room-shell"
-            className="fixed inset-x-0 bottom-0 top-15 flex min-h-0 flex-col overflow-hidden bg-slate-100 dark:bg-slate-950"
+            className="flex h-full min-h-0 w-full flex-col overflow-hidden bg-slate-100 pt-15 dark:bg-slate-950"
         >
             <div className="shrink-0">
                 <ChatRoomHeader

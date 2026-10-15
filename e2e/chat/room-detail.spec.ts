@@ -65,8 +65,8 @@ test.describe("Chat room detail", () => {
             const appHeader = document.querySelector<HTMLElement>(
                 '[data-testid="app-header"]',
             );
-            const chatRoomShell = document.querySelector<HTMLElement>(
-                '[data-testid="chat-room-shell"]',
+            const roomHeader = document.querySelector<HTMLElement>(
+                '[data-testid="chat-room-header"]',
             );
             const messageViewport = document.querySelector<HTMLElement>(
                 '[data-testid="chat-message-viewport"]',
@@ -77,7 +77,7 @@ test.describe("Chat room detail", () => {
 
             if (
                 !appHeader ||
-                !chatRoomShell ||
+                !roomHeader ||
                 !messageViewport ||
                 !emptyState
             ) {
@@ -85,15 +85,14 @@ test.describe("Chat room detail", () => {
             }
 
             const appHeaderRect = appHeader.getBoundingClientRect();
-            const chatRoomShellRect =
-                chatRoomShell.getBoundingClientRect();
+            const roomHeaderRect = roomHeader.getBoundingClientRect();
             const viewportRect =
                 messageViewport.getBoundingClientRect();
             const emptyRect = emptyState.getBoundingClientRect();
 
             return {
                 headerGap:
-                    chatRoomShellRect.top - appHeaderRect.bottom,
+                    roomHeaderRect.top - appHeaderRect.bottom,
                 emptyCenterGap:
                     emptyRect.top +
                     emptyRect.height / 2 -
@@ -105,6 +104,94 @@ test.describe("Chat room detail", () => {
         expect(Math.abs(layout!.headerGap)).toBeLessThanOrEqual(1);
         expect(Math.abs(layout!.emptyCenterGap)).toBeLessThanOrEqual(1);
     });
+
+    for (const viewport of [
+        { name: "desktop", width: 1280, height: 800 },
+        { name: "mobile", width: 390, height: 700 },
+    ]) {
+        test(`CHAT-03 ${viewport.name}에서 대화를 올려도 상단과 입력창이 유지된다`, async ({ page }) => {
+            // 준비: 화면보다 긴 대화를 실제 채팅방 경로로 연다.
+            await page.setViewportSize({
+                width: viewport.width,
+                height: viewport.height,
+            });
+            await mockChatRoomBase(page, {
+                messages: Array.from({ length: 30 }, (_, index) =>
+                    makeMessage({
+                        id: index + 1,
+                        content: `대화 내용 ${index + 1}`,
+                    }),
+                ),
+            });
+            await page.goto("/chat/rooms/501");
+
+            const roomHeader = page.getByTestId("chat-room-header");
+            const messageScroller = page
+                .getByTestId("chat-message-viewport")
+                .locator(".custom-scroll");
+            const input = page.getByTestId("chat-room-shell").locator("textarea");
+            await expect(roomHeader).toBeVisible();
+            await expect(page.getByTestId("chat-message-row-30")).toBeAttached();
+            await expect(input).toBeVisible();
+
+            // 실행: 메시지 목록만 위로 스크롤한다.
+            await messageScroller.evaluate((element) => {
+                element.scrollTop = element.scrollHeight;
+            });
+            const before = await page.evaluate(() => {
+                const header = document.querySelector<HTMLElement>(
+                    '[data-testid="chat-room-header"]',
+                )!;
+                const footer = document.querySelector<HTMLElement>(
+                    '[data-testid="chat-room-shell"] footer',
+                )!;
+                const scroller = document.querySelector<HTMLElement>(
+                    '[data-testid="chat-message-viewport"] .custom-scroll',
+                )!;
+
+                return {
+                    headerTop: header.getBoundingClientRect().top,
+                    footerBottom: footer.getBoundingClientRect().bottom,
+                    scrollRange: scroller.scrollHeight - scroller.clientHeight,
+                    scrollTop: scroller.scrollTop,
+                };
+            });
+            await messageScroller.evaluate((element) => {
+                element.scrollTop = 0;
+            });
+
+            // 검증: 대화만 이동하고 방 상단과 전송 영역은 화면에 남는다.
+            await expect.poll(() =>
+                messageScroller.evaluate((element) => element.scrollTop),
+            ).toBe(0);
+            const after = await page.evaluate(() => {
+                const header = document.querySelector<HTMLElement>(
+                    '[data-testid="chat-room-header"]',
+                )!;
+                const footer = document.querySelector<HTMLElement>(
+                    '[data-testid="chat-room-shell"] footer',
+                )!;
+                const main = document.querySelector<HTMLElement>("main")!;
+
+                return {
+                    headerTop: header.getBoundingClientRect().top,
+                    footerBottom: footer.getBoundingClientRect().bottom,
+                    mainScrollTop: main.scrollTop,
+                    viewportHeight: window.innerHeight,
+                };
+            });
+
+            expect(before.scrollRange).toBeGreaterThan(0);
+            expect(before.scrollTop).toBeGreaterThan(0);
+            expect(Math.abs(after.headerTop - before.headerTop)).toBeLessThanOrEqual(1);
+            expect(Math.abs(after.footerBottom - before.footerBottom)).toBeLessThanOrEqual(1);
+            expect(Math.abs(after.footerBottom - after.viewportHeight)).toBeLessThanOrEqual(1);
+            expect(after.mainScrollTop).toBe(0);
+            await expect(input).toBeInViewport();
+            await input.fill("입력 가능");
+            await expect(input).toHaveValue("입력 가능");
+        });
+    }
 
     test("CHAT-08 내 메시지와 상대 메시지 및 상대 프로필 이미지를 렌더링한다", async ({
         page,

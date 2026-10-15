@@ -21,6 +21,7 @@ export default function AppShell({
 }: AppShellProps) {
     const pathname = usePathname();
     const isLoginPage = pathname === "/login";
+    const isChatRoomPage = /^\/chat\/rooms\/[^/]+\/?$/.test(pathname);
 
     const [isMobileNavigationOpen, setMobileNavigationOpen] =
         useState(false);
@@ -56,7 +57,11 @@ export default function AppShell({
     }
 
     return (
-        <div className="relative flex h-screen w-full flex-col overflow-hidden">
+        <div
+            className={`relative flex w-full flex-col overflow-hidden ${
+                isChatRoomPage ? "h-dvh" : "h-screen"
+            }`}
+        >
             <div className="fixed inset-0 z-0 bg-slate-50 dark:bg-slate-950" />
 
             <Header
@@ -79,18 +84,29 @@ export default function AppShell({
             <UrgentNoticeGate />
 
             <main
-                className={`relative z-10 flex-1 overflow-y-auto overflow-x-hidden transition-[margin] duration-200 motion-reduce:transition-none ${
+                className={`relative z-10 min-h-0 flex-1 overflow-x-hidden transition-[margin] duration-200 motion-reduce:transition-none ${
+                    isChatRoomPage ? "overflow-y-hidden" : "overflow-y-auto"
+                } ${
                     isCollapsed
                         ? "lg:ml-18"
                         : "lg:ml-64"
                 }`}
             >
+                {/* 채팅방은 메시지 목록만 스크롤한다. transform은 내부 고정 요소의 기준을 바꾼다. */}
                 <div
-                    className="min-h-full transition-transform duration-300 ease-in-out"
-                    style={{
-                        transform:
-                            "translateY(var(--content-move, 0px))",
-                    }}
+                    className={
+                        isChatRoomPage
+                            ? "h-full min-h-0 overflow-hidden"
+                            : "min-h-full transition-transform duration-300 ease-in-out"
+                    }
+                    style={
+                        isChatRoomPage
+                            ? undefined
+                            : {
+                                  transform:
+                                      "translateY(var(--content-move, 0px))",
+                              }
+                    }
                 >
                     {children}
                 </div>

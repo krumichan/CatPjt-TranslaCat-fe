@@ -136,6 +136,11 @@ body {
     sans-serif !important;
 }
 
+/* 선택한 한글 본문 글꼴은 소설 번역문에만 적용한다. */
+.font-novel-ko {
+  font-family: var(--font-novel-ko), "Noto Serif KR", "Batang", serif;
+}
+
 /* 루비 태그(한자)와 rt(후리가나) 사이의 간격과 스타일을 정의합니다 */
 ruby {
   ruby-align: center;

@@ -118,7 +118,7 @@ test.describe("unchanged A and explicit tail recovery on the final stack", () =>
             });
             await page.goto(`${releaseAppUrl}/ko/novel/syosyetu/novels/n2604qg/episode/4`);
             await page.getByRole("button", { name: "미완료 부분 이어 번역", exact: true }).click();
-            await expect(page.getByTestId("novel-repair-state")).toContainText("복구 저장 완료", { timeout: 140_000 });
+            await expect(page.getByTestId("novel-repair-state")).toHaveAttribute("data-state", "SUCCEEDED", { timeout: 140_000 });
             metrics = JSON.parse((await page.getByTestId("novel-repair-state").getAttribute("data-repair-metrics"))!);
             const saved = await request.get(`${base}/translations/${receipt.jobId}`, { headers }); expect(saved.ok()).toBe(true);
             after = (await saved.json()).body as ReaderSnapshot;

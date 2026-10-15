@@ -186,7 +186,7 @@ test("NOVEL-REPAIR-01 repair one gap preserves other99, focus and measures commi
     await expect(page.getByTestId("novel-repair-state")).toContainText("복구 중");
     repaired = true;
     await expect(target).toHaveAttribute("data-status", "SUCCEEDED");
-    await expect(page.getByTestId("novel-repair-state")).toContainText("저장 완료");
+    await expect(page.getByTestId("novel-repair-state")).toHaveAttribute("data-state", "SUCCEEDED");
     // 검증: 동일trace commit 관측과 DOM paint 이후의 완료만 기록하며 정상99개는 불변이다.
     const metrics = JSON.parse((await page.getByTestId("novel-repair-state").getAttribute("data-repair-metrics"))!);
     expect(metrics.traceId).toBe(trace); expect(metrics.repairReadyMs).toBeGreaterThanOrEqual(metrics.committedObservedMs);
@@ -218,25 +218,29 @@ for (const interrupt of ["none", "pause", "stop"] as const) {
         });
         await page.goto("/novel/syosyetu/novels/n-test/episode/2");
         const gap = page.getByTestId("novel-sentence").nth(1);
-        await gap.getByRole("button", { name: /문장 메뉴/ }).click();
-        await gap.getByRole("button", { name: "여기부터 읽기", exact: true }).click();
+        // 전체 읽기만 제공한다. 앞의 확정 문장을 읽고 실패 문장 앞에서 기다려야 한다.
+        await page.getByRole("button", { name: "OPEN", exact: true }).click();
+        await page.getByRole("button", { name: "번역문 전체 읽기", exact: true }).click();
         const state = page.getByTestId("novel-playback-state");
         await expect(state).toHaveAttribute("data-state", "waiting");
-        expect(repairs).toBe(0); expect(calls).toHaveLength(0);
+        expect(repairs).toBe(0); expect(calls).toEqual(["s0"]);
 
         // 실행: 음성 재생과 별개의 명시 복구 명령만 보낸다.
         if (interrupt !== "none") await page.getByRole("button", { name: interrupt === "pause" ? "일시정지" : "정지", exact: true }).click();
+        // OPEN 팝오버를 닫아 본문 복구 버튼을 가리지 않게 한 뒤 명시 복구한다.
+        await page.getByRole("button", { name: "CLOSE", exact: true }).click();
         await gap.getByRole("button", { name: "이 문장 다시 번역", exact: true }).click();
         await expect(gap).toHaveAttribute("data-status", "SUCCEEDED");
 
         // 검증: 유효한 기존 의사만 gap 위치에서 재개하고 pause/stop은 복구 이벤트로 풀리지 않는다.
         if (interrupt === "none") {
             await expect(state).toHaveAttribute("data-state", "playing");
-            expect(calls[0]).toBe("s1");
+            expect(calls[1]).toBe("s1");
+            await page.getByRole("button", { name: "OPEN", exact: true }).click();
             await page.getByRole("button", { name: "정지", exact: true }).click();
         } else {
             await page.waitForTimeout(800);
-            expect(calls).toHaveLength(0);
+            expect(calls).toEqual(["s0"]);
             await expect(state).toHaveAttribute("data-state", interrupt === "pause" ? "paused" : "idle");
         }
         expect(repairs).toBe(1);

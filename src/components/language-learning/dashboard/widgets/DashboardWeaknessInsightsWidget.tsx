@@ -33,6 +33,7 @@ export function DashboardWeaknessInsightsWidget({
         READING: t("activity.reading"),
         VOCABULARY: t("activity.vocabulary"),
         LEVEL_TEST: t("activity.levelTest"),
+        WEB_AI: t("activity.webAi"),
     };
     const contentId = "dashboard-weaknesses-content";
 

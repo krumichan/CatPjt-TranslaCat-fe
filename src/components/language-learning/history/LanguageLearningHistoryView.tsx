@@ -10,6 +10,7 @@ import { LevelTestHistoryDetailView } from "@/components/language-learning/level
 import { SpeakingHistoryDetail } from "@/components/language-learning/history/SpeakingHistoryDetail";
 import { UnifiedLearningHistoryList } from "@/components/language-learning/history/UnifiedLearningHistoryList";
 import { WritingHistoryDetail } from "@/components/language-learning/history/WritingHistoryDetail";
+import { WebAiResultDetail } from "@/components/language-learning/history/WebAiResultDetail";
 import type { LearningHistoryPageController } from "@/hooks/language-learning/useLearningHistoryPageController";
 
 export function LanguageLearningHistoryView({
@@ -54,6 +55,8 @@ export function LanguageLearningHistoryView({
                 onAction={() => void controller.reloadDetail()}
             />
         );
+    } else if (controller.detail.source === "WEB_AI") {
+        detailContent = <WebAiResultDetail key={controller.detail.activityId} result={controller.detail.detail} onReload={controller.reloadDetail} />;
     } else if (controller.detail.source === "WRITING") {
         detailContent = (
             <WritingHistoryDetail

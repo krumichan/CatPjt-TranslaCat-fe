@@ -62,8 +62,8 @@ export function useNovelReaderController(platform: string, novel: string, episod
     const { fontSize, changeFont } = useReaderFontSize();
     const [timings, setTimings] = useState<ReaderTimings>({});
     const [repairTimings, setRepairTimings] = useState<RepairTimings | null>(null);
-    const [viewChoice, setViewChoice] = useState<{ locale: string; value: "ja" | "ko" | "parallel" } | null>(null);
-    const view = viewChoice?.locale === locale ? viewChoice.value : locale === "learning" ? "parallel" : locale === "ja" ? "ja" : "ko";
+    // 보기 선택기를 두지 않아도 KRJP는 원문과 번역을 함께, 단일 언어 화면은 해당 언어를 표시한다.
+    const view: "ja" | "ko" | "parallel" = locale === "learning" ? "parallel" : locale === "ja" ? "ja" : "ko";
     const operation = useRef(0);
     const started = useRef(0);
     const appliedAt = useRef(0);
@@ -279,7 +279,6 @@ export function useNovelReaderController(platform: string, novel: string, episod
 
     return {
         snapshot, loading, error, busy, fontSize, changeFont, timings, repairTimings, repair, cancel, view,
-        setView: (value: "ja" | "ko" | "parallel") => setViewChoice({ locale, value }),
         locale, episode, menu, audio, translate,
         retryLoad: () => setReload(value => value + 1),
         onPrev: () => navigate(snapshot?.pagerInfo?.prevIdentifier),

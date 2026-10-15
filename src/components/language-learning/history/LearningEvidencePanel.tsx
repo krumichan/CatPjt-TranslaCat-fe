@@ -35,7 +35,7 @@ export function LearningEvidencePanel({ onOpen }: { onOpen: (activityId: string)
                 <label className="min-w-0 text-xs font-bold text-slate-600 dark:text-slate-300">
                     {t("source")}
                     <AppSelect aria-label={t("source")} value={controller.draft.source} onChange={(event) => controller.updateDraft("source", event.target.value as LearningHistorySourceFilter)} className="mt-1 py-2">
-                        {(["ALL", "WRITING", "SPEAKING", "LISTENING", "READING", "VOCABULARY", "LEVEL_TEST"] as const).map((source) => <option key={source} value={source}>{sourceT(source)}</option>)}
+                        {(["ALL", "WRITING", "SPEAKING", "LISTENING", "READING", "VOCABULARY", "LEVEL_TEST", "WEB_AI"] as const).map((source) => <option key={source} value={source}>{sourceT(source)}</option>)}
                     </AppSelect>
                 </label>
                 <label className="min-w-0 text-xs font-bold text-slate-600 dark:text-slate-300">

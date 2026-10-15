@@ -20,7 +20,7 @@ export const learningHistoryService = {
         period,
         status,
         taskType,
-    }: LearningHistoryQuery): Promise<LearningHistoryItem[]> => {
+    }: LearningHistoryQuery, expectedLoginSessionId?: string): Promise<LearningHistoryItem[]> => {
         const params = new URLSearchParams({ period });
         if (source !== "ALL") params.set("source", source);
         if (status) params.set("status", status);
@@ -31,6 +31,7 @@ export const learningHistoryService = {
         const response = await apiClient(
             `/language-learning/history?${params.toString()}`,
             { method: "GET" },
+            expectedLoginSessionId,
         );
 
         return parseResponseBody<LearningHistoryItem[]>(
@@ -39,10 +40,11 @@ export const learningHistoryService = {
         );
     },
 
-    getDetail: async (activityId: string): Promise<LearningHistoryDetail> => {
+    getDetail: async (activityId: string, options: { signal?: AbortSignal; expectedLoginSessionId?: string } = {}): Promise<LearningHistoryDetail> => {
         const response = await apiClient(
             `/language-learning/history/${encodeURIComponent(activityId)}`,
-            { method: "GET" },
+            { method: "GET", signal: options.signal },
+            options.expectedLoginSessionId,
         );
 
         return parseResponseBody<LearningHistoryDetail>(

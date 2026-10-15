@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useState } from "react";
+import { useSession } from "next-auth/react";
 
 import { useQuery } from "@/hooks/useQuery";
 import { dailyWritingService } from "@/services/language-learning/dailyWritingService";
@@ -10,6 +11,8 @@ import type { LearningHistorySourceFilter } from "@/types/language-learning/hist
 import type { ListeningTaskType } from "@/types/language-learning/listening";
 
 export function useLearningHistoryPageController() {
+    const { data: session } = useSession();
+    const loginSessionId = session?.loginSessionId;
     // 화면 재진입 시 이전 인스턴스의 상세 캐시를 재사용하지 않는다. 권한은 상세 API가 다시 판단한다.
     const detailReadScope = useId();
     const [source, setSource] =
@@ -28,13 +31,13 @@ export function useLearningHistoryPageController() {
     const [actionError, setActionError] = useState(false);
 
     const listQuery = useQuery({
-        keys: ["language-learning-history", source, period, taskType ?? "ALL_TASKS"] as const,
-        fetcher: (_key, sourceFilter, historyPeriod) =>
+        keys: loginSessionId ? ["language-learning-history", source, period, taskType ?? "ALL_TASKS", loginSessionId] as const : null,
+        fetcher: (_key, sourceFilter, historyPeriod, _taskType, expectedLoginSessionId) =>
             learningHistoryService.getAll({
                 source: sourceFilter,
                 period: historyPeriod,
                 taskType,
-            }),
+            }, expectedLoginSessionId),
         config: { revalidateOnMount: true },
     });
 
@@ -56,16 +59,17 @@ export function useLearningHistoryPageController() {
     }, [listQuery.data, selectedListActivityId]);
 
     const detailQuery = useQuery({
-        keys: selectedActivityId
+        keys: selectedActivityId && loginSessionId
             ? ([
                   "language-learning-history-detail",
                   selectedActivityId,
                   detailReadScope,
                   detailReadRevision,
+                  loginSessionId,
               ] as const)
             : null,
-        fetcher: (_key, activityId) =>
-            learningHistoryService.getDetail(activityId),
+        fetcher: (_key, activityId, _scope, _revision, expectedLoginSessionId) =>
+            learningHistoryService.getDetail(activityId, { expectedLoginSessionId }),
         enabled: selectedActivityId !== null,
         config: { revalidateOnMount: true },
     });
@@ -162,9 +166,14 @@ export function useLearningHistoryPageController() {
         ]);
     }, [detailQuery, listQuery]);
 
-    const reloadDetail = useCallback(async () => {
-        await detailQuery.mutate(undefined, true);
-    }, [detailQuery]);
+    const reloadDetail = useCallback(async (signal?: AbortSignal) => {
+        if (!selectedActivityId || !loginSessionId) return;
+
+        // 자동 새로고침은 닫기·계정 전환 시 실제 GET도 취소한다. 늦은 응답으로 상세를 덮어쓰지 않는다.
+        const detail = await learningHistoryService.getDetail(selectedActivityId, { signal, expectedLoginSessionId: loginSessionId });
+        signal?.throwIfAborted();
+        await detailQuery.mutate(detail, false);
+    }, [detailQuery, selectedActivityId, loginSessionId]);
 
     return {
         source,

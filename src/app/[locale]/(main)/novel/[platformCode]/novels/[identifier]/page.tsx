@@ -1,7 +1,7 @@
 "use client";
 
 import {useParams, useSearchParams} from "next/navigation";
-import {useLocalizedName} from "@/hooks/useLocalizedName";
+import {useLocale} from "next-intl";
 import {useEffect, useRef, useState} from "react";
 import {NovelDetail, novelService} from "@/services/novelService";
 import SpinLoader from "@/components/common/SpinLoader";
@@ -23,7 +23,7 @@ export default function NovelPage() {
     const params = useParams();
     const searchParams = useSearchParams();
     const router = useAppRouter();
-    const ln = useLocalizedName();
+    const locale = useLocale();
 
     // 2. Constants & Derived State (파생 데이터)
     const platformCode = params.platformCode as string;
@@ -108,7 +108,7 @@ export default function NovelPage() {
             {/* 1. 상단 카드 영역 */}
             <section className="relative min-h-50">
                 <SpinLoader isLoading={isLoading && !displayNovelInfo} size="lg" />
-                {displayNovelInfo && <NovelHeroCard novelInfo={displayNovelInfo} ln={ln} />}
+                {displayNovelInfo && <NovelHeroCard novelInfo={displayNovelInfo} locale={locale} />}
             </section>
 
             {/* 2. 에피소드 리스트 영역 */}
@@ -134,7 +134,7 @@ export default function NovelPage() {
                         <EpisodeItem
                             key={episode.identifier}
                             episode={episode}
-                            ln={ln}
+                            locale={locale}
                             onClick={() => router.push(to(ROUTES.EPISODE_VIEWER, platformCode, novelIdentifier, episode.identifier))}
                         />
                     ))}

@@ -4,11 +4,16 @@ import type {
     LanguageLearningKeyword,
     LanguageLearningKeywordCreateRequest,
     LanguageLearningKeywordList,
+    LanguageLearningEffectiveKeywords,
     LanguageLearningKeywordUpdateRequest,
     SystemKeywordSelectionRequest,
 } from "@/types/language-learning/keyword";
 
 export const languageLearningKeywordService = {
+    getEffective: async (): Promise<LanguageLearningEffectiveKeywords> => {
+        const response = await apiClient("/language-learning/keywords/effective", { method: "GET" });
+        return parseResponseBody<LanguageLearningEffectiveKeywords>(response, "LanguageLearningEffectiveKeywords");
+    },
     getAll: async (uiLocale: string): Promise<LanguageLearningKeywordList> => {
         const response = await apiClient("/language-learning/keywords", {
             method: "GET",

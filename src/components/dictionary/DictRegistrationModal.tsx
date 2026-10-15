@@ -21,6 +21,7 @@ export default function DictRegistrationModal({
     const [surface, setSurface] = useState(initialSurface);
     const [reading, setReading] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState(false);
     const [mounted, setMounted] = useState(false);
 
     // SSR 대응: 클라이언트에서만 Portal이 작동하도록
@@ -31,23 +32,31 @@ export default function DictRegistrationModal({
     // initialSurface가 바뀌면 (예: 본문에서 다른 단어 클릭 시) 반영
     useEffect(() => {
         setSurface(initialSurface);
+        setSubmitError(false);
     }, [initialSurface]);
+
+    useEffect(() => {
+        if (isOpen) setSubmitError(false);
+    }, [isOpen]);
 
     if (!mounted || !isOpen) return null;
 
     const handleRegister = async () => {
 
         // 1. 유효성 검사
-        if (!surface.trim() || !reading.trim()) return;
+        const normalizedSurface = surface.trim();
+        const normalizedReading = reading.trim();
+        if (!normalizedSurface || !normalizedReading) return;
 
         setIsSubmitting(true);
+        setSubmitError(false);
         try {
 
             // 2. 서비스 레이어 호출
-            await dictionaryService.register(surface, reading);
+            await dictionaryService.register(normalizedSurface, normalizedReading);
 
             if (onSuccess) {
-                onSuccess(surface.trim(), reading.trim());
+                onSuccess(normalizedSurface, normalizedReading);
             }
 
             setSurface("");
@@ -56,6 +65,7 @@ export default function DictRegistrationModal({
             onClose();
         } catch (error) {
             console.error(error);
+            setSubmitError(true);
         } finally {
             setIsSubmitting(false);
         }
@@ -96,6 +106,10 @@ export default function DictRegistrationModal({
                         />
                     </div>
                 </div>
+
+                {submitError && <p role="alert" className="mt-4 text-sm text-red-700 dark:text-red-300">
+                    사전 등록에 실패했습니다. 입력을 확인하고 다시 시도해 주세요.
+                </p>}
 
                 <div className="flex gap-2 mt-8">
                     <button onClick={onClose}

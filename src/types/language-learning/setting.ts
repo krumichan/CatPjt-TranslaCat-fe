@@ -3,6 +3,7 @@ import type { ListeningTaskType } from "@/types/language-learning/listening";
 export interface LanguageLearningUserSetting {
     originLanguage: string | null;
     learningLanguage: string | null;
+    feedbackLanguage?: string | null;
     timezone: string;
     dailySentenceCount: number;
     dailySpeakingGoalMinutes: number;
@@ -12,6 +13,7 @@ export interface LanguageLearningUserSetting {
     defaultListeningTaskTypes: ListeningTaskType[];
     pendingOriginLanguage: string | null;
     pendingLearningLanguage: string | null;
+    pendingFeedbackLanguage?: string | null;
     pendingTimezone: string | null;
     pendingDailySentenceCount: number | null;
     pendingDailySpeakingGoalMinutes: number | null;
@@ -29,6 +31,7 @@ export interface LanguageLearningUserSetting {
 export interface LanguageLearningUserSettingUpdateRequest {
     originLanguage: string;
     learningLanguage: string;
+    feedbackLanguage: string;
     timezone: string;
     dailySentenceCount: number;
     dailySpeakingGoalMinutes: number;

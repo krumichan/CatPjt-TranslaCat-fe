@@ -1,16 +1,15 @@
 "use client";
 
 import {RawEpisode} from "@/services/novelService";
-import RubyText from "@/components/common/RubyText";
-import {TranslationUnit} from "@/types/common";
+import NovelLocalizedText from "@/components/novel/NovelLocalizedText";
 
 interface ItemProps {
     episode: RawEpisode;
     onClick: () => void;
-    ln: (val: TranslationUnit) => string;
+    locale: string;
 }
 
-export const EpisodeItem = ({ episode, onClick, ln }: ItemProps) => (
+export const EpisodeItem = ({ episode, onClick, locale }: ItemProps) => (
     <div
         onClick={onClick}
         className="cursor-pointer group flex items-center gap-6 p-5 bg-white/50 dark:bg-zinc-900/20 border border-black/5 dark:border-white/5 rounded-[2rem] hover:border-blue-500/50 hover:bg-white dark:hover:bg-zinc-900 transition-all hover:shadow-xl hover:-translate-x-1"
@@ -20,7 +19,7 @@ export const EpisodeItem = ({ episode, onClick, ln }: ItemProps) => (
         </div>
         <div className="flex-1 min-w-0">
             <div className="text-lg font-bold text-[#2D2D2D] dark:text-zinc-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                <RubyText content={ln(episode.title)} />
+                <NovelLocalizedText value={episode.title} locale={locale} />
             </div>
         </div>
         <div className="hidden md:block opacity-0 group-hover:opacity-100 transition-opacity translate-x-2 group-hover:translate-x-0 duration-300">

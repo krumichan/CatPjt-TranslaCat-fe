@@ -1,6 +1,6 @@
 "use client";
 
-import {useState} from "react";
+import {useState, type ReactNode} from "react";
 import {BookPlus, List, X} from "lucide-react";
 import DictRegistrationModal from "@/components/dictionary/DictRegistrationModal";
 
@@ -14,6 +14,8 @@ interface ReaderPagerProps {
     onRegisterSuccess: (surface: string, reading: string) => void;
     fontSize: number;
     setFontSize: (size: (prev: number) => number) => void;
+    openMenuContent?: ReactNode;
+    openMenuIndicator?: ReactNode;
 }
 
 export default function ReaderPager({
@@ -24,7 +26,9 @@ export default function ReaderPager({
     onNext,
     onList,
     onRegisterSuccess,
-    setFontSize
+    setFontSize,
+    openMenuContent,
+    openMenuIndicator
 }: ReaderPagerProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [initialSurface, setInitialSurface] = useState("");
@@ -45,12 +49,12 @@ export default function ReaderPager({
                 }`}
             >
                 {/* 위로 펼쳐지는 서브 메뉴 영역 */}
-                <div className={`
-                    absolute bottom-full left-1/2 -translate-x-1/2 mb-4 w-48
+                <div id="reader-pager-menu" aria-hidden={!isMenuOpen} className={`
+                    absolute bottom-full left-1/2 -translate-x-1/2 mb-3 ${openMenuContent ? 'w-full' : 'w-48'}
                     transition-all duration-300 ease-out origin-bottom
-                    ${isMenuOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4 pointer-events-none'}
+                    ${isMenuOpen ? 'visible opacity-100 scale-100 translate-y-0' : 'invisible opacity-0 scale-95 translate-y-4 pointer-events-none'}
                 `}>
-                    <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-4xl shadow-2xl p-2 flex flex-col gap-1">
+                    <div className="max-h-[min(70dvh,34rem)] overflow-y-auto bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-zinc-200 dark:border-zinc-700 rounded-3xl shadow-2xl p-2 flex flex-col gap-1">
                         {/* 1. 목록으로 이동 */}
                         <button
                             onClick={() => { onList(); setIsMenuOpen(false); }}
@@ -75,6 +79,11 @@ export default function ReaderPager({
                             <BookPlus size={18} className="text-zinc-500 group-hover:text-orange-500 transition-colors" />
                             <span className="text-[13px] font-bold text-zinc-700 dark:text-zinc-300">Dict Reg.</span>
                         </button>
+                        {openMenuContent && <>
+                            {/* 소설 등 특정 독자의 부가 기능은 OPEN 안에서만 펼치고 공용 Pager는 재사용한다. */}
+                            <div className="h-px bg-zinc-200 dark:bg-zinc-700 mx-3 my-1" />
+                            {openMenuContent}
+                        </>}
                     </div>
                 </div>
 
@@ -108,7 +117,10 @@ export default function ReaderPager({
 
                         <button
                             onClick={toggleMenu}
-                            className={`flex-1 min-w-20 h-9 flex items-center justify-center text-[11px] font-black tracking-[0.15em]
+                            aria-label={isMenuOpen ? "CLOSE" : "OPEN"}
+                            aria-expanded={isMenuOpen}
+                            aria-controls="reader-pager-menu"
+                            className={`flex-1 min-w-20 h-9 flex items-center justify-center gap-1 text-[11px] font-black tracking-[0.15em]
                                 rounded-full shadow-sm active:scale-95 transition-all uppercase border ${
                                 isMenuOpen
                                     ? "bg-orange-500 text-white border-orange-400"
@@ -116,7 +128,7 @@ export default function ReaderPager({
                             }`}
                         >
                             {/* X 대신 닫기 텍스트나 기호 사용 */}
-                            {isMenuOpen ? <X size={16} strokeWidth={3} /> : "OPEN"}
+                            {isMenuOpen ? <X size={16} strokeWidth={3} /> : <>{openMenuIndicator}<span>OPEN</span></>}
                         </button>
 
                         <button

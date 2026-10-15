@@ -112,7 +112,7 @@ test.describe("reserved recovery fixture with actual body-only Japanese and Kore
                 }, true);
             }, ids[0]);
             await target.getByRole("button", { name: "이 문장 다시 번역", exact: true }).click();
-            await expect(page.getByTestId("novel-repair-state")).toContainText("복구 저장 완료", { timeout: 140_000 });
+            await expect(page.getByTestId("novel-repair-state")).toHaveAttribute("data-state", "SUCCEEDED", { timeout: 140_000 });
             measurements.repair = JSON.parse((await page.getByTestId("novel-repair-state").getAttribute("data-repair-metrics"))!);
             repairClick = await page.evaluate(() => (window as unknown as { __novelRepairClick: { eventTimeStamp: number; trusted: boolean } }).__novelRepairClick);
             expect((measurements.repair as RepairTimings).startedAt).toBe(repairClick.eventTimeStamp);

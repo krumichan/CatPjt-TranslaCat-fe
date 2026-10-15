@@ -26,6 +26,7 @@ import { responseDto } from "./mock-data";
 export const LANGUAGE_LEARNING_SETTING = {
     originLanguage: "ko",
     learningLanguage: "ja",
+    feedbackLanguage: "ko",
     timezone: "Asia/Tokyo",
     dailySentenceCount: 5,
     dailySpeakingGoalMinutes: 5,
@@ -35,6 +36,7 @@ export const LANGUAGE_LEARNING_SETTING = {
     defaultListeningTaskTypes: ["DICTATION"],
     pendingOriginLanguage: null,
     pendingLearningLanguage: null,
+    pendingFeedbackLanguage: null,
     pendingTimezone: null,
     pendingDailySentenceCount: null,
     pendingDailySpeakingGoalMinutes: null,
@@ -373,6 +375,17 @@ export async function mockLanguageLearningBase(page: Page) {
             route,
             responseDto(LANGUAGE_LEARNING_KEYWORDS),
         ),
+    );
+    await page.route("**/api/v1/language-learning/keywords/effective", (route) =>
+        fulfillApiJson(route, responseDto({
+            candidates: [...LANGUAGE_LEARNING_KEYWORDS.systemKeywords, ...LANGUAGE_LEARNING_KEYWORDS.customKeywords]
+                .filter((keyword) => keyword.active && keyword.selected)
+                .map((keyword) => ({
+                    key: `${keyword.source}:${keyword.id}`,
+                    text: keyword.text,
+                    canonicalKey: keyword.canonicalKey,
+                })),
+        })),
     );
 }
 

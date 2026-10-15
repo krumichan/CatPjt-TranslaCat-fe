@@ -11,6 +11,7 @@ import type { LanguageLearningUserSetting } from "@/types/language-learning/sett
 export interface LanguageLearningSettingFormValue {
     originLanguage: string;
     learningLanguage: string;
+    feedbackLanguage: string;
     timezone: string;
     dailySentenceCount: number;
     dailySpeakingGoalMinutes: number;
@@ -37,6 +38,8 @@ function toFormValue(
             setting.pendingOriginLanguage ?? setting.originLanguage ?? "ko",
         learningLanguage:
             setting.pendingLearningLanguage ?? setting.learningLanguage ?? "ja",
+        feedbackLanguage:
+            setting.pendingFeedbackLanguage ?? setting.feedbackLanguage ?? setting.originLanguage ?? "ko",
         timezone:
             setting.pendingTimezone ??
             setting.timezone ??
@@ -85,6 +88,7 @@ export function useLanguageLearningUserSettingForm({
         return (
             form.originLanguage.trim().length > 0 &&
             form.learningLanguage.trim().length > 0 &&
+            form.feedbackLanguage.trim().length > 0 &&
             form.originLanguage !== form.learningLanguage &&
             form.timezone.trim().length > 0 &&
             Number.isInteger(form.dailySentenceCount) &&
@@ -135,6 +139,7 @@ export function useLanguageLearningUserSettingForm({
                 ...form,
                 originLanguage: form.originLanguage.trim(),
                 learningLanguage: form.learningLanguage.trim(),
+                feedbackLanguage: form.feedbackLanguage.trim(),
                 timezone: form.timezone.trim(),
             });
             await onUpdated(updated);

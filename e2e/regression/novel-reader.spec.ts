@@ -42,53 +42,61 @@ test("NOVEL-READER-01 partial updates preserve source and only record full compl
     await page.getByRole("button", { name: "전체 번역 시작", exact: true }).click();
     // 검증: 부분 표시에서 전체 완료 타이머가 기록되면 실패한다.
     const state = page.getByTestId("novel-translation-state");
-    await expect(state).toContainText("1/2");
+    await expect(state).toHaveAttribute("data-completed-segments", "1");
+    await expect(state).toHaveAttribute("data-total-segments", "2");
     await expect(state).not.toHaveAttribute("data-all-translations-ms");
     await expect(state).toHaveAttribute("data-state", "SUCCEEDED");
     await expect(state).toHaveAttribute("data-all-translations-ms", /\d/);
+    await expect(page.getByText("전체 번역 완료")).toHaveCount(0);
+    await expect(page.getByLabel("본문 보기")).toHaveCount(0);
     const times = await state.evaluate(el => ({ first: Number(el.getAttribute("data-first-translation-ms")), all: Number(el.getAttribute("data-all-translations-ms")) }));
     expect(times.all).toBeGreaterThan(times.first);
     await expect(page.getByTestId("novel-sentence").first()).toHaveAttribute("data-segment-id", "one");
 });
 
-test("NOVEL-READER-02 WAV decodes in Chromium, single/from/full share one player and keyboard menu", async ({ page }, testInfo) => {
+test("NOVEL-READER-02 footer offers only whole Japanese/Korean reading and controls native playback", async ({ page }, testInfo) => {
     // 준비: 실제 생성 WAV를 mock 전송한다. API 통합 결과로 해석하지 않는다.
     const wav = wavFixture();
-    const calls: string[] = [];
+    const calls: { segmentId: string; language: string }[] = [];
     await page.route("**/episodes/2/reader", route => fulfillJson(route, responseDto(snapshot())));
     await page.route("**/episodes/2/audio", route => {
         const request = route.request().postDataJSON();
-        calls.push(request.segmentId);
+        calls.push({ segmentId: request.segmentId, language: request.language });
         return fulfillJson(route, responseDto({ ...request, partCount: 1, audioBase64: wav, contentType: "audio/wav", provider: "openai", model: "gpt-4o-mini-tts", durationSeconds: 4.55 }));
     });
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/novel/syosyetu/novels/n-test/episode/2");
     const first = page.getByTestId("novel-sentence").first();
-    // 실행 / 검증: Enter/Escape, 실제 media event 기반 강조 및 일시정지.
-    const trigger = first.getByRole("button", { name: /문장 메뉴/ });
-    await trigger.focus();
-    await page.keyboard.press("Enter");
-    await expect(first.getByRole("group")).toBeVisible();
-    await page.keyboard.press("Escape");
-    await expect(trigger).toBeFocused();
-    await page.getByRole("button", { name: "현재 회차 전체 읽기", exact: true }).click();
+    // 실행: 본문 문장과 닫힌 푸터에는 개별 재생이 없고, OPEN 안에서만 전체 읽기를 고른다.
+    await expect(page.getByRole("button", { name: "OPEN", exact: true })).toHaveAttribute("aria-expanded", "false");
+    await expect(page.getByTestId("novel-playback-controls")).toBeHidden();
+    await page.getByRole("button", { name: "OPEN", exact: true }).click();
+    await expect(page.getByRole("button", { name: "원문 전체 읽기", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "번역문 전체 읽기", exact: true })).toBeVisible();
+    await expect(first.getByRole("button", { name: /문장 메뉴|이 문장 읽기|여기부터 읽기/ })).toHaveCount(0);
+    const footer = page.getByTestId("novel-playback-controls");
+    const footerY = await footer.evaluate(element => element.getBoundingClientRect().top);
+    expect(footerY).toBeGreaterThan(400);
+    await page.getByRole("button", { name: "번역문 전체 읽기", exact: true }).click();
+
+    // 검증: 브라우저의 실제 재생 이벤트가 강조/제어에 반영되고 본문에는 문장별 조작이 없다.
     await expect(page.getByTestId("novel-playback-state")).toHaveAttribute("data-state", "playing");
     await expect(first).toHaveAttribute("data-active", "true");
     await page.getByRole("button", { name: "일시정지", exact: true }).click();
     await expect(first).toHaveAttribute("data-active", "false");
     await page.getByRole("button", { name: "재개", exact: true }).click();
     await page.getByLabel("낭독 속도").selectOption("2");
-    await trigger.click();
-    await first.getByRole("button", { name: "한국어 번역: 이 문장 읽기", exact: true }).click();
-    await expect(page.getByTestId("novel-playback-state")).toHaveAttribute("data-state", "ended", { timeout: 12000 });
-    expect(calls).toEqual(["one"]);
-    const last = page.getByTestId("novel-sentence").last();
-    await last.getByRole("button", { name: /문장 메뉴/ }).click();
-    await last.getByRole("button", { name: "여기부터 읽기", exact: true }).click();
-    await expect(last).toHaveAttribute("data-active", "true");
+    const callsBeforeSelection = calls.length;
+    await first.locator("p").first().selectText();
+    await expect(first.getByRole("button")).toHaveCount(0);
+    expect(calls).toHaveLength(callsBeforeSelection);
     await page.getByRole("button", { name: "정지", exact: true }).click();
     await expect(page.getByTestId("novel-playback-state")).toHaveAttribute("data-state", "idle");
-    expect(calls.at(-1)).toBe("two");
+    expect(calls[0]).toEqual({ segmentId: "one", language: "ko" });
+    await page.getByRole("button", { name: "원문 전체 읽기", exact: true }).click();
+    await expect(page.getByTestId("novel-playback-state")).toHaveAttribute("data-state", "playing");
+    expect(calls.some(call => call.segmentId === "one" && call.language === "ja")).toBe(true);
+    await page.getByRole("button", { name: "정지", exact: true }).click();
     await page.screenshot({ path: testInfo.outputPath("reader-mobile.png"), fullPage: true });
 });
 
@@ -98,7 +106,9 @@ test("NOVEL-READER-03 stale revisions fail closed and Japanese fallback is label
     await page.route("**/episodes/2/translations", route => fulfillJson(route, responseDto({ ...snapshot(), revision: "old" })));
     // 실행
     await page.goto("/novel/syosyetu/novels/n-test/episode/2");
-    await expect(page.getByRole("button", { name: "현재 회차 전체 읽기", exact: true })).toBeDisabled();
+    await page.getByRole("button", { name: "OPEN", exact: true }).click();
+    await expect(page.getByRole("button", { name: "번역문 전체 읽기", exact: true })).toBeDisabled();
+    await expect(page.getByRole("button", { name: "원문 전체 읽기", exact: true })).toBeEnabled();
     await page.getByRole("button", { name: "전체 번역 시작", exact: true }).click();
     // 검증
     await expect(page.getByRole("alert").filter({ hasText: "번역 상태" })).toBeVisible();
@@ -124,7 +134,7 @@ test("NOVEL-READER-04 reenter running job polls without another paid POST and pr
     expect(posts).toBe(0);
 });
 
-test("NOVEL-READER-05 entering, menu, selection, scroll and display toggles never request audio", async ({ page }) => {
+test("NOVEL-READER-05 entering, selection and scroll never request audio", async ({ page }) => {
     // 준비
     let calls = 0;
     await page.route("**/episodes/2/reader", route => fulfillJson(route, responseDto(snapshot())));
@@ -132,15 +142,61 @@ test("NOVEL-READER-05 entering, menu, selection, scroll and display toggles neve
     await page.goto("/novel/syosyetu/novels/n-test/episode/2");
     const first = page.getByTestId("novel-sentence").first();
     // 실행: 재생 의사가 없는 모든 읽기 동작이다.
-    await first.getByRole("button", { name: /문장 메뉴/ }).click();
-    await page.keyboard.press("Escape");
+    await expect(first.getByRole("button")).toHaveCount(0);
     await first.locator("p").first().selectText();
-    await page.mouse.wheel(0, 400);
-    await page.getByLabel("보기").selectOption("parallel");
-    await page.getByLabel("낭독 언어").selectOption("ja");
+    await expect(page.getByLabel("본문 보기")).toHaveCount(0);
+    await page.getByRole("button", { name: "OPEN", exact: true }).click();
     await page.getByLabel("낭독 속도").selectOption("1.5");
+    await page.mouse.wheel(0, 400);
     // 검증: API 호출0은 mock 회귀이며 실제 과금0은 live ledger로 별도 판정한다.
     expect(calls).toBe(0);
+});
+
+test("NOVEL-READER-13 KRJP keeps both text fonts without completion controls", async ({ page }) => {
+    // 준비: 최초 번역이 실패했더라도 모든 문장이 복구되어 저장된 회차를 연다.
+    await page.route("**/episodes/2/reader", route => fulfillJson(route, responseDto({
+        ...snapshot(), initialAttemptState: "PARTIAL", durableComplete: true,
+    })));
+
+    // 실행: 선택기를 누르지 않은 KRJP 기본 보기에서 두 언어를 확인한다.
+    await page.goto("/learning/novel/syosyetu/novels/n-test/episode/2");
+    const first = page.getByTestId("novel-sentence").first();
+
+    // 검증: 본문은 병기되고 완료 수치·내부 복구 이력·보기 선택은 노출되지 않는다.
+    await expect(first.locator('p[lang="ja"]')).toContainText("猫だ。");
+    await expect(first.locator('p[lang="ko"]')).toContainText("고양이다.");
+    await expect(page.getByText("전체 번역 완료")).toHaveCount(0);
+    await expect(page.getByText("최초 번역 시도의 실패 기록")).toHaveCount(0);
+    await expect(page.getByLabel("본문 보기")).toHaveCount(0);
+    await expect(page.getByTestId("novel-translation-state")).toHaveAttribute("data-state", "SUCCEEDED");
+
+    // 검증: 원문과 번역문은 각 언어의 글꼴을 사용하고 글자 크기 조절 뒤에도 이를 유지한다.
+    const japanese = first.locator('p[lang="ja"]');
+    const korean = first.locator('p[lang="ko"]');
+    const before = await japanese.evaluate(element => ({
+        family: getComputedStyle(element).fontFamily,
+        size: Number.parseFloat(getComputedStyle(element).fontSize),
+    }));
+    const koreanBefore = await korean.evaluate(element => ({
+        family: getComputedStyle(element).fontFamily,
+        size: Number.parseFloat(getComputedStyle(element).fontSize),
+    }));
+    expect(before.family).toMatch(/^"?Noto Sans JP"?/);
+    expect(koreanBefore.family).toContain("Noto Serif KR");
+    expect(koreanBefore.size).toBe(before.size);
+    await page.getByRole("button", { name: "A+", exact: true }).click();
+    const after = await japanese.evaluate(element => ({
+        family: getComputedStyle(element).fontFamily,
+        size: Number.parseFloat(getComputedStyle(element).fontSize),
+    }));
+    const koreanAfter = await korean.evaluate(element => ({
+        family: getComputedStyle(element).fontFamily,
+        size: Number.parseFloat(getComputedStyle(element).fontSize),
+    }));
+    expect(after.family).toBe(before.family);
+    expect(after.size).toBeGreaterThan(before.size);
+    expect(koreanAfter.family).toBe(koreanBefore.family);
+    expect(koreanAfter.size).toBeGreaterThan(koreanBefore.size);
 });
 
 test("NOVEL-READER-06 duplicate click shares pending audio and pause fences delayed playback", async ({ page }) => {
@@ -155,9 +211,10 @@ test("NOVEL-READER-06 duplicate click shares pending audio and pause fences dela
         await fulfillJson(route, responseDto({ ...request, partCount: 1, audioBase64: wavFixture(), contentType: "audio/wav", provider: "openai" })).catch(() => undefined);
     });
     await page.goto("/novel/syosyetu/novels/n-test/episode/2");
+    await page.getByRole("button", { name: "OPEN", exact: true }).click();
     const state = page.getByTestId("novel-playback-state");
     // 실행 / 검증: 준비 중 취소를 제공하고 늦은 응답은 재생을 시작하지 않는다.
-    await page.getByRole("button", { name: "현재 회차 전체 읽기", exact: true }).dblclick();
+    await page.getByRole("button", { name: "번역문 전체 읽기", exact: true }).dblclick();
     await expect(state).toHaveAttribute("data-state", "loading");
     await expect.poll(() => calls).toBe(1);
     await page.getByRole("button", { name: "일시정지", exact: true }).click();
@@ -168,30 +225,32 @@ test("NOVEL-READER-06 duplicate click shares pending audio and pause fences dela
     expect(calls).toBe(1);
 });
 
-test("NOVEL-READER-07 language change and logout stop the player without synthesizing later sentences", async ({ page }) => {
+test("NOVEL-READER-07 explicit whole-read language switch and logout fence later synthesis", async ({ page }) => {
     // 준비
-    let calls = 0;
+    const calls: string[] = [];
     await page.route("**/episodes/2/reader", route => fulfillJson(route, responseDto(snapshot())));
     await page.route("**/episodes/2/audio", route => {
-        calls++;
-        return fulfillJson(route, responseDto({ ...route.request().postDataJSON(), partCount: 1, audioBase64: wavFixture(), contentType: "audio/wav", provider: "openai" }));
+        const request = route.request().postDataJSON();
+        calls.push(request.language);
+        return fulfillJson(route, responseDto({ ...request, partCount: 1, audioBase64: wavFixture(), contentType: "audio/wav", provider: "openai" }));
     });
     await page.goto("/novel/syosyetu/novels/n-test/episode/2");
+    await page.getByRole("button", { name: "OPEN", exact: true }).click();
     const state = page.getByTestId("novel-playback-state");
-    // 실행 / 검증: 언어 선택은 정지이며 다른 언어의 합성 의사가 아니다.
-    await page.getByRole("button", { name: "현재 회차 전체 읽기", exact: true }).click();
+    // 실행: 명시적인 다른 언어의 전체 읽기는 기존 재생 의사를 교체한다.
+    await page.getByRole("button", { name: "번역문 전체 읽기", exact: true }).click();
     await expect(state).toHaveAttribute("data-state", "playing");
-    await page.getByLabel("낭독 언어").selectOption("ja");
-    await expect(state).toHaveAttribute("data-state", "idle");
-    expect(calls).toBe(1);
-    await page.getByRole("button", { name: "현재 회차 전체 읽기", exact: true }).click();
+    await page.getByRole("button", { name: "원문 전체 읽기", exact: true }).click();
     await expect(state).toHaveAttribute("data-state", "playing");
+    expect(calls).toEqual(["ko", "ja"]);
+
+    // 검증: 로그아웃 후에는 추가 음성이 시작되지 않는다.
     // 합성 인증 세션의 logout을 전달한다. 실제 사용자 세션은 사용하지 않는다.
     await page.route("**/api/auth/session", route => fulfillJson(route, {}));
     await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
     await expect(page.locator('[data-testid="novel-playback-state"][data-state="playing"]')).toHaveCount(0);
     await page.waitForTimeout(700);
-    expect(calls).toBe(2);
+    expect(calls).toEqual(["ko", "ja"]);
 });
 
 test("NOVEL-READER-10 real logout UI clears only the local synthetic session during native playback", async ({ page, context }) => {
@@ -204,8 +263,9 @@ test("NOVEL-READER-10 real logout UI clears only the local synthetic session dur
         return fulfillJson(route, responseDto({ ...route.request().postDataJSON(), partCount: 1, audioBase64: wavFixture(), contentType: "audio/wav", provider: "openai" }));
     });
     await page.goto("/novel/syosyetu/novels/n-test/episode/2");
+    await page.getByRole("button", { name: "OPEN", exact: true }).click();
     expect(await page.evaluate(() => new Audio() instanceof HTMLAudioElement && Function.prototype.toString.call(Audio).includes("[native code]"))).toBe(true);
-    await page.getByRole("button", { name: "현재 회차 전체 읽기", exact: true }).click();
+    await page.getByRole("button", { name: "번역문 전체 읽기", exact: true }).click();
     await expect(page.getByTestId("novel-playback-state")).toHaveAttribute("data-state", "playing");
     const nativeTiming = nativeClickToPlaying(null, await nativeMediaObservation(page));
     expect(nativeTiming.clickToPlayingMs).toBeGreaterThanOrEqual(0);
@@ -248,7 +308,8 @@ test("NOVEL-READER-11 reader next action stops synthesis before a delayed route 
         await route.abort();
     });
     await page.goto("/novel/syosyetu/novels/n-test/episode/2");
-    await page.getByRole("button", { name: "현재 회차 전체 읽기", exact: true }).click();
+    await page.getByRole("button", { name: "OPEN", exact: true }).click();
+    await page.getByRole("button", { name: "번역문 전체 읽기", exact: true }).click();
     await expect(page.getByTestId("novel-playback-state")).toHaveAttribute("data-state", "playing");
 
     // 실행 / 검증: navigation이 실패하더라도 명시적으로 떠나려던 순간 재생 의사는 취소돼야 한다.
@@ -273,7 +334,8 @@ for (const destination of ["locale", "anchor"] as const) {
             await route.abort();
         });
         await page.goto("/novel/syosyetu/novels/n-test/episode/2");
-        await page.getByRole("button", { name: "현재 회차 전체 읽기", exact: true }).click();
+        await page.getByRole("button", { name: "OPEN", exact: true }).click();
+        await page.getByRole("button", { name: "번역문 전체 읽기", exact: true }).click();
         await expect(page.getByTestId("novel-playback-state")).toHaveAttribute("data-state", "playing");
 
         // 실행: 실제 공통 언어 메뉴 또는 같은 탭 anchor를 사용한다. 이벤트를 주입하지 않는다.
@@ -312,7 +374,7 @@ test("NOVEL-READER-08 identical polls retain one rendered publication per event 
     expect(spans.map((item: { eventSequence: number }) => item.eventSequence)).toEqual([1, 2]);
 });
 
-test("NOVEL-READER-09 changing from single to full reading shares the pending first part", async ({ page }) => {
+test("NOVEL-READER-09 duplicate whole-reading click shares the pending first part", async ({ page }) => {
     // 준비: 서버 응답이 늦어도 같은 첫 문장을 다시 요청하지 않는다.
     let calls = 0;
     let deliver: (() => void) | undefined;
@@ -324,16 +386,16 @@ test("NOVEL-READER-09 changing from single to full reading shares the pending fi
         await fulfillJson(route, responseDto({ ...request, partCount: 1, audioBase64: wavFixture(), contentType: "audio/wav", provider: "openai" }));
     });
     await page.goto("/novel/syosyetu/novels/n-test/episode/2");
+    await page.getByRole("button", { name: "OPEN", exact: true }).click();
     const first = page.getByTestId("novel-sentence").first();
 
-    // 실행: 첫 문장의 단일 읽기에서 전체 큐로 의사를 변경한다.
-    await first.getByRole("button", { name: /문장 메뉴/ }).click();
-    await first.getByRole("button", { name: "한국어 번역: 이 문장 읽기", exact: true }).click();
+    // 실행: 첫 음성 응답이 늦어도 같은 전체 읽기 의사의 재클릭은 요청을 병합한다.
+    await page.getByRole("button", { name: "번역문 전체 읽기", exact: true }).click();
     await expect.poll(() => calls).toBe(1);
-    await page.getByRole("button", { name: "현재 회차 전체 읽기", exact: true }).click();
+    await page.getByRole("button", { name: "번역문 전체 읽기", exact: true }).click();
     deliver?.();
 
-    // 검증: 늦은 옛 큐가 재생되지 않으며 새 큐의 첫 음성은 동일 요청을 소비한다.
+    // 검증: 첫 문장은 한 번만 요청되고 동일 응답으로 재생한다.
     await expect(first).toHaveAttribute("data-active", "true");
     expect(calls).toBe(1);
     await page.getByRole("button", { name: "정지", exact: true }).click();

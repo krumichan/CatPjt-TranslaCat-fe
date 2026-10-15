@@ -101,6 +101,22 @@ export function LanguageLearningSettingForm({
                     </AppSelect>
                 </label>
 
+                <label className="block md:col-span-2">
+                    <span className="text-sm font-black text-slate-700 dark:text-slate-200">
+                        {t("feedbackLanguage")}
+                    </span>
+                    <AppSelect
+                        value={form.feedbackLanguage}
+                        onChange={(event) => controller.update("feedbackLanguage", event.target.value)}
+                        className="mt-2"
+                    >
+                        {CHAT_LANGUAGE_OPTIONS.map((language) => (
+                            <option key={language.code} value={language.code}>{language.label}</option>
+                        ))}
+                    </AppSelect>
+                    <span className="mt-1 block text-xs text-slate-400">{t("feedbackLanguageHelp")}</span>
+                </label>
+
                 <label className="block">
                     <span className="text-sm font-black text-slate-700 dark:text-slate-200">
                         {t("dailySentenceCount")}

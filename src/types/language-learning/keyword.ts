@@ -24,6 +24,14 @@ export interface LanguageLearningKeywordList {
     customKeywords: LanguageLearningKeyword[];
 }
 
+export interface LanguageLearningEffectiveKeywords {
+    candidates: Array<{
+        key: string;
+        text: string;
+        canonicalKey: string | null;
+    }>;
+}
+
 export interface LanguageLearningKeywordCreateRequest {
     text: string;
     type: KeywordType;

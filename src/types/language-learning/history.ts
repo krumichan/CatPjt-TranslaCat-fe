@@ -2,6 +2,7 @@ import type { DailyWritingSet } from "@/types/language-learning/daily";
 import type { ListeningHistoryDetail } from "@/types/language-learning/listening";
 import type { LevelTestHistoryDetail } from "@/types/language-learning/level";
 import type { PracticeSet } from "@/types/language-learning/practice";
+import type { WebAiResult } from "@/types/language-learning/webAi";
 import type {
     SpeakingEvaluation,
     SpeakingCoachingResult,
@@ -15,7 +16,8 @@ export type LearningSource =
     | "LISTENING"
     | "READING"
     | "VOCABULARY"
-    | "LEVEL_TEST";
+    | "LEVEL_TEST"
+    | "WEB_AI";
 export type LearningHistorySourceFilter = "ALL" | LearningSource;
 
 export interface LearningHistoryItem {
@@ -79,4 +81,5 @@ export type LearningHistoryDetail =
     | ListeningLearningHistoryDetail
     | LevelTestLearningHistoryDetail
     | ReadingLearningHistoryDetail
-    | VocabularyLearningHistoryDetail;
+    | VocabularyLearningHistoryDetail
+    | { activityId: string; source: "WEB_AI"; detail: WebAiResult };

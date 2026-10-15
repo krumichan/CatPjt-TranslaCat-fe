@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import type { InputHTMLAttributes, ReactNode } from "react";
+import BrandWordmark from "@/components/layout/BrandWordmark";
 import { AUTH_ERROR_MESSAGE_KEYS } from "@/lib/authPolicy";
 
 export const authInputClass = "w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100 dark:border-white/15 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-blue-500/20";
@@ -19,21 +19,7 @@ export function AuthPageFrame({ title, description, children }: {
             <div className="mx-auto max-w-md">
                 {/* 인증 화면도 앱 헤더와 같은 고양이 워드마크를 사용합니다. */}
                 <div className="mb-7 flex justify-center">
-                    <Image
-                        src="/images/translacat-wordmark-light.svg"
-                        alt="TranslaCat"
-                        width={300}
-                        height={72}
-                        priority
-                        className="h-auto w-[220px] dark:hidden"
-                    />
-                    <Image
-                        src="/images/translacat-wordmark-dark.svg"
-                        alt="TranslaCat"
-                        width={300}
-                        height={72}
-                        className="hidden h-auto w-[220px] dark:block"
-                    />
+                    <BrandWordmark alt="TranslaCat" className="w-[220px]" priority />
                 </div>
                 <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/40 dark:border-slate-700 dark:bg-slate-900 dark:shadow-none sm:p-8">
                     <h1 className="text-2xl font-black text-slate-900 dark:text-white">{title}</h1>

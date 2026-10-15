@@ -24,7 +24,8 @@ export async function installNativeMediaObserver(page: Page) {
         // 실제 DOM click capture가 제품 handler보다 먼저 실행된다. 합성 클릭/playing 이벤트는 만들지 않는다.
         document.addEventListener("click", event => {
             const label = (event.target as Element | null)?.closest("button")?.textContent?.trim() ?? "";
-            if (label === "현재 회차 전체 읽기" || label === "여기부터 읽기" || label.endsWith(": 이 문장 읽기")) {
+            if (["원문 전체 읽기", "번역문 전체 읽기", "原文を全文再生", "翻訳を全文再生", "현재 회차 전체 읽기", "여기부터 읽기"].includes(label)
+                || label.endsWith(": 이 문장 읽기")) {
                 state.clicks.push({ atMs: performance.now(), trusted: event.isTrusted, label });
             }
         }, true);

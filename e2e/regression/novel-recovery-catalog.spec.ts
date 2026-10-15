@@ -99,6 +99,9 @@ test("NOVEL-CATALOG-01 50카드의 준비 순 append, 원rank·focus·스크롤�
     await page.goto("/novel/syosyetu/genres/all?period=daily&page=1");
     const cards = page.getByTestId("novel-catalog-card");
     await expect(cards).toHaveCount(1);
+    await expect(page.getByTestId("novel-catalog-state")).toBeHidden();
+    await expect(page.getByText(/준비 \d+ · 실패 \d+ · 확보한 전체/)).toHaveCount(0);
+    await expect(page.getByRole("combobox", { name: "표시 순서", exact: true })).toBeVisible();
     await cards.first().getByRole("link").focus();
     count = 4;
     // 실행 / 검증: 전부50준비 이전에도1,7,15,3이 보이며 현재 링크의 DOM과 focus가 유지된다.
@@ -110,7 +113,10 @@ test("NOVEL-CATALOG-01 50카드의 준비 순 append, 원rank·focus·스크롤�
     count = 50;
     await expect(cards).toHaveCount(50);
     expect(await page.evaluate(() => window.scrollY)).toBe(scroll);
-    await page.getByLabel("표시 순서").selectOption("source");
+    const sort = page.getByRole("combobox", { name: "표시 순서", exact: true });
+    await sort.focus();
+    await expect(sort).toBeFocused();
+    await sort.selectOption("source");
     await expect(cards.nth(2)).toHaveAttribute("data-rank", "3");
     expect(posts).toBe(1); expect(audio).toBe(0);
 });

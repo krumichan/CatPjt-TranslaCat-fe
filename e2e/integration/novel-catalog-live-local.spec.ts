@@ -140,7 +140,7 @@ test.describe("actual progressive catalogue through the release stack", () => {
                 if (Date.now() >= deadline) throw new Error("CATALOG_ALL_CARDS_DEADLINE");
                 await page.waitForTimeout(250);
             }
-            await expect(page.getByTestId("novel-catalog-state")).toContainText("준비 50");
+            await expect(page.getByTestId("novel-catalog-state")).toHaveAttribute("data-ready", "50");
             if (focusedRetry) await expect(page.locator(`[data-testid="novel-catalog-card"][data-identifier="${focusedRetry}"]`).getByRole("button")).toBeFocused();
             else await expect(page.locator(`[data-testid="novel-catalog-card"][data-identifier="${focusedIdentifier}"]`).getByRole("link")).toBeFocused();
             expect(await page.evaluate(() => window.scrollY)).toBe(scroll);
@@ -162,7 +162,7 @@ test.describe("actual progressive catalogue through the release stack", () => {
             await page.goto(`${releaseAppUrl}/ko`);
             await page.goto(url);
             await expect(cards).toHaveCount(50, { timeout: 90_000 });
-            await expect(page.getByTestId("novel-catalog-state")).toContainText("준비 50");
+            await expect(page.getByTestId("novel-catalog-state")).toHaveAttribute("data-ready", "50");
             await Promise.allSettled(reads);
             expect(snapshots.at(-1)?.snapshot.items.every(item => item.cached && item.status === "READY")).toBe(true);
             expect(starts).toBe(2); expect(audio).toBe(0);

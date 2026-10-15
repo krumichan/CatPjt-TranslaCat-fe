@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ArrowDownWideNarrow, ChevronDown } from "lucide-react";
 import NovelCatalogRetryButton from "@/components/novel/NovelCatalogRetryButton";
 import NovelBilingualField from "@/components/novel/NovelBilingualField";
 import { ROUTES, to } from "@/constants/routes";
@@ -21,16 +22,28 @@ interface Props {
 }
 export default function NovelCatalogView({ snapshot, platform, locale, loading, error, sort, setSort, retrying, retry, reconnect }: Props) {
     const ja = locale === "ja";
-    return <section aria-label={ja ? "作品の準備状況" : "작품 준비 상태"} className="space-y-5">
+    return <section aria-label={ja ? "作品一覧" : "작품 목록"} className="space-y-5">
         {loading && <p role="status">{ja ? "元の一覧を取得中" : "원본 목록을 가져오는 중"}</p>}
         {error && <div role="alert">{ja ? "一覧を取得できませんでした" : "목록 상태를 확인하지 못했습니다"} ({error}) <button onClick={reconnect}>{ja ? "状態を再取得" : "상태 다시 확인"}</button></div>}
         {snapshot && <>
-            <p role="status" data-testid="novel-catalog-state" data-snapshot-id={snapshot.snapshotId} data-event-sequence={snapshot.eventSequence}>
-                {ja ? "準備済み" : "준비"} {snapshot.ready} · {ja ? "失敗" : "실패"} {snapshot.failed} · {ja ? "取得済み" : "확보한 전체"} {snapshot.total}
-            </p>
-            <label>{ja ? "表示順" : "표시 순서"} <select value={sort} onChange={event => setSort(event.target.value as "arrival" | "source")}>
-                <option value="arrival">{ja ? "準備できた順" : "준비된 순서"}</option><option value="source">{ja ? "元の順位・関連度" : "원래 순위·관련도"}</option>
-            </select></label>
+            {/* 진행 수치는 검증용 속성에만 남기고 목록 조작은 정렬 선택 하나로 모은다. */}
+            <span hidden data-testid="novel-catalog-state" data-snapshot-id={snapshot.snapshotId} data-event-sequence={snapshot.eventSequence}
+                data-ready={snapshot.ready} data-failed={snapshot.failed} data-total={snapshot.total} />
+            <div className="flex justify-end">
+                <label data-testid="novel-catalog-sort" className="flex min-h-12 w-full items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 shadow-sm transition focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800/70 dark:focus-within:border-blue-400 sm:w-auto">
+                    <ArrowDownWideNarrow size={16} aria-hidden="true" className="shrink-0 text-slate-500 dark:text-slate-400" />
+                    <span className="shrink-0 text-xs font-semibold text-slate-500 dark:text-slate-400">{ja ? "表示順" : "표시 순서"}</span>
+                    <span className="relative ml-auto min-w-0">
+                        <select aria-label={ja ? "表示順" : "표시 순서"} value={sort}
+                            onChange={event => setSort(event.target.value as "arrival" | "source")}
+                            className="min-h-12 max-w-full cursor-pointer appearance-none bg-transparent py-2 pl-1 pr-7 text-sm font-semibold text-slate-900 focus-visible:outline-none dark:text-slate-100 dark:[color-scheme:dark]">
+                            <option value="arrival">{ja ? "準備できた順" : "준비된 순서"}</option>
+                            <option value="source">{ja ? "元の順位・関連度" : "원래 순위·관련도"}</option>
+                        </select>
+                        <ChevronDown size={16} aria-hidden="true" className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
+                    </span>
+                </label>
+            </div>
             <div className="grid gap-6">
                 {orderedCatalogItems(snapshot, sort).map(item => <article key={`${snapshot.snapshotId}:${item.itemId}`} data-testid="novel-catalog-card" data-item-id={item.itemId} data-identifier={item.identifier}
                     data-rank={item.rank ?? undefined} data-source-position={item.sourcePosition} data-arrival-sequence={item.arrivalSequence} data-status={item.status} data-cached={item.cached}

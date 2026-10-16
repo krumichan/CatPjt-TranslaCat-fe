@@ -11,7 +11,7 @@ interface WebAiScheduleEditorFooterProps {
     canCopy: boolean;
     canSave?: boolean;
     issues: string[];
-    notice: "saved" | "saveFailed" | "copied" | "copyFailed" | null;
+    notice: "saved" | "saveFailed" | "copied" | "copyFailed" | "prepareFailed" | null;
     busy?: boolean;
 }
 
@@ -67,7 +67,7 @@ export function WebAiScheduleEditorFooter({
                 {/* 모바일은 저장을 넓게 배치하고, 넓은 화면에서는 복사와 나란히 제공한다. */}
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
                     <p id="web-ai-save-help" className="order-2 text-center text-[11px] leading-5 text-slate-500 dark:text-slate-400 sm:order-1 sm:flex-1 sm:text-left sm:text-xs">
-                        {workflow("serverNoticeTitle")}
+                        {workflow("copyPreparationHelp")}
                     </p>
                     <div className="order-1 flex w-full items-center gap-2 sm:order-2 sm:w-auto">
                         <button type="button" onClick={onCopy} disabled={!canCopy || busy} className="hidden min-h-11 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 text-sm font-black text-blue-700 transition hover:bg-blue-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200 sm:inline-flex">
@@ -76,7 +76,7 @@ export function WebAiScheduleEditorFooter({
                         </button>
                         <button type="button" disabled={busy || !canSave} onClick={onSave} aria-describedby="web-ai-save-help" className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 text-sm font-black text-white shadow-sm transition hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:opacity-50 sm:min-h-11 sm:w-auto">
                             <Save className="h-4 w-4" aria-hidden="true" />
-                            {busy ? workflow("saving") : t("saveDraft")}
+                            {busy ? workflow("busy") : t("saveDraft")}
                         </button>
                     </div>
                 </div>

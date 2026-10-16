@@ -36,14 +36,14 @@ export function useWebAiPlanPrerequisites() {
     const requestRevision = useRef(0);
 
     const refresh = useCallback(() => {
-        // 재검사 중에는 이전 계정·이전 설정의 완료 상태로 새 계획을 만들지 않는다.
+        // 같은 계정의 포커스 재검사는 기존 표시와 입력을 보존한다. 변경·실패는 응답 후 판정한다.
         requestRevision.current += 1;
-        setState(loadingState(account));
         setRevision((value) => value + 1);
-    }, [account]);
+    }, []);
 
     useEffect(() => {
         if (!account) return;
+        // 최초 조회와 계정 전환만 로딩으로 표시하고, 백그라운드 재검사 중에는 화면을 비우지 않는다.
         let cancelled = false;
         const request = ++requestRevision.current;
 

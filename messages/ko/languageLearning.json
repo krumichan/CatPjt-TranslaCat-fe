@@ -21,10 +21,10 @@
       "enabled": "사용 중",
       "disabled": "일시 중지",
       "connectionTitle": "웹 AI 연동",
-      "connectionHelp": "연동 프롬프트를 복사해 사용하는 웹 AI에 붙여 넣으세요. 외부 요청을 지원하지 않는 AI에서는 결과 JSON을 직접 가져올 수 있습니다.",
+      "connectionHelp": "같은 프롬프트에 예약별 문제 조회와 평가 후 TranslaCat 결과 전송 방법을 함께 담습니다. HTTP 요청을 지원하지 않는 AI에서는 현재 1회 학습 후 결과 JSON을 직접 가져올 수 있습니다.",
       "saveBeforeConnect": "계획을 먼저 저장하면 연동할 수 있습니다.",
       "createConnection": "연동 프롬프트 만들기",
-      "rotateConnection": "새 연동 프롬프트 발급",
+      "rotateConnection": "연결 키 교체",
       "revokeConnection": "연동 해제",
       "revokeConfirm": "현재 연동을 해제할까요? 기존 프롬프트로는 더 이상 연결할 수 없습니다.",
       "connectionRevoked": "연동을 해제했습니다.",
@@ -34,8 +34,8 @@
       "copy": "복사",
       "copyFailed": "복사하지 못했습니다. 텍스트를 직접 선택해 복사해 주세요.",
       "runTitle": "학습 결과 가져오기",
-      "runHelp": "학습용 프롬프트로 문제를 풀고 받은 결과 JSON을 붙여 넣으세요. 점수와 피드백은 서버에서 검증합니다.",
-      "prepareRun": "이번 학습 프롬프트 만들기",
+      "runHelp": "HTTP 요청이 가능한 AI는 답안 평가 후 결과를 직접 전송합니다. 불가능한 AI가 제공한 결과 JSON은 여기에 붙여 넣으세요. 점수와 피드백은 서버에서 검증합니다.",
+      "prepareRun": "전송 프롬프트 준비",
       "runPrompt": "이번 학습 프롬프트",
       "resultJson": "웹 AI 결과 JSON",
       "resultPlaceholder": "웹 AI가 제공한 결과 JSON을 그대로 붙여 넣으세요.",
@@ -98,7 +98,13 @@
         "INSUFFICIENT_EVIDENCE": "평가 근거 부족",
         "COACHING": "코칭 피드백 · 점수 미반영",
         "PARTIAL": "일부 검증 완료"
-      }
+      },
+      "connectionPreparationHelp": "이 페이지에서 처음 준비하면 기존 연결 키가 교체됩니다. 이미 등록한 예약에는 새 프롬프트를 붙여 넣어 주세요. 이후 재복사는 키를 교체하지 않습니다.",
+      "rotateConfirm": "연결 키를 교체할까요? 기존 프롬프트의 자동 연동이 중단됩니다. 새 프롬프트를 복사해 예약에 다시 등록해 주세요.",
+      "promptPrepared": "전송 프롬프트를 준비했습니다. 위의 실제 복사 내용을 확인하고 복사하세요.",
+      "preparedInPreview": "위의 실제 복사 내용과 모든 복사 버튼이 같은 프롬프트를 사용합니다.",
+      "newManualRun": "새 수동 학습 회차 준비",
+      "copyPreparationHelp": "최초 준비 시 기존 연결 키 교체 · 같은 페이지에서 재복사 시 유지"
     },
     "generation": {
       "progress": "문제 준비 {ready}/{total}",
@@ -1129,16 +1135,21 @@
         "notice": {
           "saved": "학습 계획을 계정에 저장했습니다.",
           "saveFailed": "요청을 완료하지 못했습니다. 입력한 내용은 유지됩니다. 다시 시도해 주세요.",
-          "copied": "프롬프트를 복사했습니다. 웹 AI의 일정 기능에 붙여 넣으세요.",
-          "copyFailed": "복사하지 못했습니다. 미리보기 내용을 직접 복사해 주세요."
+          "copied": "전송 프롬프트를 복사했습니다. 웹 AI에 붙여 넣으세요. 평가 후 결과 전송 또는 수동 가져오기를 안내합니다.",
+          "copyFailed": "자동 복사가 차단되었습니다. 준비된 실제 문구는 보존되어 있습니다. 다시 복사하거나 전체 선택 후 직접 복사해 주세요.",
+          "prepareFailed": "전송 프롬프트를 준비하지 못했습니다. 입력한 내용은 유지됩니다. 다시 시도해 주세요."
         },
         "saveDraft": "학습 계획 저장",
         "saveDraftHelp": "계획은 계정에 저장됩니다.",
         "copyPrompt": "프롬프트 복사",
-        "promptPreviewTitle": "학습 내용 미리보기",
-        "promptPreviewHelp": "실제 학습 프롬프트는 저장된 계획과 결과 제출 형식을 포함해 서버에서 생성됩니다.",
+        "promptPreviewTitle": "전송 프롬프트",
+        "promptPreviewHelp": "준비 후에는 실제 복사할 내용 전체가 표시됩니다.",
         "ready": "복사 가능",
-        "promptPreviewEmpty": "이름·일정·문제 구성을 입력하면 프롬프트를 미리 볼 수 있습니다."
+        "promptPreviewEmpty": "이름·일정·문제 구성을 입력하면 프롬프트를 미리 볼 수 있습니다.",
+        "actualPrompt": "실제 복사할 전송 프롬프트",
+        "actualPromptHelp": "아래 내용이 그대로 복사됩니다. 자동 복사가 안 되면 다시 복사하거나 전체 선택 후 직접 복사해 주세요. 연결 키가 포함되어 있으니 공개하지 마세요.",
+        "promptSummaryHelp": "아래는 저장 전 학습 설정 요약입니다. 저장 후 프롬프트 복사를 누르면 결과 전송 방법을 포함한 실제 문구를 준비합니다. 처음 준비하면 기존 연결 키가 교체되며, 재복사는 키를 교체하지 않습니다.",
+        "selectPrompt": "전체 선택"
       },
       "form": {
         "title": "기본 학습 설정",

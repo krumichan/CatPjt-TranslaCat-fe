@@ -20,6 +20,7 @@ import { WebAiScheduleEditor } from "@/components/language-learning/settings/web
 import { WebAiPlanIntegration } from "@/components/language-learning/settings/web-ai/WebAiPlanIntegration";
 import { WebAiPlanPrerequisiteChecklist } from "@/components/language-learning/settings/web-ai/WebAiPlanPrerequisiteChecklist";
 import { useWebAiPlanPrerequisites } from "@/hooks/language-learning/useWebAiPlanPrerequisites";
+import { useWebAiPlanTransfer } from "@/hooks/language-learning/useWebAiPlanTransfer";
 import {
     WEB_AI_AREA_GROUPS,
     applyWebAiLanguageSettings,
@@ -84,10 +85,10 @@ export function WebAiScheduleSettingsPage() {
     const [draft, setDraft] = useState<WebAiSchedule | null>(null);
     const [loadedOwner, setLoadedOwner] = useState<string | null>(null);
     const [issues, setIssues] = useState<string[]>([]);
-    const [notice, setNotice] = useState<"saved" | "saveFailed" | "copied" | "copyFailed" | null>(null);
+    const [notice, setNotice] = useState<"saved" | "saveFailed" | "copied" | "copyFailed" | "prepareFailed" | null>(null);
     const activeDraftId = draft?.id;
     const currentOwner = useRef(owner);
-    const copyExecution = useRef<{ planId: string; revision: number; key: string } | null>(null);
+    const copying = useRef(false);
     const baseStatus = prerequisites.settingsStatus === "complete" ? "ready" : prerequisites.settingsStatus === "loading" ? "loading" : "error";
     const defaultKeywordStatus = prerequisites.keywordsStatus === "error" ? "error" : prerequisites.keywordsStatus === "loading" ? "loading" : "ready";
     const setting = prerequisites.setting;
@@ -163,7 +164,6 @@ export function WebAiScheduleSettingsPage() {
     useEffect(() => {
         if (!owner) return;
         const refreshSettings = () => {
-            setKeywordStatus("loading");
             setKeywordRevision((value) => value + 1);
         };
         window.addEventListener("focus", refreshSettings);
@@ -202,7 +202,22 @@ export function WebAiScheduleSettingsPage() {
         JSON.stringify(toWebAiPlanRequest(serverDraft, serverDraft.enabled)));
     const selectedCount = effectiveDraft ? totalQuestions(effectiveDraft) : 0;
     const currentIssues = effectiveDraft ? validateWebAiSchedule(effectiveDraft) : [];
-    const prompt = effectiveDraft && prerequisites.ready &&
+    // 현재 학습 문맥이 바뀌면 수동 회차만 새로 준비하고, 계획의 연결 키는 계속 재사용한다.
+    const transfer = useWebAiPlanTransfer({
+        account: owner ? `${owner}:${session?.loginSessionId ?? ""}` : null,
+        plan: serverDraft,
+        contextKey: JSON.stringify([
+            serverDraft?.revision,
+            setting?.originLanguage,
+            setting?.learningLanguage,
+            setting?.feedbackLanguage,
+            defaultKeywords,
+            serverDraft ? new Intl.DateTimeFormat("en-CA", { timeZone: serverDraft.timezone }).format(new Date()) : null,
+        ]),
+        locale: locale === "ja" || locale === "learning" ? locale : "ko",
+        api,
+    });
+    const promptSummary = effectiveDraft && prerequisites.ready &&
         (effectiveDraft.keywordMode === "CUSTOM" || defaultKeywordStatus === "ready") && currentIssues.length === 0
         ? buildWebAiPrompt(
               effectiveDraft,
@@ -350,26 +365,34 @@ export function WebAiScheduleSettingsPage() {
     };
 
     const copyPrompt = async () => {
+        setNotice(null);
+        setWorkflowNotice(null);
         if (!draftSaved || !serverDraft || busy || !prerequisites.ready || currentIssues.length > 0) {
             setIssues(currentIssues);
             return;
         }
 
+        if (copying.current || transfer.busy) return;
+        copying.current = true;
+        setBusy(true);
+        let preparedText = transfer.prompt;
         try {
-            // 실제 실행에는 저장된 계획의 서버 스냅샷과 결과 계약이 포함된 프롬프트만 복사한다.
-            if (copyExecution.current?.planId !== serverDraft.id || copyExecution.current.revision !== serverDraft.revision) {
-                copyExecution.current = { planId: serverDraft.id, revision: serverDraft.revision, key: crypto.randomUUID() };
-            }
-            const run = await api.createRun(serverDraft.id, copyExecution.current.key);
+            // 준비된 문구는 클릭 직후 복사한다. 최초 HTTP 요청 후 실패해도 동일한 실제 문구를 남긴다.
+            preparedText ||= await transfer.prepare() ?? "";
             if (currentOwner.current !== owner) return;
-            await navigator.clipboard.writeText(run.prompt);
-            copyExecution.current = null;
+            if (!preparedText) throw new Error("WEB_AI_PROMPT_NOT_PREPARED");
+            await navigator.clipboard.writeText(preparedText);
             setNotice("copied");
         } catch (error) {
-            setNotice("copyFailed");
+            if (currentOwner.current !== owner) return;
+            setNotice(preparedText ? "copyFailed" : "prepareFailed");
             const code = getApiErrorCode(error);
             if (code && workflow.has(`error.${code}`)) setWorkflowNotice(`error.${code}`);
+            else if (!preparedText) setWorkflowNotice("actionFailed");
             if (code === "WEB_AI_SETTINGS_REQUIRED" || code === "WEB_AI_KEYWORDS_REQUIRED") prerequisites.refresh();
+        } finally {
+            copying.current = false;
+            if (currentOwner.current === owner) setBusy(false);
         }
     };
 
@@ -554,12 +577,13 @@ export function WebAiScheduleSettingsPage() {
                                     onClose={closeDraft}
                                     issues={issues}
                                     notice={notice}
-                                    prompt={prompt}
+                                    prompt={draftSaved ? transfer.prompt : ""}
+                                    promptSummary={promptSummary}
                                     questionCount={selectedCount}
-                                    busy={busy}
+                                    busy={busy || transfer.busy}
                                     ready={prerequisites.ready}
                                     canCopy={prerequisites.ready && draftSaved && currentIssues.length === 0}
-                                    integration={<WebAiPlanIntegration key={`${draft.id}:${serverDraft?.revision ?? "new"}`} planId={draft.id} saved={draftSaved} ready={prerequisites.ready && currentIssues.length === 0} onPrerequisitesChanged={prerequisites.refresh} />}
+                                    integration={<WebAiPlanIntegration key={draft.id} saved={draftSaved} ready={prerequisites.ready && currentIssues.length === 0} transfer={transfer} onCopy={() => void copyPrompt()} onAction={() => { setNotice(null); setWorkflowNotice(null); }} onPrerequisitesChanged={prerequisites.refresh} />}
                                 />
                             </div>
                         ) : (

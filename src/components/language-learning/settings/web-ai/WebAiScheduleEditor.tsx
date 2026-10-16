@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import {
     BookOpen,
     CalendarDays,
@@ -45,8 +45,9 @@ interface WebAiScheduleEditorProps {
     onCopy: () => void;
     onClose: () => void;
     issues: string[];
-    notice: "saved" | "saveFailed" | "copied" | "copyFailed" | null;
+    notice: "saved" | "saveFailed" | "copied" | "copyFailed" | "prepareFailed" | null;
     prompt: string;
+    promptSummary: string;
     questionCount: number;
     baseStatus: "loading" | "ready" | "error";
     keywordStatus: "loading" | "ready" | "error";
@@ -69,6 +70,7 @@ export function WebAiScheduleEditor({
     issues,
     notice,
     prompt,
+    promptSummary,
     questionCount,
     baseStatus,
     keywordStatus,
@@ -82,6 +84,7 @@ export function WebAiScheduleEditor({
     integration,
 }: WebAiScheduleEditorProps) {
     const t = useTranslations("LanguageLearning.settings.webAi");
+    const actualPrompt = useRef<HTMLTextAreaElement>(null);
     const [activeDomain, setActiveDomain] = useState<string>(() =>
         WEB_AI_AREA_GROUPS.find((group) => schedule.areas.some((area) =>
             area.code === group.domain || group.areas.some((code) => code === area.code),
@@ -436,7 +439,7 @@ export function WebAiScheduleEditor({
             />
 
             <section aria-labelledby="web-ai-plan-preview" className={PANEL_CLASS}>
-                <details className="group">
+                <details className="group" open={prompt ? true : undefined}>
                     <summary className="flex cursor-pointer list-none items-center gap-2.5 [&::-webkit-details-marker]:hidden">
                         <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-black text-white shadow-sm">3</span>
                         <h3 id="web-ai-plan-preview" className="text-lg font-black text-slate-950 dark:text-white">{t("promptPreviewTitle")}</h3>
@@ -444,14 +447,18 @@ export function WebAiScheduleEditor({
                         <ChevronDown className="ml-auto h-4 w-4 shrink-0 text-slate-500 transition group-open:rotate-180 dark:text-slate-300" aria-hidden="true" />
                     </summary>
                     <div className="mt-4 border-t border-slate-100 pt-4 dark:border-blue-300/10">
+                        <p className="mb-3 text-xs leading-6 text-slate-500 dark:text-slate-300">{t(prompt ? "actualPromptHelp" : "promptSummaryHelp")}</p>
                         {prompt ? (
-                            <pre className="max-h-96 overflow-auto whitespace-pre-wrap break-words rounded-xl bg-slate-50 p-3 font-sans text-xs leading-6 text-slate-700 dark:bg-[#102135] dark:text-slate-200">{prompt}</pre>
+                            <textarea ref={actualPrompt} aria-label={t("actualPrompt")} readOnly value={prompt} rows={12} className="max-h-96 w-full resize-y rounded-xl border border-slate-200 bg-slate-50 p-3 font-mono text-xs leading-6 text-slate-700 dark:border-blue-300/15 dark:bg-[#102135] dark:text-slate-200" />
+                        ) : promptSummary ? (
+                            <pre className="max-h-96 overflow-auto whitespace-pre-wrap break-words rounded-xl bg-slate-50 p-3 font-sans text-xs leading-6 text-slate-700 dark:bg-[#102135] dark:text-slate-200">{promptSummary}</pre>
                         ) : (
                             <p className="rounded-xl border border-dashed border-slate-200 px-4 py-5 text-sm text-slate-500 dark:border-blue-300/15 dark:text-slate-400">{t("promptPreviewEmpty")}</p>
                         )}
                         <button type="button" onClick={onCopy} disabled={!canCopy || busy} className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 text-sm font-black text-blue-700 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200">
                             <ClipboardCopy className="h-4 w-4" aria-hidden="true" />{t("copyPrompt")}
                         </button>
+                        {prompt && <button type="button" disabled={busy} onClick={() => { actualPrompt.current?.focus(); actualPrompt.current?.select(); }} className="ml-2 mt-3 min-h-10 rounded-lg border border-slate-200 px-3 text-xs font-bold text-slate-700 disabled:opacity-50 dark:border-white/15 dark:text-slate-200">{t("selectPrompt")}</button>}
                     </div>
                 </details>
             </section>

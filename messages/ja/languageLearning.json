@@ -21,10 +21,10 @@
       "enabled": "有効",
       "disabled": "一時停止",
       "connectionTitle": "Web AI連携",
-      "connectionHelp": "連携プロンプトをコピーしてWeb AIに貼り付けてください。外部通信に対応しないAIでは、結果JSONを手動で取り込めます。",
+      "connectionHelp": "同じプロンプトに予約ごとの問題取得と、評価後のTranslaCatへの結果送信方法を含めます。HTTPリクエスト非対応のAIでは今回の1回分を学習し、結果JSONを手動で取り込めます。",
       "saveBeforeConnect": "計画を保存すると連携できます。",
       "createConnection": "連携プロンプトを作成",
-      "rotateConnection": "連携プロンプトを再発行",
+      "rotateConnection": "接続キーを交換",
       "revokeConnection": "連携を解除",
       "revokeConfirm": "現在の連携を解除しますか？以前のプロンプトでは接続できなくなります。",
       "connectionRevoked": "連携を解除しました。",
@@ -34,8 +34,8 @@
       "copy": "コピー",
       "copyFailed": "コピーできませんでした。テキストを選択してコピーしてください。",
       "runTitle": "学習結果の取り込み",
-      "runHelp": "学習用プロンプトで解答し、受け取った結果JSONを貼り付けてください。スコアとフィードバックはサーバーで検証します。",
-      "prepareRun": "今回の学習プロンプトを作成",
+      "runHelp": "HTTP対応のAIは解答の評価後に結果を直接送信します。非対応のAIが提供した結果JSONをここに貼り付けてください。スコアとフィードバックはサーバーで検証します。",
+      "prepareRun": "送信プロンプトを準備",
       "runPrompt": "今回の学習プロンプト",
       "resultJson": "Web AIの結果JSON",
       "resultPlaceholder": "Web AIが提供した結果JSONをそのまま貼り付けてください。",
@@ -98,7 +98,13 @@
         "INSUFFICIENT_EVIDENCE": "評価根拠が不足",
         "COACHING": "コーチング・スコア未反映",
         "PARTIAL": "一部検証完了"
-      }
+      },
+      "connectionPreparationHelp": "このページで初めて準備すると既存の接続キーが置き換わります。登録済みの予約には新しいプロンプトを貼り付けてください。その後の再コピーではキーを交換しません。",
+      "rotateConfirm": "接続キーを交換しますか？以前のプロンプトの自動連携は停止します。新しいプロンプトをコピーして予約に再登録してください。",
+      "promptPrepared": "送信プロンプトを準備しました。上の実際のコピー内容を確認してコピーしてください。",
+      "preparedInPreview": "上の実際のコピー内容と、すべてのコピーボタンは同じプロンプトを使用します。",
+      "newManualRun": "新しい手動学習回を準備",
+      "copyPreparationHelp": "初回準備で既存キーを交換 · 同じページでの再コピーは維持"
     },
     "generation": {
       "progress": "問題の準備 {ready}/{total}",
@@ -1129,16 +1135,21 @@
         "notice": {
           "saved": "学習計画をアカウントに保存しました。",
           "saveFailed": "処理できませんでした。入力内容は保持されています。再試行してください。",
-          "copied": "プロンプトをコピーしました。Web AIの予約機能に貼り付けてください。",
-          "copyFailed": "コピーできませんでした。プレビューから直接コピーしてください。"
+          "copied": "送信プロンプトをコピーしました。Web AIに貼り付けてください。評価後の結果送信または手動取り込みを案内します。",
+          "copyFailed": "自動コピーがブロックされました。準備した実際の文面は保持されています。再コピーするか、全選択して手動でコピーしてください。",
+          "prepareFailed": "送信プロンプトを準備できませんでした。入力内容は保持されています。再試行してください。"
         },
         "saveDraft": "学習プランを保存",
         "saveDraftHelp": "プランはアカウントに保存されます。",
         "copyPrompt": "プロンプトをコピー",
-        "promptPreviewTitle": "学習内容のプレビュー",
-        "promptPreviewHelp": "実際の学習プロンプトは保存した計画と結果の提出形式を含め、サーバーで作成されます。",
+        "promptPreviewTitle": "送信プロンプト",
+        "promptPreviewHelp": "準備後は実際にコピーする内容全体を表示します。",
         "ready": "コピー可能",
-        "promptPreviewEmpty": "名前・予定・問題構成を入力するとプレビューを表示します。"
+        "promptPreviewEmpty": "名前・予定・問題構成を入力するとプレビューを表示します。",
+        "actualPrompt": "実際にコピーする送信プロンプト",
+        "actualPromptHelp": "以下の内容をそのままコピーします。自動コピーができない場合は再コピーするか、全選択して手動でコピーしてください。接続キーを含むため公開しないでください。",
+        "promptSummaryHelp": "以下は保存前の学習設定の要約です。保存後にプロンプトのコピーを押すと結果送信方法を含む実際の文面を準備します。初回の準備では既存キーを置き換え、再コピーでは交換しません。",
+        "selectPrompt": "全選択"
       },
       "form": {
         "title": "基本学習設定",

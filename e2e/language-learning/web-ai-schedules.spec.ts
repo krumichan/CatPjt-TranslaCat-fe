@@ -5,12 +5,25 @@ import { expect, test } from "../fixtures/mock-test";
 import { LANGUAGE_LEARNING_SETTING, mockLanguageLearningBase } from "../support/language-learning-mocks";
 import { fulfillApiJson } from "../support/api-mocks";
 import { responseDto } from "../support/mock-data";
-import { buildWebAiPrompt } from "../../src/features/language-learning/web-ai/webAiPrompt";
-import type { WebAiAreaCode } from "../../src/features/language-learning/web-ai/webAiSchedule";
+import { mockWebAiRunPrompt } from "../support/web-ai-prompt-mocks";
 import type { WebAiPlan, WebAiPlanRequest } from "../../src/types/language-learning/webAi";
 
 const QA_DIRECTORY = path.resolve("..", ".codex-workspace", "verification", "fe", "web-ai-settings-mobile-update");
 const SETUP_QA_DIRECTORY = path.resolve("..", ".codex-workspace", "verification", "fe", "web-ai-prerequisites-20261016");
+const COPY_QA_DIRECTORY = path.resolve("..", ".codex-workspace", "verification", "fe", "web-ai-copy-transfer-20261016");
+
+async function createReadyPlan(page: Parameters<typeof mockLanguageLearningBase>[0]) {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto("/language-learning/settings/web-ai");
+    await page.getByRole("button", { name: "새 계획" }).first().click();
+    const editor = page.getByTestId("web-ai-schedule-editor");
+    await editor.getByRole("textbox", { name: "계획 이름" }).fill("실무 작문 복사 검증");
+    await editor.getByRole("checkbox", { name: "번역 작문" }).check();
+    const footer = page.getByTestId("web-ai-schedule-footer");
+    await footer.getByRole("button", { name: "학습 계획 저장" }).click();
+    await expect(footer.getByRole("status")).toContainText("저장했습니다");
+    return { editor, footer };
+}
 
 async function expectSettingsBelowHeader(page: Parameters<typeof mockLanguageLearningBase>[0]) {
     // 검증: 고정 헤더가 설정 화면의 첫 콘텐츠를 가리지 않는다.
@@ -25,6 +38,7 @@ test.describe("웹 AI 학습 계획", () => {
     test.beforeEach(async ({ page }) => {
         await mockLanguageLearningBase(page);
         const plans = new Map<string, WebAiPlan>();
+        let runSequence = 0;
         await page.route("**/language-learning/web-ai/**", async (route) => {
             const request = route.request();
             const path = new URL(request.url()).pathname.split("/web-ai")[1];
@@ -45,14 +59,15 @@ test.describe("웹 AI 학습 계획", () => {
             }
             if (/^\/plans\/[^/]+\/runs$/.test(path)) {
                 const plan = plans.get(path.split("/")[2])!;
-                const prompt = buildWebAiPrompt(plan, "ko", {} as Record<WebAiAreaCode, string>);
-                await fulfillApiJson(route, responseDto({ id: "run-id", planId: plan.id, executionKey: request.postDataJSON().executionKey, prompt }));
+                const id = `run-id-${++runSequence}`;
+                const prompt = mockWebAiRunPrompt(plan, id);
+                await fulfillApiJson(route, responseDto({ id, planId: plan.id, executionKey: request.postDataJSON().executionKey, prompt }));
                 return;
             }
             if (/^\/plans\/[^/]+\/connection$/.test(path) && request.method() === "POST") {
                 const promptUrl = "/api/v1/language-learning/web-ai/external/prompt";
                 const resultUrl = "/api/v1/language-learning/web-ai/external/results";
-                await fulfillApiJson(route, responseDto({ token: "test-plan-token", planId: path.split("/")[2], promptUrl, resultUrl, bootstrapPrompt: `Authorization: Bearer test-plan-token\nGET ${promptUrl}\nPOST ${resultUrl}` }));
+                await fulfillApiJson(route, responseDto({ token: "test-plan-token", planId: path.split("/")[2], promptUrl, resultUrl, bootstrapPrompt: `At each scheduled occurrence, first POST ${promptUrl}\nAuthorization: Bearer test-plan-token\nContent-Type: application/json\nBody: {"executionKey":"<stable scheduled local date and time>"}\nAfter feedback POST ${resultUrl}` }));
                 return;
             }
             if (path === "/results" && request.method() === "POST") {
@@ -259,11 +274,14 @@ test.describe("웹 AI 학습 계획", () => {
         await expect(preview).toContainText("설명과 피드백 언어: 한국어 (ko)");
 
         await footer.getByRole("button", { name: "프롬프트 복사" }).click();
-        await expect(footer.getByRole("status")).toContainText("프롬프트를 복사했습니다");
+        await expect(footer.getByRole("status")).toContainText("전송 프롬프트를 복사했습니다");
         const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
-        expect(clipboardText).toContain("매주 월·수요일");
-        expect(clipboardText).toContain("총 5문제");
-        expect(clipboardText).toContain('출제 키워드: ["Shopping"]');
+        expect(clipboardText).toContain('"weekdays":[1,3]');
+        expect(clipboardText).toContain("/external/results");
+        expect(clipboardText).toContain("originalFeedbackMarkdown");
+        expect(clipboardText).toContain('"runId": "run-id-1"');
+        // 검증: Windows 클립보드의 CRLF와 textarea의 LF 차이만 정규화한다.
+        await expect(editor.getByRole("textbox", { name: "실제 복사할 전송 프롬프트" })).toHaveValue(clipboardText.replace(/\r\n/g, "\n"));
 
         await page.evaluate(() => {
             const scroller = document.querySelector<HTMLElement>("main.overflow-y-auto");
@@ -271,6 +289,159 @@ test.describe("웹 AI 학습 계획", () => {
         });
         mkdirSync(QA_DIRECTORY, { recursive: true });
         await page.screenshot({ path: path.join(QA_DIRECTORY, "desktop-light.png"), fullPage: true });
+    });
+
+    test("지연된 준비와 복사 차단 후에도 실제 문구를 보존하고 HTTP 없이 재복사한다", async ({ page }) => {
+        // 준비: 첫 클립보드 쓰기만 거부하고, 실제 시도한 문자열을 테스트 메모리에 보관한다.
+        await page.addInitScript(() => {
+            const attempts: string[] = [];
+            Object.defineProperty(window, "__webAiCopyAttempts", { value: attempts });
+            Object.defineProperty(navigator, "clipboard", { configurable: true, value: {
+                writeText: (text: string) => {
+                    attempts.push(text);
+                    return attempts.length === 1 ? Promise.reject(new DOMException("Denied", "NotAllowedError")) : Promise.resolve();
+                },
+            } });
+        });
+        const { editor, footer } = await createReadyPlan(page);
+        let connectionRequests = 0;
+        let runRequests = 0;
+        page.on("request", (request) => {
+            if (request.method() !== "POST") return;
+            if (/\/connection$/.test(request.url())) connectionRequests++;
+            if (/\/runs$/.test(request.url())) runRequests++;
+        });
+        let releaseRun!: () => void;
+        const runGate = new Promise<void>((resolve) => { releaseRun = resolve; });
+        await page.route("**/web-ai/plans/*/runs", async (route) => { await runGate; await route.fallback(); });
+
+        // 실행 / 검증: 준비 중에는 중복 실행을 막고, 포커스 재조회로 기존 언어·입력을 비우지 않는다.
+        await footer.getByRole("button", { name: "프롬프트 복사" }).click();
+        await expect.poll(() => runRequests).toBe(1);
+        await expect(footer.getByRole("button", { name: "프롬프트 복사" })).toBeDisabled();
+        let releaseSettings!: () => void;
+        const settingsGate = new Promise<void>((resolve) => { releaseSettings = resolve; });
+        await page.route("**/api/v1/language-learning/settings", async (route) => { await settingsGate; await route.fallback(); });
+        await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+        await expect(editor.getByTestId("web-ai-inherited-languages")).toContainText("日本語 / Japanese");
+        await expect(editor.getByRole("textbox", { name: "계획 이름" })).toHaveValue("실무 작문 복사 검증");
+        await expect(page.getByTestId("web-ai-plan-prerequisites")).toHaveCount(0);
+        releaseSettings();
+        releaseRun();
+
+        // 검증: 복사 실패 후에도 서버 결과 계약과 일치하는 실제 텍스트를 직접 선택할 수 있다.
+        await expect(footer.getByRole("alert")).toContainText("자동 복사가 차단");
+        const actual = editor.getByRole("textbox", { name: "실제 복사할 전송 프롬프트" });
+        await expect(actual).toBeVisible();
+        const text = await actual.inputValue();
+        expect(text).toContain("/external/prompt");
+        expect(text).toContain("/external/results");
+        expect(text).toContain("originalFeedbackMarkdown");
+        expect(text).toContain('"runId": "run-id-1"');
+        await editor.getByRole("button", { name: "전체 선택", exact: true }).click();
+        expect(await actual.evaluate((element: HTMLTextAreaElement) => element.selectionEnd - element.selectionStart)).toBe(text.length);
+
+        // 실행 / 검증: 두 번째 클릭은 새 HTTP 요청 없이 같은 문구를 즉시 복사한다.
+        await footer.getByRole("button", { name: "프롬프트 복사" }).click();
+        await expect(footer.getByRole("status")).toContainText("전송 프롬프트를 복사했습니다");
+        expect(await page.evaluate(() => (window as unknown as { __webAiCopyAttempts: string[] }).__webAiCopyAttempts)).toEqual([text, text]);
+        expect(connectionRequests).toBe(1);
+        expect(runRequests).toBe(1);
+        const storage = await page.evaluate(() => JSON.stringify({ ...localStorage, ...sessionStorage }));
+        expect(storage).not.toContain("test-plan-token");
+        mkdirSync(COPY_QA_DIRECTORY, { recursive: true });
+        await page.screenshot({ path: path.join(COPY_QA_DIRECTORY, "actual-transfer-desktop.png") });
+    });
+
+    test("준비 API 실패와 새 수동 회차 실패는 기존 키와 실행 식별자를 보존한다", async ({ page }) => {
+        // 준비: 복사는 성공하게 하고 첫 회차 준비만 일시적으로 실패시킨다.
+        await page.addInitScript(() => Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: () => Promise.resolve() } }));
+        const { editor, footer } = await createReadyPlan(page);
+        let connections = 0;
+        const runKeys: string[] = [];
+        let failNext = true;
+        page.on("request", (request) => {
+            if (request.method() === "POST" && /\/connection$/.test(request.url())) connections++;
+        });
+        await page.route("**/web-ai/plans/*/runs", async (route) => {
+            runKeys.push(route.request().postDataJSON().executionKey);
+            if (failNext) {
+                failNext = false;
+                await route.fulfill({ status: 503, body: "temporarily unavailable" });
+            } else await route.fallback();
+        });
+
+        // 실행 / 검증: 서버 준비 실패를 클립보드 차단으로 잘못 안내하지 않고 같은 키로 재시도한다.
+        await footer.getByRole("button", { name: "프롬프트 복사" }).click();
+        await expect(footer.getByRole("button", { name: "프롬프트 복사" })).toBeEnabled();
+        await expect(editor.getByRole("textbox", { name: "실제 복사할 전송 프롬프트" })).toHaveCount(0);
+        await expect(footer.getByRole("alert")).toContainText("전송 프롬프트를 준비하지 못했습니다");
+        await footer.getByRole("button", { name: "프롬프트 복사" }).click();
+        await expect(footer.getByRole("status")).toContainText("전송 프롬프트를 복사했습니다");
+        expect(connections).toBe(1);
+        expect(runKeys[0]).toBe(runKeys[1]);
+        const actual = editor.getByRole("textbox", { name: "실제 복사할 전송 프롬프트" });
+        const previous = await actual.inputValue();
+
+        // 실행 / 검증: 명시적 새 수동 회차만 새 실행 키를 사용하고 실패 시 이전 문구를 유지한다.
+        const integration = page.getByTestId("web-ai-plan-integration");
+        await integration.locator("summary").click();
+        const renew = integration.getByRole("button", { name: "새 수동 학습 회차 준비" });
+        failNext = true;
+        await renew.click();
+        await expect(integration.getByRole("alert")).toBeVisible();
+        await expect(actual).toHaveValue(previous);
+        await renew.click();
+        await expect(integration.getByRole("status")).toContainText("준비했습니다");
+        await expect(actual).not.toHaveValue(previous);
+        expect(runKeys[2]).not.toBe(runKeys[1]);
+        expect(runKeys[2]).toBe(runKeys[3]);
+        expect(connections).toBe(1);
+        await page.setViewportSize({ width: 390, height: 844 });
+        await expect.poll(async () => (await page.locator("main.overflow-y-auto").boundingBox())?.x).toBe(0);
+        mkdirSync(COPY_QA_DIRECTORY, { recursive: true });
+        await page.screenshot({ path: path.join(COPY_QA_DIRECTORY, "actual-transfer-mobile.png") });
+    });
+
+    test("준비 도중 언어 변경과 키 교체 응답 유실에서는 이전 프롬프트를 복사하지 않는다", async ({ page }) => {
+        // 준비: 실제 복사 시도를 기록하고 첫 회차 응답을 지연시킨다.
+        await page.addInitScript(() => {
+            const attempts: string[] = [];
+            Object.defineProperty(window, "__webAiCopyAttempts", { value: attempts });
+            Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: (text: string) => { attempts.push(text); return Promise.resolve(); } } });
+        });
+        const { editor, footer } = await createReadyPlan(page);
+        let release!: () => void;
+        const runGate = new Promise<void>((resolve) => { release = resolve; });
+        let runs = 0;
+        await page.route("**/web-ai/plans/*/runs", async (route) => { runs++; if (runs === 1) await runGate; await route.fallback(); });
+
+        // 실행 / 검증: 같은 계정의 공통 언어가 바뀌면 늦게 도착한 이전 문맥을 복사하지 않는다.
+        await footer.getByRole("button", { name: "프롬프트 복사" }).click();
+        await expect.poll(() => runs).toBe(1);
+        await page.route("**/api/v1/language-learning/settings", (route) => fulfillApiJson(route, responseDto({ ...LANGUAGE_LEARNING_SETTING, feedbackLanguage: "ja" })));
+        await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+        await expect(editor.getByTestId("web-ai-inherited-languages")).not.toContainText("설명·피드백 언어한국어 / Korean");
+        await expect(editor.getByTestId("web-ai-inherited-languages").getByText("日本語 / Japanese")).toHaveCount(2);
+        release();
+        await expect(footer.getByRole("button", { name: "프롬프트 복사" })).toBeEnabled();
+        expect(await page.evaluate(() => (window as unknown as { __webAiCopyAttempts: string[] }).__webAiCopyAttempts)).toEqual([]);
+        const actual = editor.getByRole("textbox", { name: "실제 복사할 전송 프롬프트" });
+        await expect(actual).toHaveCount(0);
+
+        // 실행 / 검증: 현재 문맥을 준비한 뒤 키 교체가 실패하면 이전 키가 든 문구를 폐기한다.
+        await footer.getByRole("button", { name: "프롬프트 복사" }).click();
+        await expect(footer.getByRole("status")).toContainText("전송 프롬프트를 복사했습니다");
+        await expect(actual).toBeVisible();
+        const integration = page.getByTestId("web-ai-plan-integration");
+        await page.route("**/web-ai/plans/*/connection", (route) => route.fulfill({ status: 503, body: "response unavailable" }));
+        page.once("dialog", (dialog) => dialog.accept());
+        await integration.getByRole("button", { name: "연결 키 교체", exact: true }).click();
+        await expect(integration.getByRole("alert")).toBeVisible();
+        await expect(actual).toHaveCount(0);
+        await footer.getByRole("button", { name: "프롬프트 복사" }).click();
+        await expect(footer.getByRole("button", { name: "프롬프트 복사" })).toBeEnabled();
+        expect(await page.evaluate(() => (window as unknown as { __webAiCopyAttempts: string[] }).__webAiCopyAttempts.length)).toBe(1);
     });
 
     test("모바일에서 월말 계획에 라이팅과 리딩을 함께 넣는다", async ({ page }) => {
@@ -290,7 +461,10 @@ test.describe("웹 AI 학습 계획", () => {
         // 실행: 월말 반복과 서로 다른 학습 분야를 지정한다.
         await editor.getByRole("textbox", { name: "계획 이름" }).fill("월말 작문·독해");
         await editor.getByRole("group", { name: "반복 방식" }).getByRole("button", { name: "매월" }).click();
-        await editor.getByRole("checkbox", { name: "매월 마지막 날" }).check();
+        // 실행: 시각적으로 숨긴 1px input 대신 사용자가 누르는 월말 선택 영역을 클릭한다.
+        const lastDay = editor.getByRole("checkbox", { name: "매월 마지막 날" });
+        await lastDay.locator("..").click();
+        await expect(lastDay).toBeChecked();
         await editor.getByRole("checkbox", { name: "번역 작문" }).check();
         await editor.getByRole("tab", { name: /리딩/ }).click();
         await editor.getByRole("checkbox", { name: "독해 문제" }).check();
@@ -352,7 +526,7 @@ test.describe("웹 AI 학습 계획", () => {
 
         // 실행: 서버가 준 일회 노출 프롬프트와 수동 결과 가져오기를 사용한다.
         await integration.getByRole("button", { name: "연동 프롬프트 만들기" }).click();
-        await expect(integration.getByRole("textbox", { name: "웹 AI 연동", exact: true })).toHaveValue(/test-plan-token/);
+        await expect(editor.getByRole("textbox", { name: "실제 복사할 전송 프롬프트" })).toHaveValue(/test-plan-token/);
         const storage = await page.evaluate(() => JSON.stringify({ ...window.localStorage }));
         expect(storage).not.toContain("test-plan-token");
         await integration.locator("summary").click();

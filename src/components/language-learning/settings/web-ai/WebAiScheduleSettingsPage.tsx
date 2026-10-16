@@ -18,6 +18,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { LanguageLearningPageLayout } from "@/components/language-learning/layout/LanguageLearningPageLayout";
 import { WebAiScheduleEditor } from "@/components/language-learning/settings/web-ai/WebAiScheduleEditor";
 import { WebAiPlanIntegration } from "@/components/language-learning/settings/web-ai/WebAiPlanIntegration";
+import { WebAiPlanPrerequisiteChecklist } from "@/components/language-learning/settings/web-ai/WebAiPlanPrerequisiteChecklist";
+import { useWebAiPlanPrerequisites } from "@/hooks/language-learning/useWebAiPlanPrerequisites";
 import {
     WEB_AI_AREA_GROUPS,
     applyWebAiLanguageSettings,
@@ -29,13 +31,13 @@ import {
 } from "@/features/language-learning/web-ai";
 import type { WebAiAreaCode, WebAiSchedule, WebAiPlanKeyword } from "@/features/language-learning/web-ai";
 import { Link } from "@/navigation";
-import { languageLearningSettingService } from "@/services/language-learning/languageLearningSettingService";
 import { languageLearningKeywordService } from "@/services/language-learning/languageLearningKeywordService";
 import { createWebAiLearningService } from "@/services/language-learning/webAiLearningService";
 import { toWebAiPlanRequest } from "@/features/language-learning/web-ai/webAiApi";
 import { markWebAiDraftImported, readImportedWebAiDraftIds } from "@/features/language-learning/web-ai/webAiScheduleStorage";
 import type { WebAiPlan } from "@/types/language-learning/webAi";
 import { getApiErrorCode } from "@/services/common/responseParser";
+import { LANGUAGE_LEARNING_SETUP_UPDATED } from "@/features/language-learning/web-ai/webAiPrerequisites";
 
 const FALLBACK_DEFAULTS = {
     originLanguage: "ko",
@@ -68,15 +70,11 @@ export function WebAiScheduleSettingsPage() {
     const { data: session, status } = useSession();
     const owner = session?.user?.publicId ?? null;
     const api = useMemo(() => createWebAiLearningService(session?.loginSessionId), [session?.loginSessionId]);
+    const prerequisites = useWebAiPlanPrerequisites();
 
-    const [defaults, setDefaults] = useState(FALLBACK_DEFAULTS);
-    const [baseStatus, setBaseStatus] = useState<"loading" | "ready" | "error">("loading");
-    const [baseRevision, setBaseRevision] = useState(0);
     const [keywordRevision, setKeywordRevision] = useState(0);
     const [keywordStatus, setKeywordStatus] = useState<"loading" | "ready" | "error">("loading");
-    const [defaultKeywordStatus, setDefaultKeywordStatus] = useState<"loading" | "ready" | "error">("loading");
     const [keywordCatalog, setKeywordCatalog] = useState<WebAiPlanKeyword[]>([]);
-    const [defaultKeywords, setDefaultKeywords] = useState<WebAiPlanKeyword[]>([]);
     const [schedules, setSchedules] = useState<WebAiPlan[]>([]);
     const [browserDrafts, setBrowserDrafts] = useState<WebAiSchedule[]>([]);
     const [planStatus, setPlanStatus] = useState<"loading" | "ready" | "error">("loading");
@@ -90,6 +88,16 @@ export function WebAiScheduleSettingsPage() {
     const activeDraftId = draft?.id;
     const currentOwner = useRef(owner);
     const copyExecution = useRef<{ planId: string; revision: number; key: string } | null>(null);
+    const baseStatus = prerequisites.settingsStatus === "complete" ? "ready" : prerequisites.settingsStatus === "loading" ? "loading" : "error";
+    const defaultKeywordStatus = prerequisites.keywordsStatus === "error" ? "error" : prerequisites.keywordsStatus === "loading" ? "loading" : "ready";
+    const setting = prerequisites.setting;
+    const defaults = setting ? {
+        originLanguage: setting.originLanguage ?? FALLBACK_DEFAULTS.originLanguage,
+        learningLanguage: setting.learningLanguage ?? FALLBACK_DEFAULTS.learningLanguage,
+        feedbackLanguage: setting.feedbackLanguage ?? setting.originLanguage ?? FALLBACK_DEFAULTS.feedbackLanguage,
+        timezone: setting.pendingTimezone ?? setting.timezone ?? FALLBACK_DEFAULTS.timezone,
+    } : FALLBACK_DEFAULTS;
+    const defaultKeywords = prerequisites.keywords?.candidates ?? [];
 
     // 브라우저 초안은 로그인 계정별로 읽으며, 다른 계정의 편집 상태를 이어받지 않는다.
     useEffect(() => {
@@ -108,12 +116,8 @@ export function WebAiScheduleSettingsPage() {
             setDraft(null);
             setIssues([]);
             setNotice(null);
-            setDefaults(FALLBACK_DEFAULTS);
-            setBaseStatus("loading");
             setKeywordStatus("loading");
-            setDefaultKeywordStatus("loading");
             setKeywordCatalog([]);
-            setDefaultKeywords([]);
             setLoadedOwner(owner);
         });
 
@@ -136,80 +140,38 @@ export function WebAiScheduleSettingsPage() {
         return () => { cancelled = true; };
     }, [owner, planRevision, api]);
 
-    // 점수 집계 언어와 어긋나지 않게 현재 유효한 기본 언어 설정만 참조한다.
-    useEffect(() => {
-        if (!owner) return;
-        let cancelled = false;
-
-        void languageLearningSettingService.get().then((setting) => {
-            if (cancelled) return;
-            if (!setting.configured || !setting.originLanguage || !setting.learningLanguage) {
-                setBaseStatus("error");
-                return;
-            }
-            setDefaults({
-                originLanguage: setting.originLanguage,
-                learningLanguage: setting.learningLanguage,
-                feedbackLanguage: setting.feedbackLanguage ?? setting.originLanguage,
-                timezone: setting.pendingTimezone ?? setting.timezone ?? "Asia/Tokyo",
-            });
-            setBaseStatus("ready");
-        }).catch(() => {
-            if (!cancelled) setBaseStatus("error");
-        });
-
-        return () => {
-            cancelled = true;
-        };
-    }, [owner, baseRevision]);
-
     // 조회만 수행하며 계획별 선택이 사용자 공통 키워드 설정을 변경하지 않게 한다.
     useEffect(() => {
         if (!owner) return;
         let cancelled = false;
-        void Promise.allSettled([
-            languageLearningKeywordService.getAll(locale),
-            languageLearningKeywordService.getEffective(),
-        ]).then(([catalogResult, effectiveResult]) => {
+        void languageLearningKeywordService.getAll(locale).then((result) => {
             if (cancelled) return;
-            if (catalogResult.status === "fulfilled") {
-                const result = catalogResult.value;
-                const active = [...result.systemKeywords, ...result.customKeywords].filter((keyword) => keyword.active);
-                setKeywordCatalog(active.map((keyword) => ({
-                    key: `${keyword.source}:${keyword.id}`,
-                    text: keyword.text,
-                    canonicalKey: keyword.canonicalKey || null,
-                })));
-                setKeywordStatus("ready");
-            } else {
-                setKeywordStatus("error");
-            }
-
-            // 예약 변경이 노출되는 편집 목록 대신 오늘 유효한 목록을 기본 출제에 사용한다.
-            if (effectiveResult.status === "fulfilled") {
-                setDefaultKeywords(effectiveResult.value.candidates.map((keyword) => ({ ...keyword })));
-                setDefaultKeywordStatus("ready");
-            } else {
-                setDefaultKeywordStatus("error");
-            }
-        });
+            const active = [...result.systemKeywords, ...result.customKeywords].filter((keyword) => keyword.active);
+            setKeywordCatalog(active.map((keyword) => ({
+                key: `${keyword.source}:${keyword.id}`,
+                text: keyword.text,
+                canonicalKey: keyword.canonicalKey || null,
+            })));
+            setKeywordStatus("ready");
+        }).catch(() => { if (!cancelled) setKeywordStatus("error"); });
         return () => {
             cancelled = true;
         };
     }, [owner, locale, keywordRevision]);
 
-    // 다른 탭에서 공통 설정을 바꾼 뒤 돌아오면 언어와 키워드를 다시 확인한다.
+    // 공통 설정의 준비 상태는 공유 훅이 확인하고, 편집용 카탈로그도 함께 갱신한다.
     useEffect(() => {
         if (!owner) return;
         const refreshSettings = () => {
-            setBaseStatus("loading");
-            setBaseRevision((value) => value + 1);
             setKeywordStatus("loading");
-            setDefaultKeywordStatus("loading");
             setKeywordRevision((value) => value + 1);
         };
         window.addEventListener("focus", refreshSettings);
-        return () => window.removeEventListener("focus", refreshSettings);
+        window.addEventListener(LANGUAGE_LEARNING_SETUP_UPDATED, refreshSettings);
+        return () => {
+            window.removeEventListener("focus", refreshSettings);
+            window.removeEventListener(LANGUAGE_LEARNING_SETUP_UPDATED, refreshSettings);
+        };
     }, [owner]);
 
     // 모바일 목록과 편집기는 별도 상태다. 전환 시 AppShell 내부 스크롤을 맨 위로 돌린다.
@@ -240,7 +202,7 @@ export function WebAiScheduleSettingsPage() {
         JSON.stringify(toWebAiPlanRequest(serverDraft, serverDraft.enabled)));
     const selectedCount = effectiveDraft ? totalQuestions(effectiveDraft) : 0;
     const currentIssues = effectiveDraft ? validateWebAiSchedule(effectiveDraft) : [];
-    const prompt = effectiveDraft && baseStatus === "ready" &&
+    const prompt = effectiveDraft && prerequisites.ready &&
         (effectiveDraft.keywordMode === "CUSTOM" || defaultKeywordStatus === "ready") && currentIssues.length === 0
         ? buildWebAiPrompt(
               effectiveDraft,
@@ -251,20 +213,15 @@ export function WebAiScheduleSettingsPage() {
         : "";
 
     const startNew = () => {
-        if (busy) return;
+        if (busy || !prerequisites.ready) return;
         setDraft(createWebAiSchedule(defaults));
         setIssues([]);
         setNotice(null);
     };
 
-    const retryBaseSettings = () => {
-        setBaseStatus("loading");
-        setBaseRevision((value) => value + 1);
-    };
-
     const retryKeywords = () => {
         setKeywordStatus("loading");
-        setDefaultKeywordStatus("loading");
+        prerequisites.refresh();
         setKeywordRevision((value) => value + 1);
     };
 
@@ -283,7 +240,7 @@ export function WebAiScheduleSettingsPage() {
     };
 
     const duplicate = (schedule: WebAiSchedule) => {
-        if (busy) return;
+        if (busy || !prerequisites.ready) return;
         const copy = cloneSchedule(schedule);
         copy.id = createWebAiSchedule(defaults).id;
         copy.name = t("copyName", { name: schedule.name });
@@ -293,7 +250,7 @@ export function WebAiScheduleSettingsPage() {
     };
 
     const save = async () => {
-        if (!owner || !effectiveDraft || busy) return;
+        if (!owner || !effectiveDraft || busy || !prerequisites.ready) return;
 
         // 유효한 계획만 서버에 저장하고 응답의 revision을 다음 수정에 사용한다.
         const nextIssues = validateWebAiSchedule(effectiveDraft);
@@ -318,6 +275,7 @@ export function WebAiScheduleSettingsPage() {
             setNotice("saveFailed");
             const code = getApiErrorCode(error);
             if (code && workflow.has(`error.${code}`)) setWorkflowNotice(`error.${code}`);
+            if (code === "WEB_AI_SETTINGS_REQUIRED" || code === "WEB_AI_KEYWORDS_REQUIRED") prerequisites.refresh();
             if (code === "WEB_AI_CONFLICT") setPlanRevision((value) => value + 1);
         } finally {
             if (currentOwner.current === owner) setBusy(false);
@@ -339,15 +297,19 @@ export function WebAiScheduleSettingsPage() {
             setBrowserDrafts((current) => current.filter((plan) => plan.id !== schedule.id));
             if (draft?.id === schedule.id) setDraft(null);
             setNotice(null);
-        } catch {
-            if (currentOwner.current === owner) setWorkflowNotice("actionFailed");
+        } catch (error) {
+            if (currentOwner.current === owner) {
+                const code = getApiErrorCode(error);
+                setWorkflowNotice(code && workflow.has(`error.${code}`) ? `error.${code}` : "actionFailed");
+                if (code === "WEB_AI_SETTINGS_REQUIRED" || code === "WEB_AI_KEYWORDS_REQUIRED") prerequisites.refresh();
+            }
         } finally {
             if (currentOwner.current === owner) setBusy(false);
         }
     };
 
     const importDrafts = async () => {
-        if (!owner || busy) return;
+        if (!owner || busy || !prerequisites.ready) return;
         setBusy(true);
         setWorkflowNotice(null);
         try {
@@ -361,15 +323,19 @@ export function WebAiScheduleSettingsPage() {
                 setBrowserDrafts((current) => current.filter((item) => item.id !== local.id));
             }
             setWorkflowNotice("draftsImported");
-        } catch {
-            if (currentOwner.current === owner) setWorkflowNotice("actionFailed");
+        } catch (error) {
+            if (currentOwner.current === owner) {
+                const code = getApiErrorCode(error);
+                setWorkflowNotice(code && workflow.has(`error.${code}`) ? `error.${code}` : "actionFailed");
+                if (code === "WEB_AI_SETTINGS_REQUIRED" || code === "WEB_AI_KEYWORDS_REQUIRED") prerequisites.refresh();
+            }
         } finally {
             if (currentOwner.current === owner) setBusy(false);
         }
     };
 
     const togglePlan = async (plan: WebAiPlan) => {
-        if (busy) return;
+        if (busy || !prerequisites.ready) return;
         setBusy(true);
         setWorkflowNotice(null);
         try {
@@ -384,7 +350,7 @@ export function WebAiScheduleSettingsPage() {
     };
 
     const copyPrompt = async () => {
-        if (!draftSaved || !serverDraft || busy) {
+        if (!draftSaved || !serverDraft || busy || !prerequisites.ready || currentIssues.length > 0) {
             setIssues(currentIssues);
             return;
         }
@@ -399,8 +365,11 @@ export function WebAiScheduleSettingsPage() {
             await navigator.clipboard.writeText(run.prompt);
             copyExecution.current = null;
             setNotice("copied");
-        } catch {
+        } catch (error) {
             setNotice("copyFailed");
+            const code = getApiErrorCode(error);
+            if (code && workflow.has(`error.${code}`)) setWorkflowNotice(`error.${code}`);
+            if (code === "WEB_AI_SETTINGS_REQUIRED" || code === "WEB_AI_KEYWORDS_REQUIRED") prerequisites.refresh();
         }
     };
 
@@ -460,7 +429,7 @@ export function WebAiScheduleSettingsPage() {
                         <h1 className="mt-3 text-3xl font-black text-slate-950 dark:text-white">{t("mobileListTitle")}</h1>
                         <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{t("mobileListDescription")}</p>
                         {owner && loadedOwner === owner && (
-                            <button type="button" onClick={startNew} className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-black text-white hover:bg-blue-500">
+                            <button type="button" onClick={startNew} disabled={busy || !prerequisites.ready} className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-black text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-45">
                                 <Plus className="h-5 w-5" aria-hidden="true" />{t("newPlan")}
                             </button>
                         )}
@@ -480,9 +449,11 @@ export function WebAiScheduleSettingsPage() {
                     <p className="mt-1 leading-6">{workflow("serverNotice")}</p>
                 </div>
 
+                {owner && !prerequisites.ready && <section className="rounded-2xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-400/20 dark:bg-blue-500/10"><WebAiPlanPrerequisiteChecklist prerequisites={prerequisites} /></section>}
+
                 {owner && planStatus === "loading" && <p role="status" className="text-sm text-slate-500 dark:text-slate-300">{workflow("loadingPlans")}</p>}
                 {owner && planStatus === "error" && <div role="alert" className="flex flex-wrap items-center gap-3 rounded-xl bg-amber-50 p-4 text-sm text-amber-900 dark:bg-amber-400/10 dark:text-amber-200"><p>{workflow("loadFailed")}</p><button type="button" onClick={() => { setPlanStatus("loading"); setPlanRevision((value) => value + 1); }} className="font-black underline">{workflow("retry")}</button></div>}
-                {pendingDrafts.length > 0 && <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-xs text-blue-800 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200"><p>{workflow("importDraftsHelp")}</p>{pendingDrafts.length > importableDrafts.length && <p className="mt-1">{workflow("draftsNeedReview")}</p>}<button type="button" disabled={busy || baseStatus !== "ready" || planStatus !== "ready" || importableDrafts.length === 0} onClick={() => void importDrafts()} className="mt-2 min-h-9 font-black underline disabled:opacity-50">{workflow("importDrafts", { count: importableDrafts.length })}</button></div>}
+                {pendingDrafts.length > 0 && <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-xs text-blue-800 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200"><p>{workflow("importDraftsHelp")}</p>{pendingDrafts.length > importableDrafts.length && <p className="mt-1">{workflow("draftsNeedReview")}</p>}<button type="button" disabled={busy || !prerequisites.ready || planStatus !== "ready" || importableDrafts.length === 0} onClick={() => void importDrafts()} className="mt-2 min-h-9 font-black underline disabled:opacity-50">{workflow("importDrafts", { count: importableDrafts.length })}</button></div>}
                 {workflowNotice && <p role="status" className="text-sm text-slate-700 dark:text-slate-200">{workflow(workflowNotice)}</p>}
 
                 {status === "loading" || (owner && loadedOwner !== owner) ? (
@@ -509,7 +480,8 @@ export function WebAiScheduleSettingsPage() {
                                 <button
                                     type="button"
                                     onClick={startNew}
-                                    className="hidden min-h-10 items-center gap-2 rounded-xl bg-blue-600 px-3 py-2 text-sm font-black text-white hover:bg-blue-500 xl:inline-flex"
+                                    disabled={busy || !prerequisites.ready}
+                                    className="hidden min-h-10 items-center gap-2 rounded-xl bg-blue-600 px-3 py-2 text-sm font-black text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-45 xl:inline-flex"
                                 >
                                     <Plus className="h-4 w-4" aria-hidden="true" />
                                     {t("newPlan")}
@@ -538,7 +510,7 @@ export function WebAiScheduleSettingsPage() {
                                                         {summarizeRecurrence(schedule)} · {schedule.time} · {schedule.timezone}
                                                     </p>
                                                     <p className="mt-2 text-xs font-bold text-slate-600 dark:text-slate-300">{summarizeAreas(schedule)}</p>
-                                                    {schedules.some((plan) => plan.id === schedule.id) && <button type="button" disabled={busy} aria-pressed={schedules.find((plan) => plan.id === schedule.id)!.enabled} onClick={() => void togglePlan(schedules.find((plan) => plan.id === schedule.id)!)} className="mt-2 min-h-8 rounded-full border border-blue-200 px-2.5 text-xs font-black text-blue-700 disabled:opacity-50 dark:border-blue-400/20 dark:text-blue-200">{workflow(schedules.find((plan) => plan.id === schedule.id)!.enabled ? "enabled" : "disabled")}</button>}
+                                                    {schedules.some((plan) => plan.id === schedule.id) && <button type="button" disabled={busy || !prerequisites.ready} aria-pressed={schedules.find((plan) => plan.id === schedule.id)!.enabled} onClick={() => void togglePlan(schedules.find((plan) => plan.id === schedule.id)!)} className="mt-2 min-h-8 rounded-full border border-blue-200 px-2.5 text-xs font-black text-blue-700 disabled:opacity-50 dark:border-blue-400/20 dark:text-blue-200">{workflow(schedules.find((plan) => plan.id === schedule.id)!.enabled ? "enabled" : "disabled")}</button>}
                                                 </div>
                                                 <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-xs font-black text-blue-700 dark:bg-blue-500/15 dark:text-blue-200">
                                                     {t("questionCount", { count: totalQuestions(schedule) })}
@@ -548,7 +520,7 @@ export function WebAiScheduleSettingsPage() {
                                                 <button type="button" onClick={() => startEdit(schedule)} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-black text-slate-700 hover:border-blue-300 dark:border-white/10 dark:bg-slate-900 dark:text-slate-200">
                                                     <FilePenLine className="h-3.5 w-3.5" aria-hidden="true" />{t("edit")}
                                                 </button>
-                                                <button type="button" onClick={() => duplicate(schedule)} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-black text-slate-700 hover:border-blue-300 dark:border-white/10 dark:bg-slate-900 dark:text-slate-200">
+                                                <button type="button" disabled={busy || !prerequisites.ready} onClick={() => duplicate(schedule)} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-black text-slate-700 hover:border-blue-300 dark:border-white/10 dark:bg-slate-900 dark:text-slate-200">
                                                     <Copy className="h-3.5 w-3.5" aria-hidden="true" />{t("duplicate")}
                                                 </button>
                                                 <button type="button" disabled={busy} onClick={() => void remove(schedule)} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-rose-200 bg-white px-3 text-xs font-black text-rose-700 hover:bg-rose-50 disabled:opacity-50 dark:border-rose-400/20 dark:bg-slate-900 dark:text-rose-300">
@@ -567,7 +539,6 @@ export function WebAiScheduleSettingsPage() {
                                     key={draft.id}
                                     schedule={effectiveDraft!}
                                     baseStatus={baseStatus}
-                                    onRetryBase={retryBaseSettings}
                                     keywordStatus={keywordStatus}
                                     defaultKeywordStatus={defaultKeywordStatus}
                                     keywordCatalog={keywordCatalog}
@@ -586,8 +557,9 @@ export function WebAiScheduleSettingsPage() {
                                     prompt={prompt}
                                     questionCount={selectedCount}
                                     busy={busy}
-                                    canCopy={draftSaved}
-                                    integration={<WebAiPlanIntegration key={`${draft.id}:${serverDraft?.revision ?? "new"}`} planId={draft.id} saved={draftSaved} />}
+                                    ready={prerequisites.ready}
+                                    canCopy={prerequisites.ready && draftSaved && currentIssues.length === 0}
+                                    integration={<WebAiPlanIntegration key={`${draft.id}:${serverDraft?.revision ?? "new"}`} planId={draft.id} saved={draftSaved} ready={prerequisites.ready && currentIssues.length === 0} onPrerequisitesChanged={prerequisites.refresh} />}
                                 />
                             </div>
                         ) : (
@@ -595,7 +567,7 @@ export function WebAiScheduleSettingsPage() {
                                 <FilePenLine className="h-10 w-10 text-blue-500" aria-hidden="true" />
                                 <h2 className="mt-4 text-lg font-black text-slate-950 dark:text-white">{t("selectTitle")}</h2>
                                 <p className="mt-2 max-w-md text-sm leading-6 text-slate-500 dark:text-slate-400">{t("selectDescription")}</p>
-                                <button type="button" onClick={startNew} className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-black text-white hover:bg-blue-500">
+                                <button type="button" onClick={startNew} disabled={busy || !prerequisites.ready} className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-black text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-45">
                                     <Plus className="h-4 w-4" aria-hidden="true" />{t("newPlan")}
                                 </button>
                             </div>

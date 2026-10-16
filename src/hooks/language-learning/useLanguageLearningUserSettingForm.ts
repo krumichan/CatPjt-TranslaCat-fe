@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { SPEAKING_VOICE_OPTIONS } from "@/constants/language-learning/speaking";
 import { isValidListeningTaskSelection } from "@/features/language-learning/listening/taskSelection";
+import { notifyLanguageLearningSetupUpdated } from "@/features/language-learning/web-ai/webAiPrerequisites";
 import { languageLearningSettingService } from "@/services/language-learning/languageLearningSettingService";
 import type { ListeningTaskType } from "@/types/language-learning/listening";
 import type { LanguageLearningUserSetting } from "@/types/language-learning/setting";
@@ -143,6 +144,7 @@ export function useLanguageLearningUserSettingForm({
                 timezone: form.timezone.trim(),
             });
             await onUpdated(updated);
+            notifyLanguageLearningSetupUpdated();
             setForm(toFormValue(updated));
             setSaveMode(nextSaveMode);
             setSaved(true);

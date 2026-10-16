@@ -39,7 +39,7 @@ export function DashboardLearningProfileSection({
         <section
             id="learning-profile"
             data-testid="dashboard-learning-profile"
-            className="scroll-mt-28 rounded-3xl border border-slate-200 bg-slate-50/70 p-4 sm:p-5 dark:border-white/10 dark:bg-white/[0.025]"
+            className="scroll-mt-36 rounded-3xl border border-slate-200 bg-slate-50/70 p-4 sm:p-5 dark:border-white/10 dark:bg-white/[0.025]"
         >
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex min-w-0 items-start gap-3">

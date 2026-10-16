@@ -49,7 +49,6 @@ interface WebAiScheduleEditorProps {
     prompt: string;
     questionCount: number;
     baseStatus: "loading" | "ready" | "error";
-    onRetryBase: () => void;
     keywordStatus: "loading" | "ready" | "error";
     defaultKeywordStatus: "loading" | "ready" | "error";
     keywordCatalog: WebAiPlanKeyword[];
@@ -57,6 +56,7 @@ interface WebAiScheduleEditorProps {
     onRetryKeywords: () => void;
     busy?: boolean;
     canCopy?: boolean;
+    ready?: boolean;
     integration?: ReactNode;
 }
 
@@ -71,7 +71,6 @@ export function WebAiScheduleEditor({
     prompt,
     questionCount,
     baseStatus,
-    onRetryBase,
     keywordStatus,
     defaultKeywordStatus,
     keywordCatalog,
@@ -79,6 +78,7 @@ export function WebAiScheduleEditor({
     onRetryKeywords,
     busy = false,
     canCopy = false,
+    ready = true,
     integration,
 }: WebAiScheduleEditorProps) {
     const t = useTranslations("LanguageLearning.settings.webAi");
@@ -157,17 +157,18 @@ export function WebAiScheduleEditor({
 
     return (
         <section className={`min-w-0 space-y-3 [--color-blue-500:#3188ff] [--color-blue-600:#1677ff] ${issues.length > 0 ? "pb-64" : notice ? "pb-44" : "pb-32"}`} data-testid="web-ai-schedule-editor">
-            <fieldset disabled={busy} className="min-w-0 space-y-3 border-0 p-0">
             <header className="hidden items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-5 py-4 dark:border-blue-300/15 dark:bg-[#172a41] xl:flex">
                 <div>
                     <p className="text-[11px] font-black uppercase tracking-[0.16em] text-blue-600 dark:text-blue-300">{t("editorEyebrow")}</p>
                     <h2 className="mt-0.5 text-xl font-black text-slate-950 dark:text-white">{schedule.name.trim() || t("editorTitle")}</h2>
                 </div>
-                <button type="button" onClick={onClose} aria-label={t("close")} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10">
+                <button type="button" disabled={busy} onClick={onClose} aria-label={t("close")} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 disabled:opacity-50 dark:text-slate-300 dark:hover:bg-white/10">
                     <X className="h-5 w-5" aria-hidden="true" />
                 </button>
             </header>
 
+            {/* 준비 조건을 충족하지 못하면 입력만 잠그고 복구는 상단 체크리스트에서 안내한다. */}
+            <fieldset disabled={busy || !ready} className="min-w-0 space-y-3 border-0 p-0">
             <section aria-labelledby="web-ai-plan-basics" className={PANEL_CLASS}>
                 <div className="flex items-center gap-2">
                     <Languages className="h-4 w-4 text-blue-600 dark:text-blue-300" aria-hidden="true" />
@@ -195,7 +196,6 @@ export function WebAiScheduleEditor({
                     {baseStatus !== "ready" && (
                         <div role={baseStatus === "error" ? "alert" : "status"} className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:bg-amber-400/10 dark:text-amber-200">
                             <p>{t(baseStatus === "loading" ? "baseLanguagesLoading" : "baseLanguagesUnavailable")}</p>
-                            {baseStatus === "error" && <button type="button" onClick={onRetryBase} className="min-h-9 font-bold underline">{t("retryBaseLanguages")}</button>}
                         </div>
                     )}
                 </div>
@@ -432,6 +432,7 @@ export function WebAiScheduleEditor({
                 onModeChange={(keywordMode) => onChange({ ...schedule, keywordMode })}
                 onKeywordsChange={(keywords) => onChange({ ...schedule, keywords })}
                 onRetry={onRetryKeywords}
+                canRetry={ready}
             />
 
             <section aria-labelledby="web-ai-plan-preview" className={PANEL_CLASS}>
@@ -455,13 +456,16 @@ export function WebAiScheduleEditor({
                 </details>
             </section>
 
-            {integration}
             </fieldset>
+
+            {/* 준비 상태 재검사 중에도 연동 해제와 미제출 결과 입력을 보존한다. */}
+            <fieldset disabled={busy} className="min-w-0 border-0 p-0">{integration}</fieldset>
 
             <WebAiScheduleEditorFooter
                 onSave={onSave}
                 onCopy={onCopy}
                 canCopy={canCopy}
+                canSave={ready}
                 busy={busy}
                 issues={issues}
                 notice={notice}

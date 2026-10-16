@@ -9,6 +9,7 @@ interface WebAiScheduleEditorFooterProps {
     onSave: () => void;
     onCopy: () => void;
     canCopy: boolean;
+    canSave?: boolean;
     issues: string[];
     notice: "saved" | "saveFailed" | "copied" | "copyFailed" | null;
     busy?: boolean;
@@ -22,6 +23,7 @@ export function WebAiScheduleEditorFooter({
     onSave,
     onCopy,
     canCopy,
+    canSave = true,
     issues,
     notice,
     busy = false,
@@ -72,7 +74,7 @@ export function WebAiScheduleEditorFooter({
                             <ClipboardCopy className="h-4 w-4" aria-hidden="true" />
                             {t("copyPrompt")}
                         </button>
-                        <button type="button" disabled={busy} onClick={onSave} aria-describedby="web-ai-save-help" className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 text-sm font-black text-white shadow-sm transition hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:opacity-50 sm:min-h-11 sm:w-auto">
+                        <button type="button" disabled={busy || !canSave} onClick={onSave} aria-describedby="web-ai-save-help" className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 text-sm font-black text-white shadow-sm transition hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:opacity-50 sm:min-h-11 sm:w-auto">
                             <Save className="h-4 w-4" aria-hidden="true" />
                             {busy ? workflow("saving") : t("saveDraft")}
                         </button>

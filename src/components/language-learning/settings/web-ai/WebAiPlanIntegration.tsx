@@ -13,7 +13,12 @@ import type { WebAiConnection } from "@/types/language-learning/webAi";
 
 const BUTTON = "inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-black text-blue-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200";
 
-export function WebAiPlanIntegration({ planId, saved }: { planId: string; saved: boolean }) {
+export function WebAiPlanIntegration({ planId, saved, ready = true, onPrerequisitesChanged }: {
+    planId: string;
+    saved: boolean;
+    ready?: boolean;
+    onPrerequisitesChanged?: () => void;
+}) {
     const t = useTranslations("LanguageLearning.webAiWorkflow");
     const { data: session } = useSession();
     const api = useMemo(() => createWebAiLearningService(session?.loginSessionId), [session?.loginSessionId]);
@@ -35,12 +40,14 @@ export function WebAiPlanIntegration({ planId, saved }: { planId: string; saved:
         } catch (error) {
             const code = getApiErrorCode(error);
             setNotice(code && t.has(`error.${code}`) ? `error.${code}` : "actionFailed");
+            if (code === "WEB_AI_SETTINGS_REQUIRED" || code === "WEB_AI_KEYWORDS_REQUIRED") onPrerequisitesChanged?.();
         } finally {
             setBusy(false);
         }
     };
 
     const createConnection = () => perform(async () => {
+        if (!ready) return;
         // 연결 키는 이 컴포넌트의 메모리에만 두고 브라우저 저장소에는 기록하지 않는다.
         const created = await api.createConnection(planId);
         setConnection(created);
@@ -56,6 +63,7 @@ export function WebAiPlanIntegration({ planId, saved }: { planId: string; saved:
     };
 
     const createRun = () => perform(async () => {
+        if (!ready) return;
         // 통신 실패 후 재시도는 같은 실행 키를 써서 서버에 중복 학습 회차를 만들지 않는다.
         executionKey.current ??= crypto.randomUUID();
         const run = await api.createRun(planId, executionKey.current);
@@ -93,10 +101,10 @@ export function WebAiPlanIntegration({ planId, saved }: { planId: string; saved:
             <div className="flex items-center gap-2"><Link2 className="h-4 w-4 text-blue-600 dark:text-blue-300" aria-hidden="true" /><h3 className="text-sm font-black text-slate-950 dark:text-white">{t("connectionTitle")}</h3></div>
             <p className="text-xs leading-6 text-slate-500 dark:text-slate-300">{t(saved ? "connectionHelp" : "saveBeforeConnect")}</p>
             <div className="flex flex-wrap gap-2">
-                <button type="button" disabled={!saved || busy} onClick={() => void createConnection()} className={BUTTON}>{t(connection ? "rotateConnection" : "createConnection")}</button>
+                <button type="button" disabled={!saved || !ready || busy} onClick={() => void createConnection()} className={BUTTON}>{t(connection ? "rotateConnection" : "createConnection")}</button>
                 <button type="button" disabled={!saved || busy} onClick={revokeConnection} className={BUTTON}>{t("revokeConnection")}</button>
             </div>
-            {connection && (
+            {connection && ready && (
                 <div className="space-y-2 rounded-xl bg-blue-50 p-3 dark:bg-blue-500/10">
                     <p className="text-xs leading-5 text-blue-800 dark:text-blue-200">{t("tokenHelp")}</p>
                     {["localhost", "127.0.0.1", "[::1]"].includes(new URL(connection.promptUrl).hostname) && <p className="text-xs leading-5 text-amber-800 dark:text-amber-200">{t("localApiHelp")}</p>}
@@ -109,8 +117,8 @@ export function WebAiPlanIntegration({ planId, saved }: { planId: string; saved:
                 <summary className="cursor-pointer text-sm font-black text-slate-950 dark:text-white">{t("runTitle")}</summary>
                 <div className="mt-3 space-y-3">
                     <p className="text-xs leading-6 text-slate-500 dark:text-slate-300">{t("runHelp")}</p>
-                    <button type="button" disabled={!saved || busy} onClick={() => void createRun()} className={BUTTON}>{t("prepareRun")}</button>
-                    {runPrompt && (
+                    <button type="button" disabled={!saved || !ready || busy} onClick={() => void createRun()} className={BUTTON}>{t("prepareRun")}</button>
+                    {runPrompt && ready && (
                         <div className="space-y-2">
                             <textarea aria-label={t("runPrompt")} readOnly value={runPrompt} rows={7} className="w-full resize-y rounded-xl border border-slate-200 bg-slate-50 p-3 font-mono text-xs leading-5 text-slate-800 dark:border-white/10 dark:bg-[#102135] dark:text-slate-200" />
                             <button type="button" disabled={!saved || busy} onClick={() => void copy(runPrompt)} className={BUTTON}><ClipboardCopy className="h-4 w-4" aria-hidden="true" />{t("copy")}</button>

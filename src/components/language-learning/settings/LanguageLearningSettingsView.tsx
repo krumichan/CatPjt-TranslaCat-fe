@@ -9,12 +9,16 @@ import { WebAiScheduleSettingsEntry } from "@/components/language-learning/setti
 export function LanguageLearningSettingsView({ controller }: { controller: LanguageLearningSettingsPageController }) {
     return (
         <div className="space-y-6" data-testid="language-learning-settings">
-            <LanguageLearningSettingForm
-                setting={controller.entry.setting!}
-                controller={controller.settingForm}
-            />
+            <div id="learning-settings" className="scroll-mt-36">
+                <LanguageLearningSettingForm
+                    setting={controller.entry.setting!}
+                    controller={controller.settingForm}
+                />
+            </div>
+            <div id="learning-keywords" className="scroll-mt-36">
+                <KeywordSettingsSection manager={controller.keywordManager} />
+            </div>
             <WebAiScheduleSettingsEntry />
-            <KeywordSettingsSection manager={controller.keywordManager} />
             <LevelRecheckSection status={controller.entry.levelStatus} />
         </div>
     );

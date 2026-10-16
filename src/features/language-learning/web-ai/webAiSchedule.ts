@@ -72,7 +72,8 @@ export type WebAiScheduleIssue =
     | "LEGACY_AREA_REQUIRES_REVIEW"
     | "COUNT_INVALID"
     | "COUNT_REQUIRED"
-    | "KEYWORDS_INVALID";
+    | "KEYWORDS_INVALID"
+    | "PLAN_KEYWORDS_REQUIRED";
 
 const SELECTABLE_AREA_CODES = new Set<string>(WEB_AI_AREA_GROUPS.flatMap((group) => group.areas));
 const LEGACY_AREA_CODES = new Set<string>(WEB_AI_AREA_GROUPS.map((group) => group.domain));
@@ -184,6 +185,8 @@ export function validateWebAiSchedule(schedule: WebAiSchedule): WebAiScheduleIss
         new Set(schedule.keywords.map((keyword) => keyword.key)).size !== schedule.keywords.length
     ) {
         issues.push("KEYWORDS_INVALID");
+    } else if (schedule.keywordMode === "CUSTOM" && schedule.keywords.length === 0) {
+        issues.push("PLAN_KEYWORDS_REQUIRED");
     }
 
     // 시간대와 시각은 복사한 스케줄 설명에서도 모호하지 않아야 한다.

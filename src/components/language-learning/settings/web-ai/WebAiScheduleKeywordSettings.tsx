@@ -14,6 +14,7 @@ interface WebAiScheduleKeywordSettingsProps {
     onModeChange: (mode: "DEFAULT" | "CUSTOM") => void;
     onKeywordsChange: (keywords: WebAiPlanKeyword[]) => void;
     onRetry: () => void;
+    canRetry?: boolean;
 }
 
 const CHIP_CLASS = "inline-flex min-h-9 max-w-full items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-bold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500";
@@ -27,6 +28,7 @@ export function WebAiScheduleKeywordSettings({
     onModeChange,
     onKeywordsChange,
     onRetry,
+    canRetry = true,
 }: WebAiScheduleKeywordSettingsProps) {
     const t = useTranslations("LanguageLearning.settings.webAi.keywordSettings");
     const selectedKeys = new Set(keywords.map((keyword) => keyword.key));
@@ -117,9 +119,9 @@ export function WebAiScheduleKeywordSettings({
                     {status === "error" && (
                         <div role="status" className="flex flex-wrap items-center gap-2 rounded-xl bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-900 dark:bg-amber-400/10 dark:text-amber-100">
                             <p className="min-w-0 flex-1">{t("loadError")}</p>
-                            <button type="button" onClick={onRetry} className="inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-lg border border-amber-200 bg-white px-2.5 font-bold hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 dark:border-amber-300/20 dark:bg-transparent dark:hover:bg-amber-400/10">
+                            {canRetry && <button type="button" onClick={onRetry} className="inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-lg border border-amber-200 bg-white px-2.5 font-bold hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 dark:border-amber-300/20 dark:bg-transparent dark:hover:bg-amber-400/10">
                                 <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />{t("retry")}
-                            </button>
+                            </button>}
                         </div>
                     )}
                 </div>

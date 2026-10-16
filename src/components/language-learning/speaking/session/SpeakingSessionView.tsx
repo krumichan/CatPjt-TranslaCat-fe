@@ -47,7 +47,7 @@ export function SpeakingSessionView({
             <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
                 <SpeakingConversationHistory controller={controller} />
 
-                <div className="space-y-4 xl:sticky xl:top-24 xl:self-start">
+                <div className="space-y-4 xl:sticky xl:top-36 xl:self-start">
                     {!sessionEnded && (
                         <>
                             <SpeakingRecorderPanel controller={controller} />

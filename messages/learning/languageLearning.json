@@ -73,7 +73,10 @@
         "WEB_AI_VERIFICATION_BUSY": "別の解答を検証しています。完了後に再試行してください。",
         "WEB_AI_RETRY_LIMIT": "検証の再試行回数を使い切りました。解答とフィードバックは学習履歴に保持されています。",
         "WEB_AI_TOKEN_INVALID": "連携キーが解除されました。連携プロンプトを再発行してください。",
-        "WEB_AI_INVALID": "問題番号と結果JSONの内容を確認してください。結果は1回に10問まで分けて取り込めます。"
+        "WEB_AI_INVALID": "問題番号と結果JSONの内容を確認してください。結果は1回に10問まで分けて取り込めます。",
+        "WEB_AI_SETTINGS_REQUIRED": "先に基本の言語学習設定を保存してください。入力したプランは保持されます。",
+        "WEB_AI_KEYWORDS_REQUIRED": "今日使用できる学習キーワードがありません。学習設定でキーワードを準備してから再試行してください。",
+        "WEB_AI_PLAN_KEYWORDS_REQUIRED": "プランのキーワードを1つ以上選択するか、基本キーワードの使用に切り替えてください。"
       },
       "reason": {
         "AI_EVALUATION_DISABLED": "運用設定でAI評価が停止されているためスコアを反映していません。解答と元のフィードバックは保持されます。",
@@ -126,6 +129,12 @@
       "dashboard": "ダッシュボード",
       "todayLearning": "今日の学習",
       "todayLearningDescription": "学習メニュー",
+      "mobile": {
+        "dashboard": "ホーム",
+        "todayLearning": "学習",
+        "history": "履歴",
+        "settings": "設定"
+      },
       "writing": "Writing",
       "history": "学習履歴",
       "profile": "学習プロフィール",
@@ -954,10 +963,10 @@
       "title": "言語学習設定",
       "description": "学習言語、Writing/Speaking目標とKeywordを管理します。一部の変更は翌学習日から適用されます。",
       "loading": "学習設定とKeywordを読み込んでいます。",
-      "loadFailed": "従来の言語学習設定を読み込めませんでした。上のWeb AI学習プランは引き続き利用できます。",
+      "loadFailed": "言語学習設定を読み込めませんでした。再読み込み後、設定とキーワードを確認してください。",
       "webAiEntry": {
         "title": "Web AI学習プラン",
-        "description": "Web AIで使う学習スケジュールとプロンプトを複数設定できます。現在のプランはこのブラウザーに下書きとして保存されます。",
+        "description": "基本の学習設定とキーワードをもとに、学習スケジュールとプロンプトを作成します。プランはアカウントに保存されます。",
         "action": "プランを管理"
       },
       "webAi": {
@@ -968,28 +977,28 @@
         "mobileListDescription": "学びたい内容を、希望する日に準備しましょう。",
         "mobileEditorTitle": "スケジュール編集",
         "backToPlans": "学習スケジュール一覧に戻る",
-        "localNoticeShort": "プランはこのブラウザー内の下書きです。コピーしたプロンプトはWeb AIのスケジュール機能に登録してください。",
+        "localNoticeShort": "プランはアカウントに保存されます。コピーしたプロンプトをWeb AIのスケジュール機能に登録してください。",
         "mobileNavigation": "モバイルショートカット",
         "mobileNavHome": "ホーム",
         "mobileNavLearning": "学習",
         "mobileNavSchedule": "予定",
         "mobileNavSettings": "設定",
         "back": "語学学習設定に戻る",
-        "localNoticeTitle": "現在はブラウザー内の下書きです",
-        "localNotice": "プランはこのブラウザーにのみ保存されます。自動出題を始めるには、コピーしたプロンプトをWeb AIの予約機能に登録してください。TranslaCatへの結果保存とスコア連携はまだ利用できません。",
+        "localNoticeTitle": "Web AIで学習し、TranslaCatに記録しましょう",
+        "localNotice": "計画はアカウントに保存されます。保存後、連携プロンプトをWeb AIの予定機能に登録してください。結果はサーバーAIによる検証後、既存の学習スコアに反映されます。",
         "loading": "プランを読み込んでいます。",
         "authRequired": "ログイン後にプランを作成できます。",
         "planListEyebrow": "MY PLANS",
         "planListTitle": "マイプラン {count}件",
         "newPlan": "新しいプラン",
         "emptyTitle": "保存済みのプランはありません",
-        "emptyDescription": "新しいプランを作り、曜日・言語・問題構成を選んでください。",
+        "emptyDescription": "新しいプランを作成して、曜日や問題構成を選択してください。",
         "questionCount": "{count}問",
         "edit": "編集",
         "duplicate": "複製",
         "delete": "削除",
         "copyName": "{name} のコピー",
-        "confirmDelete": "「{name}」をこのブラウザーから削除しますか？",
+        "confirmDelete": "「{name}」のプランを削除しますか？",
         "selectTitle": "プランを選ぶか新規作成してください",
         "selectDescription": "1つのプランに複数の学習分野を設定できます。曜日や目的が異なる場合はプランを追加してください。",
         "editorEyebrow": "PLAN EDITOR",
@@ -1076,8 +1085,8 @@
           "loading": "キーワードを読み込み中です。",
           "loadError": "キーワード一覧を読み込めませんでした。既存の選択は保持されています。",
           "retry": "再試行",
-          "defaultEmpty": "基本設定でキーワードが選択されていないため、出題テーマを限定しません。",
-          "customEmpty": "キーワードを選択しない場合、出題テーマを限定しません。",
+          "defaultEmpty": "今日使用できる基本キーワードがありません。言語学習設定でキーワードを準備してください。",
+          "customEmpty": "プランのキーワードを1つ以上選択するか、基本キーワードの使用に切り替えてください。",
           "catalogEmpty": "選択できるキーワードがありません。言語学習設定でキーワードを登録できます。",
           "removeKeyword": "{keyword}の選択を解除",
           "catalogLabel": "この計画の出題テーマを選択"
@@ -1114,16 +1123,17 @@
           "COUNT_INVALID": "問題数は0以上の整数で入力してください。",
           "COUNT_REQUIRED": "問題数を1問以上入力してください。",
           "KEYWORDS_INVALID": "キーワードの選択を確認してください。",
-          "LEGACY_AREA_REQUIRES_REVIEW": "以前の「全体」の問題数を詳細形式に移し、古い項目を削除してください。"
+          "LEGACY_AREA_REQUIRES_REVIEW": "以前の「全体」の問題数を詳細形式に移し、古い項目を削除してください。",
+          "PLAN_KEYWORDS_REQUIRED": "プランのキーワードを1つ以上選択するか、基本キーワードの使用に切り替えてください。"
         },
         "notice": {
-          "saved": "このブラウザーにプランの下書きを保存しました。",
-          "saveFailed": "ブラウザーに保存できませんでした。空き容量や設定を確認してください。",
+          "saved": "学習計画をアカウントに保存しました。",
+          "saveFailed": "処理できませんでした。入力内容は保持されています。再試行してください。",
           "copied": "プロンプトをコピーしました。Web AIの予約機能に貼り付けてください。",
           "copyFailed": "コピーできませんでした。プレビューから直接コピーしてください。"
         },
         "saveDraft": "学習プランを保存",
-        "saveDraftHelp": "このブラウザーに下書きとして保存されます。",
+        "saveDraftHelp": "プランはアカウントに保存されます。",
         "copyPrompt": "プロンプトをコピー",
         "promptPreviewTitle": "学習内容のプレビュー",
         "promptPreviewHelp": "実際の学習プロンプトは保存した計画と結果の提出形式を含め、サーバーで作成されます。",
@@ -1218,6 +1228,24 @@
         "description": "過去の履歴は維持したまま、現在のBase Levelを再測定して新しいCalibration Cycleを開始できます。",
         "recommended": "長期間の学習停止によりLevel Recheckが推奨されています。",
         "action": "レベルを再確認"
+      },
+      "webAiSetup": {
+        "title": "まず学習の準備を完了してください",
+        "ready": "学習の準備ができました",
+        "checking": "学習の準備状況を確認しています",
+        "unavailable": "学習の準備状況を確認できませんでした",
+        "settingsLabel": "1. 基本の学習設定を保存",
+        "keywordsLabel": "2. 学習キーワードを準備",
+        "settingsAction": "設定する",
+        "keywordsAction": "キーワード設定",
+        "help": "原文・学習言語を保存し、キーワードを準備するとプランを作成できます。",
+        "keywordsHelp": "今日使用できる学習キーワードが1つ以上必要です。キーワードを選択・登録してください。翌学習日から適用される変更は、適用後にプランを作成できます。",
+        "retry": "準備状況を再確認",
+        "status": {
+          "complete": "完了",
+          "loading": "確認中",
+          "error": "読み込み失敗"
+        }
       }
     },
     "admin": {

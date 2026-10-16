@@ -2,7 +2,7 @@ import { mkdirSync } from "node:fs";
 import path from "node:path";
 
 import { expect, test } from "../fixtures/mock-test";
-import { mockLanguageLearningBase } from "../support/language-learning-mocks";
+import { LANGUAGE_LEARNING_SETTING, mockLanguageLearningBase } from "../support/language-learning-mocks";
 import { fulfillApiJson } from "../support/api-mocks";
 import { responseDto } from "../support/mock-data";
 import { buildWebAiPrompt } from "../../src/features/language-learning/web-ai/webAiPrompt";
@@ -10,6 +10,7 @@ import type { WebAiAreaCode } from "../../src/features/language-learning/web-ai/
 import type { WebAiPlan, WebAiPlanRequest } from "../../src/types/language-learning/webAi";
 
 const QA_DIRECTORY = path.resolve("..", ".codex-workspace", "verification", "fe", "web-ai-settings-mobile-update");
+const SETUP_QA_DIRECTORY = path.resolve("..", ".codex-workspace", "verification", "fe", "web-ai-prerequisites-20261016");
 
 async function expectSettingsBelowHeader(page: Parameters<typeof mockLanguageLearningBase>[0]) {
     // 검증: 고정 헤더가 설정 화면의 첫 콘텐츠를 가리지 않는다.
@@ -60,6 +61,114 @@ test.describe("웹 AI 학습 계획", () => {
             }
             await route.fulfill({ status: 404, body: "Unexpected web AI request" });
         });
+    });
+
+    test("학습 설정 저장 전에는 설정 카드와 직접 URL에서 계획 생성을 막는다", async ({ page }) => {
+        // 준비: 입력 기본값이 있어도 서버에 저장하지 않은 사용자를 표시한다.
+        await page.route("**/api/v1/language-learning/settings", (route) =>
+            fulfillApiJson(route, responseDto({ ...LANGUAGE_LEARNING_SETTING, configured: false })),
+        );
+
+        // 실행 / 검증: 진입 카드의 이유와 설정 이동 링크를 제공한다.
+        await page.goto("/language-learning/settings");
+        await expect(page.getByRole("button", { name: "계획 관리", exact: true })).toBeDisabled();
+        await expect(page.getByRole("link", { name: "설정하기", exact: true })).toHaveAttribute("href", "#learning-settings");
+
+        // 실행 / 검증: 직접 접근해도 편집기와 저장 푸터를 만들지 않는다.
+        await page.goto("/language-learning/settings/web-ai");
+        const setup = page.getByTestId("web-ai-plan-prerequisites");
+        await expect(setup).toContainText("먼저 학습 준비를 완료");
+        await expect(setup.getByRole("link", { name: "설정하기", exact: true })).toHaveAttribute("href", /\/language-learning\/settings#learning-settings$/);
+        await expect(page.getByRole("button", { name: "새 계획" }).first()).toBeDisabled();
+        await expect(page.getByTestId("web-ai-schedule-editor")).toHaveCount(0);
+        await expect(page.getByTestId("web-ai-schedule-footer")).toHaveCount(0);
+    });
+
+    test("유효 키워드가 없으면 카탈로그가 있어도 계획을 막고 적용일을 안내한다", async ({ page }) => {
+        // 준비: 선택 가능한 카탈로그는 유지하되 오늘 사용할 후보는 비운다.
+        await page.route("**/api/v1/language-learning/keywords/effective", (route) =>
+            fulfillApiJson(route, responseDto({ candidates: [] })),
+        );
+        await page.setViewportSize({ width: 1280, height: 900 });
+
+        // 실행 / 검증: PC와 모바일 모두 키워드 준비 경로를 보여 준다.
+        await page.goto("/language-learning/settings/web-ai");
+        const setup = page.getByTestId("web-ai-plan-prerequisites");
+        await expect(setup).toContainText("다음 학습일부터 적용");
+        await expect(setup.getByRole("link", { name: "키워드 설정", exact: true })).toBeVisible();
+        await expect(page.getByRole("button", { name: "새 계획" }).first()).toBeDisabled();
+        mkdirSync(SETUP_QA_DIRECTORY, { recursive: true });
+        await page.screenshot({ path: path.join(SETUP_QA_DIRECTORY, "prerequisites-desktop.png") });
+        await page.setViewportSize({ width: 390, height: 844 });
+        await expect(page.getByRole("button", { name: "새 계획" }).first()).toBeDisabled();
+        // 검증: AppShell의 PC 사이드바 여백 전환이 끝난 모바일 배치를 기록한다.
+        await expect.poll(async () => (await page.locator("main.overflow-y-auto").boundingBox())?.x).toBe(0);
+        await page.screenshot({ path: path.join(SETUP_QA_DIRECTORY, "prerequisites-mobile.png") });
+    });
+
+    test("조회 실패는 미설정과 구분하고 재확인 성공 후 계획을 만들 수 있다", async ({ page }) => {
+        // 준비: 첫 조회만 실패하고 재확인에는 저장된 설정을 반환한다.
+        await page.setViewportSize({ width: 1280, height: 900 });
+        let failed = true;
+        let release!: () => void;
+        const responseGate = new Promise<void>((resolve) => { release = resolve; });
+        await page.route("**/api/v1/language-learning/settings", async (route) => {
+            if (failed) {
+                await responseGate;
+                await route.fulfill({ status: 503, body: "temporarily unavailable" });
+            }
+            else await fulfillApiJson(route, responseDto(LANGUAGE_LEARNING_SETTING));
+        });
+
+        // 실행 / 검증: 로딩과 실패를 설정 누락으로 안내하지 않는다.
+        await page.goto("/language-learning/settings/web-ai");
+        const setup = page.getByTestId("web-ai-plan-prerequisites");
+        await expect(setup).toContainText("확인하고 있어요");
+        await expect(page.getByRole("button", { name: "새 계획" }).first()).toBeDisabled();
+        release();
+        await expect(setup).toContainText("확인하지 못했어요");
+        await expect(setup.getByRole("link", { name: "설정하기", exact: true })).toHaveCount(0);
+        await expect(page.getByRole("button", { name: "새 계획" }).first()).toBeDisabled();
+
+        // 실행 / 검증: 같은 화면에서 최신 상태를 받아 생성 경로를 연다.
+        failed = false;
+        await setup.getByRole("button", { name: "준비 상태 다시 확인" }).click();
+        await expect(page.getByRole("button", { name: "새 계획" }).first()).toBeEnabled();
+        await page.getByRole("button", { name: "새 계획" }).first().click();
+        const editor = page.getByTestId("web-ai-schedule-editor");
+        await expect(editor).toBeVisible();
+
+        // 실행: 다른 탭의 키워드 변경 뒤 돌아와도 편집·결과 입력을 잃지 않는다.
+        await editor.getByRole("textbox", { name: "계획 이름" }).fill("보존할 계획");
+        const integration = page.getByTestId("web-ai-plan-integration");
+        await integration.locator("summary").click();
+        const resultInput = integration.getByRole("textbox", { name: "웹 AI 결과 JSON" });
+        await resultInput.fill("미제출 결과 초안");
+        failed = true;
+        let keywordFailed = true;
+        await page.route("**/api/v1/language-learning/keywords/effective", async (route) => {
+            if (keywordFailed) await route.fulfill({ status: 503, body: "temporarily unavailable" });
+            else await fulfillApiJson(route, responseDto({ candidates: [] }));
+        });
+        await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+
+        // 검증: 입력 잠금 상태에도 복구 버튼과 PC 닫기는 사용할 수 있다.
+        await expect(setup).toContainText("확인하지 못했어요");
+        await expect(editor.getByRole("textbox", { name: "계획 이름" })).toHaveValue("보존할 계획");
+        await expect(editor.getByRole("textbox", { name: "계획 이름" })).toBeDisabled();
+        await expect(resultInput).toHaveValue("미제출 결과 초안");
+        await expect(page.getByTestId("web-ai-schedule-footer").getByRole("button", { name: "학습 계획 저장" })).toBeDisabled();
+        await expect(editor.getByRole("button", { name: "편집기 닫기" })).toBeEnabled();
+        await expect(editor.getByRole("button", { name: "다시 확인", exact: true })).toHaveCount(0);
+
+        // 실행 / 검증: 복구는 체크리스트에서 진행하고, 미완료 상태에서도 닫기를 허용한다.
+        failed = false;
+        keywordFailed = false;
+        await setup.getByRole("button", { name: "준비 상태 다시 확인" }).click();
+        await expect(setup).toContainText("오늘 사용할 수 있는 학습 키워드");
+        await expect(resultInput).toHaveValue("미제출 결과 초안");
+        await editor.getByRole("button", { name: "편집기 닫기" }).click();
+        await expect(editor).toHaveCount(0);
     });
 
     test("설정에서 주간 계획을 만들고 새로고침 후 프롬프트를 복사한다", async ({ context, page }) => {

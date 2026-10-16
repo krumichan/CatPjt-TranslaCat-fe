@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { LanguageLearningStateCard } from "@/components/language-learning/common/LanguageLearningStateCard";
 import { LanguageLearningPageLayout } from "@/components/language-learning/layout/LanguageLearningPageLayout";
 import { LanguageLearningSettingsView } from "@/components/language-learning/settings/LanguageLearningSettingsView";
-import { WebAiScheduleSettingsEntry } from "@/components/language-learning/settings/WebAiScheduleSettingsEntry";
 import {
     useLanguageLearningSettingsPageController,
 } from "@/hooks/language-learning/useLanguageLearningSettingsPageController";
@@ -49,12 +48,7 @@ export function LanguageLearningSettingsSmartPage() {
             title={t("title")}
             description={t("description")}
         >
-            {legacySettingsLoading || legacySettingsFailed ? (
-                <div className="space-y-6">
-                    <WebAiScheduleSettingsEntry />
-                    {content}
-                </div>
-            ) : content}
+            {content}
         </LanguageLearningPageLayout>
     );
 }

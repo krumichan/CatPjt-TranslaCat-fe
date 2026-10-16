@@ -43,7 +43,10 @@ function isRecurrence(value: unknown): value is WebAiRecurrence {
 }
 
 function hasNoBlockingStorageIssues(schedule: WebAiSchedule): boolean {
-    return validateWebAiSchedule(schedule).every((issue) => issue === "LEGACY_AREA_REQUIRES_REVIEW");
+    // 새 정책에서 수정이 필요한 기존 초안도 읽고 삭제할 수 있도록 원본을 보존한다.
+    return validateWebAiSchedule(schedule).every((issue) =>
+        issue === "LEGACY_AREA_REQUIRES_REVIEW" || issue === "PLAN_KEYWORDS_REQUIRED",
+    );
 }
 
 function parseSchedule(value: unknown): WebAiSchedule | null {

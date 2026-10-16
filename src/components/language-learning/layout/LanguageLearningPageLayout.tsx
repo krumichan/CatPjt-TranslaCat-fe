@@ -29,7 +29,8 @@ export function LanguageLearningPageLayout({
                     />
                 </div>
 
-                <div className={compactOnMobile ? "hidden xl:block" : ""}>
+                {/* 공통 헤더(60px) 아래에 메뉴만 고정하고 제목과 본문은 계속 스크롤한다. */}
+                <div className={`sticky top-15 z-30 ${compactOnMobile ? "hidden xl:block" : ""}`}>
                     <LanguageLearningTabNavigation />
                 </div>
 

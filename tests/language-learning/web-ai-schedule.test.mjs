@@ -184,22 +184,23 @@ test("기본 키워드는 최신 공통 선택을 따르고 직접 선택한 계
     assert.deepEqual(resolveWebAiKeywords(custom, updatedDefaults), keywords);
 });
 
-test("직접 선택한 키워드가 비어 있으면 기본 주제로 대체하지 않고 제한 없이 출제한다", () => {
+test("직접 선택한 키워드가 비어 있으면 선택을 요구하고 기존 초안은 보존한다", () => {
     // 준비
     const defaults = [{ key: "system:travel", text: "여행", canonicalKey: "travel" }];
     const schedule = validSchedule({ keywordMode: "CUSTOM", keywords: [] });
 
     // 실행
-    const prompt = buildWebAiPrompt(schedule, "ko", labels, defaults);
-    const japanesePrompt = buildWebAiPrompt(schedule, "ja", labels, defaults);
+    const issues = validateWebAiSchedule(schedule);
 
     // 검증
-    assert.deepEqual(validateWebAiSchedule(schedule), []);
+    assert.deepEqual(issues, ["PLAN_KEYWORDS_REQUIRED"]);
     assert.deepEqual(resolveWebAiKeywords(schedule, defaults), []);
-    assert.match(prompt, /특정 키워드로 주제를 제한하지 않습니다/);
-    assert.doesNotMatch(prompt, /출제 키워드:/);
-    assert.match(japanesePrompt, /特定のキーワードで話題を制限しません/);
-    assert.doesNotMatch(japanesePrompt, /出題キーワード：/);
+    assert.throws(() => buildWebAiPrompt(schedule, "ko", labels, defaults), /PLAN_KEYWORDS_REQUIRED/);
+    const stored = new Map();
+    withMockStorage({ getItem: (key) => stored.get(key) ?? null, setItem: (key, value) => stored.set(key, value) }, () => {
+        assert.equal(writeWebAiSchedules("owner-a", [schedule]), true);
+        assert.deepEqual(readWebAiSchedules("owner-a"), [schedule]);
+    });
 });
 
 test("요일 또는 월별 일자를 선택해야 하며 월말 선택만으로도 유효하다", () => {

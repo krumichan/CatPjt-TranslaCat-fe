@@ -73,7 +73,10 @@
         "WEB_AI_VERIFICATION_BUSY": "다른 답안을 검증하고 있습니다. 완료된 뒤 다시 시도해 주세요.",
         "WEB_AI_RETRY_LIMIT": "검증 재시도 횟수를 모두 사용했습니다. 기존 답안과 피드백은 학습 이력에 보존됩니다.",
         "WEB_AI_TOKEN_INVALID": "연동 키가 해제되었습니다. 새 연동 프롬프트를 발급해 주세요.",
-        "WEB_AI_INVALID": "문제 번호와 결과 JSON의 내용을 확인해 주세요. 결과는 한 번에 10문항까지 나누어 가져올 수 있습니다."
+        "WEB_AI_INVALID": "문제 번호와 결과 JSON의 내용을 확인해 주세요. 결과는 한 번에 10문항까지 나누어 가져올 수 있습니다.",
+        "WEB_AI_SETTINGS_REQUIRED": "먼저 기본 언어 학습 설정을 저장해 주세요. 입력한 계획은 유지됩니다.",
+        "WEB_AI_KEYWORDS_REQUIRED": "오늘 사용할 수 있는 학습 키워드가 없습니다. 학습 설정에서 키워드를 준비한 뒤 다시 시도해 주세요.",
+        "WEB_AI_PLAN_KEYWORDS_REQUIRED": "계획 키워드를 1개 이상 선택하거나 기본 키워드 사용으로 변경해 주세요."
       },
       "reason": {
         "AI_EVALUATION_DISABLED": "현재 AI 평가가 운영 설정에서 중지되어 점수를 반영하지 않았습니다. 답안과 원문 피드백은 보존됩니다.",
@@ -126,6 +129,12 @@
       "dashboard": "대시보드",
       "todayLearning": "오늘의 학습",
       "todayLearningDescription": "학습 메뉴",
+      "mobile": {
+        "dashboard": "홈",
+        "todayLearning": "학습",
+        "history": "이력",
+        "settings": "설정"
+      },
       "writing": "Writing",
       "history": "학습 이력",
       "profile": "학습 프로필",
@@ -954,10 +963,10 @@
       "title": "언어 학습 설정",
       "description": "학습 언어, Writing/Speaking 목표와 Keyword를 관리합니다. 일부 변경은 다음 학습일부터 적용됩니다.",
       "loading": "학습 설정과 Keyword를 불러오고 있습니다.",
-      "loadFailed": "기존 언어 학습 설정을 불러오지 못했습니다. 위의 웹 AI 학습 계획은 계속 사용할 수 있습니다.",
+      "loadFailed": "언어 학습 설정을 불러오지 못했습니다. 다시 불러온 뒤 설정과 키워드를 확인해 주세요.",
       "webAiEntry": {
         "title": "웹 AI 학습 계획",
-        "description": "웹 AI에서 사용할 학습 일정과 프롬프트를 여러 개 설정합니다. 현재 계획은 이 브라우저에 초안으로 저장됩니다.",
+        "description": "기본 학습 설정과 키워드를 바탕으로 학습 일정과 프롬프트를 만듭니다. 계획은 계정에 저장됩니다.",
         "action": "계획 관리"
       },
       "webAi": {
@@ -968,28 +977,28 @@
         "mobileListDescription": "원하는 학습을 원하는 날에 준비하세요.",
         "mobileEditorTitle": "스케줄 편집",
         "backToPlans": "학습 스케줄 목록으로",
-        "localNoticeShort": "계획은 이 브라우저의 초안입니다. 웹 AI의 일정 기능에는 복사한 프롬프트를 직접 등록해 주세요.",
+        "localNoticeShort": "계획은 계정에 저장됩니다. 웹 AI의 일정 기능에 복사한 프롬프트를 직접 등록해 주세요.",
         "mobileNavigation": "모바일 바로가기",
         "mobileNavHome": "홈",
         "mobileNavLearning": "학습",
         "mobileNavSchedule": "스케줄",
         "mobileNavSettings": "설정",
         "back": "언어 학습 설정으로",
-        "localNoticeTitle": "현재는 브라우저 초안입니다",
-        "localNotice": "계획은 이 브라우저에만 저장됩니다. 자동 출제를 시작하려면 복사한 프롬프트를 웹 AI의 일정 기능에 직접 등록하세요. TranslaCat 결과 저장과 점수 연동은 아직 연결되지 않았습니다.",
+        "localNoticeTitle": "웹 AI와 함께 학습하고 TranslaCat에 기록하세요",
+        "localNotice": "계획은 계정에 저장됩니다. 저장 후 연동 프롬프트를 웹 AI의 일정 기능에 등록하세요. 결과는 서버 AI 검증을 거쳐 기존 학습 점수에 함께 반영됩니다.",
         "loading": "계획을 불러오는 중입니다.",
         "authRequired": "로그인 후 계획을 작성할 수 있습니다.",
         "planListEyebrow": "MY PLANS",
         "planListTitle": "내 계획 {count}개",
         "newPlan": "새 계획",
         "emptyTitle": "저장한 계획이 없습니다",
-        "emptyDescription": "새 계획을 만들어 요일, 언어, 문제 구성을 선택해 보세요.",
+        "emptyDescription": "새 계획을 만들어 요일과 문제 구성을 선택해 보세요.",
         "questionCount": "{count}문제",
         "edit": "수정",
         "duplicate": "복제",
         "delete": "삭제",
         "copyName": "{name} 복사본",
-        "confirmDelete": "‘{name}’ 계획을 이 브라우저에서 삭제할까요?",
+        "confirmDelete": "‘{name}’ 계획을 삭제할까요?",
         "selectTitle": "계획을 선택하거나 새로 만드세요",
         "selectDescription": "한 계획에 여러 학습 분야를 넣을 수 있습니다. 서로 다른 요일이나 목적에는 계획을 추가하세요.",
         "editorEyebrow": "PLAN EDITOR",
@@ -1076,8 +1085,8 @@
           "loading": "키워드를 불러오는 중입니다.",
           "loadError": "키워드 목록을 불러오지 못했습니다. 기존 선택은 유지됩니다.",
           "retry": "다시 시도",
-          "defaultEmpty": "기본 설정에 선택한 키워드가 없어 문제 주제를 제한하지 않습니다.",
-          "customEmpty": "선택한 키워드가 없으면 문제 주제를 제한하지 않습니다.",
+          "defaultEmpty": "오늘 사용할 수 있는 기본 키워드가 없습니다. 언어 학습 설정에서 키워드를 준비해 주세요.",
+          "customEmpty": "계획 키워드를 1개 이상 선택하거나 기본 키워드 사용으로 변경해 주세요.",
           "catalogEmpty": "선택할 키워드가 없습니다. 언어 학습 설정에서 키워드를 등록할 수 있습니다.",
           "removeKeyword": "{keyword} 선택 해제",
           "catalogLabel": "이 계획의 문제 주제 선택"
@@ -1114,16 +1123,17 @@
           "COUNT_INVALID": "문제 수는 0 이상의 정수로 입력하세요.",
           "COUNT_REQUIRED": "문제 수를 하나 이상 입력하세요.",
           "KEYWORDS_INVALID": "키워드 선택을 다시 확인해 주세요.",
-          "LEGACY_AREA_REQUIRES_REVIEW": "이전 ‘전체’ 문제 수를 세부 유형에 옮기고 기존 항목을 제거하세요."
+          "LEGACY_AREA_REQUIRES_REVIEW": "이전 ‘전체’ 문제 수를 세부 유형에 옮기고 기존 항목을 제거하세요.",
+          "PLAN_KEYWORDS_REQUIRED": "계획 키워드를 1개 이상 선택하거나 기본 키워드 사용으로 변경해 주세요."
         },
         "notice": {
-          "saved": "이 브라우저에 계획 초안을 저장했습니다.",
-          "saveFailed": "브라우저에 저장하지 못했습니다. 저장 공간과 브라우저 설정을 확인해 주세요.",
+          "saved": "학습 계획을 계정에 저장했습니다.",
+          "saveFailed": "요청을 완료하지 못했습니다. 입력한 내용은 유지됩니다. 다시 시도해 주세요.",
           "copied": "프롬프트를 복사했습니다. 웹 AI의 일정 기능에 붙여 넣으세요.",
           "copyFailed": "복사하지 못했습니다. 미리보기 내용을 직접 복사해 주세요."
         },
         "saveDraft": "학습 계획 저장",
-        "saveDraftHelp": "현재 브라우저에 초안으로 저장됩니다.",
+        "saveDraftHelp": "계획은 계정에 저장됩니다.",
         "copyPrompt": "프롬프트 복사",
         "promptPreviewTitle": "학습 내용 미리보기",
         "promptPreviewHelp": "실제 학습 프롬프트는 저장된 계획과 결과 제출 형식을 포함해 서버에서 생성됩니다.",
@@ -1218,6 +1228,24 @@
         "description": "과거 기록은 유지한 채 현재 Base Level을 다시 측정하고 새 Calibration Cycle을 시작할 수 있습니다.",
         "recommended": "오랜 학습 공백으로 Level Recheck가 권장되는 상태입니다.",
         "action": "레벨 재확인"
+      },
+      "webAiSetup": {
+        "title": "먼저 학습 준비를 완료해 주세요",
+        "ready": "학습 준비가 완료되었어요",
+        "checking": "학습 준비 상태를 확인하고 있어요",
+        "unavailable": "학습 준비 상태를 확인하지 못했어요",
+        "settingsLabel": "1. 기본 학습 설정 저장",
+        "keywordsLabel": "2. 학습 키워드 준비",
+        "settingsAction": "설정하기",
+        "keywordsAction": "키워드 설정",
+        "help": "원문·학습 언어를 저장하고 키워드를 준비하면 계획을 만들 수 있어요.",
+        "keywordsHelp": "오늘 사용할 수 있는 학습 키워드가 1개 이상 필요해요. 키워드를 선택·등록해 주세요. 다음 학습일부터 적용되는 변경은 적용 후 계획을 만들 수 있어요.",
+        "retry": "준비 상태 다시 확인",
+        "status": {
+          "complete": "완료",
+          "loading": "확인 중",
+          "error": "조회 실패"
+        }
       }
     },
     "admin": {

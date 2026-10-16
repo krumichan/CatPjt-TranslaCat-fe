@@ -4,6 +4,7 @@ import { useLocale } from "next-intl";
 import { useCallback, useState } from "react";
 
 import { getLanguageLearningErrorCode } from "@/features/language-learning/common/errorMapping";
+import { notifyLanguageLearningSetupUpdated } from "@/features/language-learning/web-ai/webAiPrerequisites";
 import { useQuery } from "@/hooks/useQuery";
 import { languageLearningKeywordService } from "@/services/language-learning/languageLearningKeywordService";
 import type { KeywordType } from "@/types/language-learning/common";
@@ -23,6 +24,7 @@ export function useLanguageLearningKeywordManager() {
 
     const refresh = useCallback(async () => {
         await query.mutate(undefined, true);
+        notifyLanguageLearningSetupUpdated();
     }, [query]);
 
     const createCustom = useCallback(

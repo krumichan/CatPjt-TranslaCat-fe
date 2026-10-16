@@ -1181,6 +1181,8 @@
       },
       "keywords": {
         "title": "学習Keyword",
+        "refreshFailed": "キーワード一覧を更新できませんでした。現在の画面と保存済みの選択は保持されています。もう一度お試しください。",
+        "retry": "再試行",
         "description": "上位Topicで広く選ぶことも、下位Vocabularyで詳細な関心を選ぶこともできます。Keywordを一つも選択せずに学習することもできます。",
         "nextDayNotice": "最初のWriting Daily SetまたはSpeaking Sessionが作成される前は、Keyword変更が即時反映されます。一度でも作成された後の追加・編集・選択変更は次回学習日から反映されます。新規KeywordのSelection Weightは約7日かけて段階的に上がります。",
         "types": {

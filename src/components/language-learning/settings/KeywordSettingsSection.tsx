@@ -125,6 +125,13 @@ export function KeywordSettingsSection({
                     onSave={(keyword) => void submitEdit(keyword)}
                 />
             </div>
+
+            {manager.loadError && (
+                <div role="alert" className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-400/20 dark:bg-amber-400/10 dark:text-amber-100">
+                    <p className="min-w-0 flex-1">{t("refreshFailed")}</p>
+                    <button type="button" disabled={manager.busyKeywordId !== null || manager.isCreating} onClick={() => void manager.refresh()} className="min-h-11 shrink-0 font-bold underline disabled:opacity-50">{t("retry")}</button>
+                </div>
+            )}
         </section>
     );
 }

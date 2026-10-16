@@ -21,11 +21,13 @@ export function useLanguageLearningKeywordManager() {
     const [busyKeywordId, setBusyKeywordId] = useState<number | null>(null);
     const [isCreating, setIsCreating] = useState(false);
     const [actionErrorCode, setActionErrorCode] = useState<string | null>(null);
+    const { mutate } = query;
 
     const refresh = useCallback(async () => {
-        await query.mutate(undefined, true);
+        // 재조회 중에도 목록을 유지해 화면·펼침 상태·입력 초안을 다시 만들지 않는다.
+        await mutate((current) => current, true);
         notifyLanguageLearningSetupUpdated();
-    }, [query]);
+    }, [mutate]);
 
     const createCustom = useCallback(
         async (
@@ -123,10 +125,18 @@ export function useLanguageLearningKeywordManager() {
             setBusyKeywordId(keyword.id);
             setActionErrorCode(null);
             try {
-                await languageLearningKeywordService.updateSystemSelection(
+                const updated = await languageLearningKeywordService.updateSystemSelection(
                     keyword.id,
                     { selected: !keyword.selected },
                 );
+
+                // 저장 결과는 먼저 반영하되 응답의 표시명으로 현재 UI 언어를 덮어쓰지 않는다.
+                await mutate((current) => current && ({
+                    ...current,
+                    systemKeywords: current.systemKeywords.map((item) => item.id === updated.id
+                        ? { ...item, selected: updated.selected, pendingEffectiveDate: updated.pendingEffectiveDate }
+                        : item),
+                }), false);
                 await refresh();
                 return true;
             } catch (error) {
@@ -137,7 +147,7 @@ export function useLanguageLearningKeywordManager() {
                 setBusyKeywordId(null);
             }
         },
-        [busyKeywordId, refresh],
+        [busyKeywordId, mutate, refresh],
     );
 
     return {

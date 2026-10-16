@@ -14,9 +14,11 @@ export function LanguageLearningSettingsSmartPage() {
     const common = useTranslations("LanguageLearning.common");
     const controller = useLanguageLearningSettingsPageController();
 
-    const legacySettingsLoading = controller.entry.isLoading || controller.keywordManager.isLoading;
+    // 이미 표시한 키워드는 재조회 실패에도 유지하고, 최초 조회만 페이지 전체 상태로 처리한다.
+    const keywordsMissing = controller.keywordManager.data === null;
+    const legacySettingsLoading = controller.entry.isLoading || (keywordsMissing && controller.keywordManager.isLoading);
     const legacySettingsFailed = Boolean(
-        controller.entry.settingError || controller.keywordManager.loadError || !controller.entry.setting,
+        controller.entry.settingError || (keywordsMissing && controller.keywordManager.loadError) || !controller.entry.setting,
     );
 
     const content =

@@ -504,15 +504,6 @@ export function WebAiScheduleSettingsPage() {
                                         {t("planListTitle", { count: visibleSchedules.length })}
                                     </h2>
                                 </div>
-                                <button
-                                    type="button"
-                                    onClick={startNew}
-                                    disabled={working || !prerequisites.ready}
-                                    className="hidden min-h-10 items-center gap-2 rounded-xl bg-blue-600 px-3 py-2 text-sm font-black text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-45 xl:inline-flex"
-                                >
-                                    <Plus className="h-4 w-4" aria-hidden="true" />
-                                    {t("newPlan")}
-                                </button>
                             </div>
 
                             {visibleSchedules.length === 0 ? (
@@ -558,7 +549,7 @@ export function WebAiScheduleSettingsPage() {
                                                         />
                                                     </div>
                                                 )}
-                                                <div className="mt-3 flex flex-wrap gap-2">
+                                                <div className="mt-3 flex flex-wrap justify-center gap-2">
                                                     <button type="button" disabled={working} onClick={() => startEdit(schedule)} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-black text-slate-700 hover:border-blue-300 disabled:opacity-50 dark:border-white/10 dark:bg-slate-900 dark:text-slate-200">
                                                         <FilePenLine className="h-3.5 w-3.5" aria-hidden="true" />{t("edit")}
                                                     </button>

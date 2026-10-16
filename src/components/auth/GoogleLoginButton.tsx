@@ -25,27 +25,28 @@ export default function GoogleLoginButton({ label }: { label: string }) {
     };
 
     const buttonStyle = `
-        px-6 py-3 bg-white border border-gray-300 rounded-lg
-        flex items-center shadow-sm hover:bg-gray-50
+        h-12 w-12 bg-white border border-gray-300 rounded-full
+        inline-flex items-center justify-center shadow-sm hover:bg-gray-50
         text-black transition-colors duration-200
+        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500
+        disabled:cursor-wait disabled:opacity-60
     `;
 
     return (
-        <div className="space-y-3">
+        <div className="flex flex-col items-center gap-3">
             <button
                 type="button"
                 disabled={busy}
                 onClick={() => void login()}
+                aria-label={label}
                 className={buttonStyle}
             >
                 <Image
                     src="https://authjs.dev/img/providers/google.svg"
-                    alt="Google"
+                    alt=""
                     width={20}
                     height={20}
-                    className="mr-3"
                 />
-                {label}
             </button>
             <AuthErrorMessage code={error} />
         </div>

@@ -1,0 +1,11 @@
+{
+  "title": "音声翻訳",
+  "pages": [
+    "index",
+    "open",
+    "input-modes",
+    "languages-storage",
+    "live-translation",
+    "history"
+  ]
+}

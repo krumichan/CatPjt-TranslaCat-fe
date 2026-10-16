@@ -1,0 +1,13 @@
+{
+  "title": "채팅",
+  "pages": [
+    "index",
+    "open",
+    "friends",
+    "direct-groups",
+    "messages-translation",
+    "open-rooms",
+    "room-management",
+    "ai-members"
+  ]
+}

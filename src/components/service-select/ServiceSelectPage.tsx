@@ -3,13 +3,14 @@
 import {
     ArrowRight,
     BookOpen,
+    BookOpenText,
     GraduationCap,
     Headset,
     MessageCircle,
     Mic,
     WalletCards,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useSession } from "next-auth/react";
 
 import { cn } from "@/lib/utils";
@@ -25,6 +26,7 @@ const SERVICE_CARD_STYLE = cn(
 
 export function ServiceSelectPage() {
     const t = useTranslations("ServiceSelect");
+    const guideLocale = useLocale() === "ko" ? "ko" : "ja";
     const { data: session } = useSession();
     const isAdmin = session?.user?.role === "ADMIN";
 
@@ -100,6 +102,16 @@ export function ServiceSelectPage() {
                 <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
                     {t("description")}
                 </p>
+                <Link
+                    href="/docs"
+                    locale={guideLocale}
+                    data-testid="service-guide-link"
+                    className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-lg text-sm font-bold text-blue-600 transition hover:text-blue-500 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-500 dark:text-blue-400"
+                >
+                    <BookOpenText className="h-4 w-4" aria-hidden="true" />
+                    {t("guideLink")}
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </Link>
             </div>
 
             <div

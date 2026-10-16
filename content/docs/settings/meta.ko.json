@@ -1,0 +1,12 @@
+{
+  "title": "프로필과 설정",
+  "pages": [
+    "index",
+    "open",
+    "profile",
+    "images",
+    "account-login",
+    "chat-defaults",
+    "appearance"
+  ]
+}

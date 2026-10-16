@@ -1,5 +1,19 @@
 export const PUBLIC_AUTH_PAGES = ["/login", "/register", "/error"];
 
+export function stripLocalePrefix(pathname: string, supportedLocales: readonly string[]): string {
+    const [, firstSegment, ...remainingSegments] = pathname.split("/");
+
+    // 언어 코드와 완전히 같은 경로 구간만 제거해 /korea 같은 서비스 경로를 보존한다.
+    return supportedLocales.includes(firstSegment)
+        ? `/${remainingSegments.join("/")}`
+        : pathname;
+}
+
+export function isPublicDocsPath(pathname: string): boolean {
+    // 공개 문서는 두 언어의 /docs 경계 안으로 한정한다. 학습 모드는 일본어 가이드로 연결한다.
+    return /^\/(ko|ja)\/docs(?:\/|$)/.test(pathname);
+}
+
 export function validBirthDate(value: string, now = new Date()): boolean {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
 

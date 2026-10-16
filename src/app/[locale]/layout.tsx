@@ -53,11 +53,12 @@ export default async function RootLayout(props: {
         className={`${geistSans.variable} ${geistMono.variable} ${novelKoreanSerif.variable} antialiased`}
       >
         <NextIntlClientProvider messages={messages} locale={locale}>
-          <AuthContext>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {/* 공개 문서와 인증 화면 사이를 이동해도 테마 공급자는 유지한다. */}
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <AuthContext>
               <main>{props.children}</main>
-            </ThemeProvider>
-          </AuthContext>
+            </AuthContext>
+          </ThemeProvider>
         </NextIntlClientProvider>
       </body>
     </html>

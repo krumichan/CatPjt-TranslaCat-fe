@@ -2,6 +2,7 @@
   "ServiceSelect": {
     "title": "전체 서비스",
     "description": "필요한 서비스를 선택하면 해당 화면으로 바로 이동합니다.",
+    "guideLink": "사용 가이드",
     "novelTitle": "소설 번역",
     "novelDesc": "소설 문장을 자연스럽게 번역합니다.",
     "voiceTitle": "음성 번역",

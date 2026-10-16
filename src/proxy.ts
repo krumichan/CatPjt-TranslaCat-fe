@@ -3,7 +3,7 @@ import { withAuth } from "next-auth/middleware";
 import {NextRequest, NextResponse} from 'next/server';
 import {locales} from "@/i18n/config";
 import {isTerminalAuthError} from "@/lib/authError";
-import {PUBLIC_AUTH_PAGES} from "@/lib/authPolicy";
+import {isPublicDocsPath, PUBLIC_AUTH_PAGES, stripLocalePrefix} from "@/lib/authPolicy";
 
 const publicPages = PUBLIC_AUTH_PAGES;
 
@@ -34,9 +34,10 @@ const authMiddleware = withAuth(
 export default function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl;
 
-    const purePath = pathname.replace(new RegExp(`^/(${locales.join('|')})`), '') || '/';
+    const purePath = stripLocalePrefix(pathname, locales) || '/';
 
-    const isPublic = publicPages.includes(purePath);
+    // 인증 화면은 정확한 경로만, 가이드는 언어별 문서 하위 경로까지 공개한다.
+    const isPublic = publicPages.includes(purePath) || isPublicDocsPath(pathname);
 
     if (isPublic) {
         return intlMiddleware(req);

@@ -1,0 +1,51 @@
+/* 문서 색상은 가이드 컨테이너 안에서만 덮어써 기존 서비스 화면을 보존한다. */
+.tc-docs {
+    --color-fd-background: #fbfcfe;
+    --color-fd-foreground: #192c3f;
+    --color-fd-card: #ffffff;
+    --color-fd-card-foreground: #192c3f;
+    --color-fd-primary: #285f99;
+    --color-fd-primary-foreground: #ffffff;
+    --color-fd-muted: #f0f5fa;
+    --color-fd-muted-foreground: #536b81;
+    --color-fd-secondary: #edf3fa;
+    --color-fd-secondary-foreground: #263c51;
+    --color-fd-accent: #e5eef9;
+    --color-fd-accent-foreground: #224d7a;
+    --color-fd-border: #dce6f0;
+    --fd-layout-width: 1440px;
+    min-height: 100dvh;
+    background: var(--color-fd-background);
+    color: var(--color-fd-foreground);
+}
+
+.dark .tc-docs {
+    --color-fd-background: #0e1824;
+    --color-fd-foreground: #f2f6fb;
+    --color-fd-card: #142231;
+    --color-fd-card-foreground: #f2f6fb;
+    --color-fd-primary: #91b9ff;
+    --color-fd-primary-foreground: #102238;
+    --color-fd-muted: #182a3c;
+    --color-fd-muted-foreground: #a6bbcd;
+    --color-fd-secondary: #1a2c3f;
+    --color-fd-secondary-foreground: #e3edf7;
+    --color-fd-accent: #213a55;
+    --color-fd-accent-foreground: #c8ddff;
+    --color-fd-border: #30465a;
+}
+
+.tc-docs #nd-page {
+    padding-top: 3rem;
+}
+
+.tc-docs .prose {
+    line-height: 1.85;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 767px) {
+    .tc-docs #nd-page {
+        padding-top: 1.75rem;
+    }
+}

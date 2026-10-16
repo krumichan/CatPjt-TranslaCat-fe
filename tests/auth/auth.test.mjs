@@ -2,14 +2,17 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
+import React, { createElement } from "react";
+import * as jsxRuntime from "react/jsx-runtime";
+import { renderToStaticMarkup } from "react-dom/server";
 import ts from "typescript";
 
-import { isSameOrigin, PUBLIC_AUTH_PAGES, sameAuthSession, validBirthDate, validPassword } from "../../src/lib/authPolicy.ts";
+import { isPublicDocsPath, isSameOrigin, PUBLIC_AUTH_PAGES, sameAuthSession, stripLocalePrefix, validBirthDate, validPassword } from "../../src/lib/authPolicy.ts";
 
 function loadSource(relative, modules) {
     const source = fs.readFileSync(new URL(`../../src/${relative}`, import.meta.url), "utf8");
     const compiled = ts.transpileModule(source, {
-        compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+        compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX },
     }).outputText;
     const exports = {};
     vm.runInNewContext(compiled, {
@@ -207,6 +210,73 @@ test("registration is public while account management stays protected", () => {
     assert.equal(isSameOrigin("https://evil.test", "https://translacat.test"), false);
     assert.equal(isSameOrigin(null, "https://translacat.test"), false);
     assert.equal(isSameOrigin("https://translacat.test", "https://translacat.test/api/account/password"), true);
+});
+
+test("public guides respect locale and docs path segment boundaries", () => {
+    // 준비: 이름이 비슷한 경로와 학습 모드 경로는 공개 문서에 포함하지 않는다.
+    const publicPaths = ["/ko/docs", "/ja/docs/", "/ko/docs/getting-started", "/ja/docs/topics/chat"];
+    const protectedPaths = ["/docs", "/learning/docs", "/ko/docs-other", "/ja/docs2/page", "/korea/docs", "/japanese/docs", "/ko/settings/account"];
+
+    // 실행 및 검증
+    for (const pathname of publicPaths) {
+        assert.equal(isPublicDocsPath(pathname), true, pathname);
+    }
+    for (const pathname of protectedPaths) {
+        assert.equal(isPublicDocsPath(pathname), false, pathname);
+    }
+});
+
+test("proxy bypasses authentication for public guides and keeps neighboring routes protected", () => {
+    // 준비: 인증 경계와 언어 라우팅 진입을 각각 기록한다.
+    const calls = [];
+    const middleware = loadSource("proxy.ts", {
+        "next-intl/middleware": { default: () => (request) => { calls.push("intl"); return request.nextUrl.pathname; } },
+        "next-auth/middleware": { withAuth: () => (request) => { calls.push("auth"); return request.nextUrl.pathname; } },
+        "@/i18n/config": { locales: ["ko", "ja", "learning"] },
+        "@/lib/authError": { isTerminalAuthError: () => false },
+        "@/lib/authPolicy": { isPublicDocsPath, PUBLIC_AUTH_PAGES, stripLocalePrefix },
+    }).default;
+    const paths = [
+        ["/ko/docs", "intl"],
+        ["/ja/docs/getting-started", "intl"],
+        ["/ko/docs-other", "auth"],
+        ["/ja/docs2/child", "auth"],
+        ["/learning/docs", "auth"],
+        ["/ko/login", "intl"],
+        ["/korea/login", "auth"],
+        ["/japanese/register", "auth"],
+        ["/ko/settings/account", "auth"],
+    ];
+
+    // 실행 및 검증: 공개 문서는 세션 인증 함수 자체를 호출하지 않는다.
+    for (const [pathname, expectedBoundary] of paths) {
+        calls.length = 0;
+        middleware({ nextUrl: { pathname } });
+        assert.deepEqual(calls, [expectedBoundary], pathname);
+    }
+});
+
+test("guide rendering bypasses session providers and restores guards on application routes", () => {
+    // 준비: 문서 조회에는 세션 공급자와 만료 세션 guard가 필요하지 않다.
+    let pathname = "/ko/docs";
+    const calls = [];
+    const AuthContext = loadSource("components/auth/AuthContext.tsx", {
+        "react": { default: React },
+        "react/jsx-runtime": jsxRuntime,
+        "next/navigation": { usePathname: () => pathname },
+        "next-auth/react": { SessionProvider: ({ children }) => { calls.push("session"); return children; } },
+        "@/components/auth/AuthSessionGuard": { default: ({ children }) => { calls.push("guard"); return children; } },
+        "@/lib/authPolicy": { isPublicDocsPath },
+    }).default;
+
+    // 실행 및 검증: 앱과 문서를 왕복해도 각 경로의 인증 경계가 유지된다.
+    for (const currentPath of ["/ko/docs", "/ko/settings/account", "/ja/docs/getting-started", "/ja/login"]) {
+        pathname = currentPath;
+        calls.length = 0;
+        const html = renderToStaticMarkup(createElement(AuthContext, null, createElement("p", null, "content")));
+        assert.equal(html, "<p>content</p>");
+        assert.deepEqual(calls, isPublicDocsPath(currentPath) ? [] : ["session", "guard"], currentPath);
+    }
 });
 
 test("linking proof requires the same account AND same login session", () => {

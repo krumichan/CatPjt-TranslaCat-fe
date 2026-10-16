@@ -1,0 +1,11 @@
+{
+  "title": "고객센터",
+  "pages": [
+    "index",
+    "open",
+    "inquiries",
+    "replies",
+    "notices",
+    "messages"
+  ]
+}

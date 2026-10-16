@@ -2,6 +2,7 @@
   "ServiceSelect": {
     "title": "すべてのサービス",
     "description": "サービスを選ぶと、その画面に直接移動します。",
+    "guideLink": "使い方ガイド",
     "novelTitle": "小説翻訳",
     "novelDesc": "小説の文章を自然に翻訳します。",
     "voiceTitle": "音声翻訳",

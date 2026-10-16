@@ -11,6 +11,7 @@ import type { WebAiPlan, WebAiPlanRequest } from "../../src/types/language-learn
 const QA_DIRECTORY = path.resolve("..", ".codex-workspace", "verification", "fe", "web-ai-settings-mobile-update");
 const SETUP_QA_DIRECTORY = path.resolve("..", ".codex-workspace", "verification", "fe", "web-ai-prerequisites-20261016");
 const COPY_QA_DIRECTORY = path.resolve("..", ".codex-workspace", "verification", "fe", "web-ai-copy-transfer-20261016");
+const CARD_COPY_QA_DIRECTORY = path.resolve("..", ".codex-workspace", "verification", "fe", "web-ai-plan-card-copy-20261016");
 
 async function createReadyPlan(page: Parameters<typeof mockLanguageLearningBase>[0]) {
     await page.setViewportSize({ width: 1280, height: 900 });
@@ -289,6 +290,135 @@ test.describe("웹 AI 학습 계획", () => {
         });
         mkdirSync(QA_DIRECTORY, { recursive: true });
         await page.screenshot({ path: path.join(QA_DIRECTORY, "desktop-light.png"), fullPage: true });
+    });
+
+    test("모바일 계획 카드에서 편집기를 열지 않고 결과 전송 프롬프트를 복사한다", async ({ context, page }) => {
+        // 준비: 저장된 계획을 모바일 목록에 표시하고 실제 브라우저 클립보드를 허용한다.
+        await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+        const { editor } = await createReadyPlan(page);
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.getByRole("button", { name: "학습 스케줄 목록으로" }).click();
+        const list = page.getByTestId("web-ai-schedule-list");
+        const card = list.getByRole("article").filter({ has: page.getByRole("heading", { name: "실무 작문 복사 검증", exact: true }) });
+        const copy = card.getByRole("button", { name: "프롬프트 복사", exact: true });
+
+        // 실행 / 검증: 수정 진입 없이 목록에서 복사 기능을 찾을 수 있다.
+        await expect(copy).toBeVisible();
+        await expect(copy).toBeEnabled();
+        await expect(editor).toHaveCount(0);
+        await copy.scrollIntoViewIfNeeded();
+        mkdirSync(CARD_COPY_QA_DIRECTORY, { recursive: true });
+        await page.screenshot({ path: path.join(CARD_COPY_QA_DIRECTORY, "mobile-plan-card.png") });
+        await copy.click();
+        const dialog = page.getByRole("dialog");
+        await expect(dialog).toBeVisible();
+        await expect(dialog.getByRole("status")).toContainText("전송 프롬프트를 복사했습니다");
+        const actual = dialog.getByRole("textbox", { name: "실제 복사할 전송 프롬프트" });
+        const text = await actual.inputValue();
+        expect(text).toContain("실무 작문 복사 검증");
+        expect(text).toContain("/external/prompt");
+        expect(text).toContain("/external/results");
+        expect(text).toContain("originalFeedbackMarkdown");
+        expect(text).toContain('"runId": "run-id-1"');
+        const clipboard = await page.evaluate(() => navigator.clipboard.readText());
+        expect(clipboard.replace(/\r\n/g, "\n")).toBe(text);
+        const bounds = await dialog.boundingBox();
+        expect(bounds).not.toBeNull();
+        expect(bounds!.x).toBeGreaterThanOrEqual(0);
+        expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(390);
+        await page.screenshot({ path: path.join(CARD_COPY_QA_DIRECTORY, "mobile-copy-dialog.png") });
+
+        // 검증: 닫으면 같은 목록으로 돌아오고 숨겨진 편집 초안을 만들지 않는다.
+        await dialog.getByRole("button", { name: "프롬프트 닫기", exact: true }).click();
+        await expect(page.getByRole("dialog")).toHaveCount(0);
+        await expect(list).toBeVisible();
+        await expect(editor).toHaveCount(0);
+        await expect(copy).toBeFocused();
+    });
+
+    test("계획 카드 복사 재시도는 다른 계획의 편집 초안과 연결 키를 보존한다", async ({ page }) => {
+        // 준비: 첫 복사만 거부하고 두 저장 계획의 API 호출과 실제 문자열을 기록한다.
+        await page.addInitScript(() => {
+            const attempts: string[] = [];
+            Object.defineProperty(window, "__webAiCopyAttempts", { value: attempts });
+            Object.defineProperty(navigator, "clipboard", { configurable: true, value: {
+                writeText: (text: string) => {
+                    attempts.push(text);
+                    return attempts.length === 1 ? Promise.reject(new DOMException("Denied", "NotAllowedError")) : Promise.resolve();
+                },
+            } });
+        });
+        const { editor, footer } = await createReadyPlan(page);
+        await editor.getByRole("button", { name: "편집기 닫기" }).click();
+        await page.getByRole("button", { name: "새 계획" }).first().click();
+        await editor.getByRole("textbox", { name: "계획 이름" }).fill("고객 회의 별도 계획");
+        await editor.getByRole("checkbox", { name: "번역 작문" }).check();
+        await footer.getByRole("button", { name: "학습 계획 저장" }).click();
+        await expect(footer.getByRole("status")).toContainText("저장했습니다");
+        await editor.getByRole("textbox", { name: "계획 이름" }).fill("보존할 편집 초안");
+        const integration = page.getByTestId("web-ai-plan-integration");
+        await integration.locator("summary").click();
+        const resultInput = integration.getByRole("textbox", { name: "웹 AI 결과 JSON" });
+        await resultInput.fill("제출 전 결과 초안");
+        let connectionRequests = 0;
+        let runRequests = 0;
+        page.on("request", (request) => {
+            if (request.method() !== "POST") return;
+            if (/\/connection$/.test(request.url())) connectionRequests++;
+            if (/\/runs$/.test(request.url())) runRequests++;
+        });
+        const list = page.getByTestId("web-ai-schedule-list");
+        const firstCard = list.getByRole("article").filter({ has: page.getByRole("heading", { name: "실무 작문 복사 검증", exact: true }) });
+        const secondCard = list.getByRole("article").filter({ has: page.getByRole("heading", { name: "고객 회의 별도 계획", exact: true }) });
+
+        // 실행 / 검증: 첫 계획 복사 실패에도 원본 전송문을 선택하고 같은 문자열로 재시도한다.
+        await firstCard.getByRole("button", { name: "프롬프트 복사", exact: true }).click();
+        const dialog = page.getByRole("dialog");
+        await expect(dialog.getByRole("alert")).toContainText("자동 복사가 차단");
+        const actual = dialog.getByRole("textbox", { name: "실제 복사할 전송 프롬프트" });
+        const firstText = await actual.inputValue();
+        expect(firstText).toContain("실무 작문 복사 검증");
+        expect(firstText).not.toContain("고객 회의 별도 계획");
+        expect(firstText).not.toContain("보존할 편집 초안");
+        await dialog.getByRole("button", { name: "전체 선택", exact: true }).click();
+        expect(await actual.evaluate((element: HTMLTextAreaElement) => element.selectionEnd - element.selectionStart)).toBe(firstText.length);
+        await dialog.getByRole("button", { name: "프롬프트 복사", exact: true }).click();
+        await expect(dialog.getByRole("status")).toContainText("전송 프롬프트를 복사했습니다");
+        expect(connectionRequests).toBe(1);
+        expect(runRequests).toBe(1);
+        mkdirSync(CARD_COPY_QA_DIRECTORY, { recursive: true });
+        await page.screenshot({ path: path.join(CARD_COPY_QA_DIRECTORY, "desktop-copy-dialog.png") });
+        await dialog.getByRole("button", { name: "프롬프트 닫기", exact: true }).click();
+        await expect(editor.getByRole("textbox", { name: "계획 이름" })).toHaveValue("보존할 편집 초안");
+        await expect(resultInput).toHaveValue("제출 전 결과 초안");
+
+        // 실행 / 검증: 다른 카드의 저장된 내용만 복사하고 첫 카드는 기존 키·회차를 재사용한다.
+        await secondCard.getByRole("button", { name: "프롬프트 복사", exact: true }).click();
+        await expect(dialog.getByRole("status")).toContainText("전송 프롬프트를 복사했습니다");
+        const secondText = await actual.inputValue();
+        expect(secondText).toContain("고객 회의 별도 계획");
+        expect(secondText).not.toContain("실무 작문 복사 검증");
+        expect(secondText).not.toContain("보존할 편집 초안");
+        expect(secondText).toContain('"runId": "run-id-2"');
+        await dialog.getByRole("button", { name: "프롬프트 닫기", exact: true }).click();
+        await firstCard.getByRole("button", { name: "프롬프트 복사", exact: true }).click();
+        await expect(dialog.getByRole("status")).toContainText("전송 프롬프트를 복사했습니다");
+        await expect(actual).toHaveValue(firstText);
+        expect(connectionRequests).toBe(2);
+        expect(runRequests).toBe(2);
+        expect(await page.evaluate(() => (window as unknown as { __webAiCopyAttempts: string[] }).__webAiCopyAttempts)).toEqual([firstText, firstText, secondText, firstText]);
+        await dialog.getByRole("button", { name: "프롬프트 닫기", exact: true }).click();
+        await expect(editor.getByRole("textbox", { name: "계획 이름" })).toHaveValue("보존할 편집 초안");
+        await expect(resultInput).toHaveValue("제출 전 결과 초안");
+
+        // 실행 / 검증: 편집기에서도 카드가 준비한 동일 계획의 키와 회차를 그대로 사용한다.
+        await editor.getByRole("textbox", { name: "계획 이름" }).fill("고객 회의 별도 계획");
+        await footer.getByRole("button", { name: "프롬프트 복사", exact: true }).click();
+        await expect(footer.getByRole("status")).toContainText("전송 프롬프트를 복사했습니다");
+        await expect(editor.getByRole("textbox", { name: "실제 복사할 전송 프롬프트" })).toHaveValue(secondText);
+        expect(connectionRequests).toBe(2);
+        expect(runRequests).toBe(2);
+        expect(await page.evaluate(() => (window as unknown as { __webAiCopyAttempts: string[] }).__webAiCopyAttempts)).toEqual([firstText, firstText, secondText, firstText, secondText]);
     });
 
     test("지연된 준비와 복사 차단 후에도 실제 문구를 보존하고 HTTP 없이 재복사한다", async ({ page }) => {

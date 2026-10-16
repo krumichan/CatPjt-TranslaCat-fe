@@ -20,29 +20,43 @@ interface TransferCache {
     plans: Map<string, PreparedTransfer>;
 }
 
-export function useWebAiPlanTransfer({ account, plan, contextKey, locale, api }: {
-    account: string | null;
-    plan?: WebAiPlan;
-    contextKey: string;
-    locale: "ko" | "ja" | "learning";
-    api: ReturnType<typeof createWebAiLearningService>;
-}) {
+/** 목록과 편집기가 같은 계획의 연결 키·회차를 사용하도록 페이지에서 한 번만 만든다. */
+export function useWebAiPlanTransferStore(account: string | null) {
     const cache = useRef<TransferCache>({ account: null, plans: new Map() });
     const activeAccount = useRef(account);
-    const requestContext = `${plan?.id ?? ""}:${contextKey}`;
-    const activeContext = useRef(requestContext);
     const pending = useRef<string | null>(null);
     const [snapshot, setSnapshot] = useState<TransferCache>({ account: null, plans: new Map() });
     const [activity, setActivity] = useState<{ account: string | null; busy: boolean }>({ account: null, busy: false });
 
     useEffect(() => {
         activeAccount.current = account;
-        activeContext.current = requestContext;
         // 연결 키와 프롬프트는 계정이 바뀌면 폐기하고 브라우저 저장소에는 기록하지 않는다.
         if (cache.current.account !== account) {
             cache.current = { account, plans: new Map() };
         }
-    }, [account, requestContext]);
+    }, [account]);
+
+    return { account, cache, activeAccount, pending, snapshot, setSnapshot, activity, setActivity };
+}
+
+export type WebAiPlanTransferStore = ReturnType<typeof useWebAiPlanTransferStore>;
+
+export function useWebAiPlanTransfer({ store, plan, contextKey, locale, api }: {
+    store: WebAiPlanTransferStore;
+    plan?: WebAiPlan;
+    contextKey: string;
+    locale: "ko" | "ja" | "learning";
+    api: ReturnType<typeof createWebAiLearningService>;
+}) {
+    const { account, cache, activeAccount, pending, snapshot, setSnapshot, activity, setActivity } = store;
+    const requestContext = `${plan?.id ?? ""}:${contextKey}`;
+    const activeContext = useRef<string | null>(requestContext);
+
+    useEffect(() => {
+        activeContext.current = requestContext;
+        // 삭제·페이지 이동 후 도착한 회차를 클립보드에 쓰지 않는다.
+        return () => { activeContext.current = null; };
+    }, [requestContext]);
 
     const assertCurrent = () => {
         if (activeAccount.current !== account || activeContext.current !== requestContext) {

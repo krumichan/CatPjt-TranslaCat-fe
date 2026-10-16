@@ -18,9 +18,10 @@ import { useLocale, useTranslations } from "next-intl";
 import { LanguageLearningPageLayout } from "@/components/language-learning/layout/LanguageLearningPageLayout";
 import { WebAiScheduleEditor } from "@/components/language-learning/settings/web-ai/WebAiScheduleEditor";
 import { WebAiPlanIntegration } from "@/components/language-learning/settings/web-ai/WebAiPlanIntegration";
+import { WebAiPlanCopyButton } from "@/components/language-learning/settings/web-ai/WebAiPlanCopyButton";
 import { WebAiPlanPrerequisiteChecklist } from "@/components/language-learning/settings/web-ai/WebAiPlanPrerequisiteChecklist";
 import { useWebAiPlanPrerequisites } from "@/hooks/language-learning/useWebAiPlanPrerequisites";
-import { useWebAiPlanTransfer } from "@/hooks/language-learning/useWebAiPlanTransfer";
+import { useWebAiPlanTransfer, useWebAiPlanTransferStore } from "@/hooks/language-learning/useWebAiPlanTransfer";
 import {
     WEB_AI_AREA_GROUPS,
     applyWebAiLanguageSettings,
@@ -202,21 +203,24 @@ export function WebAiScheduleSettingsPage() {
         JSON.stringify(toWebAiPlanRequest(serverDraft, serverDraft.enabled)));
     const selectedCount = effectiveDraft ? totalQuestions(effectiveDraft) : 0;
     const currentIssues = effectiveDraft ? validateWebAiSchedule(effectiveDraft) : [];
-    // 현재 학습 문맥이 바뀌면 수동 회차만 새로 준비하고, 계획의 연결 키는 계속 재사용한다.
+    // 목록과 편집기는 계획별 연결 키·회차를 공유한다. 문맥 변경 시 수동 회차만 다시 준비한다.
+    const transferStore = useWebAiPlanTransferStore(owner ? `${owner}:${session?.loginSessionId ?? ""}` : null);
+    const transferContextKey = (plan?: WebAiPlan) => JSON.stringify([
+        plan?.revision,
+        setting?.originLanguage,
+        setting?.learningLanguage,
+        setting?.feedbackLanguage,
+        defaultKeywords,
+        plan ? new Intl.DateTimeFormat("en-CA", { timeZone: plan.timezone }).format(new Date()) : null,
+    ]);
     const transfer = useWebAiPlanTransfer({
-        account: owner ? `${owner}:${session?.loginSessionId ?? ""}` : null,
+        store: transferStore,
         plan: serverDraft,
-        contextKey: JSON.stringify([
-            serverDraft?.revision,
-            setting?.originLanguage,
-            setting?.learningLanguage,
-            setting?.feedbackLanguage,
-            defaultKeywords,
-            serverDraft ? new Intl.DateTimeFormat("en-CA", { timeZone: serverDraft.timezone }).format(new Date()) : null,
-        ]),
+        contextKey: transferContextKey(serverDraft),
         locale: locale === "ja" || locale === "learning" ? locale : "ko",
         api,
     });
+    const working = busy || transfer.busy;
     const promptSummary = effectiveDraft && prerequisites.ready &&
         (effectiveDraft.keywordMode === "CUSTOM" || defaultKeywordStatus === "ready") && currentIssues.length === 0
         ? buildWebAiPrompt(
@@ -228,7 +232,7 @@ export function WebAiScheduleSettingsPage() {
         : "";
 
     const startNew = () => {
-        if (busy || !prerequisites.ready) return;
+        if (working || !prerequisites.ready) return;
         setDraft(createWebAiSchedule(defaults));
         setIssues([]);
         setNotice(null);
@@ -241,21 +245,21 @@ export function WebAiScheduleSettingsPage() {
     };
 
     const startEdit = (schedule: WebAiSchedule) => {
-        if (busy) return;
+        if (working) return;
         setDraft(cloneSchedule(schedule));
         setIssues([]);
         setNotice(null);
     };
 
     const closeDraft = () => {
-        if (busy) return;
+        if (working) return;
         setDraft(null);
         setIssues([]);
         setNotice(null);
     };
 
     const duplicate = (schedule: WebAiSchedule) => {
-        if (busy || !prerequisites.ready) return;
+        if (working || !prerequisites.ready) return;
         const copy = cloneSchedule(schedule);
         copy.id = createWebAiSchedule(defaults).id;
         copy.name = t("copyName", { name: schedule.name });
@@ -265,7 +269,7 @@ export function WebAiScheduleSettingsPage() {
     };
 
     const save = async () => {
-        if (!owner || !effectiveDraft || busy || !prerequisites.ready) return;
+        if (!owner || !effectiveDraft || working || !prerequisites.ready) return;
 
         // 유효한 계획만 서버에 저장하고 응답의 revision을 다음 수정에 사용한다.
         const nextIssues = validateWebAiSchedule(effectiveDraft);
@@ -298,7 +302,7 @@ export function WebAiScheduleSettingsPage() {
     };
 
     const remove = async (schedule: WebAiSchedule) => {
-        if (!owner || busy || !window.confirm(t("confirmDelete", { name: schedule.name }))) return;
+        if (!owner || working || !window.confirm(t("confirmDelete", { name: schedule.name }))) return;
         setBusy(true);
         try {
             if (schedules.some((plan) => plan.id === schedule.id)) {
@@ -324,7 +328,7 @@ export function WebAiScheduleSettingsPage() {
     };
 
     const importDrafts = async () => {
-        if (!owner || busy || !prerequisites.ready) return;
+        if (!owner || working || !prerequisites.ready) return;
         setBusy(true);
         setWorkflowNotice(null);
         try {
@@ -350,7 +354,7 @@ export function WebAiScheduleSettingsPage() {
     };
 
     const togglePlan = async (plan: WebAiPlan) => {
-        if (busy || !prerequisites.ready) return;
+        if (working || !prerequisites.ready) return;
         setBusy(true);
         setWorkflowNotice(null);
         try {
@@ -367,7 +371,7 @@ export function WebAiScheduleSettingsPage() {
     const copyPrompt = async () => {
         setNotice(null);
         setWorkflowNotice(null);
-        if (!draftSaved || !serverDraft || busy || !prerequisites.ready || currentIssues.length > 0) {
+        if (!draftSaved || !serverDraft || working || !prerequisites.ready || currentIssues.length > 0) {
             setIssues(currentIssues);
             return;
         }
@@ -452,7 +456,7 @@ export function WebAiScheduleSettingsPage() {
                         <h1 className="mt-3 text-3xl font-black text-slate-950 dark:text-white">{t("mobileListTitle")}</h1>
                         <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{t("mobileListDescription")}</p>
                         {owner && loadedOwner === owner && (
-                            <button type="button" onClick={startNew} disabled={busy || !prerequisites.ready} className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-black text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-45">
+                            <button type="button" onClick={startNew} disabled={working || !prerequisites.ready} className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-black text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-45">
                                 <Plus className="h-5 w-5" aria-hidden="true" />{t("newPlan")}
                             </button>
                         )}
@@ -476,7 +480,7 @@ export function WebAiScheduleSettingsPage() {
 
                 {owner && planStatus === "loading" && <p role="status" className="text-sm text-slate-500 dark:text-slate-300">{workflow("loadingPlans")}</p>}
                 {owner && planStatus === "error" && <div role="alert" className="flex flex-wrap items-center gap-3 rounded-xl bg-amber-50 p-4 text-sm text-amber-900 dark:bg-amber-400/10 dark:text-amber-200"><p>{workflow("loadFailed")}</p><button type="button" onClick={() => { setPlanStatus("loading"); setPlanRevision((value) => value + 1); }} className="font-black underline">{workflow("retry")}</button></div>}
-                {pendingDrafts.length > 0 && <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-xs text-blue-800 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200"><p>{workflow("importDraftsHelp")}</p>{pendingDrafts.length > importableDrafts.length && <p className="mt-1">{workflow("draftsNeedReview")}</p>}<button type="button" disabled={busy || !prerequisites.ready || planStatus !== "ready" || importableDrafts.length === 0} onClick={() => void importDrafts()} className="mt-2 min-h-9 font-black underline disabled:opacity-50">{workflow("importDrafts", { count: importableDrafts.length })}</button></div>}
+                {pendingDrafts.length > 0 && <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-xs text-blue-800 dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-200"><p>{workflow("importDraftsHelp")}</p>{pendingDrafts.length > importableDrafts.length && <p className="mt-1">{workflow("draftsNeedReview")}</p>}<button type="button" disabled={working || !prerequisites.ready || planStatus !== "ready" || importableDrafts.length === 0} onClick={() => void importDrafts()} className="mt-2 min-h-9 font-black underline disabled:opacity-50">{workflow("importDrafts", { count: importableDrafts.length })}</button></div>}
                 {workflowNotice && <p role="status" className="text-sm text-slate-700 dark:text-slate-200">{workflow(workflowNotice)}</p>}
 
                 {status === "loading" || (owner && loadedOwner !== owner) ? (
@@ -503,7 +507,7 @@ export function WebAiScheduleSettingsPage() {
                                 <button
                                     type="button"
                                     onClick={startNew}
-                                    disabled={busy || !prerequisites.ready}
+                                    disabled={working || !prerequisites.ready}
                                     className="hidden min-h-10 items-center gap-2 rounded-xl bg-blue-600 px-3 py-2 text-sm font-black text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-45 xl:inline-flex"
                                 >
                                     <Plus className="h-4 w-4" aria-hidden="true" />
@@ -519,39 +523,55 @@ export function WebAiScheduleSettingsPage() {
                                 </div>
                             ) : (
                                 <div className="mt-5 space-y-3">
-                                    {visibleSchedules.map((schedule) => (
-                                        <article
-                                            key={schedule.id}
-                                            className={`rounded-2xl border p-4 transition ${draft?.id === schedule.id
-                                                ? "border-blue-400 bg-blue-50/70 dark:border-blue-400/50 dark:bg-blue-500/10"
-                                                : "border-slate-200 bg-slate-50/70 dark:border-white/10 dark:bg-slate-800/45"}`}
-                                        >
-                                            <div className="flex items-start justify-between gap-3">
-                                                <div className="min-w-0">
-                                                    <h3 className="truncate font-black text-slate-950 dark:text-white">{schedule.name}</h3>
-                                                    <p className="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
-                                                        {summarizeRecurrence(schedule)} · {schedule.time} · {schedule.timezone}
-                                                    </p>
-                                                    <p className="mt-2 text-xs font-bold text-slate-600 dark:text-slate-300">{summarizeAreas(schedule)}</p>
-                                                    {schedules.some((plan) => plan.id === schedule.id) && <button type="button" disabled={busy || !prerequisites.ready} aria-pressed={schedules.find((plan) => plan.id === schedule.id)!.enabled} onClick={() => void togglePlan(schedules.find((plan) => plan.id === schedule.id)!)} className="mt-2 min-h-8 rounded-full border border-blue-200 px-2.5 text-xs font-black text-blue-700 disabled:opacity-50 dark:border-blue-400/20 dark:text-blue-200">{workflow(schedules.find((plan) => plan.id === schedule.id)!.enabled ? "enabled" : "disabled")}</button>}
+                                    {visibleSchedules.map((schedule) => {
+                                        const savedPlan = schedules.find((plan) => plan.id === schedule.id);
+                                        return (
+                                            <article
+                                                key={schedule.id}
+                                                className={`rounded-2xl border p-4 transition ${draft?.id === schedule.id
+                                                    ? "border-blue-400 bg-blue-50/70 dark:border-blue-400/50 dark:bg-blue-500/10"
+                                                    : "border-slate-200 bg-slate-50/70 dark:border-white/10 dark:bg-slate-800/45"}`}
+                                            >
+                                                <div className="flex items-start justify-between gap-3">
+                                                    <div className="min-w-0">
+                                                        <h3 className="truncate font-black text-slate-950 dark:text-white">{schedule.name}</h3>
+                                                        <p className="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                                                            {summarizeRecurrence(schedule)} · {schedule.time} · {schedule.timezone}
+                                                        </p>
+                                                        <p className="mt-2 text-xs font-bold text-slate-600 dark:text-slate-300">{summarizeAreas(schedule)}</p>
+                                                        {savedPlan && <button type="button" disabled={working || !prerequisites.ready} aria-pressed={savedPlan.enabled} onClick={() => void togglePlan(savedPlan)} className="mt-2 min-h-8 rounded-full border border-blue-200 px-2.5 text-xs font-black text-blue-700 disabled:opacity-50 dark:border-blue-400/20 dark:text-blue-200">{workflow(savedPlan.enabled ? "enabled" : "disabled")}</button>}
+                                                    </div>
+                                                    <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-xs font-black text-blue-700 dark:bg-blue-500/15 dark:text-blue-200">
+                                                        {t("questionCount", { count: totalQuestions(schedule) })}
+                                                    </span>
                                                 </div>
-                                                <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-xs font-black text-blue-700 dark:bg-blue-500/15 dark:text-blue-200">
-                                                    {t("questionCount", { count: totalQuestions(schedule) })}
-                                                </span>
-                                            </div>
-                                            <div className="mt-4 flex flex-wrap gap-2">
-                                                <button type="button" onClick={() => startEdit(schedule)} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-black text-slate-700 hover:border-blue-300 dark:border-white/10 dark:bg-slate-900 dark:text-slate-200">
-                                                    <FilePenLine className="h-3.5 w-3.5" aria-hidden="true" />{t("edit")}
-                                                </button>
-                                                <button type="button" disabled={busy || !prerequisites.ready} onClick={() => duplicate(schedule)} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-black text-slate-700 hover:border-blue-300 dark:border-white/10 dark:bg-slate-900 dark:text-slate-200">
-                                                    <Copy className="h-3.5 w-3.5" aria-hidden="true" />{t("duplicate")}
-                                                </button>
-                                                <button type="button" disabled={busy} onClick={() => void remove(schedule)} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-rose-200 bg-white px-3 text-xs font-black text-rose-700 hover:bg-rose-50 disabled:opacity-50 dark:border-rose-400/20 dark:bg-slate-900 dark:text-rose-300">
-                                                    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />{t("delete")}
-                                                </button>
-                                            </div>
-                                        </article>
-                                    ))}
+                                                {savedPlan && (
+                                                    <div className="mt-4">
+                                                        <WebAiPlanCopyButton
+                                                            plan={savedPlan}
+                                                            store={transferStore}
+                                                            contextKey={transferContextKey(savedPlan)}
+                                                            locale={locale === "ja" || locale === "learning" ? locale : "ko"}
+                                                            api={api}
+                                                            disabled={working || !prerequisites.ready || validateWebAiSchedule(applyWebAiLanguageSettings(savedPlan, defaults)).length > 0}
+                                                            onPrerequisitesChanged={prerequisites.refresh}
+                                                        />
+                                                    </div>
+                                                )}
+                                                <div className="mt-3 flex flex-wrap gap-2">
+                                                    <button type="button" disabled={working} onClick={() => startEdit(schedule)} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-black text-slate-700 hover:border-blue-300 disabled:opacity-50 dark:border-white/10 dark:bg-slate-900 dark:text-slate-200">
+                                                        <FilePenLine className="h-3.5 w-3.5" aria-hidden="true" />{t("edit")}
+                                                    </button>
+                                                    <button type="button" disabled={working || !prerequisites.ready} onClick={() => duplicate(schedule)} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-black text-slate-700 hover:border-blue-300 dark:border-white/10 dark:bg-slate-900 dark:text-slate-200">
+                                                        <Copy className="h-3.5 w-3.5" aria-hidden="true" />{t("duplicate")}
+                                                    </button>
+                                                    <button type="button" disabled={working} onClick={() => void remove(schedule)} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-rose-200 bg-white px-3 text-xs font-black text-rose-700 hover:bg-rose-50 disabled:opacity-50 dark:border-rose-400/20 dark:bg-slate-900 dark:text-rose-300">
+                                                        <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />{t("delete")}
+                                                    </button>
+                                                </div>
+                                            </article>
+                                        );
+                                    })}
                                 </div>
                             )}
                         </aside>
@@ -580,7 +600,7 @@ export function WebAiScheduleSettingsPage() {
                                     prompt={draftSaved ? transfer.prompt : ""}
                                     promptSummary={promptSummary}
                                     questionCount={selectedCount}
-                                    busy={busy || transfer.busy}
+                                    busy={working}
                                     ready={prerequisites.ready}
                                     canCopy={prerequisites.ready && draftSaved && currentIssues.length === 0}
                                     integration={<WebAiPlanIntegration key={draft.id} saved={draftSaved} ready={prerequisites.ready && currentIssues.length === 0} transfer={transfer} onCopy={() => void copyPrompt()} onAction={() => { setNotice(null); setWorkflowNotice(null); }} onPrerequisitesChanged={prerequisites.refresh} />}
@@ -591,7 +611,7 @@ export function WebAiScheduleSettingsPage() {
                                 <FilePenLine className="h-10 w-10 text-blue-500" aria-hidden="true" />
                                 <h2 className="mt-4 text-lg font-black text-slate-950 dark:text-white">{t("selectTitle")}</h2>
                                 <p className="mt-2 max-w-md text-sm leading-6 text-slate-500 dark:text-slate-400">{t("selectDescription")}</p>
-                                <button type="button" onClick={startNew} disabled={busy || !prerequisites.ready} className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-black text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-45">
+                                <button type="button" onClick={startNew} disabled={working || !prerequisites.ready} className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-black text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-45">
                                     <Plus className="h-4 w-4" aria-hidden="true" />{t("newPlan")}
                                 </button>
                             </div>

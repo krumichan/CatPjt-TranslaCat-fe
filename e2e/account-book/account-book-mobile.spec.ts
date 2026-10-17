@@ -1046,6 +1046,7 @@ for (const mode of ["list", "table"] as const) {
         await openReviewEditor(page, row);
         await editor.locator("summary").click();
         await editor.getByRole("textbox", { name: receiptLabels.receipt.review.purchaseTotal, exact: true }).fill("22.50");
+        await editor.getByRole("combobox", { name: receiptLabels.receipt.review.originalCurrency, exact: true }).selectOption("__DIRECT_INPUT__");
         await editor.getByRole("textbox", { name: receiptLabels.receipt.review.originalCurrency, exact: true }).fill("eur");
         await editor.getByRole("textbox", { name: receiptLabels.fields.transactionDate, exact: true }).fill("2026-09-16");
         await editor.getByRole("textbox", { name: receiptLabels.receipt.review.branchName, exact: true }).fill("川越店");
@@ -1612,3 +1613,112 @@ for (const locale of ["ja", "ko"] as const) {
         await expectNoPageOverflow(page);
     });
 }
+
+for (const mode of ["list", "table"] as const) {
+    test(`ACCOUNT-RECEIPT missing currency is selectable beside amount and recalculated ${mode}`, async ({ page }) => {
+        // 준비: 금액은 읽었지만 원통화를 확정하지 못한 실제 화면의 상태를 재현한다.
+        await page.setViewportSize({ width: mode === "list" ? 390 : 1024, height: 844 });
+        await mockAccountBook(page);
+        await page.route("**/currencies", route => fulfillJson(route, responseDto([
+            { id: 1, code: "JPY", name: "日本円", symbol: "¥", decimalPlaces: 0, baseCurrency: false },
+            { id: 2, code: "USD", name: "US Dollar", symbol: "$", decimalPlaces: 2, baseCurrency: false },
+        ])));
+        const labels = locales.ja.transactionModal;
+        const conversions: Array<Record<string, unknown>> = [];
+        let batch: { receipts: Array<Record<string, unknown>> } | undefined;
+        await page.route("**/transactions/receipt-conversion", route => {
+            const payload = route.request().postDataJSON();
+            conversions.push(payload);
+            return fulfillJson(route, responseDto({ ...receipt, originalAmount: "4400", originalCurrencyCode: payload.originalCurrencyCode,
+                requestedRateDate: payload.transactionDate, convertedAmount: "13.200", exchangeRate: "0.003", conversionQuoteId: "b".repeat(64) }));
+        });
+        await page.route("**/transactions/receipt-batch", route => {
+            batch = route.request().postDataJSON();
+            return fulfillJson(route, { status: 409, message: "capture only" }, 409);
+        });
+        await openReceiptReview(page, "ja", 1, {
+            title: "No.A 新宿店", storeName: "No.A", purchaseTotal: "4400", originalAmount: "4400", bookAmount: "4400",
+            paymentBreakdown: [{ paymentType: "CREDIT_CARD", amount: "4400", evidence: "Visa", duplicateGroup: null }],
+            detectedCurrencyCode: null, originalCurrencyCode: null, transactionDate: "2026-10-17",
+            convertedAmount: null, exchangeRate: null, conversionQuoteId: null, conversionStatus: "NEEDS_REVIEW",
+        });
+        await expect(page.getByTestId("receipt-submit-selected")).toBeDisabled();
+
+        // 실행 / 검증: 오류 안내에서 숨겨지지 않은 통화 선택칸으로 이동한다.
+        await page.getByRole("button", { name: `No.A 新宿店: ${labels.receipt.review.blockingIssues.CURRENCY_INVALID}`, exact: true }).click();
+        const editor = page.getByTestId("receipt-review-editor");
+        const currency = editor.getByRole("combobox", { name: labels.receipt.review.originalCurrency, exact: true });
+        await expect(currency).toBeVisible();
+        await expect(currency).toBeFocused();
+        await expect(currency).toHaveValue("");
+        expect(await editor.locator("details").evaluate((details: HTMLDetailsElement) => details.open)).toBe(false);
+        await expect(currency.locator('option[value="JPY"]')).toContainText("JPY");
+        await page.screenshot({ path: test.info().outputPath(`currency-needed-${mode}.png`) });
+        await currency.selectOption("JPY");
+        expect(conversions).toHaveLength(0);
+        await expect(editor.getByRole("button", { name: labels.receipt.review.applyChanges, exact: true })).toBeDisabled();
+
+        // 실행: 명시적으로 서버 환산을 확인한 뒤에만 draft를 적용한다.
+        await editor.getByTestId("receipt-recalculate-receipt-1").click();
+        await expect(editor.getByRole("button", { name: labels.receipt.review.applyChanges, exact: true })).toBeEnabled();
+        await page.screenshot({ path: test.info().outputPath(`currency-recalculated-${mode}.png`) });
+        await editor.getByRole("button", { name: labels.receipt.review.applyChanges, exact: true }).click();
+        const row = page.getByTestId("receipt-review-card").first();
+        await expect(row).toContainText("4,400 JPY");
+        await expect(row).toContainText("13.2 KWD");
+        await expect(page.getByTestId("receipt-submit-selected")).toBeEnabled();
+        await page.getByTestId("receipt-review-list").getByRole("button", { name: labels.receipt.review.viewModes[mode === "list" ? "table" : "list"], exact: true }).click();
+        await expect(row).toContainText("4,400 JPY");
+        await openReviewEditor(page, row, labels);
+        await expect(editor.getByRole("combobox", { name: labels.receipt.review.originalCurrency, exact: true })).toHaveValue("JPY");
+        await editor.getByRole("button", { name: labels.receipt.review.applyChanges, exact: true }).click();
+
+        // 검증: 화면 전환·재편집 뒤에도 같은 통화와 새 quote로 최종 요청을 만든다.
+        expect(conversions).toHaveLength(1);
+        expect(conversions[0]).toMatchObject({ originalAmount: "4400", originalCurrencyCode: "JPY", transactionDate: "2026-10-17" });
+        await page.getByTestId("receipt-submit-selected").click();
+        await expect.poll(() => batch).toBeDefined();
+        expect(batch!.receipts[0]).toMatchObject({ originalAmount: "4400", originalCurrencyCode: "JPY", conversionQuoteId: "b".repeat(64) });
+        await expectNoPageOverflow(page);
+    });
+}
+
+
+test("ACCOUNT-RECEIPT currency list failure allows direct input and retry preserves it", async ({ page }) => {
+    // 준비: 첫 지원 통화 조회는 실패하고 사용자가 재조회하면 후보를 반환한다.
+    await page.setViewportSize({ width: 390, height: 844 });
+    await mockAccountBook(page);
+    let currencyCalls = 0;
+    await page.route("**/currencies", route => {
+        currencyCalls += 1;
+        if (currencyCalls === 1)
+            return fulfillJson(route, { status: 503, message: "unavailable" }, 503);
+        return fulfillJson(route, responseDto([
+            { id: 1, code: "USD", name: "US Dollar", symbol: "$", decimalPlaces: 2, baseCurrency: false },
+            { id: 2, code: "JPY", name: "日本円", symbol: "¥", decimalPlaces: 0, baseCurrency: false },
+        ]));
+    });
+    await openReceiptReview(page, "ko", 1);
+    const row = page.getByTestId("receipt-review-card").first();
+    await openReviewEditor(page, row);
+    const editor = page.getByTestId("receipt-review-editor");
+    const currency = editor.getByRole("combobox", { name: receiptLabels.receipt.review.originalCurrency, exact: true });
+    await expect(editor.getByText(receiptLabels.receipt.review.currencyStatus.error, { exact: true })).toBeVisible();
+    await expect(currency).toHaveValue("USD");
+
+    // 실행: 조회가 실패해도 원본 통화를 입력하고 명시적으로 후보를 재조회한다.
+    await currency.selectOption("__DIRECT_INPUT__");
+    const direct = editor.getByRole("textbox", { name: receiptLabels.receipt.review.originalCurrency, exact: true });
+    await direct.fill("jpy");
+    await expect(direct).toHaveValue("JPY");
+    await editor.getByRole("button", { name: receiptLabels.categoryStatus.retry, exact: true }).click();
+    await expect(currency.locator('option[value="JPY"]')).toContainText("JPY");
+
+    // 검증: 늦은 후보가 사용자 입력을 바꾸지 않으며 취소하면 기존 원통화·quote를 보존한다.
+    await expect(direct).toHaveValue("JPY");
+    expect(currencyCalls).toBe(2);
+    await expect(editor.getByRole("button", { name: receiptLabels.receipt.review.applyChanges, exact: true })).toBeDisabled();
+    await editor.getByRole("button", { name: receiptLabels.receipt.review.discardChanges, exact: true }).click();
+    await expect(row).toContainText("12.34 USD");
+    await expect(page.getByTestId("receipt-submit-selected")).toBeEnabled();
+});

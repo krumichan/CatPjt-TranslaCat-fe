@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import ReceiptReviewPaymentFields from "./receipt-review/ReceiptReviewPaymentFields";
 import ReceiptReviewConversionSummary from "./receipt-review/ReceiptReviewConversionSummary";
 import ReceiptReviewField from "./receipt-review/ReceiptReviewField";
+import ReceiptCurrencyField from "./receipt-review/ReceiptCurrencyField";
 import { receiptFieldId } from "@/utils/account-book/receiptReviewPresentation";
 import { useTranslations } from "next-intl";
 import {
@@ -138,6 +139,7 @@ export default function ReceiptReviewCard({
                         validation={validation}
                         onChange={onChange}
                     />
+                    <ReceiptCurrencyField item={item} validation={validation} onChange={onChange} />
                     <ReceiptReviewField
                         item={item}
                         field="transactionDate"
@@ -206,14 +208,6 @@ export default function ReceiptReviewCard({
                             field="purchaseTotal"
                             label={t("receipt.review.purchaseTotal")}
                             options={{ inputMode: "decimal" }}
-                            validation={validation}
-                            onChange={onChange}
-                        />
-                        <ReceiptReviewField
-                            item={item}
-                            field="originalCurrencyCode"
-                            label={t("receipt.review.originalCurrency")}
-                            options={{ maxLength: 3 }}
                             validation={validation}
                             onChange={onChange}
                         />

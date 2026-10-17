@@ -1,0 +1,56 @@
+---
+title: Create and manage an OPEN room
+description: Choose visibility and capacity, and manage members as a room owner or admin.
+---
+
+You can read these instructions without signing in. To use the feature, [sign in](/en/login) with your own account. Service links open the English interface. Screenshots show the Korean interface; Korean labels in parentheses help you compare the two.
+
+## Open the OPEN chat screen
+
+1. From [Chat](/en/chat), click **Browse OPEN chat (OPEN 채팅 둘러보기)**.
+2. Click **Create a new OPEN chat (새 OPEN 채팅 만들기)** to enter room details.
+
+<GuideScreenshot src="/images/guides/ko/chat-open-room.jpg" alt="OPEN chat entry screen with a create new room button" title="Step 1: open room creation" caption="Korean interface with example data. This is the OPEN chat entry screen. Choose Create a new OPEN chat to open the form." width={1280} height={900} step={1} locale="en" />
+
+## Create your OPEN room
+
+1. Click **Create a new OPEN chat**.
+2. Enter a **room name** of at most 100 characters and **description** of at most 500 characters. Both are required.
+3. Choose **visibility**. **Public** rooms appear in lists and search. **Unlisted (link-only)** rooms can be opened by users who have the link. Private rooms requiring admission approval are not supported.
+4. Choose **maximum members** between 2 and 100. The initial value is 50.
+
+<GuideScreenshot src="/images/guides/ko/chat-open-create.jpg" alt="OPEN room creation form with name description visibility and capacity" title="Step 2: enter room details and visibility" caption="Korean interface with example data. The form contains sample draft values and has not been submitted. Enter your own name, description, visibility, and capacity." width={1280} height={900} step={2} locale="en" />
+
+5. Set the **OWNER room-specific profile**. The **room nickname** is separate from your normal profile. Optionally choose an image with **Select image**. JPG, PNG, and WEBP up to 5 MB are supported; otherwise the default OPEN avatar is used.
+
+<Tabs items={["PC", "Mobile"]} groupId="guide-device-en">
+  <Tab value="PC">
+    On a wide screen, check the nickname and image in **Owner profile settings** to the right of the room information.
+  </Tab>
+  <Tab value="Mobile">
+    After entering room details, scroll down to **Owner profile settings**. Continue to the create-room button below the profile.
+  </Tab>
+</Tabs>
+
+<GuideScreenshot src="/images/guides/ko/chat-open-profile.jpg" alt="Owner room-specific nickname and optional profile image fields" title="Step 3: check the owner profile for this room" caption="Korean interface with example data. This draft uses an example nickname. Images are optional; room creation and profile saving have not been submitted." width={1280} height={900} step={3} locale="en" />
+
+6. Check the room information and room-specific profile, then click **Create room (방 만들기)**. You join the created room as its owner (OWNER).
+
+If the room was created but only image or profile saving failed, use **Retry remaining profile setup**. You do not need to create the same room again.
+
+## Owner and room-admin controls
+
+The following controls depend on your role in the room. Some are unavailable to regular members.
+
+- Copy the room link with **Share link**.
+- In member management, the owner can **Assign admin / Remove admin**. The owner and room admins can **Remove** permitted targets. Enter the removal reason and confirm.
+- In **Blacklist management**, search by nickname or member code and **Unblock** entries you have permission to manage. Unblocking does not automatically rejoin the member; they must join again.
+- An owner with other active members uses **Transfer OWNER and leave** to choose a new owner. If the owner is alone, **End OPEN room** is offered. Ending a room cannot be undone, so read the confirmation before continuing.
+
+## Check that you are done
+
+Check that you entered the room as OWNER with the intended visibility, capacity, and room profile. After member management, check the member list or blacklist too.
+
+## Next steps
+
+[Add and talk to AI members](/en/docs/chat/ai-members) · [Chat overview](/en/docs/chat)

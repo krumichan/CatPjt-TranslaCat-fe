@@ -1,0 +1,41 @@
+---
+title: Choose microphone, tab, or meeting input
+description: Choose a mode for your audio source and prepare the required permissions.
+---
+
+You can read this guide without signing in. To use the feature, [sign in](/en/login) to your own account.
+
+Open the [voice translation screen](/en/voice) to follow along.
+
+## Choose an input mode
+
+| Mode | When to use it | Permissions and settings |
+| --- | --- | --- |
+| **Microphone (마이크)** | Translate what you say | Allow microphone access. Results are labeled **My voice (내 음성)**. |
+| **System audio (시스템 오디오)** | Translate audio from a video or online meeting | Select the tab or screen playing the sound and enable audio sharing. Results are labeled **Other person's voice (상대방 음성)**. |
+| **Meeting (회의)** | Translate your voice and the other person's audio together | Allow both tab/screen audio sharing and microphone access. The inputs are labeled **My voice / Other person's voice (내 음성 / 상대방 음성)**. |
+
+When sharing system audio, select **the tab actually playing Teams, YouTube, or the other audio source**. Selecting the TranslaCat tab may not capture the other person's sound. Also enable **Share tab audio** in the browser's sharing dialog. The session cannot start if the shared screen contains no audio.
+
+In Meeting mode, headphones help reduce the other person's audio being picked up again by your microphone.
+
+<GuideScreenshot src="/images/guides/ko/voice-input-modes.jpg" alt="Korean setup with Meeting mode and manually specified input languages" title="Choose an input mode and languages" caption="Korean interface showing Meeting mode and manual language selection with an example account. The browser requests permissions after you start translation." width={1280} height={900} step={1} locale="en" />
+
+## Prepare permissions on your device
+
+<Tabs items={["PC", "Mobile"]} groupId="guide-device-en">
+  <Tab value="PC">
+    In the tab/screen sharing dialog, choose the tab playing the sound and enable **Share tab audio**. Meeting mode also needs microphone permission.
+  </Tab>
+  <Tab value="Mobile">
+    Try **Microphone (마이크)** mode first. If the browser does not support tab or screen sharing with audio, System audio and Meeting modes are unavailable. Use a supported PC browser for those modes.
+  </Tab>
+</Tabs>
+
+## Check the result
+
+Check that the chosen mode matches the sound you want to translate and that you can grant all required permissions.
+
+## Next steps
+
+[Set languages and transcript storage](/en/docs/voice/languages-storage) · [Back to voice translation](/en/docs/voice)

@@ -16,7 +16,8 @@ export default function LoginPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
     const t = useTranslations("Auth");
-    const guideLocale = useLocale() === "ko" ? "ko" : "ja";
+    const locale = useLocale();
+    const guideLocale = locale === "learning" ? "ja" : locale;
 
     useEffect(() => {
         if (status === "authenticated" && session && !isTerminalAuthError(session.error)) router.replace("/");

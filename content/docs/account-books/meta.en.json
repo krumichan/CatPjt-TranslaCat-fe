@@ -1,0 +1,15 @@
+{
+  "title": "Account books",
+  "pages": [
+    "index",
+    "open",
+    "create",
+    "manual-transactions",
+    "receipt-upload",
+    "receipt-review",
+    "transactions",
+    "fixed-costs",
+    "goals-statistics",
+    "sharing"
+  ]
+}

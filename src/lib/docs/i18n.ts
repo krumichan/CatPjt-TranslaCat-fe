@@ -3,7 +3,7 @@ import { uiTranslations } from "fumadocs-ui/i18n";
 
 export const guideI18n = defineI18n({
     defaultLanguage: "ko",
-    languages: ["ko", "ja"],
+    languages: ["ko", "ja", "en"],
     hideLocale: "never",
     fallbackLanguage: null,
 });
@@ -15,6 +15,15 @@ export function isGuideLocale(locale: string): locale is GuideLocale {
 }
 
 export const guideTranslations = guideI18n.translations().extend(uiTranslations()).add({
+    en: {
+        displayName: "English",
+        "Search(search trigger)": "Search guides",
+        "Search(search dialog)": "Search guides",
+        "Open Search(search trigger)(aria-label)": "Open guide search",
+        "Choose a language(language switcher)(aria-label)": "Choose guide language",
+        "Image Viewer(image zoom)(aria-label)": "Enlarged guide screenshot",
+        "Close(image zoom)(aria-label)": "Close enlarged screenshot",
+    },
     ko: {
         displayName: "한국어",
         "Search(search trigger)": "가이드 검색",

@@ -10,8 +10,8 @@ export function stripLocalePrefix(pathname: string, supportedLocales: readonly s
 }
 
 export function isPublicDocsPath(pathname: string): boolean {
-    // 공개 문서는 두 언어의 /docs 경계 안으로 한정한다. 학습 모드는 일본어 가이드로 연결한다.
-    return /^\/(ko|ja)\/docs(?:\/|$)/.test(pathname);
+    // 문서 언어는 앱 표시 언어와 별개이며, 공개 범위는 각 /docs 경계 안으로 한정한다.
+    return /^\/(ko|ja|en)\/docs(?:\/|$)/.test(pathname);
 }
 
 export function validBirthDate(value: string, now = new Date()): boolean {

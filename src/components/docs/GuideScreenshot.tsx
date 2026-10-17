@@ -10,7 +10,7 @@ interface GuideScreenshotProps {
     width: number;
     height: number;
     step: number;
-    locale: "ko" | "ja";
+    locale: "ko" | "ja" | "en";
 }
 
 export function GuideScreenshot({
@@ -23,7 +23,7 @@ export function GuideScreenshot({
     step,
     locale,
 }: GuideScreenshotProps) {
-    const isKorean = locale === "ko";
+    const zoomLabel = { ko: "확대", ja: "拡大", en: "Enlarge" }[locale];
     const isPortrait = height > width;
 
     // 실제 화면 비율을 유지하고 세로형 화면은 본문 안에서 읽기 좋은 폭으로 제한한다.
@@ -36,7 +36,7 @@ export function GuideScreenshot({
                 <span className="text-sm font-semibold text-fd-foreground">{title}</span>
                 <span className="ml-auto flex shrink-0 items-center gap-1 text-xs text-fd-muted-foreground">
                     <Expand className="size-3.5" aria-hidden="true" />
-                    {isKorean ? "확대" : "拡大"}
+                    {zoomLabel}
                 </span>
             </div>
             <ImageZoom

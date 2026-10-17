@@ -1,0 +1,61 @@
+---
+title: Connect a web AI learning plan
+description: Prepare a learning plan and prompt, then import external AI results for verification.
+---
+
+Prepare learning to do with an external web AI, then import its results into your TranslaCat learning history.
+
+<Callout title="Before you begin">You can read this guide without signing in. Sign in to use the feature with your own account. Service links open the English interface. Screenshots show the Korean interface with example data; Korean labels in parentheses help you compare the two.</Callout>
+
+## Create a web AI learning plan
+
+A web AI plan prepares the learning conditions and result-transfer method. **Saving a plan does not schedule anything in the external AI.** Register the copied prompt yourself in the web AI you want to use.
+
+1. Open plan management from **Web AI learning plans** in learning settings. Check your basic settings and whether today's keywords are ready.
+2. Click **New plan** and give it a name. The language follows the currently effective basic learning settings.
+3. Choose daily, weekly, or monthly repetition, then the day or date, time, and timezone. Monthly plans skip dates that do not exist in a month; the last day is also available.
+4. Set question counts by subtype and difficulty for Writing, Reading, Speaking, and Listening. At least one question must be requested.
+5. Use the default keywords or choose keywords for this plan. You can optionally enter a situation and topic.
+6. Click **Save learning plan**.
+
+<Tabs items={["PC", "Mobile"]} groupId="guide-device-en">
+  <Tab value="PC">
+    Select a plan in the list and change it in the editor. Check the selected plan name before saving or copying its prompt.
+  </Tab>
+  <Tab value="Mobile">
+    Tap **New plan** or **Edit** in the schedule list to open the editor. Scroll through its fields and use the return-to-schedule-list button to go back. The mobile **Schedule** shortcut also opens the list.
+  </Tab>
+</Tabs>
+
+The list lets you edit, duplicate, delete, enable, or pause plans. If an old browser draft exists, use **Import browser draft** to move it into your account. Edit and save drafts individually if their settings need confirmation.
+
+<GuideScreenshot src="/images/guides/ko/learning-web-ai.jpg" alt="Web AI learning plan editor with plan name and repeat settings" title="Enter a plan name and repetition settings" caption="Korean interface with example data. This is a draft in the actual editor. After saving, register the copied prompt yourself in the external web AI." width={1280} height={900} step={1} locale="en" />
+
+## Copy a prompt and connect
+
+After saving, click **Copy prompt** or **Create integration prompt** to prepare and inspect the text. If clipboard copying is blocked, use **Select all** and copy manually.
+
+The prompt contains a **plan-specific connection key**. Paste it only into the intended web AI; do not publish it in posts or shared documents. Preparing the prompt for the first time or choosing **Replace connection key** changes the key, so update any existing external schedule with the new prompt too. Copying it again on the same page does not replace the key. **Disconnect** prevents connection using the old prompt.
+
+A web AI that supports HTTP requests can fetch questions and submit results. The service address must be reachable externally. If the AI does not support HTTP, complete a session using the prompt and import the result JSON manually. Check the external service itself for scheduling support and execution status.
+
+## Import and verify result JSON
+
+1. Under **Import learning results** for the plan, prepare the transfer prompt for this session.
+2. Complete the learning with the web AI and obtain its result JSON.
+3. Paste the JSON unchanged into **Web AI result JSON** and click **Save results and verify with AI**. Split imports into batches of at most ten questions.
+4. Under **Web AI** in [learning history](/en/language-learning/history), read the verification status, learning feedback, and original web AI content.
+
+An external AI's reference score can differ from the score TranslaCat records. **Only verified questions** contribute to scores. If a passage, audio, or other evaluation evidence is insufficient, or difficulty/study language does not match, a result may remain unscored or coaching only. Read the status and reason together.
+
+For English study, check the plan's effective language settings before preparing the prompt. Keep the generated language and difficulty instructions intact when using the external AI; importing English text alone does not change a plan's study language.
+
+If verification fails, use **Retry AI verification**. If it is already running or the retry limit is reached, follow the displayed guidance. Saved answers and original content remain available. If you changed language settings or paused the plan, you may need to prepare a new prompt or check the plan status.
+
+## Check that you are done
+
+Confirm that the plan is saved in the list and that you registered its prompt in the external AI. After importing results, check verification status and whether scores were included in history.
+
+## Next steps
+
+[Review past learning and feedback](/en/docs/language-learning/history) · [Language learning overview](/en/docs/language-learning)

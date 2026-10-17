@@ -1,4 +1,14 @@
 {
   "title": "사용 가이드",
-  "pages": ["index", "getting-started", "voice", "account-books", "chat", "language-learning", "support", "settings"]
+  "pages": [
+    "index",
+    "getting-started",
+    "english-support",
+    "voice",
+    "account-books",
+    "chat",
+    "language-learning",
+    "support",
+    "settings"
+  ]
 }

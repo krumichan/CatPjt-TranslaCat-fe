@@ -26,7 +26,8 @@ const SERVICE_CARD_STYLE = cn(
 
 export function ServiceSelectPage() {
     const t = useTranslations("ServiceSelect");
-    const guideLocale = useLocale() === "ko" ? "ko" : "ja";
+    const locale = useLocale();
+    const guideLocale = locale === "learning" ? "ja" : locale;
     const { data: session } = useSession();
     const isAdmin = session?.user?.role === "ADMIN";
 

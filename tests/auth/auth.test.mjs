@@ -217,8 +217,8 @@ test("registration is public while account management stays protected", () => {
 
 test("public guides respect locale and docs path segment boundaries", () => {
     // 준비: 이름이 비슷한 경로와 학습 모드 경로는 공개 문서에 포함하지 않는다.
-    const publicPaths = ["/ko/docs", "/ja/docs/", "/ko/docs/getting-started", "/ja/docs/topics/chat"];
-    const protectedPaths = ["/docs", "/learning/docs", "/ko/docs-other", "/ja/docs2/page", "/korea/docs", "/japanese/docs", "/ko/settings/account"];
+    const publicPaths = ["/ko/docs", "/ja/docs/", "/ko/docs/getting-started", "/ja/docs/topics/chat", "/en/docs", "/en/docs/account-books/open"];
+    const protectedPaths = ["/docs", "/learning/docs", "/ko/docs-other", "/ja/docs2/page", "/korea/docs", "/japanese/docs", "/ko/settings/account", "/en/docs-other", "/en/settings/account", "/english/docs"];
 
     // 실행 및 검증
     for (const pathname of publicPaths) {
@@ -233,15 +233,21 @@ test("proxy bypasses authentication for public guides and keeps neighboring rout
     // 준비: 인증 경계와 언어 라우팅 진입을 각각 기록한다.
     const calls = [];
     const middleware = loadSource("proxy.ts", {
+        "next/server": { NextResponse: { next: () => { calls.push("guide"); return "guide"; } } },
         "next-intl/middleware": { default: () => (request) => { calls.push("intl"); return request.nextUrl.pathname; } },
         "next-auth/middleware": { withAuth: () => (request) => { calls.push("auth"); return request.nextUrl.pathname; } },
-        "@/i18n/config": { locales: ["ko", "ja", "learning"] },
+        "@/i18n/config": { locales: ["ko", "ja", "en", "learning"] },
         "@/lib/authError": { isTerminalAuthError: () => false },
         "@/lib/authPolicy": { isPublicDocsPath, PUBLIC_AUTH_PAGES, stripLocalePrefix },
     }).default;
     const paths = [
         ["/ko/docs", "intl"],
         ["/ja/docs/getting-started", "intl"],
+        ["/en/docs", "guide"],
+        ["/en/docs/account-books/open", "guide"],
+        ["/en/docs-other", "auth"],
+        ["/en/settings/account", "auth"],
+        ["/en/login", "intl"],
         ["/ko/docs-other", "auth"],
         ["/ja/docs2/child", "auth"],
         ["/learning/docs", "auth"],
@@ -273,7 +279,7 @@ test("guide rendering bypasses session providers and restores guards on applicat
     }).default;
 
     // 실행 및 검증: 앱과 문서를 왕복해도 각 경로의 인증 경계가 유지된다.
-    for (const currentPath of ["/ko/docs", "/ko/settings/account", "/ja/docs/getting-started", "/ja/login"]) {
+    for (const currentPath of ["/ko/docs", "/ko/settings/account", "/ja/docs/getting-started", "/ja/login", "/en/docs/account-books/open", "/en/settings/account"]) {
         pathname = currentPath;
         calls.length = 0;
         const html = renderToStaticMarkup(createElement(AuthContext, null, createElement("p", null, "content")));

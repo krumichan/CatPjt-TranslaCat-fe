@@ -1,6 +1,13 @@
 import type { CatalogSnapshot, CatalogSelector } from "@/types/novel/catalog";
+import { ROUTES, to } from "@/constants/routes";
 
 export const catalogSelectorKey = (selector: CatalogSelector) => JSON.stringify([selector.kind, selector.period ?? "", selector.genreId ?? "", selector.keyword ?? "", selector.page, selector.language]);
+
+export function catalogWorkPath(platform: string, workId: string, isShortStory: boolean): string {
+    // 카쿠요무 단편도 고유한 회차 ID를 목차에서 받아야 한다. 작품 ID를 회차 번호로 만들지 않는다.
+    const directShort = isShortStory && ["syosetu", "syosyetu"].includes(platform.toLowerCase());
+    return directShort ? to(ROUTES.EPISODE_VIEWER, platform, workId, "0") : to(ROUTES.NOVEL_DETAIL, platform, workId);
+}
 
 const record = (value: unknown): value is Record<string, unknown> => !!value && typeof value === "object" && !Array.isArray(value);
 const integer = (value: unknown) => Number.isSafeInteger(value) && Number(value) >= 0;

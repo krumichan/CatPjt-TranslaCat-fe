@@ -252,10 +252,10 @@ test("NOVEL-EN-06 영어 최근 방문은 영어 제목·원문 fallback과 targ
 });
 
 test("NOVEL-EN-07 기존 legacy 플랫폼 목차에는 영어 선택을 약속하지 않는다", async ({ page }) => {
-    // 준비: 기존 kakuyomu 상세 계약은 한국어이며 embedded 엔진 확장은 이번 작업에 포함되지 않는다.
+    // 준비: 실제 지원 사이트인 카쿠요무를 제외하고 미지원 플랫폼의 기존 한국어 계약을 검증한다.
     const requestedTargets: (string | null)[] = [];
     const readerTargets: (string | null)[] = [];
-    await page.route("**/kakuyomu/novels/n-legacy?*", route => {
+    await page.route("**/unsupported/novels/n-legacy?*", route => {
         if (route.request().resourceType() === "document") return route.fallback();
         requestedTargets.push(new URL(route.request().url()).searchParams.get("targetLanguage"));
         return fulfillApiJson(route, responseDto({ title: text("ko"), author: text("ko"), synopsis: text("ko"),
@@ -263,7 +263,7 @@ test("NOVEL-EN-07 기존 legacy 플랫폼 목차에는 영어 선택을 약속�
     });
 
     // 실행: 다른 곳에서 받은 영어 query가 있더라도 지원하지 않는 선택기를 추가하지 않는다.
-    await page.goto("/ko/novel/kakuyomu/novels/n-legacy?novelTarget=en");
+    await page.goto("/ko/novel/unsupported/novels/n-legacy?novelTarget=en");
 
     // 검증: 기존 한국어 요청/원래 화면을 유지한다.
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("고양이의 하루");
@@ -272,11 +272,11 @@ test("NOVEL-EN-07 기존 legacy 플랫폼 목차에는 영어 선택을 약속�
     expect(requestedTargets.every(target => target === null)).toBe(true);
 
     // 실행 / 검증: 지원 밖 reader 수동 주소도 영어 API를 요청하거나 선택기를 표시하지 않는다.
-    await page.route("**/kakuyomu/n-legacy/episodes/1/reader", route => {
+    await page.route("**/unsupported/n-legacy/episodes/1/reader", route => {
         readerTargets.push(new URL(route.request().url()).searchParams.get("targetLanguage"));
         return fulfillJson(route, responseDto({ code: "UNSUPPORTED_PLATFORM" }), 400);
     });
-    await page.goto("/ko/novel/kakuyomu/novels/n-legacy/episode/1?novelTarget=en");
+    await page.goto("/ko/novel/unsupported/novels/n-legacy/episode/1?novelTarget=en");
     await expect(page.getByRole("alert").filter({ hasText: "원문을 불러오지 못했습니다." })).toBeVisible();
     await expect(page.getByLabel("번역 언어", { exact: true })).toHaveCount(0);
     expect(readerTargets.length).toBeGreaterThan(0);

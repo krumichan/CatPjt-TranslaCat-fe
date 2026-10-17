@@ -283,7 +283,7 @@ export function useNovelReaderController(platform: string, novel: string, episod
 
     return {
         snapshot, loading, error, busy, fontSize, changeFont, timings, repairTimings, repair, cancel, view,
-        locale, episode, menu, audio, translate, targetLanguage, supportsTargetSelection: supportsNovelTranslation(platform),
+        locale, platform, episode, menu, audio, translate, targetLanguage, supportsTargetSelection: supportsNovelTranslation(platform),
         changeTargetLanguage: (target: NovelTargetLanguage) => {
             if (target === targetLanguage) return;
             // 이동 의사 시점에 중단해 라우터 응답을 기다리는 동안에도 이전 언어를 합성하지 않는다.

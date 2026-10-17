@@ -21,6 +21,8 @@ export default function NovelSentence({ segment, view, locale, targetLanguage = 
     const labels = readerLabels(locale, targetLanguage);
     const translation = novelTranslation(segment, targetLanguage);
     const translated = segment.status === "SUCCEEDED" && translation !== null;
+    // 원문 개행의 위치는 남기되 번역할 본문이 없는 단위에는 대기·실패·복구 조작을 붙이지 않는다.
+    const hasSourceText = segment.plainJa.trim().length > 0;
     const repairButton = useRef<HTMLButtonElement>(null);
     const requestedHere = useRef(false);
 
@@ -36,12 +38,12 @@ export default function NovelSentence({ segment, view, locale, targetLanguage = 
     return <div id={`novel-segment-${segment.id}`} data-testid="novel-sentence" data-segment-id={segment.id}
         data-active={active} data-status={segment.status} className={`relative rounded-xl p-3 scroll-mt-36 ${active ? "bg-orange-100 dark:bg-orange-950 ring-2 ring-orange-400" : ""}`}>
         <div className="whitespace-pre-wrap">
-            {(view !== "ko" || !translated) && <p lang="ja" className="font-ja"><NovelSourceText segment={segment} /></p>}
-            {view !== "ja" && translated && <p lang={targetLanguage} className={`${targetLanguage === "ko" ? "font-novel-ko" : ""} ${view === "parallel" ? "text-zinc-700 dark:text-zinc-300" : ""}`}>{translation}</p>}
-            {view !== "ja" && !translated && <span className="block text-xs text-amber-700 dark:text-amber-300">{segment.status === "FAILED" ? labels.failed : labels.sourceOnly}</span>}
+            {(!hasSourceText || view !== "ko" || !translated) && <p lang="ja" className="font-ja"><NovelSourceText segment={segment} /></p>}
+            {hasSourceText && view !== "ja" && translated && <p lang={targetLanguage} className={`${targetLanguage === "ko" ? "font-novel-ko" : ""} ${view === "parallel" ? "text-zinc-700 dark:text-zinc-300" : ""}`}>{translation}</p>}
+            {hasSourceText && view !== "ja" && !translated && <span className="block text-xs text-amber-700 dark:text-amber-300">{segment.status === "FAILED" ? labels.failed : labels.sourceOnly}</span>}
         </div>
         {/* 비활성 상태도 같은 버튼을 유지해 복구 중/완료 후 키보드 focus를 잃지 않는다. */}
-        {(repairRequested || segment.status === "FAILED") && !segment.errorCode?.includes("REFUSAL") && repair && <button ref={repairButton} type="button" aria-disabled={repairing || segment.status !== "FAILED"}
+        {hasSourceText && (repairRequested || segment.status === "FAILED") && !segment.errorCode?.includes("REFUSAL") && repair && <button ref={repairButton} type="button" aria-disabled={repairing || segment.status !== "FAILED"}
             onClick={event => {
                 if (repairing || segment.status !== "FAILED") return;
                 requestedHere.current = true;

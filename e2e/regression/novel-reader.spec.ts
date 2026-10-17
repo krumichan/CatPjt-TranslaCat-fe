@@ -5,6 +5,9 @@ import { responseDto } from "../support/mock-data";
 import { TEST_USERS } from "../support/test-users";
 import { installNativeMediaObserver, nativeMediaObservation, nativeClickToPlaying } from "../support/novel-media-observer";
 
+// 한국어 버튼을 검증하는 시나리오이므로 브라우저 언어를 명시해 자동 locale 감지에 의존하지 않는다.
+test.use({ locale: "ko-KR" });
+
 const wavPath = process.env.NOVEL_TEST_WAV ?? "C:/workspace/project-cat/.codex-workspace/verification/shared/novel-20261004/ai/openai-speech-ko.wav";
 function wavFixture() {
     if (fs.existsSync(wavPath)) return fs.readFileSync(wavPath).toString("base64");
@@ -341,7 +344,7 @@ for (const destination of ["locale", "anchor"] as const) {
         // 실행: 실제 공통 언어 메뉴 또는 같은 탭 anchor를 사용한다. 이벤트를 주입하지 않는다.
         if (destination === "locale") {
             await page.getByRole("button", { name: "Language", exact: true }).click();
-            await page.getByRole("menuitem", { name: "🇯🇵", exact: true }).click();
+            await page.getByRole("menuitem", { name: "日本語", exact: true }).click();
         } else {
             await page.getByRole("link", { name: "TranslaCat", exact: true }).click();
         }

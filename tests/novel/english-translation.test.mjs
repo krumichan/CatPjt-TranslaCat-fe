@@ -29,9 +29,23 @@ test("소설 target은 기존 ko를 기본으로 하고 필터와 함께 URL에 
     assert.equal(novelTargetLanguage("en"), "en");
     assert.equal(supportsNovelTranslation("syosetu"), true);
     assert.equal(supportsNovelTranslation("SYOSYETU"), true);
-    assert.equal(supportsNovelTranslation("kakuyomu"), false);
+    assert.equal(supportsNovelTranslation("kakuyomu"), true);
+    assert.equal(supportsNovelTranslation("KAKUYOMU"), true);
+    assert.equal(supportsNovelTranslation("unsupported"), false);
     assert.equal(withNovelTarget("/novel?page=2&keyword=cat", "en"), "/novel?page=2&keyword=cat&novelTarget=en");
     assert.equal(withNovelTarget("/novel?page=2&novelTarget=en", "ko"), "/novel?page=2");
+});
+
+test("카쿠요무의 과거 단편 방문은 작품 목차로 복원하고 실제 회차 방문은 ID를 보존한다", () => {
+    // 준비: 구 단편 기록에는 고유 회차 ID가 없을 수 있다.
+    const workId = "11054822662896759076";
+    const episodeId = "11054822662896857470";
+    const recent = { platformCode: "kakuyomu", novelId: workId, episodeId: null, type: "SHORT", targetLanguage: "en" };
+
+    // 실행 / 검증: episode/0을 만들지 않고 언어 선택을 보존한다.
+    assert.equal(getRecentViewLink(recent), `/novel/kakuyomu/novels/${workId}?novelTarget=en`);
+    assert.equal(getRecentViewLink({ ...recent, type: "EPISODE", episodeId }), `/novel/kakuyomu/novels/${workId}/episode/${episodeId}?novelTarget=en`);
+    assert.equal(getRecentViewLink({ ...recent, platformCode: "syosyetu", novelId: "n1" }), "/novel/syosyetu/novels/n1/episode/0?novelTarget=en");
 });
 
 test("영어 표시는 UI locale과 독립적이고 한국어 값은 영어 fallback이 아니다", () => {

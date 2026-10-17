@@ -16,6 +16,11 @@ export function episodeBasePath(platform: string, novel: string, episode?: strin
 }
 
 export function novelReaderBasePath(platform: string, novel: string, episode?: string | null) {
+    // 카쿠요무는 단편에도 고유 회차 ID가 있다. 생략된 ID를 소설가가 되자의 short 경로로 바꾸지 않는다.
+    if (platform.toLowerCase() === "kakuyomu" && (!episode || episode === "0" || episode === "short")) {
+        throw new Error("INVALID_EPISODE_ID");
+    }
+
     // 기존 단편 GET의 생략 경로와 새 reader의 명시적인 회차 경로를 구분한다.
     return episodeBasePath(platform, novel, !episode || episode === "0" ? "short" : episode);
 }

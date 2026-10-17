@@ -11,8 +11,8 @@ export function novelTargetLanguage(value: string | null | undefined): NovelTarg
 }
 
 export function supportsNovelTranslation(platform: string) {
-    // 현재 내장 소설 엔진의 두 플랫폼 표기만 허용하며 legacy 공급자 지원을 추측하지 않는다.
-    return ["syosetu", "syosyetu"].includes(platform.toLowerCase());
+    // 두 사이트 모두 같은 내장 번역·복구·사전·음성 경로를 사용한다.
+    return ["syosetu", "syosyetu", "kakuyomu"].includes(platform.toLowerCase());
 }
 
 export function novelTranslation(value: NovelTranslationValue, target: NovelTargetLanguage = "ko") {

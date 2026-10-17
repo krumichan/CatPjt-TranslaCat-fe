@@ -4,8 +4,7 @@ import Link from "next/link";
 import { ArrowDownWideNarrow, ChevronDown } from "lucide-react";
 import NovelCatalogRetryButton from "@/components/novel/NovelCatalogRetryButton";
 import NovelBilingualField from "@/components/novel/NovelBilingualField";
-import { ROUTES, to } from "@/constants/routes";
-import { orderedCatalogItems } from "@/features/novel/catalog";
+import { catalogWorkPath, orderedCatalogItems } from "@/features/novel/catalog";
 import type { CatalogSnapshot } from "@/types/novel/catalog";
 import { withNovelTarget, type NovelTargetLanguage } from "@/features/novel/translationLanguage";
 import { novelUiText } from "@/features/novel/uiText";
@@ -57,7 +56,7 @@ export default function NovelCatalogView({ snapshot, platform, locale, targetLan
                         {snapshot.selector.kind === "RANKING" && item.rank !== null &&
                             <span className="inline-flex rounded-lg bg-blue-600 px-3 py-1 text-xs font-black text-white">{item.rank}{labels.rank}</span>}
                         <h2 className="text-xl font-bold leading-relaxed sm:text-2xl">
-                            <Link className="block rounded-md hover:text-blue-700 focus-visible:outline-2 focus-visible:outline-blue-600 dark:hover:text-blue-300" href={withNovelTarget(`/${locale}${item.isShortStory ? to(ROUTES.EPISODE_VIEWER, platform, item.identifier, "0") : to(ROUTES.NOVEL_DETAIL, platform, item.identifier)}`, targetLanguage)}>
+                            <Link className="block rounded-md hover:text-blue-700 focus-visible:outline-2 focus-visible:outline-blue-600 dark:hover:text-blue-300" href={withNovelTarget(`/${locale}${catalogWorkPath(platform, item.identifier, item.isShortStory)}`, targetLanguage)}>
                                 <NovelBilingualField value={item.title} locale={locale} targetLanguage={targetLanguage} />
                             </Link>
                         </h2>

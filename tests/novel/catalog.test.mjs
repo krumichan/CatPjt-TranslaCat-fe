@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { acceptCatalog, parseCatalog, orderedCatalogItems } from '../../src/features/novel/catalog.ts';
+import { acceptCatalog, catalogWorkPath, parseCatalog, orderedCatalogItems } from '../../src/features/novel/catalog.ts';
 const text = value => ({ rawJa: value, ja: value, ko: `${value} 번역` });
 const item = rank => ({ itemId: `i${rank}`, identifier: `n${rank}`, rank, sourcePosition: rank, status: 'READY', title: text('題'), synopsis: text('紹介'), author: text('人'), statusText: text('連載'), genreText: '', isShortStory: false, arrivalSequence: rank, errorCode: null, cached: false });
 const snapshot = items => ({ snapshotId: 's', eventSequence: items.length, state: 'RUNNING', total: 50, ready: items.filter(x => x.status === 'READY').length, failed: items.filter(x => x.status === 'FAILED').length, pageInfo: null, selector: { kind: 'RANKING', period: 'daily', genreId: 'all', keyword: '', page: 1, language: 'ko' }, items });
@@ -40,4 +40,20 @@ test('다른 검색·page·snapshot·늦은 cursor 및 중복 ID는 격리한다
     assert.equal(acceptCatalog(first, { ...first, eventSequence: 0 }), false);
     assert.equal(acceptCatalog(first, { ...first, selector: { ...first.selector, page: 2 } }), false);
     assert.throws(() => parseCatalog(snapshot([item(1), item(1)])));
+});
+
+test('카쿠요무 단편과 연재는 문자열 작품 ID를 보존한 목차로 이동한다', () => {
+    // 준비: 카쿠요무 단편은 episode/0 대신 실제 회차 ID 조회가 필요하다.
+    const workId = '11054822662896759076';
+    const value = snapshot([{ ...item(1), identifier: workId, isShortStory: true }]);
+
+    // 실행
+    const parsed = parseCatalog(value);
+
+    // 검증: 화면 파서와 이동 경로에서 큰 숫자 ID의 정밀도를 잃지 않는다.
+    assert.equal(parsed.items[0].identifier, workId);
+    assert.equal(catalogWorkPath('kakuyomu', workId, true), `/novel/kakuyomu/novels/${workId}`);
+    assert.equal(catalogWorkPath('KAKUYOMU', workId, false), `/novel/kakuyomu/novels/${workId}`);
+    assert.equal(catalogWorkPath('syosetu', 'n1', true), '/novel/syosetu/novels/n1/episode/0');
+    assert.equal(catalogWorkPath('syosyetu', 'n1', false), '/novel/syosyetu/novels/n1');
 });

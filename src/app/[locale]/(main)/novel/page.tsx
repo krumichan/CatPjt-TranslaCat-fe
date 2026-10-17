@@ -86,7 +86,9 @@ export default function PlatformSelectPage() {
         if (!query.trim() || !selectedPlatform) return;
 
         const code = selectedPlatform.code.toLowerCase();
-        router.push(`${to(ROUTES.NOVEL_SEARCH, code)}?keyword=${query}&page=1`);
+        // 제목의 &·#·?도 검색어 안에 유지하고 URL 필터로 해석하지 않는다.
+        const search = new URLSearchParams({keyword: query.trim(), page: "1"});
+        router.push(`${to(ROUTES.NOVEL_SEARCH, code)}?${search}`);
     };
 
     return (

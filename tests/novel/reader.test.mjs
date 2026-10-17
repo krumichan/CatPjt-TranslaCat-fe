@@ -72,6 +72,18 @@ test("reader settings and absent episode IDs are bounded", () => {
     assert.throws(() => episodeBasePath("http://localhost", "n1", "1"));
 });
 
+test("카쿠요무는 긴 회차 ID를 그대로 쓰고 단편 sentinel을 추측하지 않는다", () => {
+    // 준비
+    const workId = "11054822662896759076";
+    const episodeId = "11054822662896857470";
+
+    // 실행 / 검증: 데이터·번역·음성은 공통 reader base를 사용한다.
+    assert.equal(novelReaderBasePath("KAKUYOMU", workId, episodeId), `/kakuyomu/${workId}/episodes/${episodeId}`);
+    for (const missing of [undefined, null, "0", "short"]) {
+        assert.throws(() => novelReaderBasePath("kakuyomu", workId, missing), /INVALID_EPISODE_ID/);
+    }
+});
+
 test("structured ruby offsets must match source and remain nonoverlapping", () => {
     // 준비
     const value = fixture();

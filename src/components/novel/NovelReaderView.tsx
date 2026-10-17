@@ -32,7 +32,8 @@ export default function NovelReaderView({ controller: c }: { controller: NovelRe
                     <button type="button" onClick={c.retryLoad} className="ml-3">{labels.retry}</button>
                 </div>}
                 {snapshot && <>
-                    <header className="py-8"><p>EPISODE {c.episode}</p><h1 className="text-3xl font-bold"><NovelLocalizedText value={snapshot.title} locale={c.locale} targetLanguage={c.targetLanguage} /></h1></header>
+                    {/* 카쿠요무 고유 ID를 회차 번호로 노출하지 않고 본문 제목을 표시한다. */}
+                    <header className="py-8">{c.platform.toLowerCase() !== "kakuyomu" && <p>EPISODE {c.episode}</p>}<h1 className="text-3xl font-bold"><NovelLocalizedText value={snapshot.title} locale={c.locale} targetLanguage={c.targetLanguage} /></h1></header>
                     {/* 계측 데이터는 유지하되 본문 위에 완료 수치나 내부 이력을 노출하지 않는다. */}
                     <span hidden data-testid="novel-translation-state" data-state={snapshot.state} data-target-language={c.targetLanguage}
                         data-completed-segments={snapshot.completedSegments} data-total-segments={snapshot.totalSegments}

@@ -3,6 +3,9 @@ import { fulfillJson, mockCommonPageDependencies, mockIdleWebSocket } from "../s
 import { responseDto } from "../support/mock-data";
 import { TEST_USERS } from "../support/test-users";
 
+// 한국어 동작·오류 문구의 회귀는 브라우저의 기본 en-US가 아닌 명시한 한국어 환경에서 실행한다.
+test.use({ locale: "ko-KR" });
+
 const unit = (value: string) => ({ rawJa: value, ja: value, ko: `${value} 번역` });
 const card = (rank: number, arrival: number) => ({ itemId: `i${rank}`, identifier: `n${rank}`, rank, sourcePosition: rank - 1, status: "READY", title: unit(`題${rank}`), author: unit("作家"), synopsis: unit("夜空を見る物語。"), statusText: unit("完結"), genreText: "", isShortStory: false, arrivalSequence: arrival, errorCode: null as string | null, cached: arrival === 0 });
 const selector = { kind: "RANKING", period: "daily", genreId: "all", keyword: "", page: 1, language: "ko" };

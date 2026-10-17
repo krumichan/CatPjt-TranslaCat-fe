@@ -556,7 +556,7 @@ test("ACCOUNT-RECEIPT analysis summary aggregates multiple receipts and follows 
         return fulfillJson(route, responseDto({ receiptCount: receipts.length, warnings: [], ocrEngine: "vision", usedAi: true,
             categoryOptions: [{ name: "Food", source: "EXISTING" }], receipts }));
     });
-    await page.goto("/account-books/1");
+    await page.goto("/ko/account-books/1");
     await page.getByRole("button", { name: "거래 등록", exact: true }).click();
     await page.getByRole("button", { name: receiptLabels.inputMode.receipt, exact: true }).click();
     const pixel = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=", "base64");
@@ -1528,14 +1528,14 @@ test("ACCOUNT-RECEIPT compact phone keeps a usable review viewport", async ({ pa
     });
     const darkAmount = page.getByTestId("receipt-review-card").first().getByRole("button", { name: /12.34 USD/ });
     for (const label of [darkTitle, darkAmount]) {
-        const brightness = await label.evaluate((element) => {
+        // 테마 전환의 색상 transition이 완료된 뒤 실제 글자 대비를 확인한다.
+        await expect.poll(() => label.evaluate((element) => {
             const canvas = document.createElement("canvas");
             const context = canvas.getContext("2d")!;
             context.fillStyle = getComputedStyle(element).color;
             context.fillRect(0, 0, 1, 1);
             return [...context.getImageData(0, 0, 1, 1).data].slice(0, 3).reduce((sum, channel) => sum + channel, 0);
-        });
-        expect(brightness, "dark card primary text brightness").toBeGreaterThan(450);
+        }), { message: "dark card primary text brightness" }).toBeGreaterThan(450);
     }
     await page.screenshot({ path: test.info().outputPath("compact-phone-review-dark.png") });
 
@@ -1553,3 +1553,62 @@ test("ACCOUNT-RECEIPT compact phone keeps a usable review viewport", async ({ pa
     await expect(page.getByTestId("receipt-review-editor")).toBeVisible();
     await page.screenshot({ path: test.info().outputPath("compact-phone-last-editor.png") });
 });
+
+for (const locale of ["ja", "ko"] as const) {
+    test(`ACCOUNT-RECEIPT upload fills phone before results and collapses after analysis ${locale}`, async ({ page }) => {
+        // 준비: 결과가 없는 모바일 업로드와 지연되는 분석 응답을 재현한다.
+        await page.setViewportSize({ width: 390, height: 740 });
+        await page.emulateMedia({ colorScheme: locale === "ja" ? "dark" : "light" });
+        await mockAccountBook(page);
+        const labels = locales[locale].transactionModal;
+        let releaseAnalysis!: () => void;
+        const pendingAnalysis = new Promise<void>(resolve => { releaseAnalysis = resolve; });
+        await page.route("**/transactions/receipt-analysis", async route => {
+            await pendingAnalysis;
+            await fulfillJson(route, responseDto({
+                receiptCount: 2, warnings: [], ocrEngine: "vision", usedAi: true,
+                categoryOptions: [{ name: "Food", source: "EXISTING" }],
+                receipts: receiptCandidates(2),
+            }));
+        });
+        await page.goto(`/${locale}/account-books/1`);
+        await page.getByRole("button", { name: locales[locale].header.createTransaction, exact: true }).click();
+        await page.getByRole("button", { name: labels.inputMode.receipt, exact: true }).click();
+        const panel = page.locator("#receipt-analysis-content");
+        const toggle = page.locator('button[aria-controls="receipt-analysis-content"]');
+        const dialog = page.locator("#transaction-form-dialog");
+
+        // 검증: 사진 선택 전부터 업로드에 충분한 높이를 주고 화면 안에서 스크롤할 수 있다.
+        await expect(toggle).toHaveAttribute("aria-expanded", "true");
+        expect((await panel.boundingBox())!.height).toBeGreaterThan(300);
+        expect((await dialog.boundingBox())!.y + (await dialog.boundingBox())!.height).toBeLessThanOrEqual(740);
+        await page.locator('input[type="file"]').setInputFiles({
+            name: "receipt-photo.png", mimeType: "image/png",
+            buffer: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=", "base64"),
+        });
+        const analyze = page.getByRole("button", { name: labels.receipt.action, exact: true }).last();
+        await analyze.scrollIntoViewIfNeeded();
+        await expect(analyze).toBeInViewport();
+        await expect(page.getByTestId("receipt-file-queue")).toBeInViewport();
+        await page.screenshot({ path: test.info().outputPath(`receipt-upload-before-analysis-${locale}.png`) });
+        await expectNoPageOverflow(page);
+
+        // 실행 / 검증: 분석 중에는 업로드 상태가 유지되고 결과를 받으면 자동으로 접힌다.
+        await analyze.click();
+        await expect(page.getByRole("button", { name: labels.receipt.analyzing, exact: true }).last()).toBeVisible();
+        await expect(toggle).toHaveAttribute("aria-expanded", "true");
+        expect((await panel.boundingBox())!.height).toBeGreaterThan(300);
+        releaseAnalysis();
+        await expect(page.getByTestId("receipt-review-card")).toHaveCount(2);
+        await expect(toggle).toHaveAttribute("aria-expanded", "false");
+        await expect(panel).toBeHidden();
+        expect((await page.getByTestId("receipt-review-scroll-body").boundingBox())!.height).toBeGreaterThan(250);
+        await page.screenshot({ path: test.info().outputPath(`receipt-upload-after-analysis-${locale}.png`) });
+
+        // 검증: 결과 뒤 사진을 다시 펼쳐도 검토 목록의 조작 공간을 보존한다.
+        await toggle.click();
+        expect((await panel.boundingBox())!.height).toBeLessThanOrEqual(160);
+        expect((await page.getByTestId("receipt-review-scroll-body").boundingBox())!.height).toBeGreaterThan(120);
+        await expectNoPageOverflow(page);
+    });
+}

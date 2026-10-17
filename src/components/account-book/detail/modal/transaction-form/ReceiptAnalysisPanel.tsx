@@ -56,14 +56,16 @@ export default function ReceiptAnalysisPanel({
         setRegionSourceId,
         closeRegionPicker,
     } = useReceiptAnalysisPanel(receiptQueue);
+    const hasResults = receiptCount > 0;
     return (
-        <div className="mb-2 min-w-0 shrink-0 rounded-2xl border border-slate-200 bg-slate-50/90 p-2 sm:mb-3 sm:p-4 dark:border-white/10 dark:bg-black/25">
+        // 결과 전에는 업로드가 남은 높이를 사용하고, 결과 후에는 검토 목록에 공간을 돌려준다.
+        <div className={`mb-2 min-w-0 rounded-2xl border border-slate-200 bg-slate-50/90 p-2 sm:mb-3 sm:p-4 dark:border-white/10 dark:bg-black/25 ${hasResults ? "shrink-0" : "flex min-h-0 flex-1 flex-col"}`}>
             <button
                 type="button"
                 onClick={toggle}
                 aria-expanded={expanded}
                 aria-controls="receipt-analysis-content"
-                className="flex w-full items-center justify-between gap-3 rounded-lg text-left focus:outline-none focus:ring-2 focus:ring-orange-500/30"
+                className="flex w-full shrink-0 items-center justify-between gap-3 rounded-lg text-left focus:outline-none focus:ring-2 focus:ring-orange-500/30"
             >
                 <span className="flex min-w-0 items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
                     <ImagePlus
@@ -90,7 +92,7 @@ export default function ReceiptAnalysisPanel({
             <div
                 id="receipt-analysis-content"
                 hidden={!expanded}
-                className="max-h-[min(24dvh,10rem)] overflow-y-auto overscroll-contain pr-1 sm:max-h-[min(48dvh,32rem)]"
+                className={`overflow-y-auto overscroll-contain pr-1 ${hasResults ? "max-h-[min(24dvh,10rem)] sm:max-h-[min(48dvh,32rem)]" : "min-h-0 flex-1"}`}
             >
                 <p className="rounded-xl bg-orange-50 px-3 py-2 text-xs text-orange-700 dark:bg-orange-500/10 dark:text-orange-300">
                     {t("receipt.description")}

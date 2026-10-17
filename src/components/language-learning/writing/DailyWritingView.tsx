@@ -141,6 +141,8 @@ export function DailyWritingView({ controller }: DailyWritingViewProps) {
                         key={item.itemId}
                         item={item}
                         writingType={dailySet.writingType}
+                        originLanguage={controller.entry.setting?.originLanguage ?? undefined}
+                        learningLanguage={controller.entry.setting?.learningLanguage ?? undefined}
                         draft={controller.drafts[item.itemId] ?? ""}
                         draftPersistenceEnabled={
                             controller.draftPersistenceEnabled

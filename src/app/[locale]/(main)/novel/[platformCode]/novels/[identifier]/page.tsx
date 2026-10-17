@@ -17,8 +17,22 @@ import {recentViewService} from "@/services/recentViewService";
 import {RECENT_VIEW_TYPE} from "@/types/common";
 import {useAppRouter} from "@/hooks/useAppRouter";
 import {ROUTES, to} from "@/constants/routes";
+import {useSession} from "next-auth/react";
+import NovelTranslationLanguageSelect from "@/components/novel/NovelTranslationLanguageSelect";
+import {novelTargetLanguage, supportsNovelTranslation, withNovelTarget, type NovelTargetLanguage} from "@/features/novel/translationLanguage";
 
 export default function NovelPage() {
+    const params = useParams();
+    const query = useSearchParams();
+    const {data: session} = useSession();
+    const targetLanguage = supportsNovelTranslation(String(params.platformCode)) ? novelTargetLanguage(query.get("novelTarget")) : "ko";
+    const ownerScope = session?.user.publicId ?? session?.user.email ?? "";
+    // 목차 페이지 캐시는 같은 작품·계정·번역 언어 안에서만 이어간다.
+    const scope = `${params.platformCode}:${params.identifier}:${targetLanguage}:${ownerScope}`;
+    return <ScopedNovelPage key={scope} targetLanguage={targetLanguage} ownerScope={ownerScope} />;
+}
+
+function ScopedNovelPage({targetLanguage, ownerScope}: {targetLanguage: NovelTargetLanguage; ownerScope: string}) {
     // 1. Hooks & Router (환경 설정)
     const params = useParams();
     const searchParams = useSearchParams();
@@ -33,8 +47,9 @@ export default function NovelPage() {
     // 3. State Management (상태 관리)
     // 그룹 A: 데이터 상태
     const { data: novelDetail, isError, isLoading, mutate } = useQuery({
-        keys: [platformCode, novelIdentifier, currentPage] as const,
-        fetcher: (p, i, page) => novelService.getNovelDetail(p, i, page as number),
+        keys: [platformCode, novelIdentifier, currentPage, targetLanguage, "novel-detail", ownerScope] as const,
+        fetcher: (p, i, page, target) => novelService.getNovelDetail(p, i, page as number, target),
+        enabled: Boolean(ownerScope),
     });
 
     const [cachedNovelInfo, setCachedNovelInfo] = useState<NovelDetail | null>(null);
@@ -71,7 +86,8 @@ export default function NovelPage() {
     const recentTitleJa = novelDetail?.title.ja;
     const recentTitleKo = novelDetail?.title.ko;
     useEffect(() => {
-        if (recentTitle === undefined || recentTitleJa === undefined || recentTitleKo === undefined) return;
+        // 영어 조회는 BE가 검증한 원문으로 기록한다. ko의 기존 자동 기록만 유지해 중복 저장하지 않는다.
+        if (targetLanguage === "en" || recentTitle === undefined || recentTitleJa === undefined || recentTitleKo === undefined) return;
         recentViewService.saveRecent(
             platformCode,
             RECENT_VIEW_TYPE.NOVEL,
@@ -79,16 +95,17 @@ export default function NovelPage() {
             null,
             recentTitle,
             recentTitleJa,
-            recentTitleKo,
+            recentTitleKo ?? "",
+            {targetLanguage},
         ).catch(err => {
             // 비동기로 처리하되, 실패 시 메인 흐름에 지장이 없게 합니다.
             console.error("Failed to save recent view history:", err);
         });
-    }, [novelIdentifier, platformCode, recentTitle, recentTitleJa, recentTitleKo]);
+    }, [novelIdentifier, platformCode, recentTitle, recentTitleJa, recentTitleKo, targetLanguage]);
 
     // 6. Event Handlers
     const handlePageChange = (newPage: number) => {
-        router.push(`${to(ROUTES.NOVEL_DETAIL, platformCode, novelIdentifier)}?page=${newPage}`);
+        router.push(withNovelTarget(`${to(ROUTES.NOVEL_DETAIL, platformCode, novelIdentifier)}?page=${newPage}`, targetLanguage));
     };
 
     // 7. Error & Loading UI
@@ -104,11 +121,15 @@ export default function NovelPage() {
 
     return (
         <div className="max-w-5xl mx-auto px-4 pt-24 py-10 flex flex-col gap-10">
+            {supportsNovelTranslation(platformCode) && <NovelTranslationLanguageSelect locale={locale} value={targetLanguage} onChange={target => {
+                const query = new URLSearchParams(searchParams.toString());
+                router.replace(withNovelTarget(`${to(ROUTES.NOVEL_DETAIL, platformCode, novelIdentifier)}?${query}`, target));
+            }} />}
 
             {/* 1. 상단 카드 영역 */}
             <section className="relative min-h-50">
                 <SpinLoader isLoading={isLoading && !displayNovelInfo} size="lg" />
-                {displayNovelInfo && <NovelHeroCard novelInfo={displayNovelInfo} locale={locale} />}
+                {displayNovelInfo && <NovelHeroCard novelInfo={displayNovelInfo} locale={locale} targetLanguage={targetLanguage} />}
             </section>
 
             {/* 2. 에피소드 리스트 영역 */}
@@ -135,7 +156,8 @@ export default function NovelPage() {
                             key={episode.identifier}
                             episode={episode}
                             locale={locale}
-                            onClick={() => router.push(to(ROUTES.EPISODE_VIEWER, platformCode, novelIdentifier, episode.identifier))}
+                            targetLanguage={targetLanguage}
+                            onClick={() => router.push(withNovelTarget(to(ROUTES.EPISODE_VIEWER, platformCode, novelIdentifier, episode.identifier), targetLanguage))}
                         />
                     ))}
                 </div>

@@ -45,7 +45,7 @@ export function useWebAiPlanTransfer({ store, plan, contextKey, locale, api }: {
     store: WebAiPlanTransferStore;
     plan?: WebAiPlan;
     contextKey: string;
-    locale: "ko" | "ja" | "learning";
+    locale: "ko" | "ja" | "en" | "learning";
     api: ReturnType<typeof createWebAiLearningService>;
 }) {
     const { account, cache, activeAccount, pending, snapshot, setSnapshot, activity, setActivity } = store;

@@ -6,7 +6,7 @@ import {
     Loader2,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import RubyText from "@/components/common/RubyText";
@@ -17,6 +17,8 @@ import {
 } from "@/services/recentViewService";
 import { useRouter } from "@/navigation";
 import { getRecentViewLink } from "@/utils/routerHelper";
+import NovelLocalizedText from "@/components/novel/NovelLocalizedText";
+import { recentNovelEnglishText } from "@/features/novel/recentView";
 
 const DISPLAY_LIMIT = 5;
 
@@ -25,6 +27,7 @@ export function AppSidebarRecentHistory() {
     const { status } = useSession();
     const router = useRouter();
     const localizedName = useLocalizedName();
+    const locale = useLocale();
 
     const [recentViews, setRecentViews] = useState<
         RecentView[]
@@ -134,10 +137,12 @@ export function AppSidebarRecentHistory() {
                             className="mt-0.5 h-4 w-4 shrink-0 text-blue-500"
                             aria-hidden="true"
                         />
-                        <RubyText
-                            content={localizedName(item.title)}
+                        {item.targetLanguage === "en" ? <span className="line-clamp-2 text-xs font-semibold leading-5">
+                            <NovelLocalizedText value={recentNovelEnglishText(item)} locale={locale} targetLanguage="en" />
+                        </span> : <RubyText
+                            content={localizedName({...item.title, ko: item.title.ko ?? ""})}
                             className="line-clamp-2 text-xs font-semibold leading-5"
-                        />
+                        />}
                     </button>
                 </li>
             ))}

@@ -1,0 +1,723 @@
+{
+  "ChatRoom": {
+    "loading": "Loading chat room...",
+    "date": { "today": "Today" },
+    "header": {
+      "friendDirectTitle": "1:1 chat with a friend",
+      "untitledRoom": "Chat room #{id}",
+      "roomId": "Room #{id}",
+      "members": "Members: {count}",
+      "roomType": {
+        "direct": "1:1",
+        "group": "Group",
+        "open": "Open",
+        "unknown": "Unknown"
+      },
+      "sourceType": {
+        "friend": "Friend chat",
+        "manual": "Regular chat",
+        "open": "Open chat",
+        "ai": "AI chat",
+        "unknown": "Unknown"
+      },
+      "language": {
+        "button": "My language settings",
+        "loading": "Loading language settings",
+        "error": "My language settings error"
+      },
+      "backToList": "Back to chat rooms",
+      "openPartnerProfile": "View {nickname}'s profile",
+      "openRoomMenu": "Open room menu"
+    },
+    "error": {
+      "title": "This chat room cannot be displayed",
+      "loadFailed": "Could not load chat room information.",
+      "notFound": "Chat room information was not found.",
+      "retry": "Try again"
+    },
+    "empty": {
+      "title": "No messages yet",
+      "description": "Send the first message to start a conversation."
+    },
+    "input": {
+      "placeholder": "Type a message",
+      "send": "Send message",
+      "sendFailed": "Could not send the message."
+    },
+    "languageSettings": {
+      "title": "My language settings for this room",
+      "description": "Choose the language you write in, the language for incoming translations, and whether to show originals and translations in this room.",
+      "originalLanguage": "Original text language",
+      "translationLanguage": "Incoming translation language",
+      "showOriginal": "Show original",
+      "showTranslation": "Show translation",
+      "loading": "Loading language settings...",
+      "loadFailed": "Could not load language settings.",
+      "saveFailed": "Could not save language settings.",
+      "retry": "Try again",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving...",
+      "close": "Close",
+      "scopeTitle": "These settings apply only to this room.",
+      "scopeDescription": "Your personal defaults are used initially. Changes saved here do not affect other rooms.",
+      "defaultApplied": "This room has no custom settings yet, so your default chat language settings are being used.",
+      "source": {
+        "ROOM_OVERRIDE": "Using my settings for this room",
+        "DEFAULT": "Using my personal defaults",
+        "SYSTEM": "Using system defaults",
+        "UNKNOWN": "Checking active settings"
+      }
+    },
+    "pagination": {
+      "loadingPrevious": "Loading older messages...",
+      "loadingNewer": "Loading newer messages...",
+      "loadFailed": "Could not load older messages.",
+      "loadNewerFailed": "Could not load newer messages.",
+      "retry": "Try again",
+      "jumpToLatest": "Jump to latest",
+      "noMoreMessages": "Start of conversation"
+    },
+    "translation": {
+      "pending": "Translating...",
+      "failed": "Translation failed.",
+      "retry": "Translate again",
+      "retrying": "Requesting translation...",
+      "retryFailed": "Could not request another translation.\nTry again shortly.",
+      "refresh": "Refresh messages",
+      "refreshShort": "Refresh"
+    },
+    "profilePreview": {
+      "close": "Close profile",
+      "profileAlt": "{nickname}'s profile image",
+      "bio": "Status message",
+      "emptyBio": "No status message."
+    },
+    "memberProfile": {
+      "loading": "Loading member profile...",
+      "loadFailed": "Could not load the member profile.",
+      "retry": "Try again",
+      "close": "Close profile",
+      "profileAlt": "{nickname}'s profile image",
+      "bio": "Status message",
+      "emptyBio": "No status message.",
+      "openProfile": "View {nickname}'s profile",
+      "unknownUser": "Unknown user",
+      "friendAction": {
+        "send": "Send friend request",
+        "sending": "Sending friend request...",
+        "sent": "Friend request sent",
+        "received": "You have a friend request from this user",
+        "errors": {
+          "SEND_REQUEST_FAILED": "Could not send the friend request.",
+          "TARGET_NOT_FOUND": "The user could not be found."
+        }
+      },
+      "roles": { "OWNER": "Owner", "ADMIN": "Admin", "MEMBER": "Member" }
+    },
+    "menu": {
+      "eyebrow": "Room menu",
+      "title": "Room menu",
+      "close": "Close room menu",
+      "roomInfo": "Room information",
+      "fields": { "name": "Room name", "memberCount": "Members", "myRole": "My role" }
+    },
+    "members": {
+      "title": "Members",
+      "loading": "Loading members...",
+      "loadFailed": "Could not load members.",
+      "retry": "Try again",
+      "empty": "No members to display.",
+      "openProfile": "View {nickname}'s profile",
+      "joinedAt": "Joined {date}",
+      "roles": { "OWNER": "Owner", "ADMIN": "Admin", "MEMBER": "Member" }
+    },
+    "invitation": {
+      "eyebrow": "Invite members",
+      "open": "Invite members",
+      "close": "Close invitations",
+      "groupTitle": "Invite members to this group chat",
+      "directTitle": "Create a new group chat",
+      "selectedCount": "Selected: {count}",
+      "directNotice": {
+        "title": "A new group chat will be created.",
+        "description": "Your current 1:1 chat stays as it is. A new group chat will include your current partner and the selected users. Existing 1:1 messages will not be copied."
+      },
+      "fields": { "groupName": "Group name", "groupDescription": "Group description" },
+      "placeholders": {
+        "groupName": "New group chat name",
+        "groupDescription": "Enter a group description. (Optional)",
+        "publicId": "Enter a TranslaCat ID"
+      },
+      "friends": {
+        "title": "Choose from friends",
+        "description": "You can select several friends who are not already in this room.",
+        "searchPlaceholder": "Search by nickname or TranslaCat ID",
+        "loading": "Loading friends...",
+        "loadFailed": "Could not load friends.",
+        "retry": "Try again",
+        "empty": "No friends available to invite."
+      },
+      "publicIds": {
+        "title": "Enter TranslaCat IDs",
+        "description": "You can also invite people who are not your friends using their TranslaCat IDs.",
+        "add": "Add",
+        "remove": "Remove {publicId}"
+      },
+      "cancel": "Cancel",
+      "invite": "Invite",
+      "createGroup": "Create group",
+      "submitting": "Processing...",
+      "success": {
+        "MEMBERS_INVITED": "Members invited.",
+        "GROUP_CREATED": "New group chat created.",
+        "dismiss": "Dismiss confirmation"
+      },
+      "errors": {
+        "TARGET_REQUIRED": "Select or enter at least one user to invite.",
+        "NOT_ALLOWED": "You do not have permission to invite members.",
+        "UNSUPPORTED_ROOM_TYPE": "Members cannot be invited to this room.",
+        "SELF_NOT_ALLOWED": "You cannot invite yourself.",
+        "TARGET_NOT_FOUND": "The user you want to invite could not be found.",
+        "TARGET_BLOCKED": "Users cannot be invited when either of you has blocked the other.",
+        "ALREADY_MEMBER": "This user is already in the room.",
+        "GROUP_NAME_REQUIRED": "Enter a name for the new group chat.",
+        "GROUP_NAME_TOO_LONG": "Group names must be no more than 100 characters.",
+        "GROUP_DESCRIPTION_TOO_LONG": "Group descriptions must be no more than 500 characters.",
+        "INVALID_PUBLIC_ID": "Enter a valid TranslaCat ID.",
+        "FRIEND_LOAD_FAILED": "Could not load friends.",
+        "SUBMIT_FAILED": "Could not invite members."
+      }
+    },
+    "readStatus": {
+      "updateFailed": "Could not sync read status.",
+      "retry": "Try again",
+      "unreadMembers": "Members who have not read this yet: {count}",
+      "firstUnreadDivider": "Unread messages start here"
+    },
+    "openProfile": {
+      "menu": { "editMyProfile": "Edit my OPEN profile" },
+      "defaultNickname": "OPEN member",
+      "roles": { "OWNER": "Owner", "ADMIN": "Admin", "MEMBER": "Member" },
+      "edit": {
+        "eyebrow": "Room profile",
+        "title": "Edit my OPEN profile",
+        "description": "This nickname and profile image are used only in this room. Your regular profile is not affected.",
+        "close": "Close OPEN profile editor",
+        "loading": "Loading OPEN profile...",
+        "loadFailed": "Could not load your OPEN profile.",
+        "retry": "Try again"
+      },
+      "form": {
+        "mode": {
+          "create-owner": {
+            "title": "Set up owner profile",
+            "description": "Set up a separate profile for your new OPEN room."
+          },
+          "join": {
+            "title": "Set up your joining profile",
+            "description": "Choose a nickname and image for this room."
+          },
+          "rejoin": {
+            "title": "Review your profile before rejoining",
+            "description": "Review or edit your profile while keeping your existing memberCode."
+          },
+          "edit": {
+            "title": "Room profile",
+            "description": "You can use a different nickname and image in each room with the same account."
+          }
+        },
+        "image": {
+          "alt": "Preview of {nickname}'s OPEN profile image",
+          "custom": "Selected OPEN profile image",
+          "defaultAvatar": "Default OPEN cat avatar",
+          "choose": "Choose image",
+          "replace": "Replace image",
+          "delete": "Delete image",
+          "restore": "Undo deletion",
+          "cancelPreview": "Cancel preview",
+          "inputLabel": "Choose an OPEN profile image file",
+          "rules": "JPG, PNG, WEBP · Up to 5MB. Without an image, the same default OPEN avatar is shown for all users."
+        },
+        "nickname": {
+          "label": "Room nickname",
+          "placeholder": "Nickname to use in this room",
+          "duplicateAllowed": "You can share a nickname with another member. Your memberCode identifies you."
+        },
+        "memberCode": {
+          "label": "Member code",
+          "readOnlyLabel": "Read-only member code {code}",
+          "help": "A unique code that distinguishes members with the same nickname or image in this room. It cannot be changed.",
+          "copy": "Copy member code",
+          "copied": "Member code copied."
+        },
+        "cancel": "Cancel",
+        "submit": {
+          "create-owner": "Create room",
+          "join": "Join",
+          "rejoin": "Rejoin",
+          "edit": "Save changes"
+        },
+        "processing": {
+          "SAVING": "Saving nickname...",
+          "UPLOADING": "Uploading image...",
+          "DELETING": "Deleting image...",
+          "CREATING": "Creating room..."
+        }
+      },
+      "modal": {
+        "title": "OPEN member profile",
+        "close": "Close OPEN profile",
+        "loading": "Loading OPEN profile...",
+        "loadFailed": "Could not load the OPEN profile.",
+        "retry": "Try again",
+        "profileAlt": "{nickname}'s OPEN profile image",
+        "memberCode": "Member code",
+        "copyMemberCode": "Copy member code",
+        "copied": "Member code copied.",
+        "joinedAt": "Last joined: {date}"
+      },
+      "errors": {
+        "NICKNAME_REQUIRED": "Enter a nickname for this room.",
+        "NICKNAME_TOO_LONG": "Room nicknames must be no more than 50 characters.",
+        "UNSUPPORTED_TYPE": "Only JPG, PNG, and WEBP image files are supported.",
+        "FILE_TOO_LARGE": "Image files must be 5MB or smaller.",
+        "ROOM_CLOSED": "Profiles cannot be edited in a closed OPEN room.",
+        "ACCESS_DENIED": "Your OPEN profile cannot be edited in the current state. The room status has been refreshed.",
+        "SAVE_FAILED": "Could not save your OPEN profile. Your selected image is kept so you can try again.",
+        "JOIN_ROOM_FULL": "The room is full. Check its status again.",
+        "JOIN_ROOM_CLOSED": "You cannot join a closed OPEN room.",
+        "JOIN_BANNED": "You cannot rejoin this OPEN room.",
+        "JOIN_FAILED": "Could not join the OPEN room.",
+        "PROFILE_IMAGE_FAILED_AFTER_JOIN": "You joined the room, but image processing failed. Your selected image is kept."
+      }
+    },
+    "openLifecycle": {
+      "menu": {
+        "LEAVE": "Leave OPEN room",
+        "TRANSFER_AND_LEAVE": "Transfer OWNER and leave",
+        "CLOSE": "Close OPEN room"
+      },
+      "close": "Close",
+      "cancel": "Cancel",
+      "goToExplore": "Go to OPEN room list",
+      "transfer": { "targetLabel": "Choose a new OWNER" },
+      "dialog": {
+        "LEAVE": {
+          "title": "Leave this OPEN room?",
+          "description": "Your profile and memberCode are kept, but messages from before you rejoin will no longer be visible to you.",
+          "confirm": "Leave room"
+        },
+        "TRANSFER_AND_LEAVE": {
+          "title": "Transfer OWNER and leave?",
+          "description": "Transfer the OWNER role to an active member, then leave the room with this account.",
+          "confirm": "Transfer and leave"
+        },
+        "CLOSE": {
+          "title": "Close this OPEN room?",
+          "description": "A closed room cannot be restored, and no members will be able to send messages.",
+          "confirm": "Close room"
+        },
+        "CLOSED_NOTICE": {
+          "title": "This OPEN room has closed",
+          "description": "The owner closed this OPEN room. Messages can no longer be sent.",
+          "confirm": "OK"
+        }
+      },
+      "errors": {
+        "TARGET_REQUIRED": "Choose a member to receive the OWNER role.",
+        "ROOM_CLOSED": "This room is already closed.",
+        "ACCESS_DENIED": "You do not have permission to perform this action.",
+        "ACTION_FAILED": "The action failed. Try again shortly.",
+        "LEAVE_FAILED_AFTER_TRANSFER": "OWNER was transferred. Try leaving the room again."
+      }
+    },
+    "openModeration": {
+      "roles": { "OWNER": "Owner", "ADMIN": "Admin", "MEMBER": "Member" },
+      "actions": {
+        "OPEN_MENU": "Manage {nickname}",
+        "ASSIGN_ADMIN": "Make admin",
+        "REVOKE_ADMIN": "Remove admin role",
+        "BAN": "Ban member"
+      },
+      "blacklistMenu": "Manage blacklist",
+      "dialog": {
+        "eyebrow": "OPEN CHAT MODERATION",
+        "close": "Close moderation dialog",
+        "targetNickname": "Member nickname",
+        "memberCode": "Member code",
+        "nextRole": "New role",
+        "roles": { "ADMIN": "Admin", "MEMBER": "Member" },
+        "reason": {
+          "label": "Reason for ban",
+          "placeholder": "Describe the policy violation.",
+          "help": "This is shared with the member and saved in moderation records."
+        },
+        "cancel": "Cancel",
+        "ASSIGN_ADMIN": {
+          "title": "Make this member an admin?",
+          "description": "This member will gain room management permissions.",
+          "confirm": "Make admin"
+        },
+        "REVOKE_ADMIN": {
+          "title": "Remove this member's admin role?",
+          "description": "This member will become a regular member.",
+          "confirm": "Remove admin role"
+        },
+        "BAN": {
+          "title": "Ban this member?",
+          "description": "The member will be removed immediately and cannot rejoin this room until the ban is lifted.",
+          "confirm": "Ban member"
+        },
+        "errors": {
+          "REASON_REQUIRED": "Enter a reason for the ban.",
+          "REASON_TOO_LONG": "The reason must be no more than 500 characters.",
+          "ACCESS_CHANGED": "Your moderation permissions have changed. Check the latest status.",
+          "TARGET_CHANGED": "The member's role or participation status has changed.",
+          "ALREADY_BANNED": "This user is already banned.",
+          "ROOM_CLOSED": "This action is unavailable in a closed room.",
+          "ACTION_FAILED": "The action could not be completed. Try again shortly."
+        }
+      },
+      "shareLink": "Share link",
+      "shareLinkCopied": "Link copied"
+    },
+    "ai": { "menu": { "manage": "AI members and room settings", "view": "AI room information" } },
+    "presence": { "online": "Online", "offline": "Offline", "unknown": "Status unknown" }
+  },
+  "ChatRoomCreate": {
+    "title": "Create chat room",
+    "close": "Close",
+    "cancel": "Cancel",
+    "create": "Create",
+    "creating": "Creating...",
+    "modalDescription": "Create a 1:1 or group chat room.",
+    "roomType": { "label": "Room type", "direct": "1:1 chat", "group": "Group chat" },
+    "name": { "label": "Room name", "placeholder": "Enter a group chat name" },
+    "members": {
+      "directLabel": "Other user's ID",
+      "groupLabel": "User IDs to invite",
+      "directPlaceholder": "Example: 2",
+      "groupPlaceholder": "Example: 2, 3, 4",
+      "directHelp": "For a 1:1 chat, enter only 1 other user ID.",
+      "groupHelp": "For a group chat, separate user IDs with commas or spaces."
+    },
+    "description": { "label": "Description", "placeholder": "Enter a room description" },
+    "validation": {
+      "MEMBER_REQUIRED": "Enter the user IDs to invite.",
+      "DIRECT_MEMBER_COUNT_INVALID": "A 1:1 chat requires exactly 1 other user ID.",
+      "GROUP_MEMBER_REQUIRED": "Add at least 1 user to the group chat.",
+      "INVALID_MEMBER_ID": "User IDs must be numbers greater than or equal to 1."
+    },
+    "error": { "createFailed": "Could not create the chat room." }
+  },
+  "ChatRoomList": {
+    "badge": "TranslaCat Chat",
+    "title": "Chat",
+    "description": "View the 1:1 and group chat rooms you have joined.",
+    "loading": "Loading chat rooms...",
+    "untitledRoom": "Untitled chat room",
+    "friend": { "directTitle": "1:1 chat with a friend", "directSubtitle": "1:1 · Friend chat" },
+    "create": { "friendChatButton": "Chat with a friend", "comingSoon": "Room creation is planned for a later stage." },
+    "members": { "count": "Members: {count}" },
+    "roomType": { "direct": "1:1", "group": "Group", "open": "Open", "unknown": "Unknown" },
+    "sourceType": { "friend": "Friend", "manual": "Regular", "open": "Open", "ai": "AI", "unknown": "Unknown" },
+    "latestMessage": { "placeholder": "Latest message details will be shown here later." },
+    "empty": {
+      "title": "You have not joined any chat rooms yet",
+      "description": "Start a 1:1 chat from your friends list, or select several friends to create a group chat.",
+      "startChatButton": "Chat with a friend"
+    },
+    "error": {
+      "title": "Chat rooms cannot be displayed",
+      "loadFailed": "Could not load chat rooms.",
+      "retry": "Try again"
+    },
+    "unread": { "ariaLabel": "Unread messages: {count}" }
+  },
+  "ChatHub": {
+    "badge": "TranslaCat Chat",
+    "title": "Chat",
+    "description": "Manage friends and view the chat rooms you have joined.",
+    "tabs": { "ariaLabel": "Switch chat page view", "chat": "Chat", "friends": "Friends" },
+    "openChatCreate": { "label": "Create a new OPEN chat" },
+    "openChatExplore": { "label": "Explore OPEN chats" }
+  },
+  "OpenChatCreate": {
+    "header": {
+      "badge": "Create open chat",
+      "title": "Create a new OPEN chat",
+      "description": "Set up room information and a separate OWNER profile for this room. Regular profiles and publicId are not shown in OPEN chats."
+    },
+    "actions": {
+      "backToChat": "Back to chat",
+      "openCreatedRoom": "Open created room",
+      "retryProfile": "Retry remaining profile setup"
+    },
+    "partialSuccess": {
+      "title": "The OPEN room has been created.",
+      "description": "An image or final profile step failed. You can retry with your current details without creating the room again."
+    },
+    "room": {
+      "eyebrow": "Room information",
+      "title": "Room information",
+      "description": "Choose who can find the room and how many people can join."
+    },
+    "owner": {
+      "eyebrow": "Owner profile",
+      "title": "OWNER room profile",
+      "description": "Set a nickname and image for this room without copying your regular profile."
+    },
+    "fields": {
+      "name": {
+        "label": "Room name",
+        "placeholder": "Example: Cats chatting in Japanese",
+        "help": "Use no more than 100 characters. The name cannot contain only spaces."
+      },
+      "description": {
+        "label": "Room description",
+        "placeholder": "Tell people what this room is about.",
+        "help": "Use no more than 500 characters. The description cannot contain only spaces."
+      },
+      "visibility": {
+        "label": "Visibility",
+        "help": "Approval-based PRIVATE rooms are not supported.",
+        "options": {
+          "PUBLIC": { "label": "Public", "description": "Anyone can find this room in lists and search." },
+          "UNLISTED": { "label": "Unlisted", "description": "Not shown in lists or search. Only people with the link can access this room." }
+        }
+      },
+      "maxMemberCount": {
+        "label": "Maximum members",
+        "unit": "members",
+        "help": "Minimum {min} · Default {default} · Maximum {max}"
+      }
+    },
+    "summary": {
+      "eyebrow": "Final check",
+      "title": "Final check",
+      "name": "Room name",
+      "visibility": "Visibility",
+      "maxMemberCount": "Maximum members",
+      "empty": "Not entered yet",
+      "notice": "Creating the room immediately joins you as OWNER. If you select an image, it is saved through the secure upload API after the room is created."
+    },
+    "errors": {
+      "NAME_REQUIRED": "Enter a room name.",
+      "NAME_TOO_LONG": "Room names must be no more than 100 characters.",
+      "DESCRIPTION_REQUIRED": "Enter a room description.",
+      "DESCRIPTION_TOO_LONG": "Room descriptions must be no more than 500 characters.",
+      "VISIBILITY_REQUIRED": "Choose room visibility.",
+      "MAX_MEMBER_COUNT_INVALID": "Maximum members must be a whole number between {min} and {max}.",
+      "CREATE_FAILED": "Could not create the OPEN room. Your details are kept so you can try again.",
+      "IMAGE_UPLOAD_FAILED_AFTER_CREATE": "The room was created, but the profile image upload failed. Your selected image is kept, and retrying will not create another room.",
+      "PROFILE_SYNC_FAILED_AFTER_CREATE": "The room was created, but the OWNER profile could not be finalized. Try again with your current details."
+    }
+  },
+  "OpenChatExplore": {
+    "badge": "OPEN Chat",
+    "title": "Explore OPEN chats",
+    "description": "Search public OPEN rooms, set up a room profile, and join a new conversation.",
+    "backToChat": "My chats",
+    "create": "Create a new OPEN chat",
+    "visibility": { "PUBLIC": "Public", "UNLISTED": "Unlisted" },
+    "status": { "joined": "Joined", "full": "Full", "joinable": "Available to join", "banned": "Restricted" },
+    "owner": "Owner",
+    "members": "Members",
+    "lastActivity": "Recent activity",
+    "openDetail": "View details for {name}",
+    "enter": "Enter room",
+    "detail": "View details",
+    "search": {
+      "label": "Search OPEN chats",
+      "placeholder": "Search room names or descriptions",
+      "clear": "Clear search",
+      "searching": "Waiting for a search term...",
+      "help": "Leave the search empty to show all public OPEN rooms."
+    },
+    "loading": "Loading OPEN rooms...",
+    "error": { "title": "Could not load OPEN rooms", "description": "Try again shortly.", "retry": "Try again" },
+    "empty": {
+      "title": "No public OPEN rooms",
+      "description": "Create a new OPEN room or check again later.",
+      "searchTitle": "No results",
+      "searchDescription": "Try another room name or description."
+    },
+    "listLabel": "PUBLIC OPEN room list",
+    "loadMore": "Load more",
+    "loadingMore": "Loading more...",
+    "loadMoreFailed": "Could not load more OPEN rooms."
+  },
+  "OpenChatDetail": {
+    "loading": "Loading OPEN room details...",
+    "backToExplore": "Back to OPEN chats",
+    "visibility": { "PUBLIC": "Public", "UNLISTED": "Unlisted" },
+    "status": { "joined": "Joined" },
+    "members": "Members",
+    "lastActivity": "Recent activity",
+    "owner": { "eyebrow": "Room owner", "description": "The owner's OPEN profile, used only in this room." },
+    "privacyNotice": "Only room-specific OPEN profiles are shown here. Regular profiles, TranslaCat IDs, and friend relationships are not shared.",
+    "error": {
+      "title": "This OPEN room cannot be displayed",
+      "description": "Could not load room information.",
+      "notFoundTitle": "OPEN room not found",
+      "notFoundDescription": "This room has been deleted or is unavailable to you.",
+      "retry": "Try again"
+    },
+    "action": {
+      "joinedTitle": "You have already joined this room",
+      "joinedDescription": "Open the existing room to continue the conversation.",
+      "enter": "Enter room",
+      "join": "Join",
+      "rejoin": "Rejoin",
+      "NONE": { "title": "You can join this room", "description": "Set up a separate OPEN profile for this room.", "label": "Available to join" },
+      "ALREADY_JOINED": { "title": "Already joined", "description": "You can open this chat room.", "label": "Joined" },
+      "ROOM_FULL": { "title": "The room is full", "description": "The maximum number of members has been reached. Try again when a space opens up.", "label": "Full" },
+      "ROOM_CLOSED": { "title": "This room is closed", "description": "New members cannot join a room closed by its owner.", "label": "Closed room" },
+      "BANNED": { "title": "Rejoining is restricted", "description": "You cannot rejoin under this room's moderation policy.", "label": "Rejoining restricted" }
+    },
+    "join": {
+      "eyebrow": "Join OPEN room",
+      "title": "Your profile for {name}",
+      "rejoinTitle": "Your rejoining profile for {name}",
+      "close": "Close join setup",
+      "rejoinNotice": "Your existing memberCode and profile are kept. Messages from before you rejoin cannot be viewed.",
+      "partialSuccess": "You have joined the room. Retry the remaining image processing.",
+      "retryImage": "Retry image processing",
+      "submit": "Join with this profile",
+      "rejoinSubmit": "Rejoin with this profile"
+    },
+    "bannedNotice": "You have been banned and can no longer use this room. You cannot rejoin until the ban is lifted."
+  },
+  "OpenChatBlacklist": {
+    "back": "Back to room",
+    "eyebrow": "OPEN CHAT SAFETY",
+    "title": "Blacklist",
+    "description": "Search and lift bans for users blocked from {roomName}.",
+    "loading": "Loading blacklist.",
+    "retry": "Try again",
+    "listLabel": "Active blacklist",
+    "loadMore": "Load more",
+    "search": { "label": "Search by nickname or member code", "placeholder": "Nickname or member code", "clear": "Clear search", "submit": "Search" },
+    "empty": { "title": "No banned users", "description": "There are no active bans." },
+    "emptySearch": { "title": "No results", "description": "Try another nickname or member code." },
+    "errors": {
+      "ACCESS_DENIED": { "title": "Access denied", "description": "Only the owner and admins can view the blacklist." },
+      "ROOM_CLOSED": { "title": "This room is closed", "description": "Moderation actions are unavailable in a closed room." },
+      "LOAD_FAILED": { "title": "Could not load the blacklist", "description": "Check your network connection and try again." }
+    },
+    "card": {
+      "lastJoinedAt": "Last joined",
+      "bannedAt": "Banned at",
+      "reason": "Reason",
+      "bannedBy": "Banned by",
+      "release": "Lift ban",
+      "notReleasable": "No permission to lift ban",
+      "memberCode": "Member code"
+    },
+    "releaseDialog": {
+      "title": "Lift this ban?",
+      "description": "Lift {nickname}'s ban from this room.",
+      "noAutoJoin": "Lifting the ban does not automatically rejoin the user. They need to join again themselves.",
+      "cancel": "Cancel",
+      "confirm": "Lift ban",
+      "errors": {
+        "ACCESS_CHANGED": "Your permission to lift bans has changed. The list has been refreshed.",
+        "BAN_NOT_FOUND": "This ban has already been lifted. The list has been refreshed.",
+        "ROOM_CLOSED": "The room has closed, so the ban cannot be lifted. Check the latest status.",
+        "RELEASE_FAILED": "Could not lift the ban. Try again."
+      }
+    },
+    "close": "Close blacklist"
+  },
+  "ChatAi": {
+    "disclosure": {
+      "PUBLIC": { "label": "AI-disclosed room", "noticeTitle": "This room identifies AI members", "noticeDescription": "AI members are labeled as AI in this room." },
+      "PRIVATE": { "label": "AI-undisclosed room", "noticeTitle": "This room does not identify individual AI members", "noticeDescription": "This room may include AI members, and individual AI members may look the same as regular members." }
+    },
+    "memberCount": "AI members: {count}",
+    "disabled": { "title": "No AI members yet", "description": "AI features become available here when the OWNER or an ADMIN adds an AI member." },
+    "message": { "badge": "AI", "unknownName": "AI member" },
+    "profile": {
+      "title": "Profile",
+      "close": "Close profile",
+      "loading": "Loading profile...",
+      "loadFailed": "Could not load the profile.",
+      "retry": "Try again",
+      "profileAlt": "{nickname}'s profile image",
+      "aiBadge": "AI",
+      "bio": "Bio",
+      "emptyBio": "No bio.",
+      "originalLanguage": "Original language"
+    },
+    "management": {
+      "eyebrow": "AI room settings",
+      "title": { "manage": "AI members and room settings", "view": "AI room information" },
+      "description": "View AI members and behavior policies for this {roomType} chat room.",
+      "close": "Close AI settings",
+      "loading": "Loading AI settings...",
+      "retry": "Try again",
+      "errors": {
+        "loadFailed": "Could not load AI members and room settings.",
+        "settingSaveFailed": "Could not save AI room settings.",
+        "saveFailed": "Could not save the AI member. Image processing may also be incomplete; check the current status.",
+        "deleteFailed": "Could not delete the AI member.",
+        "nicknameRequired": "Enter an AI nickname.",
+        "nicknameTooLong": "AI nicknames must be no more than 50 characters.",
+        "bioTooLong": "AI bios must be no more than 200 characters.",
+        "personaRequired": "Enter an AI persona.",
+        "personaTooLong": "AI personas must be no more than 4000 characters.",
+        "unsupportedImage": "Only JPG, PNG, and WEBP image files are supported.",
+        "imageTooLarge": "Profile images must be 5MB or smaller, and background images 10MB or smaller."
+      },
+      "policy": {
+        "title": "Room AI policy",
+        "manageHelp": "Only the OWNER and ADMINs of this room can change the policy.",
+        "readOnlyHelp": "You can view this room's AI policy.",
+        "saving": "Saving...",
+        "disclosure": "AI member identification",
+        "disclosureOptions": {
+          "PUBLIC": "PUBLIC · Label individual AI members as AI",
+          "PRIVATE": "PRIVATE · Show individual AI members as regular members"
+        },
+        "mentionPermission": "Who can mention @AI",
+        "mentionOptions": { "ALL_MEMBERS": "All members", "OWNER_ADMIN_ONLY": "OWNER / ADMIN only" },
+        "conversation": { "title": "Autonomous participation", "description": "AI may join regular conversations based on the configured response rate and cooldown." },
+        "revival": { "title": "Conversation starters", "description": "After a long period without human conversation, AI may start a conversation according to the backoff policy." }
+      },
+      "members": {
+        "title": "AI members",
+        "count": "Current {current} / Maximum {max}",
+        "add": "Add AI member",
+        "maxReached": "Maximum reached",
+        "empty": "No AI members have been added",
+        "emptyDescription": "The OWNER or an ADMIN can add AI members suited to this room.",
+        "noBio": "No bio.",
+        "edit": "Edit",
+        "delete": "Delete",
+        "privateHiddenTitle": "Individual AI members are not disclosed",
+        "privateHiddenDescription": "This room does not identify individual AI members. Members are told that AI is present, but regular members are not shown which members are AI."
+      },
+      "editor": {
+        "create": { "title": "Add AI member", "description": "Set up the profile and persona of an AI member for this room." },
+        "edit": { "title": "Edit AI member", "description": "Change the profile and persona. Existing AI messages are kept." },
+        "close": "Close AI member editor",
+        "nickname": "Nickname",
+        "language": "Original language",
+        "bio": "Bio",
+        "persona": "Persona prompt",
+        "profileImage": "Profile image",
+        "backgroundImage": "Background image",
+        "image": { "choose": "Choose file", "delete": "Delete", "restore": "Undo deletion" },
+        "cancel": "Cancel",
+        "save": "Save",
+        "saving": "Saving..."
+      },
+      "delete": {
+        "title": "Delete this AI member?",
+        "description": "Deactivate {nickname}'s membership in this room. Existing AI messages will not be deleted.",
+        "confirm": "Delete"
+      }
+    }
+  }
+}

@@ -13,7 +13,7 @@ interface WebAiPlanCopyButtonProps {
     plan: WebAiPlan;
     store: WebAiPlanTransferStore;
     contextKey: string;
-    locale: "ko" | "ja" | "learning";
+    locale: "ko" | "ja" | "en" | "learning";
     api: ReturnType<typeof createWebAiLearningService>;
     disabled: boolean;
     onPrerequisitesChanged?: () => void;

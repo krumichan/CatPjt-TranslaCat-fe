@@ -8,11 +8,13 @@ import { AUTH_SIGN_OUT_STARTED_EVENT } from "@/lib/authEvents";
 import { NAVIGATION_STARTED_EVENT } from "@/lib/navigationEvents";
 import { leavesReaderInCurrentTab } from "@/features/novel/navigationIntent";
 import type { NovelLanguage, ReaderSnapshot, ReadingMode } from "@/types/novel/reader";
+import type { NovelTargetLanguage } from "@/features/novel/translationLanguage";
 
-export function useNovelReadAloud(base: string, snapshot: ReaderSnapshot | null, locale: string, authenticated: boolean, traceId?: string, ownerScope?: string) {
+export function useNovelReadAloud(base: string, snapshot: ReaderSnapshot | null, locale: string, authenticated: boolean, traceId?: string, ownerScope?: string, targetLanguage: NovelTargetLanguage = "ko") {
     const [state, setState] = useState(initialPlayback);
+    const languageScope = `${locale}:${targetLanguage}`;
     const [languageChoice, setLanguageChoice] = useState<{ locale: string; value: NovelLanguage } | null>(null);
-    const language: NovelLanguage = languageChoice?.locale === locale ? languageChoice.value : locale === "ja" ? "ja" : "ko";
+    const language: NovelLanguage = languageChoice?.locale === languageScope ? languageChoice.value : locale === "ja" && targetLanguage === "ko" ? "ja" : targetLanguage;
     const [rate, setRateState] = useState(1);
     const [follow, setFollow] = useState(false);
     const player = useRef<NovelPlayback | null>(null);
@@ -63,7 +65,7 @@ export function useNovelReadAloud(base: string, snapshot: ReaderSnapshot | null,
     useEffect(() => {
         if (!revision || !authenticated) return;
         const instance = new NovelPlayback({
-            fetchAudio: (id, lang, part, signal) => novelReaderService.audio(base, revision, id, lang, part, signal, traceId),
+            fetchAudio: (id, lang, part, signal) => novelReaderService.audio(base, revision, id, lang, part, signal, traceId, targetLanguage),
             createAudio: url => new Audio(url),
             createUrl: blob => URL.createObjectURL(blob),
             revokeUrl: url => URL.revokeObjectURL(url),
@@ -75,9 +77,9 @@ export function useNovelReadAloud(base: string, snapshot: ReaderSnapshot | null,
             instance.dispose();
             if (player.current === instance) player.current = null;
         };
-    }, [authenticated, ownerScope, base, revision, locale, policyVersion, translationPolicy, traceId]);
+    }, [authenticated, ownerScope, base, revision, locale, policyVersion, translationPolicy, traceId, targetLanguage]);
 
-    useEffect(() => { player.current?.setRate(rate); }, [rate, ownerScope, base, revision, locale, policyVersion, translationPolicy, traceId]);
+    useEffect(() => { player.current?.setRate(rate); }, [rate, ownerScope, base, revision, locale, policyVersion, translationPolicy, traceId, targetLanguage]);
 
     useEffect(() => {
         const intent = readingIntent.current;
@@ -111,17 +113,17 @@ export function useNovelReadAloud(base: string, snapshot: ReaderSnapshot | null,
         try {
             const plan = continuousReadingPlan(snapshot, mode, requestedLanguage, selectedId);
             readingIntent.current = { mode, selectedId, language: requestedLanguage, revision: snapshot.revision };
-            setLanguageChoice({ locale, value: requestedLanguage });
+            setLanguageChoice({ locale: languageScope, value: requestedLanguage });
             player.current?.start(plan.queue, requestedLanguage, plan.awaitingMore);
         } catch {
             player.current?.stop();
             setState({ ...initialPlayback, status: "error", error: "TRANSLATION_NOT_READY" });
         }
-    }, [snapshot, authenticated, language, locale]);
+    }, [snapshot, authenticated, language, languageScope]);
 
     return {
         ...state, language, rate, follow, read, setFollow,
-        setLanguage: (value: NovelLanguage) => { readingIntent.current = null; player.current?.stop(); setLanguageChoice({ locale, value }); },
+        setLanguage: (value: NovelLanguage) => { readingIntent.current = null; player.current?.stop(); setLanguageChoice({ locale: languageScope, value }); },
         setRate: (value: number) => setRateState(Number.isFinite(value) ? Math.max(0.5, Math.min(2, value)) : 1),
         pause: () => player.current?.pause(),
         resume: () => { if (!sessionEnding.current) void player.current?.resume(); },

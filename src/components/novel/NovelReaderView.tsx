@@ -8,9 +8,11 @@ import NovelLocalizedText from "@/components/novel/NovelLocalizedText";
 import NovelPlaybackControls from "@/components/novel/NovelPlaybackControls";
 import { readerLabels } from "@/features/novel/readerLabels";
 import type { NovelReaderController } from "@/hooks/novel/useNovelReaderController";
+import NovelTranslationLanguageSelect from "@/components/novel/NovelTranslationLanguageSelect";
+import { novelTranslation } from "@/features/novel/translationLanguage";
 
 export default function NovelReaderView({ controller: c }: { controller: NovelReaderController }) {
-    const labels = readerLabels(c.locale);
+    const labels = readerLabels(c.locale, c.targetLanguage);
     const snapshot = c.snapshot;
     const refused = snapshot?.segments.some(item => item.errorCode?.includes("REFUSAL"));
     const failed = snapshot?.segments.some(item => item.status === "FAILED");
@@ -23,15 +25,16 @@ export default function NovelReaderView({ controller: c }: { controller: NovelRe
     return <>
         <div {...c.menu.menuHandlers} style={c.menu.containerStyle} className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100">
             <main className={`${c.menu.mainClassName} mx-auto w-full max-w-4xl px-4 pb-40`}>
+                {c.supportsTargetSelection && <div className="py-4"><NovelTranslationLanguageSelect locale={c.locale} value={c.targetLanguage} onChange={c.changeTargetLanguage} /></div>}
                 {c.loading && <p role="status">{labels.loading}</p>}
                 {c.error && <div role="alert" className="rounded border p-4">
                     {snapshot ? labels.translationError : labels.loadError}
                     <button type="button" onClick={c.retryLoad} className="ml-3">{labels.retry}</button>
                 </div>}
                 {snapshot && <>
-                    <header className="py-8"><p>EPISODE {c.episode}</p><h1 className="text-3xl font-bold"><NovelLocalizedText value={snapshot.title} locale={c.locale} /></h1></header>
+                    <header className="py-8"><p>EPISODE {c.episode}</p><h1 className="text-3xl font-bold"><NovelLocalizedText value={snapshot.title} locale={c.locale} targetLanguage={c.targetLanguage} /></h1></header>
                     {/* 계측 데이터는 유지하되 본문 위에 완료 수치나 내부 이력을 노출하지 않는다. */}
-                    <span hidden data-testid="novel-translation-state" data-state={snapshot.state}
+                    <span hidden data-testid="novel-translation-state" data-state={snapshot.state} data-target-language={c.targetLanguage}
                         data-completed-segments={snapshot.completedSegments} data-total-segments={snapshot.totalSegments}
                         data-first-source-ms={c.timings.firstSource} data-first-translation-ms={c.timings.firstTranslation}
                         data-translations-50-ms={c.timings.translations50} data-translations-90-ms={c.timings.translations90}
@@ -56,7 +59,7 @@ export default function NovelReaderView({ controller: c }: { controller: NovelRe
                         {progressivePartial && <p role="alert">{labels.progressivePartial}</p>}
                     </section>}
                     <article className="space-y-4 leading-[2.3] break-words" style={{ fontSize: `${c.fontSize}px` }}>
-                        {snapshot.segments.map(segment => <NovelSentence key={`${snapshot.revision}:${segment.id}`} segment={segment} locale={c.locale} view={c.view}
+                        {snapshot.segments.map(segment => <NovelSentence key={`${snapshot.revision}:${segment.id}`} segment={segment} locale={c.locale} view={c.view} targetLanguage={c.targetLanguage}
                             active={c.audio.status === "playing" && c.audio.segmentId === segment.id}
                             repair={(id, clickedAt) => void c.repair(id, clickedAt)} repairing={c.repairTimings?.state === "RUNNING"} repairRequested={c.repairTimings?.targetIds.includes(segment.id)} />)}
                     </article>
@@ -71,8 +74,8 @@ export default function NovelReaderView({ controller: c }: { controller: NovelRe
                 openMenuIndicator={activeReading
                     ? <Headphones size={14} aria-hidden="true" className={c.audio.status === "paused" ? "mr-1 text-amber-500" : "mr-1 text-indigo-500 dark:text-indigo-300"} />
                     : null}
-                openMenuContent={<NovelPlaybackControls audio={c.audio} locale={c.locale}
-                    translated={snapshot.segments.some(item => item.status === "SUCCEEDED" && !!item.ko?.trim())} />} />
+                openMenuContent={<NovelPlaybackControls audio={c.audio} locale={c.locale} targetLanguage={c.targetLanguage}
+                    translated={snapshot.segments.some(item => item.status === "SUCCEEDED" && !!novelTranslation(item, c.targetLanguage))} />} />
         </div>, c.menu.portalElement)}
     </>;
 }

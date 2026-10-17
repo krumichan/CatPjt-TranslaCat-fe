@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { CHAT_LANGUAGE_OPTIONS } from "@/constants/chatLanguages";
+import { useLanguageOptions } from "@/hooks/useLanguageOptions";
 import { WebAiScheduleEditorFooter } from "@/components/language-learning/settings/web-ai/WebAiScheduleEditorFooter";
 import { WebAiScheduleKeywordSettings } from "@/components/language-learning/settings/web-ai/WebAiScheduleKeywordSettings";
 import { Link } from "@/navigation";
@@ -84,6 +84,7 @@ export function WebAiScheduleEditor({
     integration,
 }: WebAiScheduleEditorProps) {
     const t = useTranslations("LanguageLearning.settings.webAi");
+    const languageOptions = useLanguageOptions([schedule.originLanguage, schedule.learningLanguage, schedule.feedbackLanguage]);
     const actualPrompt = useRef<HTMLTextAreaElement>(null);
     const [activeDomain, setActiveDomain] = useState<string>(() =>
         WEB_AI_AREA_GROUPS.find((group) => schedule.areas.some((area) =>
@@ -187,7 +188,7 @@ export function WebAiScheduleEditor({
                             <div key={field} className="min-w-0">
                                 <dt className="truncate text-[10px] font-bold text-slate-500 dark:text-slate-400">{t(field)}</dt>
                                 <dd className="mt-1 truncate text-sm font-black text-slate-900 dark:text-white">
-                                    {baseStatus === "ready" ? CHAT_LANGUAGE_OPTIONS.find((language) => language.code === schedule[field])?.label ?? schedule[field] : "—"}
+                                    {baseStatus === "ready" ? languageOptions.find((language) => language.code === schedule[field])?.label ?? schedule[field] : "—"}
                                 </dd>
                             </div>
                         ))}

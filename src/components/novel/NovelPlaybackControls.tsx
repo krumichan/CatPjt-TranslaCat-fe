@@ -3,15 +3,17 @@
 import { Headphones, Pause, Play, Square, Volume2 } from "lucide-react";
 import { readerLabels } from "@/features/novel/readerLabels";
 import type { NovelReadAloud } from "@/hooks/novel/useNovelReadAloud";
+import type { NovelTargetLanguage } from "@/features/novel/translationLanguage";
 
 interface Props {
     audio: NovelReadAloud;
     locale: string;
     translated: boolean;
+    targetLanguage?: NovelTargetLanguage;
 }
 
-export default function NovelPlaybackControls({ audio, locale, translated }: Props) {
-    const labels = readerLabels(locale);
+export default function NovelPlaybackControls({ audio, locale, translated, targetLanguage = "ko" }: Props) {
+    const labels = readerLabels(locale, targetLanguage);
     const active = ["loading", "playing", "paused", "waiting"].includes(audio.status);
     const status = audio.status === "loading" ? labels.preparing : audio.status === "playing" ? labels.playing
         : audio.status === "paused" ? labels.paused : audio.status === "waiting" ? labels.waitingTranslation
@@ -31,8 +33,8 @@ export default function NovelPlaybackControls({ audio, locale, translated }: Pro
                 className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-indigo-600 px-2 py-2 text-sm font-bold text-white shadow-md hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                 <Volume2 size={18} aria-hidden="true" /> {labels.sourceAll}
             </button>
-            <button type="button" aria-pressed={active && audio.language === "ko"} disabled={!translated}
-                onClick={() => audio.read("all", undefined, "ko")}
+            <button type="button" aria-pressed={active && audio.language === targetLanguage} disabled={!translated}
+                onClick={() => audio.read("all", undefined, targetLanguage)}
                 className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-amber-500 px-2 py-2 text-sm font-bold text-zinc-950 shadow-md hover:bg-amber-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600 disabled:cursor-not-allowed disabled:opacity-40">
                 <Volume2 size={18} aria-hidden="true" /> {labels.translationAll}
             </button>

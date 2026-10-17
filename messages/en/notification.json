@@ -1,0 +1,97 @@
+{
+  "Notifications": {
+    "button": "Notifications",
+    "close": "Close",
+    "description": "View chats, service activity, and invitations in one place.",
+    "eyebrow": "Notifications",
+    "title": "Notification center",
+    "tabs": {
+      "chat": "Chat",
+      "activity": "Activity",
+      "invitation": "Invitations"
+    },
+    "invitation": {
+      "emptyTitle": "No invitations received",
+      "emptyDescription": "Account book invitations and friend requests will appear here.",
+      "accountBookInviteTitle": "Account book invitation",
+      "accountBookInviteDescription": "{inviterName} invited you to “{accountBookName}”."
+    },
+    "unified": {
+      "title": "Invitations",
+      "description": "View friend requests and account book invitations in one list.",
+      "filteredEmpty": "No invitations of the selected type.",
+      "friendRequestReceivedTitle": "Friend request",
+      "friendRequestReceivedDescription": "{requesterName} sent you a friend request.",
+      "friendRequestSentTitle": "Sent friend request",
+      "friendRequestSentDescription": "You sent a friend request to {receiverName}.",
+      "accountBookInvitationTitle": "Account book invitation",
+      "accountBookInvitationDescription": "{inviterName} invited you to “{accountBookName}”."
+    },
+    "filters": {
+      "all": "All",
+      "friend": "Friends",
+      "accountBook": "Account books"
+    },
+    "type": {
+      "friend": "Friend",
+      "friendSent": "Sent request",
+      "accountBook": "Account book"
+    },
+    "actions": {
+      "accept": "Accept",
+      "reject": "Decline",
+      "cancel": "Cancel",
+      "processing": "Processing..."
+    },
+    "messages": {
+      "loading": "Loading...",
+      "loadFailed": "Could not load notifications.",
+      "acceptFailed": "Could not accept the invitation.",
+      "rejectFailed": "Could not decline the invitation.",
+      "acceptFriendRequestFailed": "Could not accept the friend request.",
+      "rejectFriendRequestFailed": "Could not decline the friend request.",
+      "cancelFriendRequestFailed": "Could not cancel the friend request."
+    },
+    "chat": {
+      "emptyTitle": "No unread chats",
+      "emptyDescription": "When new messages arrive, each room will show its latest message and unread count.",
+      "loadFailedTitle": "Could not load chat notifications",
+      "unreadCount": "Unread messages: {count}",
+      "messageFallback": "You have a new message.",
+      "openRoom": "Open {roomName} chat room",
+      "markRead": "Mark as read",
+      "markingRead": "Processing...",
+      "markReadFailed": "Could not mark the chat as read."
+    },
+    "activity": {
+      "emptyTitle": "No new activity",
+      "emptyDescription": "Chat activity, inquiry replies, messages from the team, and important notices will appear here.",
+      "loadFailedTitle": "Could not load activity notifications",
+      "unknownRoom": "Chat room",
+      "unread": "Unread activity",
+      "chatInvitation": "You were invited to the “{roomName}” chat room.",
+      "openChatKicked": "You were removed from “{roomName}”.",
+      "openChatKickedWithReason": "You were removed from “{roomName}”. Reason: {reason}",
+      "openChatRoleChanged": "Your role in “{roomName}” was changed to {role}.",
+      "openChatRoomClosed": "The “{roomName}” chat room has closed.",
+      "new": "New notification",
+      "read": "Read activity",
+      "markRead": "Mark as read",
+      "markingRead": "Processing...",
+      "markReadFailed": "Could not mark the activity notification as read.",
+      "markAllRead": "Mark all as read",
+      "markingAllRead": "Processing...",
+      "markAllReadFailed": "Could not mark all activity notifications as read.",
+      "openRoom": "Open {roomName} chat room"
+    },
+    "support": {
+      "SUPPORT_REPLY": "Your inquiry has a new reply",
+      "SUPPORT_INQUIRY": "An inquiry needs your attention",
+      "SUPPORT_NOTICE": "There is an important notice",
+      "SUPPORT_MESSAGE": "The team sent you a message",
+      "new": "New notification",
+      "viewAll": "View full details in Support",
+      "partialLoadFailed": "Some activity notifications could not be loaded. Check again shortly."
+    }
+  }
+}

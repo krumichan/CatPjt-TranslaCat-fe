@@ -1,0 +1,334 @@
+{
+  "Settings": {
+    "common": {
+      "back": "Back",
+      "backToSettings": "Back to settings"
+    },
+    "accountInfo": {
+      "eyebrow": "Account",
+      "unknownName": "User",
+      "description": "Your TranslaCat ID is used for account book invitations and future chat friend requests.",
+      "publicIdLabel": "TranslaCat ID",
+      "emptyPublicId": "Not assigned",
+      "copy": "Copy TranslaCat ID",
+      "copied": "Copied."
+    },
+    "eyebrow": "Settings",
+    "title": "Settings",
+    "description": "Manage settings for TranslaCat services in one place.",
+    "badges": {
+      "admin": "Admin"
+    },
+    "status": {
+      "available": "Available",
+      "preparing": "In preparation",
+      "future": "Planned"
+    },
+    "general": {
+      "title": "General settings",
+      "description": "Manage account settings such as language, theme, profile and notifications."
+    },
+    "voiceTranslation": {
+      "title": "Voice translation settings",
+      "description": "Manage speech recognition, translation target languages and automatic saving."
+    },
+    "novel": {
+      "title": "Novel settings",
+      "description": "Manage novel translation, recently viewed works and default display options."
+    },
+    "chat": {
+      "title": "Chat settings",
+      "description": "Manage your default chat languages and display settings for each room."
+    },
+    "accountBook": {
+      "title": "Account book settings",
+      "description": "Manage the default currency, default categories and monthly goal display."
+    },
+    "currency": {
+      "title": "Currencies",
+      "description": "Manage currency codes, symbols, decimal places and the default currency for account books."
+    },
+    "admin": {
+      "title": "Admin settings",
+      "description": "Manage service availability, authorized users and system reference data."
+    },
+    "aiVoice": {
+      "title": "AI read-aloud settings",
+      "description": "Manage default options for the upcoming AI read-aloud service."
+    },
+    "currencyPage": {
+      "eyebrow": "Admin Settings",
+      "title": "Currencies",
+      "description": "Add currencies for account books and manage their availability and the default currency.",
+      "messages": {
+        "loading": "Loading currencies...",
+        "loadFailed": "Could not load currencies.",
+        "createFailed": "Could not add the currency.",
+        "updateFailed": "Could not update the currency.",
+        "disabledBaseCurrency": "A disabled currency cannot be set as the default.",
+        "forbidden": "Only administrators can access this page.",
+        "deleteFailed": "Could not delete the currency."
+      },
+      "editModal": {
+        "title": "Edit currency",
+        "description": "Edit the name, symbol and decimal places. The currency code cannot be changed.",
+        "close": "Close",
+        "fields": {
+          "name": "Currency name",
+          "symbol": "Symbol",
+          "decimalPlaces": "Decimal places"
+        },
+        "cancel": "Cancel",
+        "save": "Save",
+        "saving": "Saving..."
+      },
+      "deleteModal": {
+        "title": "Delete currency?",
+        "description": "Delete {code}. Currencies already used in an account book cannot be deleted.",
+        "confirm": "Delete"
+      },
+      "form": {
+        "title": "Add currency",
+        "description": "We recommend using ISO currency codes.",
+        "fields": {
+          "code": "Currency code",
+          "name": "Currency name",
+          "symbol": "Symbol",
+          "decimalPlaces": "Decimal places",
+          "baseCurrency": "Set as default currency"
+        },
+        "placeholders": {
+          "code": "e.g. USD",
+          "name": "e.g. US Dollar",
+          "symbol": "e.g. $"
+        },
+        "actions": {
+          "submit": "Add",
+          "submitting": "Adding..."
+        }
+      },
+      "list": {
+        "title": "Currency list",
+        "count": "{count} total",
+        "searchPlaceholder": "Search by code, name or symbol",
+        "headers": {
+          "code": "Code",
+          "name": "Name",
+          "symbol": "Symbol",
+          "base": "Default currency",
+          "status": "Status"
+        },
+        "description": "View registered currencies and manage their availability and the default currency.",
+        "symbol": "Symbol",
+        "decimalPlacesLabel": "Decimal places",
+        "baseCurrency": "Default currency",
+        "setBaseCurrency": "Set as default currency",
+        "enable": "Enable",
+        "disable": "Disable",
+        "decimalPlaces": "{count} decimal places",
+        "base": "Default",
+        "setBase": "Set as default",
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "empty": "No results found.",
+        "edit": "Edit",
+        "delete": "Delete"
+      }
+    },
+    "receiptAi": {
+      "title": "Receipt AI settings",
+      "description": "Manage OCR languages and keywords for receipt analysis."
+    },
+    "receiptAiPage": {
+      "eyebrow": "Admin",
+      "title": "Receipt AI settings",
+      "description": "Manage existing OCR settings and supporting keywords. Language and original currency are detected from the image.",
+      "ocr": {
+        "title": "Existing OCR language mappings",
+        "description": "These currency mappings are retained for administration and are not used in current automatic receipt analysis. Vision detects the language from the image, and OCR fallback uses the AI server's default language settings. The account book currency does not determine the receipt language.",
+        "columns": {
+          "currency": "Existing currency key",
+          "language": "OCR language",
+          "enabled": "Enabled",
+          "status": "Status"
+        },
+        "languages": {
+          "japan": "Japanese",
+          "korean": "Korean",
+          "en": "English"
+        },
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "saving": "Saving...",
+        "saved": "Saved",
+        "messages": {
+          "loading": "Loading...",
+          "loadFailed": "Could not load OCR settings.",
+          "updateFailed": "Could not update OCR settings."
+        }
+      },
+      "keyword": {
+        "title": "Keyword settings",
+        "description": "Only shared keywords without a currency are used as analysis hints. Currency-specific rules are retained for administration and are not used in automatic analysis. Keywords do not override amount or currency detection.",
+        "types": {
+          "STOP_AFTER": "Exclude from here",
+          "IMPORTANT": "Important",
+          "EXCLUDE_ITEM": "Exclude item"
+        },
+        "placeholders": {
+          "keyword": "Enter a keyword",
+          "currencyCode": "Currency (optional)"
+        },
+        "ocrLanguages": {
+          "japan": "Japanese",
+          "korean": "Korean",
+          "en": "English"
+        },
+        "deleteModal": {
+          "title": "Delete keyword?",
+          "description": "Delete the keyword “{keyword}”. It will no longer be used in receipt analysis.",
+          "confirm": "Delete"
+        },
+        "add": "Add",
+        "creating": "Adding...",
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "allCurrencies": "Shared across currencies",
+        "empty": "No matching keywords.",
+        "delete": "Delete",
+        "deleteConfirm": "Delete this keyword?",
+        "messages": {
+          "loading": "Loading...",
+          "loadFailed": "Could not load keywords.",
+          "createFailed": "Could not add the keyword.",
+          "updateFailed": "Could not update the keyword.",
+          "deleteFailed": "Could not delete the keyword."
+        }
+      }
+    },
+    "chatPage": {
+      "eyebrow": "Chat Settings",
+      "title": "Chat settings",
+      "description": "Manage your default chat languages. Changes made inside a chat room apply only to that room.",
+      "defaultLanguage": {
+        "eyebrow": "Default Language",
+        "title": "Default chat languages",
+        "description": "Your initial language settings for new rooms and rooms without their own settings.",
+        "originalLanguage": "My language",
+        "translationLanguage": "Other language / incoming translation language",
+        "showOriginal": "Show original",
+        "showTranslation": "Show translation",
+        "defaultNotice": "Saved defaults are used when you join a new room or a room without its own settings.",
+        "systemFallbackNotice": "System defaults are shown because the personal settings API is unavailable or no defaults have been saved.",
+        "loading": "Loading default chat languages...",
+        "loadFailed": "Could not load your default chat languages.",
+        "saveFailed": "Could not save your default chat languages.",
+        "saved": "Your default chat languages have been saved.",
+        "reload": "Reload",
+        "save": "Save",
+        "saving": "Saving..."
+      }
+    },
+    "chatAi": {
+      "title": "Chat AI settings",
+      "description": "Manage the maximum AI members, autonomous response rate, REVIVAL and context limits."
+    },
+    "chatAiPage": {
+      "eyebrow": "Admin · Chat AI",
+      "title": "Chat AI settings",
+      "description": "Manage AI defaults and adjust them to service quality and cost without changing code.",
+      "form": {
+        "title": "System settings",
+        "description": "Limits and default behavior for all GROUP/OPEN rooms.",
+        "notice": "Room settings set by an OWNER/ADMIN cannot exceed these system limits. Changes apply to subsequent AI actions and validation."
+      },
+      "actions": {
+        "save": "Save settings",
+        "saving": "Saving...",
+        "retry": "Reload"
+      },
+      "messages": {
+        "loading": "Loading chat AI settings...",
+        "loadFailed": "Could not load chat AI settings.",
+        "saved": "Chat AI settings have been saved.",
+        "saveFailed": "Could not save chat AI settings.",
+        "forbidden": "Only administrators can access chat AI settings.",
+        "invalidValues": "Check the setting ranges, minimum and maximum AI response delays, and the allowed REVIVAL time window."
+      },
+      "fields": {
+        "members": {
+          "label": "Maximum AI members per room",
+          "help": "Default: 2. The maximum AI members that can be added to a GROUP/OPEN room."
+        },
+        "conversationRate": {
+          "label": "CONVERSATION response rate (%)",
+          "help": "Default: 15%. The proportion of ordinary conversations considered for AI responses without an explicit mention."
+        },
+        "conversationCooldown": {
+          "label": "CONVERSATION cooldown (seconds)",
+          "help": "Default: 180 seconds. Limits repeated AI interventions immediately after an AI message."
+        },
+        "minHumanMessages": {
+          "label": "Minimum human messages after an AI reply",
+          "help": "Default: 2. AI will not intervene autonomously until this many human messages have been sent."
+        },
+        "responseDelayEnabled": {
+          "label": "Use natural AI response delays",
+          "help": "Deliver MENTION/CONVERSATION replies after a short random delay. No additional delay applies to REVIVAL."
+        },
+        "responseDelayMin": {
+          "label": "Minimum AI response delay (ms)",
+          "help": "Default: 1,200 ms. The minimum wait between completing an AI reply and saving and sending it."
+        },
+        "responseDelayMax": {
+          "label": "Maximum AI response delay (ms)",
+          "help": "Default: 3,500 ms. The upper limit for a random delay that partly reflects reply length."
+        },
+        "revivalFirst": {
+          "label": "REVIVAL 1st wait (hours)",
+          "help": "Default: 24 hours. The earliest first proactive reply after the last human message."
+        },
+        "revivalSecond": {
+          "label": "REVIVAL 2nd wait (hours)",
+          "help": "Default: 72 hours. The additional wait after the first REVIVAL receives no response."
+        },
+        "revivalThird": {
+          "label": "REVIVAL 3rd wait (hours)",
+          "help": "Default: 168 hours (7 days). Automatic REVIVAL stops if there is still no response."
+        },
+        "contextMessages": {
+          "label": "Maximum context messages",
+          "help": "Default: 30. The maximum recent messages sent to the AI server."
+        },
+        "contextCharacters": {
+          "label": "Maximum context characters",
+          "help": "Default: 12,000 characters. Older context is removed first when this limit is exceeded."
+        },
+        "replyCharacters": {
+          "label": "Maximum AI reply characters",
+          "help": "Default: 800 characters. Keeps replies short and conversational."
+        },
+        "mentionCount": {
+          "label": "MENTION request limit",
+          "help": "Rate limit per user and room. Default: 5 requests."
+        },
+        "mentionWindow": {
+          "label": "MENTION rate limit window (seconds)",
+          "help": "Default: 60 seconds. The time window used to count requests."
+        },
+        "revivalStart": {
+          "label": "REVIVAL window start",
+          "help": "Default: 10:00 in the system time zone."
+        },
+        "revivalEnd": {
+          "label": "REVIVAL window end",
+          "help": "Default: 22:00. Proactive replies are spread across the allowed time window."
+        }
+      }
+    },
+    "languageLearningAdmin": {
+      "title": "Language learning settings",
+      "description": "Manage daily sentence counts, keyword inclusion, review periods and level recheck criteria."
+    }
+  }
+}

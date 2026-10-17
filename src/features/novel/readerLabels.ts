@@ -20,4 +20,18 @@ const ja: typeof ko = {
     repair: "この文を再翻訳", repairRemaining: "未完了部分を続けて翻訳", repairing: "文を復旧中", repairDelayed: "復旧に時間がかかっています。待機またはジョブの停止ができます。", cancelJob: "ジョブを停止", repairDone: "復旧の保存完了", repairError: "復旧リクエストエラー",
     recoveredEpisode: "最初の翻訳試行の失敗記録は保持され、必要な部分の復旧によりこの話が完成しました。",
 };
-export const readerLabels = (locale: string) => locale === "ja" ? ja : ko;
+const en: typeof ko = {
+    audioSection: "Episode audio", sourceAll: "Read all source text", translationAll: "Read all translation", source: "Japanese source", translation: "Korean translation", parallel: "Side by side",
+    pause: "Pause", resume: "Resume", stop: "Stop", speed: "Playback speed", follow: "Follow the current sentence",
+    disclosure: "AI-generated audio by OpenAI · Reads only this episode's main text. Titles, prefaces and afterwords are excluded.",
+    translate: "Translate the episode", retryTranslation: "Retry failed sections", retry: "Try again", loading: "Loading source text", translating: "Translating", complete: "Translation complete", progress: "Sentences translated",
+    sourceOnly: "Source · awaiting translation", failed: "Translation failed · source", refused: "Translation was refused and cannot be retried", loadError: "Could not load the source text.", translationError: "Could not check translation status. The displayed text is preserved.",
+    audioError: "Could not play audio. Check the translation, network and browser playback permission, then try again.", audioIdle: "Choose to read all source text or all translation", preparing: "Preparing audio", playing: "Playing", paused: "Paused", waitingTranslation: "Waiting for the next translated sentence", ended: "Playback complete", view: "Reading view",
+    progressivePartial: "Completed sentences are preserved. Select a failed sentence or continue translating the unfinished sections.",
+    repair: "Retranslate this sentence", repairRemaining: "Continue unfinished sections", repairing: "Recovering sentences", repairDelayed: "Recovery is taking longer than expected. You can wait or stop the job.", cancelJob: "Stop the job", repairDone: "Recovery saved", repairError: "Recovery request failed",
+    recoveredEpisode: "The initial translation failure record is preserved. Recovery completed the remaining sections of this episode.",
+};
+export const readerLabels = (locale: string, targetLanguage: "ko" | "en" = "ko") => {
+    const labels = locale === "en" ? en : locale === "ja" ? ja : ko;
+    return targetLanguage === "en" ? { ...labels, translation: locale === "en" ? "English translation" : locale === "ja" ? "英語訳" : "영어 번역" } : labels;
+};

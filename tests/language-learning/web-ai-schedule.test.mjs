@@ -443,3 +443,40 @@ test("세부 유형만 프롬프트에 넣고 월말·없는 날짜를 설명한
     assert.equal(buildWebAiPrompt(schedule, "learning", labels), prompt);
     assert.throws(() => buildWebAiPrompt({ ...schedule, name: "" }, "ko", labels), /NAME_REQUIRED/);
 });
+
+test("영어 UI 프롬프트는 일본어 학습 쌍과 문제 수·월말 정책을 그대로 안내한다", () => {
+    // 준비: UI 언어와 학습 언어를 다르게 두고 중복 날짜도 함께 전달한다.
+    const schedule = validSchedule({
+        name: "Japanese writing practice",
+        focus: "Discussing requirements with a client",
+        originLanguage: "ko",
+        learningLanguage: "ja",
+        feedbackLanguage: "ko",
+        recurrence: "MONTHLY",
+        monthDays: [31, 15, 31],
+        includeLastDay: true,
+    });
+    const original = structuredClone(schedule);
+
+    // 실행
+    const prompt = buildWebAiPrompt(schedule, "en", labels);
+    const learningPrompt = buildWebAiPrompt(schedule, "learning", labels);
+
+    // 검증: 안내만 영어이며 답안·피드백 언어와 실제 문제 배분은 바꾸지 않는다.
+    assert.match(prompt, /Schedule: Every month on 15, 31, the last day at 18:00 \(Asia\/Tokyo\)/);
+    assert.match(prompt, /Skip dates that do not exist in a month/);
+    assert.match(prompt, /Use the last day only when selected separately/);
+    assert.match(prompt, /run once when a selected date and the last day coincide/);
+    assert.match(prompt, /Source language: Korean \(ko\)/);
+    assert.match(prompt, /Learning language: Japanese \(ja\)\. Require main answers in this language/);
+    assert.match(prompt, /Explanation and feedback language: Korean \(ko\)/);
+    assert.match(prompt, /Total exercises: 5\./);
+    assert.match(prompt, /\[WRITING_TRANSLATION\]: easy 1, standard 1, hard 1 \(total 3\)/);
+    assert.match(prompt, /\[WRITING_GUIDED\]: easy 0, standard 2, hard 0 \(total 2\)/);
+    assert.match(prompt, /There is no time limit/);
+    assert.match(prompt, /Do not claim to measure actual listening or pronunciation ability/);
+    assert.doesNotMatch(prompt, /[\uAC00-\uD7AF\u3040-\u30FF\u3400-\u9FFF]/u);
+    assert.equal(learningPrompt, buildWebAiPrompt(schedule, "ja", labels));
+    assert.match(learningPrompt, /学習言語：日本語 \(ja\)/);
+    assert.deepEqual(schedule, original);
+});

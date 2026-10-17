@@ -54,7 +54,7 @@
       "corrections": "표현별 교정",
       "original": "작성 표현",
       "corrected": "권장 표현",
-      "reason": "이유",
+      "correctionReason": "이유",
       "recommendedAnswer": "추천 교정문",
       "explanation": "상세 해설",
       "question": "문제",
@@ -455,7 +455,7 @@
       "language": {
         "ko": "한국어",
         "ja": "日本語",
-        "en": "English",
+        "en": "영어",
         "other": "학습 언어",
         "none": "해당 없음"
       },
@@ -493,7 +493,7 @@
         },
         "speaking": {
           "referenceTitle": "따라 말할 원본 음성",
-          "referenceDescription": "먼저 원본 음성을 듣고, 들은 내용을 일본어로 그대로 따라 말해 주세요.",
+          "referenceDescription": "먼저 원본 음성을 듣고, 들은 내용을 음성과 같은 언어로 그대로 따라 말해 주세요.",
           "referencePlay": "원본 음성 듣기",
           "referenceLoading": "원본 음성 준비 중...",
           "referenceRemaining": "재생 가능 {count}회",

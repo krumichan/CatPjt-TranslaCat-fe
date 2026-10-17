@@ -1,0 +1,830 @@
+{
+  "AccountBook": {
+    "eyebrow": "Account Book",
+    "title": "Account books",
+    "description": "Manage account books by category and review your income and expenses.",
+    "actions": {
+      "create": "Create account book"
+    },
+    "deleteConfirmModal": {
+      "title": "Delete account book?",
+      "description": "The account book “{name}” will be deleted and will no longer appear in the list.",
+      "cancel": "Cancel",
+      "confirm": "Delete",
+      "deleting": "Deleting..."
+    },
+    "editModal": {
+      "eyebrow": "Edit Account Book",
+      "title": "Edit account book",
+      "description": "Edit the name, category, description and this month's target amount.",
+      "fields": {
+        "name": "Account book name",
+        "category": "Category",
+        "directInput": "Enter manually",
+        "description": "Description",
+        "goalAmount": "This month's target amount"
+      },
+      "placeholders": {
+        "name": "e.g. Living expenses in Japan",
+        "category": "Enter a new category name",
+        "description": "e.g. Rent, food and transport expenses",
+        "goalAmount": "e.g. 100,000"
+      },
+      "helps": {
+        "goalAmount": "Leave this blank and save to remove this month's target amount."
+      },
+      "actions": {
+        "close": "Close",
+        "cancel": "Cancel",
+        "submit": "Add",
+        "submitting": "Adding..."
+      }
+    },
+    "messages": {
+      "loading": "Loading account books...",
+      "loadFailed": "Could not load account books.",
+      "createFailed": "Could not create the account book.",
+      "updateFailed": "Could not update the account book.",
+      "deleteConfirm": "Delete this account book?",
+      "deleteFailed": "Could not delete the account book.",
+      "loadMonthlyGoalFailed": "Could not load this month's target amount."
+    },
+    "search": {
+      "placeholder": "Search by account book name or description",
+      "allCategories": "All categories",
+      "total": "{count} account books in total"
+    },
+    "category": {
+      "count": "{count} account books"
+    },
+    "item": {
+      "income": "Income",
+      "expense": "Expenses",
+      "balance": "Balance",
+      "transactions": "Transactions",
+      "transactionCount": "{count} transactions",
+      "deleteAria": "Delete {name}",
+      "editAria": "Edit {name}",
+      "manageMembersAria": "Manage members of {name}"
+    },
+    "empty": {
+      "title": "No results found.",
+      "description": "Try a different keyword or create an account book."
+    },
+    "createModal": {
+      "eyebrow": "New Account Book",
+      "title": "Create account book",
+      "description": "Choose an existing category or enter a new one.",
+      "fields": {
+        "name": "Account book name",
+        "category": "Category",
+        "directInput": "Enter manually",
+        "currency": "Base currency",
+        "goalAmount": "This month's target amount",
+        "description": "Description"
+      },
+      "placeholders": {
+        "name": "e.g. Living expenses in Japan",
+        "category": "Enter a new category name",
+        "goalAmount": "e.g. 100,000",
+        "description": "e.g. Rent, food and transport expenses"
+      },
+      "helps": {
+        "goalAmount": "If entered, this becomes the target amount for this month after creation. Leave it blank to start without a target."
+      },
+      "actions": {
+        "close": "Close",
+        "cancel": "Cancel",
+        "submit": "Add",
+        "submitting": "Adding..."
+      }
+    },
+    "memberModal": {
+      "eyebrow": "Members",
+      "title": "Manage members",
+      "description": "Manage the people who share this account book.",
+      "descriptionWithName": "Manage the people who share the account book “{name}”.",
+      "fields": {
+        "publicId": "Public ID"
+      },
+      "placeholders": {
+        "publicId": "e.g. TC-H6VR-9KQD"
+      },
+      "helps": {
+        "publicId": "Enter the Public ID of the user to add."
+      },
+      "roles": {
+        "OWNER": "Owner",
+        "MEMBER": "Member"
+      },
+      "memberList": {
+        "title": "Current members",
+        "count": "{count} people",
+        "empty": "No members yet."
+      },
+      "actions": {
+        "close": "Close",
+        "invite": "Invite",
+        "inviting": "Inviting...",
+        "remove": "Delete",
+        "cancelInvitationAria": "Cancel invitation for {name}"
+      },
+      "messages": {
+        "loading": "Loading members.",
+        "loadFailed": "Could not load members.",
+        "inviteFailed": "Could not add the member.",
+        "removeFailed": "Could not remove the member.",
+        "cancelInvitationFailed": "Could not cancel the invitation."
+      },
+      "pendingInvitations": {
+        "title": "Pending invitations",
+        "count": "{count} transactions",
+        "empty": "No invitations are awaiting acceptance.",
+        "loadFailed": "Could not load invitations."
+      },
+      "invitationStatus": {
+        "PENDING": "Pending",
+        "ACCEPTED": "Accepted",
+        "REJECTED": "Declined",
+        "CANCELED": "Canceled"
+      },
+      "removeConfirm": {
+        "title": "Remove member?",
+        "description": "Remove “{name}” from this account book.",
+        "cancel": "Cancel",
+        "confirm": "Delete"
+      }
+    },
+    "detail": {
+      "messages": {
+        "loading": "Loading account book details.",
+        "loadFailed": "Could not load account book details.",
+        "leaveFailed": "Could not leave the account book."
+      },
+      "expenseGoal": {
+        "title": "This month's spending target",
+        "notSet": "No target set",
+        "selectMonthGuide": "Choose a month to set a target amount.",
+        "emptyGuide": "Set a spending target to track your progress.",
+        "remaining": "{amount} remaining before your target.",
+        "exceeded": "{amount} over your target.",
+        "usageRate": "Usage",
+        "currentExpense": "Current spending",
+        "remainingAmount": "Amount remaining",
+        "exceededAmount": "Amount over target",
+        "noGoalMessage": "No target amount yet. Set one using the button on the right.",
+        "selectMonthMessage": "Choose a month to set its target amount.",
+        "messages": {
+          "loadFailed": "Could not load the target amount.",
+          "saveFailed": "Could not save the target amount."
+        },
+        "actions": {
+          "open": "Set target amount",
+          "openList": "Open monthly targets",
+          "close": "Close"
+        },
+        "modal": {
+          "fields": {
+            "targetMonth": "Target year and month",
+            "yearSuffix": "Year",
+            "monthSuffix": "Month",
+            "goalAmount": "Target amount"
+          },
+          "title": "Set spending target",
+          "description": "Set the spending target for {month}/{year}.",
+          "placeholders": {
+            "goalAmount": "Enter a target amount"
+          },
+          "validation": {
+            "targetYearRequired": "Enter a 4-digit year.",
+            "targetMonthRequired": "Enter a month from 1 to 12.",
+            "required": "Enter a target amount.",
+            "positiveNumber": "Enter a target amount greater than 0."
+          },
+          "actions": {
+            "close": "Close modal",
+            "cancel": "Cancel",
+            "save": "Save",
+            "saving": "Saving..."
+          }
+        },
+        "listModal": {
+          "title": "Monthly targets",
+          "description": "View your monthly spending targets alongside actual spending.",
+          "messages": {
+            "loading": "Loading monthly targets...",
+            "loadFailed": "Could not load monthly targets."
+          },
+          "empty": {
+            "title": "No monthly targets.",
+            "description": "Your target amounts will appear here once added."
+          },
+          "table": {
+            "month": "Month",
+            "goalAmount": "Target amount",
+            "expenseAmount": "Expenses",
+            "remainingAmount": "Amount remaining",
+            "usageRate": "Usage",
+            "manage": "Manage"
+          },
+          "actions": {
+            "close": "Close",
+            "edit": "Edit"
+          }
+        }
+      },
+      "fixedCost": {
+        "eyebrow": "Fixed Cost",
+        "title": "Add expenses that recur each month.",
+        "count": "{count} recurring expenses",
+        "paymentDay": "Day {day} of each month",
+        "period": "{start} ~ {end}",
+        "ongoing": "Ongoing",
+        "memoBadge": "Memo",
+        "deleteConfirm": {
+          "title": "Delete recurring expense?",
+          "description": "The recurring expense '{title}' will be removed from the list.\nExisting transactions will not be deleted.",
+          "confirm": "Delete"
+        },
+        "detail": {
+          "fields": {
+            "amount": "Amount",
+            "category": "Category",
+            "storeName": "Store name",
+            "paymentDay": "Payment date",
+            "period": "Period",
+            "status": "Status",
+            "memo": "Memo"
+          },
+          "empty": {
+            "storeName": "Not set",
+            "memo": "No memo."
+          },
+          "actions": {
+            "close": "Close details modal",
+            "closeButton": "Close"
+          }
+        },
+        "generation": {
+          "title": "{count} recurring expenses have not been recorded for {month}/{year}.",
+          "description": "You can record a total of {amount} in recurring expenses as transactions.",
+          "actions": {
+            "generate": "Record recurring expenses",
+            "generating": "Recording..."
+          },
+          "messages": {
+            "generating": "Recording recurring expenses as transactions.",
+            "generateFailed": "Could not record recurring expenses as transactions."
+          }
+        },
+        "status": {
+          "active": "Enabled",
+          "inactive": "Disabled"
+        },
+        "messages": {
+          "loading": "Loading recurring expenses...",
+          "loadFailed": "Could not load recurring expenses.",
+          "createFailed": "Could not add the recurring expense.",
+          "updateFailed": "Could not update the recurring expense.",
+          "deleteFailed": "Could not delete the recurring expense."
+        },
+        "actions": {
+          "create": "Add recurring expense",
+          "menu": "Recurring expense menu",
+          "detail": "Details",
+          "edit": "Edit",
+          "delete": "Delete",
+          "activate": "Enable",
+          "deactivate": "Disable"
+        },
+        "empty": {
+          "title": "No recurring expenses yet.",
+          "description": "Add monthly expenses such as rent, phone bills and subscriptions."
+        },
+        "modal": {
+          "title": "Add recurring expense",
+          "editTitle": "Edit recurring expense",
+          "description": "Create a template for a monthly recurring expense.",
+          "editDescription": "Edit the saved recurring expense details.",
+          "displayAmount": "Display amount:",
+          "fields": {
+            "title": "Recurring expense name",
+            "storeName": "Store name",
+            "category": "Category",
+            "amount": "Amount",
+            "paymentDay": "Monthly payment day",
+            "startYear": "Start year",
+            "startMonth": "Start month",
+            "endYear": "End year",
+            "endMonth": "End month",
+            "memo": "Memo"
+          },
+          "options": {
+            "none": "None",
+            "directInput": "Enter manually"
+          },
+          "placeholders": {
+            "title": "e.g. Rent, phone bill",
+            "storeName": "Enter a new store name",
+            "category": "Enter a new category name",
+            "optional": "Optional",
+            "memo": "e.g. Monthly automatic transfer"
+          },
+          "helps": {
+            "endMonth": "The end year and month are optional. Leave them blank for an ongoing recurring expense."
+          },
+          "validation": {
+            "endBeforeStart": "The end year and month must be after the start year and month."
+          },
+          "actions": {
+            "close": "Close modal",
+            "cancel": "Cancel",
+            "submit": "Add",
+            "submitting": "Adding...",
+            "update": "Edit",
+            "updating": "Updating..."
+          }
+        }
+      },
+      "header": {
+        "backToList": "Back to account books",
+        "eyebrow": "Account Book Detail",
+        "createTransaction": "Add transaction",
+        "manageMembers": "Manage members",
+        "leaveAccountBook": "Leave account book"
+      },
+      "chart": {
+        "categoryExpenseTitle": "Spending by category",
+        "categoryExpenseDescription": "Categories are shown from highest to lowest spending.",
+        "storeExpenseTitle": "Spending by store",
+        "storeExpenseDescription": "Stores are shown from highest to lowest spending.",
+        "uncategorized": "Uncategorized",
+        "storeNotSet": "Store not set"
+      },
+      "leaveConfirm": {
+        "title": "Leave this account book?",
+        "description": "If you leave “{name}”, you will no longer be able to view this account book.",
+        "confirm": "Leave"
+      },
+      "monthlyChart": {
+        "title": "Monthly spending",
+        "description": "Compare monthly spending with target amounts for {year}.",
+        "loading": "Loading the monthly chart.",
+        "empty": "No monthly chart data to display.",
+        "monthLabel": "Month {month}",
+        "series": {
+          "expenseAmount": "Spending",
+          "expenseGoalAmount": "Target amount"
+        },
+        "tooltip": {
+          "unset": "Not set",
+          "goalUnset": "No target set",
+          "goalDiff": "Difference from target",
+          "over": "{amount} over",
+          "remaining": "{amount} remaining",
+          "just": "On target"
+        },
+        "status": {
+          "unsetLabel": "No target set",
+          "unsetDescription": "No target amount is set for this month.",
+          "overLabel": "Over target",
+          "withinLabel": "Within target",
+          "justLabel": "On target",
+          "overDescription": "You are {amount} over your target.",
+          "remainingDescription": "You have {amount} left before your target.",
+          "justDescription": "Spending matches the target amount."
+        }
+      },
+      "rankingChart": {
+        "period": {
+          "all": "All time",
+          "month": "{month}/{year}"
+        },
+        "loading": "Loading the chart.",
+        "empty": "No spending data to display.",
+        "total": "Total spending",
+        "others": "Other",
+        "series": {
+          "amount": "Spending"
+        },
+        "category": {
+          "title": "Spending by category",
+          "description": "Spending share by category for {period}."
+        },
+        "store": {
+          "title": "Spending by brand or store",
+          "description": "Spending share by brand or store for {period}. Branches of the same store are combined."
+        },
+        "tooltip": {
+          "amount": "Spending",
+          "percentage": "Share",
+          "transactionCount": "Transactions"
+        }
+      },
+      "summaryCards": {
+        "income": "Income",
+        "expense": "Expenses",
+        "balance": "Balance",
+        "transactions": "Transactions",
+        "transactionCount": "{count} transactions",
+        "messages": {
+          "loadFailed": "Could not load the account book summary."
+        }
+      },
+      "transaction": {
+        "loadError": "Could not load transactions.",
+        "loading": "Loading transactions.",
+        "previous": "Previous",
+        "next": "Next",
+        "deleteConfirm": {
+          "title": "Delete transaction?",
+          "fixedCostTitle": "Delete this recurring expense transaction?",
+          "description": "The transaction '{title}' will be deleted.",
+          "fixedCostDescription": "The transaction '{title}' will be deleted.\nBecause it was created from a recurring expense, it may appear again among the recurring expenses available to record for that month.",
+          "confirm": "Delete"
+        },
+        "messages": {
+          "createFailed": "Could not add the transaction.",
+          "updateFailed": "Could not update the transaction.",
+          "deleteFailed": "Could not delete the transaction.",
+          "receiptAnalysisFailed": "Receipt analysis failed."
+        }
+      },
+      "transactionModal": {
+        "badge": {
+          "create": "New Transaction",
+          "edit": "Edit Transaction"
+        },
+        "title": {
+          "create": "Add transaction",
+          "edit": "Edit transaction"
+        },
+        "description": {
+          "create": "Enter a transaction manually or use the results of receipt photo analysis.",
+          "edit": "Edit the existing transaction details."
+        },
+        "inputMode": {
+          "manual": "Enter manually",
+          "receipt": "Analyze receipt"
+        },
+        "receipt": {
+          "title": "Analyze receipt",
+          "description": "Include up to 2 clearly visible receipts in each photo. Split 3 or more across separate photos. Small or blurry text may slow analysis or reduce accuracy. Check the original receipt and amounts before adding transactions.",
+          "summary": "Photos {photos} · Receipts {receipts} · Progress {progress} · Failed {failures}",
+          "file": "Receipt image",
+          "selectedFile": "Selected: {filename}",
+          "analysisMode": "Analysis method",
+          "analysisModes": {
+            "ocrWithAi": "OCR + AI to reduce cost",
+            "visionOnly": "Fast AI Vision analysis",
+            "visionFirst": "AI Vision first (recommended)",
+            "ocrOnly": "OCR only (review required)"
+          },
+          "analyzing": "Analyzing...",
+          "action": "Analyze receipt",
+          "analysisFailed": "Receipt analysis failed.",
+          "queueLimit": "You can select up to {count} photos at once.",
+          "cancelAnalysis": "Cancel analysis",
+          "retryAnalysis": "Retry failed analyses",
+          "removeFile": "Remove photo",
+          "queueStatuses": {
+            "queued": "Waiting",
+            "analyzing": "Analyzing",
+            "success": "Complete",
+            "partial": "Some review needed",
+            "failure": "Failed",
+            "canceled": "Canceled"
+          },
+          "analyzingDescription": "Analyzing receipt images. Please wait until analysis finishes before using the screen.",
+          "review": {
+            "unknownWarning": "Some analysis results need review. Compare them with the original receipt.",
+            "warningCodes": {
+              "PREVIOUS_PUBLISHED_RATE": "The nearest published exchange rate before the transaction date was used.",
+              "RATE_UNAVAILABLE": "Could not retrieve an exchange rate. Check the conversion again.",
+              "CURRENCY_REQUIRES_REVIEW": "Check and enter the original currency code.",
+              "AMOUNT_REQUIRES_REVIEW": "Check and enter the original payment amount.",
+              "DATE_REQUIRES_REVIEW": "Check and enter the exact transaction date.",
+              "CATEGORY_REQUIRES_REVIEW": "Check and enter the transaction category.",
+              "CATEGORY_CANDIDATES_EMPTY": "No active categories were available for AI classification. You can enter one manually.",
+              "CATEGORY_CANDIDATES_NOT_DELIVERED": "Category suggestions were not sent to the analysis service. Reload them and try again.",
+              "INVALID_AMOUNT": "Enter a valid positive amount.",
+              "INVALID_DATE": "Enter a valid transaction date.",
+              "UNREADABLE": "Compare with the original receipt and enter the information that could not be read.",
+              "UNKNOWN_CURRENCY": "Could not determine the original currency.",
+              "AMBIGUOUS_CURRENCY_SYMBOL": "The currency symbol alone does not identify the currency.",
+              "LOW_CURRENCY_CONFIDENCE": "Check the detected original currency.",
+              "INVALID_OR_MISSING_AMOUNT": "Check and enter the total payment amount.",
+              "INVALID_OR_AMBIGUOUS_DATE": "The transaction date is missing or ambiguous. Enter the exact date.",
+              "CATEGORY_NOT_IN_ACCOUNT_BOOK": "Choose an existing category or enter one manually.",
+              "CATEGORY_NEW_SUGGESTION": "A new category was suggested based on the receipt.",
+              "CATEGORY_FALLBACK_USED": "A broad Other category was suggested because classification evidence was insufficient.",
+              "INVALID_CATEGORY_SUGGESTION": "An invalid category suggestion was replaced with a safe default.",
+              "MISSING_MERCHANT": "Check the store name and transaction title.",
+              "INVALID_CONFIDENCE": "Analysis confidence is unavailable.",
+              "INVALID_CURRENCY_CONFIDENCE": "Currency detection confidence is unavailable.",
+              "MALFORMED_RECEIPT": "Some receipt details could not be read.",
+              "POSSIBLE_DUPLICATE_RECEIPT": "Check whether the same receipt appears more than once.",
+              "OCR_RECEIPT_BOUNDARIES_UNVERIFIED": "OCR could not verify receipt boundaries. Check that each transaction was separated correctly.",
+              "OCR_MULTIPLE_OR_UNKNOWN_TOTALS": "Several possible payment totals were found, or no total could be confirmed.",
+              "VISION_UNAVAILABLE": "AI image analysis is unavailable.",
+              "ANALYSIS_UNAVAILABLE": "Receipt analysis is unavailable. Please try again later.",
+              "OCR_FALLBACK_USED": "OCR was used instead of AI image analysis. Check the results.",
+              "OCR_LANGUAGE_HINT_LIMITATION": "Analysis used the default OCR language, so recognition of other languages may be less accurate.",
+              "OCR_NO_TEXT": "No readable text was found.",
+              "OCR_UNAVAILABLE": "Text recognition is unavailable.",
+              "OCR_AI_UNAVAILABLE_RULE_FALLBACK": "Analysis used OCR rules without AI assistance. Compare the results with the original.",
+              "DUPLICATE_RECEIPT_REMOVED": "Duplicate receipt candidates were removed.",
+              "NO_RECEIPTS_DETECTED": "No receipts found. Try again with a clearer photo.",
+              "RECEIPT_LIMIT_REACHED": "The receipt limit for a single analysis was reached. Analyze the rest in a new photo.",
+              "USER_ADDED_RECEIPT_REGION": "You added this receipt candidate from the original photo. Enter the required information and confirm your review of the original."
+            },
+            "conversionLocked": "The type, amount and date of receipt transactions cannot be changed because their exchange rate records must be preserved. You can edit the title, store, category and memo.",
+            "title": "Review receipt transactions",
+            "description": "Review each receipt and select the transactions to add. If you change an amount, currency or transaction date, check the conversion again.",
+            "analysisCompleted": "Analyzed {count} receipts. Review the transaction candidates below.",
+            "editTitle": "Review and edit receipt {index}",
+            "receiptDetails": "Receipt payment and exchange rate details",
+            "receiptNumber": "Receipt {index}",
+            "originalAmount": "Original amount",
+            "branchName": "Branch or location",
+            "transactionTime": "Receipt time",
+            "purchaseTotal": "Purchase total (before loyalty points)",
+            "paymentBreakdown": "Payment evidence",
+            "cashTendered": "Cash tendered",
+            "change": "Change",
+            "bookAmount": "Original amount recorded in account book",
+            "paymentCorrectionHint": "Discounts and loyalty points are excluded from the recorded amount. To record money actually paid in advance along with this purchase, change that item to Other payment / unrecorded prepayment. Do not include prepayments already recorded in the account book again.",
+            "paymentTypeLabel": "Payment {index} type",
+            "paymentAmountLabel": "Payment {index} amount",
+            "otherPaidWithPrepayment": "Other payment / unrecorded prepayment",
+            "observedPaymentType": "Originally analyzed as: {type} · Type corrected by user",
+            "derivedAmountHint": "This amount was calculated from the purchase total and payment details. Correct amounts or the classification of points and prepayments below, then check the conversion again.",
+            "amountCalculated": "Calculated from the current payment details. Check the server conversion before adding the transaction.",
+            "amountNeedsReview": "Check the purchase total and payment details. Their totals must match before you can check the conversion again.",
+            "paymentTypes": {
+              "LOYALTY_POINTS": "Loyalty points",
+              "CASH": "Cash",
+              "CREDIT_CARD": "Credit card",
+              "DEBIT_CARD": "Debit card",
+              "ELECTRONIC_MONEY": "Electronic money",
+              "GIFT_CARD": "Gift card",
+              "VOUCHER": "Voucher",
+              "OTHER_PAID": "Other payment",
+              "UNKNOWN": "Needs review"
+            },
+            "originalCurrency": "Original currency (ISO code)",
+            "convertedAmount": "Amount recorded in account book",
+            "exchangeRate": "Applied exchange rate",
+            "requestedDate": "Requested rate date",
+            "effectiveDate": "Effective rate date",
+            "provider": "Exchange rate provider",
+            "rateFetchedAt": "Rate retrieved at (UTC)",
+            "convertedAt": "Converted at (UTC)",
+            "roundingPolicy": "Rounding policy",
+            "confidence": "Analysis confidence",
+            "language": "Detected language",
+            "warnings": "Items to review",
+            "categoryHint": "Choose an existing category or enter a new name.",
+            "dateFallback": "If no rate is available on the transaction date, the nearest published rate before that date is used.",
+            "staleConversion": "The original details changed. Select Check conversion again to get the latest result.",
+            "requiredFields": "Enter a title, category, valid transaction date, positive original amount and 3-letter currency code.",
+            "preview": "Check conversion again",
+            "previewing": "Checking exchange rate...",
+            "previewFailed": "Could not check the conversion. Verify your entries and connection, then try again.",
+            "registrationFailed": "Could not add the selected transactions. Check the entries and exchange rates, then try again. Your transaction candidates are preserved.",
+            "selected": "{count} of {total} selected",
+            "selectionSummary": "{selectedCount} selected · {registrableCount} ready to add · {blockedCount} need review",
+            "selectedHasIssues": "Some selected transactions need review.",
+            "selectRegisterableOnly": "Select only items ready to add",
+            "selectReceipt": "Select receipt {index}",
+            "statusReady": "Ready to add",
+            "statusNeedsReview": "Needs review",
+            "statusRecalculating": "Recalculating",
+            "unselected": "Not selected",
+            "rowMenu": "Receipt {index} menu",
+            "reviewEdit": "Review and edit",
+            "inlineCategory": "Quick category selection for receipt {index}",
+            "inlineAmountInput": "Original currency amount for receipt {index}",
+            "inlineApply": "Apply",
+            "inlineCancel": "Cancel amount edit",
+            "inlineTitle": "Edit receipt {index} title",
+            "inlineTitleInput": "Receipt {index} title",
+            "inlineTitlePending": "Apply or cancel the title edit before adding transactions.",
+            "inlineTitleConflict": "The source or title changed while you were editing. Cancel and review the latest item.",
+            "inlineAmountPending": "An amount edit or exchange rate recalculation is still pending. Finish it before adding transactions.",
+            "inlineAmountInvalid": "Enter a positive decimal amount.",
+            "inlineAmountFailed": "Exchange rate recalculation failed. Your entry is preserved; you can cancel or apply it again.",
+            "inlineAmountSimpleScope": "Edit the purchase total and original currency amount together.",
+            "inlineAmountSinglePaymentScope": "Edit the purchase total and single payment amount together.",
+            "inlineAmountCorrectionSummary": "Observed {observed} → Corrected by user {corrected}",
+            "inlineAmountDetails": {
+              "points": "A points payment requires detailed review.",
+              "multiple_payments": "Multiple payment allocations require detailed review.",
+              "cash_change": "Cash and change details require detailed review.",
+              "ambiguous_payment": "The payment meaning is unclear and requires detailed review."
+            },
+            "revisionConflict": "The source candidate changed while you were editing. Close this window and reopen the latest item.",
+            "addMissingReceipt": "Add missing receipt area",
+            "regionPickerTitle": "Select missing receipt area",
+            "regionPickerDescription": "Drag around one receipt in the original photo. This adds a candidate only and does not save a transaction.",
+            "regionPickerCancel": "Cancel",
+            "useFullImage": "Use full photo",
+            "addSelectedRegion": "Add selected area as candidate",
+            "sourcePreview": "Review with original",
+            "sourcePreviewAlt": "Original receipt: {fileName}",
+            "sourcePreviewUnavailable": "The original preview is unavailable in this session.",
+            "omitBranch": "Confirm no branch is shown on the original",
+            "branchOmitted": "Marked as no branch",
+            "confirmSourceReview": "Confirm current source and entries reviewed",
+            "sourceReviewed": "Original reviewed for current version",
+            "categorySources": {
+              "existing": "Existing",
+              "default": "Default",
+              "new": "New",
+              "fallback": "Inferred",
+              "user": "User"
+            },
+            "applyChanges": "Apply changes",
+            "discardChanges": "Discard changes",
+            "currentIssues": "Current reasons preventing registration",
+            "viewMode": "Receipt review view",
+            "viewModes": {
+              "list": "List",
+              "table": "Table"
+            },
+            "columns": {
+              "basicInfo": "Basic info",
+              "select": "Select",
+              "date": "Transaction date",
+              "title": "Transaction title",
+              "category": "Category",
+              "amount": "Recorded amount",
+              "status": "Status",
+              "action": "Review and edit"
+            },
+            "blockingIssues": {
+              "TITLE_REQUIRED": "Enter a transaction title.",
+              "TITLE_TOO_LONG": "The transaction title must be 100 characters or fewer.",
+              "CATEGORY_REQUIRED": "Choose a category.",
+              "CATEGORY_TOO_LONG": "The category must be 50 characters or fewer.",
+              "STORE_TOO_LONG": "The store name must be 100 characters or fewer.",
+              "BRANCH_TOO_LONG": "The branch or location must be 100 characters or fewer.",
+              "MEMO_TOO_LONG": "The memo must be 500 characters or fewer.",
+              "PURCHASE_TOTAL_INVALID": "Enter a valid purchase total.",
+              "PAYMENT_TOTAL_MISMATCH": "The purchase total does not match the payment total. Check payment amounts and types, including points and prepayments.",
+              "PAYMENT_INVALID": "Check the amount for each payment method.",
+              "BOOK_AMOUNT_INVALID": "Check the original amount to record in the account book.",
+              "AMOUNT_POLICY_INVALID": "Check the amount calculation policy again.",
+              "CURRENCY_INVALID": "Enter a 3-letter original currency code.",
+              "DATE_INVALID": "Enter a valid transaction date.",
+              "TIME_INVALID": "Enter a valid receipt time.",
+              "SOURCE_INVALID": "Check the link to the original receipt.",
+              "QUOTE_STALE": "The amount, currency or date changed. Check the conversion again.",
+              "CONVERSION_UNAVAILABLE": "No conversion result is available for registration.",
+              "QUOTE_MISSING": "No valid exchange rate quote. Check the conversion again.",
+              "REVIEW_CONFIRMATION_REQUIRED": "Compare your current entries with the original again."
+            },
+            "register": "Add {count} selected transactions",
+            "conversionStatuses": {
+              "NOT_REQUIRED": "This matches the account book currency. The exchange rate is 1.",
+              "CONVERTED": "Conversion based on the transaction date.",
+              "RATE_UNAVAILABLE": "Could not retrieve an exchange rate. You cannot add this until the rate is checked again.",
+              "NEEDS_REVIEW": "Check the original amount, currency and transaction date, then request a conversion."
+            },
+            "analysisStatuses": {
+              "NEEDS_REVIEW": "Some analysis results are uncertain. Compare with the original receipt, make corrections, then select it.",
+              "UNREADABLE": "This receipt could not be read sufficiently. Enter the required details manually and check the conversion."
+            }
+          }
+        },
+        "type": {
+          "expense": "Expenses",
+          "income": "Income"
+        },
+        "fields": {
+          "type": "Transaction type",
+          "title": "Transaction title",
+          "storeName": "Store name",
+          "incomeSource": "Income source",
+          "category": "Category",
+          "amount": "Amount",
+          "displayAmount": "Display amount: {amount}",
+          "transactionDate": "Transaction date",
+          "memo": "Memo"
+        },
+        "options": {
+          "storeNotSet": "Not set",
+          "directInput": "Enter manually",
+          "categoryNotSelected": "Choose a category",
+          "savedValue": "Saved value"
+        },
+        "categoryStatus": {
+          "loading": "Loading category suggestions.",
+          "error": "Could not load category suggestions.",
+          "empty": "No saved categories. You can enter one manually.",
+          "ready": "Category suggestions loaded.",
+          "retry": "Reload"
+        },
+        "validation": {
+          "categoryRequired": "Choose a category."
+        },
+        "placeholders": {
+          "title": "e.g. Convenience store",
+          "directStoreName": "Enter a new store name",
+          "directCategoryName": "Enter a new category name",
+          "memo": "e.g. Lunch box"
+        },
+        "actions": {
+          "close": "Close modal",
+          "cancel": "Cancel",
+          "create": "Add",
+          "save": "Save",
+          "submitting": "Saving..."
+        }
+      },
+      "transactionDetail": {
+        "eyebrow": "Transaction details",
+        "close": "Close",
+        "edit": "Go to edit",
+        "receiptTitle": "Receipt and exchange rate snapshot",
+        "types": {
+          "income": "Income",
+          "expense": "Expenses"
+        },
+        "fields": {
+          "type": "Transaction type",
+          "title": "Transaction title",
+          "storeName": "Store name",
+          "incomeSource": "Income source",
+          "category": "Category",
+          "date": "Transaction date",
+          "amount": "Final amount recorded in account book",
+          "memo": "Memo",
+          "amountReason": "Basis for original recorded amount",
+          "quoteId": "Saved exchange rate quote ID"
+        }
+      },
+      "transactionList": {
+        "title": "Transactions",
+        "count": "{count} transactions in total.",
+        "badges": {
+          "fixedCost": "Recurring expense"
+        },
+        "memo": {
+          "expand": "Show more",
+          "collapse": "Show less"
+        },
+        "view": {
+          "card": "Card",
+          "table": "Table"
+        },
+        "type": {
+          "income": "Income",
+          "expense": "Expenses"
+        },
+        "labels": {
+          "storeName": "Store name",
+          "incomeSource": "Income source"
+        },
+        "table": {
+          "date": "Date",
+          "type": "Type",
+          "title": "Transaction title",
+          "category": "Category",
+          "store": "Store",
+          "memo": "Memo",
+          "amount": "Amount",
+          "manage": "Manage"
+        },
+        "pagination": {
+          "previous": "Previous",
+          "next": "Next"
+        },
+        "actions": {
+          "detail": "Details",
+          "edit": "Edit",
+          "delete": "Delete",
+          "close": "Close",
+          "detailAria": "View transaction details",
+          "editAria": "Edit transaction",
+          "deleteAria": "Delete transaction"
+        },
+        "empty": {
+          "title": "No transactions.",
+          "description": "Try different filters or add a transaction."
+        }
+      },
+      "transactionFilter": {
+        "keywordPlaceholder": "Search by title, memo or category",
+        "type": {
+          "all": "All",
+          "income": "Income",
+          "expense": "Expenses"
+        },
+        "period": {
+          "all": "All time"
+        }
+      }
+    }
+  }
+}

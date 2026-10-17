@@ -1,0 +1,123 @@
+{
+  "Voice": {
+    "title": "Live voice translation",
+    "description": "Stream microphone and system audio from your browser as PCM. Speech recognition and translation run through the server AI pipeline.",
+    "mode": {
+      "MIC": { "title": "Microphone", "description": "Translate speech from your microphone." },
+      "MEDIA": { "title": "System audio", "description": "Translate audio playing in a tab or on your screen." },
+      "MEETING": { "title": "Meeting", "description": "Process your microphone and the other person's system audio on separate channels." }
+    },
+    "channel": {
+      "SELF": "My voice",
+      "REMOTE": "Other person's voice"
+    },
+    "language": {
+      "ko": "Korean",
+      "ja": "Japanese",
+      "en": "English"
+    },
+    "sourceMode": {
+      "AUTO": "Detect automatically",
+      "MANUAL": "Choose a language"
+    },
+    "setup": {
+      "shareAudioTitle": "Share audio from a Teams or YouTube tab",
+      "shareAudioHelp": "In the sharing window, select the browser tab playing your Teams meeting or YouTube video and turn on “Share tab audio”. Selecting the TranslaCat tab will not capture the other person's audio.",
+      "meetingAudioHelp": "Choose Meeting mode to translate your own voice too. Headphones help prevent the other person's audio from feeding back into your microphone.",
+      "title": "Translation session setup",
+      "description": "Choose a mode and languages, then start the session.",
+      "modeLabel": "Audio input mode",
+      "sourceLanguageMode": "Input language",
+      "targetLanguage": "Translation language",
+      "saveTranscript": "Save conversation",
+      "saveTranscriptDescription": "Save finalized transcripts and translations to your history. Original audio is not stored."
+    },
+    "action": {
+      "cancel": "Cancel setup",
+      "start": "Start translation",
+      "preparing": "Preparing connection...",
+      "complete": "End session",
+      "completing": "Processing final audio...",
+      "newSession": "Start a new session"
+    },
+    "phase": {
+      "IDLE": "Idle",
+      "PREPARING": "Preparing",
+      "STREAMING": "Translating",
+      "COMPLETING": "Finishing",
+      "COMPLETED": "Completed",
+      "ERROR": "Error"
+    },
+    "status": {
+      "DISCONNECTED": "Disconnected",
+      "CONNECTING": "Connecting",
+      "STREAMING": "Streaming",
+      "BACKPRESSURED": "Waiting to send",
+      "RECONNECTING": "Reconnecting",
+      "ERROR": "Error"
+    },
+    "input": {
+      "level": "{channel} input level",
+      "WAITING": "Checking audio input.",
+      "ACTIVE": "Audio is coming through.",
+      "LOW": "Input is quiet. Speak closer to the microphone or increase the volume in Teams or your video.",
+      "SILENT": "No audio detected yet. If you are speaking, check your microphone, shared tab audio, and playback volume.",
+      "MUTED": "The input device or shared audio is muted. Unmute it or resume playback.",
+      "ENDED": "Audio input has ended. End the session, then select the correct microphone or tab again."
+    },
+    "live": {
+      "unsupportedLanguage": "This input language is not supported. Use Korean, Japanese, or English speech.",
+      "languageMismatch": "The detected language differs from your selected input language. Start a new session with automatic detection or the correct input language.",
+      "languageFailed": "The input language could not be identified. Check your input language settings.",
+      "processingFailed": "This audio segment could not be processed.",
+      "recognitionTimeout": "Speech recognition took too long to process this segment.",
+      "serverBusy": "Too many speech recognition requests prevented this segment from being processed.",
+      "recognitionFailed": "An error occurred while recognizing speech in this segment.",
+      "audioInputFailed": "Audio input could not be read. Start the session again.",
+      "serverFailed": "A server error prevented this audio segment from being processed.",
+      "title": "Live session",
+      "waiting": "Waiting for speech...",
+      "transcript": "Live translation",
+      "listening": "Listening",
+      "finalizing": "Finalizing",
+      "provisionalTranslation": "Provisional translation",
+      "recognizing": "Recognizing speech...",
+      "empty": "Recognized speech and its translation will appear here.",
+      "translating": "Translating...",
+      "translationSkipped": "No translation is needed. Only the original text is shown.",
+      "translationFailed": "Translation failed.",
+      "latency": "Processing time: {ms} ms"
+    },
+    "history": {
+      "title": "Translation history",
+      "description": "Review saved sessions and finalized sentences.",
+      "refresh": "Refresh",
+      "loading": "Loading history...",
+      "loadFailed": "Could not load history.",
+      "empty": "No saved voice translation history.",
+      "untitled": "Untitled session",
+      "processedAudio": "Audio processed: {seconds}s",
+      "rename": "Edit title",
+      "delete": "Delete",
+      "deleteConfirm": "Delete this voice translation history?",
+      "titlePlaceholder": "Session title",
+      "saveTitle": "Save",
+      "loadingSegments": "Loading sentences...",
+      "emptySegments": "No saved sentences.",
+      "translationUnavailable": "No translation available.",
+      "retryTranslation": "Retry translation",
+      "actionFailed": "The request could not be processed. Try again.",
+      "loadMore": "Load more"
+    },
+    "error": {
+      "FINALIZE_FAILED": "The final audio result could not be confirmed. Check your saved history. If the session is still open, try ending it again.",
+      "INPUT_ENDED": "All audio input has ended. End the session, then start again.",
+      "MEDIA_DEVICE_UNSUPPORTED": "This browser does not support the required audio capture features.",
+      "MICROPHONE_PERMISSION": "Check your microphone permissions.",
+      "DISPLAY_PERMISSION": "Check your screen or tab sharing permissions.",
+      "DISPLAY_AUDIO_REQUIRED": "Choose a tab or screen that includes audio.",
+      "START_FAILED": "Could not start the voice translation session. Try again.",
+      "COMPLETE_FAILED": "Could not end the session. Try ending it again."
+    }
+  }
+}

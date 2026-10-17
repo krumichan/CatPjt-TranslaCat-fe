@@ -1,4 +1,4 @@
-export const locales = ['ko', 'ja', 'learning'] as const;
+export const locales = ['ko', 'ja', 'en', 'learning'] as const;
 export type Locale = (typeof locales)[number];
 
 export const localeMetadata: Record<Locale, { name: string; flag: string }> = {
@@ -9,6 +9,10 @@ export const localeMetadata: Record<Locale, { name: string; flag: string }> = {
     ja: {
         name: "日本語",
         flag: "🇯🇵"
+    },
+    en: {
+        name: "English",
+        flag: "EN"
     },
     learning: {
         name: "학습 모드",

@@ -1,0 +1,47 @@
+{
+  "Navigation": {
+    "home": "Home",
+    "platform": "Web novels",
+    "voice": "Voice translation",
+    "accountBook": "Account books",
+    "settings": "Settings",
+    "login": "Log in",
+    "logout": "Log out",
+    "welcome": ", welcome!",
+    "chat": "Chat",
+    "languageLearning": "Language learning",
+    "profile": "My profile",
+    "userMenu": "User menu",
+    "primaryNavigation": "Main services",
+    "sections": {
+      "main": "Main",
+      "services": "Services",
+      "recentActivity": "Recent activity"
+    },
+    "sidebar": {
+      "navigation": "Navigation",
+      "expand": "Expand sidebar",
+      "collapse": "Collapse sidebar"
+    },
+    "mobile": {
+      "title": "All menus",
+      "open": "Open all menus",
+      "close": "Close all menus"
+    },
+    "badges": {
+      "new": "New",
+      "comingSoon": "Coming soon"
+    },
+    "recent": {
+      "loading": "Loading recent activity.",
+      "empty": "No recent activity.",
+      "error": "Could not load recent activity."
+    },
+    "support": "Support",
+    "developer": {
+      "title": "Created by",
+      "github": "Developer GitHub",
+      "email": "Developer email"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "ServiceSelect": {
+    "title": "All services",
+    "description": "Choose a service to open it.",
+    "guideLink": "User guide",
+    "novelTitle": "Novel translation",
+    "novelDesc": "Read novels in natural translations.",
+    "voiceTitle": "Voice translation",
+    "voiceDesc": "Recognize and translate speech in real time.",
+    "accountBookTitle": "Account books",
+    "accountBookDesc": "Manage your income and expenses.",
+    "chatTitle": "Chat",
+    "chatDesc": "Chat across languages and read messages translated into your language.",
+    "start": "Get started",
+    "languageLearningTitle": "Language learning",
+    "languageLearningDesc": "Track your level, weaknesses, and keyword proficiency with daily writing and AI feedback.",
+    "supportTitle": "Support",
+    "supportDesc": "Check your inquiries and get help when you need it."
+  }
+}

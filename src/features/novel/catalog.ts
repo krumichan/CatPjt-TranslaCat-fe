@@ -6,14 +6,17 @@ const record = (value: unknown): value is Record<string, unknown> => !!value && 
 const integer = (value: unknown) => Number.isSafeInteger(value) && Number(value) >= 0;
 const id = (value: unknown): value is string => typeof value === "string" && /^[a-zA-Z0-9_-]{1,160}$/.test(value);
 const unit = (value: unknown) => record(value) && typeof value.rawJa === "string" && typeof value.ja === "string"
-    && (value.ko === null || typeof value.ko === "string") && [value.rawJa, value.ja, value.ko ?? ""].every(text => String(text).length <= 100_000);
+    && (value.ko === null || typeof value.ko === "string")
+    && (value.translatedText === undefined || value.translatedText === null || typeof value.translatedText === "string")
+    && (value.targetLanguage === undefined || ["ko", "en"].includes(String(value.targetLanguage)))
+    && [value.rawJa, value.ja, value.ko ?? "", value.translatedText ?? ""].every(text => String(text).length <= 100_000);
 
 export function parseCatalog(value: unknown): CatalogSnapshot {
     // 서버가 확보한 현재 페이지와 완료 이벤트만 받는다. 배열 인덱스로 rank/ID를 만들지 않는다.
     if (!record(value) || !id(value.snapshotId) || !integer(value.eventSequence) || !integer(value.total) || Number(value.total) > 100
         || !integer(value.ready) || !integer(value.failed) || !["RUNNING", "PARTIAL", "SUCCEEDED", "CANCELLED"].includes(String(value.state))
         || !record(value.selector) || !["RANKING", "SEARCH"].includes(String(value.selector.kind))
-        || !["ja", "ko"].includes(String(value.selector.language)) || !integer(value.selector.page) || Number(value.selector.page) < 1
+        || !["ja", "ko", "en"].includes(String(value.selector.language)) || !integer(value.selector.page) || Number(value.selector.page) < 1
         || !Array.isArray(value.items) || value.items.length > Number(value.total)) throw new Error("INVALID_CATALOG_CONTRACT");
     const ids = new Set();
     const works = new Set();
@@ -27,6 +30,9 @@ export function parseCatalog(value: unknown): CatalogSnapshot {
             || !["READY", "FAILED", "PENDING", "RUNNING"].includes(String(item.status)) || !unit(item.title) || !unit(item.author)
             || !unit(item.synopsis) || !unit(item.statusText) || typeof item.isShortStory !== "boolean" || typeof item.cached !== "boolean"
             || !(item.errorCode === null || typeof item.errorCode === "string")) throw new Error("INVALID_CATALOG_ITEM");
+        // 영어 selector가 한국어 캐시를 완료 결과로 반환해도 화면에 섞지 않는다.
+        if (value.selector.language === "en" && [item.title, item.author, item.synopsis, item.statusText].some(field =>
+            !record(field) || field.targetLanguage !== "en" || field.ko !== null)) throw new Error("INVALID_TRANSLATION_TARGET");
         ids.add(item.itemId); works.add(item.identifier); lastArrival = Number(item.arrivalSequence);
         if (item.status === "READY") ready++;
         if (item.status === "FAILED") failed++;

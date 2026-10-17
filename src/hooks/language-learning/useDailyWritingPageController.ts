@@ -13,6 +13,7 @@ import {
 } from "@/features/language-learning/writing/writingDraftStorage";
 import {
     createEmptyWritingTypeProgress,
+    currentWritingHistory,
     latestAttempt,
     latestEvaluationStatus,
     resolveHistoryWritingType,
@@ -45,6 +46,8 @@ export function useDailyWritingPageController() {
                 ? ([
                       "daily-writing-today-progress",
                       entry.setting.timezone,
+                      entry.setting.originLanguage,
+                      entry.setting.learningLanguage,
                   ] as const)
                 : null,
         fetcher: () =>
@@ -59,7 +62,12 @@ export function useDailyWritingPageController() {
     const dailyQuery = useQuery({
         keys:
             canLoadDaily && selectedWritingType
-                ? (["daily-writing-today", selectedWritingType] as const)
+                ? ([
+                      "daily-writing-today",
+                      selectedWritingType,
+                      entry.setting?.originLanguage,
+                      entry.setting?.learningLanguage,
+                  ] as const)
                 : null,
         fetcher: (_key, writingType) =>
             dailyWritingService.getToday(writingType),
@@ -125,9 +133,12 @@ export function useDailyWritingPageController() {
         if (!entry.setting?.timezone) return result;
 
         const learningDate = resolveLearningDate(entry.setting.timezone);
-        for (const history of writingHistoryQuery.data ?? []) {
-            if (history.learningDate !== learningDate) continue;
-
+        for (const history of currentWritingHistory(
+            writingHistoryQuery.data ?? [],
+            learningDate,
+            entry.setting.originLanguage,
+            entry.setting.learningLanguage,
+        )) {
             const writingType = resolveHistoryWritingType(
                 history.topic,
                 history.title,
@@ -156,16 +167,22 @@ export function useDailyWritingPageController() {
         }
 
         return result;
-    }, [entry.setting?.timezone, writingHistoryQuery.data]);
+    }, [
+        entry.setting?.timezone,
+        entry.setting?.originLanguage,
+        entry.setting?.learningLanguage,
+        writingHistoryQuery.data,
+    ]);
 
     useEffect(() => {
         if (!entry.setting?.timezone) return;
         const today = resolveLearningDate(entry.setting.timezone);
-        const hasPendingHistory = (writingHistoryQuery.data ?? []).some(
-            (history) =>
-                history.learningDate === today &&
-                history.evaluationStatus === "PENDING",
-        );
+        const hasPendingHistory = currentWritingHistory(
+            writingHistoryQuery.data ?? [],
+            today,
+            entry.setting.originLanguage,
+            entry.setting.learningLanguage,
+        ).some((history) => history.evaluationStatus === "PENDING");
         if (!hasPendingHistory) return;
 
         const timer = window.setTimeout(() => {
@@ -174,6 +191,8 @@ export function useDailyWritingPageController() {
         return () => window.clearTimeout(timer);
     }, [
         entry.setting?.timezone,
+        entry.setting?.originLanguage,
+        entry.setting?.learningLanguage,
         refreshWritingHistory,
         writingHistoryQuery.data,
     ]);

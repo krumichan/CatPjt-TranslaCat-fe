@@ -1,6 +1,7 @@
 import { createElement, type ReactNode } from "react";
 import { parseRuby, type RubyNode } from "@/features/common/ruby";
 import { novelDisplayRows, type NovelDisplayRow, type NovelTextValue } from "@/features/novel/localeText";
+import type { NovelTargetLanguage } from "@/features/novel/translationLanguage";
 
 function renderRuby(nodes: RubyNode[]): ReactNode {
     return nodes.map((node, index) => typeof node === "string" ? node
@@ -12,11 +13,11 @@ function JapaneseText({ content }: { content: string }) {
     return <span lang="ja" className="whitespace-pre-wrap wrap-break-word">{renderRuby(parseRuby(content))}</span>;
 }
 
-export default function NovelLocalizedText({ value, locale }: { value: NovelTextValue; locale: string }) {
-    const rows = novelDisplayRows(value, locale);
+export default function NovelLocalizedText({ value, locale, targetLanguage = "ko" }: { value: NovelTextValue; locale: string; targetLanguage?: NovelTargetLanguage }) {
+    const rows = novelDisplayRows(value, locale, targetLanguage);
     const renderRow = (row: NovelDisplayRow, secondary: boolean) => row.language === "ja"
         ? <JapaneseText key="ja" content={row.content} />
-        : <span key="ko" lang="ko" className={`whitespace-pre-wrap break-keep ${secondary ? "text-[0.85em] text-gray-500 dark:text-zinc-400 border-t pt-1" : ""}`}>{row.content}</span>;
+        : <span key={row.language} lang={row.language} className={`whitespace-pre-wrap ${row.language === "ko" ? "break-keep" : "wrap-break-word"} ${secondary ? "text-[0.85em] text-gray-500 dark:text-zinc-400 border-t pt-1" : ""}`}>{row.content}</span>;
 
     if (rows.length === 1) return renderRow(rows[0], false);
     return <span className="flex flex-col gap-1.5 w-full min-w-0">{rows.map((row, index) => renderRow(row, index > 0))}</span>;

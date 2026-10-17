@@ -23,6 +23,8 @@ export type LearningHistorySourceFilter = "ALL" | LearningSource;
 export interface LearningHistoryItem {
     activityId: string;
     source: LearningSource;
+    originLanguage?: string | null;
+    learningLanguage?: string | null;
     learningDate: string;
     title: string;
     topic: string | null;

@@ -1,0 +1,375 @@
+{
+  "Social": {
+    "profileEntry": {
+      "manage": "Manage profile"
+    },
+    "profilePage": {
+      "eyebrow": "Profile",
+      "title": "My profile",
+      "description": "Manage your nickname, profile picture, background image and bio on TranslaCat.",
+      "actions": {
+        "reload": "Reload"
+      },
+      "messages": {
+        "loadFailedTitle": "Could not load your profile.",
+        "loadFailedDescription": "Please try again later.\nIf your session has expired, sign in again.",
+        "saveFailed": "Could not save your profile.",
+        "saved": "Your profile has been saved."
+      },
+      "validation": {
+        "nicknameRequired": "Enter a nickname.",
+        "nicknameTooLong": "Your nickname must be 30 characters or fewer.",
+        "bioTooLong": "Your bio must be 200 characters or fewer."
+      },
+      "info": {
+        "eyebrow": "Preview",
+        "publicId": "TranslaCat ID",
+        "copyPublicId": "Copy TranslaCat ID",
+        "copied": "Copied.",
+        "emptyBio": "No bio yet.",
+        "profileAlt": "Profile picture",
+        "backgroundAlt": "Profile background image"
+      },
+      "form": {
+        "eyebrow": "Edit",
+        "title": "Edit profile",
+        "description": "Your publicId cannot be changed.\nYou can edit your nickname and bio. Upload images in the image management section below.",
+        "fields": {
+          "publicId": "TranslaCat ID",
+          "nickname": "Nickname",
+          "bio": "Bio"
+        },
+        "hints": {
+          "publicIdReadonly": "This unique ID is used for adding friends and cannot be changed."
+        },
+        "placeholders": {
+          "nickname": "Enter your display nickname",
+          "bio": "Enter a bio or status message"
+        },
+        "actions": {
+          "cancel": "Cancel",
+          "save": "Save",
+          "saving": "Saving..."
+        }
+      },
+      "image": {
+        "eyebrow": "Images",
+        "title": "Manage profile images",
+        "description": "You can have 1 image of each type: profile picture and background. Uploading a new image replaces the existing one.",
+        "previewBadge": "Preview before upload",
+        "profile": {
+          "eyebrow": "Profile image",
+          "title": "Profile picture",
+          "description": "The image that represents you in friends lists, user searches, profiles and chats.",
+          "rule": "JPEG, PNG, WEBP · Up to 5 MB",
+          "previewAlt": "Profile picture preview"
+        },
+        "background": {
+          "eyebrow": "Background image",
+          "title": "Profile background image",
+          "description": "The wide background image shown at the top of your profile.",
+          "rule": "JPEG, PNG, WEBP · Up to 10 MB",
+          "previewAlt": "Profile background preview"
+        },
+        "actions": {
+          "choose": "Choose image",
+          "replace": "Replace image",
+          "upload": "Upload",
+          "uploading": "Uploading...",
+          "delete": "Delete",
+          "deleting": "Deleting...",
+          "cancelPreview": "Clear selection"
+        },
+        "errors": {
+          "UNSUPPORTED_TYPE": "Choose an image in JPEG, PNG or WEBP format.",
+          "FILE_TOO_LARGE": "The image exceeds the allowed file size.",
+          "UPLOAD_FAILED": "Could not upload the image. Please try again later.",
+          "DELETE_FAILED": "Could not delete the image. Please try again later."
+        },
+        "success": {
+          "UPLOADED": "The image has been uploaded.",
+          "DELETED": "The image has been deleted."
+        }
+      }
+    },
+    "userSearchPage": {
+      "eyebrow": "Find friends",
+      "title": "Find users by publicId",
+      "description": "Enter a TranslaCat ID to find a user, send a friend request or start a friend chat.",
+      "form": {
+        "eyebrow": "Search",
+        "title": "Find users",
+        "description": "Search using the TranslaCat ID your friend shared with you.",
+        "fields": {
+          "publicId": "TranslaCat ID"
+        },
+        "messages": {
+          "requestSent": "Friend request sent.",
+          "actionErrors": {
+            "SEND_REQUEST_FAILED": "Could not send the friend request.\nPlease try again later.",
+            "REQUEST_ALREADY_PENDING": "You have already sent this user a friend request.",
+            "ALREADY_FRIEND": "You are already friends with this user.",
+            "BLOCKED": "A block prevents you from sending a friend request.",
+            "SELF": "You cannot send a friend request to yourself.",
+            "TARGET_NOT_FOUND": "Could not find the requested user.",
+            "START_CHAT_FAILED": "Could not start a 1:1 chat."
+          }
+        },
+        "placeholders": {
+          "publicId": "e.g. TCAT-00000001"
+        },
+        "actions": {
+          "search": "Search",
+          "searching": "Searching...",
+          "clear": "Clear search"
+        }
+      },
+      "state": {
+        "initialTitle": "Enter a publicId to search for.",
+        "initialDescription": "Results show a short user profile and your current friendship status.",
+        "searchingTitle": "Searching for users.",
+        "searchingDescription": "Please wait a moment.",
+        "notFoundTitle": "No results found.",
+        "notFoundDescription": "Check the publicId and try again.",
+        "emptyTitle": "No users to display.",
+        "emptyDescription": "Try searching with a different publicId.",
+        "failedTitle": "Search failed.",
+        "failedDescription": "Please try again later."
+      },
+      "result": {
+        "eyebrow": "Search result",
+        "statusDescriptions": {
+          "NONE": "You are not friends yet.\nYou can send a friend request.",
+          "FRIEND": "You are already friends. You can start a 1:1 chat now.",
+          "REQUEST_SENT": "You have already sent a friend request. Wait for their response.",
+          "REQUEST_RECEIVED": "This user sent you a friend request. You can respond in your received requests.",
+          "BLOCKED": "A block prevents friend requests and chats.",
+          "SELF": "This is you.\nYou cannot send yourself a friend request."
+        }
+      },
+      "status": {
+        "NONE": "Not friends",
+        "FRIEND": "Friend",
+        "REQUEST_SENT": "Request sent",
+        "REQUEST_RECEIVED": "Request received",
+        "BLOCKED": "Block",
+        "SELF": "Me"
+      },
+      "actions": {
+        "sendRequest": "Send friend request",
+        "sendingRequest": "Sending request...",
+        "startChat": "Start 1:1 chat",
+        "startingChat": "Preparing chat...",
+        "requestSent": "Friend request sent",
+        "requestReceived": "View received requests",
+        "blocked": "Blocked relationship",
+        "self": "Yourself",
+        "block": "Block",
+        "blocking": "Blocking..."
+      },
+      "messages": {
+        "publicIdRequired": "Enter a publicId to search for.",
+        "requestSent": "Friend request sent.",
+        "sendRequestFailed": "Could not send the friend request.",
+        "startChatFailed": "Could not start a 1:1 chat.",
+        "userBlocked": "User blocked.",
+        "actionErrors": {
+          "BLOCK_USER_FAILED": "Could not block the user. Please try again later.",
+          "START_CHAT_BLOCKED": "You cannot start a 1:1 chat while a block is in place.",
+          "START_CHAT_RELATION_REQUIRED": "You can start a 1:1 chat only with a friend.",
+          "START_CHAT_SELF_NOT_ALLOWED": "You cannot start a 1:1 chat with yourself.",
+          "START_CHAT_INVALID_RESPONSE": "Could not get the chat destination. Please try again later."
+        }
+      },
+      "guide": {
+        "eyebrow": "Guide",
+        "title": "Search status guide",
+        "description": "Available actions depend on the friendship status shown in the results.",
+        "items": {
+          "publicId": {
+            "title": "Search by publicId",
+            "description": "Your TranslaCat ID is a unique ID used for adding friends."
+          },
+          "request": {
+            "title": "Friend request",
+            "description": "You can send a friend request to someone who is not yet a friend."
+          },
+          "chat": {
+            "title": "Friend chat",
+            "description": "You can start a 1:1 chat with an existing friend."
+          },
+          "block": {
+            "title": "Block status",
+            "description": "A block limits friend requests and starting chats."
+          }
+        }
+      }
+    },
+    "friendListPage": {
+      "eyebrow": "Friends",
+      "title": "Friends",
+      "description": "View your friends and start a 1:1 chat or create a group chat.",
+      "fields": {
+        "search": "Search friends"
+      },
+      "placeholders": {
+        "search": "Search by nickname or TranslaCat ID"
+      },
+      "list": {
+        "eyebrow": "Friend list",
+        "title": "Friend",
+        "count": "{filteredCount} shown / {totalCount} total",
+        "friendSince": "Friends since: {date}",
+        "blockedDescription": "This user is blocked. Starting chats and selecting them for groups are restricted.",
+        "emptyBio": "No status message."
+      },
+      "actions": {
+        "closeSearchModal": "Close friend search",
+        "deleteFriend": "Remove friend",
+        "deleteFriendFuture": "Remove friend",
+        "findFriend": "Find friends",
+        "groupSelection": "Select for group",
+        "groupSelectionOn": "Selecting",
+        "createGroup": "Create group ({count})",
+        "clearSelection": "Clear selection",
+        "clearSearch": "Clear search",
+        "reload": "Reload",
+        "startChat": "1:1 chat",
+        "startingChat": "Preparing...",
+        "more": "Friend menu",
+        "selectFriend": "Select {nickname}",
+        "unselectFriend": "Deselect {nickname}",
+        "openHelp": "Open help",
+        "closeHelpModal": "Close help",
+        "blockFriend": "Block",
+        "unblockFriend": "Unblock",
+        "blocked": "Blocked",
+        "openBlockList": "Blocked users ({count})",
+        "openProfilePreview": "Preview {nickname}'s profile"
+      },
+      "blockModal": {
+        "title": "Block this user?",
+        "description": "Block {nickname}.",
+        "helpButton": "Blocking help",
+        "help": "Blocking limits friend requests, starting 1:1 chats and group chat selection. Existing chat rooms are not automatically deleted. Automatic friend removal is outside the scope of this feature.",
+        "cancel": "Cancel",
+        "confirm": "Block"
+      },
+      "blockListModal": {
+        "eyebrow": "Blocked users",
+        "title": "Blocked users",
+        "description": "Blocked users are hidden from your friends list. View and unblock them here.",
+        "close": "Close blocked users",
+        "loading": "Loading blocked users.",
+        "emptyTitle": "No blocked users.",
+        "emptyDescription": "Users you block will appear here.",
+        "blockedAt": "Blocked on: {date}",
+        "unblock": "Unblock",
+        "unblocking": "Unblocking..."
+      },
+      "unblockModal": {
+        "title": "Unblock this user?",
+        "description": "Unblock {nickname}.",
+        "helpButton": "Unblocking help",
+        "help": "Unblocking may allow friend requests, chats and group selection again. If the friendship was removed, a new friend request may be needed.",
+        "cancel": "Cancel",
+        "confirm": "Unblock"
+      },
+      "deleteModal": {
+        "title": "Remove this friend?",
+        "description": "Remove {nickname} from your friends list.",
+        "notice": "Removing a friend does not delete existing chat rooms. They will no longer appear in your friends list or as an option for starting 1:1 chats and selecting group members.",
+        "cancel": "Cancel",
+        "confirm": "Delete",
+        "helpButton": "Removing friends help",
+        "help": "Removing a friend does not delete existing chat rooms. They will no longer appear in your friends list or as an option for starting 1:1 chats and selecting group members."
+      },
+      "state": {
+        "loadingTitle": "Loading friends.",
+        "loadingDescription": "Please wait a moment.",
+        "loadFailedTitle": "Could not load your friends.",
+        "loadFailedDescription": "Please try again later.",
+        "filteredEmptyTitle": "No results found.",
+        "filteredEmptyDescription": "Try a different search term."
+      },
+      "status": {
+        "blocked": "Blocked"
+      },
+      "empty": {
+        "title": "No friends yet.",
+        "description": "Find a user by TranslaCat ID and send a friend request.",
+        "action": "Find friends"
+      },
+      "messages": {
+        "startChatFailed": "Could not start a 1:1 chat. Please try again later.",
+        "groupEntryFailed": "Could not prepare the group chat creation page.",
+        "deleteFriendFailed": "Could not remove the friend. Please try again later.",
+        "blockFriendFailed": "Could not block the user. Please try again later.",
+        "unblockFriendFailed": "Could not unblock the user. Please try again later.",
+        "blockedUserActionDenied": "You cannot start a chat with or select a blocked user for a group.",
+        "startChatBlocked": "You cannot start a 1:1 chat while a block is in place.",
+        "startChatRelationRequired": "You can start a 1:1 chat only with a friend.",
+        "startChatSelfNotAllowed": "You cannot start a 1:1 chat with yourself.",
+        "startChatInvalidResponse": "Could not get the chat destination. Please try again later."
+      },
+      "searchModal": {
+        "initialHint": "Enter a TranslaCat ID and select Search to find a user. For help, select the ? button in the upper right."
+      },
+      "help": {
+        "eyebrow": "Help",
+        "close": "Close help",
+        "list": {
+          "title": "Using your friends list",
+          "description": "Main features available on the friends page.",
+          "items": {
+            "find": {
+              "title": "Find friends",
+              "description": "Search by TranslaCat ID and send a friend request."
+            },
+            "direct": {
+              "title": "1:1 chat",
+              "description": "Select the button next to a friend to start a 1:1 chat."
+            },
+            "group": {
+              "title": "Group chat",
+              "description": "Select several friends and open the group chat creation page."
+            },
+            "manage": {
+              "title": "Manage friends",
+              "description": "Friend removal and blocking will be connected in a follow-up update."
+            }
+          }
+        },
+        "search": {
+          "title": "Find friends help",
+          "description": "Available actions depend on the friendship status in publicId search results.",
+          "initialHint": "Enter a TranslaCat ID and select Search. From the results, send a friend request or start a 1:1 chat if you are already friends.",
+          "items": {
+            "publicId": {
+              "title": "Search by publicId",
+              "description": "Search using the TranslaCat ID your friend shared with you."
+            },
+            "request": {
+              "title": "Friend request",
+              "description": "You can send a friend request to someone who is not yet a friend."
+            },
+            "friend": {
+              "title": "Already friends",
+              "description": "You can start a 1:1 chat with an existing friend directly from search results."
+            }
+          }
+        }
+      },
+      "profilePreview": {
+        "close": "Close profile preview",
+        "profileAlt": "{nickname}'s profile picture",
+        "publicId": "TranslaCat ID",
+        "bio": "Status message",
+        "emptyBio": "No status message.",
+        "friendSince": "Friends since: {date}",
+        "startChat": "Start 1:1 chat",
+        "startingChat": "Preparing chat..."
+      }
+    }
+  }
+}

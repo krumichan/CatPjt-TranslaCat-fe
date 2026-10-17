@@ -82,7 +82,9 @@ export default function LanguageSwitcher({
         }
 
         notifyNavigationStarted();
-        router.replace(pathname, {
+        // 표시 언어만 바꾸고 현재 회차·검색 조건·번역 대상 등 화면 상태는 보존한다.
+        const currentView = `${pathname}${window.location.search}${window.location.hash}`;
+        router.replace(currentView, {
             locale: nextLocale,
         });
 
@@ -120,6 +122,7 @@ export default function LanguageSwitcher({
                 aria-haspopup="menu"
                 aria-expanded={isOpen}
                 aria-label="Language"
+                title={currentMetadata.name}
                 className={buttonClassName}
             >
         <span className="flex h-full -translate-y-[1.5px] items-center justify-center text-lg leading-none">
@@ -148,6 +151,7 @@ export default function LanguageSwitcher({
                             key={loc}
                             type="button"
                             role="menuitem"
+                            aria-label={localeMetadata[loc].name}
                             onClick={() =>
                                 handleLocaleChange(loc)
                             }

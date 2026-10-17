@@ -1,0 +1,2449 @@
+{
+  "LanguageLearning": {
+    "webAiWorkflow": {
+      "serverNoticeTitle": "Learn with a web AI and keep your records in TranslaCat",
+      "serverNotice": "Plans are saved to your account. After saving, register the connection prompt in your web AI's scheduling feature. Results are verified by the server AI and incorporated into your existing learning scores.",
+      "loadingPlans": "Loading learning plans.",
+      "loadFailed": "Could not load learning plans. Your browser drafts are preserved.",
+      "retry": "Try again",
+      "reload": "Refresh",
+      "retryVerification": "Retry AI verification",
+      "verificationConflict": "Verification is already in progress or the result has changed. Refresh shortly. Interrupted verification can be retried after the existing task expires.",
+      "autoRefreshPaused": "Automatic refresh is paused. Use Refresh to check the latest verification status.",
+      "saving": "Saving…",
+      "busy": "Processing…",
+      "saved": "Learning plan saved to your account.",
+      "actionFailed": "Could not complete the request. Your input is preserved. Please try again.",
+      "importDrafts": "Import browser drafts ({count})",
+      "importDraftsHelp": "Move plans previously saved in this browser to your account. Original drafts are preserved.",
+      "draftsImported": "Browser drafts imported.",
+      "draftsNeedReview": "Edit drafts that need their settings reviewed, then save each one individually.",
+      "enabled": "Active",
+      "disabled": "Paused",
+      "connectionTitle": "Web AI connection",
+      "connectionHelp": "One prompt includes instructions for fetching scheduled questions and sending evaluated results to TranslaCat. If your AI cannot make HTTP requests, you can currently complete 1 practice session and import its result JSON manually.",
+      "saveBeforeConnect": "Save the plan first to connect it.",
+      "createConnection": "Create connection prompt",
+      "rotateConnection": "Replace connection key",
+      "revokeConnection": "Disconnect",
+      "revokeConfirm": "Disconnect now? The existing prompt will no longer be able to connect.",
+      "connectionRevoked": "Connection revoked.",
+      "tokenHelp": "This prompt contains a connection key for this plan only. Use it with a trusted web AI and do not share it publicly.",
+      "localApiHelp": "The current connection address is a local development server. Automatic web AI connections require a publicly accessible service address. You can test here by importing result JSON.",
+      "connectionCopied": "Connection prompt copied.",
+      "copy": "Copy",
+      "copyFailed": "Could not copy. Select the text and copy it manually.",
+      "runTitle": "Import learning results",
+      "runHelp": "AI services that support HTTP requests send results directly after evaluating answers. Otherwise, paste the result JSON provided by your AI here. Scores and feedback are verified on the server.",
+      "prepareRun": "Prepare submission prompt",
+      "runPrompt": "Prompt for this practice session",
+      "resultJson": "Web AI result JSON",
+      "resultPlaceholder": "Paste the result JSON exactly as provided by the web AI.",
+      "submitResult": "Save results and verify with AI",
+      "invalidJson": "Check the result JSON format.",
+      "resultSaved": "Results saved. View verification status and detailed feedback in learning history.",
+      "resultStatus": "Verification status: {status}. Only scores for verified questions are included.",
+      "openHistory": "View learning history",
+      "structuredTab": "Learning feedback",
+      "originalTab": "Original web AI response",
+      "originalCopy": "Copy original",
+      "webAiBadge": "Web AI",
+      "summary": "Overall feedback",
+      "strengths": "Strengths",
+      "improvements": "Areas to improve",
+      "corrections": "Expression corrections",
+      "original": "Your expression",
+      "corrected": "Suggested expression",
+      "correctionReason": "Reason",
+      "recommendedAnswer": "Suggested revision",
+      "explanation": "Detailed explanation",
+      "question": "Question",
+      "answer": "My answer",
+      "noFeedback": "No verified feedback yet.",
+      "noOriginal": "No original web AI response has been saved.",
+      "officialScore": "Applied score",
+      "externalScore": "Web AI reference score",
+      "notCounted": "Not counted toward scores",
+      "error": {
+        "WEB_AI_EVALUATION_DISABLED": "AI evaluation is currently paused in service settings. Try again once it is enabled. Saved answers and feedback are preserved.",
+        "WEB_AI_LANGUAGE_CHANGED": "Your default learning language has changed. Start again with a new learning prompt. Existing answers and feedback are preserved.",
+        "WEB_AI_KEYWORD_UNAVAILABLE": "Some keywords were deleted or deactivated. Select the plan's keywords again.",
+        "WEB_AI_CONFLICT": "Saved content has changed or this item was already submitted. Your input is preserved. Check the latest plan or learning history in the list.",
+        "WEB_AI_PLAN_DISABLED": "This plan is paused. Set it to active in the list and try again.",
+        "WEB_AI_VERIFICATION_BUSY": "Another answer is being verified. Try again when it finishes.",
+        "WEB_AI_RETRY_LIMIT": "All verification retries have been used. Existing answers and feedback are preserved in learning history.",
+        "WEB_AI_TOKEN_INVALID": "The connection key was revoked. Create a new connection prompt.",
+        "WEB_AI_INVALID": "Check the question numbers and result JSON. Results can be imported in batches of up to 10 questions.",
+        "WEB_AI_SETTINGS_REQUIRED": "Save your basic language learning settings first. Your plan input is preserved.",
+        "WEB_AI_KEYWORDS_REQUIRED": "No learning keywords are available today. Prepare keywords in learning settings and try again.",
+        "WEB_AI_PLAN_KEYWORDS_REQUIRED": "Select at least 1 plan keyword or switch to default keywords."
+      },
+      "reason": {
+        "AI_EVALUATION_DISABLED": "Scores were not applied because AI evaluation is paused in service settings. Your answer and original feedback are preserved.",
+        "WEB_AI_TASK_NOT_EVALUABLE": "Scores were not applied because the question and answer did not provide enough evidence for evaluation.",
+        "DIFFICULTY_MISMATCH": "Scores were not applied because the question's actual difficulty did not match the plan. Use the specified difficulty next time.",
+        "AUDIO_EVIDENCE_REQUIRED": "Recorded as text coaching because actual audio could not be verified. It does not count toward pronunciation or listening scores.",
+        "READING_PASSAGE_REQUIRED": "This reading question cannot be evaluated without a passage. Include both the question and passage in your next result.",
+        "READING_TASK_NOT_EVALUABLE": "Scores were not applied because evidence for the answer could not be found in the question and passage.",
+        "VERIFICATION_UNAVAILABLE": "AI verification is temporarily unavailable. Your answer and original response are preserved. Please retry verification.",
+        "WEB_AI_LANGUAGE_CHANGED": "Scores for this session cannot be applied because your learning language settings changed. Create a new learning prompt."
+      },
+      "status": {
+        "PENDING": "Awaiting verification",
+        "VERIFYING": "AI verification in progress",
+        "VERIFIED": "Verified",
+        "EVALUATED": "Verified",
+        "FAILED": "Verification failed",
+        "REJECTED": "Cannot verify",
+        "INSUFFICIENT_EVIDENCE": "Insufficient evaluation evidence",
+        "COACHING": "Coaching feedback · Not counted toward scores",
+        "PARTIAL": "Partially verified"
+      },
+      "connectionPreparationHelp": "Preparing the prompt for the first time on this page replaces the existing connection key. Paste the new prompt into any schedules already registered. Copying it again afterward does not replace the key.",
+      "rotateConfirm": "Replace the connection key? Automatic connections using the old prompt will stop. Copy the new prompt and register it in your schedules again.",
+      "promptPrepared": "Submission prompt ready. Review the actual content above before copying.",
+      "preparedInPreview": "The content above and all copy buttons use the same prompt.",
+      "newManualRun": "Prepare a new manual practice session",
+      "copyPreparationHelp": "First preparation replaces the connection key · Copying again on this page keeps it"
+    },
+    "generation": {
+      "progress": "Preparing questions {ready}/{total}",
+      "background": "You can start with the questions that are ready. The rest are being prepared in the background.",
+      "waiting": "Preparing the next question. Answers you have written or submitted are preserved.",
+      "failed": "Preparation of the remaining questions stopped. You can retry while keeping existing questions and answers.",
+      "structureDeferred": "Advanced structure analysis questions are undergoing quality checks. Existing questions and answers are preserved.",
+      "retry": "Retry remaining questions",
+      "retrying": "Preparing again…",
+      "slots": "Preparation status for all questions",
+      "slotReady": "Question {number} ready",
+      "slotWaiting": "Question {number} awaiting preparation"
+    },
+    "common": {
+      "loadingTitle": "Loading",
+      "loadFailedTitle": "Could not load data",
+      "retry": "Try again",
+      "accordion": {
+        "expand": "Expand",
+        "collapse": "Collapse",
+        "expandAll": "Expand all",
+        "collapseAll": "Collapse all"
+      }
+    },
+    "navigation": {
+      "eyebrow": "Language Learning",
+      "ariaLabel": "Language learning menu",
+      "dashboard": "Dashboard",
+      "todayLearning": "Today's practice",
+      "todayLearningDescription": "Practice menu",
+      "mobile": {
+        "dashboard": "Home",
+        "todayLearning": "Practice",
+        "history": "History",
+        "settings": "Settings"
+      },
+      "writing": "Writing",
+      "history": "Learning history",
+      "profile": "Learning profile",
+      "settings": "Settings",
+      "speaking": "Speaking",
+      "listening": "Listening",
+      "reading": "Reading",
+      "vocabulary": "Vocabulary"
+    },
+    "onboarding": {
+      "SETTING": {
+        "title": "Complete your learning settings first",
+        "description": "Set your source language, learning language, and daily sentence count so we can prepare practice for you.",
+        "action": "Set up learning"
+      },
+      "LEVEL_TEST": {
+        "title": "Check your level before you start",
+        "description": "Take a comprehensive 20-question level test to establish your base level in 6 areas, then refine it through actual practice over 7 days.",
+        "action": "Start level test"
+      }
+    },
+    "metrics": {
+      "OVERALL": "Overall",
+      "MEANING": "Meaning",
+      "GRAMMAR": "Grammar",
+      "VOCABULARY": "Vocabulary",
+      "NATURALNESS": "Naturalness",
+      "EXPRESSION": "Expressiveness",
+      "score": "Score",
+      "radarAriaLabel": "Learning score radar chart for meaning, grammar, vocabulary, naturalness, and expressiveness"
+    },
+    "dashboard": {
+      "title": "Language learning dashboard",
+      "description": "See today's progress, long-term skill changes, keyword mastery, and areas to improve in one place.",
+      "loading": "Checking learning status.",
+      "loadingData": "Loading your dashboard and learning profile.",
+      "loadFailed": "Could not load the language learning dashboard.",
+      "calibration": {
+        "title": "Analyzing your learning patterns",
+        "description": "During the first 7 days, your base level and learning profile are adjusted using your actual Writing results."
+      },
+      "recheck": {
+        "title": "Ready to check your current level?",
+        "description": "If you are returning after a break, a level recheck can help you see where you are now.",
+        "action": "Recheck level"
+      },
+      "summary": {
+        "todayProgress": "Today's practice",
+        "todayScore": "Today's average",
+        "weekly": "Weekly average",
+        "monthly": "Monthly average",
+        "streak": "Practice streak",
+        "streakValue": "{count} days",
+        "total": "Total sentences"
+      },
+      "widgets": {
+        "radar": {
+          "title": "5-skill radar",
+          "description": "View your current Writing ability across five dimensions."
+        },
+        "trend": {
+          "title": "Score trends",
+          "description": "Track key metrics from recent Daily evaluations.",
+          "empty": "There is not enough learning data to show a trend yet.",
+          "ariaLabel": "Language learning evaluation score trend chart",
+          "overall": "Overall",
+          "grammar": "Grammar",
+          "naturalness": "Naturalness"
+        },
+        "difficulty": {
+          "title": "Performance by difficulty",
+          "review": "Review",
+          "normal": "Standard",
+          "challenge": "Challenge"
+        },
+        "keyword": {
+          "title": "Keyword mastery",
+          "empty": "No keyword mastery data yet."
+        },
+        "weakness": {
+          "title": "Weaknesses and recurring errors",
+          "grammar": "Grammar weaknesses",
+          "patterns": "Error patterns",
+          "emptyGrammar": "No recurring grammar weaknesses yet.",
+          "emptyPattern": "No recurring error patterns yet."
+        },
+        "insight": {
+          "title": "Learning insights",
+          "description": "Strengths, weaknesses, and suggested next steps from your accumulated evaluations.",
+          "strengths": "Strengths",
+          "weaknesses": "Weaknesses",
+          "focus": "Suggested focus",
+          "empty": "Not enough data yet."
+        },
+        "monthly": {
+          "title": "Monthly report",
+          "month": "Month",
+          "count": "Evaluated sentences",
+          "average": "Average score",
+          "strongest": "Strongest metric",
+          "weakest": "This month's improvement focus: {metric}"
+        },
+        "recent": {
+          "title": "Recent practice",
+          "empty": "No learning records yet.",
+          "sentences": "{count} sentences",
+          "viewAll": "View all learning records"
+        }
+      },
+      "sections": {
+        "overview": "Learning overview",
+        "overviewDescription": "View your current ability, performance, trends, weaknesses, and recommendations in one place."
+      },
+      "writingToday": "Today's Writing",
+      "speakingToday": "Today's Speaking",
+      "writingProgress": "{completed} / {total} sentences",
+      "speakingProgress": "{minutes} / {goal} min · {sessions} sessions",
+      "speakingSummary": "Speaking summary",
+      "collectingData": "Collecting data",
+      "sessions": "Sessions",
+      "minutes": "Study minutes",
+      "overall": "Overall",
+      "fluency": "Fluency",
+      "pronunciation": "Pronunciation",
+      "interaction": "Interaction",
+      "skillTrend": "Skill trends by source",
+      "trendSamples": "{count} evaluation samples",
+      "source": {
+        "ALL": "All",
+        "WRITING": "Writing",
+        "SPEAKING": "Speaking",
+        "LISTENING": "Listening",
+        "READING": "Reading",
+        "VOCABULARY": "Vocabulary"
+      },
+      "metric": {
+        "GRAMMAR": "Grammar",
+        "VOCABULARY": "Vocabulary",
+        "NATURALNESS": "Naturalness",
+        "MEANING": "Meaning comprehension",
+        "EXPRESSIVENESS": "Expressiveness",
+        "FLUENCY": "Fluency",
+        "PRONUNCIATION": "Pronunciation",
+        "INTERACTION": "Interaction",
+        "OVERALL": "Overall",
+        "LISTENING_RECOGNITION": "Listening recognition",
+        "TOKEN_RECOGNITION": "Word recognition",
+        "OMISSION_ADDITION_ORDER": "Omissions, additions, and word order",
+        "ORTHOGRAPHY": "Spelling accuracy",
+        "MEANING_FIDELITY": "Core meaning",
+        "DETAIL_AND_NUANCE": "Details",
+        "ORIGIN_NATURALNESS": "Natural expression of meaning",
+        "PROSODY_RHYTHM": "Intonation and rhythm",
+        "COMPLETENESS": "Completeness",
+        "SPOKEN_EXPRESSION": "Spoken expression",
+        "WRITTEN_EXPRESSION": "Written expression",
+        "EXPRESSION": "Expressiveness",
+        "LISTENING_INDEPENDENCE": "Independent listening",
+        "ANSWER_ACCURACY": "Answer accuracy",
+        "GIST_COVERAGE": "Understanding the main idea",
+        "KEY_POINT_COVERAGE": "Key information coverage",
+        "LANGUAGE_CLARITY": "Clarity of expression",
+        "CONTENT": "Content comprehension",
+        "DETAIL": "Details",
+        "INFERENCE": "Inference",
+        "GIST": "Main idea",
+        "STRUCTURE": "Structure comprehension",
+        "CONTEXT_INFERENCE": "Contextual inference",
+        "SYNONYM": "Synonyms",
+        "ANTONYM": "Antonyms",
+        "DISTINCTION": "Distinguishing similar words",
+        "COLLOCATION": "Collocations",
+        "NUANCE": "Nuance",
+        "REGISTER": "Situational language",
+        "PRAGMATIC_FIT": "Pragmatic and situational fit",
+        "CONTEXT_USAGE": "Use in context",
+        "COMPOSITION": "Combination and composition"
+      },
+      "points": "{count} points",
+      "unifiedInsight": "Combined learning insights",
+      "strengths": "Strengths",
+      "weaknesses": "Weaknesses",
+      "focus": "Suggested focus",
+      "widgetFailed": "Could not display this widget. Other dashboard information is still available.",
+      "startWriting": "Start Writing",
+      "startSpeaking": "Start Speaking",
+      "sourceEvidence": "Evidence sources",
+      "trendPeriod": "Date range",
+      "integrated": {
+        "eyebrow": "Overall assessment",
+        "title": "Combined language ability",
+        "confidence": "Confidence {value}",
+        "measured": "Areas measured {measured}/{total}",
+        "groupMeasured": "{count} metrics measured",
+        "metricMeta": "Samples {count} · {confidence}"
+      },
+      "activity": {
+        "eyebrow": "Assessment by feature",
+        "title": "Practice performance",
+        "writing": "Writing",
+        "speaking": "Speaking",
+        "listening": "Listening",
+        "reading": "Reading",
+        "vocabulary": "Vocabulary",
+        "recentScore": "Recent score",
+        "samples": "Samples {count}",
+        "coverage": "Evaluation coverage {evaluated}/{total}",
+        "today": "Today {completed}/{target} {unit}",
+        "start": "Start practice",
+        "levelTest": "Level test",
+        "webAi": "Web AI"
+      },
+      "group": {
+        "COMPREHENSION": "Comprehension",
+        "EXPRESSION": "Expression",
+        "ACCURACY": "Language foundations",
+        "SPEECH": "Speech and conversation"
+      },
+      "growth": {
+        "title": "Growth",
+        "empty": "There are not enough samples to assess growth yet.",
+        "meta": "{source} · Previous {previous} ({previousCount}) → Recent {recent} ({recentCount})"
+      },
+      "weakness": {
+        "title": "Weaknesses and improvement",
+        "empty": "No recurring weaknesses currently observed.",
+        "evidence": "Evidence {count} times · Latest {score} · {sources}",
+        "state": {
+          "DATA_COLLECTING": "Collecting data",
+          "ACTIVE": "Needs improvement",
+          "IMPROVING": "Improving",
+          "RESOLVED": "Improved",
+          "WEAKNESS": "Needs improvement",
+          "STRENGTH": "Strength"
+        }
+      },
+      "recommendation": {
+        "title": "Recommended practice",
+        "empty": "No additional practice recommendations right now.",
+        "dismiss": "Dismiss recommendation",
+        "start": "Start recommended practice"
+      },
+      "trend": {
+        "listeningTitle": "Listening task and metric trends",
+        "listeningDescription": "Tasks and metrics are shown separately, rather than combining overall scores with different evaluation coverage into one line.",
+        "samples": "Samples {count}"
+      },
+      "task": {
+        "DICTATION": "Dictation",
+        "INTERPRETATION": "Write the meaning",
+        "REPEAT_AFTER_AUDIO": "Repeat after audio",
+        "COMPREHENSION": "Listen and choose",
+        "SUMMARY": "Summarize key points"
+      }
+    },
+    "levelTest": {
+      "title": "Level test",
+      "description": "A comprehensive 20-question level test covering vocabulary, grammar, reading, listening, writing, and speaking.",
+      "loading": "Checking level test status.",
+      "loadFailed": "Could not load level test status.",
+      "ready": {
+        "initialTitle": "Start your comprehensive level test",
+        "initialDescription": "Answer 20 questions to assess your current language ability in 6 areas. Question difficulty adapts to your answers.",
+        "recheckTitle": "Measure your current level again",
+        "recheckDescription": "Reassess your current overall base level while keeping your past results.",
+        "currentBaseLevel": "Current base level: {score}",
+        "recheckRecommended": "It has been a while since your last assessment. We recommend checking your current level again.",
+        "resume": "Resume test in progress",
+        "start": "Start test",
+        "starting": "Preparing...",
+        "history": "Previous results",
+        "questionCount": "{count} questions in total",
+        "estimatedTime": "About 20–25 minutes",
+        "microphoneRequired": "Microphone required",
+        "microphoneHint": "Includes 3 Speaking questions. A quiet environment is recommended.",
+        "resumeHint": "Submitted answers are saved on the server, so you can resume an interrupted test. Audio that has not been submitted may be lost if you refresh."
+      },
+      "domain": {
+        "VOCABULARY": "Vocabulary",
+        "GRAMMAR": "Grammar",
+        "READING": "Reading",
+        "LISTENING": "Listening",
+        "WRITING": "Writing",
+        "SPEAKING": "Speaking"
+      },
+      "itemType": {
+        "VOCAB_CONTEXT_CHOICE": "Vocabulary in context",
+        "VOCAB_PARAPHRASE_CHOICE": "Choose a paraphrase",
+        "GRAMMAR_FORM_CHOICE": "Choose a grammatical form",
+        "GRAMMAR_SENTENCE_ORDER": "Arrange sentence fragments",
+        "READING_GIST": "Main idea",
+        "READING_DETAIL": "Reading details",
+        "READING_DISCOURSE_FUNCTION": "Discourse function",
+        "READING_TEXT_INFERENCE": "Inference from text",
+        "LISTENING_GIST_CHOICE": "Listening main idea",
+        "LISTENING_DETAIL_CHOICE": "Listening details",
+        "LISTENING_DICTATION": "Dictation",
+        "LISTENING_INTERPRETATION": "Listen and write the meaning",
+        "WRITING_TRANSLATION": "Translation writing",
+        "WRITING_GUIDED_SENTENCE": "Guided sentence writing",
+        "WRITING_SCENARIO_RESPONSE": "Written scenario response",
+        "WRITING_SHORT_PARAGRAPH": "Short paragraph writing",
+        "SPEAKING_REPEAT": "Listen and repeat",
+        "SPEAKING_GUIDED_RESPONSE": "Guided speaking",
+        "SPEAKING_SHORT_RESPONSE": "Short spoken response"
+      },
+      "answerMode": {
+        "CHOICE": "Choose an answer",
+        "TEXT": "Text input",
+        "AUDIO": "Speaking"
+      },
+      "language": {
+        "ko": "Korean",
+        "ja": "Japanese",
+        "en": "English",
+        "other": "Learning language",
+        "none": "Not applicable"
+      },
+      "session": {
+        "title": "Comprehensive level test",
+        "description": "Answers are saved for each question. You cannot edit the current answer while it is being evaluated.",
+        "progress": "{current} / {total}",
+        "itemType": "Question type",
+        "answerMode": "Answer mode",
+        "answerLanguage": "Answer language",
+        "prompt": "Question",
+        "chooseAnswer": "Choose your answer",
+        "textAnswer": "My answer",
+        "textPlaceholder": "Enter your answer.",
+        "guidance": {
+          "title": "Answer guide",
+          "facts": "Given facts",
+          "required": "Required content",
+          "constraints": "Answer conditions"
+        },
+        "sentenceOrder": {
+          "current": "Current sentence order",
+          "empty": "Select fragments below to complete the sentence.",
+          "remaining": "Remaining fragments",
+          "moveUp": "Move fragment {index} earlier",
+          "moveDown": "Move fragment {index} later",
+          "remove": "Remove fragment {index}"
+        },
+        "listening": {
+          "title": "Listening Audio",
+          "normalOnly": "Only normal speed is available during the level test.",
+          "play": "Play",
+          "loading": "Preparing...",
+          "remaining": "{count} additional plays available"
+        },
+        "speaking": {
+          "referenceTitle": "Original audio to repeat",
+          "referenceDescription": "Listen to the reference audio first, then repeat what you heard in the language of the reference audio.",
+          "referencePlay": "Play original audio",
+          "referenceLoading": "Preparing original audio...",
+          "referenceRemaining": "{count} plays available",
+          "referenceUnavailable": "Could not prepare the original audio. Reload the question.",
+          "permissionTitle": "Microphone permission required",
+          "permissionDescription": "Allow microphone access in your browser to answer Speaking questions. Your current test progress is preserved even if you deny permission.",
+          "requesting": "Checking...",
+          "allow": "Allow microphone",
+          "record": "Start recording",
+          "stop": "Stop recording",
+          "rerecord": "Record again",
+          "preview": "Preview recording",
+          "time": "{current} seconds / Maximum {max} seconds",
+          "state": {
+            "IDLE": "Ready to record",
+            "STARTING": "Preparing microphone",
+            "RECORDING": "Recording",
+            "RECORDED": "Recording complete",
+            "ERROR": "Recording error"
+          },
+          "error": {
+            "DENIED": "Microphone permission was denied.",
+            "NO_DEVICE": "No available microphone found.",
+            "DEVICE_BUSY": "Another app is using the microphone.",
+            "UNSUPPORTED": "Audio recording is unavailable in this browser.",
+            "UNKNOWN": "The microphone is unavailable."
+          },
+          "refreshWarning": "Unsubmitted recordings may be lost if you refresh.",
+          "referenceTextTitle": "Text to repeat"
+        },
+        "nextQuestionLoadFailedTitle": "Answer saved and evaluated",
+        "evaluating": "Evaluating your answer...",
+        "evaluationFailed": "Evaluation failed.",
+        "answerSaved": "Your answer is saved. You do not need to restart the entire test.",
+        "audioInvalidTitle": "Not enough speech could be recognized.",
+        "audioInvalidDescription": "Make a new recording instead of evaluating the same recording again.",
+        "audioInvalidHint": "For more reliable recognition, move a little closer to the microphone and speak clearly, slightly louder than usual.",
+        "rerecordAnswer": "Record again",
+        "rerecordReady": "Submit your answer after completing a new recording.",
+        "retryEvaluation": "Retry evaluation",
+        "retrying": "Evaluating again...",
+        "submit": "Submit answer",
+        "submitting": "Submitting...",
+        "listeningLanguage": "Audio language"
+      },
+      "errors": {
+        "LEVEL_TEST_DAILY_LIMIT_REACHED": "You have already completed today's official level test.",
+        "LEVEL_TEST_MIC_REQUIRED": "Microphone permission is required.",
+        "LEVEL_TEST_AUDIO_INVALID": "The audio could not be verified. Record again.",
+        "LEVEL_TEST_EVALUATION_FAILED": "Your answer was saved. Retry only the evaluation.",
+        "LEVEL_TEST_ITEM_REFRESHED": "The question status changed, so the latest question was loaded. Answer the current question again.",
+        "LEVEL_TEST_NEXT_QUESTION_REFRESH_FAILED": "Your answer was saved and evaluated successfully. Only the next question failed to load. Try loading it again.",
+        "CONTENT_DIVERSITY_EXHAUSTED": "Could not prepare the question. Please try again shortly.",
+        "UNKNOWN": "Could not process the request. Try again with your input and progress preserved."
+      },
+      "result": {
+        "title": "Level test results",
+        "description": "View your overall score and results in 6 areas.",
+        "overall": "Overall level",
+        "multiSkillBadge": "Multi-skill Level Test",
+        "internalBandNotice": "Bands reflect TranslaCat's internal learning criteria and are not equivalent to recognized frameworks such as CEFR.",
+        "domainScores": "Scores by area",
+        "recommendedDifficulty": "Recommended practice difficulty",
+        "completedAt": "Assessment date",
+        "startLearning": "Start learning",
+        "profile": "View learning profile",
+        "detail": "View test details"
+      },
+      "history": {
+        "title": "Level test history",
+        "description": "View multi-skill level test results.",
+        "loading": "Loading level test history.",
+        "loadFailed": "Could not load level test history.",
+        "detailTitle": "Level test details",
+        "detailDescription": "View the results and submission and evaluation details for each question.",
+        "filterLabel": "Level test history filter",
+        "filter": {
+          "ALL": "All",
+          "INITIAL": "Initial test",
+          "RECHECK": "Recheck"
+        },
+        "empty": "No level test records match these filters.",
+        "multiSkill": "Multi-skill Level Test",
+        "overall": "Overall {score}",
+        "question": "Question {number}",
+        "userAnswer": "Your answer",
+        "audioSubmitted": "Audio answer submitted",
+        "feedback": "Evaluation feedback",
+        "problem": "Full question",
+        "options": "Options",
+        "fragments": "Sentence fragments",
+        "correctAnswer": "Correct answer",
+        "selectedBadge": "My answer",
+        "correctBadge": "Correct answer",
+        "reviewHint": "This question has no separate evaluation feedback. Compare the question, your answer, and the correct answer to review mistakes.",
+        "feedbackUnavailable": "No separate evaluation feedback is available. Review the question and your submitted answer together.",
+        "questionAudio": "Question audio",
+        "playQuestionAudio": "Play question audio",
+        "modelAnswer": "Sample answer",
+        "modelAnswerAudio": "Sample answer audio",
+        "playModelAnswerAudio": "Play sample answer",
+        "audioLoadFailed": "Could not load audio.",
+        "sttTranscript": "Speech recognition (STT)",
+        "detailedFeedback": "Detailed feedback",
+        "yourExpression": "Your expression",
+        "suggestedExpression": "Suggested expression",
+        "playMyAnswerAudio": "Play my audio"
+      },
+      "difficulty": {
+        "EASY": "Easy",
+        "NORMAL": "Standard",
+        "CHALLENGE": "Challenge",
+        "MY_LEVEL": "My level"
+      },
+      "completed": {
+        "title": "Level assessment complete",
+        "description": "View your overall score and scores by area on the results page.",
+        "baseLevel": "Base Level",
+        "startWriting": "Start learning",
+        "dashboard": "Go to dashboard"
+      },
+      "band": {
+        "FOUNDATION": "Foundation",
+        "BASIC": "Basic",
+        "INTERMEDIATE": "Intermediate",
+        "UPPER_INTERMEDIATE": "Upper intermediate",
+        "ADVANCED": "Advanced"
+      }
+    },
+    "writing": {
+      "curated": {
+        "title": "Writing question review",
+        "description": "Review answers and reference answers for questions under review.",
+        "qaNotice": "These questions are for local QA only. They have not received human approval or been released in the live service.",
+        "signedOut": "Sign in to use the local review questions.",
+        "typeLabel": "Writing type",
+        "openToday": "Open today's questions",
+        "rePractice": "Open review questions",
+        "historyDate": "Past record date",
+        "openHistory": "View record",
+        "loading": "Loading.",
+        "requestFailed": "The request failed. Your written answers are preserved.",
+        "referenceOnly": "Only reference answers are provided. Official scores and proficiency levels are unchanged.",
+        "feedbackDisabled": "Personalized feedback is disabled until quality validation is complete.",
+        "replaceUnanswered": "Replace unanswered question",
+        "facts": "Given facts",
+        "intents": "Content to include",
+        "constraints": "Writing conditions",
+        "answer": "My answer",
+        "saveAnswer": "Save answer",
+        "savedAnswer": "Saved answer",
+        "referenceTitle": "Learning references",
+        "multipleAnswers": "The examples below are possible expressions, not the only correct answers."
+      },
+      "title": "Today's Adaptive Writing",
+      "description": "Choose translation, guided writing, or free writing, then use detailed AI evaluation to inform your next learning profile.",
+      "loadingEntry": "Checking learning settings and level status.",
+      "generatingTitle": "Preparing today's questions",
+      "generatingMessage": "Generating today's Daily Set from your current settings and learning profile.",
+      "loadFailed": "Could not load today's Writing questions.",
+      "progress": "{completed} / {total} complete",
+      "evaluationProgress": "AI evaluation in progress · {count}",
+      "snapshotNotice": "Today's questions retain the snapshot from when they were generated. Settings and keyword changes apply from tomorrow.",
+      "actionFailed": "Could not process the request. Your answers are preserved and you can try again.",
+      "regenerate": {
+        "action": "Replace unanswered questions · {count} attempts left",
+        "loading": "Replacing questions..."
+      },
+      "calibration": {
+        "title": "Calibration in progress.",
+        "description": "Today's evaluations also help refine the learning profile that applies from tomorrow."
+      },
+      "item": {
+        "difficulty": {
+          "REVIEW": "Review",
+          "NORMAL": "Standard",
+          "CHALLENGE": "Challenge"
+        },
+        "prompt": "Source text",
+        "answer": "My answer",
+        "placeholder": "Write a sentence in your learning language.",
+        "submit": "Get AI evaluation",
+        "queueing": "Requesting evaluation...",
+        "retry": "Evaluate with AI again",
+        "evaluating": "Evaluating...",
+        "draftSaved": "Draft saved automatically",
+        "pending": {
+          "title": "AI evaluation in progress",
+          "description": "Your answer is saved on the server. Evaluation continues even if you refresh or open another menu."
+        },
+        "failed": {
+          "title": "AI evaluation failed",
+          "description": "Your answer is preserved. Edit it or evaluate it again as it is."
+        },
+        "answeredToday": "Today's answer and evaluation for this question are complete.",
+        "reviewExpired": "You cannot submit a new answer to this question now. Existing records remain available.",
+        "latestAnswer": "Latest answer",
+        "difficultyDescription": {
+          "CHALLENGE": "Challenge yourself with more complex grammar, vocabulary, and expressions."
+        },
+        "promptLabel": {
+          "TRANSLATION": "Sentence to translate",
+          "GUIDED": "Situation",
+          "FREE": "Topic"
+        },
+        "guidance": {
+          "providedFacts": "Given facts",
+          "requiredIntents": "Required points to communicate",
+          "responseConstraints": "Answer conditions"
+        }
+      },
+      "completed": {
+        "title": "Today's practice complete!",
+        "description": "Today's evaluation results update your learning profile for use from the next learning day.",
+        "dashboard": "View results on dashboard",
+        "chooseType": "Choose another type"
+      },
+      "types": {
+        "label": "Writing type",
+        "TRANSLATION": "Translation writing",
+        "GUIDED": "Guided writing",
+        "FREE": "Free writing"
+      },
+      "typeSelector": {
+        "eyebrow": "Today's Writing",
+        "title": "How would you like to practice?",
+        "description": "A Daily Set is generated only after you choose a type. Practice one type or switch tabs to continue with others.",
+        "start": "Start this type",
+        "notice": "Each type has its own question set. If your current setting is 5 questions, each type provides 5 questions.",
+        "types": {
+          "TRANSLATION": {
+            "title": "Translation writing",
+            "description": "Read a sentence in your native language and translate it naturally into your learning language while preserving its meaning."
+          },
+          "GUIDED": {
+            "title": "Guided writing",
+            "description": "Build your own sentences using the given facts, required points, and answer conditions."
+          },
+          "FREE": {
+            "title": "Free writing",
+            "description": "Express yourself freely using opinions, experiences, plans, or a clearly defined hypothetical situation."
+          }
+        },
+        "continue": "Continue practice",
+        "viewProgress": "View evaluation progress",
+        "result": "View results",
+        "averageScore": "Average {score} points",
+        "status": {
+          "completed": "Complete",
+          "evaluating": "Evaluating",
+          "inProgress": "In progress"
+        }
+      },
+      "bulkEvaluation": {
+        "title": "Evaluate all at once",
+        "description": "You have answered {filled} of {total} questions awaiting evaluation.",
+        "backgroundDescription": "Your requested answers are being evaluated by AI in sequence in the background.",
+        "leaveSafe": "Evaluation continues even if you refresh this page or open another menu.",
+        "missing": "Answer the remaining {count} questions to evaluate them all at once.",
+        "action": "Evaluate all {count} with AI",
+        "queueing": "Requesting evaluation {completed} / {total}",
+        "evaluating": "Evaluated {completed} / {total}",
+        "failed": "{count} evaluations failed. You can retry with your preserved answers."
+      }
+    },
+    "evaluation": {
+      "eyebrow": "AI Evaluation",
+      "title": "AI evaluation results",
+      "strengths": "Strengths",
+      "weaknesses": "Areas to improve",
+      "corrections": "Corrections",
+      "recommendedAnswers": "Suggested answers",
+      "explanation": "Detailed explanation"
+    },
+    "history": {
+      "title": "Learning records",
+      "evidence": {
+        "title": "Accumulated learning evidence",
+        "description": "Review saved practice and feedback by date range. Coaching is not an official score. Viewing these records does not create new evaluations or questions.",
+        "metadataScope": "This list shows information from saved records. Check each detail page for the current availability of source text, audio, and feedback.",
+        "from": "Start date",
+        "to": "End date",
+        "source": "Practice type",
+        "language": "Learning language code",
+        "allLanguages": "All saved languages (e.g. ja, en)",
+        "resultKind": "Result type",
+        "allKinds": "All result types",
+        "policy": "Saved policy version",
+        "allPolicies": "All policies",
+        "apply": "Apply filters",
+        "refresh": "Refresh evidence",
+        "rangeNotice": "The date range is limited to 366 days. It is not a proficiency assessment cycle.",
+        "loading": "Loading saved evidence.",
+        "failed": "Could not retrieve evidence. This does not mean there are no records. Please try again.",
+        "empty": "No saved records match these filters.",
+        "limited": "Some saved information is unverified",
+        "date": "Saved learning date",
+        "languages": "Native language → Learning language",
+        "status": "Saved status",
+        "unknown": "Unknown",
+        "reviewReason": "Open the details to check currently available source content and feedback. Start review practice yourself only when the original page supports it.",
+        "review": "Review original practice and feedback",
+        "unavailable": "This saved record cannot be linked to its original detail page.",
+        "otherLimitation": "Saved evidence limitation: {code}",
+        "pagination": "Evidence pagination",
+        "previous": "Previous page",
+        "next": "Next page",
+        "kind": {
+          "SCORED_EVALUATION": "Saved scored evaluation",
+          "SESSION_COACHING": "Session coaching · No score",
+          "UNKNOWN": "Legacy · Result type unknown"
+        },
+        "limitation": {
+          "UNKNOWN_METADATA": "Some original metadata is missing, so the policy and source cannot be confirmed.",
+          "SOURCE_UNAVAILABLE": "The source was deleted, excluded, or is unavailable.",
+          "LEGACY_RESULT": "This result was saved under an earlier contract.",
+          "NO_USABLE_EVIDENCE": "No usable learner evidence is available.",
+          "ASSISTANCE_USED": "Assistance was used. Suggested expressions are distinguished from learner performance."
+        }
+      },
+      "description": "View writing, speaking, and listening history and their original evaluations in one place.",
+      "loading": "Loading recent learning records.",
+      "loadFailed": "Could not load learning records.",
+      "historyLoading": "Loading learning records for the selected date.",
+      "historyLoadFailed": "Could not load learning records for the selected date.",
+      "dates": "Learning dates",
+      "summary": "{count} sentences · Average {score}",
+      "setTitle": "{count} Writing questions",
+      "reviewAvailable": "Review practice available",
+      "reviewExpired": "View only",
+      "noAttempt": "No submission has been recorded for this question.",
+      "difficulty": {
+        "REVIEW": "Review",
+        "NORMAL": "Standard",
+        "CHALLENGE": "Challenge"
+      },
+      "empty": {
+        "title": "No learning records yet",
+        "description": "Start writing, speaking, or listening practice to see your combined history here."
+      },
+      "review": {
+        "answerLabel": "Try writing it again",
+        "placeholder": "Practice this question again.",
+        "notice": "Review submissions also count toward AI evaluation. You can submit this question only once today.",
+        "submit": "Evaluate review answer",
+        "submitting": "Evaluating...",
+        "submitFailed": "Could not evaluate your review answer. Your input is preserved."
+      },
+      "unified": {
+        "source": {
+          "ALL": "All",
+          "WRITING": "Writing",
+          "SPEAKING": "Speaking",
+          "LISTENING": "Listening",
+          "READING": "Reading",
+          "LEVEL_TEST": "Level test",
+          "WEB_AI": "Web AI",
+          "VOCABULARY": "Vocabulary"
+        },
+        "freeTalk": "Free conversation",
+        "speakingSummary": "{turns} turns · {minutes} min",
+        "noTranscript": "No speech was recognized.",
+        "startMode": "Conversation start mode",
+        "correctionMode": "Correction mode",
+        "speakingMetrics": "8 speaking assessment dimensions",
+        "fullTranscript": "Full conversation transcript",
+        "assistanceSummary": "Learning assistance usage",
+        "assistanceSummaryDescription": "The number of times learning assistance was actually used during the session.",
+        "userAudioExpired": "Your original audio has expired and can no longer be played.",
+        "taskFilter": "Listening practice type filter",
+        "allTasks": "All practice types",
+        "noItems": "No learning history matches these filters.",
+        "task": {
+          "DICTATION": "Dictation",
+          "INTERPRETATION": "Write the meaning",
+          "REPEAT_AFTER_AUDIO": "Repeat after audio"
+        }
+      },
+      "readingPreparing": "Reading details are coming soon.",
+      "listening": {
+        "title": "Listening details",
+        "sessionSummary": "Completed {completed} · Evaluated {evaluated}",
+        "task": {
+          "DICTATION": "Dictation",
+          "INTERPRETATION": "Write the meaning",
+          "REPEAT_AFTER_AUDIO": "Repeat after audio",
+          "COMPREHENSION": "Listen and choose",
+          "SUMMARY": "Summarize key points"
+        },
+        "notSelected": "Not selected",
+        "userAudioExpired": "Your audio retention period has ended.",
+        "userAudioRetained": "Your audio is retained · {until}",
+        "userAudioUnavailable": "No user audio",
+        "profileApplied": "Applied to profile: {value}",
+        "yes": "Yes",
+        "no": "No",
+        "referenceAudioExpired": "The audio retention period has ended. Your answers and evaluation results remain available.",
+        "audioLoading": "Loading audio...",
+        "playReference": "Play reference audio",
+        "retentionUntil": "Expires {until}",
+        "playUserAudio": "Play my audio",
+        "userAudioLoading": "Loading audio...",
+        "userAudioLoadFailed": "Could not load your audio."
+      }
+    },
+    "profile": {
+      "title": "Learning profile",
+      "description": "View your 5 core skills and the long-term learning signals AI uses to generate future questions.",
+      "loading": "Loading your learning profile.",
+      "loadFailed": "Could not load your learning profile.",
+      "baseLevel": "Base level",
+      "trend": "Recent trend",
+      "confidence": "Profile confidence {value}%",
+      "calibrating": "You are in the initial calibration period. Your profile may adjust quickly as actual Writing data accumulates.",
+      "state": {
+        "LEVEL_TEST_REQUIRED": "Level test required",
+        "CALIBRATING": "Calibrating",
+        "ACTIVE": "Adaptive learning active"
+      },
+      "signals": {
+        "strengths": {
+          "title": "Strengths",
+          "empty": "No clear strength signals yet."
+        },
+        "weaknesses": {
+          "title": "Weaknesses",
+          "empty": "No clear weakness signals yet."
+        },
+        "focus": {
+          "title": "Suggested focus",
+          "empty": "No suggested focus yet."
+        }
+      },
+      "grammar": {
+        "title": "Grammar weaknesses",
+        "empty": "No recurring grammar weaknesses."
+      },
+      "errors": {
+        "title": "Error patterns",
+        "empty": "No recurring error patterns."
+      },
+      "keywords": {
+        "title": "Keyword mastery",
+        "empty": "No keyword mastery data."
+      },
+      "levelTest": {
+        "title": "Level test",
+        "current": "Current base level {score} · {band}",
+        "lastMeasured": "Last assessed {date}",
+        "recheckRecommended": "We recommend reassessing your current level.",
+        "latestResult": "Latest result",
+        "history": "Previous results",
+        "recheck": "Reassess level",
+        "start": "Start level test"
+      },
+      "sections": {
+        "overview": "Skill profile",
+        "vocabularyMastery": "Vocabulary mastery"
+      },
+      "vocabularyMastery": {
+        "title": "Cumulative vocabulary mastery",
+        "average": "Average mastery {score}",
+        "empty": "No Vocabulary learning records yet.",
+        "new": "New",
+        "learning": "Learning",
+        "familiar": "Familiar",
+        "strong": "Strong",
+        "mastered": "Mastered",
+        "weakest": "Expressions to review first"
+      }
+    },
+    "settings": {
+      "title": "Language learning settings",
+      "description": "Manage learning languages, Writing and Speaking goals, and keywords. Some changes apply from the next learning day.",
+      "loading": "Loading learning settings and keywords.",
+      "loadFailed": "Could not load language learning settings. Reload and check your settings and keywords.",
+      "webAiEntry": {
+        "title": "Web AI learning plans",
+        "description": "Create learning schedules and prompts using your basic learning settings and keywords. Plans are saved to your account.",
+        "action": "Manage plans"
+      },
+      "webAi": {
+        "eyebrow": "WEB AI LEARNING",
+        "title": "Web AI learning plans",
+        "description": "Create different plans by weekday or date, then choose areas and difficulty levels to prepare a prompt to copy.",
+        "mobileListTitle": "Learning schedule",
+        "mobileListDescription": "Prepare the practice you want for the days you want.",
+        "mobileEditorTitle": "Edit schedule",
+        "backToPlans": "Back to learning schedules",
+        "localNoticeShort": "Plans are saved to your account. Register the copied prompt in your web AI's scheduling feature yourself.",
+        "mobileNavigation": "Mobile shortcuts",
+        "mobileNavHome": "Home",
+        "mobileNavLearning": "Practice",
+        "mobileNavSchedule": "Schedule",
+        "mobileNavSettings": "Settings",
+        "back": "Back to language learning settings",
+        "localNoticeTitle": "Learn with a web AI and keep your records in TranslaCat",
+        "localNotice": "Plans are saved to your account. After saving, register the connection prompt in your web AI's scheduling feature. Results are verified by the server AI and incorporated into your existing learning scores.",
+        "loading": "Loading plans.",
+        "authRequired": "Sign in to create a plan.",
+        "planListEyebrow": "MY PLANS",
+        "planListTitle": "My plans ({count})",
+        "newPlan": "New plan",
+        "emptyTitle": "No saved plans",
+        "emptyDescription": "Create a plan and choose your days and question mix.",
+        "questionCount": "{count} questions",
+        "edit": "Edit",
+        "duplicate": "Duplicate",
+        "delete": "Delete",
+        "copyName": "{name} copy",
+        "confirmDelete": "Delete the plan ‘{name}’?",
+        "selectTitle": "Select a plan or create one",
+        "selectDescription": "One plan can include several practice areas. Add separate plans for different days or purposes.",
+        "editorEyebrow": "PLAN EDITOR",
+        "editorTitle": "Edit learning plan",
+        "editorDescription": "Your selections create a prompt to paste into a web AI.",
+        "close": "Close editor",
+        "basicsTitle": "Name and languages",
+        "basicsDescription": "Languages are managed together in basic learning settings.",
+        "inheritedLanguagesHelp": "Uses your currently active shared languages. After changing settings, copy the prompt again and register it.",
+        "manageLanguages": "Change language settings",
+        "baseLanguagesLoading": "Checking basic language settings.",
+        "baseLanguagesUnavailable": "Could not verify basic language settings. You can copy the prompt once they are confirmed.",
+        "retryBaseLanguages": "Check again",
+        "name": "Plan name",
+        "namePlaceholder": "e.g. Japanese for workplace writing",
+        "originLanguage": "Source language",
+        "learningLanguage": "Learning language",
+        "feedbackLanguage": "Explanation and feedback language",
+        "feedbackLanguageHelp": "Question explanations and answer corrections will be requested in this language.",
+        "scheduleTitle": "Repeat settings",
+        "scheduleDescription": "Choose weekdays, days of the month, and a time for each plan.",
+        "recurrenceLabel": "Repeat",
+        "recurrence": {
+          "DAILY": "Daily",
+          "WEEKLY": "Weekly",
+          "MONTHLY": "Monthly"
+        },
+        "weekdayLabel": "Days to run",
+        "weekday": {
+          "0": "Sun",
+          "1": "Mon",
+          "2": "Tue",
+          "3": "Wed",
+          "4": "Thu",
+          "5": "Fri",
+          "6": "Sat"
+        },
+        "monthDayLabel": "Day of month",
+        "includeLastDay": "Last day of every month",
+        "lastDayShort": "Month end",
+        "missingMonthDayHelp": "Dates that do not exist in a month are skipped. For example: 2/30.",
+        "monthDayValue": "Day {day}",
+        "dailyHelp": "Uses the same time every day of the week.",
+        "time": "Time to run",
+        "timezone": "Time zone",
+        "areasTitle": "Question mix",
+        "areasDescription": "Select practice subtypes and enter question counts for each difficulty.",
+        "domainLabel": "Practice area",
+        "domains": {
+          "WRITING": "Writing",
+          "READING": "Reading",
+          "SPEAKING": "Speaking",
+          "LISTENING": "Listening"
+        },
+        "areas": {
+          "WRITING": "All Writing",
+          "WRITING_TRANSLATION": "Translation writing",
+          "WRITING_GUIDED": "Guided writing",
+          "WRITING_FREE": "Free writing",
+          "READING": "All Reading",
+          "READING_COMPREHENSION": "Reading comprehension",
+          "READING_STRUCTURE": "Main ideas and structure",
+          "READING_CONTEXT_INFERENCE": "Contextual inference",
+          "SPEAKING": "All Speaking",
+          "SPEAKING_READ_ALOUD": "Listen and repeat",
+          "SPEAKING_GUIDED": "Guided speaking",
+          "SPEAKING_FREE": "Free speaking",
+          "LISTENING": "All Listening",
+          "LISTENING_DICTATION": "Dictation and interpretation",
+          "LISTENING_COMPREHENSION": "Listen and choose",
+          "LISTENING_SUMMARY": "Summarize key points"
+        },
+        "keywordSettings": {
+          "title": "Question topic keywords",
+          "defaultMode": "Use default keywords",
+          "customMode": "Choose for this plan",
+          "summaryDefault": "Use default settings",
+          "summaryCustom": "Custom selection · {count}",
+          "description": "Use keywords to choose the topics covered by this plan.",
+          "defaultHelp": "Uses the keywords currently active in language learning settings. Scheduled changes take effect on their effective date.",
+          "customHelp": "Choose keywords for this plan. Default settings and keywords in other plans are unaffected.",
+          "selectedTitle": "Keywords selected for this plan",
+          "catalogTitle": "Available keywords",
+          "loading": "Loading keywords.",
+          "loadError": "Could not load keywords. Your existing selections are preserved.",
+          "retry": "Try again",
+          "defaultEmpty": "No default keywords are available today. Prepare keywords in language learning settings.",
+          "customEmpty": "Select at least 1 plan keyword or switch to default keywords.",
+          "catalogEmpty": "No keywords available to select. You can add keywords in language learning settings.",
+          "removeKeyword": "Deselect {keyword}",
+          "catalogLabel": "Choose question topics for this plan"
+        },
+        "legacyAreaTitle": "Previous ‘All’ question count",
+        "legacyAreaHelp": "The previous total count cannot be distributed among subtypes automatically. Enter the counts you want for the three types below, then remove this item.",
+        "legacyAreaRemove": "Remove previous total count",
+        "difficulty": {
+          "easy": "Easy",
+          "standard": "Standard",
+          "hard": "Hard"
+        },
+        "difficultyDetails": "Adjust counts by difficulty",
+        "countLabel": "Question count",
+        "countStepHelp": "The ± buttons adjust the standard question count first. Change counts by difficulty below.",
+        "decreaseCount": "Decrease {area} question count",
+        "increaseCount": "Increase {area} question count",
+        "unlimitedHelp": "There is no upper limit for the configured question count. If the AI cannot show them all at once, the prompt asks it to continue numbering across responses.",
+        "focusTitle": "Practice situation and topic",
+        "focusDescription": "Choose areas and difficulty above, then optionally add the work situation or topic you want to cover.",
+        "focusPlaceholder": "e.g. Expressions for discussing requirements and design with clients in Japan",
+        "feedbackTitle": "Request detailed feedback",
+        "feedbackDescription": "The prompt asks for your expression → suggested expression → reason, explanations for each sentence, and a full revision after you submit answers.",
+        "validationTitle": "Check the following",
+        "validation": {
+          "NAME_REQUIRED": "Enter a plan name.",
+          "LANGUAGES_REQUIRED": "Choose source, learning, and feedback languages.",
+          "SAME_LANGUAGE": "Choose different source and learning languages.",
+          "TIMEZONE_INVALID": "Enter a valid time zone, e.g. Asia/Tokyo.",
+          "TIME_INVALID": "Choose a time to run.",
+          "WEEKDAY_REQUIRED": "Choose at least one weekday.",
+          "MONTH_DAY_REQUIRED": "Choose a day of the month or the last day of every month.",
+          "AREA_REQUIRED": "Choose at least one practice area.",
+          "COUNT_INVALID": "Question counts must be whole numbers of 0 or greater.",
+          "COUNT_REQUIRED": "Enter at least one question.",
+          "KEYWORDS_INVALID": "Check your keyword selections.",
+          "LEGACY_AREA_REQUIRES_REVIEW": "Move the previous ‘All’ count into individual subtypes, then remove the old item.",
+          "PLAN_KEYWORDS_REQUIRED": "Select at least 1 plan keyword or switch to default keywords."
+        },
+        "notice": {
+          "saved": "Learning plan saved to your account.",
+          "saveFailed": "Could not complete the request. Your input is preserved. Please try again.",
+          "copied": "Submission prompt copied. Paste it into your web AI. It includes instructions for sending results after evaluation or importing them manually.",
+          "copyFailed": "Automatic copying was blocked. The prepared text is preserved. Copy again or select all and copy manually.",
+          "prepareFailed": "Could not prepare the submission prompt. Your input is preserved. Please try again."
+        },
+        "saveDraft": "Save learning plan",
+        "saveDraftHelp": "Plans are saved to your account.",
+        "copyPrompt": "Copy prompt",
+        "promptPreviewTitle": "Submission prompt",
+        "promptPreviewHelp": "After preparation, the full content to be copied is shown.",
+        "ready": "Ready to copy",
+        "promptPreviewEmpty": "Enter a name, schedule, and question mix to preview the prompt.",
+        "actualPrompt": "Actual submission prompt to copy",
+        "actualPromptHelp": "The content below will be copied exactly. If automatic copying fails, copy again or select all and copy manually. It contains a connection key, so do not share it publicly.",
+        "promptSummaryHelp": "Below is a summary of your learning settings before saving. After saving, Copy prompt prepares the actual text, including result submission instructions. Initial preparation replaces the existing connection key; copying again does not.",
+        "selectPrompt": "Select all",
+        "closeCopyPrompt": "Close prompt"
+      },
+      "form": {
+        "title": "Basic learning settings",
+        "feedbackLanguage": "Explanation and feedback language",
+        "feedbackLanguageHelp": "The language used for question explanations and feedback in web AI learning plans.",
+        "description": "Initial settings are available immediately. Later changes apply from the next learning day.",
+        "originLanguage": "Source language",
+        "learningLanguage": "Learning language",
+        "dailySentenceCount": "Daily sentence count",
+        "dailySentenceRange": "Allowed range: {min} ~ {max}",
+        "timezone": "Learning time zone",
+        "sameLanguage": "Source and learning languages must be different.",
+        "save": "Save settings",
+        "saving": "Saving...",
+        "saveFailed": "Could not save learning settings.",
+        "savedInitial": "Initial learning settings saved.",
+        "savedNextDay": "Settings saved. Changes apply from the next learning day.",
+        "pending": {
+          "title": "Scheduled settings changes",
+          "description": "Your scheduled changes take effect from {date}."
+        },
+        "dailySpeakingGoalMinutes": "Daily Speaking goal",
+        "dailySpeakingGoalRange": "Allowed range: {min} ~ {max} min",
+        "speakingVoice": "Default Speaking voice",
+        "speakingPlaybackSpeed": "Default playback speed",
+        "playbackSpeed": {
+          "SLOW": "Slow",
+          "NORMAL": "Normal"
+        },
+        "dailyListeningGoalCount": "Daily Listening goal",
+        "dailyListeningGoalRange": "Allowed range: {min} ~ {max} questions",
+        "defaultListeningTasks": "Default Listening practice types",
+        "defaultListeningTasksRule": "Select dictation, repeat after audio, or both. Writing the meaning is optional. This combination is saved immediately as the default for your next Listening session.",
+        "defaultListeningTasksInvalid": "Select dictation, repeat after audio, or both.",
+        "listeningTask": {
+          "DICTATION": "Dictation",
+          "INTERPRETATION": "Write the meaning",
+          "REPEAT_AFTER_AUDIO": "Repeat after audio"
+        }
+      },
+      "keywords": {
+        "title": "Learning keywords",
+        "refreshFailed": "Could not refresh keywords. The current view and saved selections are preserved. Please try again.",
+        "retry": "Try again",
+        "description": "Select a broad topic or choose vocabulary below it for specific interests. You can practice without selecting any keywords.",
+        "nextDayNotice": "Keyword changes apply immediately before your first Writing Daily Set or Speaking session is created. After either has been created, additions, edits, and selection changes apply from the next learning day. The selection weight for new keywords increases gradually over about 7 days.",
+        "types": {
+          "TOPIC": "Topic",
+          "VOCABULARY": "Vocabulary"
+        },
+        "parentGroup": {
+          "label": "Parent topic",
+          "none": "No group"
+        },
+        "create": {
+          "title": "Add custom keyword",
+          "placeholder": "e.g. Customer Service, deployment",
+          "action": "Add",
+          "creating": "Adding..."
+        },
+        "system": {
+          "title": "System keywords",
+          "description": "Selecting and expanding a topic are independent. Select the topic alone or include specific vocabulary.",
+          "empty": "No system keywords registered.",
+          "detailTitle": "Specific vocabulary",
+          "detailSummary": "{selected}/{total} selected",
+          "expand": "Expand {topic} keywords",
+          "collapse": "Collapse {topic} keywords",
+          "noDetails": "No specific keywords registered.",
+          "ungrouped": "Ungrouped keywords"
+        },
+        "custom": {
+          "title": "Custom keywords",
+          "description": "Manage your interests and the expressions you want to learn.",
+          "empty": "No custom keywords registered."
+        },
+        "selected": "Selected",
+        "notSelected": "Not selected",
+        "edit": "Edit",
+        "deactivate": "Deactivate",
+        "cancel": "Cancel",
+        "save": "Save",
+        "pending": "Effective {date}",
+        "duplicate": "The same keyword already exists for this type.",
+        "actionFailed": "Could not update the keyword."
+      },
+      "recheck": {
+        "title": "Reassess your learning level",
+        "description": "Keep past records while reassessing your current base level and starting a new calibration cycle.",
+        "recommended": "A level recheck is recommended after a long break from learning.",
+        "action": "Recheck level"
+      },
+      "webAiSetup": {
+        "title": "Complete learning setup first",
+        "ready": "You are ready to learn",
+        "checking": "Checking learning readiness",
+        "unavailable": "Could not check learning readiness",
+        "settingsLabel": "1. Save basic learning settings",
+        "keywordsLabel": "2. Prepare learning keywords",
+        "settingsAction": "Set up",
+        "keywordsAction": "Set keywords",
+        "help": "Save your source and learning languages and prepare keywords to create a plan.",
+        "keywordsHelp": "At least 1 learning keyword must be available today. Select or add keywords. If changes take effect from the next learning day, create your plan after they apply.",
+        "retry": "Check readiness again",
+        "status": {
+          "complete": "Complete",
+          "loading": "Checking",
+          "error": "Could not load"
+        }
+      }
+    },
+    "admin": {
+      "eyebrow": "Admin · Language Learning",
+      "title": "Language learning administration",
+      "description": "Manage daily sentence ranges, keyword counts, review periods, level recheck criteria, and AI feature availability.",
+      "loading": "Loading language learning administration settings...",
+      "forbidden": "Only administrators can access language learning administration settings.",
+      "loadFailed": "Could not load language learning administration settings.",
+      "retry": "Reload",
+      "save": "Save settings",
+      "saving": "Saving...",
+      "saved": "Language learning administration settings saved.",
+      "saveFailed": "Could not save language learning administration settings.",
+      "invalid": "Check minimum ≤ default ≤ maximum and all period and count settings.",
+      "fields": {
+        "defaultDailySentenceCount": {
+          "label": "Default daily sentence count",
+          "help": "The default daily sentence count for new users."
+        },
+        "minDailySentenceCount": {
+          "label": "Minimum daily sentence count",
+          "help": "The minimum sentence count users can select."
+        },
+        "maxDailySentenceCount": {
+          "label": "Maximum daily sentence count",
+          "help": "The maximum sentence count users can select."
+        },
+        "dailyKeywordMaxCount": {
+          "label": "Maximum daily keywords",
+          "help": "The maximum number selected from a user's keyword pool for one Daily Set."
+        },
+        "reviewAvailableDays": {
+          "label": "Days available to review past questions",
+          "help": "Records remain viewable after this period, but new answers can no longer be submitted."
+        },
+        "levelRecheckRecommendationDays": {
+          "label": "Days before recommending a level recheck",
+          "help": "Recommend reassessment after a break of at least this many days since the last practice."
+        },
+        "adaptiveWritingEnabled": {
+          "label": "Enable Adaptive Writing",
+          "help": "Enable all Daily Writing generation features."
+        },
+        "aiEvaluationEnabled": {
+          "label": "Enable AI evaluation",
+          "help": "Enable AI evaluation of Writing answers."
+        },
+        "speakingEnabled": {
+          "label": "Enable Speaking",
+          "help": "Enable all AI Speaking features."
+        },
+        "speakingEvaluationEnabled": {
+          "label": "Enable Speaking evaluation",
+          "help": "Enable AI Speaking evaluation after a session ends."
+        },
+        "defaultDailySpeakingGoalMinutes": {
+          "label": "Default Speaking goal (min)",
+          "help": "The default daily Speaking goal for new users."
+        },
+        "minDailySpeakingGoalMinutes": {
+          "label": "Minimum Speaking goal (min)",
+          "help": "The minimum goal users can select."
+        },
+        "maxDailySpeakingGoalMinutes": {
+          "label": "Maximum Speaking goal (min)",
+          "help": "The maximum goal users can select."
+        },
+        "dailySpeakingHardLimitMinutes": {
+          "label": "Daily Speaking hard limit (min)",
+          "help": "The maximum Speaking time per user per day."
+        },
+        "dailySpeakingSessionLimit": {
+          "label": "Daily session limit",
+          "help": "The number of Speaking sessions that can be created per day."
+        },
+        "maxSessionMinutes": {
+          "label": "Maximum session length (min)",
+          "help": "The maximum target duration of one session."
+        },
+        "maxTurnsPerSession": {
+          "label": "Maximum turns per session",
+          "help": "The maximum number of turns in one session."
+        },
+        "minValidAudioSeconds": {
+          "label": "Minimum valid audio (sec)",
+          "help": "The minimum recording length that counts as a valid turn."
+        },
+        "maxTurnAudioSeconds": {
+          "label": "Maximum audio per turn (sec)",
+          "help": "The maximum recording length for one turn."
+        },
+        "maxAudioFileBytes": {
+          "label": "Maximum audio bytes",
+          "help": "The maximum upload file size for one turn."
+        },
+        "rawAudioRetentionDays": {
+          "label": "Standard audio retention days",
+          "help": "The retention period for standard original audio."
+        },
+        "reportedAudioRetentionDays": {
+          "label": "Reported audio retention days",
+          "help": "The maximum retention period for error report audio with analysis consent."
+        },
+        "activeSessionResumeHours": {
+          "label": "Session resume window",
+          "help": "The time allowed to resume a session in progress."
+        },
+        "automaticRetryLimitPerStage": {
+          "label": "Automatic retries per stage",
+          "help": "Maximum automatic retries for STT, LLM, and TTS stages."
+        },
+        "manualRetryLimitPerStage": {
+          "label": "Manual retries per stage",
+          "help": "Maximum retries manually requested by the user."
+        },
+        "sttTimeoutSeconds": {
+          "label": "STT timeout (sec)",
+          "help": "The STT processing timeout."
+        },
+        "ttsTimeoutSeconds": {
+          "label": "TTS timeout (sec)",
+          "help": "The TTS processing timeout."
+        },
+        "evaluationTimeoutSeconds": {
+          "label": "Evaluation timeout (sec)",
+          "help": "The Speaking evaluation timeout."
+        },
+        "levelTestQuestionPoolReplenishmentEnabled": {
+          "label": "Level test question generation batch",
+          "help": "Enable or disable the background batch that replenishes the level test question pool. A running task finishes before the setting takes effect on the next run."
+        }
+      },
+      "speaking": {
+        "title": "Speaking administration",
+        "description": "Manage Speaking goals, session and turn limits, audio retention, retries, and timeout policies."
+      }
+    },
+    "speaking": {
+      "start": {
+        "pageTitle": "AI Speaking",
+        "pageDescription": "Choose a topic and conversation style, then start a voice conversation with AI.",
+        "loading": "Checking Speaking settings.",
+        "loadFailed": "Could not load Speaking setup information.",
+        "usage": {
+          "sessions": "Today's sessions",
+          "minutes": "Today's Speaking time"
+        },
+        "createFailed": "Could not start a Speaking session.",
+        "creating": "Creating session...",
+        "start": "Start Speaking",
+        "active": {
+          "eyebrow": "Session in progress",
+          "freeTalk": "Free conversation",
+          "turns": "{current} / {max} turns",
+          "minutes": "{value} min",
+          "continue": "Continue practice",
+          "loading": "Checking for a Speaking session in progress.",
+          "loadFailed": "Could not check for an active session. Starting a new session is temporarily restricted to prevent duplicates.",
+          "retry": "Check again"
+        },
+        "topic": {
+          "title": "Conversation topic",
+          "description": "Choose a topic based on your learning keywords or a custom topic for this session.",
+          "selectionType": "Topic selection",
+          "keywordTitle": "Topic based on my keywords",
+          "keywordDescription": "AI creates this session's questions and situations using the keywords in your learning settings.",
+          "keywordLoading": "Checking learning keywords...",
+          "keywordLoadFailed": "Could not load learning keywords.",
+          "keywordPreviewTitle": "Currently selected learning keywords",
+          "keywordHelp": "When the session starts, AI combines some of these keywords to create questions suited to your current level and Speaking type.",
+          "keywordEmpty": "No learning keywords are available.",
+          "keywordEmptyHelp": "Select keywords in learning settings and try again, or use a custom topic.",
+          "openSettings": "Open learning settings",
+          "category": "Topic category",
+          "all": "All",
+          "loading": "Loading topics...",
+          "loadFailed": "Could not load topics.",
+          "categories": {
+            "DAILY": "Daily life",
+            "TRAVEL": "Travel",
+            "FOOD": "Food",
+            "SHOPPING": "Shopping",
+            "BUSINESS": "Business",
+            "IT": "IT",
+            "HOBBY": "Hobbies",
+            "GAME": "Games",
+            "CULTURE": "Culture",
+            "FREE_TALK": "Free conversation"
+          },
+          "level": "Recommended level · {level}",
+          "customTitle": "Enter your own topic",
+          "customDescription": "Choose your own situation or topic.",
+          "customLabel": "Custom topic",
+          "customPlaceholder": "e.g. I want to practice checking in at a hotel",
+          "customHelp": "A single sentence describing the situation, what you want to practice, or the conversation context is enough.",
+          "minutes": "Target {value} min"
+        },
+        "config": {
+          "title": "Session settings",
+          "description": "Set your correction style, target duration, and voice. In free Speaking, you can also specify your conversation goal and the AI's role.",
+          "startMode": {
+            "title": "Conversation start mode",
+            "AI_FIRST": {
+              "label": "AI first",
+              "help": "AI asks the first question."
+            },
+            "USER_FIRST": {
+              "label": "Me first",
+              "help": "Start the conversation by speaking first."
+            },
+            "TOPIC_RECOMMENDED": {
+              "label": "Topic recommendation",
+              "help": "Use the start mode recommended for the topic."
+            },
+            "aiPromptRequired": "Listen and repeat and guided speaking start with AI providing a practice sentence or guide.",
+            "keywordTopicAiRequired": "For keyword-based topics, AI creates this session's topic and first question before the session begins."
+          },
+          "correctionMode": {
+            "title": "Correction style",
+            "CONVERSATION": {
+              "label": "Conversation focused",
+              "help": "Prioritize conversation flow and correct only key errors."
+            },
+            "COACHING": {
+              "label": "Coaching focused",
+              "help": "Provide more active learning guidance and corrections."
+            },
+            "reconfirm": "AI responses during the session follow your selected correction style."
+          },
+          "targetMinutes": "Target duration",
+          "targetRange": "Allowed range: {min} ~ {max} min",
+          "voice": "AI voice",
+          "speed": "Playback speed",
+          "speeds": {
+            "SLOW": "Slow",
+            "NORMAL": "Normal"
+          },
+          "freeDetails": {
+            "title": "Additional free Speaking settings",
+            "description": "Optional. Set today's conversation goal or a role you would like the AI to play."
+          },
+          "goal": "Goal for this conversation",
+          "goalPlaceholder": "e.g. Keep asking questions naturally",
+          "persona": "AI role",
+          "personaPlaceholder": "e.g. Hotel staff",
+          "applyPolicy": "Your selected settings and policies are fixed as a snapshot when the session starts."
+        },
+        "mode": {
+          "title": "How would you like to practice Speaking today?",
+          "description": "Choose a type first, then select a topic and settings. Questions and guides are generated when you start the session.",
+          "READ_ALOUD": {
+            "title": "Listen and repeat",
+            "description": "Practice today's 5 questions in order by repeating the AI audio and script. Once you complete 5 questions, evaluation can begin if STT criteria are met, even if your speaking time is under 60 seconds."
+          },
+          "GUIDED": {
+            "title": "Guided speaking",
+            "description": "Use the given facts, required points, and answer conditions to build a response in your own words."
+          },
+          "FREE": {
+            "title": "Free speaking",
+            "description": "Share your opinions, experiences, or imagination freely using a simple topic or minimal hints."
+          },
+          "select": "Start this type",
+          "selected": "Selected",
+          "startAgain": "Practice again",
+          "resume": "Continue practice",
+          "result": "View results",
+          "completed": "Complete",
+          "progress": "Progress {value}",
+          "evaluating": "AI evaluation in progress…",
+          "viewEvaluationProgress": "View evaluation progress",
+          "viewCoachingProgress": "View coaching preparation",
+          "coachingResult": "View conversation coaching",
+          "eyebrow": "Today's Speaking"
+        }
+      },
+      "audio": {
+        "unavailable": "No audio",
+        "pause": "Pause",
+        "playSlow": "Play slowly",
+        "play": "Play",
+        "slow": "Slow",
+        "failed": "Playback failed"
+      },
+      "session": {
+        "title": "AI Speaking Session",
+        "description": "Record answers with your microphone and talk with AI one turn at a time.",
+        "loading": "Loading your Speaking session.",
+        "loadFailed": "Could not load the Speaking session.",
+        "actionFailed": "Could not process the request. Recordings and completed stages are preserved where possible.",
+        "reportCreated": "Your STT error report was received. Reference: {reference}",
+        "header": {
+          "customTopic": "Custom topic",
+          "keywordTopic": "Topic based on my keywords",
+          "freeTalk": "Free conversation",
+          "turns": "Turns",
+          "items": "Questions",
+          "sessionTime": "Speaking time",
+          "dailyUsage": "Today's usage",
+          "minutes": "{value} min",
+          "dailyMinutes": "{used} / {limit} min"
+        },
+        "history": {
+          "title": "Conversation history",
+          "empty": "No conversation turns yet. Record your first answer."
+        },
+        "microphone": {
+          "title": "Microphone permission required",
+          "blockedTitle": "Microphone unavailable",
+          "description": "Allow microphone access in your browser.",
+          "request": "Request microphone access",
+          "requesting": "Checking permission...",
+          "granted": "Microphone available",
+          "cancel": "Cancel check",
+          "reason": {
+            "UNSUPPORTED": "This browser does not support audio recording.",
+            "DENIED": "Microphone access is blocked. Allow it in browser settings.",
+            "NO_DEVICE": "No available microphone found.",
+            "DEVICE_BUSY": "Another app may be using the microphone.",
+            "TIMED_OUT": "The microphone did not respond. Check the browser's permission prompt, then try again.",
+            "CANCELLED": "The check was cancelled. You can try again at any time.",
+            "UNKNOWN": "Could not start the microphone."
+          }
+        },
+        "recorder": {
+          "state": {
+            "IDLE": "Ready to record",
+            "STARTING": "Preparing microphone",
+            "RECORDING": "Recording",
+            "RECORDED": "Recording complete",
+            "ERROR": "Recording error"
+          },
+          "limits": "Minimum 1 second · Maximum 60 seconds per turn",
+          "nearLimit": "Recording stops automatically in {seconds} seconds.",
+          "start": "Start recording",
+          "stop": "Stop recording",
+          "rerecord": "Record again",
+          "uploading": "Preparing upload...",
+          "processing": "AI processing...",
+          "submit": "Send answer",
+          "preview": "Preview my recording",
+          "recordFailed": "Recording failed. Check microphone permissions and your device.",
+          "processingStages": "After uploading audio, processing follows STT → AI conversation generation → TTS.",
+          "navigationConfirm": "Recording is in progress. Leaving this page will discard the current recording. Leave?",
+          "tooShort": "Record at least {seconds} seconds.",
+          "tooLarge": "The recording exceeds the 10MB limit. Record again.",
+          "pipelineNotice": "The current API responds after all processing is complete, so individual stage completion is shown using the final status returned by the server.",
+          "pipeline": {
+            "stt": "Speech recognition (STT)",
+            "conversation": "AI response generation",
+            "tts": "Speech generation (TTS)"
+          },
+          "readAloudAttemptLabel": "Question {problem}/{total} · Attempt {attempt}/{required}",
+          "readAloudRerecordLabel": "Question {problem} · Rerecord attempt {attempt}",
+          "readAloudRerecordHelp": "When the new recording finishes, it replaces the existing audio in the same attempt slot.",
+          "readAloudAttemptHelp": "Say the same sentence at least 2 times. You can add a 3rd attempt if needed.",
+          "replaceRecording": "Replace this attempt",
+          "readAloudProcessing": "Recognizing speech and saving the attempt result.",
+          "readAloudProcessingNotice": "After your 2nd attempt, the next question is also prepared in advance."
+        },
+        "eligibility": {
+          "title": "Speaking evaluation readiness",
+          "turnsValue": "Valid turns {current} / {required}",
+          "readAloudItemsValue": "Valid questions {current} / {required}",
+          "durationValue": "Speaking time {current} / {required} sec",
+          "sttValue": "Valid STT {current}% / {required}%"
+        },
+        "assistance": {
+          "title": "Learning assistance",
+          "description": "Choose the help you need to view it immediately. Actual usage is recorded in the evaluation context for the next turn.",
+          "items": {
+            "REPLAY": "Replay AI audio",
+            "SLOW_PLAYBACK": "Listen slowly",
+            "SHOW_QUESTION": "Show question again",
+            "HINT": "Hint",
+            "TRANSLATION": "Translation",
+            "SAMPLE_ANSWER": "Sample answer"
+          },
+          "selected": "{count} assistance features selected",
+          "question": "Latest AI question",
+          "used": "You used learning assistance {count} times while preparing this turn.",
+          "unavailableUntilQuestion": "Available after the AI question appears.",
+          "loadFailed": "Could not load learning assistance. Try again shortly.",
+          "hint": "Hint",
+          "translation": "Translation",
+          "sampleAnswer": "Sample answer"
+        },
+        "turn": {
+          "number": "Turn {value}",
+          "itemNumber": "Question {value}",
+          "you": "Me",
+          "confidence": "STT confidence {value}%",
+          "noTranscript": "No speech was recognized.",
+          "transcriptObservationNotice": "Recognized text may differ from what you actually said. Listen to the recording and rerecord or report an STT error if needed.",
+          "lowConfidence": "Speech recognition confidence is low. You can report an error or exclude this turn from evaluation if needed.",
+          "failed": "Some processing failed",
+          "retry": "Retry failed stage",
+          "retryAudio": "Regenerate TTS only",
+          "exclude": "Exclude from evaluation",
+          "report": "Report STT error",
+          "status": {
+            "AWAITING_UPLOAD": "Awaiting upload",
+            "UPLOADED": "Uploaded",
+            "PROCESSING": "Processing",
+            "READY": "Complete",
+            "PARTIAL_FAILURE": "Partially failed",
+            "FAILED": "Failed",
+            "EXCLUDED": "Excluded from evaluation"
+          },
+          "stage": {
+            "AUDIO_VALIDATION": "Audio validation failed",
+            "STT": "STT failed",
+            "CONVERSATION": "AI response generation failed",
+            "TTS": "TTS generation failed",
+            "EVALUATION": "Evaluation failed"
+          },
+          "userAudio": "My latest recording",
+          "rerecord": "Record again",
+          "rerecordConfirm": "Keep this turn in history, exclude it from evaluation, and make a new recording?",
+          "excludeConfirm": "Exclude this turn from evaluation? It remains in history but will not affect scores or your profile.",
+          "problemAttemptNumber": "Question {problem} · Attempt {attempt}",
+          "spokenText": "What I said",
+          "lowConfidenceRerecord": "STT confidence is low. If needed, rerecord and replace only this attempt.",
+          "rerecordReplaceConfirm": "Rerecord this attempt? Once complete, the new recording replaces the same attempt slot.",
+          "rerecording": "Rerecording"
+        },
+        "sttReport": {
+          "title": "Report an STT error",
+          "description": "Let us know if the recognized text differs from what you actually said.",
+          "close": "Close",
+          "type": "Error type",
+          "types": {
+            "wrong": "Recognized text is different",
+            "missing": "Some speech is missing",
+            "language": "Recognized as another language",
+            "almostNone": "Almost nothing recognized",
+            "other": "Other"
+          },
+          "expectedText": "What you actually said",
+          "expectedTextPlaceholder": "If possible, enter the words you actually spoke.",
+          "expectedTextHelp": "Optional. Used to check improvements in STT quality.",
+          "consent": "I agree to retain this turn's original audio for up to 30 days for error analysis.",
+          "support": "If further review is needed, this report can be linked to a support inquiry.",
+          "cancel": "Cancel",
+          "submit": "Send report",
+          "submitting": "Sending...",
+          "submitFailed": "Could not send the report. Try again shortly.",
+          "created": "Your STT error report was received.",
+          "reference": "Report reference: {reference}",
+          "supportDescription": "If further review is needed, this report can be linked to a support inquiry.",
+          "supportAction": "Request support inquiry",
+          "supportSubmitting": "Requesting inquiry...",
+          "supportCreated": "Support inquiry created.",
+          "supportReference": "Inquiry reference: {reference}",
+          "supportFailed": "Could not create the support inquiry. Please try again.",
+          "done": "OK"
+        },
+        "finish": {
+          "title": "End session",
+          "ready": "The current data meets the Speaking evaluation requirements.",
+          "insufficient": "Not all evaluation requirements have been met yet (5 turns · 60 seconds · STT 80%).",
+          "insufficientReadAloud": "Listen and repeat can be evaluated after completing today's 5 questions with STT 80%. The 60-second speaking requirement does not apply.",
+          "action": "End session",
+          "completing": "Ending session...",
+          "confirm": "End this Speaking session? You cannot add new turns afterward.",
+          "serverEvaluationNotice": "Ending before the evaluation requirements are met may result in ‘Insufficient evaluation data’.",
+          "coachingReady": "Ending this conversation prepares session coaching based on saved speech. It does not affect your overall score or ability profile.",
+          "coachingAction": "End and get coaching",
+          "confirmCoaching": "End this Speaking session and prepare conversation coaching? You cannot add new turns afterward.",
+          "evaluateAction": "End and evaluate",
+          "continueConversation": "Continue conversation",
+          "withoutEvaluationAction": "End without evaluation",
+          "confirmEvaluate": "End this Speaking session and start evaluation? You cannot add new turns afterward.",
+          "confirmWithoutEvaluation": "End this session without meeting evaluation requirements? Scores and your profile will not be affected.",
+          "withoutEvaluationNotice": "Ending without evaluation preserves history, study time, and your streak. Scores and your learning profile are not affected."
+        },
+        "practice": {
+          "mode": {
+            "READ_ALOUD": "Script to repeat",
+            "GUIDED": "Speaking guide",
+            "FREE": "Free speaking"
+          },
+          "script": "Sentence to repeat",
+          "providedFacts": "Given facts",
+          "requiredIntents": "Required points to communicate",
+          "responseConstraints": "Answer conditions",
+          "noteTitle": "My notes",
+          "noteHelp": "Plan what you want to say freely. These notes are not sent for AI evaluation.",
+          "notePlaceholder": "Note down keywords, expressions, or the order of your points.",
+          "noteSaved": "Draft saved automatically · Restored after refresh."
+        },
+        "readAloudProblem": {
+          "dailyProgress": "Today's question {problem}/{total}",
+          "title": "Listen and repeat progress",
+          "description": "Repeat each question's sentence 2 times, then request evaluation. You can add a 3rd attempt if needed.",
+          "attemptProgress": "Required attempts {current}/{required}",
+          "rerecording": "Rerecording attempt {attempt}.",
+          "cancelRerecord": "Cancel",
+          "attemptItem": "Attempt {attempt}",
+          "thirdRecommended": "Say it once more (recommended)",
+          "thirdOptional": "Say it once more (optional)",
+          "thirdEnabled": "You can record a 3rd attempt.",
+          "evaluateLast": "Evaluate last question",
+          "evaluateAndNext": "Evaluate this question and continue",
+          "evaluating": "Requesting evaluation...",
+          "notReady": "At least 2 valid attempts are required for evaluation. Rerecord or supplement attempts with failed STT or those excluded from evaluation.",
+          "submittedTitle": "Evaluation status by question",
+          "submittedItem": "Question {problem} · {status}",
+          "status": {
+            "PENDING": "Pending",
+            "EVALUATING": "Evaluating",
+            "EVALUATED": "Complete",
+            "FAILED": "Failed",
+            "OTHER": "Processed",
+            "INSUFFICIENT_EVIDENCE": "Insufficient evidence"
+          }
+        }
+      },
+      "evaluation": {
+        "title": "Speaking evaluation",
+        "coaching": {
+          "pageTitle": "Speaking conversation coaching",
+          "pageDescription": "Review feedback for your next conversation based on speech actually recognized in this conversation.",
+          "title": "Coaching for this conversation",
+          "description": "Feedback you can use in your next conversation, based on speech actually recognized.",
+          "pendingTitle": "Preparing conversation coaching",
+          "pendingDescription": "Practice is complete. Linking the saved speech evidence.",
+          "failedTitle": "Could not prepare coaching",
+          "failedDescription": "Your conversation and learning records are preserved. You can request coaching again without repeating practice.",
+          "retry": "Request coaching again",
+          "limited": "Limited coaching is provided within the available evidence.",
+          "noEvidence": "No speech evidence is available for coaching. Your practice activity record is preserved.",
+          "sourceUnavailable": "The source evidence for this saved coaching is currently unavailable, so its content is hidden. This does not mean there was no feedback.",
+          "sourceLimited": "Only coaching linked to currently verifiable sources is shown. Content based on deleted, changed, or excluded evidence is hidden.",
+          "sourceLimitation": "Current evidence limitation: {reason}",
+          "sourceReasons": {
+            "UNKNOWN_RESULT_POLICY": "The saved result policy could not be verified.",
+            "SOURCE_PROVENANCE_UNAVAILABLE": "The link between the original source and result at generation time could not be verified.",
+            "SOURCE_PROVENANCE_MISMATCH": "The saved result does not match the source evidence.",
+            "SOURCE_EVIDENCE_CHANGED_OR_UNAVAILABLE": "The source was deleted, changed, or excluded, or evidence conditions such as assistance usage have changed."
+          },
+          "recognizedSpeech": "Recognized speech",
+          "asrCaution": "Feedback is based on the recognized transcript and does not establish that your actual speech was incorrect.",
+          "suggestion": "Expression to try next time",
+          "notScore": "This coaching does not affect official scores, automatic levels, or your ability profile.",
+          "kinds": {
+            "OBSERVATION": "Observation",
+            "CORRECTION": "Improvement",
+            "ALTERNATIVE": "Alternative expression"
+          }
+        },
+        "evidencePolicyTitle": "Evaluation evidence and scope",
+        "transcriptOnlyNotice": "This score is based on speech recognition results. It is not a pronunciation assessment using waveform analysis, and recognition errors may affect the result.",
+        "evaluatedAxesCoverage": "Dimensions evaluated {count}/8 · Coverage of original evaluation weights {coverage}% (not STT accuracy or a learning ability score)",
+        "evidencePolicyVersion": "Evaluation policy {version}",
+        "scoreComparisonNotice": "Compare results with the same policy and evaluated dimensions.",
+        "readAloudScriptAccuracyNotice": "Listen & Repeat evaluates how closely the recognized text matches the script. It does not measure spontaneous grammar or vocabulary ability, or pronunciation accuracy.",
+        "description": "View the 5 common skills and 3 Speaking skills based on the full session conversation.",
+        "loading": "Loading Speaking evaluation.",
+        "loadFailed": "Could not load Speaking evaluation.",
+        "pendingTitle": "Speaking evaluation in progress",
+        "pendingDescription": "Analyzing session turns and audio evidence. The page will refresh automatically shortly.",
+        "failedTitle": "Evaluation failed",
+        "failedDescription": "Conversation history is preserved. You can request only the evaluation stage again.",
+        "retry": "Request evaluation again",
+        "retrying": "Requesting again...",
+        "retryFailed": "Could not request evaluation again.",
+        "insufficientTitle": "Not enough data to evaluate",
+        "insufficientDescription": "Valid turns, speaking time, STT quality, or evaluation confidence based on recognized text were insufficient.",
+        "overall": "Overall score",
+        "confidence": "Evaluation confidence {value}%",
+        "commonMetrics": "5 common skills",
+        "speakingMetrics": "3 Speaking skills",
+        "notEvaluable": "Cannot evaluate",
+        "evidence": "Evaluation evidence",
+        "evidenceFallback": "Related conversation evidence",
+        "strengths": "Strengths",
+        "improvements": "Areas to improve",
+        "emptyStrengths": "No strengths to display yet.",
+        "emptyImprovements": "No improvement points to display yet.",
+        "recommendedExpressions": "Suggested expressions",
+        "pronunciationPractice": "Pronunciation practice",
+        "evidenceTranscript": "View conversation evidence",
+        "metrics": {
+          "GRAMMAR": "Grammar",
+          "VOCABULARY": "Vocabulary",
+          "NATURALNESS": "Naturalness",
+          "MEANING": "Meaning",
+          "EXPRESSIVENESS": "Expressiveness",
+          "FLUENCY": "Fluency",
+          "PRONUNCIATION": "Pronunciation",
+          "INTERACTION": "Interaction"
+        },
+        "assistanceSummary": {
+          "title": "Learning assistance information",
+          "description": "Learning assistance is not treated as failure or a fixed penalty. Evaluation uses the assistance you used only as context.",
+          "neutral": {
+            "title": "No evaluation impact",
+            "description": "Replay · Slow playback · Show question again"
+          },
+          "assisted": {
+            "title": "Assistance used",
+            "description": "Used hints or translations to continue the conversation"
+          },
+          "guided": {
+            "title": "Guidance used",
+            "description": "Used sample answers to practice expressions"
+          },
+          "usageSummary": "You used learning assistance {count} times in this session.",
+          "count": "{count} times"
+        },
+        "notRequestedTitle": "No evaluation was performed",
+        "notRequestedDescription": "The session ended without evaluation or evaluation is disabled. Your learning record is saved.",
+        "problemResults": {
+          "title": "Evaluation by question",
+          "description": "After ending the session, you can retry evaluation for failed questions only. Recordings are unchanged.",
+          "problem": "Question {number}",
+          "retry": "Retry evaluation for this question",
+          "retrying": "Retrying…",
+          "retryFailed": "Could not retry. Check the status and try again.",
+          "limitReached": "All evaluation retries for this question have been used.",
+          "status": {
+            "PENDING": "Awaiting evaluation",
+            "EVALUATING": "Evaluating",
+            "EVALUATED": "Evaluated",
+            "INSUFFICIENT_EVIDENCE": "Insufficient evaluation evidence",
+            "FAILED": "Evaluation failed",
+            "NOT_REQUESTED": "Evaluation skipped",
+            "UNKNOWN": "Checking status"
+          }
+        }
+      }
+    },
+    "listening": {
+      "title": "AI Listening",
+      "description": "Choose dictation, multiple-choice comprehension, or key-point summaries. Practice 5 questions at a time and receive detailed evaluation.",
+      "difficulty": {
+        "EASY": "Easy",
+        "MY_LEVEL": "My level",
+        "CHALLENGE": "Advanced"
+      },
+      "task": {
+        "DICTATION": "Dictation",
+        "INTERPRETATION": "Write the meaning",
+        "REPEAT_AFTER_AUDIO": "Repeat after audio",
+        "COMPREHENSION": "Listen and choose",
+        "SUMMARY": "Summarize key points"
+      },
+      "dailyStatus": {
+        "GENERATING": "Preparing questions",
+        "READY": "Ready to practice",
+        "PARTIAL": "Some questions still preparing",
+        "COMPLETED": "Complete",
+        "FAILED": "Preparation failed"
+      },
+      "itemStatus": {
+        "TTS_PENDING": "Preparing audio",
+        "READY": "Ready",
+        "NOT_EVALUABLE": "Audio preparation failed",
+        "REPLACED": "Replaced"
+      },
+      "attemptStatus": {
+        "READY": "Ready for your answer",
+        "IN_PROGRESS": "In progress",
+        "SUBMITTED": "Submitted",
+        "EVALUATING": "Evaluating",
+        "EVALUATED": "Evaluated",
+        "NOT_EVALUABLE": "Cannot evaluate",
+        "SKIPPED": "Skipped"
+      },
+      "landing": {
+        "loading": "Preparing today's Listening practice.",
+        "loadFailed": "Could not load Listening information.",
+        "disabledTitle": "Listening is unavailable",
+        "disabledDescription": "Listening is disabled in the current service settings.",
+        "resumeTitle": "You have Listening practice in progress",
+        "resumeDescription": "Continue from the progress saved on the server.",
+        "resume": "Continue",
+        "todayTitle": "Today's Listening",
+        "progressAria": "Today's Listening progress",
+        "readyCount": "Ready {ready} · Generated {physical}",
+        "generating": "Preparing sentences and reference audio. You will soon be able to start with the questions that are ready.",
+        "retryTts": "Prepare audio again",
+        "start": "Choose practice types",
+        "result": "View results"
+      },
+      "setup": {
+        "title": "Choose Listening practice types",
+        "description": "Choose the task combination for this session. It cannot be changed after starting.",
+        "loading": "Checking today's Listening set.",
+        "loadFailed": "Could not load the Listening set.",
+        "dailySummary": "Today: {count} questions · {difficulty}",
+        "taskLegend": "Today's practice",
+        "selectionRule": "Choose dictation or repeat after audio. Writing the meaning is optional.",
+        "taskDescription": {
+          "DICTATION": "Write exactly what you hear in your learning language.",
+          "INTERPRETATION": "Express the meaning naturally in your source language.",
+          "REPEAT_AFTER_AUDIO": "Say the sentence you heard and check your pronunciation and fluency."
+        },
+        "invalidSelection": "Select dictation, repeat after audio, or both. Writing the meaning cannot be selected on its own.",
+        "start": "Start Listening",
+        "starting": "Creating session...",
+        "activeTitle": "A Listening session is in progress",
+        "activeDescription": "Continue from the progress saved on the server instead of creating a new session.",
+        "activeAction": "Continue"
+      },
+      "session": {
+        "title": "AI Listening Session",
+        "description": "Listen and submit your answer, then move straight to the next question while AI evaluation runs in the background.",
+        "loading": "Restoring session progress.",
+        "loadFailed": "Could not load the Listening session.",
+        "expiredTitle": "Session expired",
+        "expiredDescription": "This session cannot be resumed because 2 hours have passed since the last activity.",
+        "newSession": "Start new session",
+        "allItemsDone": "All selected questions are finished",
+        "allItemsDoneDescription": "Complete the session to view all results.",
+        "complete": "Complete session",
+        "completing": "Completing...",
+        "itemProgress": "Question {current}/{total}",
+        "completedCount": "Completed {completed}/{total}",
+        "progressCount": "Progress {completed}/{total}",
+        "evaluating": "Evaluating the selected tasks. Successful results are preserved, and only failed tasks can be retried.",
+        "evaluatingTitle": "AI evaluation is running in the background…",
+        "evaluatingDescription": "Continue with the next question without waiting for evaluation.",
+        "skip": "Skip",
+        "skipConfirm": "Skip this question? It will not count toward today's completed questions.",
+        "submit": "Submit selected answers",
+        "submitPractice": "Submit practice answer",
+        "submitting": "Saving answer and requesting evaluation...",
+        "answerReviewNotice": "The answer has been revealed. Review it before moving to the next question.",
+        "nextAfterReveal": "Next question",
+        "audio": {
+          "play": "Play / Replay",
+          "slow": "0.75x slow",
+          "notice": "Replays and 0.75x playback are recorded without a fixed score penalty."
+        },
+        "task": {
+          "DICTATION": {
+            "title": "Dictation",
+            "description": "Write what you heard in {language}.",
+            "label": "Dictation answer",
+            "placeholder": "Enter the sentence you heard."
+          },
+          "INTERPRETATION": {
+            "title": "Write the meaning",
+            "description": "Express the meaning naturally in {language}.",
+            "label": "Meaning answer",
+            "placeholder": "Write what you understood in natural language."
+          },
+          "COMPREHENSION": {
+            "title": "Listen and choose",
+            "description": "Understand the audio and choose the most appropriate answer.",
+            "label": "Multiple-choice answer",
+            "correct": "Correct answer"
+          },
+          "SUMMARY": {
+            "title": "Summarize key points",
+            "description": "Summarize what you heard in {language}.",
+            "label": "Summary answer",
+            "placeholder": "Briefly summarize the main points and important information."
+          }
+        },
+        "recorder": {
+          "title": "Repeat after audio",
+          "description": "Record for up to the reference audio length + 15 seconds, with a maximum of {seconds} seconds.",
+          "permission": {
+            "PROMPT": "Microphone permission is required to repeat after audio.",
+            "UNSUPPORTED": "This browser does not support audio recording.",
+            "DENIED": "Microphone permission was denied.",
+            "NO_DEVICE": "No available microphone found.",
+            "DEVICE_BUSY": "Another app may be using the microphone.",
+            "UNKNOWN": "The microphone is unavailable."
+          },
+          "requestPermission": "Request microphone access",
+          "record": "Start recording",
+          "rerecord": "Record again",
+          "stop": "Stop recording",
+          "remaining": "{count} rerecordings remaining",
+          "preview": "Preview recording",
+          "confirm": "Use this audio",
+          "uploading": "Uploading audio...",
+          "discard": "Record again",
+          "uploaded": "Audio confirmed · {count} rerecordings"
+        },
+        "assistance": {
+          "title": "Learning assistance",
+          "description": "Using help is not treated as failure or a fixed score penalty.",
+          "topicHint": "Topic hint",
+          "keywordHint": "Keyword hint",
+          "showAnswer": "Show answer",
+          "answerConfirm": "Revealing the answer first excludes all selected tasks for this question from official evaluation, today's completed count, and your profile. Continue?",
+          "practiceBadge": "Completed as practice · Excluded from official evaluation",
+          "used": {
+            "REPLAY": "Replay used.",
+            "SLOW_PLAYBACK": "0.75x playback used.",
+            "TOPIC_HINT": "Topic hint usage recorded.",
+            "KEYWORD_HINT": "Keyword hint usage recorded.",
+            "SHOW_ANSWER": "Answer reveal recorded."
+          },
+          "topicHintValue": "Topic: {value}",
+          "keywordHintValue": "Keyword: {value}",
+          "hintUnavailable": "No hint available.",
+          "sourceAnswer": "Original source answer",
+          "correctChoice": "Answer: {key}. {value}",
+          "summaryKeyPoints": "Key points",
+          "referenceMeanings": "Reference meanings"
+        },
+        "redirectingToResult": "Your final answer is saved. AI evaluation continues in the background while you move to the results page."
+      },
+      "result": {
+        "title": "Listening evaluation results",
+        "description": "Check each task's evaluation coverage and evidence. Retry only failed tasks if needed.",
+        "loading": "Loading Listening evaluation results.",
+        "loadFailed": "Could not load Listening results.",
+        "summaryEyebrow": "Session results",
+        "summaryTitle": "Listening results",
+        "coverage": "Evaluated {evaluated} · Practiced {learned}",
+        "itemTitle": "Listening Item {itemId}",
+        "officialBadge": "Official evaluation",
+        "practiceBadge": "Practice evaluation · Not applied to profile",
+        "taskCoverage": "Evaluation coverage {count}/{total}",
+        "notSelected": "Not selected",
+        "confidence": "Confidence {value}%",
+        "notEvaluable": "Could not evaluate: {reason}",
+        "answerRevealedExcluded": "The answer was revealed first, so this question is excluded from official evaluation and learning progress.",
+        "referenceAudioTitle": "Listen to this question again",
+        "referenceAudioPlay": "Play reference audio",
+        "referenceAudioLoading": "Loading audio...",
+        "referenceAudioFailed": "Could not load reference audio.",
+        "retryEvaluation": "Retry evaluation",
+        "strengths": "Strengths",
+        "improvements": "Areas to improve",
+        "recommendedAnswers": "Suggested answers",
+        "audioExpired": "The audio retention period has ended. The transcript and evaluation results remain available.",
+        "audioRetained": "Your audio is retained · {until}",
+        "audioUnavailable": "Your audio cannot be played.",
+        "practice": "Try again as practice",
+        "dashboard": "View on dashboard",
+        "history": "View in learning records",
+        "task": {
+          "DICTATION": "Dictation",
+          "INTERPRETATION": "Write the meaning",
+          "REPEAT_AFTER_AUDIO": "Repeat after audio",
+          "COMPREHENSION": "Listen and choose",
+          "SUMMARY": "Summarize key points"
+        },
+        "status": {
+          "READY": "Ready",
+          "IN_PROGRESS": "In progress",
+          "SUBMITTED": "Submitted",
+          "EVALUATING": "Evaluating",
+          "EVALUATED": "Evaluated",
+          "EVALUATION_FAILED": "Evaluation failed",
+          "NOT_SELECTED": "Not selected",
+          "NOT_EVALUABLE": "Cannot evaluate",
+          "SKIPPED": "Skipped"
+        },
+        "metrics": {
+          "TOKEN_RECOGNITION": "Word and token recognition",
+          "OMISSION_ADDITION_ORDER": "Omissions, additions, and word order",
+          "ORTHOGRAPHY": "Spelling accuracy",
+          "MEANING_FIDELITY": "Meaning fidelity",
+          "DETAIL_AND_NUANCE": "Details and nuance",
+          "ORIGIN_NATURALNESS": "Naturalness of interpretation",
+          "PRONUNCIATION": "Pronunciation",
+          "PROSODY_RHYTHM": "Intonation and rhythm",
+          "FLUENCY": "Fluency",
+          "COMPLETENESS": "Completeness",
+          "ANSWER_ACCURACY": "Answer accuracy",
+          "GIST_COVERAGE": "Understanding the main idea",
+          "KEY_POINT_COVERAGE": "Key information coverage",
+          "LANGUAGE_CLARITY": "Clarity of expression"
+        },
+        "report": {
+          "title": "Report speech recognition or evaluation error",
+          "action": "Report speech recognition or evaluation error",
+          "reason": "Issue type",
+          "reasonOption": {
+            "STT_INCORRECT": "Recognized text differs from what I said",
+            "PRONUNCIATION_EVALUATION_INCORRECT": "Pronunciation assessment differs from my actual speech",
+            "OTHER": "Other"
+          },
+          "comment": "Additional details (optional)",
+          "consent": "I agree to retain this audio for up to 30 days from this report for error review.",
+          "expiredConsent": "The audio has expired, so only metadata can be reported.",
+          "submit": "Send report",
+          "cancel": "Cancel",
+          "close": "OK",
+          "submitted": "Your report was received.",
+          "failed": "Could not send the report."
+        },
+        "playUserAudio": "Play my audio",
+        "userAudioLoading": "Loading audio...",
+        "userAudioLoadFailed": "Could not load your audio.",
+        "independence": {
+          "overall": "Final Listening score",
+          "content": "Content comprehension and performance",
+          "independence": "Independent listening",
+          "playback": "Playback · Normal speed {normal} times / 0.75x {slow} times",
+          "help": "The first normal-speed playback has no penalty. Extra replays and slow playback affect only the independent listening score."
+        },
+        "evaluationPending": "AI evaluation is in progress. Results refresh automatically when it finishes.",
+        "evaluationStatusEyebrow": "AI evaluation status",
+        "evaluationStatusInProgressTitle": "AI evaluation in progress…",
+        "evaluationStatusFailedTitle": "Some evaluations are incomplete.",
+        "evaluationStatusInProgressDescription": "Completed results remain available. Only questions awaiting evaluation continue processing in the background.",
+        "evaluationStatusFailedDescription": "Failed tasks are excluded from the final Listening score. Retry failed evaluations individually or all at once.",
+        "evaluationStatusApplied": "Evaluations included",
+        "evaluationStatusFailed": "Questions with failed evaluations",
+        "evaluationStatusEvaluating": "Evaluating or retrying",
+        "retryAllFailedEvaluations": "Retry all {count} failed evaluations",
+        "retryAllFailedEvaluationsBusy": "Retrying failed evaluations…",
+        "scoreUpdating": "Evaluation in progress · Completed results are available below.",
+        "itemEvaluationPending": "AI evaluation for this question is in progress. Completed task results are preserved, and the page refreshes automatically after evaluation.",
+        "evaluatingEyebrow": "AI evaluation in progress",
+        "evaluatingTitle": "Finishing evaluation of 5 questions…",
+        "evaluatingDescription": "All questions have been answered. Scores are withheld until evaluation processing finishes for every question.",
+        "evaluatingSolvedProgress": "Questions answered {completed}/{total}",
+        "evaluatingProgress": "AI evaluations processed {completed}/{total}",
+        "evaluatingHint": "Evaluation continues even if you leave this page or refresh.",
+        "evaluationCoverage": "Evaluations included {evaluated}/{total}",
+        "partialEvaluationNotice": "Only {evaluated} of {total} questions are included in the final score. Questions with evaluation errors or exclusions are omitted from the final average rather than counted as 0.",
+        "itemExcludedFromScore": "This question is excluded from the final Listening score because its evaluation did not finish completely. Successful task results and failure reasons are shown below."
+      },
+      "errors": {
+        "LISTENING_SETTING_REQUIRED": "Complete your learning settings first.",
+        "LISTENING_DAILY_LIMIT_EXCEEDED": "You have reached today's Listening limit.",
+        "LISTENING_INVALID_TASK_COMBINATION": "Check your selected combination of practice types.",
+        "LISTENING_ACTIVE_SESSION_EXISTS": "A Listening session is in progress. Continuing that session.",
+        "LISTENING_SESSION_EXPIRED": "The session has expired.",
+        "LISTENING_INVALID_STATE": "This action is unavailable in the current state.",
+        "LISTENING_ITEM_ALREADY_SUBMITTED": "This question has already been submitted.",
+        "LISTENING_AUDIO_INVALID": "The audio could not be verified. Record or play it again.",
+        "LISTENING_RERECORD_LIMIT_EXCEEDED": "All rerecording attempts have been used.",
+        "LISTENING_ANSWER_REVEALED": "Questions with revealed answers do not count toward official evaluation.",
+        "LISTENING_PRACTICE_LIMIT_EXCEEDED": "You have already used the practice retry for this question.",
+        "LISTENING_REPORT_AUDIO_EXPIRED": "The audio has expired, so only metadata can be reported.",
+        "LISTENING_REPORT_ALREADY_SUBMITTED": "This evaluation has already been reported.",
+        "LISTENING_REPLACEMENT_LIMIT_EXCEEDED": "No more replacement questions can be prepared. Please contact support.",
+        "LISTENING_IDEMPOTENCY_CONFLICT": "Different content was detected for the same request key. Refresh the page.",
+        "AI_GENERATION_FAILED": "Listening question generation failed.",
+        "AI_TTS_FAILED": "Reference audio generation failed.",
+        "AI_STT_FAILED": "Speech recognition failed.",
+        "AI_EVALUATION_FAILED": "Evaluation failed. Only failed tasks can be retried.",
+        "AI_SCHEMA_INVALID": "The evaluation result format could not be verified.",
+        "UNKNOWN": "Could not process the request. Check the server status again."
+      },
+      "modeSelector": {
+        "durationFailed": "This question was not published because its audio did not meet duration requirements. Questions already prepared are preserved.",
+        "title": "How would you like to practice Listening today?",
+        "description": "The 5 questions for a type are prepared only when you select it. Practice just one type or continue with others afterward.",
+        "start": "Start this type",
+        "continue": "Continue practice",
+        "resume": "Continue",
+        "result": "View results",
+        "completed": "Complete",
+        "inProgress": "In progress",
+        "failed": "Preparation failed",
+        "retry": "Prepare again",
+        "progress": "Progress {value}",
+        "preparing": "Preparing questions and audio…",
+        "recoveryChecking": "Preparation is taking longer than expected. Checking for automatic recovery after a server restart or interruption…",
+        "preparationProgress": "Questions generated {generated}/{total} · Audio ready {ready}/{total}",
+        "learningProgress": "Practice progress {completed}/{total}",
+        "learningCompleted": "Practice complete {completed}/{total}",
+        "evaluationCoverageDetail": "Evaluations included {evaluated}/{total}",
+        "answerRevealedCount": "Answers revealed {count}",
+        "otherExcludedCount": "Excluded from evaluation {count}",
+        "evaluationProcessing": "AI evaluations processed {completed}/{total}",
+        "evaluationProgress": "View evaluation progress",
+        "evaluating": "AI evaluating",
+        "evaluationProgressCount": "AI evaluations processed {value}",
+        "eyebrow": "Today's Listening"
+      },
+      "mode": {
+        "DICTATION": {
+          "title": "Dictation + Interpretation",
+          "description": "Write exactly what you heard in your learning language, then interpret its meaning in your native language."
+        },
+        "COMPREHENSION": {
+          "title": "Listen and choose",
+          "description": "Listen for content, intent, details, and inferences, then choose the most appropriate answer."
+        },
+        "SUMMARY": {
+          "title": "Summarize key points",
+          "description": "Summarize the main points and important information in your learning language."
+        }
+      }
+    },
+    "reading": {
+      "title": "AI Reading",
+      "description": "Read passages to practice content comprehension, text structure, and contextual inference.",
+      "loading": "Loading Reading practice information.",
+      "loadFailed": "Could not load Reading practice information.",
+      "startFailed": "Could not prepare today's Reading questions. Please try again.",
+      "selector": {
+        "eyebrow": "Today's Reading",
+        "title": "How would you like to practice Reading today?",
+        "description": "Focus on different reading skills. Choose only the formats you want to practice.",
+        "start": "Start this format",
+        "starting": "Preparing questions",
+        "structureDeferred": "Advanced structure analysis questions are undergoing quality checks. A new set is also deferred when a challenge question for base B4 is B5. You can choose another reading format.",
+        "availabilityLoading": "Checking whether structure analysis questions are available.",
+        "notice": "Questions generated today remain the same when you return.",
+        "completed": "Completed today",
+        "continue": "Continue",
+        "viewResult": "View results",
+        "progress": "In progress · {answered}/{total}",
+        "score": "Today's score {score}",
+        "completedCount": "Formats completed today {completed}/{total}"
+      },
+      "modes": {
+        "COMPREHENSION": {
+          "title": "Reading comprehension",
+          "description": "Read a passage and answer questions about content, details, cause and effect, intent, and inference."
+        },
+        "STRUCTURE": {
+          "title": "Main ideas and structure",
+          "description": "Identify the main points, title, paragraph roles, and flow of a text."
+        },
+        "CONTEXT_INFERENCE": {
+          "title": "Contextual inference",
+          "description": "Infer references, omitted meaning, sentence intent, and what comes next from context."
+        }
+      },
+      "difficulty": {
+        "EASIER": "A little easier",
+        "CURRENT": "Current level",
+        "CHALLENGE": "Challenge"
+      },
+      "skills": {
+        "CONTENT": "Content comprehension",
+        "DETAIL": "Details",
+        "INFERENCE": "Inference",
+        "GIST": "Main idea",
+        "STRUCTURE": "Structure comprehension",
+        "CONTEXT_INFERENCE": "Contextual inference"
+      },
+      "session": {
+        "loading": "Loading Reading questions.",
+        "submitFailed": "Could not process your answer. Please try again.",
+        "progress": "Question {current} / {total}",
+        "band": "Difficulty band {band}",
+        "passage": "Passage",
+        "correct": "Correct!",
+        "incorrect": "That is not the correct answer.",
+        "evidence": "Evidence:",
+        "vocabularyCandidates": "Expressions from the passage — find them again in the original text.",
+        "retryNotice": "Official scores use your first submission. You can answer this question again for review.",
+        "back": "Back to Reading",
+        "next": "Next question",
+        "submit": "Submit answer",
+        "submitting": "Scoring",
+        "retry": "Answer again",
+        "reviewTarget": "Review",
+        "ordering": {
+          "yourOrder": "My order",
+          "empty": "Select the fragments below to arrange them.",
+          "chunks": "Sentence fragments",
+          "reset": "Reset order"
+        },
+        "backToResult": "Back to results"
+      },
+      "result": {
+        "eyebrow": "Today's Reading complete",
+        "title": "Practice results",
+        "score": "First submission: {correct} / {total} correct",
+        "metrics": "Detailed skills",
+        "samples": "{count} questions",
+        "noMetrics": "No detailed evaluation data yet.",
+        "reviewWrong": "Review incorrect answers",
+        "recovered": "Correct on review",
+        "back": "Back to Reading formats"
+      }
+    },
+    "vocabulary": {
+      "retired": {
+        "title": "New standalone Daily Vocabulary practice has ended",
+        "description": "Existing questions and learning history are preserved. Continue learning vocabulary through Reading contextual inference and by reviewing expressions from passages.",
+        "readingAction": "Go to Reading",
+        "historyAction": "View previous learning history"
+      },
+      "title": "AI Vocabulary",
+      "description": "Build mastery by choosing the most natural and accurate words and expressions in real contexts.",
+      "loading": "Loading Vocabulary practice information.",
+      "loadFailed": "Could not load Vocabulary practice information.",
+      "startFailed": "Could not prepare today's Vocabulary questions. Please try again.",
+      "selector": {
+        "eyebrow": "Today's Vocabulary",
+        "title": "Today's Contextual Vocabulary Choice",
+        "description": "Practice 10 questions choosing the best expression in real contexts of 1–2 sentences.",
+        "start": "Start today's 10 questions",
+        "starting": "Preparing questions",
+        "notice": "There are 10 questions daily: up to 8 new questions and up to 2 review questions.",
+        "completed": "Completed today",
+        "continue": "Continue",
+        "viewResult": "View results",
+        "progress": "In progress · {answered}/{total}",
+        "score": "Today's score {score}",
+        "completedCount": "Formats completed today {completed}/{total}"
+      },
+      "modes": {
+        "CONTEXTUAL_CHOICE": {
+          "title": "Vocabulary in context",
+          "description": "Choose the expression that best fits the meaning, collocation, nuance, register, and situation in a short real-life context."
+        },
+        "MEANING_RELATION": {
+          "title": "Meaning and relationships",
+          "description": "Practice word meanings, synonyms, antonyms, and relationships between similar expressions."
+        },
+        "USAGE_DISTINCTION": {
+          "title": "Usage and distinctions",
+          "description": "Practice differences between similar words, contextual choices, collocations, and natural expressions."
+        },
+        "COMPOSITION": {
+          "title": "Combination and composition",
+          "description": "Arrange words and chunks in the correct order and complete expressions and blanks."
+        }
+      },
+      "difficulty": {
+        "EASIER": "A little easier",
+        "CURRENT": "Current level",
+        "CHALLENGE": "Challenge"
+      },
+      "skills": {
+        "MEANING": "Meaning comprehension",
+        "NUANCE": "Nuance",
+        "SYNONYM": "Synonyms",
+        "ANTONYM": "Antonyms",
+        "DISTINCTION": "Distinguishing similar words",
+        "COLLOCATION": "Collocation",
+        "REGISTER": "Situational language",
+        "PRAGMATIC_FIT": "Pragmatic and situational fit",
+        "CONTEXT_USAGE": "Use in context",
+        "COMPOSITION": "Combination and composition"
+      },
+      "session": {
+        "loading": "Loading Vocabulary questions.",
+        "submitFailed": "Could not process your answer. Please try again.",
+        "progress": "Question {current} / {total}",
+        "band": "Difficulty band {band}",
+        "passage": "Context",
+        "correct": "Correct!",
+        "incorrect": "That is not the correct answer.",
+        "evidence": "Evidence:",
+        "retryNotice": "Official scores use your first submission. Retry results are recorded as review practice.",
+        "back": "Back to Vocabulary",
+        "next": "Next question",
+        "submit": "Submit answer",
+        "submitting": "Scoring",
+        "retry": "Answer again",
+        "reviewTarget": "Review question",
+        "ordering": {
+          "yourOrder": "My order",
+          "empty": "Select the fragments below to arrange them.",
+          "chunks": "Expression fragments",
+          "reset": "Reset order"
+        },
+        "backToResult": "Back to results",
+        "targetExpression": "This expression"
+      },
+      "result": {
+        "eyebrow": "Today's Vocabulary complete",
+        "title": "Practice results",
+        "score": "First submission: {correct} / {total} correct",
+        "metrics": "Detailed skills",
+        "samples": "{count} questions",
+        "noMetrics": "No detailed evaluation data yet.",
+        "reviewWrong": "Review missed expressions",
+        "recovered": "Correct on review",
+        "back": "Back to Vocabulary formats"
+      },
+      "mastery": {
+        "eyebrow": "Vocabulary Mastery",
+        "title": "Word and expression mastery",
+        "newCount": "New",
+        "learningCount": "Learning",
+        "familiarCount": "Familiar",
+        "strongCount": "Strong",
+        "masteredCount": "Mastered",
+        "averageLabel": "Average mastery",
+        "note": "Getting an expression right once does not immediately make it mastered. Mastery increases through repeated success on different days and in different questions."
+      }
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import {apiClient} from "@/lib/apiClient";
-import {TranslationUnit} from "@/types/common";
+import type {TranslationUnit} from "@/types/common";
+import type {NovelTargetLanguage} from "@/features/novel/translationLanguage";
 
 export interface RecentView {
     id: number;
@@ -7,7 +8,9 @@ export interface RecentView {
     type: string;
     novelId: string;
     episodeId?: string;
-    title: TranslationUnit;
+    title: Omit<TranslationUnit, "ko"> & {ko: string | null};
+    targetLanguage?: NovelTargetLanguage;
+    titleEn?: string | null;
     viewedAt: string;
 }
 
@@ -52,6 +55,7 @@ export const recentViewService = {
         title: string,
         titleJa: string,
         titleKo: string,
+        translation?: {targetLanguage: NovelTargetLanguage; titleEn?: string | null},
     ): Promise<void> => {
         const body = {
             platformCode,
@@ -61,6 +65,7 @@ export const recentViewService = {
             title,
             titleJa,
             titleKo,
+            ...translation,
         };
 
         const response = await apiClient(

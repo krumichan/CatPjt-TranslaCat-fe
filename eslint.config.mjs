@@ -23,6 +23,8 @@ const eslintConfig = defineConfig([
     ".next/**",
     // Test and live launchers use isolated Next build directories.
     ".next-*/**",
+    // Fumadocs가 source.config.ts에서 생성하는 문서 인덱스는 직접 작성한 소스가 아니다.
+    ".source/**",
     "out/**",
     "build/**",
     "next-env.d.ts",

@@ -1,4 +1,6 @@
-export type NovelLanguage = "ja" | "ko";
+import type { NovelTargetLanguage } from "@/features/novel/translationLanguage";
+
+export type NovelLanguage = "ja" | "ko" | "en";
 export type ReadingMode = "all" | "single" | "from";
 export type SegmentStatus = "PENDING" | "SUCCEEDED" | "FAILED";
 export type ReaderState = "SOURCE_READY" | "QUEUED" | "RUNNING" | "PARTIAL" | "SUCCEEDED" | "FAILED" | "CANCELLED";
@@ -13,15 +15,18 @@ export interface NovelSegment {
     rawJa: string;
     plainJa: string;
     ko: string | null;
+    translatedText?: string | null;
+    targetLanguage?: NovelTargetLanguage;
     status: SegmentStatus;
     errorCode: string | null;
     rubyTokens?: { startOffset: number; endOffset: number; text: string; reading: string }[];
 }
 
 export interface ReaderSnapshot {
+    targetLanguage?: NovelTargetLanguage;
     revision: string;
     segmentationVersion: string;
-    title: { rawJa: string; ja: string; ko: string | null };
+    title: { rawJa: string; ja: string; ko: string | null; translatedText?: string | null; targetLanguage?: NovelTargetLanguage };
     pagerInfo: { prevIdentifier: string | null; nextIdentifier: string | null; listIdentifier: string } | null;
     segments: NovelSegment[];
     totalSegments: number;

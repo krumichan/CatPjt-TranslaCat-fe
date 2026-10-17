@@ -7,6 +7,7 @@ import * as jsxRuntime from "react/jsx-runtime";
 import { renderToStaticMarkup } from "react-dom/server";
 import ts from "typescript";
 
+import { locales } from "../../src/i18n/config.ts";
 import { isPublicDocsPath, isSameOrigin, PUBLIC_AUTH_PAGES, sameAuthSession, stripLocalePrefix, validBirthDate, validPassword } from "../../src/lib/authPolicy.ts";
 
 function loadSource(relative, modules) {
@@ -86,6 +87,8 @@ function googleHarness({ flow, session, result = { linked: true } }) {
         } },
         "next-auth/providers/google": { default: (options) => ({ id: "google", options }) },
         "next/server": { NextResponse: TestResponse },
+        // 실제 지원 언어를 주입하되 OAuth의 state·PKCE·세션 검증은 원래 구현을 실행한다.
+        "@/i18n/config": { locales },
         "@/lib/auth": { authOptions: { providers: [{ id: "google" }], callbacks: {} } },
         "@/lib/authPolicy": { sameAuthSession },
         "@/lib/authRouteHelpers": { requireAuthSession: async () => session },

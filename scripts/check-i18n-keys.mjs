@@ -8,7 +8,7 @@ const ROOT = path.resolve(
     "..",
 );
 const MESSAGES_ROOT = path.join(ROOT, "messages");
-const LOCALES = ["ko", "ja", "learning"];
+const LOCALES = ["ko", "ja", "en", "learning"];
 const BASE_LOCALE = "ko";
 
 function flattenLeaves(value, prefix = "", result = new Map()) {

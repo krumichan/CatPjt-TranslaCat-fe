@@ -7,7 +7,7 @@ import { ChatAiSettingToggle } from "@/components/chat/ai/ChatAiSettingToggle";
 import { ChatAiTextField } from "@/components/chat/ai/ChatAiTextField";
 import ConfirmModal from "@/components/common/ConfirmModal";
 import FeedbackMessage from "@/components/common/FeedbackMessage";
-import { CHAT_LANGUAGE_OPTIONS } from "@/constants/chatLanguages";
+import { useLanguageOptions } from "@/hooks/useLanguageOptions";
 import type { ChatAiManagementController } from "@/hooks/chat/useChatAiManagement";
 import type { ChatAiDisclosureType, ChatAiMentionPermission, ChatRoomType } from "@/types/chat";
 import { Bot, Edit3, EyeOff, Loader2, Plus, RefreshCw, Save, Trash2, X } from "lucide-react";
@@ -63,6 +63,7 @@ export function ChatAiManagementModal({
         updateSetting,
         reloadAll,
     } = controller;
+    const languageOptions = useLanguageOptions([form.originalLanguageCode]);
 
     if (!isOpen || typeof document === "undefined") return null;
 
@@ -284,7 +285,7 @@ export function ChatAiManagementModal({
                                                         disabled={savingMember}
                                                         className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-3 py-3 text-sm outline-none focus:border-violet-400 dark:border-white/10 dark:bg-slate-900"
                                                     >
-                                                        {CHAT_LANGUAGE_OPTIONS.map((option) => (
+                                                        {languageOptions.map((option) => (
                                                             <option key={option.code} value={option.code}>
                                                                 {option.label}
                                                             </option>

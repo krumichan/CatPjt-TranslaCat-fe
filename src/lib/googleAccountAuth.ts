@@ -11,11 +11,12 @@ import type { GoogleFlowContext, GoogleReauthContext } from "@/lib/authFlowCooki
 import { sameAuthSession } from "@/lib/authPolicy";
 import { requireAuthSession } from "@/lib/authRouteHelpers";
 import { AuthRequestError, requestServerAuth } from "@/services/authService";
+import { locales } from "@/i18n/config";
 
 type RouteContext = { params: Promise<{ nextauth: string[] }> };
 
 function accountUrl(request: NextRequest, flow: GoogleFlowContext | null, result: string) {
-    const locale = flow && ["ko", "ja", "learning"].includes(flow.locale) ? flow.locale : "ko";
+    const locale = flow && locales.some((item) => item === flow.locale) ? flow.locale : "ko";
     return new URL(`/${locale}/settings/account?google=${encodeURIComponent(result)}`, process.env.NEXTAUTH_URL ?? request.url);
 }
 

@@ -216,6 +216,8 @@ test.describe("Language Learning Core & Writing", () => {
                               {
                                   activityId: "WRITING:101",
                                   source: "WRITING",
+                                  originLanguage: "ko",
+                                  learningLanguage: "ja",
                                   learningDate: today,
                                   title: "Daily Writing · TRANSLATION",
                                   topic: "TRANSLATION",

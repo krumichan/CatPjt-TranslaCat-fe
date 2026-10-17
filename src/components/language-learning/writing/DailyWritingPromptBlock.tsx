@@ -8,12 +8,14 @@ import { useTranslations } from "next-intl";
 interface DailyWritingPromptBlockProps {
     item: DailyWritingItem;
     writingType: DailyWritingType;
+    originLanguage?: string;
     showFocusReason?: boolean;
 }
 
 export function DailyWritingPromptBlock({
     item,
     writingType,
+    originLanguage,
     showFocusReason = true,
 }: DailyWritingPromptBlockProps) {
     const t = useTranslations("LanguageLearning.writing.item");
@@ -29,7 +31,7 @@ export function DailyWritingPromptBlock({
             <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">
                 {promptLabel}
             </p>
-            <p className="mt-3 text-lg font-bold leading-8 text-slate-900 dark:text-white">
+            <p lang={originLanguage} className="mt-3 text-lg font-bold leading-8 text-slate-900 dark:text-white">
                 {item.originText}
             </p>
 

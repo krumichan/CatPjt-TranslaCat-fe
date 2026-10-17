@@ -69,3 +69,40 @@ test("다른 계획의 연결·회차와 빈 서버 프롬프트는 합치지 �
     assert.throws(() => buildWebAiTransferPrompt({ ...connection, bootstrapPrompt: " " }, run, "ko"), /PROMPT_EMPTY/);
     assert.throws(() => buildWebAiTransferPrompt(connection, { ...run, prompt: "" }, "ko"), /PROMPT_EMPTY/);
 });
+
+test("영어 UI 연동 안내는 토큰·동일 회차 전송 규약과 서버 학습 언어를 보존한다", () => {
+    // 준비: 서버가 확정한 일본어 학습 회차와 기존 합성 토큰을 사용한다.
+    const manualRun = {
+        ...run,
+        prompt: `${run.prompt}\nLearning configuration: {"originLanguage":"ko","learningLanguage":"ja","feedbackLanguage":"ko"}`,
+    };
+    const plan = {
+        id: "plan-1", name: "Japanese practice", recurrence: "MONTHLY", time: "18:30",
+        timezone: "Asia/Tokyo", weekdays: [], monthDays: [31], includeLastDay: true,
+    };
+    const original = structuredClone({ connection, manualRun, plan });
+
+    // 실행
+    const prompt = buildWebAiTransferPrompt(connection, manualRun, "en", plan);
+
+    // 검증: 영어 안내로 전환해도 인증·전송 한도·재시도 및 회차 소유권은 유지한다.
+    assert.match(prompt, /^# TranslaCat scheduled learning and result delivery/);
+    assert.ok(prompt.includes(`POST to ${connection.promptUrl} to get a new run`));
+    assert.ok(prompt.includes(`POST result JSON to ${connection.resultUrl}`));
+    assert.match(prompt, /Use Authorization: Bearer authentication and Content-Type: application\/json/);
+    assert.match(prompt, /Send at most 10 answered questions per request/);
+    assert.match(prompt, /Retry with the same submissionId and body/);
+    assert.match(prompt, /Do not claim results are saved until the API confirms receipt/);
+    assert.match(prompt, /Explain PENDING as awaiting verification/);
+    assert.match(prompt, /Do not switch to the different manual run below or invent a new runId/);
+    assert.match(prompt, /Do not reuse its runId or question IDs for later scheduled dates or invent IDs/);
+    assert.match(prompt, /Use the connection token only for API authentication/);
+    assert.match(prompt, /Never include it in answers, feedback, result JSON or learning history/);
+    assert.ok(prompt.includes(`Authorization: Bearer ${connection.token}`));
+    assert.ok(prompt.includes('"monthDays":[31],"includeLastDay":true'));
+    assert.doesNotMatch(prompt, /Schedule JSON: \{"time":"08:00"\}/);
+    assert.ok(prompt.endsWith(manualRun.prompt));
+    assert.equal(buildWebAiTransferPrompt(connection, manualRun, "learning", plan),
+        buildWebAiTransferPrompt(connection, manualRun, "ja", plan));
+    assert.deepEqual({ connection, manualRun, plan }, original);
+});

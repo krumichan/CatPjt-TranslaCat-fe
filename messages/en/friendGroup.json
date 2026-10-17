@@ -1,0 +1,53 @@
+{
+  "Social": {
+    "friendGroupCreatePage": {
+      "eyebrow": "Group chat",
+      "title": "Create group chat",
+      "description": "Review your selected friends, then enter a group name and description to create a group chat.",
+      "selected": {
+        "eyebrow": "Selected friends",
+        "title": "Selected friends",
+        "count": "{count} selected.",
+        "remove": "Deselect {nickname}"
+      },
+      "form": {
+        "eyebrow": "Group information",
+        "title": "Group information",
+        "description": "A group name is required. A description is optional.",
+        "fields": {
+          "name": "Group name",
+          "description": "Description"
+        },
+        "placeholders": {
+          "name": "e.g. Weekend Japanese study group",
+          "description": "Enter the group's purpose or conversation topics."
+        },
+        "hints": {
+          "descriptionOptional": "You can leave the description blank."
+        }
+      },
+      "actions": {
+        "backToFriends": "Back to friends",
+        "changeSelection": "Change selected friends",
+        "reload": "Reload",
+        "cancel": "Cancel",
+        "create": "Create group chat",
+        "creating": "Creating..."
+      },
+      "state": {
+        "loadingTitle": "Checking selected friends.",
+        "loadingDescription": "Checking current friendships and block status. Please wait a moment.",
+        "loadFailedTitle": "Could not load selected friends.",
+        "loadFailedDescription": "Please try again later.",
+        "selectionRequiredTitle": "No friends selected.",
+        "selectionRequiredDescription": "Return to your friends list and select at least one friend to invite."
+      },
+      "messages": {
+        "selectionRequired": "Select at least one friend to invite to the group chat.",
+        "nameRequired": "Enter a group name.",
+        "selectionAdjusted": "Some users were removed from your selection based on current friendships and block status.",
+        "createFailed": "Could not create the group chat. Please try again later."
+      }
+    }
+  }
+}

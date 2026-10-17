@@ -9,6 +9,7 @@ import type { GoogleReauthContext } from "@/lib/authFlowCookies";
 import { sameAuthSession } from "@/lib/authPolicy";
 import { AuthRequestError, requestServerAuth } from "@/services/authService";
 import type { AccountAuthentication, GoogleAccountIntent } from "@/types/auth";
+import { locales } from "@/i18n/config";
 
 type Context = { params: Promise<{ path: string[] }> };
 
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest, context: Context) {
             const result = await requestServerAuth<GoogleAccountIntent>("/auth/account/google/start", {
                 purpose: body.purpose, currentPassword: body.currentPassword,
             }, session.accessToken);
-            const locale = ["ko", "ja", "learning"].includes(String(body.locale)) ? String(body.locale) : "ko";
+            const locale = locales.some((item) => item === body.locale) ? String(body.locale) : "ko";
             const response = authJson({ started: true });
             clearGoogleFlow(response);
             clearAuthCookie(response, GOOGLE_REAUTH_COOKIE);

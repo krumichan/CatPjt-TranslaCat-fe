@@ -1,0 +1,16 @@
+{
+  "Common": {
+    "languages": {
+      "ko": "Korean",
+      "ja": "Japanese",
+      "en": "English"
+    },
+    "noData": "No data available.",
+    "confirmModal": {
+      "close": "Close confirmation dialog",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "processing": "Processing..."
+    }
+  }
+}

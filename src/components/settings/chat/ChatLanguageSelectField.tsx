@@ -1,4 +1,4 @@
-import { CHAT_LANGUAGE_OPTIONS } from "@/constants/chatLanguages";
+import { useLanguageOptions } from "@/hooks/useLanguageOptions";
 
 type ChatLanguageSelectFieldProps = {
     label: string;
@@ -11,6 +11,8 @@ export default function ChatLanguageSelectField({
     value,
     onChange,
 }: ChatLanguageSelectFieldProps) {
+    const languageOptions = useLanguageOptions([value]);
+
     return (
         <label className="block">
             <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
@@ -30,7 +32,7 @@ export default function ChatLanguageSelectField({
                     dark:[&>option]:bg-zinc-900 dark:[&>option]:text-white
                 "
             >
-                {CHAT_LANGUAGE_OPTIONS.map((language) => (
+                {languageOptions.map((language) => (
                     <option key={language.code} value={language.code}>
                         {language.label}
                     </option>

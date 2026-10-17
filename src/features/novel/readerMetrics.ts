@@ -1,8 +1,10 @@
 import type { NovelSegment, ReaderSnapshot, ReaderTimings } from "@/types/novel/reader";
+import { novelTranslation, type NovelTargetLanguage } from "@/features/novel/translationLanguage";
 
 export function sameReaderPresentation(current: ReaderSnapshot, next: ReaderSnapshot) {
     // 원문/ID의 acceptSnapshot 검증 뒤에만 사용한다. 변경 없는 진단값 polling으로 본문을 재적용하지 않는다.
     return current.revision === next.revision && current.jobId === next.jobId && current.eventSequence === next.eventSequence
+        && (current.targetLanguage ?? "ko") === (next.targetLanguage ?? "ko")
         && current.state === next.state && current.durableComplete === next.durableComplete
         && current.completedSegments === next.completedSegments && current.totalSegments === next.totalSegments
         && current.audioPolicyVersion === next.audioPolicyVersion && current.policyVersion === next.policyVersion && current.glossaryVersion === next.glossaryVersion
@@ -10,7 +12,7 @@ export function sameReaderPresentation(current: ReaderSnapshot, next: ReaderSnap
         && JSON.stringify(current.pagerInfo) === JSON.stringify(next.pagerInfo) && JSON.stringify(current.title) === JSON.stringify(next.title)
         && current.segments.length === next.segments.length && current.segments.every((segment, index) => {
             const candidate = next.segments[index];
-            return segment.id === candidate.id && segment.ko === candidate.ko && segment.status === candidate.status
+            return segment.id === candidate.id && novelTranslation(segment, current.targetLanguage) === novelTranslation(candidate, next.targetLanguage) && segment.status === candidate.status
                 && segment.errorCode === candidate.errorCode && JSON.stringify(segment.rubyTokens) === JSON.stringify(candidate.rubyTokens);
         });
 }
@@ -23,7 +25,7 @@ export function readerPollingBudget(snapshot: ReaderSnapshot, resumeExisting = f
     return resumeExisting && typeof elapsed === "number" && Number.isFinite(elapsed) && elapsed >= 0 ? Math.max(1000, budget - elapsed) : budget;
 }
 
-export function translationProgress(segments: NovelSegment[]) {
+export function translationProgress(segments: NovelSegment[], target: NovelTargetLanguage = "ko") {
     let total = 0;
     let completed = 0;
     let prefix = 0;
@@ -33,11 +35,12 @@ export function translationProgress(segments: NovelSegment[]) {
         // 문장 수나 청크 수가 바뀌어도 같은 원문 기준으로 비교한다. 빈 문단은 대상량0이다.
         const weight = segment.plainJa.trim() ? Array.from(segment.plainJa).length : 0;
         total += weight;
-        const ready = segment.status === "SUCCEEDED" && (weight === 0 || !!segment.ko?.trim());
+        const translated = novelTranslation(segment, target);
+        const ready = segment.status === "SUCCEEDED" && (weight === 0 || !!translated);
         if (ready) completed += weight;
         if (prefixOpen && ready) {
             prefix += weight;
-            if (weight > 0) translatedPrefixChars += Array.from(segment.ko ?? "").length;
+            if (weight > 0) translatedPrefixChars += Array.from(translated ?? "").length;
         }
         if (weight > 0 && !ready) prefixOpen = false;
     }
@@ -45,7 +48,7 @@ export function translationProgress(segments: NovelSegment[]) {
 }
 
 export function paintedReaderTimings(previous: ReaderTimings, snapshot: ReaderSnapshot, elapsed: number, applyToPaintMs: number): ReaderTimings {
-    const progress = translationProgress(snapshot.segments);
+    const progress = translationProgress(snapshot.segments, snapshot.targetLanguage);
     const next = { ...previous, progress };
     if (progress.total > 0) next.firstSource ??= elapsed;
     // document clock는 auth/hydration 전의 navigation도 포함한다. SPA 이동에서는 회차 진입 지연이 아니다.

@@ -1,5 +1,10 @@
 {
   "Common": {
+    "languages": {
+      "ko": "한국어",
+      "ja": "일본어",
+      "en": "영어"
+    },
     "noData": "데이터가 존재하지 않습니다.",
     "confirmModal": {
       "close": "확인 모달 닫기",

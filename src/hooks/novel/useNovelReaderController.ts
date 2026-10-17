@@ -13,6 +13,8 @@ import { paintedReaderTimings, readerPollingBudget, sameReaderPresentation } fro
 import { novelReaderService } from "@/services/novel/novelReaderService";
 import { ROUTES, to } from "@/constants/routes";
 import { scrollToTop } from "@/utils/scroll";
+import { supportsNovelTranslation, withNovelTarget, type NovelTargetLanguage } from "@/features/novel/translationLanguage";
+import { usePathname, useSearchParams } from "next/navigation";
 import type { ReaderSnapshot, ReaderTimings, RepairTimings } from "@/types/novel/reader";
 
 function waitForPoll(signal: AbortSignal) {
@@ -35,7 +37,7 @@ async function pollReader(base: string, initial: ReaderSnapshot, signal: AbortSi
         while (["QUEUED", "RUNNING"].includes(current.state)) {
             if (performance.now() >= deadline || !current.jobId) throw new Error("STATUS_DEADLINE");
             await waitForPoll(polling.signal);
-            const next = await novelReaderService.status(base, current.jobId, polling.signal, traceId);
+            const next = await novelReaderService.status(base, current.jobId, polling.signal, traceId, current.targetLanguage);
             if (signal.aborted) return;
             if (!acceptSnapshot(current, next)) throw new Error("STALE_READER_RESULT");
             if (!sameReaderPresentation(current, next)) publish(next);
@@ -47,11 +49,13 @@ async function pollReader(base: string, initial: ReaderSnapshot, signal: AbortSi
     }
 }
 
-export function useNovelReaderController(platform: string, novel: string, episode: string) {
+export function useNovelReaderController(platform: string, novel: string, episode: string, targetLanguage: NovelTargetLanguage = "ko") {
     const locale = useLocale();
     const { status: authStatus, data: session } = useSession();
     const ownerScope = session?.user.publicId ?? session?.user.email ?? "";
     const router = useAppRouter();
+    const pathname = usePathname();
+    const query = useSearchParams();
     const base = novelReaderBasePath(platform, novel, episode);
     const menu = useMenuControl({ hasBottomBar: true });
     const [snapshot, setSnapshot] = useState<ReaderSnapshot | null>(null);
@@ -62,8 +66,8 @@ export function useNovelReaderController(platform: string, novel: string, episod
     const { fontSize, changeFont } = useReaderFontSize();
     const [timings, setTimings] = useState<ReaderTimings>({});
     const [repairTimings, setRepairTimings] = useState<RepairTimings | null>(null);
-    // 보기 선택기를 두지 않아도 KRJP는 원문과 번역을 함께, 단일 언어 화면은 해당 언어를 표시한다.
-    const view: "ja" | "ko" | "parallel" = locale === "learning" ? "parallel" : locale === "ja" ? "ja" : "ko";
+    // 기존 일본어 화면은 원문을 유지하며 명시적인 영어 선택은 UI locale과 독립적으로 표시한다.
+    const view: "ja" | "ko" | "parallel" = locale === "learning" ? "parallel" : locale === "ja" && targetLanguage === "ko" ? "ja" : "ko";
     const operation = useRef(0);
     const started = useRef(0);
     const appliedAt = useRef(0);
@@ -72,7 +76,7 @@ export function useNovelReaderController(platform: string, novel: string, episod
     const startingTranslation = useRef(false);
     const repairing = useRef(false);
     const repairOperation = useRef<RepairTimings | null>(null);
-    const audio = useNovelReadAloud(base, snapshot, locale, authStatus === "authenticated", timings.traceId, ownerScope);
+    const audio = useNovelReadAloud(base, snapshot, locale, authStatus === "authenticated", timings.traceId, ownerScope, targetLanguage);
     const publishSnapshot = useCallback((value: ReaderSnapshot, sourceRead = false) => {
         appliedAt.current = performance.now();
         setSnapshot(value);
@@ -121,7 +125,7 @@ export function useNovelReaderController(platform: string, novel: string, episod
         if (authStatus !== "authenticated") return () => request.abort();
 
         // 원문 GET은 유료 번역을 시작하지 않는다. 메타데이터 번역을 기다리지 않고 표시한다.
-        void novelReaderService.snapshot(base, request.signal, traceId).then(async value => {
+        void novelReaderService.snapshot(base, request.signal, traceId, targetLanguage).then(async value => {
             if (generation !== operation.current || request.signal.aborted) return;
             publishSnapshot(value, true);
             setLoading(false);
@@ -142,7 +146,7 @@ export function useNovelReaderController(platform: string, novel: string, episod
             translationRequest.current?.abort();
             operation.current += 1;
         };
-    }, [base, authStatus, ownerScope, reload, publishSnapshot]);
+    }, [base, authStatus, ownerScope, reload, publishSnapshot, targetLanguage]);
 
     useEffect(() => {
         // 읽기 위치를 건드리는 동작은 회차 이동에만 한정한다.
@@ -195,7 +199,7 @@ export function useNovelReaderController(platform: string, novel: string, episod
         setError(null);
         try {
             // 업무 재시도는 Novel이 소유한다. FE는 시작 요청을 자동 재전송하지 않는다.
-            const current = await novelReaderService.translate(base, snapshot.revision, crypto.randomUUID(), retryFailed, request.signal, traceId);
+            const current = await novelReaderService.translate(base, snapshot.revision, crypto.randomUUID(), retryFailed, request.signal, traceId, targetLanguage);
             if (request.signal.aborted || generation !== operation.current) return;
             if (!acceptSnapshot(snapshot, current, true)) throw new Error("STALE_READER_RESULT");
             publishSnapshot(current);
@@ -207,7 +211,7 @@ export function useNovelReaderController(platform: string, novel: string, episod
         } finally {
             if (!request.signal.aborted && generation === operation.current) { setBusy(false); startingTranslation.current = false; }
         }
-    }, [snapshot, busy, authStatus, base, publishSnapshot]);
+    }, [snapshot, busy, authStatus, base, publishSnapshot, targetLanguage]);
 
     const repair = useCallback(async (segmentId?: string, clickedAt = performance.now()) => {
         if (!snapshot?.jobId || repairing.current || authStatus !== "authenticated") return;
@@ -225,7 +229,7 @@ export function useNovelReaderController(platform: string, novel: string, episod
         setBusy(true); setError(null);
         try {
             // 활성 A의 확정 FAILED도 개별 명령을 보낸다. PENDING 여부·대상 소유권·중복 병합은 서버가 다시 판정한다.
-            const next = await novelReaderService.repair(base, snapshot.jobId, snapshot.revision, crypto.randomUUID(), segmentId, request.signal, traceId);
+            const next = await novelReaderService.repair(base, snapshot.jobId, snapshot.revision, crypto.randomUUID(), segmentId, request.signal, traceId, targetLanguage);
             if (request.signal.aborted || generation !== operation.current) return;
             if (!acceptSnapshot(snapshot, next)) throw new Error("STALE_READER_RESULT");
             // 다른 탭의 같은 작업에 합류하거나 이미 저장된 결과를 재사용하면 cold 복구와 분리한다.
@@ -256,7 +260,7 @@ export function useNovelReaderController(platform: string, novel: string, episod
         } finally {
             if (!request.signal.aborted && generation === operation.current) { repairing.current = false; setBusy(false); }
         }
-    }, [snapshot, authStatus, base, publishSnapshot]);
+    }, [snapshot, authStatus, base, publishSnapshot, targetLanguage]);
 
     const cancel = async () => {
         if (!snapshot?.jobId) return;
@@ -265,7 +269,7 @@ export function useNovelReaderController(platform: string, novel: string, episod
         repairing.current = false; startingTranslation.current = false; setBusy(false);
         if (repairOperation.current) { repairOperation.current.state = "CANCELLED"; setRepairTimings({ ...repairOperation.current }); }
         try {
-            const next = await novelReaderService.cancel(base, snapshot.jobId, AbortSignal.timeout(90_000), crypto.randomUUID());
+            const next = await novelReaderService.cancel(base, snapshot.jobId, AbortSignal.timeout(90_000), crypto.randomUUID(), targetLanguage);
             if (generation === operation.current && acceptSnapshot(snapshot, next)) publishSnapshot(next);
         } catch { if (generation === operation.current) setError("CANCEL_REQUEST_FAILED"); }
     };
@@ -274,18 +278,29 @@ export function useNovelReaderController(platform: string, novel: string, episod
         if (!target) return;
         // 라우터 응답이나 unmount를 기다리지 않고 회차 이동 의사 시점에 다음 합성을 취소한다.
         audio.stop();
-        router.push(to(ROUTES.EPISODE_VIEWER, platform, snapshot?.pagerInfo?.listIdentifier ?? novel, target));
+        router.push(withNovelTarget(to(ROUTES.EPISODE_VIEWER, platform, snapshot?.pagerInfo?.listIdentifier ?? novel, target), targetLanguage));
     };
 
     return {
         snapshot, loading, error, busy, fontSize, changeFont, timings, repairTimings, repair, cancel, view,
-        locale, episode, menu, audio, translate,
+        locale, episode, menu, audio, translate, targetLanguage, supportsTargetSelection: supportsNovelTranslation(platform),
+        changeTargetLanguage: (target: NovelTargetLanguage) => {
+            if (target === targetLanguage) return;
+            // 이동 의사 시점에 중단해 라우터 응답을 기다리는 동안에도 이전 언어를 합성하지 않는다.
+            audio.stop();
+            translationRequest.current?.abort();
+            operation.current += 1;
+            setSnapshot(null);
+            setLoading(true);
+            const path = pathname.startsWith(`/${locale}/`) ? pathname.slice(locale.length + 1) : pathname;
+            router.replace(withNovelTarget(`${path}?${query}`, target));
+        },
         retryLoad: () => setReload(value => value + 1),
         onPrev: () => navigate(snapshot?.pagerInfo?.prevIdentifier),
         onNext: () => navigate(snapshot?.pagerInfo?.nextIdentifier),
         onList: () => {
             audio.stop();
-            router.push(to(ROUTES.NOVEL_DETAIL, platform, snapshot?.pagerInfo?.listIdentifier ?? novel));
+            router.push(withNovelTarget(to(ROUTES.NOVEL_DETAIL, platform, snapshot?.pagerInfo?.listIdentifier ?? novel), targetLanguage));
         },
         // 사전 등록 후 문자열 정규식으로 HTML을 다시 만들지 않고 서버 원문 모델을 재조회한다.
         onRegisterSuccess: () => setReload(value => value + 1),

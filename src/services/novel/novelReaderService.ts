@@ -1,6 +1,7 @@
 import { apiClient } from "@/lib/apiClient";
 import { parseReaderSnapshot } from "@/features/novel/readerModel";
 import type { NovelAudioPart, NovelLanguage, NovelTransportTiming } from "@/types/novel/reader";
+import type { NovelTargetLanguage } from "@/features/novel/translationLanguage";
 
 export class NovelRequestError extends Error {
     constructor(public code: string, public status: number) { super(code); }
@@ -39,27 +40,29 @@ export async function novelRequest(path: string, signal: AbortSignal, body?: unk
 const request = novelRequest;
 
 export const novelReaderService = {
-    async snapshot(base: string, signal: AbortSignal, traceId?: string) {
-        return parseReaderSnapshot(await request(`${base}/reader`, signal, undefined, traceId));
+    async snapshot(base: string, signal: AbortSignal, traceId?: string, targetLanguage: NovelTargetLanguage = "ko") {
+        return parseReaderSnapshot(await request(`${base}/reader${targetLanguage === "en" ? "?targetLanguage=en" : ""}`, signal, undefined, traceId), targetLanguage);
     },
-    async translate(base: string, revision: string, idempotencyKey: string, retryFailed: boolean, signal: AbortSignal, traceId?: string) {
-        return parseReaderSnapshot(await request(`${base}/translations`, signal, { revision, idempotencyKey, retryFailed }, traceId));
+    async translate(base: string, revision: string, idempotencyKey: string, retryFailed: boolean, signal: AbortSignal, traceId?: string, targetLanguage: NovelTargetLanguage = "ko") {
+        return parseReaderSnapshot(await request(`${base}/translations`, signal, { revision, idempotencyKey, retryFailed, targetLanguage }, traceId), targetLanguage);
     },
-    async status(base: string, jobId: string, signal: AbortSignal, traceId?: string) {
-        return parseReaderSnapshot(await request(`${base}/translations/${encodeURIComponent(jobId)}`, signal, undefined, traceId));
+    async status(base: string, jobId: string, signal: AbortSignal, traceId?: string, targetLanguage: NovelTargetLanguage = "ko") {
+        return parseReaderSnapshot(await request(`${base}/translations/${encodeURIComponent(jobId)}`, signal, undefined, traceId), targetLanguage);
     },
-    async repair(base: string, jobId: string, revision: string, idempotencyKey: string, segmentId: string | undefined, signal: AbortSignal, traceId: string) {
-        return parseReaderSnapshot(await request(`${base}/translations/${encodeURIComponent(jobId)}/repair`, signal, { revision, idempotencyKey, ...(segmentId ? { segmentId } : {}) }, traceId));
+    async repair(base: string, jobId: string, revision: string, idempotencyKey: string, segmentId: string | undefined, signal: AbortSignal, traceId: string, targetLanguage: NovelTargetLanguage = "ko") {
+        return parseReaderSnapshot(await request(`${base}/translations/${encodeURIComponent(jobId)}/repair`, signal, { revision, idempotencyKey, ...(segmentId ? { segmentId } : {}) }, traceId), targetLanguage);
     },
-    async cancel(base: string, jobId: string, signal: AbortSignal, traceId: string) {
-        return parseReaderSnapshot(await request(`${base}/translations/${encodeURIComponent(jobId)}/cancel`, signal, {}, traceId));
+    async cancel(base: string, jobId: string, signal: AbortSignal, traceId: string, targetLanguage: NovelTargetLanguage = "ko") {
+        return parseReaderSnapshot(await request(`${base}/translations/${encodeURIComponent(jobId)}/cancel`, signal, {}, traceId), targetLanguage);
     },
-    async audio(base: string, revision: string, segmentId: string, language: NovelLanguage, partIndex: number, signal: AbortSignal, traceId?: string): Promise<NovelAudioPart> {
-        const value = await request(`${base}/audio`, signal, { revision, segmentId, language, partIndex }, traceId);
+    async audio(base: string, revision: string, segmentId: string, language: NovelLanguage, partIndex: number, signal: AbortSignal, traceId?: string, targetLanguage: NovelTargetLanguage = "ko"): Promise<NovelAudioPart> {
+        if (language !== "ja" && language !== targetLanguage) throw new Error("INVALID_TRANSLATION_TARGET");
+        const value = await request(`${base}/audio`, signal, { revision, segmentId, language, partIndex, targetLanguage }, traceId);
         // 음성은 현재 문장/revision과 OpenAI 제공자를 확인한 뒤에만 디코딩한다.
         if (!value || typeof value !== "object") throw new Error("INVALID_AUDIO_CONTRACT");
         const dto = value as Record<string, unknown>;
         if (dto.revision !== revision || dto.segmentId !== segmentId || dto.language !== language || dto.partIndex !== partIndex
+            || (dto.targetLanguage !== undefined && dto.targetLanguage !== targetLanguage)
             || !Number.isInteger(dto.partCount) || Number(dto.partCount) < 1 || Number(dto.partCount) > 32 || partIndex >= Number(dto.partCount)
             || typeof dto.provider !== "string" || dto.provider.toLowerCase() !== "openai"
             || typeof dto.contentType !== "string" || !["audio/wav", "audio/x-wav", "audio/mpeg", "audio/mp3"].includes(dto.contentType)

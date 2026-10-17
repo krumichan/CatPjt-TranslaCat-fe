@@ -231,6 +231,7 @@ export function ParagraphWritingWorkspace({ owner, loginSessionId }: { owner: st
                 {items.slice(currentPage * config.pageSize, (currentPage + 1) * config.pageSize).map((item) => {
                     const key = paragraphDraftKey(owner, plan.dailySetId, item.itemId, item.contentRevision);
                     return <ParagraphWritingItemCard key={key} item={item} draft={drafts[key] ?? ""} maxLength={config.answerMaxLength}
+                        originLanguage={plan.originLanguage} learningLanguage={plan.learningLanguage}
                         busy={busy} showWorkload={showWorkload} onDraft={(answer) => changeDraft(item, answer)}
                         onPreparation={item.preparationRequestKey ? () => setOpenPreparation((previous) => ({ key: item.preparationRequestKey!, sequence: (previous?.sequence ?? 0) + 1 })) : undefined}
                         onRetryFeedback={(answerId) => void perform(async () => { acceptPlan(await service.retryFeedback(answerId)); })}

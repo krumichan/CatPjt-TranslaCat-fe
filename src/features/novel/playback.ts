@@ -1,4 +1,5 @@
 import type { NovelAudioPart, NovelLanguage, NovelSegment } from "@/types/novel/reader";
+import { novelTranslation } from "@/features/novel/translationLanguage";
 
 export interface PlaybackState {
     status: "idle" | "loading" | "playing" | "paused" | "waiting" | "error" | "ended";
@@ -34,7 +35,7 @@ const CACHE_BYTES = 8 * 1024 * 1024;
 type Position = { index: number; part: number };
 
 function audioKey(segment: NovelSegment, language: NovelLanguage, part: number) {
-    return JSON.stringify([segment.id, language, language === "ja" ? segment.plainJa : segment.ko, part]);
+    return JSON.stringify([segment.id, language, language === "ja" ? segment.plainJa : novelTranslation(segment, language), part]);
 }
 
 export class NovelPlayback {
@@ -118,7 +119,7 @@ export class NovelPlayback {
     }
 
     start(queue: NovelSegment[], language: NovelLanguage, awaitingMore = false) {
-        const identity = JSON.stringify([language, queue.map(item => [item.id, item.plainJa, item.ko])]);
+        const identity = JSON.stringify([language, queue.map(item => [item.id, item.plainJa, language === "ja" ? null : novelTranslation(item, language)])]);
         // 동일 재생 의사의 연타는 현재 준비/재생을 공유한다. 새 범위나 언어만 세대를 교체한다.
         if (identity === this.identity && ["loading", "playing", "paused", "waiting"].includes(this.state.status)) {
             this.awaitingMore = awaitingMore;
@@ -143,7 +144,7 @@ export class NovelPlayback {
         if (!this.identity || language !== this.language || queue.length < this.queue.length) return;
         // 기존 합성의 텍스트 hash/ID가 바뀌면 재생을 중단한다. 새 문장은 명시한 연속 읽기 의사에만 붙인다.
         if (this.queue.some((item, index) => item.id !== queue[index].id
-                || item.plainJa !== queue[index].plainJa || (language === "ko" && item.ko !== queue[index].ko))) {
+                || item.plainJa !== queue[index].plainJa || (language !== "ja" && novelTranslation(item, language) !== novelTranslation(queue[index], language)))) {
             this.stop();
             return;
         }

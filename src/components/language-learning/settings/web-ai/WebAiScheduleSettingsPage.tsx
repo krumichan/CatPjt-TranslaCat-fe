@@ -217,7 +217,7 @@ export function WebAiScheduleSettingsPage() {
         store: transferStore,
         plan: serverDraft,
         contextKey: transferContextKey(serverDraft),
-        locale: locale === "ja" || locale === "learning" ? locale : "ko",
+        locale: locale === "en" || locale === "ja" || locale === "learning" ? locale : "ko",
         api,
     });
     const working = busy || transfer.busy;
@@ -225,7 +225,7 @@ export function WebAiScheduleSettingsPage() {
         (effectiveDraft.keywordMode === "CUSTOM" || defaultKeywordStatus === "ready") && currentIssues.length === 0
         ? buildWebAiPrompt(
               effectiveDraft,
-              locale === "ja" || locale === "learning" ? locale : "ko",
+              locale === "en" || locale === "ja" || locale === "learning" ? locale : "ko",
               areaLabels,
               defaultKeywords,
           )
@@ -542,7 +542,7 @@ export function WebAiScheduleSettingsPage() {
                                                             plan={savedPlan}
                                                             store={transferStore}
                                                             contextKey={transferContextKey(savedPlan)}
-                                                            locale={locale === "ja" || locale === "learning" ? locale : "ko"}
+                                                            locale={locale === "en" || locale === "ja" || locale === "learning" ? locale : "ko"}
                                                             api={api}
                                                             disabled={working || !prerequisites.ready || validateWebAiSchedule(applyWebAiLanguageSettings(savedPlan, defaults)).length > 0}
                                                             onPrerequisitesChanged={prerequisites.refresh}

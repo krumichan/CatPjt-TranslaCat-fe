@@ -4,20 +4,23 @@ import { useEffect, useRef } from "react";
 import { readerLabels } from "@/features/novel/readerLabels";
 import NovelSourceText from "@/components/novel/NovelSourceText";
 import type { NovelSegment } from "@/types/novel/reader";
+import { novelTranslation, type NovelTargetLanguage } from "@/features/novel/translationLanguage";
 
 interface Props {
     segment: NovelSegment;
     view: "ja" | "ko" | "parallel";
     locale: string;
+    targetLanguage?: NovelTargetLanguage;
     active: boolean;
     repair?: (id: string, clickedAt: number) => void;
     repairing?: boolean;
     repairRequested?: boolean;
 }
 
-export default function NovelSentence({ segment, view, locale, active, repair, repairing, repairRequested }: Props) {
-    const labels = readerLabels(locale);
-    const translated = segment.status === "SUCCEEDED" && segment.ko !== null;
+export default function NovelSentence({ segment, view, locale, targetLanguage = "ko", active, repair, repairing, repairRequested }: Props) {
+    const labels = readerLabels(locale, targetLanguage);
+    const translation = novelTranslation(segment, targetLanguage);
+    const translated = segment.status === "SUCCEEDED" && translation !== null;
     const repairButton = useRef<HTMLButtonElement>(null);
     const requestedHere = useRef(false);
 
@@ -34,7 +37,7 @@ export default function NovelSentence({ segment, view, locale, active, repair, r
         data-active={active} data-status={segment.status} className={`relative rounded-xl p-3 scroll-mt-36 ${active ? "bg-orange-100 dark:bg-orange-950 ring-2 ring-orange-400" : ""}`}>
         <div className="whitespace-pre-wrap">
             {(view !== "ko" || !translated) && <p lang="ja" className="font-ja"><NovelSourceText segment={segment} /></p>}
-            {view !== "ja" && translated && <p lang="ko" className={`font-novel-ko ${view === "parallel" ? "text-zinc-700 dark:text-zinc-300" : ""}`}>{segment.ko}</p>}
+            {view !== "ja" && translated && <p lang={targetLanguage} className={`${targetLanguage === "ko" ? "font-novel-ko" : ""} ${view === "parallel" ? "text-zinc-700 dark:text-zinc-300" : ""}`}>{translation}</p>}
             {view !== "ja" && !translated && <span className="block text-xs text-amber-700 dark:text-amber-300">{segment.status === "FAILED" ? labels.failed : labels.sourceOnly}</span>}
         </div>
         {/* 비활성 상태도 같은 버튼을 유지해 복구 중/완료 후 키보드 focus를 잃지 않는다. */}

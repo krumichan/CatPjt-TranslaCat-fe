@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
-import { CHAT_LANGUAGE_OPTIONS } from "@/constants/chatLanguages";
+import { useLanguageOptions } from "@/hooks/useLanguageOptions";
 import { useChatLanguageSettingsForm } from "@/hooks/chat/useChatLanguageSettingsForm";
 
 import type {
@@ -44,6 +44,7 @@ export function ChatLanguageSettingsForm({
         onSave,
         onClose,
     });
+    const languageOptions = useLanguageOptions([form.originalLanguageCode, form.translationLanguageCode]);
 
     const sourceLabel = resolvedSource
         ? t(`source.${resolvedSource}`)
@@ -77,7 +78,7 @@ export function ChatLanguageSettingsForm({
                         }
                         className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                     >
-                        {CHAT_LANGUAGE_OPTIONS.map((language) => (
+                        {languageOptions.map((language) => (
                             <option key={language.code} value={language.code}>
                                 {language.label}
                             </option>
@@ -96,7 +97,7 @@ export function ChatLanguageSettingsForm({
                         }
                         className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                     >
-                        {CHAT_LANGUAGE_OPTIONS.map((language) => (
+                        {languageOptions.map((language) => (
                             <option key={language.code} value={language.code}>
                                 {language.label}
                             </option>

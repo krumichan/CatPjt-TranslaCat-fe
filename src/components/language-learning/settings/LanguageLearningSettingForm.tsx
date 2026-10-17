@@ -4,7 +4,7 @@ import { Ear, Headphones, Languages, Mic2, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { AppSelect } from "@/components/common/AppSelect";
-import { CHAT_LANGUAGE_OPTIONS } from "@/constants/chatLanguages";
+import { useLanguageOptions } from "@/hooks/useLanguageOptions";
 import {
     SPEAKING_PLAYBACK_SPEED_OPTIONS,
     SPEAKING_VOICE_OPTIONS,
@@ -31,6 +31,7 @@ export function LanguageLearningSettingForm({
 }: LanguageLearningSettingFormProps) {
     const t = useTranslations("LanguageLearning.settings.form");
     const form = controller.form;
+    const languageOptions = useLanguageOptions([form?.originLanguage ?? "", form?.learningLanguage ?? "", form?.feedbackLanguage ?? ""]);
 
     if (!form) return null;
 
@@ -71,7 +72,7 @@ export function LanguageLearningSettingForm({
                         }
                         className="mt-2"
                     >
-                        {CHAT_LANGUAGE_OPTIONS.map((language) => (
+                        {languageOptions.map((language) => (
                             <option key={language.code} value={language.code}>
                                 {language.label}
                             </option>
@@ -93,7 +94,7 @@ export function LanguageLearningSettingForm({
                         }
                         className="mt-2"
                     >
-                        {CHAT_LANGUAGE_OPTIONS.map((language) => (
+                        {languageOptions.map((language) => (
                             <option key={language.code} value={language.code}>
                                 {language.label}
                             </option>
@@ -110,7 +111,7 @@ export function LanguageLearningSettingForm({
                         onChange={(event) => controller.update("feedbackLanguage", event.target.value)}
                         className="mt-2"
                     >
-                        {CHAT_LANGUAGE_OPTIONS.map((language) => (
+                        {languageOptions.map((language) => (
                             <option key={language.code} value={language.code}>{language.label}</option>
                         ))}
                     </AppSelect>

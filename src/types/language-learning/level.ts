@@ -160,6 +160,8 @@ export interface LevelTestResult {
 export interface LevelTestHistoryItem {
     sessionId: number;
     sessionType: LevelTestSessionType;
+    originLanguage?: string | null;
+    learningLanguage?: string | null;
     overallScore: number | null;
     proficiencyBand: LevelTestProficiencyBand | null;
     domainScores: LevelTestDomainScores | null;

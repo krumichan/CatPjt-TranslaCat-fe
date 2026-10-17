@@ -11,6 +11,8 @@ import type { DailyWritingItem } from "@/types/language-learning/daily";
 interface DailyWritingItemCardProps {
     item: DailyWritingItem;
     writingType: DailyWritingType;
+    originLanguage?: string;
+    learningLanguage?: string;
     draft: string;
     draftPersistenceEnabled: boolean;
     isSubmitting: boolean;
@@ -22,6 +24,8 @@ interface DailyWritingItemCardProps {
 export function DailyWritingItemCard({
     item,
     writingType,
+    originLanguage,
+    learningLanguage,
     draft,
     draftPersistenceEnabled,
     isSubmitting,
@@ -68,6 +72,7 @@ export function DailyWritingItemCard({
                 <DailyWritingPromptBlock
                     item={item}
                     writingType={writingType}
+                    originLanguage={originLanguage}
                 />
             </div>
 
@@ -114,6 +119,7 @@ export function DailyWritingItemCard({
                             {t("answer")}
                         </span>
                         <textarea
+                            lang={learningLanguage}
                             value={draft}
                             onChange={(event) => onDraftChange(event.target.value)}
                             disabled={isInteractionLocked}
@@ -160,7 +166,7 @@ export function DailyWritingItemCard({
                     <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">
                         {t("latestAnswer")}
                     </p>
-                    <p className="mt-2 rounded-xl bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700 dark:bg-white/5 dark:text-slate-200">
+                    <p lang={learningLanguage} className="mt-2 rounded-xl bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700 dark:bg-white/5 dark:text-slate-200">
                         {latestAttempt.answer}
                     </p>
                 </section>

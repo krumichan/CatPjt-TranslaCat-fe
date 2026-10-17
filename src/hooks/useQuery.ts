@@ -30,7 +30,7 @@ export function useQuery<TData, const TKeys extends readonly unknown[]>({
 
     const swrKey: Key = isValid ? keys : null;
 
-    const { data, error, isLoading, mutate: swrMutate } = useSWR<TData>(
+    const { data, error, isLoading, isValidating, mutate: swrMutate } = useSWR<TData>(
         swrKey,
         () => {
             if (!keys) {
@@ -63,6 +63,7 @@ export function useQuery<TData, const TKeys extends readonly unknown[]>({
     return {
         data,
         isLoading,
+        isValidating,
         isError: error,
         mutate,
     };

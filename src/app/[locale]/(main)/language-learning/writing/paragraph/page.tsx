@@ -7,6 +7,7 @@ import { ParagraphWritingSmartPage } from "@/components/language-learning/writin
 import ko from "../../../../../../../messages/ko/writingParagraph.json";
 import ja from "../../../../../../../messages/ja/writingParagraph.json";
 import learning from "../../../../../../../messages/learning/writingParagraph.json";
+import en from "../../../../../../../messages/en/writingParagraph.json";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +26,7 @@ export default async function ParagraphWritingRoutePage({
 
     const { locale } = await params;
     const messages = await getMessages();
-    const paragraphMessages = locale === "ja" ? ja : locale === "learning" ? learning : ko;
+    const paragraphMessages = locale === "ja" ? ja : locale === "en" ? en : locale === "learning" ? learning : ko;
     return (
         <NextIntlClientProvider messages={{ ...messages, ...paragraphMessages }}>
             <ParagraphWritingSmartPage />

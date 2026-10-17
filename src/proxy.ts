@@ -18,15 +18,15 @@ const intlMiddleware = createMiddleware({
     localePrefix: 'always'
 });
 
-const authMiddleware = withAuth(
+const authMiddleware = (locale: string) => withAuth(
     (req) => intlMiddleware(req),
     {
         callbacks: {
             authorized: ({ token }) => !!token && !isTerminalAuthError(token.error),
         },
         pages: {
-            signIn: '/login',
-            error: '/error'
+            signIn: `/${locale}/login`,
+            error: `/${locale}/error`
         }
     }
 );
@@ -42,7 +42,10 @@ export default function middleware(req: NextRequest) {
     if (isPublic) {
         return intlMiddleware(req);
     } else {
-        return (authMiddleware as unknown as (req: NextRequest) => NextResponse)(req);
+        // 인증 판정과 callback URL은 그대로 두고 재로그인 화면도 요청한 표시 언어를 유지한다.
+        const segment = pathname.split('/')[1];
+        const locale = locales.find((item) => item === segment) ?? 'ko';
+        return (authMiddleware(locale) as unknown as (req: NextRequest) => NextResponse)(req);
     }
 }
 

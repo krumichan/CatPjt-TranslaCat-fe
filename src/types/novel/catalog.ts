@@ -1,5 +1,6 @@
 import type { PageNumber } from "@/types/common";
-export interface CatalogText { rawJa: string; ja: string; ko: string | null }
+import type { NovelTargetLanguage } from "@/features/novel/translationLanguage";
+export interface CatalogText { rawJa: string; ja: string; ko: string | null; translatedText?: string | null; targetLanguage?: NovelTargetLanguage }
 
 export interface CatalogSelector {
     kind: "RANKING" | "SEARCH";
@@ -7,7 +8,7 @@ export interface CatalogSelector {
     genreId?: string;
     keyword?: string;
     page: number;
-    language: "ja" | "ko";
+    language: "ja" | "ko" | "en";
 }
 export interface CatalogItem {
     itemId: string;

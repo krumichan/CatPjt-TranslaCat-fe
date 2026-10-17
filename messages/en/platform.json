@@ -1,0 +1,11 @@
+{
+  "Platform": {
+    "title": "Choose a platform",
+    "subTitle": "Select a platform to translate from.",
+    "searchPlaceholder": "Enter a search term.",
+    "search": "Search",
+    "searchSuffix": "search",
+    "genreTitle": "Browse by genre",
+    "backToTop": "Choose another platform"
+  }
+}

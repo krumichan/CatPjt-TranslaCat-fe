@@ -54,7 +54,7 @@
       "corrections": "表現ごとの添削",
       "original": "元の表現",
       "corrected": "推奨表現",
-      "reason": "理由",
+      "correctionReason": "理由",
       "recommendedAnswer": "推奨する修正版",
       "explanation": "詳しい解説",
       "question": "問題",
@@ -493,7 +493,7 @@
         },
         "speaking": {
           "referenceTitle": "復唱するお手本音声",
-          "referenceDescription": "まずお手本音声を聞き、聞こえた内容をそのまま日本語で繰り返してください。",
+          "referenceDescription": "まずお手本音声を聞き、聞こえた内容を音声と同じ言語でそのまま繰り返してください。",
           "referencePlay": "お手本音声を聞く",
           "referenceLoading": "お手本音声を準備中...",
           "referenceRemaining": "再生可能 残り{count}回",

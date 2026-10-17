@@ -36,6 +36,7 @@ export default function ProfilePageContent() {
                 eyebrow={t("eyebrow")}
                 title={t("title")}
                 description={t("description")}
+                guideTopic="settings/profile"
             />
 
             {isLoading && <ProfilePageSkeleton />}

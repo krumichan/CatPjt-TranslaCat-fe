@@ -3,6 +3,7 @@
 import { Globe2, MessageCircle, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 import { Link } from "@/navigation";
 
 export function ChatHubHeader() {
@@ -20,9 +21,12 @@ export function ChatHubHeader() {
                         {t("badge")}
                     </div>
 
-                    <h1 className="mt-3 text-2xl font-bold text-slate-900 dark:text-slate-100">
-                        {t("title")}
-                    </h1>
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                            {t("title")}
+                        </h1>
+                        <GuideHelpLink topic="chat" variant="text" />
+                    </div>
 
                     <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
                         {t("description")}

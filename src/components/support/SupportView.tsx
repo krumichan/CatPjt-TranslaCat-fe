@@ -4,6 +4,7 @@ import { ArrowLeft, Headphones, LoaderCircle, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import ConfirmModal from "@/components/common/ConfirmModal";
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 import SectionHeader from "@/components/common/SectionHeader";
 import { SupportComposerSmart } from "@/components/support/SupportComposerSmart";
 import { SupportContentDetail } from "@/components/support/SupportContentDetail";
@@ -22,7 +23,9 @@ export function SupportView({ controller }: { controller: SupportController }) {
             <SectionHeader
                 title={t(controller.isAdmin ? "adminTitle" : "title")}
                 icon={<Headphones className="h-6 w-6 text-violet-500" aria-hidden="true" />}
-            />
+            >
+                <GuideHelpLink topic="support" variant="text" />
+            </SectionHeader>
 
             <div className="flex min-h-[620px] flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm md:flex-row dark:border-white/10 dark:bg-slate-900">
                 <SupportNavigation controller={controller} />

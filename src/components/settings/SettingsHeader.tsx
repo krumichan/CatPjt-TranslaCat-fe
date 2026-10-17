@@ -1,5 +1,7 @@
 import { useTranslations } from "next-intl";
 
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
+
 export default function SettingsHeader() {
     const t = useTranslations("Settings");
 
@@ -8,9 +10,12 @@ export default function SettingsHeader() {
             <p className="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-orange-500">
                 {t("eyebrow")}
             </p>
-            <h1 className="text-3xl font-black text-slate-900 dark:text-white sm:text-4xl">
-                {t("title")}
-            </h1>
+            <div className="flex flex-wrap items-center gap-2">
+                <h1 className="text-3xl font-black text-slate-900 dark:text-white sm:text-4xl">
+                    {t("title")}
+                </h1>
+                <GuideHelpLink topic="settings" variant="text" />
+            </div>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-300">
                 {t("description")}
             </p>

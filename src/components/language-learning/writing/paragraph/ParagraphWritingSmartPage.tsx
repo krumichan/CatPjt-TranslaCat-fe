@@ -12,7 +12,7 @@ export function ParagraphWritingSmartPage() {
     const loginSessionId = session?.loginSessionId;
 
     return (
-        <LanguageLearningPageLayout title={t("title")} description={t("description")}>
+        <LanguageLearningPageLayout guideTopic="language-learning/writing" title={t("title")} description={t("description")}>
             {status === "loading" ? <p role="status">{t("loading")}</p> : owner && loginSessionId ? (
                 <ParagraphWritingWorkspace key={`${owner}:${loginSessionId}`} owner={owner} loginSessionId={loginSessionId} />
             ) : <p role="alert">{t("signedOut")}</p>}

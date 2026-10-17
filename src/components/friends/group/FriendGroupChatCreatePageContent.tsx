@@ -10,6 +10,7 @@ import {
 import { useTranslations } from "next-intl";
 import type { SyntheticEvent } from "react";
 
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 import SelectedFriendList from "@/components/friends/group/SelectedFriendList";
 import StatePanel from "@/components/friends/group/StatePanel";
 import { FRIEND_GROUP_ERROR_MESSAGE_KEYS } from "@/constants/friends/friendGroupChatCreate";
@@ -49,9 +50,12 @@ export default function FriendGroupChatCreatePageContent() {
                     <p className="text-xs font-bold uppercase tracking-[0.25em] text-orange-500">
                         {t("eyebrow")}
                     </p>
-                    <h1 className="mt-2 text-3xl font-black text-slate-900 dark:text-white">
-                        {t("title")}
-                    </h1>
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <h1 className="text-3xl font-black text-slate-900 dark:text-white">
+                            {t("title")}
+                        </h1>
+                        <GuideHelpLink topic="chat/direct-groups" variant="text" />
+                    </div>
                     <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-500 dark:text-slate-400">
                         {t("description")}
                     </p>

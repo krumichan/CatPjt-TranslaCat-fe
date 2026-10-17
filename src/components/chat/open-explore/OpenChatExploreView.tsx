@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 import { OpenChatRoomCard } from "@/components/chat/open-explore/OpenChatRoomCard";
 import type { useOpenChatRooms } from "@/hooks/chat/useOpenChatRooms";
 import { Link } from "@/navigation";
@@ -50,9 +51,12 @@ export function OpenChatExploreView({
                                 <Globe2 className="h-3.5 w-3.5" aria-hidden="true" />
                                 {t("badge")}
                             </div>
-                            <h1 className="mt-3 text-3xl font-black text-slate-950 dark:text-white">
-                                {t("title")}
-                            </h1>
+                            <div className="mt-3 flex flex-wrap items-center gap-2">
+                                <h1 className="text-3xl font-black text-slate-950 dark:text-white">
+                                    {t("title")}
+                                </h1>
+                                <GuideHelpLink topic="chat/open-rooms" variant="text" />
+                            </div>
                             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-300">
                                 {t("description")}
                             </p>

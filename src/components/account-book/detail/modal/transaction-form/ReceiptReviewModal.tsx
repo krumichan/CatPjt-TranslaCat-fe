@@ -1,6 +1,7 @@
 import { createPortal } from "react-dom";
 import type { ReactNode, RefObject } from "react";
 import { useReceiptReviewModal } from "@/hooks/account-book/detail/receipt/useReceiptReviewModal";
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 
 type Props = {
     title: string;
@@ -28,12 +29,15 @@ export default function ReceiptReviewModal({ title, children, returnFocusRef, on
                 tabIndex={-1}
                 className="relative z-10 flex max-h-[100dvh] min-h-0 w-full max-w-3xl flex-col overflow-hidden rounded-t-2xl border border-slate-200 bg-white p-3 shadow-2xl sm:max-h-[calc(100dvh-3rem)] sm:rounded-2xl sm:p-5 dark:border-white/10 dark:bg-zinc-900"
             >
-                <h3
-                    id="receipt-review-modal-title"
-                    className="sr-only"
-                >
-                    {title}
-                </h3>
+                <div className="mb-2 flex shrink-0 items-center justify-between gap-2">
+                    <h3
+                        id="receipt-review-modal-title"
+                        className="min-w-0 text-sm font-bold text-slate-900 dark:text-white"
+                    >
+                        {title}
+                    </h3>
+                    <GuideHelpLink topic="account-books/receipt-review" />
+                </div>
                 <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[max(0.5rem,env(safe-area-inset-bottom))]">
                     {children}
                 </div>

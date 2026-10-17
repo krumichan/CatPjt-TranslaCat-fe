@@ -21,7 +21,7 @@ export function SpeakingSessionSmartPage({ sessionId }: { sessionId: number }) {
     );
 
     return (
-        <LanguageLearningPageLayout title={t("title")} description={t("description")}>
+        <LanguageLearningPageLayout guideTopic="language-learning/speaking" title={t("title")} description={t("description")}>
             {content}
         </LanguageLearningPageLayout>
     );

@@ -3,6 +3,7 @@
 import { ArrowRight, CalendarDays } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 import { Link } from "@/navigation";
 import { WebAiPlanPrerequisiteChecklist } from "@/components/language-learning/settings/web-ai/WebAiPlanPrerequisiteChecklist";
 import { useWebAiPlanPrerequisites } from "@/hooks/language-learning/useWebAiPlanPrerequisites";
@@ -19,7 +20,10 @@ export function WebAiScheduleSettingsEntry() {
                         <CalendarDays className="h-5 w-5" aria-hidden="true" />
                     </span>
                     <div>
-                        <h2 className="text-lg font-black text-slate-950 dark:text-white">{t("title")}</h2>
+                        <div className="flex items-start gap-3">
+                            <h2 className="min-w-0 text-lg font-black text-slate-950 dark:text-white">{t("title")}</h2>
+                            <GuideHelpLink topic="language-learning/web-ai" className="shrink-0" />
+                        </div>
                         <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">{t("description")}</p>
                     </div>
                 </div>

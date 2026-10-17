@@ -11,6 +11,10 @@
       "cancel": "Cancel",
       "confirm": "Confirm",
       "processing": "Processing..."
+    },
+    "guideHelp": {
+      "label": "User guide",
+      "open": "Open the guide for {topic} (new tab)"
     }
   }
 }

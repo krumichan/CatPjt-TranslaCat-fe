@@ -1,10 +1,12 @@
 import SettingsBackButton from "@/components/settings/SettingsBackButton";
+import { GuideHelpLink, type GuideTopic } from "@/components/common/GuideHelpLink";
 
 type SettingsSubPageHeaderProps = {
     eyebrow: string;
     title: string;
     description: string;
     backVariant?: "default" | "ghost" | "icon";
+    guideTopic?: GuideTopic;
 };
 
 export default function SettingsSubPageHeader({
@@ -12,6 +14,7 @@ export default function SettingsSubPageHeader({
     title,
     description,
     backVariant = "default",
+    guideTopic,
 }: SettingsSubPageHeaderProps) {
     return (
         <section className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm dark:border-white/10 dark:bg-zinc-900/80">
@@ -22,9 +25,12 @@ export default function SettingsSubPageHeader({
                     {eyebrow}
                 </p>
 
-                <h1 className="mt-2 text-3xl font-black text-slate-900 dark:text-white">
-                    {title}
-                </h1>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <h1 className="text-3xl font-black text-slate-900 dark:text-white">
+                        {title}
+                    </h1>
+                    {guideTopic && <GuideHelpLink topic={guideTopic} variant="text" />}
+                </div>
 
                 <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-500 dark:text-slate-400">
                     {description}

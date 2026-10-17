@@ -1,6 +1,7 @@
 "use client";
 
 import { FriendHelpItem } from "@/components/friends/FriendHelpItem";
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 import { MessageCircle, Search, Shield, UserPlus, UsersRound, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
@@ -168,6 +169,9 @@ export default function FriendHelpModal({
                             description={item.description}
                         />
                     ))}
+                    <div className="flex justify-end border-t border-slate-200 pt-3 dark:border-white/10">
+                        <GuideHelpLink topic="chat/friends" variant="text" />
+                    </div>
                 </div>
             </section>
         </div>,

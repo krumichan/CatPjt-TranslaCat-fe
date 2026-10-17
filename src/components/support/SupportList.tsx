@@ -3,6 +3,7 @@
 import { ChevronLeft, ChevronRight, Plus, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 import { SupportListRow } from "@/components/support/SupportListRow";
 import { supportInput, supportPrimaryButton, supportSecondaryButton } from "@/components/support/supportStyles";
 import type { SupportController } from "@/hooks/support/useSupportController";
@@ -16,7 +17,10 @@ export function SupportList({ controller }: { controller: SupportController }) {
         <div>
             <div className="mb-7 flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t(titleKey)}</h2>
+                    <div className="flex flex-wrap items-center gap-1">
+                        <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t(titleKey)}</h2>
+                        <GuideHelpLink topic={`support/${tab}`} />
+                    </div>
                     <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">{t(`${tab}.${isAdmin ? "adminDescription" : "description"}`)}</p>
                 </div>
 

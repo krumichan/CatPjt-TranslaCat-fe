@@ -3,6 +3,7 @@ import { ArrowLeft, Plus, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { CurrencyCode } from "@/types/accountBook";
 import {ReactNode} from "react";
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 
 type AccountBookDetailHeaderData = {
     id: number;
@@ -52,6 +53,7 @@ export default function AccountBookDetailHeader({
                         <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-600 dark:bg-orange-500/10 dark:text-orange-400">
                             {accountBook.currencyCode}
                         </span>
+                        <GuideHelpLink topic="account-books" variant="text" />
                     </div>
 
                     {accountBook.description && (

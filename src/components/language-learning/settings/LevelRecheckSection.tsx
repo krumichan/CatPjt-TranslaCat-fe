@@ -3,6 +3,7 @@
 import { RotateCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 import { Link } from "@/navigation";
 import type { LevelTestStatus } from "@/types/language-learning/level";
 
@@ -19,7 +20,10 @@ export function LevelRecheckSection({ status }: { status: LevelTestStatus | null
                         <RotateCcw className="h-5 w-5" aria-hidden="true" />
                     </span>
                     <div>
-                        <h2 className="text-lg font-black text-slate-900 dark:text-white">{t("title")}</h2>
+                        <div className="flex items-start gap-3">
+                            <h2 className="min-w-0 text-lg font-black text-slate-900 dark:text-white">{t("title")}</h2>
+                            <GuideHelpLink topic="language-learning/level-test" className="shrink-0" />
+                        </div>
                         <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">{t("description")}</p>
                         {status.recheckRecommended && <p className="mt-2 text-sm font-black text-amber-600 dark:text-amber-300">{t("recommended")}</p>}
                     </div>

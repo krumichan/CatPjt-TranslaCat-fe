@@ -3,6 +3,7 @@
 import { Mail, Pencil, Trash2 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 import { SupportNoticeTypeBadge } from "@/components/support/SupportNoticeTypeBadge";
 import { supportSecondaryButton } from "@/components/support/supportStyles";
 import type { SupportController } from "@/hooks/support/useSupportController";
@@ -26,7 +27,10 @@ export function SupportContentDetail({ item, controller }: { item: SupportNotice
                 <span>{t(isNotice ? "notices.audience" : "messages.private")}</span>
             </div>
 
-            <h2 className="break-words text-xl font-bold leading-8 text-slate-900 sm:text-2xl dark:text-white">{item.title}</h2>
+            <div className="flex flex-wrap items-center gap-1">
+                <h2 className="break-words text-xl font-bold leading-8 text-slate-900 sm:text-2xl dark:text-white">{item.title}</h2>
+                <GuideHelpLink topic={isNotice ? "support/notices" : "support/messages"} />
+            </div>
             <div className="mt-3 flex flex-wrap gap-x-2 gap-y-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
                 <span>{isNotice ? item.authorName : `${item.senderName} → ${item.recipient.name}`}</span>
                 <span>·</span>

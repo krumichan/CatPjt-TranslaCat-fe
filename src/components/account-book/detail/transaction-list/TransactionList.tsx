@@ -10,6 +10,7 @@ import TransactionViewToggle, {
     TransactionViewMode,
 } from "@/components/account-book/detail/transaction-list/TransactionViewToggle";
 import TransactionPagination from "@/components/account-book/detail/transaction-list/TransactionPagination";
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 
 type TransactionListProps = {
     transactions: AccountBookTransaction[];
@@ -55,6 +56,7 @@ export default function TransactionList({
                 <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                     {t("empty.description")}
                 </p>
+                <GuideHelpLink topic="account-books/transactions" variant="text" className="mt-3" />
             </div>
         );
     }
@@ -63,9 +65,12 @@ export default function TransactionList({
         <section className="min-w-0 space-y-4" data-testid="account-book-transactions">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-                        {t("title")}
-                    </h2>
+                    <div className="flex items-center gap-1">
+                        <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+                            {t("title")}
+                        </h2>
+                        <GuideHelpLink topic="account-books/transactions" />
+                    </div>
                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                         {t("count", { count: transactions.length })}
                     </p>

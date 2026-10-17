@@ -13,6 +13,7 @@ import { isPositiveDecimal } from "@/utils/account-book/decimalInput";
 import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { SyntheticEvent, useMemo, useState } from "react";
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 
 export function FixedCostFormModalContent({
    fixedCost,
@@ -150,9 +151,12 @@ export function FixedCostFormModalContent({
                             Fixed Cost
                         </p>
 
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                            {isEditMode ? t("editTitle") : t("title")}
-                        </h2>
+                        <div className="flex flex-wrap items-center gap-1">
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                                {isEditMode ? t("editTitle") : t("title")}
+                            </h2>
+                            <GuideHelpLink topic="account-books/fixed-costs" />
+                        </div>
 
                         <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                             {isEditMode

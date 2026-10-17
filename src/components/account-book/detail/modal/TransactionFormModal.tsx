@@ -8,6 +8,7 @@ import { useTransactionFormModal } from "@/hooks/account-book/detail/transaction
 import TransactionInputModeTabs from "./transaction-form/TransactionInputModeTabs";
 import ReceiptAnalysisPanel from "./transaction-form/ReceiptAnalysisPanel";
 import ReceiptReviewSmartSection from "./transaction-form/ReceiptReviewSmartSection";
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 
 export default function TransactionFormModal(props: TransactionFormModalProps) {
     const {
@@ -83,12 +84,15 @@ export default function TransactionFormModal(props: TransactionFormModalProps) {
                         <p className={showReceipt ? "mb-1 hidden text-sm font-medium text-orange-500 sm:block" : "mb-1 text-sm font-medium text-orange-500"}>
                             {badge}
                         </p>
-                        <h2
-                            id="transaction-form-title"
-                            className={showReceipt ? "break-words text-lg font-bold text-gray-900 sm:text-2xl dark:text-white" : "break-words text-xl font-bold text-gray-900 sm:text-2xl dark:text-white"}
-                        >
-                            {modalTitle}
-                        </h2>
+                        <div className="flex items-center gap-1">
+                            <h2
+                                id="transaction-form-title"
+                                className={showReceipt ? "break-words text-lg font-bold text-gray-900 sm:text-2xl dark:text-white" : "break-words text-xl font-bold text-gray-900 sm:text-2xl dark:text-white"}
+                            >
+                                {modalTitle}
+                            </h2>
+                            <GuideHelpLink topic={showReceipt ? "account-books/receipt-upload" : isEditMode ? "account-books/transactions" : "account-books/manual-transactions"} />
+                        </div>
                         <p className={showReceipt ? "mt-2 hidden text-sm text-slate-500 sm:block dark:text-slate-400" : "mt-2 text-sm text-slate-500 dark:text-slate-400"}>
                             {description}
                         </p>

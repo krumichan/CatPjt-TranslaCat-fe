@@ -245,5 +245,5 @@ export function AvailablePracticeModeLandingPage({ domain }: { domain: PracticeD
         );
     }
 
-    return <LanguageLearningPageLayout title={t("title")} description={t("description")}>{content}</LanguageLearningPageLayout>;
+    return <LanguageLearningPageLayout guideTopic="language-learning/reading" title={t("title")} description={t("description")}>{content}</LanguageLearningPageLayout>;
 }

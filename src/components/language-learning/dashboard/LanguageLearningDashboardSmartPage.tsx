@@ -65,5 +65,5 @@ export function LanguageLearningDashboardSmartPage() {
         );
     })();
 
-    return <LanguageLearningPageLayout title={t("title")} description={t("description")}>{content}</LanguageLearningPageLayout>;
+    return <LanguageLearningPageLayout guideTopic="language-learning" title={t("title")} description={t("description")}>{content}</LanguageLearningPageLayout>;
 }

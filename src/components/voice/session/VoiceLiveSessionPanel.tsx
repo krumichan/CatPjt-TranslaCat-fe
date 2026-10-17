@@ -5,6 +5,7 @@ import { VoiceListeningCard } from "@/components/voice/session/VoiceListeningCar
 import { VoiceChannelStatus } from "@/components/voice/session/VoiceChannelStatus";
 import type { VoiceLiveSessionController } from "@/hooks/voice/useVoiceLiveSession";
 import { useTranslations } from "next-intl";
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 
 interface VoiceLiveSessionPanelProps {
     controller: VoiceLiveSessionController;
@@ -22,7 +23,10 @@ export function VoiceLiveSessionPanel({
             {/* 대화와 이력을 스크롤해도 앱 헤더 아래에서 세션 종료를 바로 누를 수 있다. */}
             <div className="sticky top-18 z-30 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
                 <div className="min-w-0 flex-1 basis-44">
-                    <h2 className="text-lg font-bold">{t("live.title")}</h2>
+                    <div className="flex items-center gap-1">
+                        <h2 className="text-lg font-bold">{t("live.title")}</h2>
+                        <GuideHelpLink topic="voice/live-translation" />
+                    </div>
                     <p className="mt-1 truncate font-mono text-xs text-zinc-500" title={controller.session.id}>
                         {controller.session.id}
                     </p>

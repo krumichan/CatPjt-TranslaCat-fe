@@ -7,6 +7,7 @@ import AccountBookMemberInviteForm from "@/components/account-book/member/modal/
 import AccountBookMemberListSection from "@/components/account-book/member/modal/AccountBookMemberListSection";
 import AccountBookPendingInvitationSection from "@/components/account-book/member/modal/AccountBookPendingInvitationSection";
 import { useAccountBookMemberManageModal } from "@/components/account-book/member/modal/useAccountBookMemberManageModal";
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 
 type AccountBookMemberManageModalProps = {
     accountBookId: number;
@@ -42,9 +43,12 @@ export default function AccountBookMemberManageModal({
                                 {t("eyebrow")}
                             </p>
 
-                            <h2 className="mt-2 text-2xl font-black text-slate-900 dark:text-white">
-                                {t("title")}
-                            </h2>
+                            <div className="mt-2 flex flex-wrap items-center gap-1">
+                                <h2 className="text-2xl font-black text-slate-900 dark:text-white">
+                                    {t("title")}
+                                </h2>
+                                <GuideHelpLink topic="account-books/sharing" />
+                            </div>
 
                             <p className="mt-2 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
                                 {accountBookName

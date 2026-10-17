@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { ChatLanguageSettingsForm } from "@/components/chat/room/modal/ChatLanguageSettingsForm";
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 
 import type {
     ChatDefaultLanguageSettings,
@@ -63,9 +64,12 @@ export function ChatLanguageSettingsModal({
             <div className="max-h-[calc(100vh-2rem)] w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900">
                 <div className="flex items-start justify-between border-b border-slate-200 p-5 dark:border-slate-800">
                     <div>
-                        <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
-                            {t("title")}
-                        </h2>
+                        <div className="flex flex-wrap items-center gap-1">
+                            <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
+                                {t("title")}
+                            </h2>
+                            <GuideHelpLink topic="chat/messages-translation" />
+                        </div>
                         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                             {t("description")}
                         </p>

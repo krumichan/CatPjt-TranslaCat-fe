@@ -1,5 +1,7 @@
 "use client";
 
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
+
 import {
     AlertCircle,
     Loader2,
@@ -222,6 +224,7 @@ export function ChatRoomInvitationModal({
                                       "invitation.groupTitle",
                                   )}
                         </h2>
+                        <GuideHelpLink topic="chat/direct-groups" variant="text" className="mt-1" />
                     </div>
 
                     <button

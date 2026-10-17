@@ -16,10 +16,10 @@ export function ListeningResultPage({ sessionId }: { sessionId: number }) {
     const controller = useListeningResultController(sessionId);
 
     if (controller.isLoading) {
-        return <LanguageLearningPageLayout title={t("result.title")} description={t("result.description")}><LanguageLearningStateCard variant="loading" title={common("loadingTitle")} message={t("result.loading")} /></LanguageLearningPageLayout>;
+        return <LanguageLearningPageLayout guideTopic="language-learning/listening" title={t("result.title")} description={t("result.description")}><LanguageLearningStateCard variant="loading" title={common("loadingTitle")} message={t("result.loading")} /></LanguageLearningPageLayout>;
     }
     if (controller.loadError || !controller.result) {
-        return <LanguageLearningPageLayout title={t("result.title")} description={t("result.description")}><LanguageLearningStateCard variant="error" title={common("loadFailedTitle")} message={t("result.loadFailed")} actionLabel={common("retry")} onAction={() => void controller.reload()} /></LanguageLearningPageLayout>;
+        return <LanguageLearningPageLayout guideTopic="language-learning/listening" title={t("result.title")} description={t("result.description")}><LanguageLearningStateCard variant="error" title={common("loadFailedTitle")} message={t("result.loadFailed")} actionLabel={common("retry")} onAction={() => void controller.reload()} /></LanguageLearningPageLayout>;
     }
 
     const result = controller.result;
@@ -31,7 +31,7 @@ export function ListeningResultPage({ sessionId }: { sessionId: number }) {
     const retryAllBusy = controller.busyKey === `retry-all-${sessionId}`;
 
     return (
-        <LanguageLearningPageLayout title={t("result.title")} description={t("result.description")}>
+        <LanguageLearningPageLayout guideTopic="language-learning/listening" title={t("result.title")} description={t("result.description")}>
             <div className="space-y-5" data-testid="listening-result-page">
                 {showEvaluationStatus && (
                     <section

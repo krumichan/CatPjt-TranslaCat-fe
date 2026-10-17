@@ -130,5 +130,5 @@ export function PracticeSessionPage({ setId, expectedDomain }: { setId: number; 
         );
     }
 
-    return <LanguageLearningPageLayout title={t("title")} description={t("description")}><div className="space-y-5">{expectedDomain === "VOCABULARY" && <VocabularyRetirementNotice />}{content}</div></LanguageLearningPageLayout>;
+    return <LanguageLearningPageLayout guideTopic="language-learning/reading" title={t("title")} description={t("description")}><div className="space-y-5">{expectedDomain === "VOCABULARY" && <VocabularyRetirementNotice />}{content}</div></LanguageLearningPageLayout>;
 }

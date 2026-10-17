@@ -35,7 +35,7 @@ function ConfiguredWritingPage() {
     const failed = status === "unauthenticated" || !!settingQuery.isError;
     if (!authenticated || settingQuery.isLoading || settingQuery.isValidating || failed) {
         return (
-            <LanguageLearningPageLayout title={t("title")} description={t("description")}>
+            <LanguageLearningPageLayout guideTopic="language-learning/writing" title={t("title")} description={t("description")}>
                 <LanguageLearningStateCard
                     variant={failed ? "error" : "loading"}
                     title={common(failed ? "loadFailedTitle" : "loadingTitle")}

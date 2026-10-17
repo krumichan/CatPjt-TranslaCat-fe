@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import type { ReceiptReviewContentProps } from "./types";
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 
 export default function ReceiptReviewHeader({ controller }: ReceiptReviewContentProps) {
     const t = useTranslations("AccountBook.detail.transactionModal");
@@ -8,9 +9,12 @@ export default function ReceiptReviewHeader({ controller }: ReceiptReviewContent
         <header className="shrink-0 border-b border-slate-200 pb-2 sm:pb-3 dark:border-white/10">
             <div className="flex items-center justify-between gap-2 sm:flex-wrap sm:items-start sm:gap-3">
                 <div className="min-w-0">
-                    <h3 className="text-sm font-bold sm:text-lg text-slate-900 dark:text-white">
-                        {t("receipt.review.title")}
-                    </h3>
+                    <div className="flex min-w-0 items-center gap-1">
+                        <h3 className="text-sm font-bold sm:text-lg text-slate-900 dark:text-white">
+                            {t("receipt.review.title")}
+                        </h3>
+                        <GuideHelpLink topic="account-books/receipt-review" />
+                    </div>
                     <p className="mt-1 hidden text-xs text-slate-500 sm:block dark:text-slate-400">
                         {t("receipt.review.description")}
                     </p>

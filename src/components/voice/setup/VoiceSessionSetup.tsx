@@ -3,6 +3,7 @@
 import { Mic, Monitor, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { ChangeEvent } from "react";
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 
 import type { VoiceLiveSessionController } from "@/hooks/voice/useVoiceLiveSession";
 import { cn } from "@/lib/utils";
@@ -27,7 +28,10 @@ export function VoiceSessionSetup({ controller }: VoiceSessionSetupProps) {
     return (
         <section className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
             <div className="mb-6">
-                <h2 className="text-lg font-bold">{t("setup.title")}</h2>
+                <div className="flex items-center gap-1">
+                    <h2 className="text-lg font-bold">{t("setup.title")}</h2>
+                    <GuideHelpLink topic="voice/input-modes" />
+                </div>
                 <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
                     {t("setup.description")}
                 </p>
@@ -72,9 +76,13 @@ export function VoiceSessionSetup({ controller }: VoiceSessionSetupProps) {
             </div>
 
             <div className="mt-6 grid gap-5 md:grid-cols-2">
-                <label className="space-y-2 text-sm font-medium">
-                    <span>{t("setup.sourceLanguageMode")}</span>
+                <div className="space-y-2 text-sm font-medium">
+                    <div className="flex items-center gap-1">
+                        <label htmlFor="voice-source-language-mode">{t("setup.sourceLanguageMode")}</label>
+                        <GuideHelpLink topic="voice/languages-storage" />
+                    </div>
                     <select
+                        id="voice-source-language-mode"
                         value={setup.sourceLanguageMode}
                         onChange={(event: ChangeEvent<HTMLSelectElement>) =>
                             controller.updateSetup(
@@ -88,10 +96,10 @@ export function VoiceSessionSetup({ controller }: VoiceSessionSetupProps) {
                         <option value="AUTO">{t("sourceMode.AUTO")}</option>
                         <option value="MANUAL">{t("sourceMode.MANUAL")}</option>
                     </select>
-                </label>
+                </div>
 
                 <label className="space-y-2 text-sm font-medium">
-                    <span>{t("setup.targetLanguage")}</span>
+                    <span className="flex min-h-11 items-center">{t("setup.targetLanguage")}</span>
                     <select
                         value={setup.targetLanguage}
                         onChange={(event: ChangeEvent<HTMLSelectElement>) =>

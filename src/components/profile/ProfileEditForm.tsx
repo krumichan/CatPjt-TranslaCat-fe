@@ -4,6 +4,7 @@ import { RotateCcw, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { SyntheticEvent } from "react";
 
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 import type { ProfileFormState } from "@/hooks/profile/useMyProfile";
 import type { UserProfile } from "@/types/social";
 
@@ -62,9 +63,12 @@ export default function ProfileEditForm({
                 <p className="text-xs font-bold uppercase tracking-[0.3em] text-orange-500">
                     {t("eyebrow")}
                 </p>
-                <h2 className="mt-2 text-2xl font-black text-slate-900 dark:text-white">
-                    {t("title")}
-                </h2>
+                <div className="mt-2 flex flex-wrap items-center gap-1">
+                    <h2 className="text-2xl font-black text-slate-900 dark:text-white">
+                        {t("title")}
+                    </h2>
+                    <GuideHelpLink topic="settings/profile" />
+                </div>
                 <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-500 dark:text-slate-300">
                     {t("description")}
                 </p>

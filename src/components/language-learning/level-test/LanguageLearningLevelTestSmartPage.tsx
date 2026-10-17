@@ -33,7 +33,7 @@ export function LanguageLearningLevelTestSmartPage() {
     );
 
     return (
-        <LanguageLearningPageLayout
+        <LanguageLearningPageLayout guideTopic="language-learning/level-test"
             title={t("title")}
             description={t("description")}
         >

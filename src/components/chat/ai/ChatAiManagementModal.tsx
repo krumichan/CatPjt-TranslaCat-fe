@@ -7,6 +7,7 @@ import { ChatAiSettingToggle } from "@/components/chat/ai/ChatAiSettingToggle";
 import { ChatAiTextField } from "@/components/chat/ai/ChatAiTextField";
 import ConfirmModal from "@/components/common/ConfirmModal";
 import FeedbackMessage from "@/components/common/FeedbackMessage";
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 import { useLanguageOptions } from "@/hooks/useLanguageOptions";
 import type { ChatAiManagementController } from "@/hooks/chat/useChatAiManagement";
 import type { ChatAiDisclosureType, ChatAiMentionPermission, ChatRoomType } from "@/types/chat";
@@ -91,12 +92,15 @@ export function ChatAiManagementModal({
                             <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-500">
                                 {t("eyebrow")}
                             </p>
-                            <h2
-                                id="chat-ai-management-title"
-                                className="mt-1 text-xl font-black text-slate-950 dark:text-white sm:text-2xl"
-                            >
-                                {canManage ? t("title.manage") : t("title.view")}
-                            </h2>
+                            <div className="mt-1 flex flex-wrap items-center gap-1">
+                                <h2
+                                    id="chat-ai-management-title"
+                                    className="text-xl font-black text-slate-950 dark:text-white sm:text-2xl"
+                                >
+                                    {canManage ? t("title.manage") : t("title.view")}
+                                </h2>
+                                <GuideHelpLink topic="chat/ai-members" />
+                            </div>
                             <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">
                                 {t("description", { roomType })}
                             </p>

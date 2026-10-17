@@ -4,6 +4,7 @@ import { Ear, Headphones, Languages, Mic2, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { AppSelect } from "@/components/common/AppSelect";
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 import { useLanguageOptions } from "@/hooks/useLanguageOptions";
 import {
     SPEAKING_PLAYBACK_SPEED_OPTIONS,
@@ -38,9 +39,12 @@ export function LanguageLearningSettingForm({
     return (
         <section className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm dark:border-white/10 dark:bg-slate-900/75">
             <div>
-                <h2 className="text-xl font-black text-slate-950 dark:text-white">
-                    {t("title")}
-                </h2>
+                <div className="flex items-start justify-between gap-3">
+                    <h2 className="min-w-0 text-xl font-black text-slate-950 dark:text-white">
+                        {t("title")}
+                    </h2>
+                    <GuideHelpLink topic="language-learning/settings-history" className="shrink-0" />
+                </div>
                 <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
                     {t("description")}
                 </p>
@@ -59,7 +63,7 @@ export function LanguageLearningSettingForm({
 
             <div className="mt-6 grid gap-5 md:grid-cols-2">
                 <label className="block">
-                    <span className="text-sm font-black text-slate-700 dark:text-slate-200">
+                    <span className="flex min-h-11 items-center text-sm font-black text-slate-700 dark:text-slate-200">
                         {t("originLanguage")}
                     </span>
                     <AppSelect
@@ -80,11 +84,16 @@ export function LanguageLearningSettingForm({
                     </AppSelect>
                 </label>
 
-                <label className="block">
-                    <span className="text-sm font-black text-slate-700 dark:text-slate-200">
-                        {t("learningLanguage")}
-                    </span>
+                <div className="block">
+                    {/* 언어 선택과 영어 학습 안내는 각각 독립적으로 조작한다. */}
+                    <div className="flex items-center justify-between gap-2">
+                        <label htmlFor="learning-language" className="text-sm font-black text-slate-700 dark:text-slate-200">
+                            {t("learningLanguage")}
+                        </label>
+                        <GuideHelpLink topic="language-learning/english" className="shrink-0" />
+                    </div>
                     <AppSelect
+                        id="learning-language"
                         value={form.learningLanguage}
                         onChange={(event) =>
                             controller.update(
@@ -100,7 +109,7 @@ export function LanguageLearningSettingForm({
                             </option>
                         ))}
                     </AppSelect>
-                </label>
+                </div>
 
                 <label className="block md:col-span-2">
                     <span className="text-sm font-black text-slate-700 dark:text-slate-200">

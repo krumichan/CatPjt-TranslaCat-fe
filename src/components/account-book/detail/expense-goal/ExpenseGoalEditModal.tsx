@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import type { SyntheticEvent } from "react";
 import { useState } from "react";
 import { createPortal } from "react-dom";
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 
 type ExpenseGoalEditModalProps = {
     selectedMonth: string;
@@ -98,9 +99,12 @@ export default function ExpenseGoalEditModal({
             <div className="relative z-10 mx-auto w-full max-w-md rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-2xl dark:border-white/10 dark:bg-zinc-900">
                 <div className="mb-6 flex items-start justify-between gap-4">
                     <div>
-                        <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                            {t("title")}
-                        </h2>
+                        <div className="flex items-center gap-1">
+                            <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                                {t("title")}
+                            </h2>
+                            <GuideHelpLink topic="account-books/goals-statistics" />
+                        </div>
                         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                             {t("description", {
                                 year: targetYear,

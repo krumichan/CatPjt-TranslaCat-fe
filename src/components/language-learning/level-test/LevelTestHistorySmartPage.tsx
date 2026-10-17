@@ -31,7 +31,7 @@ export function LevelTestHistorySmartPage() {
     );
 
     return (
-        <LanguageLearningPageLayout title={t("title")} description={t("description")}>
+        <LanguageLearningPageLayout guideTopic="language-learning/level-test" title={t("title")} description={t("description")}>
             <div className="mx-auto w-full max-w-5xl">{content}</div>
         </LanguageLearningPageLayout>
     );

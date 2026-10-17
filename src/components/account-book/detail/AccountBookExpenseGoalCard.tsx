@@ -9,6 +9,7 @@ import ExpenseGoalProgress from "@/components/account-book/detail/expense-goal/E
 import ExpenseGoalSummaryGrid from "@/components/account-book/detail/expense-goal/ExpenseGoalSummaryGrid";
 import { calculateExpenseGoalStatus } from "@/components/account-book/detail/expense-goal/expenseGoalUtils";
 import ExpenseGoalListModal from "@/components/account-book/detail/transaction-list/ExpenseGoalListModal";
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 
 type AccountBookExpenseGoalCardProps = {
     accountBookId: number;
@@ -91,9 +92,12 @@ export default function AccountBookExpenseGoalCard({
             <div className="mb-6 rounded-2xl border border-slate-200 bg-white/95 p-3 sm:p-5 shadow-[0_12px_30px_rgba(15,23,42,0.12)] backdrop-blur-md dark:border-white/10 dark:bg-zinc-800/80 dark:shadow-xl">
                 <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
                     <div>
-                        <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
-                            {t("title")}
-                        </p>
+                        <div className="flex items-center gap-1">
+                            <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
+                                {t("title")}
+                            </p>
+                            <GuideHelpLink topic="account-books/goals-statistics" />
+                        </div>
 
                         <p className="mt-1 break-all text-2xl font-bold text-slate-900 dark:text-white">
                             {hasGoal

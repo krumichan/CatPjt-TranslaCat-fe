@@ -32,7 +32,7 @@ export function LanguageLearningHistorySmartPage() {
     );
 
     return (
-        <LanguageLearningPageLayout
+        <LanguageLearningPageLayout guideTopic="language-learning/history"
             title={t("title")}
             description={t("description")}
         >

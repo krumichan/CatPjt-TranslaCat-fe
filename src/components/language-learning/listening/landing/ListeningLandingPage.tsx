@@ -212,5 +212,5 @@ export function ListeningLandingPage() {
         );
     })();
 
-    return <LanguageLearningPageLayout title={t("title")} description={t("description")}>{content}</LanguageLearningPageLayout>;
+    return <LanguageLearningPageLayout guideTopic="language-learning/listening" title={t("title")} description={t("description")}>{content}</LanguageLearningPageLayout>;
 }

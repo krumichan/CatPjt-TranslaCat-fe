@@ -3,6 +3,7 @@
 import { CornerDownRight, LockKeyhole, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 import { SupportReplyCard } from "@/components/support/SupportReplyCard";
 import { SupportStatusBadge } from "@/components/support/SupportStatusBadge";
 import { supportInput, supportLabel, supportPrimaryButton, supportSecondaryButton } from "@/components/support/supportStyles";
@@ -52,7 +53,10 @@ export function SupportInquiryDetail({ inquiry, controller }: { inquiry: Support
                 )}
             </div>
 
-            <h3 className="mb-4 text-sm font-semibold text-slate-800 dark:text-slate-100">{t("inquiries.conversation")} <span className="ml-2 text-slate-400">{replies.length}</span></h3>
+            <div className="mb-4 flex flex-wrap items-center gap-1">
+                <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">{t("inquiries.conversation")} <span className="ml-2 text-slate-400">{replies.length}</span></h3>
+                <GuideHelpLink topic="support/replies" />
+            </div>
             <div className="space-y-3">
                 {replies.map((node) => (
                     <SupportReplyCard

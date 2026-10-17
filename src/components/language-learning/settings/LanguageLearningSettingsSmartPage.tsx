@@ -46,7 +46,7 @@ export function LanguageLearningSettingsSmartPage() {
         );
 
     return (
-        <LanguageLearningPageLayout
+        <LanguageLearningPageLayout guideTopic="language-learning/settings-history"
             title={t("title")}
             description={t("description")}
         >

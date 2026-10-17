@@ -3,6 +3,8 @@
 import { ArrowLeft, CheckCircle2, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
+
 interface OpenChatCreateHeaderProps {
     createdRoomId: number | null;
     isSubmitting: boolean;
@@ -35,9 +37,12 @@ export function OpenChatCreateHeader({
                     <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
                     {t("header.badge")}
                 </div>
-                <h1 className="mt-4 text-3xl font-black tracking-tight text-slate-950 dark:text-white sm:text-4xl">
-                    {t("header.title")}
-                </h1>
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                    <h1 className="text-3xl font-black tracking-tight text-slate-950 dark:text-white sm:text-4xl">
+                        {t("header.title")}
+                    </h1>
+                    <GuideHelpLink topic="chat/room-management" variant="text" />
+                </div>
                 <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600 dark:text-slate-300 sm:text-base">
                     {t("header.description")}
                 </p>

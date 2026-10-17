@@ -19,14 +19,14 @@ export function ListeningSessionPage({ sessionId }: { sessionId: number }) {
     const controller = useListeningSessionController(sessionId);
 
     if (controller.isLoading) {
-        return <LanguageLearningPageLayout title={t("session.title")} description={t("session.description")}><LanguageLearningStateCard variant="loading" title={common("loadingTitle")} message={t("session.loading")} /></LanguageLearningPageLayout>;
+        return <LanguageLearningPageLayout guideTopic="language-learning/listening" title={t("session.title")} description={t("session.description")}><LanguageLearningStateCard variant="loading" title={common("loadingTitle")} message={t("session.loading")} /></LanguageLearningPageLayout>;
     }
     if (!controller.session || (controller.loadError && controller.attempt && !controller.item)) {
-        return <LanguageLearningPageLayout title={t("session.title")} description={t("session.description")}><LanguageLearningStateCard variant="error" title={common("loadFailedTitle")} message={t("session.loadFailed")} actionLabel={common("retry")} onAction={() => void controller.reload()} /></LanguageLearningPageLayout>;
+        return <LanguageLearningPageLayout guideTopic="language-learning/listening" title={t("session.title")} description={t("session.description")}><LanguageLearningStateCard variant="error" title={common("loadFailedTitle")} message={t("session.loadFailed")} actionLabel={common("retry")} onAction={() => void controller.reload()} /></LanguageLearningPageLayout>;
     }
     if (controller.session.status === "ABANDONED" || controller.actionErrorCode === "LISTENING_SESSION_EXPIRED") {
         return (
-            <LanguageLearningPageLayout title={t("session.title")} description={t("session.description")}>
+            <LanguageLearningPageLayout guideTopic="language-learning/listening" title={t("session.title")} description={t("session.description")}>
                 <section className="rounded-3xl border border-amber-200 bg-amber-50 p-6 dark:border-amber-400/20 dark:bg-amber-500/10">
                     <h2 className="text-xl font-black text-amber-900 dark:text-amber-100">{t("session.expiredTitle")}</h2>
                     <p className="mt-2 text-sm text-amber-800 dark:text-amber-200">{t("session.expiredDescription")}</p>
@@ -38,7 +38,7 @@ export function ListeningSessionPage({ sessionId }: { sessionId: number }) {
 
     if (!controller.attempt || !controller.item) {
         return (
-            <LanguageLearningPageLayout title={t("session.title")} description={t("session.description")}>
+            <LanguageLearningPageLayout guideTopic="language-learning/listening" title={t("session.title")} description={t("session.description")}>
                 {controller.allItemsAttached ? (
                     <LanguageLearningStateCard
                         variant="loading"
@@ -59,7 +59,7 @@ export function ListeningSessionPage({ sessionId }: { sessionId: number }) {
     const evaluating = ["SUBMITTED", "EVALUATING"].includes(attempt.status);
 
     return (
-        <LanguageLearningPageLayout title={t("session.title")} description={t("session.description")}>
+        <LanguageLearningPageLayout guideTopic="language-learning/listening" title={t("session.title")} description={t("session.description")}>
             <div className="space-y-5" data-testid="listening-session-page">
                 {controller.loadError && <LanguageLearningStateCard variant="error" title={common("loadFailedTitle")} message={t("session.loadFailed")} actionLabel={common("retry")} onAction={() => void controller.reload()} />}
                 <GenerationProgress readyCount={controller.attachedItemCount} readyIndices={controller.readyItemIndices} targetCount={controller.targetItemCount} generating={controller.isGenerating} failureMessage={controller.generationFailureMessage} retrying={controller.isRetryingGeneration} onRetry={() => void controller.retryGeneration()} />

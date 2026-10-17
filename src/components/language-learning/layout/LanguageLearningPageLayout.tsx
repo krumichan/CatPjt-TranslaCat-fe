@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import type { GuideHelpTopic } from "@/components/common/GuideHelpLink";
 import { LanguageLearningHero } from "@/components/language-learning/layout/LanguageLearningHero";
 import { LanguageLearningTabNavigation } from "@/components/language-learning/layout/LanguageLearningTabNavigation";
 
@@ -9,6 +10,7 @@ interface LanguageLearningPageLayoutProps {
     children: ReactNode;
     eyebrow?: string;
     compactOnMobile?: boolean;
+    guideTopic?: GuideHelpTopic;
 }
 
 export function LanguageLearningPageLayout({
@@ -17,6 +19,7 @@ export function LanguageLearningPageLayout({
     children,
     eyebrow,
     compactOnMobile = false,
+    guideTopic,
 }: LanguageLearningPageLayoutProps) {
     return (
         <main className={`min-h-screen bg-slate-50 px-4 pb-12 pt-24 dark:bg-slate-950 sm:px-6 lg:px-8 ${compactOnMobile ? "pb-28 pt-[76px] xl:pb-12 xl:pt-24" : ""}`}>
@@ -26,6 +29,7 @@ export function LanguageLearningPageLayout({
                         title={title}
                         description={description}
                         eyebrow={eyebrow}
+                        guideTopic={guideTopic}
                     />
                 </div>
 

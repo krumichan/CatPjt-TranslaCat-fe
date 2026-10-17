@@ -11,6 +11,10 @@
       "cancel": "취소",
       "confirm": "확인",
       "processing": "처리 중..."
+    },
+    "guideHelp": {
+      "label": "사용 가이드",
+      "open": "{topic} 가이드 보기 (새 탭)"
     }
   }
 }

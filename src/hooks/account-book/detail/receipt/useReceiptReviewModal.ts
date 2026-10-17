@@ -16,7 +16,7 @@ export function useReceiptReviewModal({ returnFocusRef, onClose }: Params) {
                 parent.inert = true;
                 parent.setAttribute("aria-hidden", "true");
             }
-            const focusables = () => Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])') ?? []);
+            const focusables = () => Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])') ?? []);
             window.setTimeout(
                 () => (dialogRef.current?.querySelector<HTMLElement>("[data-receipt-initial-focus]")
                     ?? focusables()[0] ?? dialogRef.current)?.focus(),

@@ -29,6 +29,7 @@ import {
 } from "next-intl";
 
 import { ChatAiPolicyNotice } from "@/components/chat/ai/ChatAiPolicyNotice";
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 import { ChatPresenceIndicator } from "@/components/chat/common/ChatPresenceIndicator";
 import { ChatRoomAvatar } from "@/components/chat/common/ChatRoomAvatar";
 import { OpenChatAvatar } from "@/components/chat/open-profile/OpenChatAvatar";
@@ -213,6 +214,11 @@ export function ChatRoomMenuDrawer({
                         >
                             {t("menu.title")}
                         </h2>
+                        <GuideHelpLink
+                            topic={room.roomType === "OPEN" ? "chat/room-management" : "chat/direct-groups"}
+                            variant="text"
+                            className="mt-1"
+                        />
                     </div>
 
                     <button

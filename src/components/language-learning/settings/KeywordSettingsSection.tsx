@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 import { CustomKeywordList } from "@/components/language-learning/settings/CustomKeywordList";
 import { KeywordCreateForm } from "@/components/language-learning/settings/KeywordCreateForm";
 import { SystemKeywordList } from "@/components/language-learning/settings/SystemKeywordList";
@@ -77,9 +78,12 @@ export function KeywordSettingsSection({
 
     return (
         <section className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm dark:border-white/10 dark:bg-slate-900/75">
-            <h2 className="text-xl font-black text-slate-950 dark:text-white">
-                {t("title")}
-            </h2>
+            <div className="flex items-start justify-between gap-3">
+                <h2 className="min-w-0 text-xl font-black text-slate-950 dark:text-white">
+                    {t("title")}
+                </h2>
+                <GuideHelpLink topic="language-learning/keywords" className="shrink-0" />
+            </div>
             <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
                 {t("description")}
             </p>

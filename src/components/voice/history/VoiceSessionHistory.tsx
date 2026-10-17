@@ -3,6 +3,7 @@
 import { VoiceHistoryItem } from "@/components/voice/history/VoiceHistoryItem";
 import type { VoiceHistoryController } from "@/hooks/voice/useVoiceHistory";
 import { useTranslations } from "next-intl";
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 
 interface VoiceSessionHistoryProps {
     controller: VoiceHistoryController;
@@ -15,7 +16,10 @@ export function VoiceSessionHistory({ controller }: VoiceSessionHistoryProps) {
         <section className="rounded-3xl border border-zinc-200 bg-zinc-50/60 p-6 dark:border-zinc-800 dark:bg-zinc-900/20">
             <div className="mb-5 flex items-center justify-between gap-3">
                 <div>
-                    <h2 className="text-lg font-bold">{t("history.title")}</h2>
+                    <div className="flex items-center gap-1">
+                        <h2 className="text-lg font-bold">{t("history.title")}</h2>
+                        <GuideHelpLink topic="voice/history" />
+                    </div>
                     <p className="mt-1 text-sm text-zinc-500">{t("history.description")}</p>
                 </div>
                 <button

@@ -9,6 +9,7 @@ import {
 } from "@/types/accountBook";
 import { formatDecimalInput, isPositiveDecimal } from "@/utils/account-book/decimalInput";
 import AccountBookBasicFields, {DIRECT_INPUT_VALUE} from "@/components/account-book/modal/AccountBookBasicFields";
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 
 type AccountBookCreateModalProps = {
     isOpen: boolean;
@@ -152,9 +153,12 @@ export default function AccountBookCreateModal({
                         <p className="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-orange-500">
                             {t("eyebrow")}
                         </p>
-                        <h2 className="text-2xl font-black text-slate-900 dark:text-white">
-                            {t("title")}
-                        </h2>
+                        <div className="flex flex-wrap items-center gap-1">
+                            <h2 className="text-2xl font-black text-slate-900 dark:text-white">
+                                {t("title")}
+                            </h2>
+                            <GuideHelpLink topic="account-books/create" />
+                        </div>
                         <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
                             {t("description")}
                         </p>

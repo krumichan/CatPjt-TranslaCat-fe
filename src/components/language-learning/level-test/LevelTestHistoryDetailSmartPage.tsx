@@ -35,7 +35,7 @@ export function LevelTestHistoryDetailSmartPage({ sessionId }: LevelTestHistoryD
     );
 
     return (
-        <LanguageLearningPageLayout
+        <LanguageLearningPageLayout guideTopic="language-learning/level-test"
             title={t("detailTitle")}
             description={t("detailDescription")}
         >

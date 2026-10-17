@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 import { SupportRecipientPicker } from "@/components/support/SupportRecipientPicker";
 import { supportInput, supportLabel, supportPrimaryButton, supportSecondaryButton } from "@/components/support/supportStyles";
 import { SUPPORT_CATEGORIES } from "@/features/support/supportModel";
@@ -30,7 +31,10 @@ export function SupportComposerView({ controller, composer }: { controller: Supp
             className="space-y-6"
         >
             <div>
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t(isEditing ? "notices.editTitle" : `${tab}.composeTitle`)}</h2>
+                <div className="flex flex-wrap items-center gap-1">
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t(isEditing ? "notices.editTitle" : `${tab}.composeTitle`)}</h2>
+                    <GuideHelpLink topic={`support/${tab}`} />
+                </div>
                 <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">{t(`${tab}.composeDescription`)}</p>
             </div>
 

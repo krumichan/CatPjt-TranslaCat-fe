@@ -16,6 +16,7 @@ import { useSession } from "next-auth/react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { LanguageLearningPageLayout } from "@/components/language-learning/layout/LanguageLearningPageLayout";
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 import { WebAiScheduleEditor } from "@/components/language-learning/settings/web-ai/WebAiScheduleEditor";
 import { WebAiPlanIntegration } from "@/components/language-learning/settings/web-ai/WebAiPlanIntegration";
 import { WebAiPlanCopyButton } from "@/components/language-learning/settings/web-ai/WebAiPlanCopyButton";
@@ -436,7 +437,7 @@ export function WebAiScheduleSettingsPage() {
     };
 
     return (
-        <LanguageLearningPageLayout
+        <LanguageLearningPageLayout guideTopic="language-learning/web-ai"
             eyebrow={t("eyebrow")}
             title={t("title")}
             description={t("description")}
@@ -448,12 +449,17 @@ export function WebAiScheduleSettingsPage() {
                         <button type="button" onClick={closeDraft} aria-label={t("backToPlans")} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 dark:border-white/10 dark:bg-slate-900 dark:text-slate-100">
                             <ArrowLeft className="h-5 w-5" aria-hidden="true" />
                         </button>
-                        <h1 className="text-xl font-black text-slate-950 dark:text-white">{t("mobileEditorTitle")}</h1>
+                        <h1 className="min-w-0 flex-1 text-xl font-black text-slate-950 dark:text-white">{t("mobileEditorTitle")}</h1>
+                        <GuideHelpLink topic="language-learning/web-ai" className="shrink-0" />
                     </div>
                 ) : (
                     <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900/85 xl:hidden" data-testid="web-ai-mobile-list-header">
                         <p className="text-xs font-black uppercase tracking-[0.16em] text-blue-600 dark:text-blue-300">{t("eyebrow")}</p>
-                        <h1 className="mt-3 text-3xl font-black text-slate-950 dark:text-white">{t("mobileListTitle")}</h1>
+                        {/* 모바일에서는 숨겨진 공통 헤더 대신 이 제목에서 같은 가이드를 연다. */}
+                        <div className="mt-3 flex items-start justify-between gap-3">
+                            <h1 className="min-w-0 text-3xl font-black text-slate-950 dark:text-white">{t("mobileListTitle")}</h1>
+                            <GuideHelpLink topic="language-learning/web-ai" className="shrink-0" />
+                        </div>
                         <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{t("mobileListDescription")}</p>
                         {owner && loadedOwner === owner && (
                             <button type="button" onClick={startNew} disabled={working || !prerequisites.ready} className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-black text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-45">

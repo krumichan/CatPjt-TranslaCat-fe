@@ -6,5 +6,5 @@ import { useTranslations } from "next-intl";
 
 export function VocabularyRetirementPage() {
     const t = useTranslations("LanguageLearning.vocabulary.retired");
-    return <LanguageLearningPageLayout title={t("title")} description={t("description")}><VocabularyRetirementNotice /></LanguageLearningPageLayout>;
+    return <LanguageLearningPageLayout guideTopic="language-learning/reading" title={t("title")} description={t("description")}><VocabularyRetirementNotice /></LanguageLearningPageLayout>;
 }

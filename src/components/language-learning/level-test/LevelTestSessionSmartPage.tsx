@@ -43,7 +43,7 @@ export function LevelTestSessionSmartPage({ sessionId }: LevelTestSessionSmartPa
     );
 
     return (
-        <LanguageLearningPageLayout
+        <LanguageLearningPageLayout guideTopic="language-learning/level-test"
             title={t("session.title")}
             description={t("session.description")}
         >

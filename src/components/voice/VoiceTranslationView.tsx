@@ -4,6 +4,7 @@ import { AudioLines } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import SectionHeader from "@/components/common/SectionHeader";
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 import { VoiceSessionHistory } from "@/components/voice/history/VoiceSessionHistory";
 import { VoiceLiveSessionPanel } from "@/components/voice/session/VoiceLiveSessionPanel";
 import { VoiceSessionSetup } from "@/components/voice/setup/VoiceSessionSetup";
@@ -22,7 +23,9 @@ export function VoiceTranslationView({ controller }: VoiceTranslationViewProps) 
             <SectionHeader
                 title={t("title")}
                 icon={<AudioLines className="h-6 w-6 text-blue-500" />}
-            />
+            >
+                <GuideHelpLink topic="voice" variant="text" />
+            </SectionHeader>
 
             <p className="-mt-3 text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
                 {t("description")}

@@ -97,7 +97,7 @@ export function DailyWritingSmartPage() {
     })();
 
     return (
-        <LanguageLearningPageLayout
+        <LanguageLearningPageLayout guideTopic="language-learning/writing"
             title={t("title")}
             description={t("description")}
         >

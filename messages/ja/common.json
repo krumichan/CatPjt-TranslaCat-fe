@@ -11,6 +11,10 @@
       "cancel": "キャンセル",
       "confirm": "確認",
       "processing": "処理中..."
+    },
+    "guideHelp": {
+      "label": "使い方ガイド",
+      "open": "「{topic}」のガイドを開く（新しいタブ）"
     }
   }
 }

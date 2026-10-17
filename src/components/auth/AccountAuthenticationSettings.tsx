@@ -123,6 +123,7 @@ export default function AccountAuthenticationSettings() {
     return (
         <div className="mx-auto max-w-3xl space-y-6 px-4 pb-12 pt-24 sm:px-6">
             <SettingsSubPageHeader
+                guideTopic="settings/account-login"
                 eyebrow="Account"
                 title={t("accountTitle")}
                 description={t("accountDescription")}

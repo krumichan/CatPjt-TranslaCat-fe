@@ -39,7 +39,7 @@ export function SpeakingStartSmartPage() {
     }
 
     return (
-        <LanguageLearningPageLayout
+        <LanguageLearningPageLayout guideTopic="language-learning/speaking"
             title={t("pageTitle")}
             description={t("pageDescription")}
         >

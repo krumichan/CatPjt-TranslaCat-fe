@@ -6,6 +6,7 @@ import {
 } from "@/types/accountBook";
 import FixedCostListItem from "@/components/account-book/detail/fixed-cost/FixedCostListItem";
 import FixedCostDetailModal from "@/components/account-book/detail/fixed-cost/FixedCostDetailModal";
+import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 
 type FixedCostSectionProps = {
     fixedCosts: AccountBookFixedCost[];
@@ -40,9 +41,12 @@ export default function FixedCostSection({
                         {t("eyebrow")}
                     </p>
 
-                    <p className="mt-1 text-lg font-bold text-slate-900 dark:text-white">
-                        {t("title")}
-                    </p>
+                    <div className="mt-1 flex items-center gap-1">
+                        <p className="text-lg font-bold text-slate-900 dark:text-white">
+                            {t("title")}
+                        </p>
+                        <GuideHelpLink topic="account-books/fixed-costs" />
+                    </div>
 
                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                         {t("count", { count: fixedCosts.length })}

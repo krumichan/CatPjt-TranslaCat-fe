@@ -5,6 +5,7 @@ import {
     type ParagraphWritingPreview,
     type ParagraphFeedbackResult,
     type ParagraphFeedbackPatch,
+    type ParagraphRequirementPart,
 } from "@/types/language-learning/paragraphWriting";
 
 const difficulties = ["REVIEW", "NORMAL", "CHALLENGE"] as const;
@@ -82,6 +83,47 @@ function validatePatch(row: { original: string; replacement: string; patch?: Par
     requireContract(index >= 0 && index === row.original.lastIndexOf(patch.original) && patch.original !== patch.replacement);
     requireContract(row.replacement === row.original.slice(0, index) + patch.replacement + row.original.slice(index + patch.original.length));
 }
+
+function isUtf16Boundary(text: string, offset: number): boolean {
+    if (offset < 0 || offset > text.length) return false;
+    if (offset === 0 || offset === text.length) return true;
+    const before = text.charCodeAt(offset - 1);
+    const after = text.charCodeAt(offset);
+    return !(before >= 0xd800 && before <= 0xdbff && after >= 0xdc00 && after <= 0xdfff);
+}
+
+function hasContiguousV14ConflictEvidence(
+    policyVersion: string,
+    row: ParagraphFeedbackResult["necessaryCorrections"][number],
+    part: ParagraphRequirementPart,
+): boolean {
+    // 기존 한 인용 경로는 그대로 둔다. V14의 사실·조건 충돌에만 같은 부분/권한의 실제 연속 인용을 추가한다.
+    if (policyVersion !== "curated-writing-feedback-v14" || part.status !== "CONFLICT") return false;
+    if (row.issueType === "TASK_FACT_CONFLICT") {
+        if (!part.taskFactIds.includes(row.sourceFactId ?? "")) return false;
+    } else if (row.issueType === "TASK_CONDITION_CONFLICT") {
+        if (!part.taskConditionIds?.includes(row.sourceAuthorityId ?? "")) return false;
+    } else return false;
+    if (!row.patch || part.evidence.length < 2 || part.evidence.some((evidence) => evidence.segmentId !== row.segmentId)) return false;
+    const patchStart = row.original.indexOf(row.patch.original);
+    if (patchStart < 0 || patchStart !== row.original.lastIndexOf(row.patch.original)) return false;
+    const patchEnd = patchStart + row.patch.original.length;
+    if (!isUtf16Boundary(row.original, patchStart) || !isUtf16Boundary(row.original, patchEnd)) return false;
+
+    // 각 인용의 위치가 유일해야 한다. 정렬 후 빈 구간·겹침 없이 patch 범위 전부와 정확히 일치해야 한다.
+    const ranges: { start: number; end: number }[] = [];
+    for (const evidence of part.evidence) {
+        const start = row.original.indexOf(evidence.quote);
+        const end = start + evidence.quote.length;
+        if (!evidence.quote.trim() || start < 0 || start !== row.original.lastIndexOf(evidence.quote)
+            || !isUtf16Boundary(row.original, start) || !isUtf16Boundary(row.original, end)) return false;
+        ranges.push({ start, end });
+    }
+    ranges.sort((left, right) => left.start - right.start);
+    return ranges[0].start === patchStart && ranges[ranges.length - 1].end === patchEnd
+        && ranges.every((range, index) => index === 0 || ranges[index - 1].end === range.start);
+}
+
 
 export function parseParagraphTarget(value: string, min: number, max: number): number | null {
     if (!/^\d+$/.test(value)) return null;
@@ -192,10 +234,27 @@ export function validateParagraphPlan(plan: ParagraphWritingPlan): ParagraphWrit
                 requireContract(!feedback.canRetry || ["FAILED", "PROCESSING"].includes(feedback.status));
                 if (feedback.result) {
                     const result = feedback.result;
-                    requireContract(["curated-writing-feedback-v1", "curated-writing-feedback-v2", "curated-writing-feedback-v3", "curated-writing-feedback-v4", "curated-writing-feedback-v5", "curated-writing-feedback-v6", "curated-writing-feedback-v7", "curated-writing-feedback-v8", "curated-writing-feedback-v9", "curated-writing-feedback-v10", "curated-writing-feedback-v11", "curated-writing-feedback-v12"].includes(result.policyVersion) && result.resultPolicy === "REFERENCE_ONLY");
+                    if (result.policyVersion === "curated-writing-feedback-v14") {
+                        // 필수 결과와 선택 제안 상태를 별도로 확인하며 실패한 부가 문구는 표시하지 않는다.
+                        requireContract(result.repairPlanVersion === "server-repair-plan-v1"
+                            && typeof result.repairPlanHash === "string" && /^[a-f0-9]{64}$/.test(result.repairPlanHash)
+                            && typeof result.meaningContractId === "string" && result.meaningContractId.trim().length > 0
+                            && result.meaningContractVersion === "curated-writing-meaning-contract-v1"
+                            && typeof result.meaningContractHash === "string" && /^[a-f0-9]{64}$/.test(result.meaningContractHash));
+                        const optionalStatus = result.optionalSuggestionsStatus;
+                        requireContract(typeof optionalStatus === "string"
+                            && ["SUCCEEDED", "FAILED", "NOT_RUN_LIMIT", "NOT_APPLICABLE"].includes(optionalStatus));
+                        if (optionalStatus === "FAILED" || optionalStatus === "NOT_RUN_LIMIT") {
+                            requireContract(typeof result.optionalSuggestionsFailureCode === "string"
+                                && /^[A-Z][A-Z0-9_]{0,79}$/.test(result.optionalSuggestionsFailureCode));
+                        } else requireContract(result.optionalSuggestionsFailureCode === null);
+                        requireContract(optionalStatus === "SUCCEEDED" || (Array.isArray(result.optionalAlternatives)
+                            && result.optionalAlternatives.length === 0));
+                    }
+                    requireContract(["curated-writing-feedback-v1", "curated-writing-feedback-v2", "curated-writing-feedback-v3", "curated-writing-feedback-v4", "curated-writing-feedback-v5", "curated-writing-feedback-v6", "curated-writing-feedback-v7", "curated-writing-feedback-v8", "curated-writing-feedback-v9", "curated-writing-feedback-v10", "curated-writing-feedback-v11", "curated-writing-feedback-v12", "curated-writing-feedback-v13", "curated-writing-feedback-v14"].includes(result.policyVersion) && result.resultPolicy === "REFERENCE_ONLY");
                     const grounded = result.policyVersion !== "curated-writing-feedback-v1";
-                    const typed = ["curated-writing-feedback-v4", "curated-writing-feedback-v5", "curated-writing-feedback-v6", "curated-writing-feedback-v7", "curated-writing-feedback-v8", "curated-writing-feedback-v9", "curated-writing-feedback-v10", "curated-writing-feedback-v11", "curated-writing-feedback-v12"].includes(result.policyVersion);
-                    const prescribed = result.policyVersion === "curated-writing-feedback-v8" || result.policyVersion === "curated-writing-feedback-v9" || result.policyVersion === "curated-writing-feedback-v10" || result.policyVersion === "curated-writing-feedback-v11" || result.policyVersion === "curated-writing-feedback-v12";
+                    const typed = ["curated-writing-feedback-v4", "curated-writing-feedback-v5", "curated-writing-feedback-v6", "curated-writing-feedback-v7", "curated-writing-feedback-v8", "curated-writing-feedback-v9", "curated-writing-feedback-v10", "curated-writing-feedback-v11", "curated-writing-feedback-v12", "curated-writing-feedback-v13", "curated-writing-feedback-v14"].includes(result.policyVersion);
+                    const prescribed = result.policyVersion === "curated-writing-feedback-v8" || result.policyVersion === "curated-writing-feedback-v9" || result.policyVersion === "curated-writing-feedback-v10" || result.policyVersion === "curated-writing-feedback-v11" || result.policyVersion === "curated-writing-feedback-v12" || result.policyVersion === "curated-writing-feedback-v13" || result.policyVersion === "curated-writing-feedback-v14";
                     const structured = result.policyVersion === "curated-writing-feedback-v6" || result.policyVersion === "curated-writing-feedback-v7" || prescribed;
                     const conditionIds = new Set(plan.writingType === "GUIDED"
                         ? [...new Set(item.requiredIntents.filter((text) => text.trim().length > 0))].map((_, index) => `P${index + 1}`) : []);
@@ -245,7 +304,8 @@ export function validateParagraphPlan(plan: ParagraphWritingPlan): ParagraphWrit
                                 requireContract(observation.requirementParts?.some((part) =>
                                     (row.issueType !== "TASK_FACT_CONFLICT" || (part.status === "CONFLICT" && part.taskFactIds.includes(row.sourceFactId ?? "")))
                                     && (row.issueType !== "TASK_CONDITION_CONFLICT" || (part.status === "CONFLICT" && part.taskConditionIds?.includes(row.sourceAuthorityId ?? "")))
-                                    && part.evidence.some((evidence) => evidence.segmentId === row.segmentId && evidence.quote.includes(row.patch?.original ?? ""))));
+                                    && (part.evidence.some((evidence) => evidence.segmentId === row.segmentId && evidence.quote.includes(row.patch?.original ?? ""))
+                                        || hasContiguousV14ConflictEvidence(result.policyVersion, row, part))));
                             }
                             if (typed) {
                                 // 개인 의견 보충을 사실 교정으로 바꾸지 않도록 교정 권한을 유형별로 확인한다.

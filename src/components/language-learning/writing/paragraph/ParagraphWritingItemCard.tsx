@@ -58,7 +58,7 @@ export function ParagraphWritingItemCard({ item, originLanguage, learningLanguag
                             <strong>{row.requirementId} · {t(`requirementStates.${row.status}`)}</strong>
                             {row.evidenceKind === "MISSING_REQUIREMENT" && <p>{t("missingRequirementEvidence")}</p>}
                             <p lang={originLanguage}>{row.originText}</p><p lang={learningLanguage}>{row.learningText}</p>
-                            {["curated-writing-feedback-v6", "curated-writing-feedback-v7", "curated-writing-feedback-v8", "curated-writing-feedback-v9", "curated-writing-feedback-v10", "curated-writing-feedback-v11", "curated-writing-feedback-v12"].includes(attempt.feedback?.result?.policyVersion ?? "") ? row.requirementParts?.map((part, index) => <div
+                            {["curated-writing-feedback-v6", "curated-writing-feedback-v7", "curated-writing-feedback-v8", "curated-writing-feedback-v9", "curated-writing-feedback-v10", "curated-writing-feedback-v11", "curated-writing-feedback-v12", "curated-writing-feedback-v13", "curated-writing-feedback-v14"].includes(attempt.feedback?.result?.policyVersion ?? "") ? row.requirementParts?.map((part, index) => <div
                                 key={index} data-testid={`paragraph-part-${row.requirementId}-${index + 1}`}
                                 className="mt-2 rounded-lg border border-slate-200 p-2 dark:border-white/10">
                                 <p className="font-medium" data-testid="paragraph-part-status">{t(`requirementPartStates.${part.status}`)}</p>
@@ -84,6 +84,9 @@ export function ParagraphWritingItemCard({ item, originLanguage, learningLanguag
                             </> : <p lang={learningLanguage} className="whitespace-pre-wrap">{row.original} → {row.replacement}</p>}
                             <p lang={originLanguage}>{row.originText}</p><p lang={learningLanguage}>{row.learningText}</p>
                         </div>)}
+                        {(attempt.feedback.result.optionalSuggestionsStatus === "FAILED"
+                            || attempt.feedback.result.optionalSuggestionsStatus === "NOT_RUN_LIMIT")
+                            && <p role="status" data-testid="paragraph-optional-unavailable">{t("optionalUnavailable")}</p>}
                         {attempt.feedback.result.uncertainties.map((row, index) => <p key={`uncertain-${index}`}>{t("uncertainty")} · {row.requirementId}: {row.originText}</p>)}
                     </>}
                     {attempt.feedback.failureCode && <p role="status">{t("feedbackFailure")}: {attempt.feedback.failureCode}</p>}

@@ -103,6 +103,7 @@
     "feedbackActive": "Personalized AI feedback is provided for each answer. Your answers and reference materials are preserved while feedback is generated or if it fails.",
     "feedbackTitle": "Personalized AI feedback",
     "feedbackReferenceOnly": "This guidance is for learning reference, not an official score or proficiency assessment.",
+    "optionalUnavailable": "Additional wording suggestions are unavailable. Your verified learning feedback remains available.",
     "feedbackStates": {
       "PENDING": "Pending",
       "PROCESSING": "Processing",

@@ -90,6 +90,7 @@
     "feedbackActive": "回答ごとの個別AIフィードバックを表示します。処理中や失敗時も回答と参考資料は保存されます。",
     "feedbackTitle": "個別AIフィードバック",
     "feedbackReferenceOnly": "学習用の説明であり、公式スコアや能力判定ではありません。",
+    "optionalUnavailable": "追加の表現案は用意できませんでした。確認済みの学習フィードバックをご覧いただけます。",
     "feedbackStates": { "PENDING": "待機", "PROCESSING": "処理中", "SUCCEEDED": "完了", "FAILED": "失敗", "UNCERTAIN": "送信状態の確認が必要" },
     "requirementStates": { "MET": "条件を満たす", "UNMET": "条件を満たさない", "UNCERTAIN": "確認が必要" },
     "necessaryCorrection": "必要な修正",

@@ -549,7 +549,7 @@ test("v8 condition IDs use distinct nonblank guided intents without unknown or d
     }
 });
 
-for (const policyVersion of ["curated-writing-feedback-v8", "curated-writing-feedback-v9", "curated-writing-feedback-v10", "curated-writing-feedback-v11", "curated-writing-feedback-v12"]) {
+for (const policyVersion of ["curated-writing-feedback-v8", "curated-writing-feedback-v9", "curated-writing-feedback-v10", "curated-writing-feedback-v11", "curated-writing-feedback-v12", "curated-writing-feedback-v13"]) {
     test(`${policyVersion} preserves stored results and rejects a mismatched condition patch`, () => {
         // 준비: 새 의미 판정도 기존 저장 DTO의 권한·부분 교정 경계를 그대로 사용한다.
         const value = prescribedFeedbackPlan();
@@ -579,9 +579,200 @@ test("v12 FREE accepts fulfilled personal content without acquiring prescribed a
     result.observations[0].requirementParts[0].taskConditionIds = ["P1"];
     assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
     result.observations[0].requirementParts[0].taskConditionIds = [];
-    result.policyVersion = "curated-writing-feedback-v13";
+    result.policyVersion = "curated-writing-feedback-v15";
     assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
 });
+
+test("v13 preserves server meaning identity and rejects malformed coverage or missing authority", () => {
+    // 준비: 새 의미 계약도 기존 원문·권한 구조를 유지하는 저장 결과다.
+    const value = prescribedFeedbackPlan();
+    const result = value.items[0].attempts[0].feedback.result;
+    Object.assign(result, { policyVersion: "curated-writing-feedback-v13", meaningContractId: "authored-task-v1",
+        meaningContractVersion: "curated-writing-meaning-contract-v1", meaningContractHash: "a".repeat(64) });
+    const original = JSON.stringify(value);
+    const part = result.observations[0].requirementParts[0];
+
+    // 실행·검증: 조회로 metadata를 바꾸지 않고 잘못된 원문과 P 권한 누락을 거절한다.
+    assert.equal(validateParagraphPlan(value), value);
+    assert.equal(JSON.stringify(value), original);
+    part.requirementQuote = "시각";
+    assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
+    part.requirementQuote = "시각 전달";
+    part.taskConditionIds = ["P1"];
+    assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
+});
+
+function serverRepairFeedbackPlan() {
+    const value = prescribedFeedbackPlan();
+    Object.assign(value.items[0].attempts[0].feedback.result, {
+        policyVersion: "curated-writing-feedback-v14", meaningContractId: "authored-task-v1",
+        meaningContractVersion: "curated-writing-meaning-contract-v1", meaningContractHash: "a".repeat(64),
+        repairPlanVersion: "server-repair-plan-v1", repairPlanHash: "b".repeat(64),
+        optionalSuggestionsStatus: "SUCCEEDED", optionalSuggestionsFailureCode: null,
+    });
+    return value;
+}
+
+test("v14 keeps validated core unchanged across independently reported optional states", () => {
+    for (const status of ["SUCCEEDED", "FAILED", "NOT_RUN_LIMIT", "NOT_APPLICABLE"]) {
+        // 준비: 선택 제안 실패는 필수 코칭의 검증 조건을 낮추지 않는다.
+        const value = serverRepairFeedbackPlan();
+        const result = value.items[0].attempts[0].feedback.result;
+        result.optionalSuggestionsStatus = status;
+        if (["FAILED", "NOT_RUN_LIMIT"].includes(status)) result.optionalSuggestionsFailureCode = "OPTIONAL_UNAVAILABLE";
+        const original = JSON.stringify(value);
+
+        // 실행 / 검증
+        assert.equal(validateParagraphPlan(value), value);
+        assert.equal(JSON.stringify(value), original);
+    }
+});
+
+test("v14 rejects absent repair identity and failure metadata or leaked optional text", () => {
+    // 준비 / 실행 / 검증: metadata 누락과 실패한 제안 노출을 각각 거절한다.
+    for (const key of ["repairPlanVersion", "repairPlanHash", "meaningContractHash",
+        "optionalSuggestionsStatus", "optionalSuggestionsFailureCode"]) {
+        const value = serverRepairFeedbackPlan();
+        delete value.items[0].attempts[0].feedback.result[key];
+        assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
+    }
+    const value = serverRepairFeedbackPlan();
+    const result = value.items[0].attempts[0].feedback.result;
+    result.optionalSuggestionsStatus = "FAILED";
+    assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
+    result.optionalSuggestionsFailureCode = "OPTIONAL_UNAVAILABLE";
+    result.optionalAlternatives.push({});
+    assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
+});
+
+function contiguousServerRepairFeedbackPlan() {
+    const value = serverRepairFeedbackPlan();
+    const item = value.items[0];
+    const original = "できあがった鉢は図書館の展示棚に置き、何も持たずに帰りました。";
+    const replacement = "できあがった鉢は家に持ち帰りました。";
+    const requirement = "완성한 화분을 집에 가져온 내용을 표현할 것";
+    item.attempts[0].answer = original;
+    item.taskRequirements = [requirement];
+    item.reference.checklist = [requirement];
+    const result = item.attempts[0].feedback.result;
+    const observation = result.observations[0];
+    Object.assign(observation, { status: "UNMET", segmentIds: ["S1"], answerQuotes: [original],
+        evidenceKind: "LEARNER_TEXT", relationChecks: {
+            causality: "NOT_APPLICABLE", chronology: "NOT_APPLICABLE", specificity: "CONFLICT", stance: "NOT_APPLICABLE",
+        }, requirementParts: [{ requirementQuote: requirement, status: "CONFLICT",
+            evidence: [{ segmentId: "S1", quote: "できあがった鉢は図書館の展示棚に置き、" },
+                { segmentId: "S1", quote: "何も持たずに帰りました。" }],
+            taskFactIds: ["T1"], taskConditionIds: ["P1", "P2"] }] });
+    result.necessaryCorrections = [{ requirementId: "C1", segmentId: "S1", original, replacement,
+        patch: { original, replacement }, issueType: "TASK_FACT_CONFLICT", sourceFactId: "T1",
+        sourceAuthorityId: "", formReason: "NONE", originText: "공개 사실에 맞춰 두 연속 절을 한 번 고칩니다.",
+        learningText: "課題の指定に合わせ、完成した鉢を家に持ち帰ったことを表します。" }];
+    return value;
+}
+
+test("v14 content correction reads two exact contiguous quotes without merging their source evidence", () => {
+    // 준비: N01과 같은 한 사실/한 범위이며 동등 T/P 권한 중 한 종류만 교정 행에 사용한다.
+    for (const issue of ["TASK_FACT_CONFLICT", "TASK_CONDITION_CONFLICT"]) {
+        const value = contiguousServerRepairFeedbackPlan();
+        const correction = value.items[0].attempts[0].feedback.result.necessaryCorrections[0];
+        if (issue === "TASK_CONDITION_CONFLICT") Object.assign(correction, {
+            issueType: issue, sourceFactId: "", sourceAuthorityId: "P1",
+        });
+        const original = JSON.stringify(value);
+
+        // 실행 / 검증: 실제 두 인용과 원래 UNMET 판정은 변하지 않는다.
+        assert.equal(validateParagraphPlan(value), value);
+        assert.equal(JSON.stringify(value), original);
+        assert.equal(value.items[0].attempts[0].feedback.result.observations[0].status, "UNMET");
+    }
+});
+
+test("v14 contiguous repair rejects gaps overlaps and a missing slice", () => {
+    // 준비: 모든 인용은 원문에 실제로 있지만 전체 범위의 정확한 proof가 아닌 사례들이다.
+    for (const alter of [
+        (part) => { part.evidence[0].quote = "できあがった鉢は図書館の展示棚に置き"; },
+        (part) => { part.evidence[1].quote = "置き、何も持たずに帰りました。"; },
+        (part) => { part.evidence.pop(); },
+        (part) => { part.evidence.push({ ...part.evidence[0] }); },
+    ]) {
+        const value = contiguousServerRepairFeedbackPlan();
+        alter(value.items[0].attempts[0].feedback.result.observations[0].requirementParts[0]);
+
+        // 실행 / 검증: 단순 join이나 source 누락으로 넓은 교정 권한을 만들지 않는다.
+        assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
+    }
+});
+
+test("v14 contiguous repair cannot borrow quotes across segments parts or authorities", () => {
+    // 준비: 별도 segment/part를 합치거나 존재하는 다른 권한을 빌리는 경우를 구분한다.
+    for (const alter of [
+        (observation) => {
+            observation.segmentIds.push("S2");
+            observation.answerQuotes.push("何も持たずに帰りました。");
+            observation.requirementParts[0].evidence[1].segmentId = "S2";
+        },
+        (observation) => {
+            const part = observation.requirementParts[0];
+            observation.requirementParts = [
+                { ...part, requirementQuote: part.requirementQuote.slice(0, 5), evidence: [part.evidence[0]] },
+                { ...part, requirementQuote: part.requirementQuote.slice(5), evidence: [part.evidence[1]] },
+            ];
+        },
+        (_observation, correction) => { correction.sourceFactId = "T2"; },
+        (_observation, correction) => {
+            Object.assign(correction, { issueType: "TASK_CONDITION_CONFLICT", sourceFactId: "", sourceAuthorityId: "P3" });
+        },
+    ]) {
+        const value = contiguousServerRepairFeedbackPlan();
+        const result = value.items[0].attempts[0].feedback.result;
+        alter(result.observations[0], result.necessaryCorrections[0]);
+
+        // 실행 / 검증
+        assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
+    }
+});
+
+test("v14 contiguous repair requires unique anchors and the complete exact selected range", () => {
+    // 준비: 반복되는 인용이나 patch 밖의 추가 문자를 같은 proof로 흡수하지 않는다.
+    const repeated = contiguousServerRepairFeedbackPlan();
+    const item = repeated.items[0];
+    const result = item.attempts[0].feedback.result;
+    const extra = result.observations[0].requirementParts[0].evidence[0].quote;
+    const correction = result.necessaryCorrections[0];
+    item.attempts[0].answer = extra + correction.original;
+    result.observations[0].answerQuotes[0] = item.attempts[0].answer;
+    correction.original = item.attempts[0].answer;
+    correction.patch.original = item.attempts[0].answer;
+    const partial = contiguousServerRepairFeedbackPlan();
+    const partialCorrection = partial.items[0].attempts[0].feedback.result.necessaryCorrections[0];
+    partialCorrection.patch.original = partialCorrection.patch.original.slice("できあがった鉢は".length);
+    partialCorrection.patch.replacement = "家に持ち帰りました。";
+
+    // 실행 / 검증
+    assert.throws(() => validateParagraphPlan(repeated), /CONTRACT_INVALID/);
+    assert.throws(() => validateParagraphPlan(partial), /CONTRACT_INVALID/);
+});
+
+test("legacy and language-form readers retain single-quote grounding", () => {
+    // 준비: 구형 저장 결과와 LF에는 새 사실 충돌 proof를 적용하지 않는다.
+    for (const policy of ["curated-writing-feedback-v8", "curated-writing-feedback-v9", "curated-writing-feedback-v10",
+        "curated-writing-feedback-v11", "curated-writing-feedback-v12", "curated-writing-feedback-v13"]) {
+        const value = contiguousServerRepairFeedbackPlan();
+        const result = value.items[0].attempts[0].feedback.result;
+        result.policyVersion = policy;
+
+        // 실행·검증: 복합 범위는 여전히 거절하고 원래 한 인용 경로는 유지한다.
+        assert.throws(() => validateParagraphPlan(value), /CONTRACT_INVALID/);
+        result.observations[0].requirementParts[0].evidence = [{ segmentId: "S1", quote: result.necessaryCorrections[0].original }];
+        assert.equal(validateParagraphPlan(value), value);
+    }
+    const languageForm = contiguousServerRepairFeedbackPlan();
+    Object.assign(languageForm.items[0].attempts[0].feedback.result.necessaryCorrections[0], {
+        issueType: "LANGUAGE_FORM", sourceFactId: "", sourceAuthorityId: "", formReason: "SYNTAX",
+    });
+    assert.throws(() => validateParagraphPlan(languageForm), /CONTRACT_INVALID/);
+});
+
 
 test("v8 FREE and TRANSLATION cannot acquire prescribed-condition authority", () => {
     // 준비: requiredIntents가 있어도 개인 선택이나 번역에는 GUIDED P 권한이 생기지 않는다.

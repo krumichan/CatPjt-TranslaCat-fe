@@ -90,6 +90,7 @@
     "feedbackActive": "답안별 맞춤 AI 피드백을 제공합니다. 생성 중이거나 실패해도 답안과 참고 자료는 보존됩니다.",
     "feedbackTitle": "맞춤 AI 피드백",
     "feedbackReferenceOnly": "학습 참고용 설명이며 공식 점수나 실력 판정이 아닙니다.",
+    "optionalUnavailable": "추가 표현 제안은 준비하지 못했습니다. 확인된 학습 피드백은 그대로 볼 수 있습니다.",
     "feedbackStates": { "PENDING": "대기", "PROCESSING": "처리 중", "SUCCEEDED": "완료", "FAILED": "실패", "UNCERTAIN": "전송 상태 확인 필요" },
     "requirementStates": { "MET": "조건 충족", "UNMET": "조건 미충족", "UNCERTAIN": "확인 필요" },
     "necessaryCorrection": "필수 교정",

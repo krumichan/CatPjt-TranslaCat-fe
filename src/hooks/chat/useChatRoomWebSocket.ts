@@ -1,7 +1,12 @@
 "use client";
 
 import { Client, type IMessage } from "@stomp/stompjs";
+import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+import { isTemporaryAuthError, isTerminalAuthError } from "@/lib/authError";
+import { getChatWebSocketSession } from "@/lib/chatWebSocketSession";
+import { AUTH_SIGN_OUT_STARTED_EVENT, AUTH_UNAUTHORIZED_EVENT } from "@/lib/authEvents";
 
 import type { ChatMessage, ChatMessageTranslation, } from "@/types/chat";
 import type {
@@ -95,6 +100,8 @@ export const useChatRoomWebSocket = ({
     onOpenChatRoomClosed,
     onReconnectSyncRequested,
 }: UseChatRoomWebSocketParams): UseChatRoomWebSocketResult => {
+    const { data: session } = useSession();
+    const loginSessionId = session?.loginSessionId ?? null;
     const clientRef = useRef<Client | null>(null);
     const connectionKeyRef = useRef<string | null>(null);
 
@@ -159,12 +166,12 @@ export const useChatRoomWebSocket = ({
         useState<ChatWebSocketSendErrorCode | null>(null);
 
     const connectionKey = useMemo(() => {
-        if (!enabled || !roomId || !accessToken) {
+        if (!enabled || !roomId || !accessToken || !loginSessionId) {
             return null;
         }
 
-        return `${roomId}:${accessToken}`;
-    }, [accessToken, enabled, roomId]);
+        return `${loginSessionId}:${roomId}:${accessToken}`;
+    }, [accessToken, enabled, loginSessionId, roomId]);
 
     const connectionStatus = useMemo<ChatWebSocketConnectionStatus>(() => {
         if (!connectionKey) {
@@ -372,27 +379,95 @@ export const useChatRoomWebSocket = ({
          */
         let hasConnectedOnce = false;
         let stoppedByStompError = false;
+        let stoppedForSession = false;
+        let connectedAccessToken: string | null = null;
+        const sessionLookupAbort = new AbortController();
+        let sessionLookupFailures = 0;
+        let retryTimer: ReturnType<typeof setTimeout> | null = null;
+
+        const cancelSessionRetry = () => {
+            if (retryTimer !== null) clearTimeout(retryTimer);
+            retryTimer = null;
+        };
 
         const isCurrentConnection = () =>
+            !stoppedForSession &&
             connectionGenerationRef.current === generation &&
             connectionKeyRef.current === connectionKey;
 
+        const stopForSession = () => {
+            if (!isCurrentConnection()) return;
+            setRawConnectionStatus("ERROR");
+            stoppedForSession = true;
+            cancelSessionRetry();
+            sessionLookupAbort.abort();
+            connectedAccessToken = null;
+            client.connectHeaders = {};
+            client.reconnectDelay = 0;
+            if (clientRef.current === client) clientRef.current = null;
+            void client.deactivate();
+        };
+
+        const retrySessionLookup = () => {
+            if (!isCurrentConnection()) return;
+            connectedAccessToken = null;
+            client.connectHeaders = {};
+            setRawConnectionStatus("CONNECTING");
+            const delay = Math.min(3000 * 2 ** Math.min(sessionLookupFailures++, 4), 30_000);
+
+            // deactivate가 완료되기 전에 activate하면 기존 연결 시도가 살아날 수 있다.
+            void client.deactivate().catch(() => {}).then(() => {
+                if (!isCurrentConnection()) return;
+                cancelSessionRetry();
+                retryTimer = setTimeout(() => {
+                    retryTimer = null;
+                    if (isCurrentConnection()) client.activate();
+                }, delay);
+            });
+        };
+
         const client = new Client({
             brokerURL: getChatWebSocketUrl(),
-            connectHeaders: {
-                Authorization: `Bearer ${accessToken}`,
+            beforeConnect: async () => {
+                // 매 CONNECT 전에 갱신한 세션을 조회하고 로그아웃·계정 변경 뒤 늦은 결과를 폐기한다.
+                if (!isCurrentConnection()) return;
+                try {
+                    const currentSession = await getChatWebSocketSession({
+                        isCurrent: isCurrentConnection, signal: sessionLookupAbort.signal,
+                    });
+                    if (!isCurrentConnection()) return;
+                    if (!currentSession
+                        || currentSession.loginSessionId !== loginSessionId
+                        || isTerminalAuthError(currentSession.error)) {
+                        stopForSession();
+                        return;
+                    }
+
+                    const expires = currentSession.user?.accessTokenExpires;
+                    if (!currentSession.accessToken || typeof expires !== "number"
+                        || !Number.isFinite(expires) || expires <= Date.now()) {
+                        // 일시적인 갱신 장애일 때 만료 토큰을 보내지 않고 지연 후 다시 조회한다.
+                        if (isTemporaryAuthError(currentSession.error)) retrySessionLookup();
+                        else stopForSession();
+                        return;
+                    }
+
+                    connectedAccessToken = currentSession.accessToken;
+                    client.connectHeaders = { Authorization: `Bearer ${connectedAccessToken}` };
+                    sessionLookupFailures = 0;
+                    setRawConnectionStatus("CONNECTING");
+                } catch {
+                    retrySessionLookup();
+                }
             },
             reconnectDelay: 3000,
             heartbeatIncoming: 10000,
             heartbeatOutgoing: 10000,
-            debug: (message) => {
-                if (process.env.NODE_ENV === "development") {
-                    console.debug("[chat websocket]", message);
-                }
-            },
+            // STOMP debug frame에는 Authorization이 포함될 수 있으므로 원문을 기록하지 않는다.
+            debug: () => {},
 
             onConnect: () => {
-                if (!isCurrentConnection()) {
+                if (!isCurrentConnection() || !connectedAccessToken) {
                     return;
                 }
 
@@ -405,26 +480,26 @@ export const useChatRoomWebSocket = ({
 
                 client.subscribe(
                     `/topic/chat/rooms/${roomId}`,
-                    handleStompMessage,
+                    (message) => { if (isCurrentConnection()) handleStompMessage(message); },
                     {
-                        Authorization: `Bearer ${accessToken}`,
+                        Authorization: `Bearer ${connectedAccessToken}`,
                     },
                 );
 
                 client.subscribe(
                     "/user/queue/chat/read",
-                    handleStompMessage,
+                    (message) => { if (isCurrentConnection()) handleStompMessage(message); },
                     {
-                        Authorization: `Bearer ${accessToken}`,
+                        Authorization: `Bearer ${connectedAccessToken}`,
                     },
                 );
 
                 if (openChatEventsEnabled) {
                     client.subscribe(
                         `/user/queue/chat/open-rooms/${roomId}`,
-                        handlePrivateOpenChatMessage,
+                        (message) => { if (isCurrentConnection()) handlePrivateOpenChatMessage(message); },
                         {
-                            Authorization: `Bearer ${accessToken}`,
+                            Authorization: `Bearer ${connectedAccessToken}`,
                         },
                     );
                 }
@@ -443,26 +518,21 @@ export const useChatRoomWebSocket = ({
                 setRawConnectionStatus("DISCONNECTED");
             },
 
-            onStompError: (frame) => {
+            onStompError: () => {
                 if (!isCurrentConnection()) {
                     return;
                 }
 
-                console.error(
-                    "Chat websocket STOMP error.",
-                    frame,
-                );
+                console.error("Chat websocket STOMP request was rejected.");
 
                 stoppedByStompError = true;
-                setRawConnectionStatus("ERROR");
 
                 /*
                  * 서버가 STOMP ERROR를 명시적으로 반환한 경우에는
                  * 같은 요청을 반복하지 않도록 현재 Client의
                  * 자동 재연결을 중지한다.
                  */
-                client.reconnectDelay = 0;
-                void client.deactivate();
+                stopForSession();
             },
 
             onWebSocketError: (event) => {
@@ -496,10 +566,22 @@ export const useChatRoomWebSocket = ({
             },
         });
 
+        // NextAuth의 세션 삭제 응답보다 먼저 로그아웃 의사를 반영한다.
+        if (typeof window !== "undefined") {
+            window.addEventListener(AUTH_SIGN_OUT_STARTED_EVENT, stopForSession);
+            window.addEventListener(AUTH_UNAUTHORIZED_EVENT, stopForSession);
+        }
+
         clientRef.current = client;
         client.activate();
 
         return () => {
+            cancelSessionRetry();
+            sessionLookupAbort.abort();
+            if (typeof window !== "undefined") {
+                window.removeEventListener(AUTH_SIGN_OUT_STARTED_EVENT, stopForSession);
+                window.removeEventListener(AUTH_UNAUTHORIZED_EVENT, stopForSession);
+            }
             /*
              * deactivate()를 호출하기 전에 현재 세대를 무효화한다.
              * deactivate 과정에서 onDisconnect/onWebSocketClose가
@@ -521,6 +603,7 @@ export const useChatRoomWebSocket = ({
         connectionKey,
         handlePrivateOpenChatMessage,
         handleStompMessage,
+        loginSessionId,
         openChatEventsEnabled,
         roomId,
     ]);
@@ -539,6 +622,12 @@ export const useChatRoomWebSocket = ({
                 return false;
             }
 
+            const authorization = client.connectHeaders.Authorization;
+            if (!authorization) {
+                setSendErrorCode("NOT_CONNECTED");
+                return false;
+            }
+
             setIsSending(true);
             setSendErrorCode(null);
 
@@ -546,7 +635,7 @@ export const useChatRoomWebSocket = ({
                 client.publish({
                     destination: `/app/chat/rooms/${roomId}/messages`,
                     headers: {
-                        Authorization: `Bearer ${accessToken}`,
+                        Authorization: authorization,
                     },
                     body: JSON.stringify({
                         content: trimmedContent,

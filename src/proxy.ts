@@ -45,7 +45,15 @@ export default function middleware(req: NextRequest) {
     const isPublic = publicPages.includes(purePath) || isPublicDocsPath(pathname);
 
     if (isPublic) {
-        return intlMiddleware(req);
+        const response = intlMiddleware(req);
+        if (purePath === '/mobile/sign-in') {
+            // 앱 승인 화면과 언어 정규화 redirect에만 캐시·referrer·iframe 제한을 적용한다.
+            response.headers.set('Cache-Control', 'no-store');
+            response.headers.set('Referrer-Policy', 'no-referrer');
+            response.headers.set('X-Frame-Options', 'DENY');
+            response.headers.set('Content-Security-Policy', "frame-ancestors 'none'");
+        }
+        return response;
     } else {
         // 인증 판정과 callback URL은 그대로 두고 재로그인 화면도 요청한 표시 언어를 유지한다.
         const segment = pathname.split('/')[1];

@@ -435,11 +435,24 @@ test("승인 서버 키가 준비되지 않으면 페이지도 Google 로그인 
     assert.equal(h.calls.length, 0);
 });
 
-function clientHarness(response = { body: { callbackUrl: policy.buildMobileCallback(requestId, authorization) } }) {
+function clientHarness(response = { body: { callbackUrl: policy.buildMobileCallback(requestId, authorization) } }, { navigationError = false, beforeResponse } = {}) {
     const calls = { google: [], cancel: [], fetch: [], navigation: [], state: [] };
-    const component = loadSource("components/auth/MobileSignIn.tsx", {
+    const hooks = [];
+    let hookIndex = 0;
+    const renderComponent = loadSource("components/auth/MobileSignIn.tsx", {
         "react/jsx-runtime": jsxRuntime,
-        "react": { useState: initial => [initial, value => { calls.state.push(value); }] },
+        "react": {
+            useState(initial) {
+                const index = hookIndex++;
+                if (!(index in hooks)) hooks[index] = initial;
+                return [hooks[index], value => { hooks[index] = value; calls.state.push(value); }];
+            },
+            useRef(initial) {
+                const index = hookIndex++;
+                if (!(index in hooks)) hooks[index] = { current: initial };
+                return hooks[index];
+            },
+        },
         "next-auth/react": { signIn: async (...args) => { calls.google.push(args); } },
         "@/components/auth/AuthFormParts": {
             AuthPageFrame: ({ children }) => React.createElement("section", null, children),
@@ -448,9 +461,20 @@ function clientHarness(response = { body: { callbackUrl: policy.buildMobileCallb
         "@/lib/mobileAuthPolicy": policy,
         "@/services/identityClient": { identityRequest: async (...args) => { calls.cancel.push(args); } },
     }, {
-        fetch: async (...args) => { calls.fetch.push(args); return new Response(JSON.stringify(response)); },
-        window: { location: { assign: value => { calls.navigation.push(value); } } },
+        fetch: async (...args) => {
+            calls.fetch.push(args);
+            await beforeResponse?.();
+            return new Response(JSON.stringify(response));
+        },
+        window: { location: { assign: value => {
+            calls.navigation.push(value);
+            if (navigationError) throw new Error("synthetic app navigation failure");
+        } } },
     }).default;
+    function component(props) {
+        hookIndex = 0;
+        return renderComponent(props);
+    }
     return { calls, component };
 }
 
@@ -458,6 +482,19 @@ function buttons(element) {
     if (!element || typeof element !== "object") return [];
     const children = React.Children.toArray(element.props?.children).flatMap(buttons);
     return element.type === "button" ? [element, ...children] : children;
+}
+
+function links(element) {
+    if (!element || typeof element !== "object") return [];
+    const children = React.Children.toArray(element.props?.children).flatMap(links);
+    return element.type === "a" ? [element, ...children] : children;
+}
+
+function approvedClientProps(locale = "ko") {
+    return {
+        locale, requestId, callbackPath: policy.mobileSignInPath(locale, requestId), csrfToken: "synthetic-csrf",
+        account: { name: "Alice", email: "alice@example.test", publicId: "alice" },
+    };
 }
 
 test("계정 화면을 렌더링하거나 Google에 로그인하는 것만으로는 승인 API를 호출하지 않는다", async () => {
@@ -519,4 +556,109 @@ test("브라우저는 승인 응답의 임의 웹 주소로 이동하지 않는�
     await setImmediate();
     assert.equal(h.calls.navigation.length, 0);
     assert.equal(h.calls.state.some(value => typeof value === "string" && value.includes("evil.test")), false);
+});
+
+test("승인 후 모든 언어에서 앱 복귀 안내와 검증 callback 직접 링크만 표시한다", async () => {
+    // 준비: learning도 기존 정책대로 일본어로 안내한다.
+    const expectedText = {
+        ko: ["앱 로그인을 승인했어요", "브라우저를 닫고 TranslaCat 앱을 열어 주세요"],
+        ja: ["ログインを承認しました", "ブラウザーを閉じてTranslaCatアプリを開いてください"],
+        en: ["App sign-in approved", "close the browser and open the TranslaCat app"],
+        learning: ["ログインを承認しました", "ブラウザーを閉じてTranslaCatアプリを開いてください"],
+    };
+    for (const [locale, messages] of Object.entries(expectedText)) {
+        const h = clientHarness();
+        const props = approvedClientProps(locale);
+        const initial = h.component(props);
+        const approve = buttons(initial)[0].props.onClick;
+
+        // 실행: 승인 후 실제 hook 상태로 화면을 다시 그린다.
+        approve();
+        await setImmediate();
+        const completed = h.component(props);
+        const html = renderToStaticMarkup(completed);
+        const [returnLink] = links(completed);
+        approve();
+        await setImmediate();
+
+        // 검증: 앱의 로그인 성공을 단정하거나 승인 POST를 반복하지 않는다.
+        for (const message of messages) assert.ok(html.includes(message), locale);
+        assert.match(html, /role="status"/);
+        assert.equal(html.includes("alice@example.test"), false);
+        assert.equal(buttons(completed).length, 0);
+        assert.equal(links(completed).length, 1);
+        assert.equal(returnLink.props.href, h.calls.navigation[0]);
+        assert.equal(policy.validMobileCallback(returnLink.props.href, requestId), true);
+        assert.equal(returnLink.props.referrerPolicy, "no-referrer");
+        assert.equal(returnLink.props.rel, "noreferrer");
+        assert.equal(returnLink.props.onClick, undefined);
+        assert.equal(h.calls.fetch.length, 1);
+        assert.equal(h.calls.navigation.length, 1);
+        assert.equal(h.calls.google.length, 0);
+    }
+});
+
+test("앱 자동 이동이 throw되어도 승인 완료를 보존하고 다시 승인하지 않는다", async () => {
+    // 준비
+    const h = clientHarness(undefined, { navigationError: true });
+    const props = approvedClientProps();
+    const approve = buttons(h.component(props))[0].props.onClick;
+
+    // 실행: 브라우저가 자동 앱 이동을 거부한 뒤 남아 있는 승인 버튼 핸들러도 호출한다.
+    approve();
+    await setImmediate();
+    approve();
+    await setImmediate();
+    const completed = h.component(props);
+    const html = renderToStaticMarkup(completed);
+
+    // 검증: 일반 승인 실패 대신 앱 복귀 실패만 안내하며 같은 검증 callback 링크를 유지한다.
+    assert.ok(html.includes("앱 로그인을 승인했어요"));
+    assert.ok(html.includes("앱을 자동으로 열지 못했어요"));
+    assert.equal(html.includes("로그인을 완료하지 못했어요"), false);
+    assert.equal(html.includes("synthetic app navigation failure"), false);
+    assert.equal(links(completed)[0].props.href, h.calls.navigation[0]);
+    assert.equal(h.calls.fetch.length, 1);
+    assert.equal(h.calls.navigation.length, 1);
+});
+
+test("승인 응답을 기다리는 동안 재렌더링 전 연속 클릭도 POST 한 번만 보낸다", async () => {
+    // 준비: 네트워크 대신 합성 promise로 승인 응답만 보류한다.
+    let releaseResponse;
+    const pendingResponse = new Promise(resolve => { releaseResponse = resolve; });
+    const h = clientHarness(undefined, { beforeResponse: () => pendingResponse });
+    const props = approvedClientProps();
+    const approve = buttons(h.component(props))[0].props.onClick;
+
+    // 실행
+    approve();
+    approve();
+    const pending = h.component(props);
+
+    // 검증: pending에는 성공 안내나 앱 링크가 없고 승인 버튼은 비활성이다.
+    assert.equal(h.calls.fetch.length, 1);
+    assert.equal(links(pending).length, 0);
+    assert.equal(buttons(pending)[0].props.disabled, true);
+    releaseResponse();
+    await setImmediate();
+    assert.equal(h.calls.navigation.length, 1);
+    assert.equal(links(h.component(props)).length, 1);
+});
+
+test("검증에 실패한 callback은 승인 완료 안내나 직접 링크를 만들지 않는다", async () => {
+    // 준비
+    const h = clientHarness({ body: { callbackUrl: "https://evil.test/private" } });
+    const props = approvedClientProps();
+
+    // 실행
+    buttons(h.component(props))[0].props.onClick();
+    await setImmediate();
+    const rejected = h.component(props);
+    const html = renderToStaticMarkup(rejected);
+
+    // 검증
+    assert.equal(links(rejected).length, 0);
+    assert.equal(html.includes("앱 로그인을 승인했어요"), false);
+    assert.equal(html.includes("evil.test"), false);
+    assert.equal(h.calls.navigation.length, 0);
 });

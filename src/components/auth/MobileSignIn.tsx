@@ -1,7 +1,7 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { AuthPageFrame, authButtonClass, authSecondaryClass } from "@/components/auth/AuthFormParts";
 import { validMobileCallback } from "@/lib/mobileAuthPolicy";
@@ -13,6 +13,9 @@ const messages = {
         invalid: "로그인 요청이 올바르지 않아요. 앱에서 Google 로그인을 다시 시작해 주세요.",
         account: "이 계정으로 앱에 로그인합니다", approve: "이 계정으로 앱에 로그인", google: "Google로 로그인",
         another: "다른 Google 계정으로 로그인", waiting: "처리 중…", returning: "앱으로 돌아가기",
+        approved: "앱 로그인을 승인했어요. 앱으로 돌아가는 중이에요.",
+        returnHelp: "브라우저가 그대로면 아래 버튼을 눌러 주세요. 계속 이 화면이면 브라우저를 닫고 TranslaCat 앱을 열어 주세요.",
+        returnFailed: "앱을 자동으로 열지 못했어요. 아래 버튼을 누르거나 브라우저를 닫고 앱을 열어 주세요.",
         confirm: "아래 버튼을 누르면 이 계정의 앱 로그인을 승인합니다. 직접 시작한 요청인지 확인해 주세요.",
         failed: "로그인을 완료하지 못했어요. 앱에서 다시 시작해 주세요.",
         expired: "요청이 만료되었거나 이미 승인되었어요. 앱에서 다시 시작해 주세요.",
@@ -24,6 +27,9 @@ const messages = {
         invalid: "ログインのリクエストが正しくありません。アプリからGoogleログインをやり直してください。",
         account: "このアカウントでアプリにログインします", approve: "このアカウントでアプリにログイン", google: "Googleでログイン",
         another: "別のGoogleアカウントでログイン", waiting: "処理中…", returning: "アプリに戻る",
+        approved: "アプリへのログインを承認しました。アプリに戻っています。",
+        returnHelp: "ブラウザーに残っている場合は下のボタンを押してください。画面が変わらない場合はブラウザーを閉じてTranslaCatアプリを開いてください。",
+        returnFailed: "アプリを自動で開けませんでした。下のボタンを押すか、ブラウザーを閉じてアプリを開いてください。",
         confirm: "下のボタンを押すとアプリへのログインを承認します。ご自身で開始したリクエストか確認してください。",
         failed: "ログインを完了できませんでした。アプリからやり直してください。",
         expired: "リクエストが期限切れ、または承認済みです。アプリからやり直してください。",
@@ -35,6 +41,9 @@ const messages = {
         invalid: "This sign-in request is invalid. Start Google sign-in again in the app.",
         account: "Account for app sign-in", approve: "Sign in to the app with this account", google: "Sign in with Google",
         another: "Use another Google account", waiting: "Working…", returning: "Return to the app",
+        approved: "App sign-in approved. Returning to the app…",
+        returnHelp: "If the browser stays open, use the button below. If this screen remains, close the browser and open the TranslaCat app.",
+        returnFailed: "The app could not open automatically. Use the button below, or close the browser and open the app.",
         confirm: "The button below approves app sign-in with this account. Continue only if you started this request.",
         failed: "Sign-in could not be completed. Start again in the app.",
         expired: "This request has expired or was already approved. Start again in the app.",
@@ -55,6 +64,7 @@ export default function MobileSignIn({ locale, requestId, callbackPath, csrfToke
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [callbackUrl, setCallbackUrl] = useState<string | null>(null);
+    const approvalStage = useRef<"idle" | "pending" | "approved">("idle");
 
     async function google() {
         if (!callbackPath || busy) return;
@@ -71,7 +81,9 @@ export default function MobileSignIn({ locale, requestId, callbackPath, csrfToke
     }
 
     async function approve() {
-        if (!requestId || !csrfToken || busy) return;
+        // 재렌더링 전의 연속 클릭과 승인 완료 후 오래된 핸들러의 중복 POST를 막는다.
+        if (!requestId || !csrfToken || busy || approvalStage.current !== "idle") return;
+        approvalStage.current = "pending";
         setBusy(true);
         setError(null);
         try {
@@ -90,11 +102,18 @@ export default function MobileSignIn({ locale, requestId, callbackPath, csrfToke
             }
             const callback = result?.body?.callbackUrl;
             if (!validMobileCallback(callback, requestId)) { setError(text.failed); return; }
+            // 승인은 끝났지만 실제 앱 복귀는 브라우저·OS가 결정한다. 실패해도 다시 승인하지 않는다.
+            approvalStage.current = "approved";
             setCallbackUrl(callback);
-            window.location.assign(callback);
+            try {
+                window.location.assign(callback);
+            } catch {
+                setError(text.returnFailed);
+            }
         } catch {
             setError(text.failed);
         } finally {
+            if (approvalStage.current === "pending") approvalStage.current = "idle";
             setBusy(false);
         }
     }
@@ -114,7 +133,12 @@ export default function MobileSignIn({ locale, requestId, callbackPath, csrfToke
                             {busy ? text.waiting : text.approve}
                         </button>
                     </>}
-                    {callbackUrl ? <button type="button" className={`${authButtonClass} w-full`} onClick={() => window.location.assign(callbackUrl)}>{text.returning}</button>
+                    {callbackUrl ? <>
+                        <p role="status" className="text-sm leading-6 text-slate-700 dark:text-slate-200">{text.approved}</p>
+                        <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">{text.returnHelp}</p>
+                        {/* 자동 이동이 차단돼도 사용자 클릭으로 검증된 동일 callback만 다시 연다. */}
+                        <a href={callbackUrl} className={`${authButtonClass} w-full`} referrerPolicy="no-referrer" rel="noreferrer">{text.returning}</a>
+                    </>
                         : <button type="button" className={`${account ? authSecondaryClass : authButtonClass} w-full`} disabled={busy} onClick={() => void google()}>
                             {busy ? text.waiting : account ? text.another : text.google}
                         </button>}

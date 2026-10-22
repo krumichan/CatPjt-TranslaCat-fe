@@ -4,11 +4,21 @@ import { useTranslations } from "next-intl";
 
 import { useRouter } from "@/navigation";
 import type { ChatNotificationActivityItem } from "@/types/chatNotification";
+import {
+    getOpenInvitationPayloadText,
+    getOpenInvitationRoomId,
+    hasOpenLinkInvitationMarker,
+    isOpenLinkInvitation,
+} from "@/utils/chat/openChatInvitation";
 
 const getPayloadString = (
     payload: Record<string, unknown>,
     key: string,
 ): string | null => {
+    if (payload === null || typeof payload !== "object") {
+        return null;
+    }
+
     const value = payload[key];
     return typeof value === "string" && value.trim() ? value : null;
 };
@@ -50,12 +60,27 @@ export default function ChatActivityNotificationItem({
         getPayloadString(item.payload, "roomName") ?? t("unknownRoom");
     const newRole = getPayloadString(item.payload, "newRole") ?? "MEMBER";
     const reason = getPayloadString(item.payload, "reason");
-    const canNavigate = canNavigateToRoom(item);
+    const isOpenInvitation = isOpenLinkInvitation(item);
+    const openRoomId = getOpenInvitationRoomId(item);
+    const canNavigate = hasOpenLinkInvitationMarker(item)
+        ? openRoomId !== null
+        : canNavigateToRoom(item);
     const isActionable = !item.isRead || canNavigate;
 
     const description = (() => {
         switch (item.notificationType) {
             case "CHAT_INVITATION":
+                if (isOpenInvitation) {
+                    return t("openChatInvitation", {
+                        roomName,
+                        nickname:
+                            getOpenInvitationPayloadText(item, "inviterOpenNickname") ??
+                            t("unknownInviter"),
+                        memberCode:
+                            getOpenInvitationPayloadText(item, "inviterMemberCode") ??
+                            t("unknownMemberCode"),
+                    });
+                }
                 return t("chatInvitation", { roomName });
             case "OPEN_CHAT_KICKED":
                 return reason
@@ -78,7 +103,10 @@ export default function ChatActivityNotificationItem({
             return;
         }
 
-        if (canNavigate && item.roomId !== null) {
+        if (isOpenInvitation && openRoomId !== null) {
+            router.push(`/chat/open/${openRoomId}`);
+            onNavigate();
+        } else if (canNavigate && item.roomId !== null) {
             router.push(`/chat/rooms/${item.roomId}`);
             onNavigate();
         }

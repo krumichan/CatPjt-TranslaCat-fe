@@ -112,13 +112,16 @@ export const openChatService = {
     transferOwner: async (
         roomId: number,
         request: OpenChatOwnerTransferRequest,
+        options: { expectedLoginSessionId?: string; signal?: AbortSignal } = {},
     ): Promise<OpenChatRoomDetail> => {
         const response = await apiClient(
             `/chat/open-rooms/${roomId}/owner-transfer`,
             {
                 method: "POST",
                 body: JSON.stringify(request),
+                signal: options.signal,
             },
+            options.expectedLoginSessionId,
         );
 
         return parseResponseBody<OpenChatRoomDetail>(

@@ -295,18 +295,27 @@
     "openLifecycle": {
       "menu": {
         "LEAVE": "Leave OPEN room",
+        "TRANSFER": "Transfer owner",
         "TRANSFER_AND_LEAVE": "Transfer OWNER and leave",
         "CLOSE": "Close OPEN room"
       },
       "close": "Close",
       "cancel": "Cancel",
       "goToExplore": "Go to OPEN room list",
-      "transfer": { "targetLabel": "Choose a new OWNER" },
+      "transfer": {
+        "targetLabel": "Choose a new OWNER",
+        "unavailable": "No active member is available. Check the member list again."
+      },
       "dialog": {
         "LEAVE": {
           "title": "Leave this OPEN room?",
           "description": "Your profile and memberCode are kept, but messages from before you rejoin will no longer be visible to you.",
           "confirm": "Leave room"
+        },
+        "TRANSFER": {
+          "title": "Transfer room ownership?",
+          "description": "The selected active member becomes the new owner. You remain in the room as a member.",
+          "confirm": "Transfer owner"
         },
         "TRANSFER_AND_LEAVE": {
           "title": "Transfer OWNER and leave?",
@@ -326,10 +335,32 @@
       },
       "errors": {
         "TARGET_REQUIRED": "Choose a member to receive the OWNER role.",
+        "TARGET_UNAVAILABLE": "The selected member is no longer eligible. Check the member list again.",
         "ROOM_CLOSED": "This room is already closed.",
         "ACCESS_DENIED": "You do not have permission to perform this action.",
         "ACTION_FAILED": "The action failed. Try again shortly.",
         "LEAVE_FAILED_AFTER_TRANSFER": "OWNER was transferred. Try leaving the room again."
+      }
+    },
+    "openIdInvitation": {
+      "menu": "Invite by TranslaCat ID",
+      "title": "Invite to OPEN chat",
+      "description": "Send a room invitation to a TranslaCat ID. The recipient does not join automatically.",
+      "publicIdLabel": "Recipient TranslaCat ID",
+      "publicIdPlaceholder": "Enter TranslaCat ID",
+      "submit": "Send invitation",
+      "close": "Close invitation",
+      "success": { "SENT": "Invitation sent.", "ALREADY_SENT": "This invitation was already sent." },
+      "errors": {
+        "INVALID_ID": "Enter a valid TranslaCat ID.",
+        "TARGET_UNAVAILABLE": "This ID cannot be invited. Check the ID and membership.",
+        "RATE_LIMITED": "Too many invitations. Try again later.",
+        "REQUEST_CONFLICT": "The request changed. Re-enter the ID.",
+        "INVALID_REQUEST": "The request could not be verified. Re-enter the ID.",
+        "NOT_ALLOWED": "You cannot invite from this room.",
+        "ROOM_CLOSED": "A closed room cannot receive invitations.",
+        "UNAVAILABLE": "Invitation service is unavailable. Try again later.",
+        "FAILED": "Failed to send the invitation. Try again."
       }
     },
     "openModeration": {
@@ -441,7 +472,31 @@
     "description": "Manage friends and view the chat rooms you have joined.",
     "tabs": { "ariaLabel": "Switch chat page view", "chat": "Chat", "friends": "Friends" },
     "openChatCreate": { "label": "Create a new OPEN chat" },
-    "openChatExplore": { "label": "Explore OPEN chats" }
+    "openChatExplore": { "label": "Explore OPEN chats" },
+    "openInvitationInbox": {
+      "label": "OPEN chat invitations",
+      "unread": "{count} unread invitations"
+    }
+  },
+  "OpenChatInvitationInbox": {
+    "title": "OPEN chat invitations",
+    "description": "Review invitations and preview rooms. You decide whether to join in the room.",
+    "back": "Back to chat",
+    "loading": "Loading invitations...",
+    "loadFailed": "Could not load invitations.",
+    "retry": "Try again",
+    "empty": "No OPEN chat invitations yet.",
+    "unknownRoom": "OPEN chat room",
+    "unknownInviter": "OPEN member",
+    "invitedBy": "Invited by {nickname}",
+    "memberCode": "Room member code {code}",
+    "new": "New invitation",
+    "read": "Mark read",
+    "readFailed": "Could not mark as read.",
+    "preview": "Preview room",
+    "roomUnavailable": "Room cannot be identified.",
+    "loadMore": "Load older invitations",
+    "loadingMore": "Loading..."
   },
   "OpenChatCreate": {
     "header": {

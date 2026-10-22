@@ -347,6 +347,7 @@ test.describe("FE #9 OPEN chat browse and detail", () => {
     test("OPEN-09-06 OWNER는 대상에게 위임한 뒤 퇴실한다", async ({
         page,
     }) => {
+        // 준비: 한국어 안내와 후속 이동을 같은 locale에서 확인한다.
         const owner = makeOpenChatProfile({
             openChatMemberId: ROOM_ID * 10 + 1,
             memberCode: "OC-OWNER",
@@ -388,7 +389,7 @@ test.describe("FE #9 OPEN chat browse and detail", () => {
             },
         );
 
-        await page.goto(`/chat/rooms/${ROOM_ID}`);
+        await page.goto(`/ko/chat/rooms/${ROOM_ID}`);
         await page.getByTestId("chat-room-menu-button").click();
         await page.getByTestId("open-chat-lifecycle-button").click();
         await page.getByText("새방장", { exact: true }).click();
@@ -398,9 +399,92 @@ test.describe("FE #9 OPEN chat browse and detail", () => {
         expect(leaveCount).toBe(1);
     });
 
+    test("OPEN-09-06A 방장만 위임하고 같은 방에 멤버로 남는다", async ({ page }) => {
+        // 준비: 현재 OWNER와 별도 활성 대상의 역할을 서버 상태로 반환한다.
+        const ownerId = ROOM_ID * 10 + 2;
+        const targetId = ROOM_ID * 10 + 3;
+        let transferred = false;
+        let transferCount = 0;
+        let leaveCount = 0;
+        const owner = makeOpenChatProfile({
+            openChatMemberId: ownerId,
+            memberCode: "OC-CURRENT-OWNER",
+            nickname: "현재방장",
+            role: "OWNER",
+        });
+        const target = makeOpenChatProfile({
+            openChatMemberId: targetId,
+            memberCode: "OC-NEXT-OWNER",
+            nickname: "다음방장",
+            role: "MEMBER",
+        });
+        await mockOpenChatDestination(page, {
+            myRole: "OWNER",
+            members: [owner, target],
+        });
+        await page.route(new RegExp(`/chat/rooms/${ROOM_ID}$`), (route) =>
+            fulfillApiJson(route, responseDto(makeRoom({
+                id: ROOM_ID,
+                roomType: "OPEN",
+                sourceType: "OPEN",
+                name: "OPEN 테스트방",
+                myRole: transferred ? "MEMBER" : "OWNER",
+                ownerId: null,
+            }))),
+        );
+        await page.route(new RegExp(`/chat/open-rooms/${ROOM_ID}/members$`), (route) =>
+            fulfillApiJson(route, responseDto({
+                members: [
+                    { ...owner, role: transferred ? "MEMBER" : "OWNER" },
+                    { ...target, role: transferred ? "OWNER" : "MEMBER" },
+                ],
+            })),
+        );
+        await page.route(new RegExp(`/chat/open-rooms/${ROOM_ID}/me/profile$`), (route) =>
+            fulfillApiJson(route, responseDto({
+                ...owner,
+                role: transferred ? "MEMBER" : "OWNER",
+            })),
+        );
+        await page.route(new RegExp(`/chat/open-rooms/${ROOM_ID}/owner-transfer$`), (route) => {
+            const body = route.request().postDataJSON() as { targetOpenChatMemberId: number };
+            expect(body.targetOpenChatMemberId).toBe(targetId);
+            transferCount += 1;
+            transferred = true;
+            return fulfillApiJson(route, responseDto(makeOpenChatRoomDetail({
+                id: ROOM_ID,
+                joined: true,
+                myRole: "MEMBER",
+                myOpenProfile: { ...owner, role: "MEMBER" },
+                ownerProfile: { ...target, role: "OWNER" },
+            })));
+        });
+        await page.route(new RegExp(`/chat/open-rooms/${ROOM_ID}/leave$`), (route) => {
+            leaveCount += 1;
+            return fulfillApiJson(route, responseDto({ roomId: ROOM_ID, active: false }));
+        });
+
+        // 실행: 별도 위임 메뉴를 사용하며 나가기 동작은 누르지 않는다.
+        await page.goto(`/ko/chat/rooms/${ROOM_ID}`);
+        await page.getByTestId("chat-room-menu-button").click();
+        await page.getByTestId("open-chat-transfer-owner-button").click();
+        await expect(page.getByTestId("open-chat-lifecycle-dialog-TRANSFER")).toBeVisible();
+        await page.getByText("다음방장", { exact: true }).click();
+        await page.getByTestId("open-chat-lifecycle-confirm").click();
+
+        // 검증: 현재 방에 남고 역할·메뉴가 새 서버 상태로 바뀐다.
+        await expect(page).toHaveURL(new RegExp(`/ko/chat/rooms/${ROOM_ID}$`));
+        await page.getByTestId("chat-room-menu-button").click();
+        await expect(page.getByTestId("chat-room-my-role")).toHaveText("멤버");
+        await expect(page.getByTestId("open-chat-transfer-owner-button")).toHaveCount(0);
+        expect(transferCount).toBe(1);
+        expect(leaveCount).toBe(0);
+    });
+
     test("OPEN-09-07 유일한 OWNER는 복구 불가 안내 후 방을 종료한다", async ({
         page,
     }) => {
+        // 준비: 한국어 복구 불가 안내를 확인할 locale로 진입한다.
         const owner = makeOpenChatProfile({
             openChatMemberId: ROOM_ID * 10 + 1,
             memberCode: "OC-ONLY",
@@ -424,7 +508,7 @@ test.describe("FE #9 OPEN chat browse and detail", () => {
             },
         );
 
-        await page.goto(`/chat/rooms/${ROOM_ID}`);
+        await page.goto(`/ko/chat/rooms/${ROOM_ID}`);
         await page.getByTestId("chat-room-menu-button").click();
         await page.getByTestId("open-chat-lifecycle-button").click();
         await expect(page.getByText("종료한 방은 복구할 수 없고", { exact: false })).toBeVisible();

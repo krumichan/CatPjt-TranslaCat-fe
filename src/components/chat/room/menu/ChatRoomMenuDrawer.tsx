@@ -5,6 +5,7 @@ import {
     Bot,
     CalendarDays,
     Check,
+    Crown,
     Hash,
     Info,
     Link2,
@@ -85,6 +86,10 @@ interface ChatRoomMenuDrawerProps {
     ) => void;
     openLifecycleAction: OpenChatLifecycleAction | null;
     onOpenLifecycle: () => void;
+    canTransferOwner: boolean;
+    onOpenOwnerTransfer: () => void;
+    canInviteOpenById: boolean;
+    onOpenIdInvitation: () => void;
     onOpenInvitation: () => void;
     onDismissSuccess: () => void;
 }
@@ -116,6 +121,10 @@ export function ChatRoomMenuDrawer({
     onOpenModerationAction,
     openLifecycleAction,
     onOpenLifecycle,
+    canTransferOwner,
+    onOpenOwnerTransfer,
+    canInviteOpenById,
+    onOpenIdInvitation,
     onOpenInvitation,
     onDismissSuccess,
 }: ChatRoomMenuDrawerProps) {
@@ -299,7 +308,7 @@ export function ChatRoomMenuDrawer({
                             <dt className="font-bold text-slate-400">
                                 {t("menu.fields.myRole")}
                             </dt>
-                            <dd className="text-right font-bold text-slate-700 dark:text-slate-200">
+                            <dd data-testid="chat-room-my-role" className="text-right font-bold text-slate-700 dark:text-slate-200">
                                 {room.myRole
                                     ? t(
                                           `members.roles.${room.myRole}`,
@@ -321,7 +330,7 @@ export function ChatRoomMenuDrawer({
                             </button>
                         )}
 
-                        {room.roomType === "OPEN" && canManageOpenChat && (
+                        {room.roomType === "OPEN" && canInviteOpenById && (
                             <button
                                 type="button"
                                 data-testid="open-chat-share-link-button"
@@ -350,6 +359,18 @@ export function ChatRoomMenuDrawer({
                             </button>
                         )}
 
+                        {room.roomType === "OPEN" && canInviteOpenById && (
+                            <button
+                                type="button"
+                                data-testid="open-chat-invite-by-id-button"
+                                onClick={onOpenIdInvitation}
+                                className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-orange-200 px-4 py-3 text-sm font-black text-orange-600 transition hover:bg-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 dark:border-orange-400/30 dark:text-orange-200 dark:hover:bg-orange-500/10"
+                            >
+                                <UserPlus className="h-4 w-4" aria-hidden="true" />
+                                {t("openIdInvitation.menu")}
+                            </button>
+                        )}
+
                         {canViewAiSettings && (
                             <button
                                 type="button"
@@ -372,6 +393,26 @@ export function ChatRoomMenuDrawer({
                                 <ShieldAlert className="h-4 w-4" aria-hidden="true" />
                                 {t("openModeration.blacklistMenu")}
                             </button>
+                        )}
+
+                        {room.roomType === "OPEN" && room.active && room.myRole === "OWNER" && (
+                            <>
+                                <button
+                                    type="button"
+                                    data-testid="open-chat-transfer-owner-button"
+                                    disabled={!canTransferOwner}
+                                    onClick={onOpenOwnerTransfer}
+                                    className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-orange-200 px-4 py-3 text-sm font-black text-orange-600 transition hover:bg-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-orange-400/30 dark:text-orange-200 dark:hover:bg-orange-500/10"
+                                >
+                                    <Crown className="h-4 w-4" aria-hidden="true" />
+                                    {t("openLifecycle.menu.TRANSFER")}
+                                </button>
+                                {!canTransferOwner && !isLoading && (
+                                    <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                                        {t("openLifecycle.transfer.unavailable")}
+                                    </p>
+                                )}
+                            </>
                         )}
 
                         {room.roomType === "OPEN" && openLifecycleAction && (

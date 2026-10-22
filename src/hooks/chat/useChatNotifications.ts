@@ -1,11 +1,12 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { useChatRoomsRealtime } from "@/hooks/chat/useChatRoomsRealtime";
 import { useQuery } from "@/hooks/useQuery";
 import { chatNotificationService } from "@/services/chat/chatNotificationService";
+import { openChatInvitationService } from "@/services/chat/openChatInvitationService";
 import { chatService } from "@/services/chat/chatService";
 import type { ChatMessage } from "@/types/chat";
 import type {
@@ -15,6 +16,10 @@ import type {
     ChatNotificationSummary,
 } from "@/types/chatNotification";
 import type { ChatReadUpdatedEvent } from "@/types/chatWebSocket";
+import {
+    announceOpenInvitationChanged,
+    isOpenLinkInvitation,
+} from "@/utils/chat/openChatInvitation";
 
 const CHAT_NOTIFICATION_QUERY_CONFIG = {
     revalidateOnMount: true,
@@ -58,6 +63,9 @@ const normalizeEmail = (email: string | null | undefined) =>
 
 export function useChatNotifications() {
     const { data: session } = useSession();
+    const loginSessionId = session?.loginSessionId ?? null;
+    const activeLoginSessionIdRef = useRef(loginSessionId);
+    const activityScopeVersionRef = useRef(0);
     const [processingChatRoomId, setProcessingChatRoomId] = useState<
         number | null
     >(null);
@@ -70,6 +78,13 @@ export function useChatNotifications() {
         null,
     );
     const seenActivityNotificationIdsRef = useRef(new Set<number>());
+
+    useLayoutEffect(() => {
+        // 이전 로그인 세션의 OPEN_LINK 읽음 잠금과 늦은 결과를 새 계정으로 가져오지 않는다.
+        activeLoginSessionIdRef.current = loginSessionId;
+        ++activityScopeVersionRef.current;
+        setProcessingActivityId(null);
+    }, [loginSessionId]);
 
     const {
         data: summary = EMPTY_SUMMARY,
@@ -178,6 +193,10 @@ export function useChatNotifications() {
                 }
             }
 
+            if (isOpenLinkInvitation(notification)) {
+                announceOpenInvitationChanged();
+            }
+
             void mutateActivityList((currentData) => {
                 const base = currentData ?? EMPTY_ACTIVITY_LIST;
                 if (base.items.some((item) => item.id === notification.id)) {
@@ -218,6 +237,7 @@ export function useChatNotifications() {
     );
 
     const handleReconnectSyncRequested = useCallback(async () => {
+        announceOpenInvitationChanged();
         await Promise.all([
             refreshChatProjection(),
             mutateActivityList((currentData) => currentData, true),
@@ -352,14 +372,29 @@ export function useChatNotifications() {
                 return false;
             }
 
+            const isOpenInvitation = isOpenLinkInvitation(item);
+            if (isOpenInvitation && loginSessionId === null) {
+                return false;
+            }
+            const scopeVersion = activityScopeVersionRef.current;
+            const isCurrentOpenScope = () =>
+                activeLoginSessionIdRef.current === loginSessionId &&
+                activityScopeVersionRef.current === scopeVersion;
+
             setProcessingActivityId(item.id);
             try {
-                const updated =
-                    await chatNotificationService.markActivityAsRead(item.id);
+                // OPEN_LINK는 별도 수신함 계약으로 읽고, 기존 GROUP 알림은 기존 계약을 유지한다.
+                const updated = isOpenInvitation
+                    ? await openChatInvitationService.markRead(item.id, loginSessionId as string)
+                    : await chatNotificationService.markActivityAsRead(item.id);
+
+                if (isOpenInvitation && !isCurrentOpenScope()) {
+                    return false;
+                }
 
                 await Promise.all([
                     mutateActivityList((currentData) => {
-                        if (!currentData) {
+                        if (!currentData || (isOpenInvitation && !isCurrentOpenScope())) {
                             return currentData;
                         }
 
@@ -373,7 +408,7 @@ export function useChatNotifications() {
                         };
                     }, false),
                     mutateSummary((currentData) => {
-                        if (!currentData) {
+                        if (!currentData || (isOpenInvitation && !isCurrentOpenScope())) {
                             return currentData;
                         }
 
@@ -392,19 +427,32 @@ export function useChatNotifications() {
                     }, false),
                 ]);
 
+                if (isOpenInvitation) {
+                    if (!isCurrentOpenScope()) {
+                        return false;
+                    }
+                    announceOpenInvitationChanged();
+                }
+
                 return true;
             } catch (error) {
-                console.error(
-                    "Failed to mark chat activity notification as read.",
-                    error,
-                );
+                if (isOpenInvitation) {
+                    if (isCurrentOpenScope()) {
+                        console.warn("OPEN invitation read request failed.");
+                    }
+                } else {
+                    console.error("Failed to mark chat activity notification as read.", error);
+                }
                 return false;
             } finally {
-                setProcessingActivityId(null);
+                if (!isOpenInvitation || isCurrentOpenScope()) {
+                    setProcessingActivityId(null);
+                }
             }
         },
         [
             isProcessingAllActivities,
+            loginSessionId,
             mutateActivityList,
             mutateSummary,
             processingActivityId,

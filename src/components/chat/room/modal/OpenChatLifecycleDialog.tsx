@@ -94,7 +94,7 @@ export function OpenChatLifecycleDialog({
                     )}
                 </header>
 
-                {mode === "TRANSFER_AND_LEAVE" && (
+                {(mode === "TRANSFER" || mode === "TRANSFER_AND_LEAVE") && (
                     <fieldset className="mt-6">
                         <legend className="text-sm font-black text-slate-800 dark:text-slate-100">
                             {t("transfer.targetLabel")}
@@ -166,7 +166,9 @@ export function OpenChatLifecycleDialog({
                                 data-testid="open-chat-lifecycle-confirm"
                                 disabled={isSubmitting}
                                 onClick={() => void onSubmit()}
-                                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-rose-500 px-5 py-3 text-sm font-black text-white disabled:opacity-50"
+                                className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-black text-white disabled:opacity-50 ${
+                                    mode === "TRANSFER" ? "bg-orange-500" : "bg-rose-500"
+                                }`}
                             >
                                 {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
                                 {t(`dialog.${mode}.confirm`)}

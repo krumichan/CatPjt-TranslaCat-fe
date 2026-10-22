@@ -1,13 +1,15 @@
 "use client";
 
-import { Globe2, MessageCircle, Plus } from "lucide-react";
+import { Globe2, Mail, MessageCircle, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { GuideHelpLink } from "@/components/common/GuideHelpLink";
+import { useOpenChatInvitationSummary } from "@/hooks/chat/useOpenChatInvitationSummary";
 import { Link } from "@/navigation";
 
 export function ChatHubHeader() {
     const t = useTranslations("ChatHub");
+    const invitationSummary = useOpenChatInvitationSummary();
 
     return (
         <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
@@ -34,6 +36,19 @@ export function ChatHubHeader() {
                 </div>
 
                 <div className="flex shrink-0 flex-wrap gap-2">
+                    <Link
+                        href="/chat/open/invitations"
+                        data-testid="open-chat-invitation-inbox-link"
+                        className="inline-flex items-center justify-center gap-2 rounded-2xl border border-orange-200 bg-white px-4 py-3 text-sm font-black text-orange-700 transition hover:bg-orange-50 dark:border-orange-400/30 dark:bg-slate-900 dark:text-orange-200"
+                    >
+                        <Mail className="h-4 w-4" aria-hidden="true" />
+                        {t("openInvitationInbox.label")}
+                        {invitationSummary.unreadCount > 0 && (
+                            <span className="rounded-full bg-orange-500 px-2 py-0.5 text-xs text-white" aria-label={t("openInvitationInbox.unread", { count: invitationSummary.unreadCount })}>
+                                {invitationSummary.unreadCount}
+                            </span>
+                        )}
+                    </Link>
                     <Link
                         href="/chat/open"
                         data-testid="open-chat-explore-link"

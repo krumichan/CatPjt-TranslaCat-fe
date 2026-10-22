@@ -318,6 +318,7 @@
     "openLifecycle": {
       "menu": {
         "LEAVE": "OPENルームを退出",
+        "TRANSFER": "オーナーを委譲",
         "TRANSFER_AND_LEAVE": "OWNER委譲後に退出",
         "CLOSE": "OPENルームを終了"
       },
@@ -325,13 +326,19 @@
       "cancel": "キャンセル",
       "goToExplore": "OPEN一覧へ移動",
       "transfer": {
-        "targetLabel": "新しいOWNERを選択"
+        "targetLabel": "新しいOWNERを選択",
+        "unavailable": "委譲できるアクティブメンバーがいません。メンバー一覧を確認してください。"
       },
       "dialog": {
         "LEAVE": {
           "title": "OPENルームを退出しますか？",
           "description": "プロフィールとmemberCodeは維持されますが、再参加前のメッセージは再表示できません。",
           "confirm": "ルームを退出"
+        },
+        "TRANSFER": {
+          "title": "オーナーを委譲しますか？",
+          "description": "選択したアクティブメンバーが新しいオーナーになります。現在のアカウントはメンバーとしてルームに残ります。",
+          "confirm": "オーナーを委譲"
         },
         "TRANSFER_AND_LEAVE": {
           "title": "OWNERを委譲して退出しますか？",
@@ -351,10 +358,32 @@
       },
       "errors": {
         "TARGET_REQUIRED": "OWNERを委譲するメンバーを選択してください。",
+        "TARGET_UNAVAILABLE": "選択したメンバーには委譲できません。メンバー一覧を確認してください。",
         "ROOM_CLOSED": "すでに終了済みのルームです。",
         "ACCESS_DENIED": "この操作を実行する権限がありません。",
         "ACTION_FAILED": "処理に失敗しました。しばらくしてから再度お試しください。",
         "LEAVE_FAILED_AFTER_TRANSFER": "OWNERの委譲は完了しました。ルーム退出を再試行してください。"
+      }
+    },
+    "openIdInvitation": {
+      "menu": "TranslaCat IDで招待",
+      "title": "OPENチャットに招待",
+      "description": "相手のTranslaCat IDにこのルームの招待通知を送ります。招待だけでは自動参加しません。",
+      "publicIdLabel": "相手のTranslaCat ID",
+      "publicIdPlaceholder": "TranslaCat IDを入力",
+      "submit": "招待を送る",
+      "close": "招待画面を閉じる",
+      "success": { "SENT": "招待を送信しました。", "ALREADY_SENT": "すでに送信された招待です。" },
+      "errors": {
+        "INVALID_ID": "正しいTranslaCat IDを入力してください。",
+        "TARGET_UNAVAILABLE": "このIDには招待できません。IDと参加状態を確認してください。",
+        "RATE_LIMITED": "招待が多すぎます。しばらくしてから再試行してください。",
+        "REQUEST_CONFLICT": "リクエストが変更されました。IDを入力し直してください。",
+        "INVALID_REQUEST": "リクエストを確認できません。入力し直してください。",
+        "NOT_ALLOWED": "このルームから招待できません。",
+        "ROOM_CLOSED": "終了したルームには招待できません。",
+        "UNAVAILABLE": "招待サービスを利用できません。しばらくしてから再試行してください。",
+        "FAILED": "招待の送信に失敗しました。再試行してください。"
       }
     },
     "openModeration": {
@@ -525,7 +554,31 @@
     },
     "openChatExplore": {
       "label": "OPENチャットを探す"
+    },
+    "openInvitationInbox": {
+      "label": "OPENチャットの招待",
+      "unread": "未読の招待 {count}件"
     }
+  },
+  "OpenChatInvitationInbox": {
+    "title": "OPENチャットの招待",
+    "description": "届いた招待を確認してルームのプレビューに移動できます。参加はルームで選択します。",
+    "back": "チャットに戻る",
+    "loading": "招待を読み込み中...",
+    "loadFailed": "招待を読み込めませんでした。",
+    "retry": "再試行",
+    "empty": "OPENチャットの招待はありません。",
+    "unknownRoom": "OPENチャットルーム",
+    "unknownInviter": "OPENメンバー",
+    "invitedBy": "{nickname}さんからの招待",
+    "memberCode": "ルームメンバーコード {code}",
+    "new": "新しい招待",
+    "read": "既読にする",
+    "readFailed": "既読にできませんでした。",
+    "preview": "ルームをプレビュー",
+    "roomUnavailable": "ルームを確認できません。",
+    "loadMore": "以前の招待をもっと見る",
+    "loadingMore": "読み込み中..."
   },
   "OpenChatCreate": {
     "header": {

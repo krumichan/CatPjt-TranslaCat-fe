@@ -16,7 +16,9 @@ import { useChatRoomOpenChatCoordinator } from "@/hooks/chat/useChatRoomOpenChat
 import { useChatRoomReadStatus } from "@/hooks/chat/useChatRoomReadStatus";
 import { useChatRoomRealtime } from "@/hooks/chat/useChatRoomRealtime";
 import { useOpenChatMemberProfilePreview } from "@/hooks/chat/useOpenChatMemberProfilePreview";
+import { useOpenChatIdInvitation } from "@/hooks/chat/useOpenChatIdInvitation";
 import { useOpenChatRoomLifecycle } from "@/hooks/chat/useOpenChatRoomLifecycle";
+import type { OpenChatRoomDetail } from "@/types/chat";
 import type { ChatPresenceChangedEvent } from "@/types/chatWebSocket";
 import { isOpenChatModerator } from "@/utils/chat/openChatModeration";
 
@@ -67,12 +69,48 @@ export function useChatRoomPageController(
     const { reload: reloadAiDisplayPolicy } = aiDisplayPolicy;
     const roomMenu = useChatRoomMenu({ roomId, roomType });
 
+    const refreshOwnershipState = useCallback(async () => {
+        await Promise.all([
+            chatRoom.reload(),
+            roomMenu.reloadMembers(),
+        ]);
+    }, [chatRoom, roomMenu]);
+
+    const applyOwnerTransfer = useCallback(async (
+        detail: OpenChatRoomDetail,
+        targetOpenChatMemberId: number,
+        isCurrentScope: () => boolean,
+    ) => {
+        // 서버가 확정한 역할을 즉시 반영한 뒤 방과 멤버 목록을 재조회한다.
+        if (!isCurrentScope()) {
+            return;
+        }
+
+        const previousOwnerId = detail.myOpenProfile?.openChatMemberId;
+        if (previousOwnerId && detail.myRole) {
+            chatRoom.applyOpenChatRole(previousOwnerId, detail.myRole, true);
+            await roomMenu.applyOpenChatRole(previousOwnerId, detail.myRole);
+        }
+
+        if (!isCurrentScope()) {
+            return;
+        }
+
+        await roomMenu.applyOpenChatRole(targetOpenChatMemberId, "OWNER");
+        if (isCurrentScope()) {
+            await refreshOwnershipState();
+        }
+    }, [chatRoom, refreshOwnershipState, roomMenu]);
+
     const openLifecycle = useOpenChatRoomLifecycle({
         roomId,
         room: chatRoom.room,
         openMembers: roomMenu.openMembers,
         isMembersLoading: roomMenu.isLoading,
+        membersLoadErrorCode: roomMenu.loadErrorCode,
         onCloseRoomMenu: roomMenu.closeMenu,
+        onRefreshState: refreshOwnershipState,
+        onOwnerTransferred: applyOwnerTransfer,
     });
 
     const roomInvitation = useChatRoomInvitation({
@@ -91,6 +129,18 @@ export function useChatRoomPageController(
         memberProfilePreview: openMemberProfilePreview,
         onRemoteRoomClosed: openLifecycle.handleRemoteClosed,
     });
+
+    const canInviteOpenById =
+        isOpenRoom &&
+        chatRoom.room?.active === true &&
+        openChat.myProfile.profile?.active === true &&
+        !openChat.isBanned &&
+        !openLifecycle.isRoomClosed;
+    const openIdInvitation = useOpenChatIdInvitation(roomId, canInviteOpenById);
+    const openOpenIdInvitation = useCallback(() => {
+        roomMenu.closeMenu();
+        openIdInvitation.open();
+    }, [openIdInvitation, roomMenu]);
 
     const readStatus = useChatRoomReadStatus({
         roomId,
@@ -371,6 +421,9 @@ export function useChatRoomPageController(
         aiMemberProfilePreview,
         roomMenu,
         roomInvitation,
+        openIdInvitation,
+        canInviteOpenById,
+        openOpenIdInvitation,
         openLifecycle,
         openChat,
         realtime,

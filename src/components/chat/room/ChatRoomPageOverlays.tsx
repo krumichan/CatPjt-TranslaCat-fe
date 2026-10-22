@@ -13,6 +13,7 @@ import { ChatMemberProfilePreviewModal } from "@/components/chat/room/modal/Chat
 import { ChatPartnerProfilePreviewModal } from "@/components/chat/room/modal/ChatPartnerProfilePreviewModal";
 import { ChatRoomInvitationModal } from "@/components/chat/room/modal/ChatRoomInvitationModal";
 import { OpenChatLifecycleDialog } from "@/components/chat/room/modal/OpenChatLifecycleDialog";
+import { OpenChatIdInvitationModal } from "@/components/chat/room/modal/OpenChatIdInvitationModal";
 import type { ChatRoomPageController } from "@/hooks/chat/useChatRoomPageController";
 import type { ChatRoom } from "@/types/chat";
 import { getOpenChatModerationActions } from "@/utils/chat/openChatModeration";
@@ -90,6 +91,10 @@ export function ChatRoomPageOverlays({
                 onOpenModerationAction={openChat.moderation.open}
                 openLifecycleAction={openLifecycle.action}
                 onOpenLifecycle={openLifecycle.openActionDialog}
+                canTransferOwner={openLifecycle.canTransferOwner}
+                onOpenOwnerTransfer={openLifecycle.openTransferDialog}
+                canInviteOpenById={controller.canInviteOpenById}
+                onOpenIdInvitation={controller.openOpenIdInvitation}
                 onOpenInvitation={roomInvitation.openInvitation}
                 onDismissSuccess={roomInvitation.clearSuccess}
             />
@@ -248,6 +253,8 @@ export function ChatRoomPageOverlays({
                 onSubmit={openLifecycle.submit}
                 onAcknowledgeClosed={openLifecycle.acknowledgeClosed}
             />
+
+            <OpenChatIdInvitationModal invitation={controller.openIdInvitation} />
         </>
     );
 }

@@ -5,7 +5,7 @@ export class IdentityError extends Error {
     }
 }
 
-export async function identityRequest<T>(path: string, body?: unknown): Promise<T> {
+export async function identityRequest<T>(path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
     let response: Response;
     try {
         response = await fetch(path, {
@@ -13,6 +13,7 @@ export async function identityRequest<T>(path: string, body?: unknown): Promise<
             headers: { "Content-Type": "application/json" },
             body: body === undefined ? undefined : JSON.stringify(body),
             cache: "no-store",
+            signal,
         });
     } catch {
         throw new IdentityError("AUTH_UNAVAILABLE");

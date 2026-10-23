@@ -1,4 +1,4 @@
-export const PUBLIC_AUTH_PAGES = ["/login", "/register", "/error", "/mobile/sign-in"];
+export const PUBLIC_AUTH_PAGES = ["/login", "/register", "/error", "/mobile/sign-in", "/account-deletion"];
 
 export function stripLocalePrefix(pathname: string, supportedLocales: readonly string[]): string {
     const [, firstSegment, ...remainingSegments] = pathname.split("/");

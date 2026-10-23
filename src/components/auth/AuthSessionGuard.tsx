@@ -11,6 +11,9 @@ import {
 } from "next-auth/react";
 
 import { AUTH_UNAUTHORIZED_EVENT } from "@/lib/authEvents";
+import { usePathname } from "next/navigation";
+import { stripLocalePrefix } from "@/lib/authPolicy";
+import { locales } from "@/i18n/config";
 import {
     isTemporaryAuthError,
     isTerminalAuthError,
@@ -23,6 +26,7 @@ interface AuthSessionGuardProps {
 export default function AuthSessionGuard({
     children,
 }: AuthSessionGuardProps) {
+    const keepDeletionReceipt = stripLocalePrefix(usePathname(), locales) === "/account-deletion";
     const {
         data: session,
         update,
@@ -38,10 +42,12 @@ export default function AuthSessionGuard({
 
         void signOut({
             callbackUrl: "/login",
+            // 탈퇴로 서버 세션이 폐기돼도 공개 영수증 화면은 유지해 처리 상태를 확인하게 한다.
+            redirect: !keepDeletionReceipt,
         }).catch(() => {
             signOutStartedRef.current = false;
         });
-    }, []);
+    }, [keepDeletionReceipt]);
 
     useEffect(() => {
         const handleUnauthorized = () => {

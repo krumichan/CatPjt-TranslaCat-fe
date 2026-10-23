@@ -229,6 +229,7 @@
         "saving": "Saving..."
       }
     },
+    "chatReports": {"title": "Chat reports", "description": "Review chat reports and retained evidence, and manage review status."},
     "chatAi": {
       "title": "Chat AI settings",
       "description": "Manage the maximum AI members, autonomous response rate, REVIVAL and context limits."

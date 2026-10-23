@@ -229,6 +229,7 @@
         "saving": "저장 중..."
       }
     },
+    "chatReports": {"title": "채팅 신고 관리", "description": "접수된 채팅 신고와 보관 기간 내 증거를 검토하고 처리 상태를 관리합니다."},
     "chatAi": {
       "title": "채팅 AI 운영 설정",
       "description": "AI 멤버 최대 인원, 자율 반응률, REVIVAL 및 Context 제한을 관리합니다."

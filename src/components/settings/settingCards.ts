@@ -92,6 +92,15 @@ export const settingCards: SettingCard[] = [
         enabled: true,
     },
     {
+        href: "/settings/admin/chat-reports",
+        titleKey: "chatReports.title",
+        descriptionKey: "chatReports.description",
+        statusKey: "status.available",
+        icon: ShieldCheck,
+        adminOnly: true,
+        enabled: true,
+    },
+    {
         href: "/settings/admin/receipt-ai",
         titleKey: "receiptAi.title",
         descriptionKey: "receiptAi.description",

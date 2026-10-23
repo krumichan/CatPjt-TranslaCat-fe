@@ -93,7 +93,7 @@ function googleHarness({ flow, session, result = { linked: true } }) {
         "@/lib/authPolicy": { sameAuthSession },
         "@/lib/authRouteHelpers": { requireAuthSession: async () => session },
         "@/lib/authFlowCookies": {
-            GOOGLE_FLOW_COOKIE: "flow", GOOGLE_REAUTH_COOKIE: "reauth",
+            GOOGLE_FLOW_COOKIE: "flow", GOOGLE_REAUTH_COOKIE: "reauth", DELETION_REAUTH_COOKIE: "deletion-proof",
             readAuthCookie: async () => flow,
             clearGoogleFlow: () => evidence.cleared++,
             writeAuthCookie: async (_response, name, context) => evidence.writes.push({ name, context }),
@@ -106,6 +106,25 @@ function googleHarness({ flow, session, result = { linked: true } }) {
 
 const linkingFlow = { purpose: "LINK", intentToken: "intent", nonce: "backend-nonce", publicId: "member-1", loginSessionId: "login-1", locale: "ko", oauthState: "state-1", validUntil: Date.now() + 60000 };
 const linkingSession = { accessToken: "existing-access", loginSessionId: "login-1", user: { publicId: "member-1" } };
+
+test("Google deletion reauthentication keeps proof purpose and cookie separate from password setup", async () => {
+    // 준비: 이미 로그인한 동일 계정의 삭제 전용 nonce와 sid를 사용한다.
+    const { evidence, run } = googleHarness({ flow: { ...linkingFlow, purpose: "DELETE_ACCOUNT" }, session: linkingSession,
+        result: { reauthenticationToken: "synthetic-deletion-proof", expiresIn: 300 } });
+
+    // 실행
+    const response = await run();
+
+    // 검증: 기존 로그인 세션은 유지하며 raw Google ID/삭제 증명은 URL이나 JS 응답에 포함하지 않는다.
+    assert.equal(evidence.backendCalls[0][0], "/users/me/deletion-reauthentication/google/complete");
+    assert.equal(evidence.backendCalls[0][2], "existing-access");
+    assert.equal(evidence.writes.length, 1);
+    assert.equal(evidence.writes[0].name, "deletion-proof");
+    assert.equal(evidence.writes[0].context.reauthToken, "synthetic-deletion-proof");
+    assert.equal(response.headers.get("location"), "http://localhost/ko/account-deletion?google=reauthenticated");
+    assert.equal(response.headers.get("location").includes("synthetic-deletion-proof"), false);
+    assert.equal(response.headers.get("location").includes("test-google-id"), false);
+});
 
 test("Google linking calls the protected completion endpoint and preserves OAuth state/PKCE", async () => {
     // 준비

@@ -179,6 +179,8 @@ const isChatMessage = (value: unknown): value is ChatMessage => {
         typeof value.messageType === "string" &&
         typeof value.content === "string" &&
         typeof value.status === "string" &&
+        (value.contentVisibility === undefined || ["VISIBLE", "BLOCKED", "MODERATED"].includes(String(value.contentVisibility))) &&
+        (value.authorDeleted === undefined || typeof value.authorDeleted === "boolean") &&
         isNullableNumberOrUndefined(value.unreadMemberCount) &&
         Array.isArray(value.translations) &&
         value.translations.every(isChatMessageTranslation) &&

@@ -27,7 +27,7 @@ export interface AccountAuthentication {
     reauthenticated?: boolean;
 }
 
-export type GoogleAccountPurpose = "LINK" | "REAUTHENTICATE";
+export type GoogleAccountPurpose = "LINK" | "REAUTHENTICATE" | "DELETE_ACCOUNT";
 
 export interface GoogleAccountIntent {
     intentToken: string;

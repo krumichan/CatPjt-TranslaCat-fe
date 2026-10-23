@@ -46,7 +46,7 @@ export default function middleware(req: NextRequest) {
 
     if (isPublic) {
         const response = intlMiddleware(req);
-        if (purePath === '/mobile/sign-in') {
+        if (purePath === '/mobile/sign-in' || purePath === '/account-deletion') {
             // 앱 승인 화면과 언어 정규화 redirect에만 캐시·referrer·iframe 제한을 적용한다.
             response.headers.set('Cache-Control', 'no-store');
             response.headers.set('Referrer-Policy', 'no-referrer');

@@ -64,6 +64,7 @@ export default function AccountInfoCard({
                 </div>
 
                 <div className="flex flex-wrap gap-2">
+                    <Link href="/account-deletion" className="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-500 dark:border-white/10 dark:text-slate-300">계정 탈퇴·데이터 삭제</Link>
                     <Link
                         href="/settings/account"
                         className="inline-flex items-center justify-center rounded-2xl border border-orange-200 px-4 py-3 text-sm font-bold text-orange-600 dark:border-orange-400/30 dark:text-orange-300"

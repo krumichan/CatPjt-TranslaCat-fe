@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { authOptions } from "@/lib/auth";
 import {
-    clearGoogleFlow, GOOGLE_FLOW_COOKIE, GOOGLE_REAUTH_COOKIE,
+    clearGoogleFlow, GOOGLE_FLOW_COOKIE, GOOGLE_REAUTH_COOKIE, DELETION_REAUTH_COOKIE,
     readAuthCookie, writeAuthCookie,
 } from "@/lib/authFlowCookies";
 import type { GoogleFlowContext, GoogleReauthContext } from "@/lib/authFlowCookies";
@@ -17,7 +17,8 @@ type RouteContext = { params: Promise<{ nextauth: string[] }> };
 
 function accountUrl(request: NextRequest, flow: GoogleFlowContext | null, result: string) {
     const locale = flow && locales.some((item) => item === flow.locale) ? flow.locale : "ko";
-    return new URL(`/${locale}/settings/account?google=${encodeURIComponent(result)}`, process.env.NEXTAUTH_URL ?? request.url);
+    const path = flow?.purpose === "DELETE_ACCOUNT" ? "account-deletion" : "settings/account";
+    return new URL(`/${locale}/${path}?google=${encodeURIComponent(result)}`, process.env.NEXTAUTH_URL ?? request.url);
 }
 
 export async function handleAuthentication(request: NextRequest, context: RouteContext) {
@@ -67,14 +68,16 @@ export async function handleAuthentication(request: NextRequest, context: RouteC
             async signIn({ account }) {
                 if (!account?.id_token || account.provider !== "google") return false;
                 try {
-                    const result = await requestServerAuth<{ linked?: boolean; reauthToken?: string; expiresIn?: number }>(
-                        "/auth/account/google/complete",
+                    const deleting = flow.purpose === "DELETE_ACCOUNT";
+                    const result = await requestServerAuth<{ linked?: boolean; reauthToken?: string; reauthenticationToken?: string; expiresIn?: number }>(
+                        deleting ? "/users/me/deletion-reauthentication/google/complete" : "/auth/account/google/complete",
                         { intentToken: flow.intentToken, idToken: account.id_token }, session!.accessToken,
                     );
-                    if (flow.purpose === "REAUTHENTICATE") {
-                        if (!result.body.reauthToken || !result.body.expiresIn) throw new AuthRequestError("GOOGLE_FLOW_FAILED", 502);
+                    if (flow.purpose === "REAUTHENTICATE" || deleting) {
+                        const proof = deleting ? result.body.reauthenticationToken : result.body.reauthToken;
+                        if (!proof || !result.body.expiresIn) throw new AuthRequestError("GOOGLE_FLOW_FAILED", 502);
                         reauth = {
-                            reauthToken: result.body.reauthToken,
+                            reauthToken: proof,
                             publicId: flow.publicId, loginSessionId: flow.loginSessionId,
                             validUntil: Date.now() + Math.min(result.body.expiresIn, 300) * 1000,
                         };
@@ -109,7 +112,7 @@ export async function handleAuthentication(request: NextRequest, context: RouteC
 
     clearGoogleFlow(response);
     if (completed && reauth) {
-        await writeAuthCookie(response, GOOGLE_REAUTH_COOKIE, reauth, 300);
+        await writeAuthCookie(response, flow.purpose === "DELETE_ACCOUNT" ? DELETION_REAUTH_COOKIE : GOOGLE_REAUTH_COOKIE, reauth, 300);
     }
     // 사용자가 Google에서 취소하거나 OAuth 검증이 실패한 경우에도 설정으로 복귀한다.
     response.headers.set("location", accountUrl(request, flow, completed

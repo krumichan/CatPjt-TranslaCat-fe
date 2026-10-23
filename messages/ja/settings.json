@@ -229,6 +229,7 @@
         "saving": "保存中..."
       }
     },
+    "chatReports": {"title": "チャット通報管理", "description": "チャットの通報と保存期間内の証拠を確認し、対応状況を管理します。"},
     "chatAi": {
       "title": "チャットAI運用設定",
       "description": "AIメンバー最大人数、自律反応率、REVIVAL、Context制限を管理します。"

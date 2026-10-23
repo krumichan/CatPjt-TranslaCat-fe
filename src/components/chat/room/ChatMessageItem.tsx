@@ -2,10 +2,15 @@
 
 import { ChatSenderAvatar } from "@/components/chat/room/ChatSenderAvatar";
 import { ChatTranslationBlock } from "@/components/chat/room/ChatTranslationBlock";
+import { ChatReportDialog } from "@/components/chat/reports/ChatReportDialog";
+import { reportCopy } from "@/features/chat-reports/copy";
+import type { ReportTarget } from "@/features/chat-reports/model";
 import type { ChatAiDisclosureType, ChatLanguageSettings, ChatMessage, } from "@/types/chat";
 import { shouldShowOriginalMessageContent } from "@/utils/chat/chatTranslations";
+import { chatMessageHidden, sanitizeChatMessage } from "@/utils/chat/chatMessagePrivacy";
 import { Bot } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import { useCallback, useState } from "react";
 
 interface ChatMessageItemProps {
     message: ChatMessage;
@@ -36,7 +41,7 @@ function formatMessageTime(value: string, locale: string) {
 }
 
 export function ChatMessageItem({
-    message,
+    message: receivedMessage,
     isMine,
     isOpenRoom,
     aiDisclosureType,
@@ -48,11 +53,16 @@ export function ChatMessageItem({
     onRetryTranslation,
     onRefreshMessages,
 }: ChatMessageItemProps) {
+    const message = sanitizeChatMessage(receivedMessage);
+    const hidden = chatMessageHidden(message);
     const locale = useLocale();
+    const copy = reportCopy(locale);
+    const [reportTarget, setReportTarget] = useState<ReportTarget | null>(null);
+    const closeReport = useCallback(() => setReportTarget(null), [setReportTarget]);
     const tMemberProfile = useTranslations("ChatRoom.memberProfile");
     const tReadStatus = useTranslations("ChatRoom.readStatus");
     const tAiMessage = useTranslations("ChatAi.message");
-    const showOriginalContent = shouldShowOriginalMessageContent(
+    const showOriginalContent = hidden || shouldShowOriginalMessageContent(
         message.translations,
         languageSettings,
     );
@@ -60,11 +70,11 @@ export function ChatMessageItem({
     const isAiMessage = message.senderType === "AI";
     const showAiBadge = isAiMessage && aiDisclosureType === "PUBLIC";
     const showSenderProfile =
-        !isMine &&
+        !isMine && !hidden && !message.authorDeleted &&
         (message.senderType === "USER" || message.senderType === "AI");
     const openSender =
         !isAiMessage && isOpenRoom ? message.sender ?? null : null;
-    const senderDisplayName = isAiMessage
+    const senderDisplayName = message.authorDeleted ? "탈퇴한 사용자" : hidden ? "숨겨진 메시지" : isAiMessage
         ? message.senderName ?? tAiMessage("unknownName")
         : isOpenRoom
           ? openSender?.nickname ?? tMemberProfile("unknownUser")
@@ -85,6 +95,17 @@ export function ChatMessageItem({
         message.senderType !== "SYSTEM" &&
         message.messageType !== "SYSTEM" &&
         unreadMemberCount > 0;
+
+    // 숨긴 내용·시스템·탈퇴 작성자는 신고 진입에 재노출하지 않는다. OPEN 대상은 방 안의 멤버 ID만 사용한다.
+    const reportable = !isMine && !hidden && !message.authorDeleted && message.status !== "DELETED"
+        && message.senderType !== "SYSTEM" && message.messageType !== "SYSTEM";
+    const memberTarget: ReportTarget | null = reportable && message.senderType === "USER"
+        ? isOpenRoom && openSender?.openChatMemberId
+            ? { roomId: message.chatRoomId, targetType: "MEMBER", targetOpenChatMemberId: openSender.openChatMemberId, displayName: senderDisplayName }
+            : !isOpenRoom && message.senderUserId
+                ? { roomId: message.chatRoomId, targetType: "MEMBER", targetUserId: message.senderUserId, displayName: senderDisplayName }
+                : null
+        : null;
 
     return (
         <div
@@ -152,7 +173,7 @@ export function ChatMessageItem({
                             </p>
                         )}
 
-                        <ChatTranslationBlock
+                        {!hidden && <ChatTranslationBlock
                             messageId={message.id}
                             translations={message.translations}
                             isMine={isMine}
@@ -163,7 +184,7 @@ export function ChatMessageItem({
                             }
                             onRetryTranslation={onRetryTranslation}
                             onRefreshMessages={onRefreshMessages}
-                        />
+                        />}
                     </div>
 
                     {(showUnreadMemberCount || messageTime) && (
@@ -195,7 +216,14 @@ export function ChatMessageItem({
                         </div>
                     )}
                 </div>
+                {reportable && (
+                    <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 px-1 text-[11px] text-slate-500 dark:text-slate-400">
+                        <button type="button" data-testid={`chat-report-message-${message.id}`} onClick={() => setReportTarget({ roomId: message.chatRoomId, targetType: "MESSAGE", messageId: message.id, displayName: senderDisplayName })} className="min-h-7 underline-offset-2 hover:underline">{copy.message}</button>
+                        {memberTarget && <button type="button" data-testid={`chat-report-member-${message.id}`} onClick={() => setReportTarget(memberTarget)} className="min-h-7 underline-offset-2 hover:underline">{copy.member}</button>}
+                    </div>
+                )}
             </div>
+            {reportTarget && reportable && <ChatReportDialog target={reportTarget} onClose={closeReport} />}
         </div>
     );
 }

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { chatService } from "@/services/chat/chatService";
+import { chatMessageHidden, sanitizeChatMessage } from "@/utils/chat/chatMessagePrivacy";
 import type {
     ChatMessage,
     ChatMessageTranslation,
@@ -82,7 +83,7 @@ function sortMessagesById(messages: ChatMessage[]) {
      * Do not use createdAt for ordering: timestamps can cross runtime
      * time-zone boundaries while IDs remain monotonic within the room.
      */
-    return [...messages].sort((a, b) => a.id - b.id);
+    return messages.map(sanitizeChatMessage).sort((a, b) => a.id - b.id);
 }
 
 const mergeTranslation = (
@@ -140,7 +141,8 @@ const mergeMessagesWithoutDuplicates = (
 ): ChatMessage[] => {
     const messageById = new Map<number, ChatMessage>();
 
-    for (const message of sortMessagesById(messages)) {
+    for (const raw of sortMessagesById(messages)) {
+        const message = sanitizeChatMessage(raw);
         const previous = messageById.get(message.id);
 
         messageById.set(
@@ -149,7 +151,7 @@ const mergeMessagesWithoutDuplicates = (
                 ? {
                       ...previous,
                       ...message,
-                      translations: mergeTranslationsWithoutDuplicates([
+                      translations: chatMessageHidden(message) ? [] : mergeTranslationsWithoutDuplicates([
                           ...previous.translations,
                           ...message.translations,
                       ]),
@@ -167,7 +169,7 @@ const mergeMessageTranslation = (
     translation: ChatMessageTranslation,
 ): ChatMessage[] =>
     messages.map((message) => {
-        if (message.id !== messageId) {
+        if (message.id !== messageId || chatMessageHidden(message)) {
             return message;
         }
 

@@ -5,6 +5,7 @@ import type { GoogleAccountPurpose } from "@/types/auth";
 
 export const GOOGLE_FLOW_COOKIE = "translacat.google-account-flow";
 export const GOOGLE_REAUTH_COOKIE = "translacat.google-reauth";
+export const DELETION_REAUTH_COOKIE = "translacat.deletion-reauth";
 
 export interface GoogleFlowContext {
     purpose: GoogleAccountPurpose;

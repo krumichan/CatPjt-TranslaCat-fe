@@ -406,6 +406,8 @@ export interface ChatMessageTranslation {
 }
 
 export interface ChatMessage {
+    contentVisibility?: "VISIBLE" | "BLOCKED" | "MODERATED";
+    authorDeleted?: boolean;
     id: number;
     chatRoomId: number;
     senderUserId: number | null;

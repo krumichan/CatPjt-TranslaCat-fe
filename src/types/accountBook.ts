@@ -340,6 +340,7 @@ export type AccountBookMonthlyGoalRequest = {
 };
 
 export type AccountBookRankingChartItem = {
+    groupKey?: string | null;
     name: string;
     amount: number | string;
     transactionCount: number;
@@ -414,6 +415,11 @@ export type AccountBookTransactionListRequest = {
     size: number;
     type?: TransactionType;
     keyword?: string;
+    chartFilter?: {
+        type: "CATEGORY" | "STORE";
+        keys: (string | null)[];
+        exclude?: boolean;
+    };
 };
 
 export type AccountBookTransactionListResponse = {

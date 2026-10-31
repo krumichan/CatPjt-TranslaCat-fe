@@ -15,10 +15,13 @@ import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 type TransactionListProps = {
     transactions: AccountBookTransaction[];
     currencyCode: CurrencyCode;
-    onClickEditTransaction: (transaction: AccountBookTransaction) => void;
+    onClickEditTransaction?: (transaction: AccountBookTransaction) => void;
     onClickDetailTransaction: (transaction: AccountBookTransaction) => void;
-    onClickDeleteTransaction: (transaction: AccountBookTransaction) => void;
+    onClickDeleteTransaction?: (transaction: AccountBookTransaction) => void;
     isLoading?: boolean;
+    totalElements?: number;
+    viewMode?: TransactionViewMode;
+    onChangeViewMode?: (mode: TransactionViewMode) => void;
 
     page: number;
     totalPages: number;
@@ -32,14 +35,18 @@ export default function TransactionList({
     onClickDetailTransaction,
     onClickDeleteTransaction,
     isLoading = false,
+    totalElements,
+    viewMode: controlledViewMode,
+    onChangeViewMode,
     page,
     totalPages,
     onChangePage,
 }: TransactionListProps) {
     const t = useTranslations("AccountBook.detail.transactionList");
 
-    const [viewMode, setViewMode] =
+    const [localViewMode, setLocalViewMode] =
         useState<TransactionViewMode>("CARD");
+    const viewMode = controlledViewMode ?? localViewMode;
 
     if (isLoading && transactions.length === 0) {
         return (
@@ -72,13 +79,13 @@ export default function TransactionList({
                         <GuideHelpLink topic="account-books/transactions" />
                     </div>
                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        {t("count", { count: transactions.length })}
+                        {t("count", { count: totalElements ?? transactions.length })}
                     </p>
                 </div>
 
                 <TransactionViewToggle
                     viewMode={viewMode}
-                    onChangeViewMode={setViewMode}
+                    onChangeViewMode={onChangeViewMode ?? setLocalViewMode}
                     t={t}
                 />
             </div>

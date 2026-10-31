@@ -74,6 +74,8 @@ export default function AccountBookDetailSummarySmartSection({
 
             <div className="mt-6 mb-6 grid gap-6 lg:grid-cols-2">
                 <ExpenseRankingChart
+                    key={`category-${accountBookId}-${selectedMonth}`}
+                    accountBookId={accountBookId}
                     type="CATEGORY"
                     chart={categoryChart}
                     currencyCode={currencyCode}
@@ -81,6 +83,8 @@ export default function AccountBookDetailSummarySmartSection({
                 />
 
                 <ExpenseRankingChart
+                    key={`store-${accountBookId}-${selectedMonth}`}
+                    accountBookId={accountBookId}
                     type="STORE"
                     chart={storeChart}
                     currencyCode={currencyCode}

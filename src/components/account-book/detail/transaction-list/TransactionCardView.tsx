@@ -11,9 +11,9 @@ import {
 type TransactionCardViewProps = {
     transactions: AccountBookTransaction[];
     currencyCode: CurrencyCode;
-    onClickEditTransaction: (transaction: AccountBookTransaction) => void;
+    onClickEditTransaction?: (transaction: AccountBookTransaction) => void;
     onClickDetailTransaction: (transaction: AccountBookTransaction) => void;
-    onClickDeleteTransaction: (transaction: AccountBookTransaction) => void;
+    onClickDeleteTransaction?: (transaction: AccountBookTransaction) => void;
 };
 
 export default function TransactionCardView({

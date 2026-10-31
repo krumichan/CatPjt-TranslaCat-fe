@@ -1,6 +1,8 @@
 import { formatReceiptAmount, formatExchangeRate } from "@/utils/account-book/formatAmount";
 import TransactionDetailRow from "../TransactionDetailRow";
 import { createPortal } from "react-dom";
+import { useRef } from "react";
+import { useModalFocusTrap } from "@/hooks/useModalFocusTrap";
 import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useAmountFormatter } from "@/components/account-book/AccountBookCurrencyProvider";
@@ -11,10 +13,12 @@ type Props = {
     transaction: AccountBookTransaction;
     currencyCode: CurrencyCode;
     onClose: () => void;
-    onEdit: (transaction: AccountBookTransaction) => void;
+    onEdit?: (transaction: AccountBookTransaction) => void;
 };
 
 export default function TransactionDetailModal({ transaction, currencyCode, onClose, onEdit }: Props) {
+    const dialogRef = useRef<HTMLElement>(null);
+    useModalFocusTrap(true, dialogRef, onClose);
     const t = useTranslations("AccountBook.detail.transactionDetail");
     const receiptT = useTranslations("AccountBook.detail.transactionModal.receipt.review");
     const formatAmount = useAmountFormatter();
@@ -30,6 +34,7 @@ export default function TransactionDetailModal({ transaction, currencyCode, onCl
                 className="fixed inset-0 bg-black/50 backdrop-blur-sm"
             />
             <section
+                ref={dialogRef}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="transaction-detail-title"
@@ -190,13 +195,13 @@ export default function TransactionDetailModal({ transaction, currencyCode, onCl
                     >
                         {t("close")}
                     </button>
-                    <button
+                    {onEdit && <button
                         type="button"
                         onClick={() => onEdit(transaction)}
                         className="rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white"
                     >
                         {t("edit")}
-                    </button>
+                    </button>}
                 </footer>
             </section>
         </div>,

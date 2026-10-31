@@ -116,11 +116,17 @@ export const accountBookTransactionService = {
         return data.body ?? [];
     },
     async listTransactions(accountBookId: number, request: AccountBookTransactionListRequest): Promise<AccountBookTransactionListResponse> {
+        // 차트 조회는 서버 PageableDto의 1부터 시작하는 중첩 페이지 계약에 맞춘다.
+        const { page, size, ...filters } = request;
+        const body = request.chartFilter
+            ? { ...filters, pagination: { page: page + 1, size, pagingYn: true } }
+            : request;
+
         const response = await apiClient(
             `/account-books/${accountBookId}/transactions`,
             {
                 method: "POST",
-                body: JSON.stringify(request),
+                body: JSON.stringify(body),
             }
         );
         if (!response.ok) {

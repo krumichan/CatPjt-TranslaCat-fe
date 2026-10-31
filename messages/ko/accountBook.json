@@ -396,6 +396,14 @@
         }
       },
       "rankingChart": {
+        "transactions": {
+          "open": "{name} 거래 내역 보기",
+          "title": "{name} · 거래 내역",
+          "summary": "{period} · {amount} · 전체 지출의 {percentage}%",
+          "close": "거래 내역 닫기",
+          "loadFailed": "거래 내역을 불러오지 못했습니다.",
+          "retry": "다시 시도"
+        },
         "period": {
           "all": "전체 기간",
           "month": "{year}년 {month}월"

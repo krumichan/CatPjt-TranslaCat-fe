@@ -19,7 +19,7 @@ type TransactionListItemProps = {
     currencyCode: CurrencyCode;
     onClickEditTransaction?: (transaction: AccountBookTransaction) => void;
     onClickDetailTransaction: (transaction: AccountBookTransaction) => void;
-    onClickDeleteTransaction: (transaction: AccountBookTransaction) => void;
+    onClickDeleteTransaction?: (transaction: AccountBookTransaction) => void;
 };
 
 export default function TransactionListItem({
@@ -108,14 +108,14 @@ export default function TransactionListItem({
                     </button>
                 )}
 
-                <button
+                {onClickDeleteTransaction && <button
                     type="button"
                     onClick={() => onClickDeleteTransaction(transaction)}
                     className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10 dark:hover:text-red-300"
                     aria-label={t("actions.deleteAria")}
                 >
                     <Trash2 size={15} />
-                </button>
+                </button>}
             </div>
         </div>
     );

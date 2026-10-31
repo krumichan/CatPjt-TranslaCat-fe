@@ -11,9 +11,9 @@ import TransactionConversionDetails from "@/components/account-book/detail/Trans
 type TransactionTableViewProps = {
     transactions: AccountBookTransaction[];
     currencyCode: CurrencyCode;
-    onClickEditTransaction: (transaction: AccountBookTransaction) => void;
+    onClickEditTransaction?: (transaction: AccountBookTransaction) => void;
     onClickDetailTransaction: (transaction: AccountBookTransaction) => void;
-    onClickDeleteTransaction: (transaction: AccountBookTransaction) => void;
+    onClickDeleteTransaction?: (transaction: AccountBookTransaction) => void;
     t: ReturnType<typeof useTranslations>;
 };
 
@@ -140,21 +140,21 @@ export default function TransactionTableView({
                                             className="inline-flex items-center justify-center rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-500 transition hover:border-orange-300 hover:bg-orange-50 hover:text-orange-500 dark:border-white/10 dark:text-slate-400">
                                             {t("actions.detail")}
                                         </button>
-                                        <button
+                                        {onClickEditTransaction && <button
                                             type="button"
                                             onClick={() => onClickEditTransaction(transaction)}
                                             className="inline-flex items-center justify-center rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-500 transition hover:border-orange-300 hover:bg-orange-50 hover:text-orange-500 dark:border-white/10 dark:text-slate-400 dark:hover:border-orange-400/60 dark:hover:bg-orange-500/10 dark:hover:text-orange-400"
                                         >
                                             {t("actions.edit")}
-                                        </button>
+                                        </button>}
 
-                                        <button
+                                        {onClickDeleteTransaction && <button
                                             type="button"
                                             onClick={() => onClickDeleteTransaction(transaction)}
                                             className="inline-flex items-center justify-center rounded-lg border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs font-semibold text-red-500 transition hover:border-red-300 hover:bg-red-100 hover:text-red-600 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300 dark:hover:border-red-400/60 dark:hover:bg-red-500/20 dark:hover:text-red-200"
                                         >
                                             {t("actions.delete")}
-                                        </button>
+                                        </button>}
                                     </div>
                                 </td>
                             </tr>

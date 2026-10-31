@@ -396,6 +396,14 @@
         }
       },
       "rankingChart": {
+        "transactions": {
+          "open": "View transactions for {name}",
+          "title": "{name} · Transactions",
+          "summary": "{period} · {amount} · {percentage}% of total expenses",
+          "close": "Close transactions",
+          "loadFailed": "Could not load transactions.",
+          "retry": "Try again"
+        },
         "period": {
           "all": "All time",
           "month": "{month}/{year}"

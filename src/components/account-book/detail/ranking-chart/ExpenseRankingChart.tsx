@@ -2,12 +2,13 @@
 
 import ExpenseRankingChartTooltip from "@/components/account-book/detail/ranking-chart/ExpenseRankingChartTooltip";
 import RankingChartMessageCard from "@/components/account-book/detail/ranking-chart/RankingChartMessageCard";
+import ExpenseRankingTransactionsModal from "@/components/account-book/detail/ranking-chart/ExpenseRankingTransactionsModal";
+import { useCallback, useState } from "react";
 import type {
-    AccountBookRankingChartItem,
     AccountBookRankingChartResponse,
     CurrencyCode,
 } from "@/types/accountBook";
-import { buildPieChartItems } from "@/utils/account-book/expenseRanking";
+import { buildPieChartSelections, type ExpenseRankingSelection } from "@/utils/account-book/expenseRanking";
 import { decimalToUnits } from "@/utils/account-book/decimalMoney";
 import { useAmountFormatter } from "@/components/account-book/AccountBookCurrencyProvider";
 import { useTranslations } from "next-intl";
@@ -16,6 +17,7 @@ import { Pie, PieChart, ResponsiveContainer, Sector, Tooltip } from "recharts";
 type ExpenseRankingChartType = "CATEGORY" | "STORE";
 
 type ExpenseRankingChartProps = {
+    accountBookId: number;
     type: ExpenseRankingChartType;
     chart?: AccountBookRankingChartResponse;
     currencyCode: CurrencyCode;
@@ -34,12 +36,13 @@ const PIE_COLORS = [
     "#f472b6",
 ];
 
-type PieChartItem = AccountBookRankingChartItem & {
+type PieChartItem = ExpenseRankingSelection & {
     color: string;
     plotAmount: number;
 };
 
 export default function ExpenseRankingChart({
+    accountBookId,
     type,
     chart,
     currencyCode,
@@ -48,6 +51,8 @@ export default function ExpenseRankingChart({
 }: ExpenseRankingChartProps) {
     const formatAmount = useAmountFormatter();
     const t = useTranslations("AccountBook.detail.rankingChart");
+    const [selection, setSelection] = useState<ExpenseRankingSelection | null>(null);
+    const closeTransactions = useCallback(() => setSelection(null), []);
 
     const typeKey = type === "CATEGORY" ? "category" : "store";
     const title = t(`${typeKey}.title`);
@@ -89,7 +94,7 @@ export default function ExpenseRankingChart({
         );
     }
 
-    const chartItems: PieChartItem[] = buildPieChartItems(
+    const chartItems: PieChartItem[] = buildPieChartSelections(
         chart.items,
         chart.totalAmount,
         maxItems,
@@ -167,11 +172,16 @@ export default function ExpenseRankingChart({
 
                 <div className="min-w-0 space-y-2">
                     {chartItems.map((item) => (
-                        <div
-                            key={item.name}
-                            className="flex min-w-0 flex-wrap items-center justify-between gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5"
+                        <button
+                            type="button"
+                            key={JSON.stringify(item.groupKeys)}
+                            onClick={() => setSelection(item)}
+                            aria-label={t("transactions.open", { name: item.name })}
+                            aria-haspopup="dialog"
+                            data-testid={`ranking-${type.toLowerCase()}-item`}
+                            className="flex w-full min-w-0 flex-wrap items-center justify-between gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-left text-sm transition hover:border-orange-300 hover:bg-orange-50 focus-visible:outline-2 focus-visible:outline-orange-500 dark:border-white/10 dark:bg-white/5 dark:hover:border-orange-400/60 dark:hover:bg-orange-500/10"
                         >
-                            <div className="flex min-w-0 max-w-full items-center gap-2">
+                            <span className="flex min-w-0 max-w-full items-center gap-2">
                                 <span
                                     className="h-2.5 w-2.5 shrink-0 rounded-full"
                                     style={{ backgroundColor: item.color }}
@@ -179,20 +189,25 @@ export default function ExpenseRankingChart({
                                 <span className="truncate font-semibold text-slate-700 dark:text-slate-200">
                                     {item.name}
                                 </span>
-                            </div>
+                            </span>
 
-                            <div className="ml-auto min-w-0 max-w-full break-all text-right">
-                                <p className="font-bold text-slate-900 dark:text-white">
+                            <span className="ml-auto min-w-0 max-w-full break-all text-right">
+                                <span className="block font-bold text-slate-900 dark:text-white">
                                     {item.percentage}%
-                                </p>
-                                <p className="text-xs text-slate-500 dark:text-slate-400">
+                                </span>
+                                <span className="block text-xs text-slate-500 dark:text-slate-400">
                                     {formatAmount(item.amount, currencyCode)}
-                                </p>
-                            </div>
-                        </div>
+                                </span>
+                            </span>
+                        </button>
                     ))}
                 </div>
             </div>
+            {selection && (
+                <ExpenseRankingTransactionsModal accountBookId={accountBookId} type={type}
+                    selection={selection} year={chart.year} month={chart.month}
+                    currencyCode={currencyCode} onClose={closeTransactions} />
+            )}
         </section>
     );
 }

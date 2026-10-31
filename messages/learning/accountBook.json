@@ -396,6 +396,14 @@
         }
       },
       "rankingChart": {
+        "transactions": {
+          "open": "{name}の取引履歴を見る",
+          "title": "{name} · 取引履歴",
+          "summary": "{period} · {amount} · 総支出の{percentage}%",
+          "close": "取引履歴を閉じる",
+          "loadFailed": "取引履歴を読み込めませんでした。",
+          "retry": "再試行"
+        },
         "period": {
           "all": "全期間",
           "month": "{year}年{month}月"

@@ -7,6 +7,7 @@ import AccountBookSummaryCards from "@/components/account-book/detail/AccountBoo
 import AccountBookExpenseGoalCard from "@/components/account-book/detail/AccountBookExpenseGoalCard";
 import MonthlyExpenseChart from "@/components/account-book/detail/monthly-chart/MonthlyExpenseChart";
 import ExpenseRankingChart from "@/components/account-book/detail/ranking-chart/ExpenseRankingChart";
+import AccountBookSpendingAnalysisSmartSection from "@/components/account-book/detail/spending-analysis/AccountBookSpendingAnalysisSmartSection";
 
 type AccountBookDetailSummarySmartSectionProps = {
     accountBookId: number;
@@ -91,6 +92,8 @@ export default function AccountBookDetailSummarySmartSection({
                     isLoading={isStoreChartLoading}
                 />
             </div>
+            <AccountBookSpendingAnalysisSmartSection key={accountBookId} accountBookId={accountBookId}
+                selectedMonth={selectedMonth} currencyCode={currencyCode} />
         </>
     );
 }

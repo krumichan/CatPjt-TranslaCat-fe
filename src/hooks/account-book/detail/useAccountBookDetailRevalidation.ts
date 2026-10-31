@@ -106,6 +106,8 @@ export function useAccountBookDetailRevalidation({
             revalidateCategoryOptions(),
             revalidateStoreOptions(),
             revalidateCharts(),
+            // 거래 변경 뒤에는 저비용 지문만 갱신하고 AI 분석을 자동 재실행하지 않는다.
+            mutate((key) => isAccountBookKey(key, "account-book-spending-analysis-snapshot", accountBookId)),
         ]);
     };
 

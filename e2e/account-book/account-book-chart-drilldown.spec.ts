@@ -78,6 +78,7 @@ async function mockCharts(page: Page, options: { failFirstChartRequest?: boolean
             case "": body = [book]; break;
             case "/1": body = book; break;
             case "/1/summary": body = { ...book, accountBookId: 1 }; break;
+            case "/1/spending-analysis/snapshot": body = { snapshotFingerprint: "graph-fixture-stable", transactionCount: 21, totalExpense: "55000" }; break;
             case "/1/categories": body = categoryNames.slice(0, -1).map((name, index) => ({ id: index + 1, accountBookId: 1, name, active: true, displayOrder: index })); break;
             case "/1/transactions/months": body = [
                 { value: "2026-10", label: "2026년 10월", year: 2026, month: 10, currentMonth: true },

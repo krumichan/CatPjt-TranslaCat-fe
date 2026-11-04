@@ -1,9 +1,13 @@
 import type { AccountBookTransaction, CurrencyCode } from "./accountBook";
 
 export type SpendingAnalysisPeriod = {
-    periodType: "MONTHLY" | "YEARLY";
+    periodType: "MONTHLY" | "QUARTERLY" | "HALF_YEARLY" | "YEARLY" | "CUSTOM";
     year: number;
     month?: number;
+    quarter?: number;
+    half?: number;
+    startDate?: string;
+    endDate?: string;
 };
 
 export type SpendingAnalysisRequest = SpendingAnalysisPeriod & {
@@ -26,6 +30,19 @@ export type SpendingAnalysisFinding = {
     uncertainty: string | null;
     evidenceAmount: string;
     evidenceTransactions: AccountBookTransaction[];
+    opinion?: string | null;
+    historicalTransactions?: AccountBookTransaction[];
+    savings?: SpendingSavingsScenario | null;
+    savingsTransactions?: AccountBookTransaction[];
+};
+
+export type SpendingSavingsScenario = {
+    basisAmount?: string;
+    lower: string; estimate: string; upper: string;
+    grossReduction: string; replacementCost: string;
+    reductionLowBps: number; reductionHighBps: number;
+    replacementLowBps: number; replacementHighBps: number;
+    kind: string; assumption: string;
 };
 
 export type SpendingAnalysisResponse = {
@@ -49,4 +66,13 @@ export type SpendingAnalysisResponse = {
     contextComment: string | null;
     generatedAt: string;
     snapshotFingerprint: string;
+    analysisId?: string;
+    quarter?: number | null;
+    half?: number | null;
+    policyVersion?: string;
+    savings?: SpendingSavingsScenario | null;
 };
+
+export type SpendingAnalysisHistoryItem = Pick<SpendingAnalysisResponse,
+    "analysisId" | "periodType" | "periodStart" | "periodEndExclusive" | "currencyCode" | "totalExpense" | "summary" | "contextComment" | "generatedAt" | "policyVersion" | "savings">;
+export type SpendingAnalysisHistoryPage = { items: SpendingAnalysisHistoryItem[]; total: number; page: number; size: number };

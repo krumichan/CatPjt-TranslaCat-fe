@@ -1,6 +1,6 @@
 import { apiClient } from "@/lib/apiClient";
 import type { ResponseDto } from "@/types/common";
-import type { SpendingAnalysisPeriod, SpendingAnalysisRequest, SpendingAnalysisResponse, SpendingAnalysisSnapshot } from "@/types/accountBookAnalysis";
+import type { SpendingAnalysisPeriod, SpendingAnalysisRequest, SpendingAnalysisResponse, SpendingAnalysisSnapshot, SpendingAnalysisHistoryPage } from "@/types/accountBookAnalysis";
 
 export class SpendingAnalysisError extends Error {
     constructor(public readonly status: number) {
@@ -12,10 +12,24 @@ export class SpendingAnalysisError extends Error {
 export const accountBookSpendingAnalysisService = {
     async snapshot(accountBookId: number, period: SpendingAnalysisPeriod, signal?: AbortSignal): Promise<SpendingAnalysisSnapshot> {
         const params = new URLSearchParams({ periodType: period.periodType, year: String(period.year) });
-        if (period.periodType === "MONTHLY" && period.month) params.set("month", String(period.month));
+        for (const key of ["month", "quarter", "half", "startDate", "endDate"] as const) {
+            if (period[key] !== undefined) params.set(key, String(period[key]));
+        }
         const response = await apiClient(`/account-books/${accountBookId}/spending-analysis/snapshot?${params}`, { signal });
         if (!response.ok) throw new SpendingAnalysisError(response.status);
         return ((await response.json()) as ResponseDto<SpendingAnalysisSnapshot>).body;
+    },
+
+    async history(accountBookId: number, page = 0): Promise<SpendingAnalysisHistoryPage> {
+        const response = await apiClient(`/account-books/${accountBookId}/spending-analysis/history?page=${page}&size=10`);
+        if (!response.ok) throw new SpendingAnalysisError(response.status);
+        return ((await response.json()) as ResponseDto<SpendingAnalysisHistoryPage>).body;
+    },
+
+    async saved(accountBookId: number, analysisId: string, signal: AbortSignal): Promise<SpendingAnalysisResponse> {
+        const response = await apiClient(`/account-books/${accountBookId}/spending-analysis/history/${encodeURIComponent(analysisId)}`, { signal });
+        if (!response.ok) throw new SpendingAnalysisError(response.status);
+        return ((await response.json()) as ResponseDto<SpendingAnalysisResponse>).body;
     },
 
     async analyze(accountBookId: number, request: SpendingAnalysisRequest, signal: AbortSignal): Promise<SpendingAnalysisResponse> {

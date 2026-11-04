@@ -76,3 +76,25 @@ test("analysis range labels respect exclusive bounds across leap days and year b
     assert.equal(inclusiveAnalysisEnd("2027-01-01"), "2026-12-31");
     assert.equal(inclusiveAnalysisEnd("invalid"), "invalid");
 });
+
+test("custom ranges use inclusive calendar-month boundaries, including short February", () => {
+    // 준비 / 실행 / 검증
+    const values = { startValue: "2026-01-31", endValue: "2026-02-27" };
+    assert.deepEqual(parseAnalysisPeriod("CUSTOM", "", "", values), { periodType: "CUSTOM", year: 2026, startDate: "2026-01-31", endDate: "2026-02-27" });
+    assert.equal(parseAnalysisPeriod("CUSTOM", "", "", { ...values, endValue: "2026-02-26" }), null);
+    assert.equal(parseAnalysisPeriod("CUSTOM", "", "", { ...values, endValue: "2026-02-30" }), null);
+    assert.equal(parseAnalysisPeriod("CUSTOM", "", "", { ...values, endValue: "2025-12-31" }), null);
+});
+
+test("quarter and half requests reject stray calendar values and have distinct identities", () => {
+    // 준비 / 실행
+    const quarter = parseAnalysisPeriod("QUARTERLY", "2026-10", "2026", { quarterValue: "4" });
+    const half = parseAnalysisPeriod("HALF_YEARLY", "2026-10", "2026", { halfValue: "2" });
+
+    // 검증
+    assert.deepEqual(quarter, { periodType: "QUARTERLY", year: 2026, quarter: 4 });
+    assert.deepEqual(half, { periodType: "HALF_YEARLY", year: 2026, half: 2 });
+    assert.notEqual(analysisScopeKey(1, quarter, "ko"), analysisScopeKey(1, half, "ko"));
+    assert.equal(parseAnalysisPeriod("QUARTERLY", "", "2026", { quarterValue: "5" }), null);
+    assert.equal(parseAnalysisPeriod("HALF_YEARLY", "", "2026", { halfValue: "0" }), null);
+});

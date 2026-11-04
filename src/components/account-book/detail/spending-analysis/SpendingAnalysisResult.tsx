@@ -2,8 +2,9 @@ import { useLocale, useTranslations } from "next-intl";
 import type { SpendingAnalysisFinding, SpendingAnalysisResponse } from "@/types/accountBookAnalysis";
 import { analysisLocale, inclusiveAnalysisEnd } from "@/utils/account-book/spendingAnalysis";
 import SpendingAnalysisFindingCard from "./SpendingAnalysisFindingCard";
+import SpendingAnalysisSavings from "./SpendingAnalysisSavings";
 
-type Props = { result: SpendingAnalysisResponse; stale: boolean; snapshotVerified: boolean; onOpenEvidence: (finding: SpendingAnalysisFinding) => void };
+type Props = { result: SpendingAnalysisResponse; stale: boolean; snapshotVerified: boolean; onOpenEvidence: (finding: SpendingAnalysisFinding, historical?: boolean) => void };
 
 export default function SpendingAnalysisResult({ result, stale, snapshotVerified, onOpenEvidence }: Props) {
     const t = useTranslations("AccountBook.detail.spendingAnalysis");
@@ -30,6 +31,7 @@ export default function SpendingAnalysisResult({ result, stale, snapshotVerified
                 {t("partialCoverage", { analyzed: new Intl.NumberFormat(locale).format(result.coverage.analyzedTransactionCount), total: new Intl.NumberFormat(locale).format(result.coverage.totalTransactionCount) })}
             </p>}
             <p className="break-words text-sm leading-relaxed text-slate-700 dark:text-slate-200">{result.summary}</p>
+            {result.savings && <SpendingAnalysisSavings savings={result.savings} currencyCode={result.currencyCode} total />}
             <div className={`grid min-w-0 gap-3 ${result.findings.length > 1 ? "md:grid-cols-2" : ""}`}>
                 {result.findings.map(finding => <SpendingAnalysisFindingCard key={finding.id} finding={finding} currencyCode={result.currencyCode} onOpenEvidence={onOpenEvidence} />)}
             </div>

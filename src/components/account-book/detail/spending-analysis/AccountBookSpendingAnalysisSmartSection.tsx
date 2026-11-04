@@ -10,9 +10,10 @@ import type { SpendingAnalysisFinding, SpendingAnalysisResponse } from "@/types/
 import SpendingAnalysisPeriodControls from "./SpendingAnalysisPeriodControls";
 import SpendingAnalysisResult from "./SpendingAnalysisResult";
 import SpendingAnalysisEvidenceModal from "./SpendingAnalysisEvidenceModal";
+import SpendingAnalysisHistory from "./SpendingAnalysisHistory";
 
 type Props = { accountBookId: number; selectedMonth: string; currencyCode: CurrencyCode };
-type EvidenceSelection = { finding: SpendingAnalysisFinding; result: SpendingAnalysisResponse };
+type EvidenceSelection = { finding: SpendingAnalysisFinding; result: SpendingAnalysisResponse; historical: boolean };
 
 export default function AccountBookSpendingAnalysisSmartSection({ accountBookId, selectedMonth, currencyCode }: Props) {
     const t = useTranslations("AccountBook.detail.spendingAnalysis");
@@ -30,8 +31,8 @@ export default function AccountBookSpendingAnalysisSmartSection({ accountBookId,
         observer.observe(element);
         return () => observer.disconnect();
     }, []);
-    const openEvidence = (finding: SpendingAnalysisFinding) => {
-        if (analysis.result) setEvidence({ finding, result: analysis.result });
+    const openEvidence = (finding: SpendingAnalysisFinding, historical = false) => {
+        if (analysis.result) setEvidence({ finding, result: analysis.result, historical });
     };
 
     return (
@@ -73,15 +74,18 @@ export default function AccountBookSpendingAnalysisSmartSection({ accountBookId,
                         <button type="button" onClick={() => void analysis.run()} disabled={!analysis.period || analysis.isPending || analysis.snapshot?.transactionCount === 0}
                             className="flex max-w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 py-3 text-sm font-semibold text-white hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50" data-testid="spending-analysis-run">
                             {analysis.isPending && <LoaderCircle size={16} className="animate-spin" aria-hidden="true" />}
-                            {t(analysis.isPending ? "analyzing" : analysis.result ? "reanalyze" : "analyze")}
+                            {t(analysis.isLoadingSaved ? "historyLoadingResult" : analysis.isPending ? "analyzing" : analysis.result ? "reanalyze" : "analyze")}
                         </button>
                     </div>
                 </div>
-                {analysis.isPending && <p role="status" className="mt-2 text-sm text-slate-500 dark:text-slate-400">{t("analyzingNotice")}</p>}
+                {analysis.isPending && <p role="status" className="mt-2 text-sm text-slate-500 dark:text-slate-400">{t(analysis.isLoadingSaved ? "historyLoadingResult" : "analyzingNotice")}</p>}
             </div>
             {evidence && <AccountBookCurrencyProvider currencyCode={evidence.result.currencyCode} decimalPlaces={evidence.result.decimalPlaces}>
-                <SpendingAnalysisEvidenceModal finding={evidence.finding} currencyCode={evidence.result.currencyCode} generatedAt={evidence.result.generatedAt} onClose={closeEvidence} />
+                <SpendingAnalysisEvidenceModal finding={evidence.finding} historical={evidence.historical} currencyCode={evidence.result.currencyCode} generatedAt={evidence.result.generatedAt} onClose={closeEvidence} />
             </AccountBookCurrencyProvider>}
+            <SpendingAnalysisHistory history={analysis.history} page={analysis.historyPage} loading={analysis.historyLoading}
+                error={analysis.historyError} busy={analysis.isPending} onPage={analysis.changeHistoryPage}
+                onOpen={id => { closeEvidence(); void analysis.loadSaved(id); }} onRetry={analysis.retryHistory} />
         </section>
     );
 }

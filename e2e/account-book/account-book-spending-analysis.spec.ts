@@ -11,21 +11,28 @@ function evidenceTransaction(request: SpendingAnalysisRequest, accountBookId = 1
 
 function analysisResponse(request: SpendingAnalysisRequest, fingerprint: string, accountBookId = 1) {
     const annual = request.periodType === "YEARLY";
-    const month = request.month ?? 1;
-    const start = `${request.year}-${String(month).padStart(2, "0")}-01`;
-    const end = annual ? `${request.year + 1}-01-01` : `${month === 12 ? request.year + 1 : request.year}-${String(month === 12 ? 1 : month + 1).padStart(2, "0")}-01`;
-    return { periodType: request.periodType, year: request.year, month: annual ? null : month, periodStart: start, periodEndExclusive: end,
+    const month = request.month ?? (request.quarter ? (request.quarter - 1) * 3 + 1 : request.half ? (request.half - 1) * 6 + 1 : 1);
+    const start = request.startDate ?? `${request.year}-${String(month).padStart(2, "0")}-01`;
+    const endDate = request.endDate ? new Date(`${request.endDate}T00:00:00Z`) : new Date(Date.UTC(request.year, month - 1, 1));
+    if (request.endDate) endDate.setUTCDate(endDate.getUTCDate() + 1);
+    else endDate.setUTCMonth(endDate.getUTCMonth() + (annual ? 12 : request.quarter ? 3 : request.half ? 6 : 1));
+    const end = endDate.toISOString().slice(0, 10);
+    const savings = { basisAmount: "1200", lower: "1200", estimate: "1200", upper: "1200", grossReduction: "1200", replacementCost: "0", reductionLowBps: 10000, reductionHighBps: 10000, replacementLowBps: 0, replacementHighBps: 0, kind: "SKIP_EXTRA_ITEM", assumption: "기본 사용품은 유지하고 해당 추가 구매 한 건을 생략하는 가정입니다." };
+    return { periodType: request.periodType, year: request.year, month: request.periodType === "MONTHLY" ? month : null,
+        quarter: request.quarter ?? null, half: request.half ?? null, periodStart: start, periodEndExclusive: end,
+        analysisId: "", policyVersion: "purchase-context-v4", savings: annual ? null : { ...savings, kind: "COMBINED" },
         currencyCode: "JPY", decimalPlaces: 0, totalExpense: "54000", transactionCount: annual ? 1200 : 5,
         coverage: { analyzedTransactionCount: annual ? 600 : 5, totalTransactionCount: annual ? 1200 : 5, isPartial: annual, reason: annual ? "TRANSACTION_LIMIT" : null },
         summary: request.comment ? "추가 설명을 반영한 결과입니다. 필요한 치료비를 유지하고 반복 구매를 검토하세요." : "실제 구매 내역을 확인한 결과입니다. 비슷한 소액 구매를 모아 검토해 보세요.",
         findings: [{ id: "finding-1", title: "소액 쇼핑을 구매 전에 확인해 보세요", reason: `${request.year}년 ${request.month ?? 10}월 24일 Amazon.co.jp에서 USB 케이블 구매에 ¥1,200을 사용했습니다.`, action: "다음 소품 구매 전에 이미 보유한 물품을 먼저 확인해 보세요.",
-            contextQuestion: "업무에 꼭 필요한 구매였나요?", uncertainty: "이 거래만으로 불필요한 구매라고 단정할 수 없습니다.", evidenceAmount: "1200", evidenceTransactions: [evidenceTransaction(request, accountBookId)] }],
+            opinion: "기본 사용품을 유지하면서 같은 역할의 추가 선택은 조정할 여지가 있습니다.",
+            contextQuestion: null, uncertainty: "이 거래만으로 불필요한 구매라고 단정할 수 없습니다.", evidenceAmount: "1200", evidenceTransactions: [evidenceTransaction(request, accountBookId)], savings: annual ? null : savings }],
         contextComment: request.comment ?? null, generatedAt: "2026-10-31T12:00:00Z", snapshotFingerprint: fingerprint };
 }
 
 async function mockAnalysisBook(page: Page) {
     const state = { fingerprint: "snapshot-1", calls: [] as SpendingAnalysisRequest[], snapshots: [] as string[], failNextPost: 0, failSnapshot: false,
-        pauseNext: false, release: null as (() => void) | null, unexpected: [] as string[] };
+        pauseNext: false, release: null as (() => void) | null, unexpected: [] as string[], history: [] as ReturnType<typeof analysisResponse>[] };
     const book = { id: 1, name: "AI 분석 검증 가계부", description: "Public mock fixture", category: "개인", currencyCode: "JPY", currencySymbol: "¥", currencyDecimalPlaces: 0,
         incomeAmount: "100000", expenseAmount: "54000", balance: "46000", transactionCount: 5, myRole: "OWNER" };
     await mockCommonPageDependencies(page);
@@ -34,6 +41,13 @@ async function mockAnalysisBook(page: Page) {
     await page.route("**/api/v1/account-books**", async route => {
         const url = new URL(route.request().url());
         const suffix = url.pathname.split("/account-books")[1];
+        if (suffix === "/1/spending-analysis/history") {
+            const page = Number(url.searchParams.get("page") ?? 0);
+            return fulfillJson(route, responseDto({ items: state.history.slice(page * 10, page * 10 + 10), total: state.history.length, page, size: 10 }));
+        }
+        if (suffix.startsWith("/1/spending-analysis/history/")) {
+            return fulfillJson(route, responseDto(state.history.find(item => item.analysisId === suffix.split("/").at(-1))));
+        }
         if (suffix === "/1/spending-analysis/snapshot") {
             state.snapshots.push(url.search);
             if (state.failSnapshot) return route.fulfill({ status: 500, contentType: "application/json", body: "{}" });
@@ -43,6 +57,7 @@ async function mockAnalysisBook(page: Page) {
             const request = route.request().postDataJSON() as SpendingAnalysisRequest;
             state.calls.push(request);
             const response = analysisResponse(request, state.fingerprint);
+            response.analysisId = `saved-analysis-${state.calls.length}`;
             if (state.failNextPost) {
                 const status = state.failNextPost;
                 state.failNextPost = 0;
@@ -54,6 +69,7 @@ async function mockAnalysisBook(page: Page) {
                 try { await fulfillJson(route, responseDto(response)); } catch { /* 취소된 브라우저 요청의 과거 응답은 적용되지 않는다. */ }
                 return;
             }
+            state.history.unshift(response);
             return fulfillJson(route, responseDto(response));
         }
         let body: unknown;
@@ -99,6 +115,73 @@ async function nextFocusCheck(page: Page, state: Awaited<ReturnType<typeof mockA
         return state.snapshots.length;
     }, { timeout: 15_000 }).toBeGreaterThan(before);
 }
+
+test("ACCOUNT-ANALYSIS v3 accepts quarter, half and one-calendar-month custom ranges", async ({ page }) => {
+    // 준비
+    const state = await mockAnalysisBook(page);
+    const card = await openAnalysis(page);
+
+    // 실행 / 검증: 다른 기간의 필드를 전송하지 않는다.
+    await card.getByRole("button", { name: "분기별", exact: true }).click();
+    await card.getByTestId("spending-analysis-period-input").fill("2026");
+    await card.getByLabel("분석할 분기").selectOption("2");
+    await card.getByTestId("spending-analysis-run").click();
+    await expect(card.getByTestId("spending-analysis-result")).toContainText("2026-04-01 ~ 2026-06-30");
+    expect(state.calls.at(-1)).toEqual({ periodType: "QUARTERLY", year: 2026, quarter: 2, locale: "ko" });
+    await card.getByRole("button", { name: "반기별", exact: true }).click();
+    await card.getByLabel("분석할 반기").selectOption("2");
+    await card.getByTestId("spending-analysis-run").click();
+    await expect(card.getByTestId("spending-analysis-result")).toContainText("2026-07-01 ~ 2026-12-31");
+    await card.getByRole("button", { name: "기간 지정", exact: true }).click();
+    await card.getByLabel("시작일", { exact: true }).fill("2026-01-31");
+    await card.getByLabel("종료일 · 포함", { exact: true }).fill("2026-02-26");
+    await expect(card.getByTestId("spending-analysis-run")).toBeDisabled();
+    await card.getByLabel("종료일 · 포함", { exact: true }).fill("2026-02-27");
+    await card.getByTestId("spending-analysis-run").click();
+    await expect(card.getByTestId("spending-analysis-result")).toContainText("2026-01-31 ~ 2026-02-27");
+    expect(state.calls.at(-1)).toEqual({ periodType: "CUSTOM", year: 2026, startDate: "2026-01-31", endDate: "2026-02-27", locale: "ko" });
+});
+
+test("ACCOUNT-ANALYSIS v3 saves repeated periods and opens the original context without a paid request", async ({ page }) => {
+    // 준비 / 실행: 같은 기간에 두 번 분석한다.
+    const state = await mockAnalysisBook(page);
+    const card = await openAnalysis(page);
+    await card.getByTestId("spending-analysis-run").click();
+    await expect(card.getByTestId("spending-savings-total")).toContainText("1,200");
+    await expect(card.getByTestId("spending-savings-total")).toContainText("가상 예상");
+    await card.getByRole("textbox", { name: /^추가로 알려주실 내용/ }).fill("두 번째는 선물이었어요.");
+    await card.getByTestId("spending-analysis-run").click();
+    await expect(card.getByTestId("spending-analysis-result")).toContainText("추가 설명을 반영한 결과입니다.");
+    await expect(card.getByTestId("spending-analysis-history")).toContainText("분석 이력 · 2개");
+
+    // 검증: 이전 결과를 열어도 재분석하지 않고 원래 코멘트·결과가 복원된다.
+    await card.getByTestId("spending-analysis-history").getByRole("button").filter({ hasText: "실제 구매 내역을 확인한 결과입니다." }).click();
+    await expect(card.getByTestId("spending-analysis-result")).toContainText("실제 구매 내역을 확인한 결과입니다.");
+    await expect(card.getByRole("textbox", { name: /^추가로 알려주실 내용/ })).toHaveValue("");
+    expect(state.calls).toHaveLength(2);
+    expect(state.history).toHaveLength(2);
+    expect(state.unexpected).toEqual([]);
+    await card.screenshot({ path: test.info().outputPath("history-and-savings-desktop.png") });
+});
+
+test("ACCOUNT-ANALYSIS v4 refreshes the first history page after analysis from an older page", async ({ page }) => {
+    // 준비: 첫 페이지가 캐시된 상태에서 다음 페이지를 보고 있다.
+    const state = await mockAnalysisBook(page);
+    for (let index = 0; index < 11; index++) {
+        state.history.push({ ...analysisResponse({ periodType: "MONTHLY", year: 2026, month: 9, locale: "ko" }, state.fingerprint), analysisId: `old-${index}`, summary: "이전 달의 저장 결과" });
+    }
+    const card = await openAnalysis(page);
+    const history = card.getByTestId("spending-analysis-history");
+    await expect(history).toContainText("분석 이력 · 11개");
+    await history.getByRole("button", { name: "다음", exact: true }).click();
+    await expect(history).toContainText("2 / 2");
+
+    // 실행 / 검증: 새 결과가 첫 페이지 목록에도 즉시 나타난다.
+    await card.getByTestId("spending-analysis-run").click();
+    await expect(history).toContainText("분석 이력 · 12개");
+    await expect(history).toContainText("실제 구매 내역을 확인한 결과입니다.");
+    await expect(history).toContainText("1 / 2");
+});
 
 test("ACCOUNT-ANALYSIS manually analyzes below graphs and opens exact read-only supporting transactions", async ({ page }, testInfo) => {
     test.setTimeout(300_000);

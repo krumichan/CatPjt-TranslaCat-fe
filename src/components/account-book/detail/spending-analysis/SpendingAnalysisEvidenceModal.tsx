@@ -8,13 +8,14 @@ import ExpenseRankingTransactionListDialog from "@/components/account-book/detai
 import type { AccountBookTransaction, CurrencyCode } from "@/types/accountBook";
 import type { SpendingAnalysisFinding } from "@/types/accountBookAnalysis";
 
-type Props = { finding: SpendingAnalysisFinding; currencyCode: CurrencyCode; generatedAt: string; onClose: () => void };
+type Props = { finding: SpendingAnalysisFinding; currencyCode: CurrencyCode; generatedAt: string; historical?: boolean; onClose: () => void };
 
-export default function SpendingAnalysisEvidenceModal({ finding, currencyCode, generatedAt, onClose }: Props) {
+export default function SpendingAnalysisEvidenceModal({ finding, currencyCode, generatedAt, historical = false, onClose }: Props) {
     const t = useTranslations("AccountBook.detail.spendingAnalysis");
     const locale = analysisLocale(useLocale());
     const [detail, setDetail] = useState<AccountBookTransaction | null>(null);
     const [viewMode, setViewMode] = useState<TransactionViewMode>("CARD");
+    const transactions = historical ? finding.historicalTransactions ?? [] : finding.evidenceTransactions;
     const closeDetail = useCallback(() => setDetail(null), [setDetail]);
     const generatedDate = new Date(generatedAt);
     const formattedDate = Number.isFinite(generatedDate.getTime())
@@ -25,11 +26,11 @@ export default function SpendingAnalysisEvidenceModal({ finding, currencyCode, g
     if (detail) return <TransactionDetailModal transaction={detail} currencyCode={currencyCode} onClose={closeDetail} />;
 
     return (
-        <ExpenseRankingTransactionListDialog title={t("evidenceTitle", { title: finding.title })}
+        <ExpenseRankingTransactionListDialog title={t(historical ? "historicalEvidenceTitle" : "evidenceTitle", { title: finding.title })}
             summary={t("evidenceSnapshot", { generatedAt: formattedDate })} onClose={onClose}>
-            <TransactionList transactions={finding.evidenceTransactions} currencyCode={currencyCode}
+            <TransactionList transactions={transactions} currencyCode={currencyCode}
                 viewMode={viewMode} onChangeViewMode={setViewMode} onClickDetailTransaction={setDetail}
-                totalElements={finding.evidenceTransactions.length} page={0} totalPages={1} onChangePage={() => {}} />
+                totalElements={transactions.length} page={0} totalPages={1} onChangePage={() => {}} />
         </ExpenseRankingTransactionListDialog>
     );
 }

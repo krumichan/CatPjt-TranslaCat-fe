@@ -12,6 +12,26 @@ import { notifyAuthUnauthorized } from "@/lib/authEvents";
 // Task Definition 환경 변수는 서버 전용으로 웹 브라우저가 읽을 수 없음.
 // 따라서, CodeBuild 환경 변수를 사용해서 Build 단계에 구울 필요가 있음.
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const ANALYSIS_API_BASE_URL = process.env.NEXT_PUBLIC_ACCOUNT_BOOK_ANALYSIS_API_URL;
+
+function requestApiBaseUrl(endpoint: string, method = "GET") {
+    // 긴 분석과 그 결과 조회만 별도 원점으로 보내고 다른 업무 API는 유지한다.
+    const path = endpoint.split("?")[0];
+    const analysisRoot = /^\/account-books\/[1-9]\d*\/spending-analysis$/;
+    const analysisRead = /^\/account-books\/[1-9]\d*\/spending-analysis\/(?:snapshot|history(?:\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})?)$/;
+    const isAnalysis = (method.toUpperCase() === "POST" && analysisRoot.test(path))
+        || (method.toUpperCase() === "GET" && analysisRead.test(path));
+    const configured = ANALYSIS_API_BASE_URL?.trim();
+    if (!isAnalysis || !configured) return API_BASE_URL;
+
+    // 명시한 공개 설정이 잘못되면 인증 헤더를 다른 경로로 보내지 않는다.
+    const base = new URL(configured);
+    if (base.protocol !== "https:" || base.username || base.password || base.search || base.hash
+        || base.pathname.replace(/\/+$/, "") !== "/api/v1") {
+        throw new Error("Invalid account book analysis API base URL");
+    }
+    return base.href.replace(/\/+$/, "");
+}
 
 export const apiClient = async (
     endpoint: string,
@@ -58,7 +78,7 @@ export const apiClient = async (
 
     headers.Authorization = `Bearer ${session.accessToken}`;
 
-    const apiUrl = `${API_BASE_URL}${endpoint}`;
+    const apiUrl = `${requestApiBaseUrl(endpoint, options.method)}${endpoint}`;
     const init = {
         ...options,
         headers,

@@ -1,0 +1,44 @@
+name: Account book v6 candidate verification
+
+on:
+  push:
+    branches: [ci/account-book-analysis-v6-20261108]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      AUTH_TRUST_HOST: 'true'
+      NEXTAUTH_SECRET: synthetic-ci-account-book-session-secret
+      NEXTAUTH_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_API_URL: http://127.0.0.1:3000/api/v1
+      NEXT_PUBLIC_ACCOUNT_BOOK_ANALYSIS_API_URL: http://127.0.0.1:3000/api/v1
+      E2E_BASE_URL: http://127.0.0.1:3000
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - name: Select the exact product candidate
+        run: |
+          test "$(git rev-parse HEAD^)" = "668df79a6569de3f9bb2a7c899f0944d0509d702"
+          git checkout --detach 668df79a6569de3f9bb2a7c899f0944d0509d702
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run check:structure
+      - run: npm run check:i18n
+      - run: npm run typecheck
+      - run: npm run test:unit
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Run account-book browser regression with mocked backend
+        run: npx playwright test --project=mock-chromium --workers=1 --retries=0 e2e/account-book

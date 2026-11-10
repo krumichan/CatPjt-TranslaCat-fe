@@ -382,10 +382,10 @@ test("ACCOUNT-ANALYSIS the owner can cancel and no late result is displayed", as
     state.pauseNext = true;
     await card.getByTestId("spending-analysis-run").click();
     await card.getByTestId("spending-analysis-cancel").click();
-    state.release?.();
-
-    // 검증
     await expect(card.getByTestId("spending-analysis-job-status")).toContainText("분석이 취소됐어요");
+
+    // 검증: 취소가 응답된 뒤 늦은 완료를 보내도 결과가 생기지 않는다.
+    state.release?.();
     await expect(card.getByTestId("spending-analysis-run")).toBeEnabled();
     await expect(card.getByTestId("spending-analysis-result")).toHaveCount(0);
     expect(state.cancelCalls).toEqual([1]);

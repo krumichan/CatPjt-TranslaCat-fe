@@ -46,6 +46,9 @@ async function mockCharts(page: Page, options: { failFirstChartRequest?: boolean
         let body: unknown;
 
         // 준비: 차트 조회 기간과 원래 집계 키를 모달 요청에서 독립적으로 확인한다.
+        if (suffix === "/1/spending-analysis/jobs/current" && request.method() === "GET") {
+            return fulfillJson(route, responseDto(null));
+        }
         if (suffix === "/1/transactions") {
             const input = request.postDataJSON() as ChartRequest;
             if (input.chartFilter) {

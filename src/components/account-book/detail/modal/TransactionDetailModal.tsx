@@ -13,10 +13,11 @@ type Props = {
     transaction: AccountBookTransaction;
     currencyCode: CurrencyCode;
     onClose: () => void;
+    portalTarget?: HTMLElement;
     onEdit?: (transaction: AccountBookTransaction) => void;
 };
 
-export default function TransactionDetailModal({ transaction, currencyCode, onClose, onEdit }: Props) {
+export default function TransactionDetailModal({ transaction, currencyCode, onClose, portalTarget, onEdit }: Props) {
     const dialogRef = useRef<HTMLElement>(null);
     useModalFocusTrap(true, dialogRef, onClose);
     const t = useTranslations("AccountBook.detail.transactionDetail");
@@ -205,6 +206,6 @@ export default function TransactionDetailModal({ transaction, currencyCode, onCl
                 </footer>
             </section>
         </div>,
-        document.body
+        portalTarget ?? document.body
     );
 }

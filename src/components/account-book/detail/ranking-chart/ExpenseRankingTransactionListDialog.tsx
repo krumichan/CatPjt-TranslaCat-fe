@@ -10,10 +10,11 @@ type Props = {
     title: string;
     summary: string;
     onClose: () => void;
+    portalTarget?: HTMLElement;
     children: ReactNode;
 };
 
-export default function ExpenseRankingTransactionListDialog({ title, summary, onClose, children }: Props) {
+export default function ExpenseRankingTransactionListDialog({ title, summary, onClose, portalTarget, children }: Props) {
     const t = useTranslations("AccountBook.detail.rankingChart.transactions");
     const dialogRef = useRef<HTMLElement>(null);
     const titleId = useId();
@@ -39,6 +40,6 @@ export default function ExpenseRankingTransactionListDialog({ title, summary, on
                 {children}
             </section>
         </div>,
-        document.body
+        portalTarget ?? document.body
     );
 }

@@ -1,0 +1,134 @@
+name: Account book background analysis candidate verification
+
+on:
+  push:
+    branches: [ci/account-book-analysis-jobs-20261110]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      AUTH_TRUST_HOST: 'true'
+      NEXTAUTH_SECRET: synthetic-ci-account-book-session-secret
+      NEXTAUTH_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_API_URL: http://127.0.0.1:3000/api/v1
+      E2E_BASE_URL: http://127.0.0.1:3000
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 4
+          persist-credentials: false
+      - name: Select the exact product candidate
+        run: |
+          test "$(git rev-parse HEAD^)" = "affe8ae9f232900d5dbf6f2d8970f501ff1efbe0"
+          git checkout --detach affe8ae9f232900d5dbf6f2d8970f501ff1efbe0
+          git merge-base --is-ancestor 668df79a6569de3f9bb2a7c899f0944d0509d702 HEAD
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - id: dependencies
+        run: npm ci
+      - name: Fail on any new FE structure violation
+        run: |
+          baseline="$RUNNER_TEMP/fe-baseline"
+          git worktree add --detach "$baseline" 668df79a6569de3f9bb2a7c899f0944d0509d702
+          cmp scripts/check-fe-structure.mjs "$baseline/scripts/check-fe-structure.mjs"
+          cmp scripts/lib/structure-source-files.mjs "$baseline/scripts/lib/structure-source-files.mjs"
+          ln -s "$PWD/node_modules" "$baseline/node_modules"
+          baseline_status=0
+          candidate_status=0
+          node scripts/check-fe-structure.mjs "$baseline" > "$RUNNER_TEMP/structure-before.log" 2>&1 || baseline_status=$?
+          node scripts/check-fe-structure.mjs > "$RUNNER_TEMP/structure-after.log" 2>&1 || candidate_status=$?
+          python3 - "$baseline_status" "$candidate_status" <<'PY'
+          import os
+          import re
+          import sys
+          from pathlib import Path
+
+          def violations(name, status):
+              lines = (Path(os.environ["RUNNER_TEMP"]) / f"structure-{name}.log").read_text().splitlines()
+              if status == 0:
+                  assert len(lines) == 1 and lines[0].startswith("FE structure check passed:")
+                  return set()
+              assert status == 1 and lines
+              match = re.fullmatch(r"FE structure check failed \((\d+)\):", lines[0])
+              assert match and len(lines) - 1 == int(match[1]), lines
+              assert all(line.startswith("src/") for line in lines[1:]), lines
+              return set(lines[1:])
+
+          before = violations("before", int(sys.argv[1]))
+          after = violations("after", int(sys.argv[2]))
+          print(f"Baseline violations: {len(before)}. Candidate violations: {len(after)}.")
+          for line in sorted(after):
+              print(line)
+          assert not after - before, sorted(after - before)
+          PY
+      - name: Fail on any new FE translation-key violation
+        if: (success() || failure()) && steps.dependencies.outcome == 'success'
+        run: |
+          baseline="$RUNNER_TEMP/fe-baseline"
+          cmp scripts/check-i18n-keys.mjs "$baseline/scripts/check-i18n-keys.mjs"
+          baseline_status=0
+          candidate_status=0
+          node "$baseline/scripts/check-i18n-keys.mjs" > "$RUNNER_TEMP/i18n-before.log" 2>&1 || baseline_status=$?
+          node scripts/check-i18n-keys.mjs > "$RUNNER_TEMP/i18n-after.log" 2>&1 || candidate_status=$?
+          python3 - "$baseline_status" "$candidate_status" <<'PY'
+          import os
+          import re
+          import sys
+          from pathlib import Path
+
+          def violations(name, status):
+              lines = (Path(os.environ["RUNNER_TEMP"]) / f"i18n-{name}.log").read_text().splitlines()
+              if status == 0:
+                  assert len(lines) == 1 and lines[0].startswith("i18n validation passed:")
+                  return set()
+              assert status == 1 and lines
+              match = re.fullmatch(r"i18n validation failed with (\d+) issue\(s\):", lines[0])
+              assert match and len(lines) - 1 == int(match[1]), lines
+              assert all(line.startswith("- [") for line in lines[1:]), lines
+              return set(lines[1:])
+
+          before = violations("before", int(sys.argv[1]))
+          after = violations("after", int(sys.argv[2]))
+          print(f"Baseline translation issues: {len(before)}. Candidate translation issues: {len(after)}.")
+          for line in sorted(after):
+              print(line)
+          assert not after - before, sorted(after - before)
+          PY
+      - if: (success() || failure()) && steps.dependencies.outcome == 'success'
+        run: npm run typecheck
+      - if: (success() || failure()) && steps.dependencies.outcome == 'success'
+        run: npm run test:unit
+      - if: (success() || failure()) && steps.dependencies.outcome == 'success'
+        run: npm run build
+      - if: (success() || failure()) && steps.dependencies.outcome == 'success'
+        run: npx playwright install --with-deps chromium
+      - name: Run account-book browser regression against the verified build
+        if: (success() || failure()) && steps.dependencies.outcome == 'success'
+        env:
+          TZ: Asia/Seoul
+        run: |
+          cat > account-book-candidate-ci.config.ts <<'TS'
+          import base from "./playwright.config";
+
+          export default {
+              ...base,
+              use: { ...base.use, locale: "ko-KR", timezoneId: "Asia/Seoul" },
+              webServer: {
+                  command: "npm run start -- --hostname 127.0.0.1 --port 3000",
+                  url: "http://127.0.0.1:3000/images/e2e-ready.txt",
+                  reuseExistingServer: false,
+                  timeout: 120_000,
+              },
+          };
+          TS
+          npx playwright test --config account-book-candidate-ci.config.ts --project=mock-chromium \
+            --workers=2 --retries=0 --max-failures=5 --global-timeout=900000 e2e/account-book

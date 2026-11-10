@@ -12,6 +12,10 @@ const root = "/account-books/30001/spending-analysis";
 const analysisId = "9d3c6de9-e843-456f-9f3e-a15ab6740487";
 const routes = [
     { endpoint: root, method: "POST" },
+    { endpoint: `${root}/jobs`, method: "POST" },
+    { endpoint: `${root}/jobs/current`, method: "GET" },
+    { endpoint: `${root}/jobs/42`, method: "GET" },
+    { endpoint: `${root}/jobs/42/cancel`, method: "POST" },
     { endpoint: `${root}/snapshot?periodType=MONTHLY&year=2026&month=10`, method: "GET" },
     { endpoint: `${root}/history?page=0&size=10`, method: "GET" },
     { endpoint: `${root}/history/${analysisId}`, method: "GET" },

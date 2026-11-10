@@ -17,9 +17,9 @@ const ANALYSIS_API_BASE_URL = process.env.NEXT_PUBLIC_ACCOUNT_BOOK_ANALYSIS_API_
 function requestApiBaseUrl(endpoint: string, method = "GET") {
     // 긴 분석과 그 결과 조회만 별도 원점으로 보내고 다른 업무 API는 유지한다.
     const path = endpoint.split("?")[0];
-    const analysisRoot = /^\/account-books\/[1-9]\d*\/spending-analysis$/;
-    const analysisRead = /^\/account-books\/[1-9]\d*\/spending-analysis\/(?:snapshot|history(?:\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})?)$/;
-    const isAnalysis = (method.toUpperCase() === "POST" && analysisRoot.test(path))
+    const analysisWrite = /^\/account-books\/[1-9]\d*\/spending-analysis(?:\/jobs(?:\/[1-9]\d*\/cancel)?)?$/;
+    const analysisRead = /^\/account-books\/[1-9]\d*\/spending-analysis\/(?:snapshot|history(?:\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})?|jobs\/(?:current|[1-9]\d*))$/;
+    const isAnalysis = (method.toUpperCase() === "POST" && analysisWrite.test(path))
         || (method.toUpperCase() === "GET" && analysisRead.test(path));
     const configured = ANALYSIS_API_BASE_URL?.trim();
     if (!isAnalysis || !configured) return API_BASE_URL;

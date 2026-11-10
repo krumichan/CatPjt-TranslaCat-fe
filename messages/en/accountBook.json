@@ -396,6 +396,14 @@
         }
       },
       "spendingAnalysis": {
+        "openAnalysis": "Open analysis",
+        "closeAnalysis": "Close spending analysis",
+        "keyTakeaways": "Key takeaways",
+        "findingsHeading": "Suggestions · {count}",
+        "relatedSpend": "Related spending",
+        "estimatedSavings": "Estimated savings",
+        "estimatePending": "Not estimated",
+        "opportunityLabel": "What you could change",
         "title": "AI spending analysis",
         "description": "Find practical changes using purchase details and past spending, then reanalyze with your context.",
         "periodLabel": "AI analysis period",

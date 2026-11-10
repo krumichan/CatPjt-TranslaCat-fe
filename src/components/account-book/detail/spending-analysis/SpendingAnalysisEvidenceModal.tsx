@@ -8,9 +8,9 @@ import ExpenseRankingTransactionListDialog from "@/components/account-book/detai
 import type { AccountBookTransaction, CurrencyCode } from "@/types/accountBook";
 import type { SpendingAnalysisFinding } from "@/types/accountBookAnalysis";
 
-type Props = { finding: SpendingAnalysisFinding; currencyCode: CurrencyCode; generatedAt: string; historical?: boolean; onClose: () => void };
+type Props = { finding: SpendingAnalysisFinding; currencyCode: CurrencyCode; generatedAt: string; historical?: boolean; portalTarget: HTMLElement; onClose: () => void };
 
-export default function SpendingAnalysisEvidenceModal({ finding, currencyCode, generatedAt, historical = false, onClose }: Props) {
+export default function SpendingAnalysisEvidenceModal({ finding, currencyCode, generatedAt, historical = false, portalTarget, onClose }: Props) {
     const t = useTranslations("AccountBook.detail.spendingAnalysis");
     const locale = analysisLocale(useLocale());
     const [detail, setDetail] = useState<AccountBookTransaction | null>(null);
@@ -23,11 +23,11 @@ export default function SpendingAnalysisEvidenceModal({ finding, currencyCode, g
         : generatedAt;
 
     // 분석 당시의 검증된 거래 스냅샷만 재사용하며 편집·삭제 핸들러를 전달하지 않는다.
-    if (detail) return <TransactionDetailModal transaction={detail} currencyCode={currencyCode} onClose={closeDetail} />;
+    if (detail) return <TransactionDetailModal transaction={detail} currencyCode={currencyCode} portalTarget={portalTarget} onClose={closeDetail} />;
 
     return (
         <ExpenseRankingTransactionListDialog title={t(historical ? "historicalEvidenceTitle" : "evidenceTitle", { title: finding.title })}
-            summary={t("evidenceSnapshot", { generatedAt: formattedDate })} onClose={onClose}>
+            summary={t("evidenceSnapshot", { generatedAt: formattedDate })} portalTarget={portalTarget} onClose={onClose}>
             <TransactionList transactions={transactions} currencyCode={currencyCode}
                 viewMode={viewMode} onChangeViewMode={setViewMode} onClickDetailTransaction={setDetail}
                 totalElements={transactions.length} page={0} totalPages={1} onChangePage={() => {}} />

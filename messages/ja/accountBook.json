@@ -396,6 +396,14 @@
         }
       },
       "spendingAnalysis": {
+        "openAnalysis": "分析を開く",
+        "closeAnalysis": "支出分析を閉じる",
+        "keyTakeaways": "要点",
+        "findingsHeading": "改善案 {count}件",
+        "relatedSpend": "関連する支出の合計",
+        "estimatedSavings": "削減見込み",
+        "estimatePending": "算定見送り",
+        "opportunityLabel": "見直せる部分",
         "title": "AI支出分析",
         "description": "購入内容と過去の支出から見直せる消費を探し、補足を反映して再分析できます。",
         "periodLabel": "AI分析の対象期間",

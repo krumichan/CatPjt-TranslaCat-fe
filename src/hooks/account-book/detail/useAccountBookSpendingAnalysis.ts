@@ -32,9 +32,9 @@ export function useAccountBookSpendingAnalysis(accountBookId: number, selectedMo
     const currentRecord = record?.scope === scope ? record : null;
     const result = currentRecord?.response ?? null;
 
-    // 기본 화면에서는 지문·건수만 조회한다. 실제 거래의 AI 분석 전송은 run에서만 한다.
+    // 모달을 처음 열 때 지문·건수를 조회한다. 실제 거래의 AI 분석 전송은 run에서만 한다.
     const snapshotQuery = useQuery({
-        keys: period ? ["account-book-spending-analysis-snapshot", scope] as const : null,
+        keys: period && (isVisible || historyActivated) ? ["account-book-spending-analysis-snapshot", scope] as const : null,
         fetcher: async () => ({ ...await accountBookSpendingAnalysisService.snapshot(accountBookId, period!), checkedAt: Date.now() }),
         config: { revalidateOnMount: true, revalidateIfStale: true, revalidateOnFocus: Boolean(result && isVisible), refreshInterval: result && isVisible ? 60_000 : 0, refreshWhenHidden: false, shouldRetryOnError: false },
     });

@@ -32,7 +32,8 @@ function analysisResponse(request: SpendingAnalysisRequest, fingerprint: string,
 
 async function mockAnalysisBook(page: Page) {
     const state = { fingerprint: "snapshot-1", calls: [] as SpendingAnalysisRequest[], snapshots: [] as string[], failNextPost: 0, failSnapshot: false,
-        pauseNext: false, release: null as (() => void) | null, unexpected: [] as string[], history: [] as ReturnType<typeof analysisResponse>[] };
+        pauseNext: false, release: null as (() => void) | null, unexpected: [] as string[], history: [] as ReturnType<typeof analysisResponse>[],
+        findingCount: 1 };
     const book = { id: 1, name: "AI 분석 검증 가계부", description: "Public mock fixture", category: "개인", currencyCode: "JPY", currencySymbol: "¥", currencyDecimalPlaces: 0,
         incomeAmount: "100000", expenseAmount: "54000", balance: "46000", transactionCount: 5, myRole: "OWNER" };
     await mockCommonPageDependencies(page);
@@ -57,6 +58,11 @@ async function mockAnalysisBook(page: Page) {
             const request = route.request().postDataJSON() as SpendingAnalysisRequest;
             state.calls.push(request);
             const response = analysisResponse(request, state.fingerprint);
+            if (state.findingCount > 1) {
+                response.findings = Array.from({ length: state.findingCount }, (_, index) => ({
+                    ...response.findings[0], id: `finding-${index + 1}`, title: `반복 지출 개선안 ${index + 1}`,
+                }));
+            }
             response.analysisId = `saved-analysis-${state.calls.length}`;
             if (state.failNextPost) {
                 const status = state.failNextPost;
@@ -102,7 +108,8 @@ async function mockAnalysisBook(page: Page) {
 
 async function openAnalysis(page: Page, locale = "ko") {
     await page.goto(`/${locale}/account-books/1`, { waitUntil: "domcontentloaded" });
-    const card = page.getByTestId("spending-analysis");
+    await page.getByTestId("spending-analysis-open").click();
+    const card = page.getByTestId("spending-analysis-dialog");
     await expect(card).toBeVisible();
     await card.getByTestId("spending-analysis-period-input").fill("2026-10");
     return card;
@@ -183,6 +190,28 @@ test("ACCOUNT-ANALYSIS v4 refreshes the first history page after analysis from a
     await expect(history).toContainText("1 / 2");
 });
 
+test("ACCOUNT-ANALYSIS displays 24 monthly suggestions as collapsed rows and expands only the selected one", async ({ page }, testInfo) => {
+    // 준비: 월별에서도 서로 다른 개선안이 많이 반환되는 보고서를 연다.
+    const state = await mockAnalysisBook(page);
+    state.findingCount = 24;
+    const dialog = await openAnalysis(page);
+
+    // 실행
+    await dialog.getByTestId("spending-analysis-run").click();
+    await expect(dialog.getByText("개선안 24개", { exact: true })).toBeVisible();
+    const rows = dialog.getByTestId("spending-analysis-finding");
+    await expect(rows).toHaveCount(24);
+    await expect(dialog.locator('details[data-testid="spending-analysis-finding"][open]')).toHaveCount(0);
+    await dialog.screenshot({ path: testInfo.outputPath("monthly-24-collapsed.png") });
+    await rows.nth(2).locator(":scope > summary").click();
+
+    // 검증: 선택한 설명만 펼치고 보고서 요약과 다른 결과는 그대로 둔다.
+    await expect(rows.nth(2).getByTestId("spending-analysis-finding-details")).toBeVisible();
+    await expect(rows.nth(3).getByTestId("spending-analysis-finding-details")).toBeHidden();
+    await expect(dialog.getByText("핵심 요약", { exact: true })).toBeVisible();
+    expect(state.calls).toHaveLength(1);
+});
+
 test("ACCOUNT-ANALYSIS manually analyzes below graphs and opens exact read-only supporting transactions", async ({ page }, testInfo) => {
     test.setTimeout(300_000);
 
@@ -200,6 +229,13 @@ test("ACCOUNT-ANALYSIS manually analyzes below graphs and opens exact read-only 
     await card.getByTestId("spending-analysis-run").click();
     await expect(card.getByTestId("spending-analysis-result")).toContainText("실제 구매 내역을 확인한 결과입니다.");
     expect(state.calls).toEqual([{ periodType: "MONTHLY", year: 2026, month: 10, locale: "ko" }]);
+    const finding = card.getByTestId("spending-analysis-finding");
+    const summary = finding.locator(":scope > summary");
+    await expect(summary).toContainText("관련 지출 합계");
+    await expect(summary).toContainText("예상 절약액");
+    await expect(finding.getByTestId("spending-analysis-finding-details")).toBeHidden();
+    await summary.click();
+    await expect(finding.getByTestId("spending-analysis-finding-details")).toContainText("줄일 수 있는 부분");
     await card.getByRole("button", { name: /근거 거래 1건/ }).click();
     const modal = page.getByRole("dialog", { name: /근거 거래/ });
     await expect(modal).toContainText("Amazon USB 케이블");
@@ -216,7 +252,13 @@ test("ACCOUNT-ANALYSIS manually analyzes below graphs and opens exact read-only 
     await page.keyboard.press("Escape");
     await expect(modal.getByRole("table")).toBeVisible();
     await page.keyboard.press("Escape");
+    await expect(card).toBeVisible();
+    await expect(card.getByRole("button", { name: /근거 거래 1건/ })).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(card).toBeHidden();
+    await expect(page.getByTestId("spending-analysis-open")).toBeFocused();
     await page.locator('select').filter({ has: page.locator('option[value="2026-09"]') }).selectOption("2026-09");
+    await page.getByTestId("spending-analysis-open").click();
     await expect(card.getByTestId("spending-analysis-period-input")).toHaveValue("2026-10");
     await card.screenshot({ path: testInfo.outputPath("analysis-monthly.png") });
     expect(state.calls).toHaveLength(1);

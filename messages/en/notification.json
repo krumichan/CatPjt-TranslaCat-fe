@@ -89,6 +89,7 @@
     },
     "support": {
       "SUPPORT_REPLY": "Your inquiry has a new reply",
+      "SPENDING_ANALYSIS_COMPLETED": "Your spending analysis is ready",
       "SUPPORT_INQUIRY": "An inquiry needs your attention",
       "SUPPORT_NOTICE": "There is an important notice",
       "SUPPORT_MESSAGE": "The team sent you a message",

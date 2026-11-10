@@ -1,6 +1,14 @@
 import type { SupportNotification } from "@/types/supportNotification";
 
 export function supportNotificationHref(item: SupportNotification): string {
+    if (item.targetType === "ACCOUNT_BOOK") {
+        const params = new URLSearchParams({
+            spendingAnalysisJob: String(item.replyId),
+            notificationId: String(item.id),
+        });
+        return `/account-books/${item.targetId}?${params.toString()}`;
+    }
+
     const tabs = {
         INQUIRY: "inquiries",
         NOTICE: "notices",

@@ -89,6 +89,7 @@
     },
     "support": {
       "SUPPORT_REPLY": "문의에 새 답변이 달렸어요",
+      "SPENDING_ANALYSIS_COMPLETED": "가계부 AI 분석이 완료됐어요",
       "SUPPORT_INQUIRY": "확인이 필요한 문의가 있어요",
       "SUPPORT_NOTICE": "중요한 공지사항이 있어요",
       "SUPPORT_MESSAGE": "운영팀에서 메시지를 보냈어요",

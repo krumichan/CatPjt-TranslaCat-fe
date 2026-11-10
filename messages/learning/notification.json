@@ -89,6 +89,7 @@
     },
     "support": {
       "SUPPORT_REPLY": "お問い合わせに新しい回答が届きました",
+      "SPENDING_ANALYSIS_COMPLETED": "分析完了のお知らせ",
       "SUPPORT_INQUIRY": "確認が必要なお問い合わせがあります",
       "SUPPORT_NOTICE": "重要なお知らせがあります",
       "SUPPORT_MESSAGE": "運営からメッセージが届きました",

@@ -1,4 +1,4 @@
-import { ChevronRight, Headset, Mail, Megaphone } from "lucide-react";
+import { ChevronRight, Headset, Mail, Megaphone, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { supportNotificationHref } from "@/features/support/supportNotification";
@@ -17,11 +17,8 @@ export default function SupportNotificationItem({
 }: SupportNotificationItemProps) {
     const t = useTranslations("Notifications.support");
     const router = useRouter();
-    const Icon = item.targetType === "MESSAGE"
-        ? Mail
-        : item.targetType === "NOTICE"
-          ? Megaphone
-          : Headset;
+    const icons = { ACCOUNT_BOOK: Sparkles, MESSAGE: Mail, NOTICE: Megaphone, INQUIRY: Headset };
+    const Icon = icons[item.targetType];
 
     const handleOpen = () => {
         // 상세 내용을 실제로 불러온 뒤 서버가 읽음 처리한다.

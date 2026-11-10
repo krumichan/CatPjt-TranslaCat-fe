@@ -2,13 +2,14 @@ export type SupportNotificationType =
     | "SUPPORT_REPLY"
     | "SUPPORT_INQUIRY"
     | "SUPPORT_NOTICE"
-    | "SUPPORT_MESSAGE";
+    | "SUPPORT_MESSAGE"
+    | "SPENDING_ANALYSIS_COMPLETED";
 
 export interface SupportNotification {
     id: number;
     type: SupportNotificationType;
     title: string;
-    targetType: "INQUIRY" | "NOTICE" | "MESSAGE";
+    targetType: "INQUIRY" | "NOTICE" | "MESSAGE" | "ACCOUNT_BOOK";
     targetId: number;
     replyId: number | null;
     isRead: boolean;

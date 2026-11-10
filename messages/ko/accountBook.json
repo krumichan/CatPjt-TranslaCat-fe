@@ -428,7 +428,19 @@
         "analyzing": "분석 중",
         "reanalyze": "다시 분석",
         "analyze": "분석하기",
-        "analyzingNotice": "선택한 기간을 분석하고 있어요. 기간을 바꾸거나 요청을 취소하면 이 결과는 적용되지 않아요.",
+        "analyzingNotice": "이 창을 닫아도 분석은 계속돼요. 끝나면 요청자에게 알림이 가요.",
+        "snapshotAt": "거래 기준 시점 {time}",
+        "job": {
+          "QUEUED": "{start} ~ {end} 분석 대기 중",
+          "RUNNING": "{start} ~ {end} 분석 중",
+          "CANCELING": "{start} ~ {end} 분석 취소 중",
+          "SUCCEEDED": "{start} ~ {end} 분석 완료",
+          "FAILED": "{start} ~ {end} 분석에 실패했어요. 다시 시도해 주세요.",
+          "CANCELED": "{start} ~ {end} 분석이 취소됐어요",
+          "openResult": "결과 보기",
+          "statusUnavailable": "분석 상태를 불러오지 못했어요.",
+          "submitting": "처리 중…"
+        },
         "resultTitle": "분석 결과",
         "contextApplied": "추가 설명 반영",
         "amountOnly": "거래·구매 내용 기준",
@@ -444,6 +456,7 @@
         "appliedComment": "이 결과에 반영된 설명",
         "noComment": "추가 설명 없이 거래 내역을 기준으로 분석했어요.",
         "errors": {
+          "cancelFailed": "분석을 취소하지 못했어요.",
           "failed": "분석을 완료하지 못했어요. 잠시 후 다시 시도해 주세요.",
           "stale": "분석 중 거래가 변경되어 새 결과를 반영하지 않았어요. 내역을 확인한 뒤 다시 분석해 주세요.",
           "busy": "분석 요청이 많거나 다른 분석이 진행 중이에요. 잠시 후 다시 시도해 주세요.",

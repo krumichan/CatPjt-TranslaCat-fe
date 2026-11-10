@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useTranslations } from "next-intl";
 import type { CurrencyCode } from "@/types/accountBook";
 import { useAccountBookSummaryController } from "@/hooks/account-book/detail/useAccountBookSummaryController";
@@ -92,8 +93,10 @@ export default function AccountBookDetailSummarySmartSection({
                     isLoading={isStoreChartLoading}
                 />
             </div>
-            <AccountBookSpendingAnalysisSmartSection key={accountBookId} accountBookId={accountBookId}
-                selectedMonth={selectedMonth} currencyCode={currencyCode} />
+            <Suspense>
+                <AccountBookSpendingAnalysisSmartSection key={accountBookId} accountBookId={accountBookId}
+                    selectedMonth={selectedMonth} currencyCode={currencyCode} />
+            </Suspense>
         </>
     );
 }

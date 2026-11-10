@@ -428,7 +428,19 @@
         "analyzing": "Analyzing",
         "reanalyze": "Analyze again",
         "analyze": "Analyze",
-        "analyzingNotice": "Analyzing the selected period. Changing the period or canceling the request prevents this result from being applied.",
+        "analyzingNotice": "Analysis continues when you close this window. The requester is notified when it finishes.",
+        "snapshotAt": "Transaction snapshot as of {time}",
+        "job": {
+          "QUEUED": "Analysis queued for {start} – {end}",
+          "RUNNING": "Analyzing {start} – {end}",
+          "CANCELING": "Canceling analysis for {start} – {end}",
+          "SUCCEEDED": "Analysis completed for {start} – {end}",
+          "FAILED": "Analysis failed for {start} – {end}. Please try again.",
+          "CANCELED": "Analysis canceled for {start} – {end}",
+          "openResult": "View result",
+          "statusUnavailable": "Could not load the analysis status.",
+          "submitting": "Processing…"
+        },
         "resultTitle": "Analysis result",
         "contextApplied": "Explanation included",
         "amountOnly": "Based on purchase records",
@@ -444,6 +456,7 @@
         "appliedComment": "Explanation included in this result",
         "noComment": "Analyzed transaction details without an additional explanation.",
         "errors": {
+          "cancelFailed": "Could not cancel the analysis.",
           "failed": "The analysis could not be completed. Please try again shortly.",
           "stale": "Transactions changed during analysis, so the new result was not applied. Review the details and analyze again.",
           "busy": "There are too many analysis requests or another analysis is in progress. Please try again shortly.",

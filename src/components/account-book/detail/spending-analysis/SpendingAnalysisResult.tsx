@@ -9,10 +9,12 @@ type Props = { result: SpendingAnalysisResponse; stale: boolean; snapshotVerifie
 export default function SpendingAnalysisResult({ result, stale, snapshotVerified, onOpenEvidence }: Props) {
     const t = useTranslations("AccountBook.detail.spendingAnalysis");
     const locale = analysisLocale(useLocale());
-    const generatedDate = new Date(result.generatedAt);
-    const generatedAt = Number.isFinite(generatedDate.getTime())
-        ? new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(generatedDate)
-        : result.generatedAt;
+    const formatter = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" });
+    const formatTime = (value: string) => {
+        const date = new Date(value);
+        return Number.isFinite(date.getTime()) ? formatter.format(date) : value;
+    };
+    const generatedAt = formatTime(result.generatedAt);
 
     return (
         <div className="mt-5 min-w-0 space-y-4" data-testid="spending-analysis-result" aria-live="polite">
@@ -25,6 +27,9 @@ export default function SpendingAnalysisResult({ result, stale, snapshotVerified
             <p className="break-words text-xs text-slate-500 dark:text-slate-400">
                 {t("resultPeriod", { start: result.periodStart.slice(0, 10), end: inclusiveAnalysisEnd(result.periodEndExclusive), generatedAt })}
             </p>
+            {result.snapshotAt && <p className="text-xs text-slate-500 dark:text-slate-400">
+                {t("snapshotAt", { time: formatTime(result.snapshotAt) })}
+            </p>}
             {stale && <p role="status" className="rounded-xl bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-500/10 dark:text-amber-200" data-testid="spending-analysis-stale">{t("staleResult")}</p>}
             {!snapshotVerified && <p role="status" className="text-sm text-slate-500 dark:text-slate-400">{t("snapshotUnverified")}</p>}
             {result.coverage.isPartial && <p role="status" className="rounded-xl bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-500/10 dark:text-amber-200" data-testid="spending-analysis-partial">

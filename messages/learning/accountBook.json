@@ -428,7 +428,19 @@
         "analyzing": "分析中",
         "reanalyze": "再分析する",
         "analyze": "分析する",
-        "analyzingNotice": "選択した期間を分析しています。期間を変更したり取り消した場合、この結果は反映されません。",
+        "analyzingNotice": "画面を閉じても分析は続きます。完了すると依頼した方に通知が届きます。",
+        "snapshotAt": "取引の基準日時 {time}",
+        "job": {
+          "QUEUED": "{start} ～ {end} の分析を待機中",
+          "RUNNING": "{start} ～ {end} を分析中",
+          "CANCELING": "{start} ～ {end} の分析を取り消しています",
+          "SUCCEEDED": "{start} ～ {end} の分析が完了しました",
+          "FAILED": "{start} ～ {end} の分析に失敗しました。再度お試しください。",
+          "CANCELED": "{start} ～ {end} の分析を取り消しました",
+          "openResult": "結果を見る",
+          "statusUnavailable": "分析状況を取得できませんでした。",
+          "submitting": "処理中…"
+        },
         "resultTitle": "分析結果",
         "contextApplied": "追加説明を反映",
         "amountOnly": "取引・購入内容に基づく分析",
@@ -444,6 +456,7 @@
         "appliedComment": "この結果に反映された説明",
         "noComment": "追加説明なしで取引明細に基づいて分析しました。",
         "errors": {
+          "cancelFailed": "分析を取り消せませんでした。",
           "failed": "分析を完了できませんでした。しばらくしてから再試行してください。",
           "stale": "分析中に取引が変更されたため、新しい結果を反映しませんでした。明細を確認して再分析してください。",
           "busy": "分析リクエストが多いか、別の分析が進行中です。しばらくしてから再試行してください。",

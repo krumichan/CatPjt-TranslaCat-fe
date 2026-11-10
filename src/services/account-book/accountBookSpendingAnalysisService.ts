@@ -1,6 +1,6 @@
 import { apiClient } from "@/lib/apiClient";
 import type { ResponseDto } from "@/types/common";
-import type { SpendingAnalysisPeriod, SpendingAnalysisRequest, SpendingAnalysisResponse, SpendingAnalysisSnapshot, SpendingAnalysisHistoryPage } from "@/types/accountBookAnalysis";
+import type { SpendingAnalysisPeriod, SpendingAnalysisRequest, SpendingAnalysisResponse, SpendingAnalysisSnapshot, SpendingAnalysisHistoryPage, SpendingAnalysisJob } from "@/types/accountBookAnalysis";
 
 export class SpendingAnalysisError extends Error {
     constructor(public readonly status: number) {
@@ -26,18 +26,32 @@ export const accountBookSpendingAnalysisService = {
         return ((await response.json()) as ResponseDto<SpendingAnalysisHistoryPage>).body;
     },
 
-    async saved(accountBookId: number, analysisId: string, signal: AbortSignal): Promise<SpendingAnalysisResponse> {
+    async saved(accountBookId: number, analysisId: string, signal?: AbortSignal): Promise<SpendingAnalysisResponse> {
         const response = await apiClient(`/account-books/${accountBookId}/spending-analysis/history/${encodeURIComponent(analysisId)}`, { signal });
         if (!response.ok) throw new SpendingAnalysisError(response.status);
         return ((await response.json()) as ResponseDto<SpendingAnalysisResponse>).body;
     },
 
-    async analyze(accountBookId: number, request: SpendingAnalysisRequest, signal: AbortSignal): Promise<SpendingAnalysisResponse> {
-        // 명시적인 사용자 실행에만 거래 분석 요청을 보내며 기간 변경·닫기 취소를 전달한다.
-        const response = await apiClient(`/account-books/${accountBookId}/spending-analysis`, {
-            method: "POST", body: JSON.stringify(request), signal,
-        });
-        if (!response.ok) throw new SpendingAnalysisError(response.status);
-        return ((await response.json()) as ResponseDto<SpendingAnalysisResponse>).body;
+    async enqueue(accountBookId: number, request: SpendingAnalysisRequest): Promise<SpendingAnalysisJob> {
+        // 화면의 수명과 독립적으로 서버에 작업을 접수한다.
+        return jobResponse(accountBookId, "", { method: "POST", body: JSON.stringify(request) });
+    },
+
+    async currentJob(accountBookId: number): Promise<SpendingAnalysisJob | null> {
+        return jobResponse(accountBookId, "/current");
+    },
+
+    async job(accountBookId: number, jobId: number, signal?: AbortSignal): Promise<SpendingAnalysisJob> {
+        return jobResponse(accountBookId, `/${jobId}`, { signal });
+    },
+
+    async cancelJob(accountBookId: number, jobId: number): Promise<SpendingAnalysisJob> {
+        return jobResponse(accountBookId, `/${jobId}/cancel`, { method: "POST" });
     },
 };
+
+async function jobResponse<T extends SpendingAnalysisJob | null>(accountBookId: number, path: string, init?: RequestInit): Promise<T> {
+    const response = await apiClient(`/account-books/${accountBookId}/spending-analysis/jobs${path}`, init);
+    if (!response.ok) throw new SpendingAnalysisError(response.status);
+    return ((await response.json()) as ResponseDto<T>).body;
+}

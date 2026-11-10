@@ -2,7 +2,7 @@ import type { Page } from "@playwright/test";
 import { expect, test } from "../fixtures/mock-test";
 import { fulfillJson, mockCommonPageDependencies, mockIdleWebSocket } from "../support/api-mocks";
 import { responseDto } from "../support/mock-data";
-import type { SpendingAnalysisRequest } from "../../src/types/accountBookAnalysis";
+import type { SpendingAnalysisJob, SpendingAnalysisRequest } from "../../src/types/accountBookAnalysis";
 
 function evidenceTransaction(request: SpendingAnalysisRequest, accountBookId = 1) {
     return { id: 11, accountBookId, type: "EXPENSE", title: "Amazon USB 케이블", storeName: "Amazon.co.jp", category: "쇼핑", amount: "1200",
@@ -33,11 +33,16 @@ function analysisResponse(request: SpendingAnalysisRequest, fingerprint: string,
 async function mockAnalysisBook(page: Page) {
     const state = { fingerprint: "snapshot-1", calls: [] as SpendingAnalysisRequest[], snapshots: [] as string[], failNextPost: 0, failSnapshot: false,
         pauseNext: false, release: null as (() => void) | null, unexpected: [] as string[], history: [] as ReturnType<typeof analysisResponse>[],
-        findingCount: 1 };
+        findingCount: 1, owner: true, currentJob: null as SpendingAnalysisJob | null,
+        jobs: new Map<number, SpendingAnalysisJob>(), cancelCalls: [] as number[], readNotifications: [] as string[] };
     const book = { id: 1, name: "AI 분석 검증 가계부", description: "Public mock fixture", category: "개인", currencyCode: "JPY", currencySymbol: "¥", currencyDecimalPlaces: 0,
         incomeAmount: "100000", expenseAmount: "54000", balance: "46000", transactionCount: 5, myRole: "OWNER" };
     await mockCommonPageDependencies(page);
     await mockIdleWebSocket(page);
+    await page.route("**/api/v1/support/notifications/*/read", route => {
+        state.readNotifications.push(new URL(route.request().url()).pathname);
+        return fulfillJson(route, responseDto(true));
+    });
     await page.route("**/currencies", route => fulfillJson(route, responseDto([{ id: 1, code: "JPY", name: "일본 엔", symbol: "¥", decimalPlaces: 0, baseCurrency: true }])));
     await page.route("**/api/v1/account-books**", async route => {
         const url = new URL(route.request().url());
@@ -54,7 +59,25 @@ async function mockAnalysisBook(page: Page) {
             if (state.failSnapshot) return route.fulfill({ status: 500, contentType: "application/json", body: "{}" });
             return fulfillJson(route, responseDto({ snapshotFingerprint: state.fingerprint, transactionCount: url.searchParams.get("periodType") === "YEARLY" ? 1200 : 5, totalExpense: "54000" }));
         }
-        if (suffix === "/1/spending-analysis") {
+        if (suffix === "/1/spending-analysis/jobs/current") {
+            return fulfillJson(route, responseDto(state.currentJob));
+        }
+        const jobPath = /^\/1\/spending-analysis\/jobs\/(\d+)(\/cancel)?$/.exec(suffix);
+        if (jobPath) {
+            const id = Number(jobPath[1]);
+            const job = state.jobs.get(id);
+            if (!job) return route.fulfill({ status: 404 });
+            if (jobPath[2]) {
+                state.cancelCalls.push(id);
+                if (!state.owner) return route.fulfill({ status: 403 });
+                const canceled: SpendingAnalysisJob = { ...job, status: "CANCELED", canCancel: false };
+                state.jobs.set(id, canceled);
+                state.currentJob = canceled;
+                return fulfillJson(route, responseDto(canceled));
+            }
+            return fulfillJson(route, responseDto(job));
+        }
+        if (suffix === "/1/spending-analysis/jobs") {
             const request = route.request().postDataJSON() as SpendingAnalysisRequest;
             state.calls.push(request);
             const response = analysisResponse(request, state.fingerprint);
@@ -69,14 +92,25 @@ async function mockAnalysisBook(page: Page) {
                 state.failNextPost = 0;
                 return route.fulfill({ status, contentType: "application/json", body: "{}" });
             }
+            const id = state.calls.length;
+            const running: SpendingAnalysisJob = { id, periodStart: response.periodStart, periodEndExclusive: response.periodEndExclusive,
+                status: "RUNNING", canCancel: state.owner, requestedByMe: true, analysisId: null, errorCode: null };
+            state.jobs.set(id, running);
+            state.currentJob = running;
+            const complete = () => {
+                if (state.jobs.get(id)?.status !== "RUNNING") return;
+                const succeeded: SpendingAnalysisJob = { ...running, status: "SUCCEEDED", canCancel: false, analysisId: response.analysisId };
+                state.jobs.set(id, succeeded);
+                state.currentJob = succeeded;
+                state.history.unshift(response);
+            };
             if (state.pauseNext) {
                 state.pauseNext = false;
-                await new Promise<void>(resolve => { state.release = resolve; });
-                try { await fulfillJson(route, responseDto(response)); } catch { /* 취소된 브라우저 요청의 과거 응답은 적용되지 않는다. */ }
-                return;
+                state.release = complete;
+            } else {
+                complete();
             }
-            state.history.unshift(response);
-            return fulfillJson(route, responseDto(response));
+            return fulfillJson(route, responseDto(running));
         }
         let body: unknown;
         const transaction = evidenceTransaction({ periodType: "MONTHLY", year: 2026, month: 10, locale: "ko" });
@@ -312,30 +346,53 @@ test("ACCOUNT-ANALYSIS yearly coverage is explicit and stale snapshots never tri
     expect(state.unexpected).toEqual([]);
 });
 
-test("ACCOUNT-ANALYSIS duplicate click is suppressed and late canceled monthly response cannot replace yearly results", async ({ page }) => {
-    // 준비: 응답 순서를 뒤집어 이전 요청이 늦게 도착하도록 만든다.
+test("ACCOUNT-ANALYSIS changing periods or leaving the page keeps a member's job active", async ({ page }) => {
+    // 준비: 요청자는 가계부 소유자가 아닌 멤버다.
     const state = await mockAnalysisBook(page);
     const card = await openAnalysis(page);
+    state.owner = false;
     state.pauseNext = true;
     await card.getByTestId("spending-analysis-run").evaluate(button => { (button as HTMLButtonElement).click(); (button as HTMLButtonElement).click(); });
     await expect.poll(() => state.calls.length).toBe(1);
     await expect(card.getByTestId("spending-analysis-run")).toBeDisabled();
 
-    // 실행: 월별 취소 후 연별 결과를 먼저 받는다.
+    // 실행: 기간을 바꾸고 모달을 닫은 뒤에도 작업이 이어진다.
     await card.getByRole("button", { name: "연별", exact: true }).click();
-    await card.getByTestId("spending-analysis-period-input").fill("2025");
-    await card.getByTestId("spending-analysis-run").click();
-    await expect(card.getByTestId("spending-analysis-result")).toContainText("2025-01-01 ~ 2025-12-31");
+    await expect(card.getByTestId("spending-analysis-run")).toBeDisabled();
+    await expect(card.getByTestId("spending-analysis-cancel")).toHaveCount(0);
+    await page.keyboard.press("Escape");
+    await expect(card).toBeHidden();
+    const reopened = await openAnalysis(page);
+    await expect(reopened.getByTestId("spending-analysis-job-status")).toContainText("분석 중");
     state.release?.();
 
-    // 검증: 과거 월별 응답이 현재 연별 결과·기간을 바꾸지 않는다.
-    await expect(card.getByTestId("spending-analysis-period-input")).toHaveValue("2025");
-    await expect(card.getByTestId("spending-analysis-result")).toContainText("2025-01-01 ~ 2025-12-31");
-    expect(state.calls).toHaveLength(2);
+    // 검증: 완료 후 알림 링크가 같은 보고서를 열고 읽음 처리한다.
+    await page.goto("/ko/account-books/1?spendingAnalysisJob=1&notificationId=9");
+    await expect(card.getByTestId("spending-analysis-result")).toContainText("실제 구매 내역을 확인한 결과입니다.");
+    await expect.poll(() => state.readNotifications).toEqual(["/api/v1/support/notifications/9/read"]);
+    expect(state.calls).toHaveLength(1);
+    expect(state.cancelCalls).toEqual([]);
     expect(state.unexpected).toEqual([]);
 });
 
-test("ACCOUNT-ANALYSIS refuses a newly completed result if transactions changed during the analysis", async ({ page }) => {
+test("ACCOUNT-ANALYSIS the owner can cancel and no late result is displayed", async ({ page }) => {
+    // 준비 / 실행
+    const state = await mockAnalysisBook(page);
+    const card = await openAnalysis(page);
+    state.pauseNext = true;
+    await card.getByTestId("spending-analysis-run").click();
+    await card.getByTestId("spending-analysis-cancel").click();
+    state.release?.();
+
+    // 검증
+    await expect(card.getByTestId("spending-analysis-job-status")).toContainText("분석이 취소됐어요");
+    await expect(card.getByTestId("spending-analysis-run")).toBeEnabled();
+    await expect(card.getByTestId("spending-analysis-result")).toHaveCount(0);
+    expect(state.cancelCalls).toEqual([1]);
+    expect(state.history).toEqual([]);
+});
+
+test("ACCOUNT-ANALYSIS preserves a newly completed result and marks it stale when transactions changed", async ({ page }) => {
     // 준비: 같은 기간의 기존 결과가 있는 상태에서 새 분석의 응답을 지연한다.
     const state = await mockAnalysisBook(page);
     const card = await openAnalysis(page);
@@ -350,11 +407,10 @@ test("ACCOUNT-ANALYSIS refuses a newly completed result if transactions changed 
     state.fingerprint = "snapshot-2";
     state.release?.();
 
-    // 검증: 새 결과를 덮어쓰지 않고 기존 결과의 오래됨과 미반영 설명을 표시한다.
-    await expect(card.getByRole("alert")).toContainText("분석 중 거래가 변경되어 새 결과를 반영하지 않았어요.");
-    await expect(card.getByTestId("spending-analysis-result")).toContainText("실제 구매 내역을 확인한 결과입니다.");
+    // 검증: 새 결과는 요청한 시점의 지출을 보존하고 현재 원장과 달라졌음을 표시한다.
+    await expect(card.getByTestId("spending-analysis-result")).toContainText("추가 설명을 반영한 결과입니다.");
     await expect(card.getByTestId("spending-analysis-stale")).toBeVisible();
-    await expect(card.getByTestId("spending-analysis-unapplied")).toBeVisible();
+    await expect(card.getByTestId("spending-analysis-unapplied")).toHaveCount(0);
     expect(state.calls).toHaveLength(2);
     expect(state.unexpected).toEqual([]);
 });

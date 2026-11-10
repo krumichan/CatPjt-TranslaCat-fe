@@ -15,6 +15,17 @@ export type SpendingAnalysisRequest = SpendingAnalysisPeriod & {
     comment?: string;
 };
 
+export type SpendingAnalysisJob = {
+    id: number;
+    periodStart: string;
+    periodEndExclusive: string;
+    status: "QUEUED" | "RUNNING" | "CANCELING" | "SUCCEEDED" | "FAILED" | "CANCELED";
+    canCancel: boolean;
+    requestedByMe: boolean;
+    analysisId: string | null;
+    errorCode: string | null;
+};
+
 export type SpendingAnalysisSnapshot = {
     snapshotFingerprint: string;
     transactionCount: number;
@@ -65,6 +76,7 @@ export type SpendingAnalysisResponse = {
     findings: SpendingAnalysisFinding[];
     contextComment: string | null;
     generatedAt: string;
+    snapshotAt?: string | null;
     snapshotFingerprint: string;
     analysisId?: string;
     quarter?: number | null;

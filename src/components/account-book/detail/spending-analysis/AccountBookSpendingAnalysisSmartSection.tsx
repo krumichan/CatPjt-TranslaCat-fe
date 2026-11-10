@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { useSWRConfig } from "swr";
 import { ArrowUpRight, LoaderCircle, Sparkles, X } from "lucide-react";
 import { AccountBookCurrencyProvider, useAmountFormatter } from "@/components/account-book/AccountBookCurrencyProvider";
 import { useAccountBookSpendingAnalysis } from "@/hooks/account-book/detail/useAccountBookSpendingAnalysis";
@@ -11,6 +13,8 @@ import SpendingAnalysisPeriodControls from "./SpendingAnalysisPeriodControls";
 import SpendingAnalysisResult from "./SpendingAnalysisResult";
 import SpendingAnalysisEvidenceModal from "./SpendingAnalysisEvidenceModal";
 import SpendingAnalysisHistory from "./SpendingAnalysisHistory";
+import { supportNotificationService } from "@/services/support/supportNotificationService";
+import { inclusiveAnalysisEnd } from "@/utils/account-book/spendingAnalysis";
 
 type Props = { accountBookId: number; selectedMonth: string; currencyCode: CurrencyCode };
 type EvidenceSelection = { finding: SpendingAnalysisFinding; result: SpendingAnalysisResponse; historical: boolean; portalTarget: HTMLDialogElement };
@@ -33,6 +37,27 @@ export default function AccountBookSpendingAnalysisSmartSection({ accountBookId,
         if (trigger) requestAnimationFrame(() => trigger.focus({ preventScroll: true }));
     }, []);
     const resultKey = analysis.result?.analysisId || analysis.result?.generatedAt;
+    const search = useSearchParams();
+    const linkedJobId = positiveId(search.get("spendingAnalysisJob"));
+    const linkedNotificationId = positiveId(search.get("notificationId"));
+    const loadSaved = analysis.loadSaved;
+    const { mutate } = useSWRConfig();
+
+    // 알림의 작업 번호로 저장된 결과를 열고, 성공한 뒤에만 읽음 처리한다.
+    useEffect(() => {
+        if (!linkedJobId) return;
+        let current = true;
+
+        dialogRef.current?.showModal();
+        setOpen(true);
+        void loadSaved({ jobId: linkedJobId }).then(async opened => {
+            if (!current || !opened || !linkedNotificationId) return;
+            await supportNotificationService.markAsRead(linkedNotificationId);
+            await mutate(key => Array.isArray(key)
+                && (key[0] === "support-notification-summary" || key[0] === "support-notification-list"));
+        }).catch(() => { /* 이미 연 분석 결과는 읽음 처리 실패와 독립적으로 유지한다. */ });
+        return () => { current = false; };
+    }, [linkedJobId, linkedNotificationId, loadSaved, mutate]);
 
     // 새 분석과 이력 선택은 폼 아래의 결과 요약으로 이동한다.
     useEffect(() => {
@@ -45,6 +70,11 @@ export default function AccountBookSpendingAnalysisSmartSection({ accountBookId,
         setEvidence({ finding, result: analysis.result, historical, portalTarget });
     };
 
+    const job = analysis.job;
+    const jobMessage = job && (analysis.jobActive || job.requestedByMe)
+        ? t(`job.${job.status}`, { start: job.periodStart, end: inclusiveAnalysisEnd(job.periodEndExclusive) })
+        : null;
+
     return (
         <section className="mb-6 min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-zinc-900" data-testid="spending-analysis">
             <div className="flex flex-wrap items-center justify-between gap-3">
@@ -54,6 +84,7 @@ export default function AccountBookSpendingAnalysisSmartSection({ accountBookId,
                         {t("title")}
                     </h2>
                     <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{t("description")}</p>
+                    {jobMessage && <p className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-300">{jobMessage}</p>}
                 </div>
                 <button type="button" data-testid="spending-analysis-open"
                     className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-orange-500 px-4 text-sm font-semibold text-white hover:bg-orange-600"
@@ -66,7 +97,16 @@ export default function AccountBookSpendingAnalysisSmartSection({ accountBookId,
                 </button>
             </div>
             <dialog ref={dialogRef} aria-labelledby={titleId} aria-modal="true" data-testid="spending-analysis-dialog"
-                onClose={() => { setOpen(false); closeEvidence(); }}
+                onClose={() => {
+                    setOpen(false);
+                    closeEvidence();
+                    if (linkedJobId) {
+                        const url = new URL(window.location.href);
+                        url.searchParams.delete("spendingAnalysisJob");
+                        url.searchParams.delete("notificationId");
+                        window.history.replaceState(null, "", url);
+                    }
+                }}
                 className="fixed inset-0 m-auto w-[calc(100%-1rem)] max-w-4xl h-fit overflow-visible rounded-2xl border border-slate-200 bg-white p-0 text-slate-900 shadow-2xl backdrop:bg-slate-950/65 sm:w-[calc(100%-2rem)] dark:border-white/15 dark:bg-zinc-900 dark:text-white">
                 {/* 근거 거래는 모달 내부 top layer에 표시하고, 뒤에 있는 분석 컨트롤은 잠시 비활성화한다. */}
                 <div inert={Boolean(evidence)} className="flex max-h-[calc(100dvh-1rem)] min-w-0 flex-col sm:max-h-[calc(100dvh-2rem)]">
@@ -80,7 +120,18 @@ export default function AccountBookSpendingAnalysisSmartSection({ accountBookId,
                             <X size={20} aria-hidden="true" />
                         </button>
                     </header>
-                    <div className="min-h-0 min-w-0 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6" aria-busy={analysis.isPending}>
+                    <div className="min-h-0 min-w-0 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6" aria-busy={analysis.isLoadingSaved}>
+                        {jobMessage && <div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl bg-slate-100 p-3 text-sm dark:bg-white/5">
+                            <p role="status" className="min-w-0 flex-1" data-testid="spending-analysis-job-status">{jobMessage}</p>
+                            {job?.canCancel && <button type="button" onClick={() => void analysis.cancelJob()} disabled={analysis.sending}
+                                className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold dark:border-white/10" data-testid="spending-analysis-cancel">
+                                {t("cancel")}
+                            </button>}
+                            {job?.status === "SUCCEEDED" && job.analysisId && job.analysisId !== analysis.result?.analysisId &&
+                                <button type="button" onClick={() => void analysis.loadSaved({ jobId: job.id })} disabled={analysis.isLoadingSaved}
+                                    className="rounded-lg px-3 py-2 font-semibold text-orange-700 dark:text-orange-300">{t("job.openResult")}</button>}
+                        </div>}
+                        {analysis.jobError && <p role="status" className="mb-3 text-sm text-red-600 dark:text-red-300">{t("job.statusUnavailable")}</p>}
                         <SpendingAnalysisPeriodControls inputs={analysis.inputs} valid={Boolean(analysis.period)} onChange={next => { closeEvidence(); analysis.changeInputs(next); }} />
                         {!analysis.period && <p role="alert" className="mt-2 text-sm text-red-600 dark:text-red-300">{t("invalidPeriod")}</p>}
                         {analysis.snapshotLoading && <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">{t("snapshotLoading")}</p>}
@@ -99,15 +150,14 @@ export default function AccountBookSpendingAnalysisSmartSection({ accountBookId,
                             <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
                                 <p className="max-w-xl text-xs text-slate-500 dark:text-slate-400">{t("manualNotice")}</p>
                                 <div className="flex max-w-full flex-wrap items-center gap-2">
-                                    {analysis.isPending && <button type="button" onClick={analysis.cancel} className="rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-600 dark:border-white/10 dark:text-slate-300">{t("cancel")}</button>}
-                                    <button type="button" onClick={() => void analysis.run()} disabled={!analysis.period || analysis.isPending || analysis.snapshot?.transactionCount === 0}
+                                    <button type="button" onClick={() => void analysis.run()} disabled={!analysis.period || analysis.sending || analysis.jobActive || analysis.jobLoading || analysis.isLoadingSaved || analysis.snapshot?.transactionCount === 0}
                                         className="flex max-w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 py-3 text-sm font-semibold text-white hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50" data-testid="spending-analysis-run">
-                                        {analysis.isPending && <LoaderCircle size={16} className="animate-spin" aria-hidden="true" />}
-                                        {t(analysis.isLoadingSaved ? "historyLoadingResult" : analysis.isPending ? "analyzing" : analysis.result ? "reanalyze" : "analyze")}
+                                        {(analysis.sending || analysis.jobActive) && <LoaderCircle size={16} className="animate-spin" aria-hidden="true" />}
+                                        {t(analysis.sending ? "job.submitting" : analysis.jobActive ? "analyzing" : analysis.result ? "reanalyze" : "analyze")}
                                     </button>
                                 </div>
                             </div>
-                            {analysis.isPending && <p role="status" className="mt-2 text-sm text-slate-500 dark:text-slate-400">{t(analysis.isLoadingSaved ? "historyLoadingResult" : "analyzingNotice")}</p>}
+                            {(analysis.jobActive || analysis.isLoadingSaved) && <p role="status" className="mt-2 text-sm text-slate-500 dark:text-slate-400">{t(analysis.isLoadingSaved ? "historyLoadingResult" : "analyzingNotice")}</p>}
                         </div>
                         <div ref={resultRef}>
                             {analysis.result ? (
@@ -122,8 +172,8 @@ export default function AccountBookSpendingAnalysisSmartSection({ accountBookId,
                             )}
                         </div>
                         <SpendingAnalysisHistory history={analysis.history} page={analysis.historyPage} loading={analysis.historyLoading}
-                            error={analysis.historyError} busy={analysis.isPending} onPage={analysis.changeHistoryPage}
-                            onOpen={id => { closeEvidence(); void analysis.loadSaved(id); }} onRetry={analysis.retryHistory} />
+                            error={analysis.historyError} busy={analysis.isLoadingSaved} onPage={analysis.changeHistoryPage}
+                            onOpen={id => { closeEvidence(); void analysis.loadSaved({ analysisId: id }); }} onRetry={analysis.retryHistory} />
                     </div>
                 </div>
                 {evidence && <AccountBookCurrencyProvider currencyCode={evidence.result.currencyCode} decimalPlaces={evidence.result.decimalPlaces}>
@@ -133,4 +183,10 @@ export default function AccountBookSpendingAnalysisSmartSection({ accountBookId,
             </dialog>
         </section>
     );
+}
+
+function positiveId(value: string | null): number | null {
+    if (!value || !/^\d+$/.test(value)) return null;
+    const id = Number(value);
+    return Number.isSafeInteger(id) && id > 0 ? id : null;
 }

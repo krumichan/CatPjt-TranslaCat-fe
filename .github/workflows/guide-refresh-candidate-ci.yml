@@ -1,0 +1,82 @@
+name: Public guide release candidate verification
+
+on:
+  push:
+    branches: [ci/guide-refresh-20261111]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      AUTH_TRUST_HOST: 'true'
+      NEXTAUTH_SECRET: synthetic-ci-guide-session-secret
+      NEXTAUTH_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_API_URL: http://127.0.0.1:3000/api/v1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 12
+          persist-credentials: false
+      - name: Check out the exact product candidate
+        run: |
+          cp .github/guide-refresh-validation.mjs "$RUNNER_TEMP/guide-refresh-validation.mjs"
+          product=$(git rev-parse HEAD^)
+          git checkout --detach "$product"
+          baseline=c81396fb2a799eaa1e7bca6b866df9790362ac98
+          git merge-base --is-ancestor "$baseline" HEAD
+          test "$(git rev-list --count "$baseline..HEAD")" = 7
+          git diff --name-only "$baseline" HEAD > "$RUNNER_TEMP/guide-paths"
+          test "$(wc -l < "$RUNNER_TEMP/guide-paths")" = 189
+          test "$(grep -c '^content/docs/' "$RUNNER_TEMP/guide-paths")" = 90
+          test "$(grep -c '^public/images/guides/' "$RUNNER_TEMP/guide-paths")" = 99
+          echo "Verified candidate $product"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Validate MDX, menus, internal links and screenshots
+        run: node "$RUNNER_TEMP/guide-refresh-validation.mjs" "$PWD"
+      - run: npm run typecheck
+      - run: npm run test:unit
+      - run: npm run build
+      - name: Serve the production build and check localized pages and images
+        run: |
+          npm run start -- --hostname 127.0.0.1 --port 3000 > "$RUNNER_TEMP/guide-server.log" 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          for attempt in {1..30}; do
+            if curl -fsS -o /dev/null http://127.0.0.1:3000/ko/docs; then break; fi
+            sleep 2
+          done
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import fs from 'node:fs/promises';
+          const origin = 'http://127.0.0.1:3000';
+          const docs = [
+            ['/ko/docs', 'ko'], ['/ja/docs', 'ja'], ['/en/docs', 'en'],
+            ['/ko/docs/account-books/spending-analysis', 'ko'],
+            ['/ja/docs/novel/read-listen', 'ja'],
+            ['/en/docs/settings/account-deletion', 'en'],
+          ];
+          for (const [route, locale] of docs) {
+            const response = await fetch(origin + route, {redirect: 'manual'});
+            assert.equal(response.status, 200, route);
+            assert.match(await response.text(), new RegExp(`<html[^>]+lang="${locale}"`), route);
+          }
+          const paths = (await fs.readFile(`${process.env.RUNNER_TEMP}/guide-paths`, 'utf8')).trim().split('\n');
+          for (const path of paths.filter(path => path.startsWith('public/images/guides/'))) {
+            const response = await fetch(origin + path.slice('public'.length), {redirect: 'manual'});
+            assert.equal(response.status, 200, path);
+            assert.match(response.headers.get('content-type') ?? '', /^image\//, path);
+            const served = Buffer.from(await response.arrayBuffer());
+            assert(served.equals(await fs.readFile(path)), path);
+          }
+          console.log('6 localized pages and 99 exact screenshot responses passed.');
+          JS

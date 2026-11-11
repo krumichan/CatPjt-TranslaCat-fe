@@ -1,9 +1,9 @@
 ---
 title: Create and manage an OPEN room
-description: Choose visibility and capacity, and manage members as a room owner or admin.
+description: Create an OPEN room, invite people by ID, and transfer room ownership.
 ---
 
-You can read these instructions without signing in. To use the feature, [sign in](/en/login) with your own account. Service links open the English interface. Screenshots show the Korean interface; Korean labels in parentheses help you compare the two.
+You can read these instructions without signing in. To use the feature, [sign in](/en/login) with your own account. Service links open the English interface. Screenshots use example data in English or Korean, as indicated in the captions. Korean labels in parentheses can help if you use the Korean interface.
 
 ## Open the OPEN chat screen
 
@@ -45,7 +45,22 @@ The following controls depend on your role in the room. Some are unavailable to 
 - Copy the room link with **Share link**.
 - In member management, the owner can **Assign admin / Remove admin**. The owner and room admins can **Remove** permitted targets. Enter the removal reason and confirm.
 - In **Blacklist management**, search by nickname or member code and **Unblock** entries you have permission to manage. Unblocking does not automatically rejoin the member; they must join again.
-- An owner with other active members uses **Transfer OWNER and leave** to choose a new owner. If the owner is alone, **End OPEN room** is offered. Ending a room cannot be undone, so read the confirmation before continuing.
+
+### Invite someone by TranslaCat ID
+
+1. In an OPEN room you have joined, open **⋮ → Invite by TranslaCat ID**.
+2. Enter the recipient's exact [TranslaCat ID](/en/docs/settings/profile) and select **Send invitation**. This is different from the member code shown in the OPEN room.
+3. The recipient can preview the room from [OPEN chat invitations](/en/chat/open/invitations) and decide whether to join. Sending an invitation does not add them automatically.
+
+<GuideScreenshot src="/images/guides/en/chat-open-id-invite.jpg" alt="OPEN chat invitation form for a recipient's TranslaCat ID" title="Enter the recipient's TranslaCat ID" caption="The ID shown is an example. Check the recipient's exact ID before sending an invitation." width={1280} height={900} step={4} locale="en" />
+
+### Transfer ownership or leave
+
+- To stay in the room, select **Transfer owner**, choose an active member, and confirm. That member becomes the new owner, and you stay in the room as a regular member.
+- To transfer and leave, select **Transfer OWNER and leave**. If the transfer succeeds but leaving fails, retry with **Leave OPEN room**.
+- If there are no other active members, you cannot transfer ownership. **Close OPEN room** is available when the owner is the only member left. A closed room cannot be restored, and members can no longer send messages.
+
+<GuideScreenshot src="/images/guides/en/chat-open-owner-transfer.jpg" alt="OPEN room ownership transfer dialog with an active member selected" title="Choose the new room owner" caption="This example shows an eligible member selected. No transfer was submitted." width={1280} height={900} step={5} locale="en" />
 
 ## Check that you are done
 

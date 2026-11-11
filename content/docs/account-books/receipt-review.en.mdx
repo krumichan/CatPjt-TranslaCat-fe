@@ -5,6 +5,8 @@ description: Compare analysis results with the original receipts, correct the de
 
 Start by [opening an account book](/en/docs/account-books/open).
 
+The **?** beside the review list and edit window headings also opens this guide.
+
 ## Follow these steps
 
 Complete [receipt photo upload and analysis](/en/docs/account-books/receipt-upload) first, so suggested transactions are visible.
@@ -15,13 +17,13 @@ Analysis alone does not save transactions. Choose and review the items you want 
   <Tab value="PC">
     Receipt review opens in **Table (표)** view by default. Compare dates, categories, amounts, and statuses, then open **Review and edit (확인·수정)** from a row's menu. You can also switch to **List (목록)** view.
 
-    Select the **Analyze receipt heading (영수증 분석)** to collapse the photo area above; select it again to expand it. Once results exist, you can scroll inside the expanded photo area and scroll the review list below separately.
+    On PC, the open photo area stays expanded when results appear. To make more room for review, select the **Analyze receipt heading (영수증 분석)** to collapse it. Select it again to expand it. Once results exist, you can scroll inside the expanded photo area and scroll the review list below separately.
 
     <GuideScreenshot
-      src="/images/guides/ko/receipt-results-pc.jpg"
-      alt="Korean PC table comparing suggested receipt transactions"
+      src="/images/guides/en/receipt-results-pc.jpg"
+      alt="English PC table with suggested receipt transactions and list and table controls"
       title="PC: compare receipt results in a table"
-      caption="Korean PC interface with example analysis results. Open Review and edit from a row's menu and select the suggestions you want to save."
+      caption="Sample receipt analysis results in a table. Open a row’s review menu and select the transactions you want to save."
       width={1280} height={900} step={1} locale="en"
     />
   </Tab>
@@ -31,10 +33,10 @@ Analysis alone does not save transactions. Choose and review the items you want 
     Select the same heading to check or add photos again. Once results exist, the photo area expands to a shorter height; scroll inside it to find photos and the analysis button. The review list scrolls separately in the space below.
 
     <GuideScreenshot
-      src="/images/guides/ko/receipt-results-mobile.jpg"
-      alt="Korean mobile receipt review list with the upload area collapsed after results appear"
+      src="/images/guides/en/receipt-results-mobile.jpg"
+      alt="English mobile receipt review list with the upload area collapsed after results appear"
       title="Mobile: give the review list more room"
-      caption="Korean mobile interface with example analysis results. The upload area is collapsed to show more suggestions. Compare your own results with the original receipts before saving."
+      caption="Sample receipt analysis results. The collapsed upload area leaves more room for the suggestions. Compare the transactions you plan to save with the original receipts."
       width={390} height={844} step={3} locale="en"
     />
 
@@ -47,7 +49,16 @@ Analysis alone does not save transactions. Choose and review the items you want 
 1. Compare each suggestion's transaction name, store, category, date, original currency, and amount with the photo. Use **Review and edit (확인·수정)** to resolve **Needs review (확인 필요)** labels or warnings.
 2. Under **Receipt payment and exchange rate details (영수증 결제·환율 세부 정보)**, check the branch, time, purchase total, payment evidence, cash tendered, and change against the original. Use the **Review with original (원본과 함께 확인)** preview when shown. If the receipt has no branch information and a corresponding confirmation is displayed, select it.
 3. Distinguish points and discounts from the amount actually paid. If an advance payment also needs to be recorded now, follow **Other payment / unrecorded prepayment (기타 결제·미등록 선결제)**. Do not include advance payments you have already recorded.
-4. If you change the amount, currency, or date, or conversion needs checking, select **Check conversion again (환산 금액 다시 확인)**. Check the amount applied to the book, exchange rate, and actual rate reference date. A warning appears if the transaction date has no rate and an earlier published rate is used.
+4. Select the receipt’s **Original currency (원본 통화)** from the list. If the currency is missing or the list could not load, choose **Enter manually (직접 입력)** and enter a three-letter currency code such as `JPY`, `KRW`, or `USD`. If you change the amount, currency, or date, or need to verify the conversion, select **Check conversion again (환산 금액 다시 확인)**. Check the amount applied to the book, the exchange rate, and the actual rate reference date. A warning appears if the transaction date has no rate and an earlier published rate is used.
+
+<GuideScreenshot
+  src="/images/guides/ja/book-receipt-currency.png"
+  alt="Select the original currency and check the conversion"
+  title="Select the original currency and check the conversion"
+  caption="Japanese interface with sample data. Select the original currency and check the amount applied to the account book."
+  width={1024} height={844} step={4} locale="en"
+/>
+
 5. Select **Apply changes (변경사항 적용)** to apply your edits. If **Confirm current source and entries reviewed (현재 원본과 입력값 확인 완료)** is shown, compare the original and select it first. Changing an entry again may require another original-receipt or conversion check.
 6. Select the suggestions to save, then select **Add N selected transactions (선택한 N건 등록)**. **Select only items ready to add (등록 가능한 항목만 선택)** can select suggestions that are ready to save.
 

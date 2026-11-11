@@ -1,0 +1,65 @@
+---
+title: Analyze spending with AI
+description: Request an analysis for a selected period and review its progress, suggestions, supporting transactions, and saved results.
+---
+
+[Open an account book](/en/docs/account-books/open) and select **Open analysis** under **AI spending analysis**, below the spending charts. This feature reviews expenses you have already recorded. To record transactions from receipt photos, use [receipt analysis](/en/docs/account-books/receipt-upload).
+
+## Choose a period and start the analysis
+
+1. Under **AI analysis period**, choose **Monthly / Quarterly / Half-year / Yearly / Custom range**. You can change this period separately from the account book charts and transaction list.
+2. A **Custom range** must cover at least one calendar month, including both the start and end dates. Check the period total and transaction count. You cannot analyze a period with no expenses.
+3. Optionally use **Anything else to consider** to explain the context of purchases. For example, you might mention that most restaurant visits were work meals. You can leave this field blank or enter up to 2,000 characters.
+4. Select **Analyze**. AI analysis uses the expense details for that period and your explanation. If you edit the explanation for an existing result, select **Analyze again** to include the new text.
+
+<GuideScreenshot
+  src="/images/guides/en/book-analysis-setup.jpg"
+  alt="Choose an analysis period and add context"
+  title="Choose an analysis period and add context"
+  caption="English interface with sample data. Choose a period and optionally add context before starting."
+  width={1280} height={900} step={1} locale="en"
+/>
+
+## Follow a request and open the result
+
+- A queued or running analysis continues after you close the window or leave the page. Return to the account book and select **Open analysis** to check its status.
+- If an analysis is already running for the same book, wait for it to finish before submitting another. Closing the window does not cancel it. An account book owner can use **Cancel request** when that option appears.
+- The **requester** receives a notification when the analysis finishes. Open it from the notification center, or select **View result** when it appears in the analysis window.
+
+<GuideScreenshot
+  src="/images/guides/en/book-analysis-running-mobile.jpg"
+  alt="Check a running analysis on mobile"
+  title="Check a running analysis on mobile"
+  caption="English interface with a simulated request. Analysis continues when the window closes, and the owner may see the cancel option."
+  width={390} height={844} step={2} locale="en"
+/>
+
+## Review suggestions and saved analyses
+
+1. Read **Key takeaways** and expand a suggestion. Review the observed spending, the AI’s opinion, and the suggested action separately.
+2. Open the **supporting transactions** to see purchase details and amounts as they appeared at the time of analysis. These details are read-only. Return to the [regular transaction list](/en/docs/account-books/transactions) to edit a transaction.
+3. **Estimated savings** assume you applied the suggestion. Expand the calculation assumptions to review the purchase reduction and replacement costs. Suggestions without enough evidence for an estimate are excluded from the estimated total.
+4. Open a saved result in **Analysis history** to see its original explanation and evidence. Each completed analysis creates a separate entry, even for the same period. Opening a saved result does not request a new analysis.
+
+<GuideScreenshot
+  src="/images/guides/en/book-analysis-result.jpg"
+  alt="Read the result and expand a suggestion"
+  title="Read the result and expand a suggestion"
+  caption="English interface with a sample result. Review the observed spending, suggestion, and assumptions behind the estimate."
+  width={1280} height={900} step={3} locale="en"
+/>
+
+<Callout title="If the result covers only some transactions or uses earlier records">
+  When fewer than all transactions were analyzed, read the findings as applying to the selected transactions. Edits made after analysis leave the saved result based on the earlier records. Analyze again if you need a current result. If the app could not verify whether the transactions changed, select **Check transactions again** first.
+</Callout>
+
+## Check the result
+
+Check the period and analysis date, and review the supporting transactions and assumptions behind any estimate. You can reopen the result from analysis history.
+
+## Next steps
+
+- [View monthly goals and statistics](/en/docs/account-books/goals-statistics)
+- [Find, edit, or delete transactions](/en/docs/account-books/transactions)
+
+[All account book tasks](/en/docs/account-books)

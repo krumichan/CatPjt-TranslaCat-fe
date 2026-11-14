@@ -1,0 +1,60 @@
+name: Boards FE candidate verification
+on:
+  push:
+    branches: [ci/boards-20261114]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      AUTH_TRUST_HOST: 'true'
+      NEXTAUTH_SECRET: synthetic-ci-board-login
+      NEXTAUTH_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_API_URL: http://127.0.0.1:3000/api/v1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 5
+          persist-credentials: false
+      - name: Select the exact release candidate
+        run: git checkout --detach HEAD^
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run test:unit
+      - name: Lint the board UI and validate all localized labels
+        run: |
+          npx eslint 'src/app/[locale]/(main)/boards/page.tsx' src/components/board src/services/board src/types/board.ts
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import { readFile } from 'node:fs/promises';
+          for (const locale of ['ko', 'ja', 'en', 'learning']) {
+            const {Board, Navigation} = JSON.parse(await readFile(`messages/${locale}/board.json`, 'utf8'));
+            assert.ok(Board.MEMBER && Board.ANONYMOUS && Board.ADMIN && Navigation.boards, locale);
+          }
+          JS
+      - run: npm run build
+      - name: Check the built board route protects signed-out visitors
+        run: |
+          npm run start -- --hostname 127.0.0.1 --port 3000 > "$RUNNER_TEMP/board-server.log" 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          for attempt in {1..30}; do
+            if curl -fsS -o /dev/null http://127.0.0.1:3000/ko/docs; then break; fi
+            sleep 2
+          done
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          for (const locale of ['ko', 'ja', 'en']) {
+            const result = await fetch(`http://127.0.0.1:3000/${locale}/boards`, {redirect: 'manual'});
+            assert.equal(result.status, 307, locale);
+            assert.match(result.headers.get('location'), /\/login(?:\?|$)/, locale);
+          }
+          JS

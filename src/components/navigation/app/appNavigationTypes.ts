@@ -10,7 +10,8 @@ export interface AppNavigationItem {
         | "accountBook"
         | "chat"
         | "languageLearning"
-        | "support";
+        | "support"
+        | "boards";
     href: string;
     labelKey:
         | "home"
@@ -19,7 +20,8 @@ export interface AppNavigationItem {
         | "accountBook"
         | "chat"
         | "languageLearning"
-        | "support";
+        | "support"
+        | "boards";
     icon: LucideIcon;
     matchPaths: string[];
     adminOnly?: boolean;

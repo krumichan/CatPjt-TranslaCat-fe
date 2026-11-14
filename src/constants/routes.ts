@@ -5,6 +5,7 @@ export const ROUTES = {
     ACCOUNT_BOOKS: "/account-books",
     SETTINGS: "/settings",
     SUPPORT: "/support",
+    BOARDS: "/boards",
     NOVEL_DETAIL: '/novel/[platformCode]/novels/[identifier]',
     NOVEL_SEARCH: '/novel/[platformCode]/search/novels',
     NOVEL_GENRE: '/novel/[platformCode]/genres/[genreId]',

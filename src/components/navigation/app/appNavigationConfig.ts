@@ -1,5 +1,6 @@
 import {
     BookOpen,
+    ClipboardList,
     GraduationCap,
     Headset,
     Home,
@@ -67,6 +68,13 @@ export const APP_NAVIGATION_SECTIONS: AppNavigationSection[] = [
                 labelKey: "languageLearning",
                 icon: GraduationCap,
                 matchPaths: ["/language-learning"],
+            },
+            {
+                key: "boards",
+                href: ROUTES.BOARDS,
+                labelKey: "boards",
+                icon: ClipboardList,
+                matchPaths: [ROUTES.BOARDS],
             },
             {
                 key: "support",

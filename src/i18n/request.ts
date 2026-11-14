@@ -12,6 +12,7 @@ const MESSAGE_FILE_NAMES = [
     "navigation",
     "notification",
     "support",
+    "board",
     "serviceSelect",
     "voice",
     "platform",

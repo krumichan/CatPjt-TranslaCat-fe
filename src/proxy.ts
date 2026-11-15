@@ -34,6 +34,11 @@ const authMiddleware = (locale: string) => withAuth(
 export default function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl;
 
+    // 설계 문서와 전용 정적 자산은 로그인 및 언어 접두사 처리를 건너뛴다.
+    if (pathname === '/docs' || pathname.startsWith('/design-docs-assets/')) {
+        return NextResponse.next();
+    }
+
     // 기존 공개 영문 가이드는 전용 루트를 유지한다. 다른 영어 앱 화면은 아래 인증·locale 경계를 따른다.
     if (pathname.startsWith('/en/') && isPublicGuidePath(pathname)) {
         return NextResponse.next();

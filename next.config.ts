@@ -71,6 +71,16 @@ const nextConfig: NextConfig = {
     // developer server cannot leave this suite attached to an old process/lock.
     distDir: process.env.NEXT_DIST_DIR ?? '.next',
     reactCompiler: true,
+    async rewrites() {
+        // 공개 설계 문서의 주소와 URL 해시를 유지하면서 정적 HTML을 제공한다.
+        return {
+            beforeFiles: [
+                { source: "/docs", destination: "/design-docs-assets/index.html" },
+            ],
+            afterFiles: [],
+            fallback: [],
+        };
+    },
     /** 기존 세부 가이드와 언어 접두사가 없는 가이드 URL을 새 위치로 연결한다. */
     redirects() {
         // /docs 루트와 설계 문서 경로에 영향을 주지 않도록 공개했던 주소만 매칭한다.
@@ -91,8 +101,16 @@ const nextConfig: NextConfig = {
             })),
         );
 
+        // 기존 언어별 문서 입구는 같은 언어의 공개 설계 문서로 연결한다.
+        const designEntrances = ["ko", "ja", "en"].map((locale) => ({
+            source: `/${locale}/docs`,
+            destination: `/docs?lang=${locale}`,
+            permanent: false,
+        }));
+
         return [
             { source: "/guides/:path*", destination: "/ko/guides/:path*", permanent: false },
+            ...designEntrances,
             ...legacyGuides,
             ...learningAliases,
         ];

@@ -12,7 +12,7 @@ const PROFILE_IMAGE_DATA_URL =
     "data:image/svg+xml;charset=UTF-8," +
     encodeURIComponent(
         '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40">' +
-            '<rect width="40" height="40" fill="#f97316"/>' +
+        '<rect width="40" height="40" fill="#f97316"/>' +
         "</svg>",
     );
 

@@ -17,10 +17,12 @@ test("dictionary registration shows failure, retries normalized input, and reloa
             revision: "revision1", segmentationVersion: "v1",
             title: { rawJa: "猫の一日", ja: "猫の一日", ko: "고양이의 하루" },
             pagerInfo: { prevIdentifier: null, nextIdentifier: null, listIdentifier: "n-test" },
-            segments: [{ id: "one", order: 0, paragraphId: "p0", paragraphIndex: 0,
+            segments: [{
+                id: "one", order: 0, paragraphId: "p0", paragraphIndex: 0,
                 startOffset: 0, endOffset: 3, rawJa: "猫だ。", plainJa: "猫だ。", ko: "고양이다.",
                 status: "SUCCEEDED", errorCode: null,
-                rubyTokens: [{ startOffset: 0, endOffset: 1, text: "猫", reading: registered ? "まお" : "ねこ" }] }],
+                rubyTokens: [{ startOffset: 0, endOffset: 1, text: "猫", reading: registered ? "まお" : "ねこ" }]
+            }],
             totalSegments: 1, completedSegments: 1, state: "SUCCEEDED", jobId: "job1",
             eventSequence: 1, durableComplete: true,
         }));

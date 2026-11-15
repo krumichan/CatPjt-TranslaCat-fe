@@ -175,7 +175,7 @@ test("VOICE-CAPTURE-05 권한 대기를 취소하면 늦은 스트림을 반납�
 test("VOICE-CAPTURE-06 늦은 세션 생성 응답은 캡처를 시작하지 않고 종료한다", async ({ page }) => {
     // 준비
     const { sockets } = await prepare(page);
-    let releaseCreate: () => void = () => {};
+    let releaseCreate: () => void = () => { };
     const gate = new Promise<void>(resolve => { releaseCreate = resolve; });
     let createStarted = false;
     let completes = 0;
@@ -230,9 +230,11 @@ test("VOICE-CAPTURE-08 미지원·불일치 언어 오류는 원문과 안내를
 
     // 실행
     for (const [index, code] of ["VOICE_AI_UNSUPPORTED_LANGUAGE", "VOICE_AI_LANGUAGE_MISMATCH"].entries()) {
-        sockets[0].send(JSON.stringify({ type: "VOICE_PIPELINE_FAILED", sessionId: session.id, channel: "REMOTE",
+        sockets[0].send(JSON.stringify({
+            type: "VOICE_PIPELINE_FAILED", sessionId: session.id, channel: "REMOTE",
             utteranceKey: `language-${index}`, utteranceSequence: index + 1, sourceText: `Original ${index}`,
-            error: { code, stage: "LANGUAGE", retryable: false } }));
+            error: { code, stage: "LANGUAGE", retryable: false }
+        }));
     }
 
     // 검증
@@ -256,8 +258,10 @@ test("VOICE-CAPTURE-09 공유 종료 뒤 마지막 번역을 받고 채널을 �
     });
     await expect.poll(() => controls.some(control => control.type === "STREAM_CLOSE")).toBe(true);
     expect(closed).toHaveLength(0);
-    sockets[0].send(JSON.stringify({ type: "VOICE_PIPELINE_COMPLETED", sessionId: session.id, channel: "REMOTE",
-        utteranceKey: "last", utteranceSequence: 1, sourceText: "Last sentence", translatedText: "마지막 문장" }));
+    sockets[0].send(JSON.stringify({
+        type: "VOICE_PIPELINE_COMPLETED", sessionId: session.id, channel: "REMOTE",
+        utteranceKey: "last", utteranceSequence: 1, sourceText: "Last sentence", translatedText: "마지막 문장"
+    }));
     sockets[0].send(JSON.stringify({ type: "STREAM_CLOSED", sessionId: session.id, channel: "REMOTE" }));
 
     // 검증
@@ -296,10 +300,14 @@ test("VOICE-CAPTURE-11 다음 발화 partial은 이전 발화의 늦은 완료 �
     await start(page, frames);
 
     // 실행
-    sockets[0].send(JSON.stringify({ type: "TRANSCRIPT_PARTIAL", sessionId: session.id, channel: "REMOTE",
-        utteranceKey: "next", utteranceSequence: 2, sourceText: "다음 발화 중간 원문" }));
-    sockets[0].send(JSON.stringify({ type: "VOICE_PIPELINE_COMPLETED", sessionId: session.id, channel: "REMOTE",
-        utteranceKey: "previous", utteranceSequence: 1, sourceText: "Previous", translatedText: "이전 발화 번역" }));
+    sockets[0].send(JSON.stringify({
+        type: "TRANSCRIPT_PARTIAL", sessionId: session.id, channel: "REMOTE",
+        utteranceKey: "next", utteranceSequence: 2, sourceText: "다음 발화 중간 원문"
+    }));
+    sockets[0].send(JSON.stringify({
+        type: "VOICE_PIPELINE_COMPLETED", sessionId: session.id, channel: "REMOTE",
+        utteranceKey: "previous", utteranceSequence: 1, sourceText: "Previous", translatedText: "이전 발화 번역"
+    }));
 
     // 검증
     await expect(page.getByText("다음 발화 중간 원문", { exact: true })).toBeVisible();
@@ -314,26 +322,36 @@ test("VOICE-CAPTURE-18 듣는 중인 문장이 번역 목록의 같은 번호 �
     const result = page.getByTestId("voice-result-REMOTE-1");
 
     // 실행: 시작부터 임시 원문까지 파란 카드에서 보이고 채널 상태줄에는 중복하지 않는다.
-    sockets[0].send(JSON.stringify({ type: "SPEECH_STARTED", sessionId: session.id, channel: "REMOTE",
-        utteranceKey: "REMOTE-1", utteranceSequence: 1 }));
+    sockets[0].send(JSON.stringify({
+        type: "SPEECH_STARTED", sessionId: session.id, channel: "REMOTE",
+        utteranceKey: "REMOTE-1", utteranceSequence: 1
+    }));
     await expect(listening).toContainText("음성 듣는 중");
     await expect(listening).toContainText("#1");
     await expect(listening).toHaveClass(/border-blue-400/);
-    sockets[0].send(JSON.stringify({ type: "TRANSCRIPT_PARTIAL", sessionId: session.id, channel: "REMOTE",
-        utteranceKey: "REMOTE-1", utteranceSequence: 1, sourceText: "Speaking now" }));
+    sockets[0].send(JSON.stringify({
+        type: "TRANSCRIPT_PARTIAL", sessionId: session.id, channel: "REMOTE",
+        utteranceKey: "REMOTE-1", utteranceSequence: 1, sourceText: "Speaking now"
+    }));
     await expect(listening).toContainText("Speaking now");
     await expect(page.getByTestId("voice-input-REMOTE")).not.toContainText("Speaking now");
 
     // 검증: 확정되면 듣는 중 카드는 사라지고 같은 목록의 번역 중·완료 카드가 이어진다.
-    sockets[0].send(JSON.stringify({ type: "TRANSCRIPT_FINAL", sessionId: session.id, channel: "REMOTE",
-        utteranceKey: "REMOTE-1", utteranceSequence: 1, sourceText: "Speaking now" }));
+    sockets[0].send(JSON.stringify({
+        type: "TRANSCRIPT_FINAL", sessionId: session.id, channel: "REMOTE",
+        utteranceKey: "REMOTE-1", utteranceSequence: 1, sourceText: "Speaking now"
+    }));
     await expect(listening).not.toBeVisible();
     await expect(result).toContainText("번역 중");
-    sockets[0].send(JSON.stringify({ type: "VOICE_PIPELINE_COMPLETED", sessionId: session.id, channel: "REMOTE",
-        utteranceKey: "REMOTE-1", utteranceSequence: 1, sourceText: "Speaking now", translatedText: "현재 말하는 중" }));
+    sockets[0].send(JSON.stringify({
+        type: "VOICE_PIPELINE_COMPLETED", sessionId: session.id, channel: "REMOTE",
+        utteranceKey: "REMOTE-1", utteranceSequence: 1, sourceText: "Speaking now", translatedText: "현재 말하는 중"
+    }));
     await expect(result).toContainText("현재 말하는 중");
-    sockets[0].send(JSON.stringify({ type: "SPEECH_STARTED", sessionId: session.id, channel: "REMOTE",
-        utteranceKey: "REMOTE-2", utteranceSequence: 2 }));
+    sockets[0].send(JSON.stringify({
+        type: "SPEECH_STARTED", sessionId: session.id, channel: "REMOTE",
+        utteranceKey: "REMOTE-2", utteranceSequence: 2
+    }));
     await expect(listening).toContainText("#2");
     expect(await page.evaluate(() => {
         const current = document.querySelector('[data-testid="voice-listening-REMOTE"]');
@@ -352,17 +370,23 @@ test("VOICE-CAPTURE-16 재접속은 완료 문장을 유지하고 낮은 번호�
     // 준비: 서버에 저장된 마지막 문장은 2번, 이전 연결의 임시 문장은 20번이다.
     const { frames, sockets } = await prepare(page);
     await start(page, frames);
-    sockets[0].send(JSON.stringify({ type: "VOICE_PIPELINE_COMPLETED", sessionId: session.id, channel: "REMOTE",
-        utteranceKey: "REMOTE-2", utteranceSequence: 2, sourceText: "Saved before reconnect", translatedText: "재접속 전 저장 문장" }));
-    sockets[0].send(JSON.stringify({ type: "TRANSCRIPT_PARTIAL", sessionId: session.id, channel: "REMOTE",
-        utteranceKey: "REMOTE-20", utteranceSequence: 20, sourceText: "이전 연결의 미완성 문장" }));
+    sockets[0].send(JSON.stringify({
+        type: "VOICE_PIPELINE_COMPLETED", sessionId: session.id, channel: "REMOTE",
+        utteranceKey: "REMOTE-2", utteranceSequence: 2, sourceText: "Saved before reconnect", translatedText: "재접속 전 저장 문장"
+    }));
+    sockets[0].send(JSON.stringify({
+        type: "TRANSCRIPT_PARTIAL", sessionId: session.id, channel: "REMOTE",
+        utteranceKey: "REMOTE-20", utteranceSequence: 20, sourceText: "이전 연결의 미완성 문장"
+    }));
     await expect(page.getByText("이전 연결의 미완성 문장", { exact: true })).toBeVisible();
 
     // 실행: 오류로 끊긴 뒤 서버의 저장 번호에 이어지는 새 연결을 재현한다.
     sockets[0].close({ code: 1011, reason: "isolated reconnect regression" });
     await expect.poll(() => sockets.length).toBe(2);
-    sockets[1].send(JSON.stringify({ type: "TRANSCRIPT_PARTIAL", sessionId: session.id, channel: "REMOTE",
-        utteranceKey: "REMOTE-3", utteranceSequence: 3, sourceText: "재접속 이후 새 문장" }));
+    sockets[1].send(JSON.stringify({
+        type: "TRANSCRIPT_PARTIAL", sessionId: session.id, channel: "REMOTE",
+        utteranceKey: "REMOTE-3", utteranceSequence: 3, sourceText: "재접속 이후 새 문장"
+    }));
 
     // 검증: 완료 행은 남고 이전 partial은 지워지며 현재 입력은 계속 보인다.
     await expect(page.getByText("재접속 전 저장 문장", { exact: true })).toBeVisible();
@@ -377,8 +401,10 @@ test("VOICE-CAPTURE-17 비복구 서버 저장 오류는 자동 재접속하지 
     await start(page, frames);
 
     // 실행: BE가 명시한 STREAM 저장 오류 뒤 연결을 종료한다.
-    sockets[0].send(JSON.stringify({ type: "VOICE_PIPELINE_FAILED", sessionId: session.id, channel: "REMOTE",
-        error: { code: "VOICE_BE_INTERNAL_ERROR", stage: "STREAM", retryable: false } }));
+    sockets[0].send(JSON.stringify({
+        type: "VOICE_PIPELINE_FAILED", sessionId: session.id, channel: "REMOTE",
+        error: { code: "VOICE_BE_INTERNAL_ERROR", stage: "STREAM", retryable: false }
+    }));
     sockets[0].close({ code: 1011, reason: "isolated fatal persistence regression" });
     await expect(page.getByText("오류", { exact: true })).toBeVisible();
     const stoppedFrames = frames.length;
@@ -427,8 +453,10 @@ test("VOICE-CAPTURE-13 페이지를 떠날 때 완료 요청과 마지막 응답
     await expect.poll(() => page.evaluate(() => window.voiceTestStreams[0].getAudioTracks()[0].readyState)).toBe("ended");
     expect(closed).toHaveLength(0);
     await expect.poll(() => completes).toBe(1);
-    sockets[0].send(JSON.stringify({ type: "VOICE_PIPELINE_COMPLETED", sessionId: session.id, channel: "REMOTE",
-        utteranceKey: "last", utteranceSequence: 1, sourceText: "Last sentence", translatedText: "마지막 문장" }));
+    sockets[0].send(JSON.stringify({
+        type: "VOICE_PIPELINE_COMPLETED", sessionId: session.id, channel: "REMOTE",
+        utteranceKey: "last", utteranceSequence: 1, sourceText: "Last sentence", translatedText: "마지막 문장"
+    }));
     sockets[0].send(JSON.stringify({ type: "STREAM_CLOSED", sessionId: session.id, channel: "REMOTE" }));
 
     // 검증: 완료 요청과 병행해 마지막 서버 응답을 받고 소켓을 반납한다.
@@ -474,7 +502,7 @@ test("VOICE-CAPTURE-19 종료 응답 대기 중 페이지를 떠나도 요청은
     // 준비: 종료 버튼의 HTTP 응답을 보류한 상태에서 같은 세션의 unmount 정리를 겹친다.
     const { frames, sockets, controls, closed } = await prepare(page);
     let completes = 0;
-    let releaseComplete = () => {};
+    let releaseComplete = () => { };
     const completionGate = new Promise<void>(resolve => { releaseComplete = resolve; });
     await page.route("**/voice/sessions/*/complete", async route => {
         completes += 1;
@@ -491,8 +519,10 @@ test("VOICE-CAPTURE-19 종료 응답 대기 중 페이지를 떠나도 요청은
     await expect.poll(() => controls.filter(control => control.type === "STREAM_CLOSE").length).toBe(1);
     await expect.poll(() => page.evaluate(() => window.voiceTestStreams[0].getAudioTracks()[0].readyState)).toBe("ended");
     expect(closed).toHaveLength(0);
-    sockets[0].send(JSON.stringify({ type: "VOICE_PIPELINE_COMPLETED", sessionId: session.id, channel: "REMOTE",
-        utteranceKey: "last", utteranceSequence: 1, sourceText: "Last sentence", translatedText: "마지막 문장" }));
+    sockets[0].send(JSON.stringify({
+        type: "VOICE_PIPELINE_COMPLETED", sessionId: session.id, channel: "REMOTE",
+        utteranceKey: "last", utteranceSequence: 1, sourceText: "Last sentence", translatedText: "마지막 문장"
+    }));
     sockets[0].send(JSON.stringify({ type: "STREAM_CLOSED", sessionId: session.id, channel: "REMOTE" }));
     releaseComplete();
 
@@ -524,12 +554,16 @@ test("VOICE-CAPTURE-21 인식 지연과 과부하를 구분해 표시하고 다�
 
     // 실행: 사진에서 보였던 연속 처리 실패 뒤 정상 결과가 도착하는 상황을 재현한다.
     for (const [index, code] of ["VOICE_AI_STT_TIMEOUT", "VOICE_AI_BACKPRESSURE"].entries()) {
-        sockets[0].send(JSON.stringify({ type: "VOICE_PIPELINE_FAILED", sessionId: session.id, channel: "REMOTE",
+        sockets[0].send(JSON.stringify({
+            type: "VOICE_PIPELINE_FAILED", sessionId: session.id, channel: "REMOTE",
             utteranceKey: `REMOTE-${index + 1}`, utteranceSequence: index + 1,
-            error: { code, stage: "STT", retryable: true } }));
+            error: { code, stage: "STT", retryable: true }
+        }));
     }
-    sockets[0].send(JSON.stringify({ type: "VOICE_PIPELINE_COMPLETED", sessionId: session.id, channel: "REMOTE",
-        utteranceKey: "REMOTE-3", utteranceSequence: 3, sourceText: "The next sentence", translatedText: "다음 문장" }));
+    sockets[0].send(JSON.stringify({
+        type: "VOICE_PIPELINE_COMPLETED", sessionId: session.id, channel: "REMOTE",
+        utteranceKey: "REMOTE-3", utteranceSequence: 3, sourceText: "The next sentence", translatedText: "다음 문장"
+    }));
 
     // 검증: 사용자 입력 문제로 안내하지 않고 오류 구간과 정상 번역을 함께 보존한다.
     await expect(page.getByTestId("voice-result-REMOTE-1")).toContainText("음성 인식이 지연되어");
@@ -545,9 +579,11 @@ test("VOICE-CAPTURE-22 임시 번역은 같은 카드에서 갱신되고 확정 
     await start(page, frames);
     const preview = page.getByTestId("voice-listening-REMOTE");
     const result = page.getByTestId("voice-result-REMOTE-1");
-    const event = { type: "TRANSCRIPT_PARTIAL", sessionId: session.id, channel: "REMOTE",
+    const event = {
+        type: "TRANSCRIPT_PARTIAL", sessionId: session.id, channel: "REMOTE",
         utteranceKey: "REMOTE-1", utteranceSequence: 1, revision: 2,
-        sourceText: "The shipment arrives", translatedText: "배송이 도착합니다" };
+        sourceText: "The shipment arrives", translatedText: "배송이 도착합니다"
+    };
 
     // 실행: 역순 스냅샷을 무시하고 원문만 갱신되면 이전 임시 번역을 지운다.
     sockets[0].send(JSON.stringify(event));
@@ -568,14 +604,18 @@ test("VOICE-CAPTURE-22 임시 번역은 같은 카드에서 갱신되고 확정 
     await preview.screenshot({ path: testInfo.outputPath("live-preview-mobile.png") });
 
     // 검증: 확정 원문은 임시 번역을 제거하고, 늦은 partial을 거친 뒤에도 완료 결과만 표시한다.
-    sockets[0].send(JSON.stringify({ ...event, type: "TRANSCRIPT_FINAL", revision: 1,
-        sourceText: "The shipment arrives on Friday.", translatedText: undefined }));
+    sockets[0].send(JSON.stringify({
+        ...event, type: "TRANSCRIPT_FINAL", revision: 1,
+        sourceText: "The shipment arrives on Friday.", translatedText: undefined
+    }));
     sockets[0].send(JSON.stringify({ ...event, revision: 5 }));
     await expect(preview).not.toBeVisible();
     await expect(result).toContainText("번역 중");
     await expect(result).not.toContainText("배송이 도착합니다");
-    sockets[0].send(JSON.stringify({ ...event, type: "VOICE_PIPELINE_COMPLETED", revision: 2,
-        sourceText: "The shipment arrives on Friday.", translatedText: "배송은 금요일에 도착합니다." }));
+    sockets[0].send(JSON.stringify({
+        ...event, type: "VOICE_PIPELINE_COMPLETED", revision: 2,
+        sourceText: "The shipment arrives on Friday.", translatedText: "배송은 금요일에 도착합니다."
+    }));
     sockets[0].send(JSON.stringify({ ...event, revision: 6 }));
     await expect(result).toContainText("배송은 금요일에 도착합니다.");
     await expect(page.getByText("임시 번역", { exact: true })).not.toBeVisible();
@@ -586,7 +626,7 @@ test("VOICE-CAPTURE-23 앞 발화의 임시 번역은 다음 발화 시작과 �
     // 준비
     const { frames, sockets } = await prepare(page);
     let completes = 0;
-    let releaseComplete = () => {};
+    let releaseComplete = () => { };
     const completionGate = new Promise<void>(resolve => { releaseComplete = resolve; });
     await page.route("**/voice/sessions/*/complete", async route => {
         completes += 1;
@@ -594,12 +634,16 @@ test("VOICE-CAPTURE-23 앞 발화의 임시 번역은 다음 발화 시작과 �
         await fulfillJson(route, responseDto({ ...session, status: "COMPLETED" }));
     });
     await start(page, frames);
-    const event = { type: "TRANSCRIPT_PARTIAL", sessionId: session.id, channel: "REMOTE",
+    const event = {
+        type: "TRANSCRIPT_PARTIAL", sessionId: session.id, channel: "REMOTE",
         utteranceKey: "REMOTE-1", utteranceSequence: 1, revision: 1,
-        sourceText: "First phrase", translatedText: "첫 임시 문장" };
+        sourceText: "First phrase", translatedText: "첫 임시 문장"
+    };
     sockets[0].send(JSON.stringify(event));
-    sockets[0].send(JSON.stringify({ ...event, utteranceKey: "REMOTE-2", utteranceSequence: 2,
-        sourceText: "Next phrase", translatedText: "다음 임시 문장" }));
+    sockets[0].send(JSON.stringify({
+        ...event, utteranceKey: "REMOTE-2", utteranceSequence: 2,
+        sourceText: "Next phrase", translatedText: "다음 임시 문장"
+    }));
 
     // 실행 / 검증: 두 임시 카드는 서로 덮어쓰지 않으며 이전 문장은 확정 대기로 표시한다.
     const previous = page.getByTestId("voice-preview-REMOTE-1");
@@ -616,8 +660,10 @@ test("VOICE-CAPTURE-23 앞 발화의 임시 번역은 다음 발화 시작과 �
     // 실행 / 검증: 종료 시 임시 텍스트를 이력으로 취급하지 않고 마지막 확정 결과를 받는다.
     await page.getByRole("button", { name: "세션 종료", exact: true }).click();
     await expect.poll(() => completes).toBe(1);
-    sockets[0].send(JSON.stringify({ ...event, type: "VOICE_PIPELINE_COMPLETED", utteranceKey: "REMOTE-2",
-        utteranceSequence: 2, sourceText: "Next phrase.", translatedText: "다음 확정 문장." }));
+    sockets[0].send(JSON.stringify({
+        ...event, type: "VOICE_PIPELINE_COMPLETED", utteranceKey: "REMOTE-2",
+        utteranceSequence: 2, sourceText: "Next phrase.", translatedText: "다음 확정 문장."
+    }));
     sockets[0].send(JSON.stringify({ type: "STREAM_CLOSED", sessionId: session.id, channel: "REMOTE" }));
     releaseComplete();
     await expect(page.getByTestId("voice-result-REMOTE-2")).toContainText("다음 확정 문장.");

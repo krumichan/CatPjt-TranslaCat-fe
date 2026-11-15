@@ -26,8 +26,10 @@ test("NOVEL-RELEASE-CORE actual BE profile, LL settings and CHAT persistence", a
                 const text = typeof payload === "string" ? payload : payload.toString("utf8");
                 const command = text.split("\n")[0].trim();
                 const destination = /^destination:(.+)$/m.exec(text)?.[1]?.trim() ?? null;
-                frames.push({ direction, command: /^(CONNECT|CONNECTED|SEND|SUBSCRIBE|ERROR|MESSAGE|DISCONNECT|RECEIPT)$/.test(command) ? command : "OTHER",
-                    destination: destination && /^\/(app|topic|user)\/[\w/.-]+$/.test(destination) ? destination : null, bytes: Buffer.byteLength(text) });
+                frames.push({
+                    direction, command: /^(CONNECT|CONNECTED|SEND|SUBSCRIBE|ERROR|MESSAGE|DISCONNECT|RECEIPT)$/.test(command) ? command : "OTHER",
+                    destination: destination && /^\/(app|topic|user)\/[\w/.-]+$/.test(destination) ? destination : null, bytes: Buffer.byteLength(text)
+                });
             };
             socket.on("framesent", event => record("sent", event.payload));
             socket.on("framereceived", event => record("received", event.payload));
@@ -87,9 +89,11 @@ test("NOVEL-RELEASE-CORE actual BE profile, LL settings and CHAT persistence", a
         completed.push("actual-chat-ui-send-persist-reload");
     } catch (error) { failure = error instanceof Error ? error.message.slice(0, 1500) : "UNKNOWN_FAILURE"; throw error; }
     finally {
-        fs.writeFileSync(file, JSON.stringify({ version: 1, completed, failure, roomId, messageId, settings, statuses, frames,
+        fs.writeFileSync(file, JSON.stringify({
+            version: 1, completed, failure, roomId, messageId, settings, statuses, frames,
             boundary: "Actual local FE/BE/LL/CHAT/MySQL. Real BE login, synthetic NextAuth packaging. No Google completion. Synthetic core AI; no OpenAI generation requested.",
-            finishedAt: new Date().toISOString() }, null, 2), { flag: "wx" });
+            finishedAt: new Date().toISOString()
+        }, null, 2), { flag: "wx" });
     }
 });
 
@@ -112,10 +116,12 @@ test("NOVEL-RELEASE-AUTH anonymous and actual USER cannot access Novel", async (
         expect(tokens.role).toBe("USER");
         const denied = await request.get(base, { headers: { Authorization: `Bearer ${tokens.accessToken}` } });
         userStatus = denied.status(); expect(userStatus).toBe(404);
-        const cookie = await encode({ secret: process.env.NEXTAUTH_SECRET, maxAge: 1800, token: {
-            sub: String(fixture.actorId), name: "Local USER QA", email: fixture.email, publicId: tokens.publicId, role: "USER",
-            accessToken: tokens.accessToken, refreshToken: tokens.refreshToken, accessTokenExpires: Date.now() + tokens.accessTokenExpiresIn * 1000,
-        } });
+        const cookie = await encode({
+            secret: process.env.NEXTAUTH_SECRET, maxAge: 1800, token: {
+                sub: String(fixture.actorId), name: "Local USER QA", email: fixture.email, publicId: tokens.publicId, role: "USER",
+                accessToken: tokens.accessToken, refreshToken: tokens.refreshToken, accessTokenExpires: Date.now() + tokens.accessTokenExpiresIn * 1000,
+            }
+        });
         await context.addCookies([{ name: "next-auth.session-token", value: cookie, url: releaseAppUrl, httpOnly: true, sameSite: "Lax", secure: false }]);
         page.on("request", req => { if (req.url() === base) requests++; });
         const response = await page.goto(`${releaseAppUrl}/ko/novel/syosyetu/novels/n2604qg/episode/1`);
@@ -123,7 +129,11 @@ test("NOVEL-RELEASE-AUTH anonymous and actual USER cannot access Novel", async (
         await expect(page.getByRole("heading", { name: "404", exact: true })).toBeVisible();
         expect(browserStatus).toBe(404); expect(requests).toBe(0);
     } catch (error) { failure = error instanceof Error ? error.message.split("\n")[0].slice(0, 400) : "UNKNOWN_FAILURE"; throw new Error(failure); }
-    finally { fs.writeFileSync(file, JSON.stringify({ anonymousStatus, userStatus, browserStatus, requests, failure, realBeRole: "USER",
-        boundary: "Actual BE register/login USER token; synthetic NextAuth packaging. No Google authentication.", finishedAt: new Date().toISOString() }, null, 2), { flag: "wx" }); }
+    finally {
+        fs.writeFileSync(file, JSON.stringify({
+            anonymousStatus, userStatus, browserStatus, requests, failure, realBeRole: "USER",
+            boundary: "Actual BE register/login USER token; synthetic NextAuth packaging. No Google authentication.", finishedAt: new Date().toISOString()
+        }, null, 2), { flag: "wx" });
+    }
 });
 test.use({ trace: "off", video: "off" });

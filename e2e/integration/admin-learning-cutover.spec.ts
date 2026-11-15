@@ -15,10 +15,12 @@ test.use({ trace: "off", video: "off" });
 test("실제 관리자 화면에서 LL 설정을 조회하고 값 변경 없이 저장·재조회한다", async ({ context, page }) => {
     // 준비: 실제 BE 관리자 토큰을 사용하며 설정 API를 가로채지 않는다.
     const now = Math.floor(Date.now() / 1000);
-    const token = await encode({ secret: secret!, maxAge: 3600, token: {
-        sub: publicId!, publicId, role: "ADMIN", accessToken, refreshToken,
-        accessTokenExpires: Date.now() + 3_600_000, iat: now, exp: now + 3600, jti: `admin-cutover-${now}`,
-    } });
+    const token = await encode({
+        secret: secret!, maxAge: 3600, token: {
+            sub: publicId!, publicId, role: "ADMIN", accessToken, refreshToken,
+            accessTokenExpires: Date.now() + 3_600_000, iat: now, exp: now + 3600, jti: `admin-cutover-${now}`,
+        }
+    });
     await context.addCookies([{
         name: "next-auth.session-token", value: token, url: baseURL,
         httpOnly: true, secure: false, sameSite: "Lax", expires: now + 3600,

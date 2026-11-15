@@ -132,14 +132,20 @@ test("EN-WRITING-PROGRESS 같은 학습일의 일본어 완료 이력을 영어 
         ...LANGUAGE_LEARNING_SETTING, originLanguage: "ko", learningLanguage: "en", timezone: "America/Los_Angeles",
     })));
     await page.route("**/api/v1/language-learning/history?**", (route) => fulfillApiJson(route, responseDto([
-        { activityId: "WRITING:old-ja", source: "WRITING", originLanguage: "ko", learningLanguage: "ja",
+        {
+            activityId: "WRITING:old-ja", source: "WRITING", originLanguage: "ko", learningLanguage: "ja",
             learningDate: "2026-10-16", title: "Daily Writing · TRANSLATION", topic: "TRANSLATION",
-            completionStatus: "COMPLETED", evaluationStatus: "SUCCESS", overallScore: 99, durationSeconds: 0 },
-        { activityId: "WRITING:unknown", source: "WRITING", learningDate: "2026-10-16",
-            title: "Daily Writing · GUIDED", topic: "GUIDED", completionStatus: "COMPLETED", evaluationStatus: "SUCCESS", overallScore: 100, durationSeconds: 0 },
-        { activityId: "WRITING:current-en", source: "WRITING", originLanguage: "ko", learningLanguage: "en",
+            completionStatus: "COMPLETED", evaluationStatus: "SUCCESS", overallScore: 99, durationSeconds: 0
+        },
+        {
+            activityId: "WRITING:unknown", source: "WRITING", learningDate: "2026-10-16",
+            title: "Daily Writing · GUIDED", topic: "GUIDED", completionStatus: "COMPLETED", evaluationStatus: "SUCCESS", overallScore: 100, durationSeconds: 0
+        },
+        {
+            activityId: "WRITING:current-en", source: "WRITING", originLanguage: "ko", learningLanguage: "en",
             learningDate: "2026-10-16", title: "Daily Writing · FREE", topic: "FREE",
-            completionStatus: "COMPLETED", evaluationStatus: "SUCCESS", overallScore: 85, durationSeconds: 0 },
+            completionStatus: "COMPLETED", evaluationStatus: "SUCCESS", overallScore: 85, durationSeconds: 0
+        },
     ])));
 
     // 실행

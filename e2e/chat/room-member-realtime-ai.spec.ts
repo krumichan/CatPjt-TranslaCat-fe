@@ -89,13 +89,13 @@ test.describe("Room member realtime + AI display", () => {
                         }),
                         ...(includeJoinedMember
                             ? [
-                                  makeOpenChatProfile({
-                                      openChatMemberId: 92,
-                                      memberCode: "OC-MEMBER",
-                                      nickname: "새 멤버",
-                                      role: "MEMBER",
-                                  }),
-                              ]
+                                makeOpenChatProfile({
+                                    openChatMemberId: 92,
+                                    memberCode: "OC-MEMBER",
+                                    nickname: "새 멤버",
+                                    role: "MEMBER",
+                                }),
+                            ]
                             : []),
                     ],
                     aiMembers: [aiDisplayMember()],

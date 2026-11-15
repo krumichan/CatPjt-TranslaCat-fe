@@ -34,13 +34,17 @@ async function authenticate(context: BrowserContext, label: string): Promise<voi
     // 준비: 실제 BE login으로 발급한 scratch 계정 토큰을 정상 NextAuth cookie에 넣는다.
     const qa = user(label);
     const now = Math.floor(Date.now() / 1000);
-    const token = await encode({ secret, maxAge: 3600, token: {
-        sub: qa.publicId, publicId: qa.publicId, role: "USER", loginSessionId: randomUUID(),
-        accessToken: qa.accessToken, refreshToken: qa.refreshToken,
-        accessTokenExpires: Date.now() + 3600_000, iat: now, exp: now + 3600, jti: randomUUID(),
-    } });
-    await context.addCookies([{ name: "next-auth.session-token", value: token, url: baseURL,
-        httpOnly: true, secure: false, sameSite: "Lax", expires: now + 3600 }]);
+    const token = await encode({
+        secret, maxAge: 3600, token: {
+            sub: qa.publicId, publicId: qa.publicId, role: "USER", loginSessionId: randomUUID(),
+            accessToken: qa.accessToken, refreshToken: qa.refreshToken,
+            accessTokenExpires: Date.now() + 3600_000, iat: now, exp: now + 3600, jti: randomUUID(),
+        }
+    });
+    await context.addCookies([{
+        name: "next-auth.session-token", value: token, url: baseURL,
+        httpOnly: true, secure: false, sameSite: "Lax", expires: now + 3600
+    }]);
 }
 
 async function responseBody<T>(response: Response): Promise<T> {
@@ -108,8 +112,10 @@ for (const [index, writingType] of (["TRANSLATION", "GUIDED", "FREE"] as const).
         expect(plan.targetItemCount).toBe(target);
         expect(plan.items[0].preparationRequestKey).toBe(original.requestKey);
         expect(plan.items[0]).not.toHaveProperty("reference");
-        expect(plan.items[0]).toMatchObject({ targetBand: writingType === "TRANSLATION" ? 2 : 3,
-            difficulty: writingType === "TRANSLATION" ? "REVIEW" : "NORMAL" });
+        expect(plan.items[0]).toMatchObject({
+            targetBand: writingType === "TRANSLATION" ? 2 : 3,
+            difficulty: writingType === "TRANSLATION" ? "REVIEW" : "NORMAL"
+        });
         const item = page.getByTestId(`paragraph-item-${plan.items[0].order}`);
         await expect(item.getByTestId("paragraph-source")).toHaveText(original.candidate!.prompt);
         await expect(item.getByRole("region", { name: "참고 답안과 체크리스트", exact: true })).toHaveCount(0);
@@ -168,10 +174,12 @@ for (const [index, writingType] of (["TRANSLATION", "GUIDED", "FREE"] as const).
         await expect(page.getByText(answer, { exact: true })).toHaveCount(0);
         await expect(page.getByRole("button", { name: "새 후보 준비", exact: true })).toBeEnabled();
         expect(calls()).toHaveLength(initialCalls + 2);
-        await testInfo.attach("actual-stack-summary", { contentType: "application/json", body: Buffer.from(JSON.stringify({
-            writingType, target, acquired: 1, generatedCalls: 2, provider: "synthetic", realDatabase: true,
-            realBeHttp: true, originalKey: original.requestKey, repairKey: repaired.requestKey, planId: plan.dailySetId,
-        })) });
+        await testInfo.attach("actual-stack-summary", {
+            contentType: "application/json", body: Buffer.from(JSON.stringify({
+                writingType, target, acquired: 1, generatedCalls: 2, provider: "synthetic", realDatabase: true,
+                realBeHttp: true, originalKey: original.requestKey, repairKey: repaired.requestKey, planId: plan.dailySetId,
+            }))
+        });
     });
 }
 
@@ -255,8 +263,10 @@ test("실제 저장 뒤 응답 유실 시 원래 문항 조회가 복구 키를 
     await expect(item.getByTestId("paragraph-source")).toHaveText(repair.candidate!.prompt);
     await expect(page.getByTestId("prepared-prompt")).toHaveText(repair.candidate!.prompt);
     expect(calls()).toHaveLength(before + 2);
-    await testInfo.attach("fault-injection-provenance", { contentType: "application/json", body: Buffer.from(JSON.stringify({
-        responseSource: "real BE HTTP and LL DB", injectedFault: "route.fetch completed, then route.abort before browser delivery",
-        syntheticModel: true, generatedCalls: 2, recoveryGeneratedCalls: 0,
-    })) });
+    await testInfo.attach("fault-injection-provenance", {
+        contentType: "application/json", body: Buffer.from(JSON.stringify({
+            responseSource: "real BE HTTP and LL DB", injectedFault: "route.fetch completed, then route.abort before browser delivery",
+            syntheticModel: true, generatedCalls: 2, recoveryGeneratedCalls: 0,
+        }))
+    });
 });

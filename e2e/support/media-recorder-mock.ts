@@ -16,8 +16,8 @@ export async function mockSpeakingMediaRecorder(
             microphoneMode === "granted"
                 ? "granted"
                 : microphoneMode === "denied"
-                  ? "denied"
-                  : "prompt";
+                    ? "denied"
+                    : "prompt";
 
         Object.defineProperty(navigator, "permissions", {
             configurable: true,

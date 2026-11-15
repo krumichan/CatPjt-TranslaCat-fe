@@ -23,8 +23,10 @@ export function safeSpeechAttempts(value: unknown): SpeechAttempt[] {
             || !["ja", "ko"].includes(String(meta.language)) || typeof meta.voice !== "string") {
             throw new Error("SPEECH_LEDGER_KEY_REQUIRED");
         }
-        return { attempt: Number(call.attempt), task: "OPENAI_TTS", status: call.status, traceId: meta.traceId,
-            requestSha256: meta.requestSha256.toLowerCase(), language: String(meta.language), voice: meta.voice };
+        return {
+            attempt: Number(call.attempt), task: "OPENAI_TTS", status: call.status, traceId: meta.traceId,
+            requestSha256: meta.requestSha256.toLowerCase(), language: String(meta.language), voice: meta.voice
+        };
     });
 }
 
@@ -42,8 +44,10 @@ export function verifyPaidAudioKeys(entries: AudioEntry[], requests: AudioReques
         if (attempts.length > 1 || (required && attempts.length !== 1) || (!matchingRequests.length && attempts.length !== 0)) {
             throw new Error("AUDIO_PER_KEY_PROVIDER_COUNT_MISMATCH");
         }
-        return { segmentId: entry.segmentId, language: entry.language, partIndex: entry.partIndex,
-            textSha256: entry.textSha256, requiredForCompletedPlayback: required, browserRequests: matchingRequests.length, providerAttempts: attempts.map(call => call.attempt) };
+        return {
+            segmentId: entry.segmentId, language: entry.language, partIndex: entry.partIndex,
+            textSha256: entry.textSha256, requiredForCompletedPlayback: required, browserRequests: matchingRequests.length, providerAttempts: attempts.map(call => call.attempt)
+        };
     });
     if (proofs.reduce((count, item) => count + item.providerAttempts.length, 0) !== scope.length
         || requests.some(request => !entries.some(entry => entry.segmentId === request.segmentId
@@ -68,8 +72,10 @@ export function verifyAudioRequestPositions(requests: AudioRequestObservation[],
         if (native && !native.paused && !native.ended && Number.isFinite(native.duration) && native.duration > 0) {
             if (request.playbackState !== "playing" || active < head || index !== active + 1
                 || native.currentTime < Math.max(0, native.duration - 3)) throw new Error("AUDIO_LOOKAHEAD_POSITION_VIOLATION");
-            return { atMs: request.atMs, phase: request.phase, segmentId: request.segmentId,
-                currentSegmentId: request.activeSegmentId, kind: "ONE_NEXT_AT_NATIVE_END_WINDOW", nativePosition: native };
+            return {
+                atMs: request.atMs, phase: request.phase, segmentId: request.segmentId,
+                currentSegmentId: request.activeSegmentId, kind: "ONE_NEXT_AT_NATIVE_END_WINDOW", nativePosition: native
+            };
         }
         const ended = orderedSegmentIds.indexOf(request.lastEndedSegmentId ?? "");
         if (index !== (ended >= head ? ended + 1 : head)) throw new Error("AUDIO_CURRENT_POSITION_VIOLATION");

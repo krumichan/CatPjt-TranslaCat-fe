@@ -24,9 +24,11 @@ for (const kind of ["RANKING", "SEARCH"] as const) {
             return fulfillJson(route, responseDto({
                 snapshotId: "ruby-list", eventSequence: 1, state: "SUCCEEDED", total: 1, ready: 1, failed: 0,
                 pageInfo: null, selector,
-                items: [{ itemId: "ruby-item", identifier: "n-ruby", rank: kind === "RANKING" ? 1 : null,
+                items: [{
+                    itemId: "ruby-item", identifier: "n-ruby", rank: kind === "RANKING" ? 1 : null,
                     sourcePosition: 0, status: "READY", title: unit(), author: unit(), synopsis: unit(), statusText: unit(),
-                    genreText: "", isShortStory: false, arrivalSequence: 0, errorCode: null, cached: true }],
+                    genreText: "", isShortStory: false, arrivalSequence: 0, errorCode: null, cached: true
+                }],
             }));
         });
         const path = kind === "RANKING" ? "/learning/novel/syosyetu/genres/all?period=daily"

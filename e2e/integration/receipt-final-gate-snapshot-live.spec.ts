@@ -53,13 +53,19 @@ test("RECEIPT-FINAL-GATE stored FX snapshots survive cache mutation and a new se
     }
 
     const now = Math.floor(Date.now() / 1000); const maxAge = Math.max(login.body.accessTokenExpiresIn, 300);
-    const token = await encode({ secret, maxAge, token: { name: "receipt-final-snapshot", email,
-        sub: login.body.publicId, accessToken: login.body.accessToken,
-        accessTokenExpires: Date.now() + login.body.accessTokenExpiresIn * 1000,
-        role: login.body.role, publicId: login.body.publicId, iat: now, exp: now + maxAge,
-        jti: `receipt-final-snapshot-${now}` } });
-    await context.addCookies([{ name: "next-auth.session-token", value: token, url: appUrl,
-        httpOnly: true, secure: false, sameSite: "Lax", expires: now + maxAge }]);
+    const token = await encode({
+        secret, maxAge, token: {
+            name: "receipt-final-snapshot", email,
+            sub: login.body.publicId, accessToken: login.body.accessToken,
+            accessTokenExpires: Date.now() + login.body.accessTokenExpiresIn * 1000,
+            role: login.body.role, publicId: login.body.publicId, iat: now, exp: now + maxAge,
+            jti: `receipt-final-snapshot-${now}`
+        }
+    });
+    await context.addCookies([{
+        name: "next-auth.session-token", value: token, url: appUrl,
+        httpOnly: true, secure: false, sameSite: "Lax", expires: now + maxAge
+    }]);
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`/ko/account-books/${source.accountBookId}`);
     const card = page.getByTestId(`transaction-card-${expected[0].id}`);
@@ -71,9 +77,11 @@ test("RECEIPT-FINAL-GATE stored FX snapshots survive cache mutation and a new se
     await expect(detail).not.toContainText(mutatedCacheRate);
     await page.screenshot({ path: evidencePath.replace(/\.json$/, ".png"), fullPage: true });
     fs.mkdirSync(path.dirname(evidencePath), { recursive: true });
-    fs.writeFileSync(evidencePath, JSON.stringify({ classification: "LIVE_SNAPSHOT_INVARIANCE",
+    fs.writeFileSync(evidencePath, JSON.stringify({
+        classification: "LIVE_SNAPSHOT_INVARIANCE",
         accountBookId: source.accountBookId,
         cacheMutation: { pair: "JPY/USD", requestedRateDate: mutatedCacheDate, rate: mutatedCacheRate },
-        serverRestarted: true, newLoginSession: true, comparedFields: snapshotFields, before: expected, afterRestart }, null, 2));
+        serverRestarted: true, newLoginSession: true, comparedFields: snapshotFields, before: expected, afterRestart
+    }, null, 2));
     await api.dispose();
 });

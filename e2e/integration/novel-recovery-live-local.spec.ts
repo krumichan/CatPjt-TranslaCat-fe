@@ -94,7 +94,7 @@ test.describe("actual selective recovery through local production FE and MySQL B
                     if (!response.url().startsWith(base) || !response.ok()) return;
                     responseReads.push(response.json().then(envelope => {
                         if (envelope.body?.segments && (!latest || envelope.body.eventSequence >= latest.eventSequence)) latest = envelope.body;
-                    }).catch(() => {}));
+                    }).catch(() => { }));
                 });
                 await page.goto(`${appUrl}/ko/novel/${scenario.platform}/novels/${scenario.novel}/episode/${scenario.episode}`);
                 const target = page.locator(`[data-testid="novel-sentence"][data-segment-id="${scenario.targetId}"]`);
@@ -138,10 +138,12 @@ test.describe("actual selective recovery through local production FE and MySQL B
                     const value = await page.getByTestId("novel-repair-state").getAttribute("data-repair-metrics", { timeout: 1000 }).catch(() => null);
                     if (value) metrics = JSON.parse(value);
                 }
-                if (!fs.existsSync(evidenceFile)) fs.writeFileSync(evidenceFile, JSON.stringify({ version: 1, case: scenario, sourceFileSha256: createHash("sha256").update(fs.readFileSync(scenario.snapshotFile)).digest("hex"),
+                if (!fs.existsSync(evidenceFile)) fs.writeFileSync(evidenceFile, JSON.stringify({
+                    version: 1, case: scenario, sourceFileSha256: createHash("sha256").update(fs.readFileSync(scenario.snapshotFile)).digest("hex"),
                     auth: "Real BE /auth/login and MySQL ADMIN; synthetic local NextAuth session packaging; Google OAuth not covered", transport: "Original HTTP through loopback FE/BE/Novel/AI; Playwright request guard overhead included; no response mock",
                     outcome: failure ? functionalComplete ? "LATENCY_NOT_MET" : failure.includes("NOT_RUN_FUNCTIONAL_GUARD") ? "NOT_RUN_FUNCTIONAL_GUARD" : "FUNCTIONAL_FAILURE" : "PASS",
-                    nativeClick, metrics, requests, repairPosts: posts, before, after: latest, failure, finishedAt: new Date().toISOString() }, null, 2));
+                    nativeClick, metrics, requests, repairPosts: posts, before, after: latest, failure, finishedAt: new Date().toISOString()
+                }, null, 2));
             }
         });
     }

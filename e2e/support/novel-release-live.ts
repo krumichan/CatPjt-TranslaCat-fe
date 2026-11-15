@@ -18,11 +18,13 @@ export async function openNovelReleaseSession(context: BrowserContext, request: 
     const tokens = (await login.json()).body;
     expect(tokens.role).toBe("ADMIN");
     if (!tokens.accessToken || !tokens.refreshToken || tokens.accessTokenExpiresIn < 300) throw new Error("INVALID_LOCAL_BE_SESSION");
-    const cookie = await encode({ secret: process.env.NEXTAUTH_SECRET, maxAge: 1800, token: {
-        sub: String(actorId), name: `Novel QA ${actorId}`, email: account.email,
-        publicId: tokens.publicId, role: tokens.role, accessToken: tokens.accessToken, refreshToken: tokens.refreshToken,
-        accessTokenExpires: Date.now() + tokens.accessTokenExpiresIn * 1000,
-    } });
+    const cookie = await encode({
+        secret: process.env.NEXTAUTH_SECRET, maxAge: 1800, token: {
+            sub: String(actorId), name: `Novel QA ${actorId}`, email: account.email,
+            publicId: tokens.publicId, role: tokens.role, accessToken: tokens.accessToken, refreshToken: tokens.refreshToken,
+            accessTokenExpires: Date.now() + tokens.accessTokenExpiresIn * 1000,
+        }
+    });
     await context.addCookies([{ name: "next-auth.session-token", value: cookie, url: releaseAppUrl, httpOnly: true, sameSite: "Lax", secure: false }]);
     return { Authorization: `Bearer ${tokens.accessToken}` };
 }

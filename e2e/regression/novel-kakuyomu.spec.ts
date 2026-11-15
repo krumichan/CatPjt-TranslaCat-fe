@@ -7,14 +7,20 @@ const workId = "11054822662896759076";
 const episodeId = "11054822662896857470";
 const nextEpisodeId = "11054822662896857471";
 const unit = () => ({ rawJa: "猫の話", ja: "<ruby>猫<rt>ねこ</rt></ruby>の話", ko: "고양이 이야기" });
-const source = () => ({ revision: "kakuyomu-revision", segmentationVersion: "v1", title: unit(),
+const source = () => ({
+    revision: "kakuyomu-revision", segmentationVersion: "v1", title: unit(),
     pagerInfo: { prevIdentifier: null, nextIdentifier: nextEpisodeId, listIdentifier: workId },
-    segments: [{ id: "kakuyomu-s0", paragraphId: "p0", order: 0, paragraphIndex: 0, startOffset: 0, endOffset: 3,
+    segments: [{
+        id: "kakuyomu-s0", paragraphId: "p0", order: 0, paragraphIndex: 0, startOffset: 0, endOffset: 3,
         rawJa: "猫だ。", plainJa: "猫だ。", ko: "고양이다.", status: "SUCCEEDED", errorCode: null,
-        rubyTokens: [{ startOffset: 0, endOffset: 1, text: "猫", reading: "ねこ" }] },
-        { id: "kakuyomu-blank", paragraphId: "p1", order: 1, paragraphIndex: 1, startOffset: 0, endOffset: 2,
-            rawJa: "\n\n", plainJa: "\n\n", ko: "", status: "SUCCEEDED", errorCode: null }],
-    totalSegments: 2, completedSegments: 2, state: "SUCCEEDED", jobId: "kakuyomu-job", eventSequence: 1, durableComplete: true });
+        rubyTokens: [{ startOffset: 0, endOffset: 1, text: "猫", reading: "ねこ" }]
+    },
+    {
+        id: "kakuyomu-blank", paragraphId: "p1", order: 1, paragraphIndex: 1, startOffset: 0, endOffset: 2,
+        rawJa: "\n\n", plainJa: "\n\n", ko: "", status: "SUCCEEDED", errorCode: null
+    }],
+    totalSegments: 2, completedSegments: 2, state: "SUCCEEDED", jobId: "kakuyomu-job", eventSequence: 1, durableComplete: true
+});
 
 function silentWavFixture() {
     // UI 재생 이벤트만 검증하는 유료 호출 없는 PCM fixture다. 실제 OpenAI 음성 검증과 구분한다.
@@ -43,11 +49,15 @@ for (const kind of ["RANKING", "SEARCH"] as const) {
         await page.route("**/kakuyomu/novels/catalog", route => {
             providerPaths.push(new URL(route.request().url()).pathname);
             const selector = route.request().postDataJSON();
-            return fulfillJson(route, responseDto({ snapshotId: "kakuyomu-catalog", eventSequence: 1, state: "SUCCEEDED",
+            return fulfillJson(route, responseDto({
+                snapshotId: "kakuyomu-catalog", eventSequence: 1, state: "SUCCEEDED",
                 total: 1, ready: 1, failed: 0, pageInfo: null, selector,
-                items: [{ itemId: "kakuyomu-card", identifier: workId, rank: kind === "RANKING" ? 7 : null, sourcePosition: 0,
+                items: [{
+                    itemId: "kakuyomu-card", identifier: workId, rank: kind === "RANKING" ? 7 : null, sourcePosition: 0,
                     status: "READY", title: unit(), author: unit(), synopsis: unit(), statusText: unit(), genreText: "現代ファンタジー",
-                    isShortStory: true, arrivalSequence: 0, errorCode: null, cached: true }] }));
+                    isShortStory: true, arrivalSequence: 0, errorCode: null, cached: true
+                }]
+            }));
         });
         await page.route(`**/kakuyomu/novels/${workId}?page=1`, route => fulfillApiJson(route, responseDto({
             title: unit(), author: unit(), synopsis: unit(),

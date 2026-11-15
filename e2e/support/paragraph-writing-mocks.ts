@@ -19,13 +19,13 @@ export function paragraphPlan(target = 5, acquired = target, writingType: DailyW
         items: Array.from({ length: acquired }, (_, index) => {
             const originText = `연습 과제 ${index + 1}\n\n이 안내문은 여러 문장으로 구성된 첫 문단입니다. 내용을 그대로 전달해 주세요.\n\n두 번째 문단의 조건도 확인해 주세요.`;
             return {
-            itemId: 1000 + index, order: index + 1, difficulty: "NORMAL", targetBand: 3,
-            catalogId: `fixture-${index}`, catalogVersion: 1, contentRevision: `revision-${index}`,
-            originText,
-            providedFacts: writingType === "GUIDED" ? ["오전 10시\n회의실 예약"] : [],
-            requiredIntents: ["상황 설명"], responseConstraints: ["두 문단으로 작성"], topicKey: "synthetic",
-            answered: false, canSubmit: true, attempts: [],
-            workload: { sourceCharacterCount: originText.length, estimatedAnswerCharacters: null, estimateStatus: "NOT_SPECIFIED" },
+                itemId: 1000 + index, order: index + 1, difficulty: "NORMAL", targetBand: 3,
+                catalogId: `fixture-${index}`, catalogVersion: 1, contentRevision: `revision-${index}`,
+                originText,
+                providedFacts: writingType === "GUIDED" ? ["오전 10시\n회의실 예약"] : [],
+                requiredIntents: ["상황 설명"], responseConstraints: ["두 문단으로 작성"], topicKey: "synthetic",
+                answered: false, canSubmit: true, attempts: [],
+                workload: { sourceCharacterCount: originText.length, estimatedAnswerCharacters: null, estimateStatus: "NOT_SPECIFIED" },
             };
         }),
     };
@@ -33,8 +33,10 @@ export function paragraphPlan(target = 5, acquired = target, writingType: DailyW
 
 function previewOf(plan: ParagraphWritingPlan): ParagraphWritingPreview {
     const { policyVersion, resultPolicy, writingType, baseBand, targetItemCount, acquiredItemCount, remainingItemCount, desiredDistribution, actualDistribution, distributionDeviation, shortages, rePractice } = plan;
-    return { policyVersion, resultPolicy, writingType, baseBand, targetItemCount, acquiredItemCount, remainingItemCount, desiredDistribution, actualDistribution, distributionDeviation, shortages, rePractice,
-        qaOnly: true, canStart: remainingItemCount === 0, requiresPartialConsent: remainingItemCount > 0 };
+    return {
+        policyVersion, resultPolicy, writingType, baseBand, targetItemCount, acquiredItemCount, remainingItemCount, desiredDistribution, actualDistribution, distributionDeviation, shortages, rePractice,
+        qaOnly: true, canStart: remainingItemCount === 0, requiresPartialConsent: remainingItemCount > 0
+    };
 }
 
 export async function mockParagraphWriting(page: Page, options: { available?: number; submitFailure?: number; leak?: boolean } = {}) {
@@ -53,8 +55,10 @@ export async function mockParagraphWriting(page: Page, options: { available?: nu
         const body = method === "POST" ? route.request().postDataJSON() as Record<string, unknown> : {};
         if (method === "POST") state.writes.push({ path, body });
         if (path === "/config") {
-            await fulfillApiJson(route, responseDto({ policyVersion: "curated-writing-variable-n-v1", defaultTargetItemCount: 5, minTargetItemCount: 1, maxTargetItemCount: 100,
-                workerBatchSize: 20, pageSize: 10, answerMaxLength: 10000, qaOnly: true, personalizedFeedbackEnabled: false, distribution: { REVIEW: 20, NORMAL: 60, CHALLENGE: 20 } }));
+            await fulfillApiJson(route, responseDto({
+                policyVersion: "curated-writing-variable-n-v1", defaultTargetItemCount: 5, minTargetItemCount: 1, maxTargetItemCount: 100,
+                workerBatchSize: 20, pageSize: 10, answerMaxLength: 10000, qaOnly: true, personalizedFeedbackEnabled: false, distribution: { REVIEW: 20, NORMAL: 60, CHALLENGE: 20 }
+            }));
         } else if (path === "/preview") {
             const target = body.targetItemCount as number;
             await fulfillApiJson(route, responseDto(previewOf(paragraphPlan(target, Math.min(target, options.available ?? target), body.writingType as DailyWritingType))));

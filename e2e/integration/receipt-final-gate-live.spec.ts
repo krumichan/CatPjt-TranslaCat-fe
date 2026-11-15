@@ -283,7 +283,7 @@ test("RECEIPT-FINAL-GATE actual browser preserves source pixels and recognizes t
         });
         const registrationResponsePromise = page.waitForResponse(response =>
             response.url().includes("/transactions/receipt-batch")
-                && response.request().method() === "POST",
+            && response.request().method() === "POST",
         );
         await page.getByTestId("receipt-submit-selected").click();
         const registrationResponse = await registrationResponsePromise;

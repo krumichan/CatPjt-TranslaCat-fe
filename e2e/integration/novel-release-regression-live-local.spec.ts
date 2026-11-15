@@ -76,11 +76,15 @@ test.describe("unchanged A and explicit tail recovery on the final stack", () =>
                 const gaps = history.filter(item => item.elapsedMs >= origin).map((item, index, eligible) => {
                     const previous = index ? eligible[index - 1] : history.filter(value => value.elapsedMs <= origin).at(-1);
                     const neededBeforeArrival = Math.min(finalChars, Math.max(0, (item.elapsedMs - origin) / 100));
-                    return { elapsedMs: item.elapsedMs, availableBefore: previous?.translatedCodePoints ?? 0, neededBeforeArrival,
-                        deficit: Math.max(0, neededBeforeArrival - (previous?.translatedCodePoints ?? 0)) };
+                    return {
+                        elapsedMs: item.elapsedMs, availableBefore: previous?.translatedCodePoints ?? 0, neededBeforeArrival,
+                        deficit: Math.max(0, neededBeforeArrival - (previous?.translatedCodePoints ?? 0))
+                    };
                 });
-                simulation = { mode: "OBSERVED_PREFIX_SIMULATION_NOT_AUDIO", charactersPerMinute: 600, startReadReady200Ms: origin,
-                    underflowObserved: gaps.some(item => item.deficit > 0), gaps };
+                simulation = {
+                    mode: "OBSERVED_PREFIX_SIMULATION_NOT_AUDIO", charactersPerMinute: 600, startReadReady200Ms: origin,
+                    underflowObserved: gaps.some(item => item.deficit > 0), gaps
+                };
                 expect(gaps.every(item => item.deficit === 0)).toBe(true);
             } catch (error) { failure = error instanceof Error ? error.message.slice(0, 1800) : "UNKNOWN_FAILURE"; throw error; }
             finally {
@@ -88,8 +92,10 @@ test.describe("unchanged A and explicit tail recovery on the final stack", () =>
                     const value = await page.getByTestId("novel-translation-state").getAttribute("data-reader-metrics", { timeout: 1000 }).catch(() => null);
                     if (value) metrics = JSON.parse(value);
                 }
-                fs.writeFileSync(file, JSON.stringify({ version: 1, actorId: 900105, episode, before, after, posts, audio, firstState, firstKo, metrics, simulation, failure,
-                    auth: "Real BE auth/ADMIN, synthetic local NextAuth packaging; Google excluded", finishedAt: new Date().toISOString() }, null, 2), { flag: "wx" });
+                fs.writeFileSync(file, JSON.stringify({
+                    version: 1, actorId: 900105, episode, before, after, posts, audio, firstState, firstKo, metrics, simulation, failure,
+                    auth: "Real BE auth/ADMIN, synthetic local NextAuth packaging; Google excluded", finishedAt: new Date().toISOString()
+                }, null, 2), { flag: "wx" });
             }
         });
     }

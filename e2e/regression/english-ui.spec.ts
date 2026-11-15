@@ -29,9 +29,11 @@ test.beforeEach(async ({ page, context }) => {
     await mockCommonPageDependencies(page, TEST_USERS.A, "ADMIN");
     await mockIdleWebSocket(page);
     await page.route("**/api/v1/languages", route => fulfillJson(route, responseDto(languageCatalog)));
-    await page.route("**/chat/rooms", route => fulfillJson(route, responseDto({ chatRooms: [makeRoomListItem({
-        id: 501, name: "English practice room", roomType: "GROUP", sourceType: "MANUAL", memberCount: 3,
-    })] })));
+    await page.route("**/chat/rooms", route => fulfillJson(route, responseDto({
+        chatRooms: [makeRoomListItem({
+            id: 501, name: "English practice room", roomType: "GROUP", sourceType: "MANUAL", memberCount: 3,
+        })]
+    })));
 });
 
 test.afterEach(async ({ page }) => {
@@ -135,8 +137,10 @@ test("EN-UI-03 가계부·음성·학습 설정은 영어 UI에서 실제 form l
     await page.route("**/api/v1/language-learning/settings", route => fulfillApiJson(route, responseDto({ ...LANGUAGE_LEARNING_SETTING, learningLanguage: "en" })));
     await page.route("**/api/v1/language-learning/keywords", route => fulfillApiJson(route, responseDto({
         ...LANGUAGE_LEARNING_KEYWORDS,
-        systemKeywords: LANGUAGE_LEARNING_KEYWORDS.systemKeywords.map(keyword => ({ ...keyword,
-            displayName: ({ IT: "IT", IT_DEPLOYMENT: "Deployment", SHOPPING: "Shopping", SHOPPING_PRICE: "Price" } as Record<string, string>)[keyword.canonicalKey] })),
+        systemKeywords: LANGUAGE_LEARNING_KEYWORDS.systemKeywords.map(keyword => ({
+            ...keyword,
+            displayName: ({ IT: "IT", IT_DEPLOYMENT: "Deployment", SHOPPING: "Shopping", SHOPPING_PRICE: "Price" } as Record<string, string>)[keyword.canonicalKey]
+        })),
     })));
     await page.goto("/en/language-learning/settings");
     const form = page.locator("#learning-settings");

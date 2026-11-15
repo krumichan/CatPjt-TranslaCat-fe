@@ -101,17 +101,23 @@ test("NOVEL-FINAL-AUDIO-SINGLE final images JA KO selected cold and cache only",
         expect(allAfter.filter(call => !allBefore.some(previous => previous.attempt === call.attempt)).map(call => call.task))
             .toEqual(["OPENAI_TTS", "OPENAI_TTS"]);
         const observation = (await nativeMediaObservation(page))!;
-        proofs = { keys: verifyPaidAudioKeys(["ja", "ko"].map(language => ({ segmentId: scenario.targetId, language,
-            partIndex: 0, textSha256: hash(language === "ja" ? frozenTarget.plainJa : frozenTarget.ko!) })),
-            calls, addedCalls(), [...new Set(calls.map(call => call.traceId!))], [scenario.targetId]),
-            positions: verifyAudioRequestPositions(observation.audioRequests, snapshot.segments.map(item => item.id)) };
+        proofs = {
+            keys: verifyPaidAudioKeys(["ja", "ko"].map(language => ({
+                segmentId: scenario.targetId, language,
+                partIndex: 0, textSha256: hash(language === "ja" ? frozenTarget.plainJa : frozenTarget.ko!)
+            })),
+                calls, addedCalls(), [...new Set(calls.map(call => call.traceId!))], [scenario.targetId]),
+            positions: verifyAudioRequestPositions(observation.audioRequests, snapshot.segments.map(item => item.id))
+        };
     } catch (error) { failure = error instanceof Error ? error.message.slice(0, 1500) : "UNKNOWN_FAILURE"; throw error; }
     finally {
-        fs.writeFileSync(file, JSON.stringify({ version: 1, failure, actorId: scenario.actorId, targetId: scenario.targetId,
+        fs.writeFileSync(file, JSON.stringify({
+            version: 1, failure, actorId: scenario.actorId, targetId: scenario.targetId,
             priorEvidenceSha256: hash(priorBytes), revision: snapshot?.revision, measurements, calls, proofs,
             providerCalls: addedCalls(), ledgerBefore: allBefore.length, ledgerAfter: rawLedger().calls.length,
             observation: await nativeMediaObservation(page).catch(() => null),
             media: "Native HTMLAudioElement with trusted playing/ended; LISTENING_NOT_VERIFIED",
-            scope: "Same completed target only; JA/KO one cold key each, cached replay; no repair, translation or continuous lookahead", finishedAt: new Date().toISOString() }, null, 2), { flag: "wx" });
+            scope: "Same completed target only; JA/KO one cold key each, cached replay; no repair, translation or continuous lookahead", finishedAt: new Date().toISOString()
+        }, null, 2), { flag: "wx" });
     }
 });

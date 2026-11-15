@@ -15,8 +15,10 @@ test.skip(!accessToken || !refreshToken || !publicId || !secret || !capture || !
     "격리 계정·합성 마이크·실제 서비스가 준비된 경우에만 실행합니다.");
 test.use({
     permissions: ["microphone"],
-    launchOptions: { args: ["--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream",
-        `--use-file-for-fake-audio-capture=${capture}`] },
+    launchOptions: {
+        args: ["--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream",
+            `--use-file-for-fake-audio-capture=${capture}`]
+    },
     trace: "off",
     video: "off",
 });
@@ -25,13 +27,17 @@ test.beforeEach(async ({ context }) => {
     // 준비: 합성 로그인 세션과 마이크 입력만 준비하고 업무 API·MediaRecorder는 실제 구현을 실행한다.
     const now = Math.floor(Date.now() / 1000);
     const maxAge = 3600;
-    const token = await encode({ secret: secret!, maxAge, token: {
-        sub: publicId!, publicId, role: "USER", accessToken, refreshToken,
-        accessTokenExpires: Date.now() + maxAge * 1000, iat: now, exp: now + maxAge,
-        jti: `speaking-cutover-${now}`,
-    } });
-    await context.addCookies([{ name: "next-auth.session-token", value: token, url: baseURL,
-        httpOnly: true, secure: false, sameSite: "Lax", expires: now + maxAge }]);
+    const token = await encode({
+        secret: secret!, maxAge, token: {
+            sub: publicId!, publicId, role: "USER", accessToken, refreshToken,
+            accessTokenExpires: Date.now() + maxAge * 1000, iat: now, exp: now + maxAge,
+            jti: `speaking-cutover-${now}`,
+        }
+    });
+    await context.addCookies([{
+        name: "next-auth.session-token", value: token, url: baseURL,
+        httpOnly: true, secure: false, sameSite: "Lax", expires: now + maxAge
+    }]);
 });
 
 async function openMode(page: Page, mode: string): Promise<void> {

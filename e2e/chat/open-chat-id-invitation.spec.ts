@@ -170,7 +170,7 @@ test.describe("OPEN chat ID invitations", () => {
         const invitationB = makeInvitation(82, 902);
         let currentAccount: "A" | "B" = "A";
         let holdNextARequest = false;
-        let releaseARequest: () => void = () => {};
+        let releaseARequest: () => void = () => { };
         let signalARequest: (() => void) | null = null;
         const aRequestStarted = new Promise<void>((resolve) => {
             signalARequest = resolve;
@@ -226,7 +226,7 @@ test.describe("OPEN chat ID invitations", () => {
         const invitationA = makeInvitation(81);
         const invitationB = makeInvitation(82, 902);
         let currentAccount: "A" | "B" = "A";
-        let releaseRead: () => void = () => {};
+        let releaseRead: () => void = () => { };
         let signalRead: (() => void) | null = null;
         const readStarted = new Promise<void>((resolve) => {
             signalRead = resolve;
@@ -283,7 +283,7 @@ test.describe("OPEN chat ID invitations", () => {
         const older = makeInvitation(80, 902);
         let firstPageCalls = 0;
         let holdOlder = true;
-        let releaseOlder: () => void = () => {};
+        let releaseOlder: () => void = () => { };
         let signalOlder: (() => void) | null = null;
         const olderStarted = new Promise<void>((resolve) => {
             signalOlder = resolve;

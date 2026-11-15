@@ -330,9 +330,11 @@ test("RECEIPT-CATEGORY-LIVE browser AI category, modal, inline FX and final cate
         categoryCountBefore,
         categoryCountAfter: afterEnvelope.body.filter(category => category.name === newCategory).length,
         canceledCategoryCountAfter: afterEnvelope.body.filter(category => category.name === "취소된분류").length,
-        inlineFx: { currency: inlineCurrency, before: oldOriginalAmount, after: newOriginalAmount,
+        inlineFx: {
+            currency: inlineCurrency, before: oldOriginalAmount, after: newOriginalAmount,
             retainedPaymentType: editedPayments[0].paymentType, retainedPaymentAmount: editedPayments[0].amount,
-            conversionRequests },
+            conversionRequests
+        },
         analysisMode: replayPaths.length ? "CAPTURED_LIVE_RESPONSE_REPLAY" : "LIVE",
         batchSize: batch.length,
         duplicateNewCategoryCandidates: batch.filter(item => item.categoryName === newCategory).length,

@@ -17,11 +17,13 @@ const sentence = (target: Target, id: string, order: number, status = "SUCCEEDED
 const snapshot = (target: Target, state = "SUCCEEDED") => {
     const done = state === "SUCCEEDED";
     const partial = state === "PARTIAL";
-    return { revision: "same-revision", segmentationVersion: "v1", targetLanguage: target, title: text(target, null),
+    return {
+        revision: "same-revision", segmentationVersion: "v1", targetLanguage: target, title: text(target, null),
         pagerInfo: { prevIdentifier: "1", nextIdentifier: "3", listIdentifier: "n-english" },
         segments: [sentence(target, "one", 0, done || partial ? "SUCCEEDED" : "PENDING"), sentence(target, "two", 1, done ? "SUCCEEDED" : partial ? "FAILED" : "PENDING")],
         totalSegments: 2, completedSegments: done ? 2 : partial ? 1 : 0, state,
-        jobId: state === "SOURCE_READY" ? null : `${target}-job`, eventSequence: done ? 4 : partial ? 2 : 0, durableComplete: done };
+        jobId: state === "SOURCE_READY" ? null : `${target}-job`, eventSequence: done ? 4 : partial ? 2 : 0, durableComplete: done
+    };
 };
 function silentWav() {
     const wav = Buffer.alloc(44 + 160_000);
@@ -48,16 +50,22 @@ test("NOVEL-EN-01 목록 영어 선택과 목차·회차·이전다음 이동에
         const selector = route.request().postDataJSON();
         languages.push(selector.language);
         const target: Target = selector.language === "en" ? "en" : "ko";
-        return fulfillJson(route, responseDto({ snapshotId: `${target}-catalog`, eventSequence: 1, state: "SUCCEEDED", total: 1, ready: 1, failed: 0,
-            pageInfo: null, selector, items: [{ itemId: "i1", identifier: "n-english", rank: null, sourcePosition: 0, arrivalSequence: 0,
+        return fulfillJson(route, responseDto({
+            snapshotId: `${target}-catalog`, eventSequence: 1, state: "SUCCEEDED", total: 1, ready: 1, failed: 0,
+            pageInfo: null, selector, items: [{
+                itemId: "i1", identifier: "n-english", rank: null, sourcePosition: 0, arrivalSequence: 0,
                 status: "READY", title: text(target), author: text(target, "Cat Author"), synopsis: text(target, "A quiet story about a cat."), statusText: text(target, "Ongoing"),
-                genreText: "", isShortStory: false, cached: true, errorCode: null }] }));
+                genreText: "", isShortStory: false, cached: true, errorCode: null
+            }]
+        }));
     });
     await page.route("**/novels/catalog/*/cancel", route => fulfillJson(route, responseDto({})));
     await page.route("**/syosyetu/novels/n-english?*", route => {
         const target: Target = new URL(route.request().url()).searchParams.get("targetLanguage") === "en" ? "en" : "ko";
-        return fulfillApiJson(route, responseDto({ title: text(target, null), author: text(target, null), synopsis: text(target, null),
-            pageInfo: null, episodes: [{ sequence: 2, identifier: "2", title: text(target, null) }] }));
+        return fulfillApiJson(route, responseDto({
+            title: text(target, null), author: text(target, null), synopsis: text(target, null),
+            pageInfo: null, episodes: [{ sequence: 2, identifier: "2", title: text(target, null) }]
+        }));
     });
     await page.route("**/episodes/*/reader?targetLanguage=en", route => fulfillJson(route, responseDto(snapshot("en"))));
 
@@ -140,13 +148,13 @@ test("NOVEL-EN-02 영어 번역·복구·음성은 en 작업만 사용하고 일
 
 test("NOVEL-EN-03 언어 전환 뒤 늦은 한국어 번역 완료는 영어 본문·완료를 바꾸지 않는다", async ({ page }) => {
     // 준비: 한국어 POST가 응답하기 전에 사용자가 영어로 전환한다.
-    let release: () => void = () => {};
+    let release: () => void = () => { };
     const held = new Promise<void>(resolve => { release = resolve; });
     await page.route("**/episodes/2/reader", route => fulfillJson(route, responseDto(snapshot("ko", "SOURCE_READY"))));
     await page.route("**/episodes/2/reader?targetLanguage=en", route => fulfillJson(route, responseDto(snapshot("en", "SOURCE_READY"))));
     await page.route("**/episodes/2/translations", async route => {
         await held;
-        await fulfillJson(route, responseDto(snapshot("ko"))).catch(() => {});
+        await fulfillJson(route, responseDto(snapshot("ko"))).catch(() => { });
     });
     await page.goto(readerPath);
     const posted = page.waitForRequest(request => request.method() === "POST" && request.url().endsWith("/translations"));
@@ -168,7 +176,7 @@ test("NOVEL-EN-03 언어 전환 뒤 늦은 한국어 번역 완료는 영어 본
 
 test("NOVEL-EN-04 늦은 ko 음성은 폐기하고 전환 후 명시 en 음성만 재생한다", async ({ page }) => {
     // 준비
-    let release: () => void = () => {};
+    let release: () => void = () => { };
     const held = new Promise<void>(resolve => { release = resolve; });
     const calls: string[] = [];
     await page.route("**/episodes/2/reader", route => fulfillJson(route, responseDto(snapshot("ko"))));
@@ -177,7 +185,7 @@ test("NOVEL-EN-04 늦은 ko 음성은 폐기하고 전환 후 명시 en 음성�
         const body = route.request().postDataJSON();
         calls.push(body.language);
         if (body.language === "ko") await held;
-        await fulfillJson(route, responseDto({ ...body, partCount: 1, provider: "openai", contentType: "audio/wav", audioBase64: silentWav() })).catch(() => {});
+        await fulfillJson(route, responseDto({ ...body, partCount: 1, provider: "openai", contentType: "audio/wav", audioBase64: silentWav() })).catch(() => { });
     });
     await page.goto(readerPath);
     await page.getByRole("button", { name: "OPEN", exact: true }).click();
@@ -258,8 +266,10 @@ test("NOVEL-EN-07 기존 legacy 플랫폼 목차에는 영어 선택을 약속�
     await page.route("**/unsupported/novels/n-legacy?*", route => {
         if (route.request().resourceType() === "document") return route.fallback();
         requestedTargets.push(new URL(route.request().url()).searchParams.get("targetLanguage"));
-        return fulfillApiJson(route, responseDto({ title: text("ko"), author: text("ko"), synopsis: text("ko"),
-            pageInfo: null, episodes: [{ sequence: 1, identifier: "1", title: text("ko") }] }));
+        return fulfillApiJson(route, responseDto({
+            title: text("ko"), author: text("ko"), synopsis: text("ko"),
+            pageInfo: null, episodes: [{ sequence: 1, identifier: "1", title: text("ko") }]
+        }));
     });
 
     // 실행: 다른 곳에서 받은 영어 query가 있더라도 지원하지 않는 선택기를 추가하지 않는다.

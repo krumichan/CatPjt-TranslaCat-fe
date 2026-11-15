@@ -135,7 +135,7 @@ async function mockOpenChatProfileApis(
                 responseDto({
                     members: members.map((member) =>
                         member.openChatMemberId ===
-                        currentMyProfile.openChatMemberId
+                            currentMyProfile.openChatMemberId
                             ? currentMyProfile
                             : member,
                     ),
@@ -154,9 +154,9 @@ async function mockOpenChatProfileApis(
                 memberId === currentMyProfile.openChatMemberId
                     ? currentMyProfile
                     : members.find(
-                          (member) =>
-                              member.openChatMemberId === memberId,
-                      );
+                        (member) =>
+                            member.openChatMemberId === memberId,
+                    );
 
             return fulfillApiJson(route, responseDto(profile));
         },

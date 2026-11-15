@@ -185,8 +185,10 @@ test.describe("reserved recovery fixture with actual body-only Japanese and Kore
             }
             const newCalls = priorCount();
             expect(newCalls.length).toBeLessThanOrEqual(6);
-            const entries = selected.flatMap(item => ["ja", "ko"].map(language => ({ segmentId: item.id, language, partIndex: 0,
-                textSha256: digest(language === "ja" ? item.plainJa : after!.segments.find(value => value.id === item.id)!.ko!) })));
+            const entries = selected.flatMap(item => ["ja", "ko"].map(language => ({
+                segmentId: item.id, language, partIndex: 0,
+                textSha256: digest(language === "ja" ? item.plainJa : after!.segments.find(value => value.id === item.id)!.ko!)
+            })));
             proofs = {
                 keys: verifyPaidAudioKeys(entries, calls, newCalls, [...new Set(calls.map(call => call.traceId!).filter(Boolean))], [ids[0], ids[1]]),
                 positions: [...observations.values()].flatMap(value => verifyAudioRequestPositions(value.audioRequests, before!.segments.map(item => item.id))),
@@ -200,10 +202,12 @@ test.describe("reserved recovery fixture with actual body-only Japanese and Kore
             throw error;
         } finally {
             await collect().catch(() => null);
-            if (!fs.existsSync(file)) fs.writeFileSync(file, JSON.stringify({ version: 1, case: scenario, outcome: failure ? functionalComplete ? "LATENCY_NOT_MET" : "FUNCTIONAL_FAILURE" : "PASS", failure, audioFunctionalComplete: functionalComplete,
+            if (!fs.existsSync(file)) fs.writeFileSync(file, JSON.stringify({
+                version: 1, case: scenario, outcome: failure ? functionalComplete ? "LATENCY_NOT_MET" : "FUNCTIONAL_FAILURE" : "PASS", failure, audioFunctionalComplete: functionalComplete,
                 auth: "Real BE login/ADMIN; synthetic local NextAuth packaging; actual NextAuth logout; Google OAuth excluded", media: "Native HTMLAudioElement; no audio mock; LISTENING_NOT_VERIFIED",
                 nativeClick: repairClick, metrics: measurements.repair, measurements, repairPosts, before, after, calls, cancellations, proofs, observations: [...observations.values()],
-                providerCalls: ledger().filter(call => !beforeLedger.some(previous => previous.attempt === call.attempt)), finishedAt: new Date().toISOString() }, null, 2));
+                providerCalls: ledger().filter(call => !beforeLedger.some(previous => previous.attempt === call.attempt)), finishedAt: new Date().toISOString()
+            }, null, 2));
         }
     });
 });

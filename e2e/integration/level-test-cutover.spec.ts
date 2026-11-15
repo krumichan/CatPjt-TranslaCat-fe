@@ -23,11 +23,13 @@ test("실제 FE Level Test 20문항·녹음·새로고침·결과·이력을 연
     // 준비: 합성 계정의 서명 세션을 사용하며 업무 API를 가로채지 않는다.
     const now = Math.floor(Date.now() / 1000);
     const maxAge = 3600;
-    const token = await encode({ secret: secret!, maxAge, token: {
-        sub: publicId!, publicId, role: "USER", accessToken, refreshToken,
-        accessTokenExpires: Date.now() + maxAge * 1000,
-        iat: now, exp: now + maxAge, jti: `level-cutover-${now}`,
-    } });
+    const token = await encode({
+        secret: secret!, maxAge, token: {
+            sub: publicId!, publicId, role: "USER", accessToken, refreshToken,
+            accessTokenExpires: Date.now() + maxAge * 1000,
+            iat: now, exp: now + maxAge, jti: `level-cutover-${now}`,
+        }
+    });
     await context.addCookies([{
         name: "next-auth.session-token", value: token, url: baseURL,
         httpOnly: true, secure: false, sameSite: "Lax", expires: now + maxAge,

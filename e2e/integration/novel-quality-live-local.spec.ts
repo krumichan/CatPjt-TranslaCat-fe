@@ -141,17 +141,21 @@ test.describe("quality first real gateway", () => {
         const filename = scenario ? `${scenario.id}.json` : language ? `audio-${language}.json` : null;
         if (scenario && !fs.existsSync(path.join(artifactRoot, "quality-pairs", filename!))) {
             fs.mkdirSync(path.join(artifactRoot, "quality-pairs"), { recursive: true });
-            fs.writeFileSync(path.join(artifactRoot, "quality-pairs", filename!), JSON.stringify({ scenarioId: scenario.id,
+            fs.writeFileSync(path.join(artifactRoot, "quality-pairs", filename!), JSON.stringify({
+                scenarioId: scenario.id,
                 stack: scenario.stack, actorId: scenario.actorId, novel: scenario.novel, episode: scenario.episode,
                 sourceFileSha256: scenario.sourceFileSha256 ?? null, outcome: "FAILED", phase: "SETUP_OR_HARNESS",
                 captureStatus: "SNAPSHOT_UNAVAILABLE", frozenSourceProof: null, sourceContractProof: null,
-                snapshotResponse: null, evidence: null, evaluationStatus: "NOT_EVALUATED", extraProviderCalls: 0 }, null, 2));
+                snapshotResponse: null, evidence: null, evaluationStatus: "NOT_EVALUATED", extraProviderCalls: 0
+            }, null, 2));
         }
         if (!filename || fs.existsSync(path.join(artifactRoot, filename))) return;
         const result = page.isClosed() ? null : await metrics(page.getByTestId("novel-translation-state")).catch(() => null);
-        fs.writeFileSync(path.join(artifactRoot, filename), JSON.stringify({ scenario: scenario ?? audioCase, language,
+        fs.writeFileSync(path.join(artifactRoot, filename), JSON.stringify({
+            scenario: scenario ?? audioCase, language,
             outcome: "FAILED", phase: "SETUP_OR_HARNESS", testStatus: testInfo.status, errorType: "HarnessSetupFailure",
-            errorCode: fs.existsSync(path.join(artifactRoot, "POLICY_GUARD_STOP.json")) ? "EXECUTION_POLICY_GUARD_BLOCKED" : null, result }, null, 2));
+            errorCode: fs.existsSync(path.join(artifactRoot, "POLICY_GUARD_STOP.json")) ? "EXECUTION_POLICY_GUARD_BLOCKED" : null, result
+        }, null, 2));
     });
 
     for (const scenario of cases) {
@@ -178,10 +182,12 @@ test.describe("quality first real gateway", () => {
                     executionProof = verifyExecutionContract(scenario.expectedExecution, body);
                 } catch (error) {
                     const actual = body as { execution?: unknown; segmentationVersion?: unknown };
-                    fs.writeFileSync(path.join(artifactRoot, "POLICY_GUARD_STOP.json"), JSON.stringify({ scenarioId: scenario.id,
+                    fs.writeFileSync(path.join(artifactRoot, "POLICY_GUARD_STOP.json"), JSON.stringify({
+                        scenarioId: scenario.id,
                         reason: "EXECUTION_CONTRACT_MISMATCH", expectedExecution: scenario.expectedExecution,
                         actualExecution: actual?.execution ?? null, actualSegmentationVersion: actual?.segmentationVersion ?? null,
-                        action: "Block every subsequent case before gateway access; preserve failed/planned denominator" }, null, 2));
+                        action: "Block every subsequent case before gateway access; preserve failed/planned denominator"
+                    }, null, 2));
                     throw error;
                 }
             };
@@ -200,10 +206,13 @@ test.describe("quality first real gateway", () => {
                             latestSnapshotBody = body;
                             latestExecutionBody = { execution: body.execution, segmentationVersion: body.segmentationVersion };
                             latestSnapshotOrdinal = ordinal;
-                            snapshotResponse = { path: new URL(response.url()).pathname, status: response.status(),
-                                requestTraceId: response.request().headers()["x-novel-trace-id"], diagnosticOnly: isDiagnostic, responseOrdinal: ordinal };
+                            snapshotResponse = {
+                                path: new URL(response.url()).pathname, status: response.status(),
+                                requestTraceId: response.request().headers()["x-novel-trace-id"], diagnosticOnly: isDiagnostic, responseOrdinal: ordinal
+                            };
                         }
-                        spans.push({ path: new URL(response.url()).pathname, method: response.request().method(), status: response.status(), diagnosticOnly: isDiagnostic, jobId: body.jobId,
+                        spans.push({
+                            path: new URL(response.url()).pathname, method: response.request().method(), status: response.status(), diagnosticOnly: isDiagnostic, jobId: body.jobId,
                             requestTraceId: response.request().headers()["x-novel-trace-id"], traceId: body.traceId, runTraceId: body.runTraceId, eventSequence: body.eventSequence, state: body.state,
                             totalSegments: body.totalSegments, completedSegments: body.completedSegments, progress: body.progress, timings: body.timings, execution: body.execution,
                             gateway: {
@@ -214,7 +223,8 @@ test.describe("quality first real gateway", () => {
                                 upstreamDurationMs: durationHeader(headers, "x-novel-upstream-duration-ms"),
                                 validationMs: durationHeader(headers, "x-novel-be-validation-ms"),
                             },
-                            errorCode: typeof body.code === "string" && /^[A-Z0-9_:-]{1,120}$/.test(body.code) ? body.code : null });
+                            errorCode: typeof body.code === "string" && /^[A-Z0-9_:-]{1,120}$/.test(body.code) ? body.code : null
+                        });
                     } catch { /* 응답 중단은 최종 실패 표본과 상태에 남긴다. */ }
                 };
                 responseCaptures.push(capture());
@@ -256,8 +266,10 @@ test.describe("quality first real gateway", () => {
                     const current = latestSnapshotBody as Parameters<typeof verifySourceContract>[1] & {
                         segments: Parameters<typeof verifyFrozenParagraphs>[1]; jobId: string; runTraceId: string;
                     };
-                    verifySourceContract({ sourceRevision: sourceBody.revision, segmentationVersion: sourceBody.segmentationVersion,
-                        canonicalIdsSha256: contractProof!.canonicalIdsSha256, sourceCodePoints: contractProof!.eligibleSourceCodePoints }, current);
+                    verifySourceContract({
+                        sourceRevision: sourceBody.revision, segmentationVersion: sourceBody.segmentationVersion,
+                        canonicalIdsSha256: contractProof!.canonicalIdsSha256, sourceCodePoints: contractProof!.eligibleSourceCodePoints
+                    }, current);
                     if (expectedParagraphs) verifyFrozenParagraphs(expectedParagraphs, current.segments);
                     expect(current.jobId).toBe(expectedJobId);
                     expect(current.runTraceId).toBe(expectedRunTraceId);
@@ -304,12 +316,16 @@ test.describe("quality first real gateway", () => {
                     try {
                         const response = await fetch(url, { headers: { "X-Novel-Trace-Id": traceId }, cache: "no-store", signal: controller.signal });
                         const body = (await response.json()).body;
-                        return { diagnosticOnly: true, status: response.status, requestMs: performance.now() - started,
+                        return {
+                            diagnosticOnly: true, status: response.status, requestMs: performance.now() - started,
                             traceId: body?.traceId ?? null, runTraceId: body?.runTraceId ?? null,
-                            segmentationVersion: body?.segmentationVersion ?? null, execution: body?.execution ?? null };
+                            segmentationVersion: body?.segmentationVersion ?? null, execution: body?.execution ?? null
+                        };
                     } catch {
-                        return { diagnosticOnly: true, status: null, requestMs: performance.now() - started,
-                            traceId: null, runTraceId: null, segmentationVersion: null, execution: null };
+                        return {
+                            diagnosticOnly: true, status: null, requestMs: performance.now() - started,
+                            traceId: null, runTraceId: null, segmentationVersion: null, execution: null
+                        };
                     } finally {
                         clearTimeout(timeout);
                     }
@@ -339,9 +355,11 @@ test.describe("quality first real gateway", () => {
                     .filter(entry => entry.name.includes(`/syosyetu/${novel}/episodes/${episode}/`))
                     .map(entry => {
                         const resource = entry as PerformanceResourceTiming;
-                        return { path: new URL(resource.name).pathname, startTimeMs: resource.startTime, durationMs: resource.duration,
+                        return {
+                            path: new URL(resource.name).pathname, startTimeMs: resource.startTime, durationMs: resource.duration,
                             requestStartMs: resource.requestStart, responseStartMs: resource.responseStart, responseEndMs: resource.responseEnd,
-                            transferSize: resource.transferSize, decodedBodySize: resource.decodedBodySize };
+                            transferSize: resource.transferSize, decodedBodySize: resource.decodedBodySize
+                        };
                     }), scenario);
                 fs.writeFileSync(path.join(artifactRoot, `${scenario.id}.json`), JSON.stringify({ scenario, outcome: "SUCCEEDED", sourceRead, sourceProof, contractProof, executionProof, result, readyMs, finalDiagnostics, spans, browserTransport, targetWithin5s: readyMs <= 5000, qualityVerdict: "SEPARATE_SOURCE_REVIEW_REQUIRED", providerPromptCacheCold: "NOT_ASSUMED" }, null, 2));
                 qualityOutcome = "SUCCEEDED";
@@ -396,10 +414,12 @@ test.describe("quality first real gateway", () => {
                         const requestTraceId = response.request().headers()["x-novel-trace-id"];
                         const headerTraceId = response.headers()["x-novel-trace-id"];
                         // base64/인증값을 결과에 저장하지 않고 실제 응답의 정책·문장·추적 연결만 확인한다.
-                        audioResponses.push({ status: response.status(), traceId: body?.traceId, requestTraceId, headerTraceId,
+                        audioResponses.push({
+                            status: response.status(), traceId: body?.traceId, requestTraceId, headerTraceId,
                             revision: body?.revision, segmentId: body?.segmentId, language: body?.language, partIndex: body?.partIndex,
                             cacheDisposition: body?.cacheDisposition, audioPolicyVersion: body?.audioPolicyVersion,
-                            model: body?.model, provider: body?.provider, durationSeconds: body?.durationSeconds, timings: body?.timings });
+                            model: body?.model, provider: body?.provider, durationSeconds: body?.durationSeconds, timings: body?.timings
+                        });
                         if (response.status() !== 200 || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(headerTraceId ?? "")
                             || headerTraceId !== requestTraceId || body?.traceId !== requestTraceId
                             || body?.audioPolicyVersion !== expectedAudioPolicyVersion
@@ -435,17 +455,23 @@ test.describe("quality first real gateway", () => {
                 // 과거 실패 재실행의 warm tail을 cold라고 판정하지 않는다. 기존 guard는 삭제/덮어쓰지 않는다.
                 const guardDirectory = process.env.NOVEL_AUDIO_SCOPE_GUARD_DIR;
                 if (!guardDirectory || !scenario.actorId || !scenario.stack) throw new Error("AUDIO_SCOPE_GUARD_REQUIRED");
-                const scope = { stack: scenario.stack, actorId: scenario.actorId, novel: scenario.novel, episode: scenario.episode,
-                    revision: plan.revision, audioPolicyVersion: plan.audioPolicyVersion, language };
+                const scope = {
+                    stack: scenario.stack, actorId: scenario.actorId, novel: scenario.novel, episode: scenario.episode,
+                    revision: plan.revision, audioPolicyVersion: plan.audioPolicyVersion, language
+                };
                 const scopeDigest = createHash("sha256").update(JSON.stringify(scope), "utf8").digest("hex");
                 fs.mkdirSync(guardDirectory, { recursive: true });
-                fs.writeFileSync(path.join(guardDirectory, `${scopeDigest}.json`), JSON.stringify({ scope, artifactRoot,
-                    condition: "First harness attempt in this immutable actor/work/revision/policy/language scope; prior provider use must also be excluded by final actor allocation" }, null, 2), { flag: "wx" });
+                fs.writeFileSync(path.join(guardDirectory, `${scopeDigest}.json`), JSON.stringify({
+                    scope, artifactRoot,
+                    condition: "First harness attempt in this immutable actor/work/revision/policy/language scope; prior provider use must also be excluded by final actor allocation"
+                }, null, 2), { flag: "wx" });
                 evidence.scopeGuard = { scopeDigest, firstAttempt: true };
                 audioAllowlists.set(page, new Set(plan.entries.filter(item => item.language === language)
                     .map(item => `${plan.revision}|${item.segmentId}|${item.language}|${item.partIndex}`)));
-                evidence.mediaRuntime = await page.evaluate(() => ({ nativeAudioConstructor: Function.prototype.toString.call(Audio).includes("[native code]"),
-                    nativeElement: new Audio() instanceof HTMLAudioElement }));
+                evidence.mediaRuntime = await page.evaluate(() => ({
+                    nativeAudioConstructor: Function.prototype.toString.call(Audio).includes("[native code]"),
+                    nativeElement: new Audio() instanceof HTMLAudioElement
+                }));
                 expect(evidence.mediaRuntime).toEqual({ nativeAudioConstructor: true, nativeElement: true });
                 evidence.playingMetricOrigin = "NovelPlayback.start performance.now after synchronous UI handler/queue planning; ends only on native onplaying, not play promise resolution";
                 const translation = page.getByTestId("novel-translation-state");
@@ -547,9 +573,11 @@ test.describe("quality first real gateway", () => {
                     expect(requests.length).toBe(requestCountBefore);
                     expect(requests.some(item => item.segmentId === untouchedNextId)).toBe(false);
                     expect((await speechCalls(traces)).length).toBe(providerBefore);
-                    cancellationEvidence.push({ action, currentSegmentId: plan.orderedSegmentIds[3], untouchedNextId,
+                    cancellationEvidence.push({
+                        action, currentSegmentId: plan.orderedSegmentIds[3], untouchedNextId,
                         nativeBefore, nativeAfterAction, wouldReachLookaheadMs, providerDelta: 0, audioRequestDelta: 0,
-                        nextWasUnrequested: true, currentCacheReuse: true, trigger: "actual user-facing UI action" });
+                        nextWasUnrequested: true, currentCacheReuse: true, trigger: "actual user-facing UI action"
+                    });
 
                     // 실제 logout 뒤에는 검증용 로컬 UI 쿠키만 다시 준비한다. gateway actor/revision은 계속 같다.
                     if (action === "logout") {

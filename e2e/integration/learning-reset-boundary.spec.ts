@@ -17,10 +17,12 @@ test.use({ trace: "off", video: "off", screenshot: "off" });
 test("이전 학습 URL과 브라우저 초안은 신규 계정의 학습으로 연결되지 않는다", async ({ context, page }) => {
     // 준비: 현재 정상 세션에 이전 학습의 URL과 합성 캐시를 재현한다. 업무 API는 가로채지 않는다.
     const now = Math.floor(Date.now() / 1000);
-    const session = await encode({ secret: secret!, maxAge: 3600, token: {
-        sub: publicId!, publicId, role: "USER", accessToken, refreshToken,
-        accessTokenExpires: Date.now() + 3600_000, iat: now, exp: now + 3600, jti: `reset-${now}`,
-    } });
+    const session = await encode({
+        secret: secret!, maxAge: 3600, token: {
+            sub: publicId!, publicId, role: "USER", accessToken, refreshToken,
+            accessTokenExpires: Date.now() + 3600_000, iat: now, exp: now + 3600, jti: `reset-${now}`,
+        }
+    });
     await context.addCookies([{
         name: "next-auth.session-token", value: session, url: baseURL,
         httpOnly: true, secure: false, sameSite: "Lax", expires: now + 3600,
@@ -78,10 +80,12 @@ test("실제 신규 Writing 세트는 이전 세트의 일괄 평가 초안을 �
     expect(currentDate).toBeTruthy();
     expect(currentSet).not.toBe(Number(oldWritingId));
     const now = Math.floor(Date.now() / 1000);
-    const session = await encode({ secret: secret!, maxAge: 3600, token: {
-        sub: currentPublic!, publicId: currentPublic, role: "USER", accessToken: currentAccess,
-        accessTokenExpires: Date.now() + 3600_000, iat: now, exp: now + 3600, jti: `reset-writing-${now}`,
-    } });
+    const session = await encode({
+        secret: secret!, maxAge: 3600, token: {
+            sub: currentPublic!, publicId: currentPublic, role: "USER", accessToken: currentAccess,
+            accessTokenExpires: Date.now() + 3600_000, iat: now, exp: now + 3600, jti: `reset-writing-${now}`,
+        }
+    });
     await context.addCookies([{
         name: "next-auth.session-token", value: session, url: baseURL,
         httpOnly: true, secure: false, sameSite: "Lax", expires: now + 3600,
@@ -132,6 +136,6 @@ test("실제 신규 Writing 세트는 이전 세트의 일괄 평가 초안을 �
     await expect(page.getByText(marker, { exact: true })).toHaveCount(0);
     expect(await page.evaluate(({ user, set, marker }) =>
         localStorage.getItem(`translacat:language-learning:writing:draft:${encodeURIComponent(user)}:${set}`)?.includes(marker) === true,
-    { user: currentPublic!, set: oldWritingId!, marker })).toBe(true);
+        { user: currentPublic!, set: oldWritingId!, marker })).toBe(true);
     console.log(`Reset Writing current items=${currentItems.length}, unanswered=${unansweredItems.length}, automatic mutations=${mutations.length}`);
 });

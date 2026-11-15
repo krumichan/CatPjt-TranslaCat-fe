@@ -47,18 +47,22 @@ test('WORKLET: right-only stereo speech must survive mono capture', () => {
 
 test('MEDIA: selecting a display source without audio rejects and stops tracks', async () => {
   let stops = 0;
-  setMedia({ getUserMedia: async () => {}, getDisplayMedia: async () => ({
-    getAudioTracks: () => [], getTracks: () => [{ stop() { stops += 1; } }],
-  }) });
+  setMedia({
+    getUserMedia: async () => { }, getDisplayMedia: async () => ({
+      getAudioTracks: () => [], getTracks: () => [{ stop() { stops += 1; } }],
+    })
+  });
   await assert.rejects(prepareVoiceMedia('MEDIA'), error => error.code === 'DISPLAY_AUDIO_REQUIRED');
   assert.equal(stops, 1);
 });
 
 test('MEETING: microphone denial releases the acquired shared audio', async () => {
   let stops = 0;
-  setMedia({ getUserMedia: async () => { throw new Error('denied'); }, getDisplayMedia: async () => ({
-    getAudioTracks: () => [{}], getTracks: () => [{ stop() { stops += 1; } }],
-  }) });
+  setMedia({
+    getUserMedia: async () => { throw new Error('denied'); }, getDisplayMedia: async () => ({
+      getAudioTracks: () => [{}], getTracks: () => [{ stop() { stops += 1; } }],
+    })
+  });
   await assert.rejects(prepareVoiceMedia('MEETING'), error => error.code === 'MICROPHONE_PERMISSION');
   assert.equal(stops, 1);
 });
@@ -119,12 +123,12 @@ test('SOCKET: closing while ticket request is pending must not open a new socket
 
 test('CAPTURE: worklet load failure must close AudioContext', async () => {
   let closed = 0;
-  globalThis.MediaStream = class {};
+  globalThis.MediaStream = class { };
   globalThis.AudioContext = class {
     state = 'running'; audioWorklet = { addModule: async () => { throw new Error('worklet load failure'); } };
     async close() { closed += 1; }
   };
-  await assert.rejects(startVoiceAudioCapture({ stream: { getAudioTracks: () => [new EventTarget()] }, onFrame() {} }), /worklet load failure/);
+  await assert.rejects(startVoiceAudioCapture({ stream: { getAudioTracks: () => [new EventTarget()] }, onFrame() { } }), /worklet load failure/);
   assert.equal(closed, 1, 'AudioContext remains running after failed initialization');
 });
 
@@ -321,9 +325,11 @@ test('BE 저장의 비복구 STREAM 오류는 재접속하지 않고 ERROR를 �
   await pending;
 
   // 실행: 데이터 저장 실패 이후 서버가 public WebSocket도 닫는다.
-  current.emit({ type: 'VOICE_PIPELINE_FAILED', error: {
-    code: 'VOICE_BE_INTERNAL_ERROR', stage: 'STREAM', retryable: false,
-  } });
+  current.emit({
+    type: 'VOICE_PIPELINE_FAILED', error: {
+      code: 'VOICE_BE_INTERNAL_ERROR', stage: 'STREAM', retryable: false,
+    }
+  });
   assert.equal(socket.sendAudio(new ArrayBuffer(3200)), false);
   current.close();
   const socketCount = FakeWebSocket.sockets.length;

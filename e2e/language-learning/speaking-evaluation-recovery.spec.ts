@@ -11,15 +11,21 @@ const SESSION = "**/api/v1/language-learning/speaking/sessions/301";
 const EVALUATION = "**/api/v1/language-learning/speaking/sessions/301/evaluation";
 const RETRY = "**/api/v1/language-learning/speaking/sessions/301/read-aloud/problems/5/evaluation/retry";
 function problem(status: string, retryCount = 0): SpeakingReadAloudProblemEvaluation {
-    return { problemIndex: 5, attemptCount: 2, status, overallScore: status === "EVALUATED" ? 82 : null,
+    return {
+        problemIndex: 5, attemptCount: 2, status, overallScore: status === "EVALUATED" ? 82 : null,
         evaluationConfidence: status === "EVALUATED" ? 0.9 : null, errorMessage: null,
-        submittedAt: "2026-09-10T10:00:00", evaluatedAt: null, manualRetryCount: retryCount, manualRetryLimit: 1 };
+        submittedAt: "2026-09-10T10:00:00", evaluatedAt: null, manualRetryCount: retryCount, manualRetryLimit: 1
+    };
 }
 function detail(item: SpeakingReadAloudProblemEvaluation): SpeakingSessionDetail {
-    return { ...structuredClone(LANGUAGE_LEARNING_SPEAKING_DETAIL),
-        session: { ...LANGUAGE_LEARNING_SPEAKING_DETAIL.session,
-            practiceMode: "READ_ALOUD", status: "EVALUATED", evaluationStatus: "EVALUATED" },
-        resumable: false, readAloudProblemEvaluations: [item] };
+    return {
+        ...structuredClone(LANGUAGE_LEARNING_SPEAKING_DETAIL),
+        session: {
+            ...LANGUAGE_LEARNING_SPEAKING_DETAIL.session,
+            practiceMode: "READ_ALOUD", status: "EVALUATED", evaluationStatus: "EVALUATED"
+        },
+        resumable: false, readAloudProblemEvaluations: [item]
+    };
 }
 
 test.describe("Speaking persisted evaluation recovery", () => {

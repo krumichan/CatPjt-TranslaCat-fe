@@ -41,8 +41,8 @@ export function urgentNotice(id: number, noticeType: "NORMAL" | "URGENT" = "URGE
 }
 
 export function holdUrgentRequest(store: UrgentStore, kind: "load" | "dismiss", user = TEST_USERS.A) {
-    let reached = () => {};
-    let release = () => {};
+    let reached = () => { };
+    let release = () => { };
     const started = new Promise<void>((resolve) => { reached = resolve; });
     const wait = new Promise<void>((resolve) => { release = resolve; });
     store.gates.set(`${kind}:${user.publicId}`, { reached, wait });

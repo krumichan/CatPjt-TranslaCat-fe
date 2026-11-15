@@ -8,9 +8,13 @@ import type { ParagraphFeedbackResult, ParagraphWritingPlan } from "../../src/ty
 
 type QaUser = { label: string; publicId: string; accessToken: string; refreshToken: string };
 type PartCheck = { requirementId: string; status: string };
-type FixedCase = { id: string; writingType: "TRANSLATION" | "GUIDED" | "FREE"; answer: string; answerSha256: string;
-    manifest: { items: { prompt: string }[] }; expected: { observationStatuses: Record<string, "MET" | "UNMET" | "UNCERTAIN">;
-        necessaryCorrections: string; partChecks: PartCheck[] | PartCheck | null } };
+type FixedCase = {
+    id: string; writingType: "TRANSLATION" | "GUIDED" | "FREE"; answer: string; answerSha256: string;
+    manifest: { items: { prompt: string }[] }; expected: {
+        observationStatuses: Record<string, "MET" | "UNMET" | "UNCERTAIN">;
+        necessaryCorrections: string; partChecks: PartCheck[] | PartCheck | null
+    }
+};
 type FixedPlan = { caseId: string; failureTest: boolean; ownerLabel: string; planId: number; itemId: number; answerSha256: string };
 const runtime = process.env.E2E_WRITING_RUNTIME_DIR ?? "";
 const baseURL = process.env.E2E_BASE_URL ?? "";
@@ -38,12 +42,16 @@ function calls(): number {
 
 async function authenticate(context: BrowserContext, user: QaUser): Promise<void> {
     // 실제 scratch BE login의 JWT를 정상 서명한 NextAuth cookie에 담는다.
-    const token = await encode({ secret: process.env.NEXTAUTH_SECRET!, maxAge: 3600, token: {
-        sub: user.publicId, publicId: user.publicId, role: "USER", loginSessionId: randomUUID(),
-        accessToken: user.accessToken, refreshToken: user.refreshToken, accessTokenExpires: Date.now() + 3600_000,
-    } });
-    await context.addCookies([{ name: "next-auth.session-token", value: token, url: baseURL, httpOnly: true,
-        secure: false, sameSite: "Lax", expires: Math.floor(Date.now() / 1000) + 3600 }]);
+    const token = await encode({
+        secret: process.env.NEXTAUTH_SECRET!, maxAge: 3600, token: {
+            sub: user.publicId, publicId: user.publicId, role: "USER", loginSessionId: randomUUID(),
+            accessToken: user.accessToken, refreshToken: user.refreshToken, accessTokenExpires: Date.now() + 3600_000,
+        }
+    });
+    await context.addCookies([{
+        name: "next-auth.session-token", value: token, url: baseURL, httpOnly: true,
+        secure: false, sameSite: "Lax", expires: Math.floor(Date.now() / 1000) + 3600
+    }]);
 }
 
 async function submit(page: Page, itemId: number, answer: string): Promise<ParagraphWritingPlan> {
@@ -141,10 +149,12 @@ for (const id of ["G01", "G02", "G03", "G04", "G05", "G06", "F01", "F02", "F03",
         await expect(page.getByTestId("paragraph-source")).toHaveCount(0);
         await expect(page.getByTestId(`paragraph-feedback-${attempt.answerId}`)).toHaveCount(0);
         expect(calls()).toBe(before + 1);
-        await testInfo.attach("provenance", { contentType: "application/json", body: Buffer.from(JSON.stringify({
-            caseId: id, fixtureSeededTask: true, actualBeLlDb: true, modelBoundary: "offline replay of exact recorded live command",
-            newPaidCalls: 0, answerSha256: plan.answerSha256, savedResultPolicy: result.policyVersion,
-        })) });
+        await testInfo.attach("provenance", {
+            contentType: "application/json", body: Buffer.from(JSON.stringify({
+                caseId: id, fixtureSeededTask: true, actualBeLlDb: true, modelBoundary: "offline replay of exact recorded live command",
+                newPaidCalls: 0, answerSha256: plan.answerSha256, savedResultPolicy: result.policyVersion,
+            }))
+        });
     });
 }
 

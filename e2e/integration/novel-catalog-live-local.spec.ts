@@ -34,7 +34,7 @@ test.describe("actual progressive catalogue through the release stack", () => {
         const expectCache = process.env.NOVEL_CATALOG_EXPECT_CACHE === "1";
         if (expectCache && !partialFile) phase = "CACHE_VALIDATION";
         const sourceIdentity = (value: CatalogSnapshot["items"][number]) => [value.identifier, value.rank, value.sourcePosition,
-            value.title.rawJa, value.author.rawJa, value.synopsis.rawJa, value.statusText.rawJa, value.genreText, value.isShortStory];
+        value.title.rawJa, value.author.rawJa, value.synopsis.rawJa, value.statusText.rawJa, value.genreText, value.isShortStory];
         try {
             if (partialFile) {
                 if (!path.isAbsolute(partialFile)) throw new Error("ABSOLUTE_PARTIAL_EVIDENCE_REQUIRED");
@@ -76,7 +76,7 @@ test.describe("actual progressive catalogue through the release stack", () => {
                 if (!response.ok() || !response.url().startsWith(base) || response.url().endsWith("/cancel")) return;
                 reads.push(response.json().then(value => {
                     if (value.body?.items) snapshots.push({ receivedAt: new Date().toISOString(), snapshot: value.body });
-                }).catch(() => {}));
+                }).catch(() => { }));
             });
             await page.addInitScript(() => {
                 const history: { atMs: number; identifiers: string[]; ranks: string[] }[] = [];
@@ -185,8 +185,10 @@ test.describe("actual progressive catalogue through the release stack", () => {
                 const observed = await page.evaluate(() => (window as unknown as { __catalogPaints?: typeof arrivals }).__catalogPaints ?? []).catch(() => []);
                 arrivals.push(...observed); arrivalCapturePhase = `${phase}_FINALLY`;
             }
-            fs.writeFileSync(file, JSON.stringify({ version: 3, phase, failure, starts, audio, arrivals, arrivalCapturePhase, snapshots, retryEvents, partialFile: partialFile ?? null, partialSha256, retrySnapshotId, finishedAt: new Date().toISOString(),
-                limitations: "600ms status polling plus render; actual completion order is observed, not forced to fixture order. Provider cache proof requires root ledger join. Real BE auth with synthetic NextAuth packaging; Google excluded." }, null, 2), { flag: "wx" });
+            fs.writeFileSync(file, JSON.stringify({
+                version: 3, phase, failure, starts, audio, arrivals, arrivalCapturePhase, snapshots, retryEvents, partialFile: partialFile ?? null, partialSha256, retrySnapshotId, finishedAt: new Date().toISOString(),
+                limitations: "600ms status polling plus render; actual completion order is observed, not forced to fixture order. Provider cache proof requires root ledger join. Real BE auth with synthetic NextAuth packaging; Google excluded."
+            }, null, 2), { flag: "wx" });
         }
     });
 });

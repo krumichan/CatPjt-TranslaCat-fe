@@ -22,10 +22,12 @@ test.beforeEach(async ({ page }) => {
 
 test("LL-EVIDENCE-01 saved result kinds and unknown provenance stay separate; unavailable evidence cannot open", async ({ page }) => {
     // 준비: 신형 코칭, 공식 결과, 출처가 불명확한 구형 기록을 함께 조회한다.
-    await page.route("**/api/v1/language-learning/history/evidence?**", (route) => fulfillApiJson(route, responseDto({ items: [scored, coaching, {
-        ...scored, activityId: "READING:-9301", source: "READING", title: "이전 읽기", resultKind: "UNKNOWN",
-        learningLanguage: null, originLanguage: null, policyVersion: null, availability: "LIMITED", detailAvailable: false, limitations: ["UNKNOWN_METADATA", "SOURCE_UNAVAILABLE"],
-    }], nextCursor: null })));
+    await page.route("**/api/v1/language-learning/history/evidence?**", (route) => fulfillApiJson(route, responseDto({
+        items: [scored, coaching, {
+            ...scored, activityId: "READING:-9301", source: "READING", title: "이전 읽기", resultKind: "UNKNOWN",
+            learningLanguage: null, originLanguage: null, policyVersion: null, availability: "LIMITED", detailAvailable: false, limitations: ["UNKNOWN_METADATA", "SOURCE_UNAVAILABLE"],
+        }], nextCursor: null
+    })));
 
     // 실행
     await page.goto("/ko/language-learning/history");
@@ -322,7 +324,7 @@ test("LL-EVIDENCE-13 returning through navigation hides cached source until the 
     // 준비: 페이지 재진입 뒤 응답을 보류해 이전 상세가 먼저 나타나는지 확인한다.
     let denied = false;
     let deniedReads = 0;
-    let releaseDenied: () => void = () => {};
+    let releaseDenied: () => void = () => { };
     const permissionCheck = new Promise<void>((resolve) => { releaseDenied = resolve; });
     await page.route("**/api/v1/language-learning/history/evidence?**", (route) => fulfillApiJson(route, responseDto({ items: [scored], nextCursor: null })));
     await page.route("**/api/v1/language-learning/history/WRITING%3A-9101", async (route) => {

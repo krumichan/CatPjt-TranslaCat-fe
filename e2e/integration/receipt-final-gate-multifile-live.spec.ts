@@ -94,20 +94,26 @@ test("RECEIPT-FINAL-GATE multiple files keep source identity, Papasu net amount 
     const bookResponse = await api.post("account-books", { headers: auth, data: { name: `Receipt multi ${Date.now()}`, category: "TEST", currencyCode: "USD" } });
     expect(bookResponse.status()).toBe(201);
     const accountBookId = ((await bookResponse.json()) as { body: { id: number } }).body.id;
-    expect((await api.post(`account-books/${accountBookId}/transactions/register`, { headers: auth, data: {
-        type: "EXPENSE", title: "Category seed", storeName: "Seed", category: "식비",
-        amount: "1.00", transactionDate: "2026-09-22", memo: "isolated multi-file gate",
-    } })).ok()).toBe(true);
+    expect((await api.post(`account-books/${accountBookId}/transactions/register`, {
+        headers: auth, data: {
+            type: "EXPENSE", title: "Category seed", storeName: "Seed", category: "식비",
+            amount: "1.00", transactionDate: "2026-09-22", memo: "isolated multi-file gate",
+        }
+    })).ok()).toBe(true);
     const runtimeIdentity = await assertReceiptRuntimePreflight(api, accountBookId, auth.Authorization);
 
     const now = Math.floor(Date.now() / 1000); const maxAge = Math.max(login.body.accessTokenExpiresIn, 300);
-    const sessionToken = await encode({ secret, maxAge, token: {
-        name: "receipt-final-multi", email, sub: login.body.publicId, accessToken: login.body.accessToken,
-        accessTokenExpires: Date.now() + login.body.accessTokenExpiresIn * 1000,
-        role: login.body.role, publicId: login.body.publicId, iat: now, exp: now + maxAge, jti: `receipt-final-multi-${now}`,
-    } });
-    await context.addCookies([{ name: "next-auth.session-token", value: sessionToken, url: appUrl,
-        httpOnly: true, secure: false, sameSite: "Lax", expires: now + maxAge }]);
+    const sessionToken = await encode({
+        secret, maxAge, token: {
+            name: "receipt-final-multi", email, sub: login.body.publicId, accessToken: login.body.accessToken,
+            accessTokenExpires: Date.now() + login.body.accessTokenExpiresIn * 1000,
+            role: login.body.role, publicId: login.body.publicId, iat: now, exp: now + maxAge, jti: `receipt-final-multi-${now}`,
+        }
+    });
+    await context.addCookies([{
+        name: "next-auth.session-token", value: sessionToken, url: appUrl,
+        httpOnly: true, secure: false, sameSite: "Lax", expires: now + maxAge
+    }]);
 
     await page.addInitScript(() => {
         const originalFetch = window.fetch.bind(window); const uploads: Array<Record<string, unknown>> = [];
@@ -118,8 +124,10 @@ test("RECEIPT-FINAL-GATE multiple files keep source identity, Papasu net amount 
                 const file = init.body.get("file");
                 if (file instanceof File) {
                     const bytes = await file.arrayBuffer(); const digest = await window.crypto.subtle.digest("SHA-256", bytes);
-                    uploads.push({ filename: file.name, bytes: file.size,
-                        sha256: Array.from(new Uint8Array(digest), part => part.toString(16).padStart(2, "0")).join("") });
+                    uploads.push({
+                        filename: file.name, bytes: file.size,
+                        sha256: Array.from(new Uint8Array(digest), part => part.toString(16).padStart(2, "0")).join("")
+                    });
                 }
             }
             return originalFetch(input, init);
@@ -159,12 +167,14 @@ test("RECEIPT-FINAL-GATE multiple files keep source identity, Papasu net amount 
             || key(actual.title).includes(merchantIdentity));
         const actual = candidates.length === 1 ? candidates[0] : null;
         const branch = expected.branch ? key(expected.branch) : null;
-        return { sampleId: truth.id, expected, actual, matchCount: candidates.length,
+        return {
+            sampleId: truth.id, expected, actual, matchCount: candidates.length,
             coreMatches: actual !== null
                 && (branch === null || key(actual.branchName).includes(branch) || key(actual.title).includes(branch))
                 && numeric(actual.purchaseTotal) === numeric(expected.purchaseTotal)
                 && numeric(actual.bookAmount) === numeric(expected.bookAmount)
-                && actual.originalCurrencyCode === expected.currency && actual.transactionDate === expected.date };
+                && actual.originalCurrencyCode === expected.currency && actual.transactionDate === expected.date
+        };
     }));
     expect(matches.every(match => match.matchCount === 1 && match.coreMatches)).toBe(true);
     const papasu = matches.find(match => match.sampleId === "user-papasu")!;
@@ -205,12 +215,16 @@ test("RECEIPT-FINAL-GATE multiple files keep source identity, Papasu net amount 
     expect(turkishSaved.originalCurrencyCode).toBe("TRY"); expect(turkishSaved.exchangeRateProvider).toBe("FRANKFURTER");
     expect(cents(turkishSaved.amount)).toBe(multiplyHalfUp(turkishSaved.originalAmount!, turkishSaved.exchangeRate!, 2));
 
-    const evidence = { classification: "LIVE_AUTO_E2E_MULTI_FILE", accountBookId, concurrencyLimit: 2, runtimeIdentity,
+    const evidence = {
+        classification: "LIVE_AUTO_E2E_MULTI_FILE", accountBookId, concurrencyLimit: 2, runtimeIdentity,
         sourceEvidence, uploads, responseReplayPaths, expectedTotal, actualTotal: allReceipts.length, matches, traceEvidence,
         actualProviderCalls: traceEvidence.reduce((total, item) => total + item.providerCallCount, 0),
         selectedBatchSize: batch!.receipts.length, saved, nonSelectedCoreSaved: saved.some(item => ["カラオケまねきねこ", "ROYAL", "AEON", "LAWSON"].some(name => key(item.storeName).includes(key(name)))),
-        turkishIndependentConversion: { originalAmount: turkishSaved.originalAmount, rate: turkishSaved.exchangeRate,
-            expectedMinorUnits: multiplyHalfUp(turkishSaved.originalAmount!, turkishSaved.exchangeRate!, 2), actualMinorUnits: cents(turkishSaved.amount) } };
+        turkishIndependentConversion: {
+            originalAmount: turkishSaved.originalAmount, rate: turkishSaved.exchangeRate,
+            expectedMinorUnits: multiplyHalfUp(turkishSaved.originalAmount!, turkishSaved.exchangeRate!, 2), actualMinorUnits: cents(turkishSaved.amount)
+        }
+    };
     expect(evidence.nonSelectedCoreSaved).toBe(false);
     fs.mkdirSync(path.dirname(evidencePath), { recursive: true }); fs.writeFileSync(evidencePath, JSON.stringify(evidence, null, 2));
     await api.dispose();

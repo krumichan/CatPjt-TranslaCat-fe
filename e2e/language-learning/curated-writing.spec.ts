@@ -41,10 +41,14 @@ test("세 유형의 QA 문항·답변·참고·기록은 브라우저에서 점�
             expect(body.contentRevision).toBe("f".repeat(64));
             stored!.items[0].answered = true;
             stored!.items[0].canSubmit = false;
-            stored!.items[0].attempts = [{ answerId: -901, attemptDate: "2026-10-04", answer: body.answer,
-                submittedAt: "2026-10-04T03:00:00", resultPolicy: "REFERENCE_ONLY", evaluation: null }];
-            stored!.items[0].reference = { checklist: ["의미 전달"], referenceAnswers: ["参考例です。"],
-                alternativeNote: "다른 표현도 가능합니다.", isOnlyCorrectAnswer: false };
+            stored!.items[0].attempts = [{
+                answerId: -901, attemptDate: "2026-10-04", answer: body.answer,
+                submittedAt: "2026-10-04T03:00:00", resultPolicy: "REFERENCE_ONLY", evaluation: null
+            }];
+            stored!.items[0].reference = {
+                checklist: ["의미 전달"], referenceAnswers: ["参考例です。"],
+                alternativeNote: "다른 표현도 가능합니다.", isOnlyCorrectAnswer: false
+            };
             await fulfillApiJson(route, responseDto(stored));
             return;
         }
@@ -96,16 +100,20 @@ test("로그인 계정 전환 뒤 이전 소유자의 문항과 초안을 지우
     await installMockAuthCookie(context, "USER", { user, loginSessionId });
     await page.route("**/api/auth/session", (route) => fulfillJson(route, {
         loginSessionId,
-        user: { name: user.nickname, email: user.email, publicId: user.publicId,
-            role: "USER", accessTokenExpires: Date.now() + 3_600_000 },
+        user: {
+            name: user.nickname, email: user.email, publicId: user.publicId,
+            role: "USER", accessTokenExpires: Date.now() + 3_600_000
+        },
         accessToken: `mock-access-token-${user.key}`,
         expires: new Date(Date.now() + 3_600_000).toISOString(),
     }));
     const actors: string[] = [];
     await page.route("**/api/v1/language-learning/writing/curated/sets", async (route) => {
         actors.push(route.request().headers().authorization ?? "");
-        await fulfillApiJson(route, responseDto({ ...setFor("TRANSLATION"),
-            items: setFor("TRANSLATION").items.map((item) => ({ ...item, originText: `${user.key} 소유 문항 ${item.order}` })) }));
+        await fulfillApiJson(route, responseDto({
+            ...setFor("TRANSLATION"),
+            items: setFor("TRANSLATION").items.map((item) => ({ ...item, originText: `${user.key} 소유 문항 ${item.order}` }))
+        }));
     });
 
     await page.goto("/ko/language-learning/writing");
@@ -134,13 +142,15 @@ function setFor(writingType: typeof kinds[number]) {
         replacementCount: 0, rePractice: false, reviewAvailable: true,
         personalizedFeedbackStatus: "DISABLED_PENDING_QUALITY_GATE" as const,
         items: Array.from({ length: 5 }, (_, index) => ({
-            itemId: -201-index, order: index+1, difficulty: index === 0 ? "REVIEW" : index === 4 ? "CHALLENGE" : "NORMAL",
+            itemId: -201 - index, order: index + 1, difficulty: index === 0 ? "REVIEW" : index === 4 ? "CHALLENGE" : "NORMAL",
             targetBand: index === 0 ? 2 : index === 4 ? 4 : 3,
             catalogId: `qa-${index}`, catalogVersion: 1, contentRevision: "f".repeat(64),
-            originText: `문항 ${index+1}`, providedFacts: [], requiredIntents: [], responseConstraints: [], topicKey: "qa",
-            answered: false, canSubmit: true, attempts: [] as Array<{answerId: number; attemptDate: string; answer: string;
-                submittedAt: string; resultPolicy: "REFERENCE_ONLY"; evaluation: null}>,
-            reference: undefined as undefined | {checklist: string[]; referenceAnswers: string[]; alternativeNote: string; isOnlyCorrectAnswer: false},
+            originText: `문항 ${index + 1}`, providedFacts: [], requiredIntents: [], responseConstraints: [], topicKey: "qa",
+            answered: false, canSubmit: true, attempts: [] as Array<{
+answerId: number; attemptDate: string; answer: string;
+                submittedAt: string; resultPolicy: "REFERENCE_ONLY"; evaluation: null
+}>,
+            reference: undefined as undefined | { checklist: string[]; referenceAnswers: string[]; alternativeNote: string; isOnlyCorrectAnswer: false },
         })),
     };
 }

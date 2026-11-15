@@ -19,24 +19,31 @@ async function openReviewEditor(page: Page, row: Locator = page.getByTestId("rec
 }
 
 const longName = "InternationalStoreWithAVeryLongUnbrokenName".repeat(3);
-const book = { id: 1, name: longName, description: longName, category: longName,
+const book = {
+    id: 1, name: longName, description: longName, category: longName,
     currencyCode: "KWD", currencySymbol: "KD", currencyDecimalPlaces: 3,
     incomeAmount: "9007199254740993.125", expenseAmount: "23456789.125",
-    balance: "9007199231284204.000", transactionCount: 21, myRole: "OWNER" };
-const transaction = { id: 1, accountBookId: 1, type: "EXPENSE", title: longName,
+    balance: "9007199231284204.000", transactionCount: 21, myRole: "OWNER"
+};
+const transaction = {
+    id: 1, accountBookId: 1, type: "EXPENSE", title: longName,
     storeName: longName, category: longName, amount: "123456789.125",
     transactionDate: "2026-09-15", memo: longName, sourceType: null,
-    sourceId: null, sourceYear: null, sourceMonth: null };
-const goal = { id: 1, accountBookId: 1, year: 2026, month: 9,
+    sourceId: null, sourceYear: null, sourceMonth: null
+};
+const goal = {
+    id: 1, accountBookId: 1, year: 2026, month: 9,
     goalAmount: "999999999.125", expenseAmount: "123456789.125",
-    remainingAmount: "876543210.000", usageRate: 12.35, exceeded: false };
+    remainingAmount: "876543210.000", usageRate: 12.35, exceeded: false
+};
 
 const receiptLabels = translations.AccountBook.detail.transactionModal;
 const locales = {
     ko: translations.AccountBook.detail,
     ja: jaTranslations.AccountBook.detail,
 } as const;
-const receipt = { receiptId: "receipt-1", title: "Coffee", storeName: longName.slice(0, 90),
+const receipt = {
+    receiptId: "receipt-1", title: "Coffee", storeName: longName.slice(0, 90),
     originalAmount: "12.34", detectedCurrencyCode: "USD", originalCurrencyCode: "USD",
     transactionDate: "2026-09-15", categoryName: "Food", memo: longName,
     categorySource: "EXISTING", categoryReason: "Matched an active account-book category.",
@@ -46,7 +53,8 @@ const receipt = { receiptId: "receipt-1", title: "Coffee", storeName: longName.s
     exchangeRateProvider: "FRANKFURTER", rateFetchedAt: "2026-09-15T09:00:00Z",
     convertedAt: "2026-09-21T01:00:00Z", roundingPrecision: 3, roundingMode: "HALF_UP",
     conversionPolicyVersion: "receipt-fx-v1", conversionQuoteId: "a".repeat(64),
-    conversionStatus: "CONVERTED", rateDateFallback: false };
+    conversionStatus: "CONVERTED", rateDateFallback: false
+};
 
 function receiptCandidates(count: number) {
     const candidates: Array<Record<string, unknown>> = Array.from({ length: count }, (_, index) => ({
@@ -89,8 +97,10 @@ async function openReceiptReview(
     await page.goto(`/${locale}/account-books/1`);
     await page.getByRole("button", { name: detail.header.createTransaction, exact: true }).click();
     await page.getByRole("button", { name: labels.inputMode.receipt, exact: true }).click();
-    await page.locator('input[type="file"]').setInputFiles({ name: "three-receipts.png", mimeType: "image/png",
-        buffer: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=", "base64") });
+    await page.locator('input[type="file"]').setInputFiles({
+        name: "three-receipts.png", mimeType: "image/png",
+        buffer: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=", "base64")
+    });
     await page.getByRole("button", { name: labels.receipt.action, exact: true }).last().click();
     await expect(page.getByTestId("receipt-review-card")).toHaveCount(receiptCount);
 }
@@ -133,10 +143,12 @@ async function mockAccountBook(page: Page) {
 
 async function expectNoPageOverflow(page: Page) {
     const overflow = await page.locator("main").evaluateAll(mains => mains.filter(main => main.scrollWidth > main.clientWidth + 1)
-        .map(main => ({ width: main.clientWidth, scroll: main.scrollWidth,
+        .map(main => ({
+            width: main.clientWidth, scroll: main.scrollWidth,
             children: Array.from(main.querySelectorAll("*"))
                 .filter(el => { const rect = el.getBoundingClientRect(); return rect.right > innerWidth + 1 && rect.width > 0 && !el.closest("table"); })
-                .slice(0, 16).map(el => ({ tag: el.tagName, classes: el.getAttribute("class"), width: el.getBoundingClientRect().width })) })));
+                .slice(0, 16).map(el => ({ tag: el.tagName, classes: el.getAttribute("class"), width: el.getBoundingClientRect().width }))
+        })));
     if (overflow.length) console.log("Overflow diagnostics", JSON.stringify(overflow));
     await expect.poll(() => page.evaluate(() => ({
         root: document.documentElement.scrollWidth <= document.documentElement.clientWidth,
@@ -282,8 +294,10 @@ test("ACCOUNT-RECEIPT category blocker focuses the shared selector and resolves 
     await page.goto("/account-books/1");
     await page.getByRole("button", { name: "거래 등록", exact: true }).click();
     await page.getByRole("button", { name: receiptLabels.inputMode.receipt, exact: true }).click();
-    await page.locator('input[type="file"]').setInputFiles({ name: "missing-category.png", mimeType: "image/png",
-        buffer: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=", "base64") });
+    await page.locator('input[type="file"]').setInputFiles({
+        name: "missing-category.png", mimeType: "image/png",
+        buffer: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=", "base64")
+    });
     await page.getByRole("button", { name: receiptLabels.receipt.action, exact: true }).last().click();
     const row = page.getByTestId("receipt-review-card").last();
     await expect(row).toHaveClass(/bg-red/);
@@ -474,54 +488,54 @@ test("ACCOUNT-RECEIPT single-card inline amount updates source facts and recalcu
 });
 
 for (const outcome of ["success", "failure"] as const) {
-test(`ACCOUNT-RECEIPT cancelling an in-flight amount edit ignores its late ${outcome} and preserves a newer category`, async ({ page }) => {
-    await page.setViewportSize({ width: 1024, height: 844 });
-    await mockAccountBook(page);
-    let release: (() => void) | undefined;
-    const gate = new Promise<void>(resolve => { release = resolve; });
-    let conversionCalls = 0;
-    await page.route("**/transactions/receipt-conversion", async route => {
-        conversionCalls += 1;
-        await gate;
-        if (outcome === "failure") return fulfillJson(route, { status: 503, message: "late failure" }, 503);
-        const payload = JSON.parse(route.request().postData() ?? "{}");
-        await fulfillJson(route, responseDto({
-            ...receipt, originalAmount: payload.originalAmount, convertedAmount: "9.999",
-            conversionQuoteId: "d".repeat(64),
-        }));
-    });
-    await openReceiptReview(page, "ko", 1, {
-        purchaseTotal: "12.34", bookAmount: "12.34",
-        paymentBreakdown: [{ paymentType: "CREDIT_CARD", amount: "12.34", evidence: "VISA", duplicateGroup: null }],
-        amountReason: "SETTLED_PAYMENT_EXCLUDING_LOYALTY_POINTS", reviewStatus: "READY",
-    });
-    const row = page.getByTestId("receipt-review-card").first();
-    await row.getByRole("button", { name: /12\.34 USD/ }).click();
-    const amount = row.getByRole("textbox", { name: "영수증 1 원통화 반영액", exact: true });
-    await amount.fill("20");
-    await amount.press("Enter");
-    await expect.poll(() => conversionCalls).toBe(1);
-    await row.getByRole("button", { name: receiptLabels.receipt.review.inlineCancel, exact: true }).click();
-    const category = row.getByRole("combobox", { name: "영수증 1 카테고리 즉시 선택", exact: true });
-    await expect(category).toBeEnabled();
-    await category.selectOption("생활");
-    // 실행: 취소한 요청의 응답보다 먼저 다른 금액 입력을 시작한다.
-    await row.getByRole("button", { name: /12\.34 USD/ }).click();
-    const newerInput = row.getByRole("textbox", { name: "영수증 1 원통화 반영액", exact: true });
-    await newerInput.fill("30");
-    const lateReply = page.waitForResponse("**/transactions/receipt-conversion");
-    release?.();
-    await (await lateReply).finished();
-    await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+    test(`ACCOUNT-RECEIPT cancelling an in-flight amount edit ignores its late ${outcome} and preserves a newer category`, async ({ page }) => {
+        await page.setViewportSize({ width: 1024, height: 844 });
+        await mockAccountBook(page);
+        let release: (() => void) | undefined;
+        const gate = new Promise<void>(resolve => { release = resolve; });
+        let conversionCalls = 0;
+        await page.route("**/transactions/receipt-conversion", async route => {
+            conversionCalls += 1;
+            await gate;
+            if (outcome === "failure") return fulfillJson(route, { status: 503, message: "late failure" }, 503);
+            const payload = JSON.parse(route.request().postData() ?? "{}");
+            await fulfillJson(route, responseDto({
+                ...receipt, originalAmount: payload.originalAmount, convertedAmount: "9.999",
+                conversionQuoteId: "d".repeat(64),
+            }));
+        });
+        await openReceiptReview(page, "ko", 1, {
+            purchaseTotal: "12.34", bookAmount: "12.34",
+            paymentBreakdown: [{ paymentType: "CREDIT_CARD", amount: "12.34", evidence: "VISA", duplicateGroup: null }],
+            amountReason: "SETTLED_PAYMENT_EXCLUDING_LOYALTY_POINTS", reviewStatus: "READY",
+        });
+        const row = page.getByTestId("receipt-review-card").first();
+        await row.getByRole("button", { name: /12\.34 USD/ }).click();
+        const amount = row.getByRole("textbox", { name: "영수증 1 원통화 반영액", exact: true });
+        await amount.fill("20");
+        await amount.press("Enter");
+        await expect.poll(() => conversionCalls).toBe(1);
+        await row.getByRole("button", { name: receiptLabels.receipt.review.inlineCancel, exact: true }).click();
+        const category = row.getByRole("combobox", { name: "영수증 1 카테고리 즉시 선택", exact: true });
+        await expect(category).toBeEnabled();
+        await category.selectOption("생활");
+        // 실행: 취소한 요청의 응답보다 먼저 다른 금액 입력을 시작한다.
+        await row.getByRole("button", { name: /12\.34 USD/ }).click();
+        const newerInput = row.getByRole("textbox", { name: "영수증 1 원통화 반영액", exact: true });
+        await newerInput.fill("30");
+        const lateReply = page.waitForResponse("**/transactions/receipt-conversion");
+        release?.();
+        await (await lateReply).finished();
+        await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
 
-    // 검증: 늦은 응답은 새 입력이나 카테고리를 지우지 않는다.
-    await expect(page.getByText(receiptLabels.receipt.review.previewFailed, { exact: true })).toHaveCount(0);
-    await expect(newerInput).toHaveValue("30");
-    await newerInput.press("Escape");
-    await expect(row).toContainText("12.34 USD");
-    await expect(row).toContainText("3.784 KWD");
-    await expect(category).toHaveValue("생활");
-});
+        // 검증: 늦은 응답은 새 입력이나 카테고리를 지우지 않는다.
+        await expect(page.getByText(receiptLabels.receipt.review.previewFailed, { exact: true })).toHaveCount(0);
+        await expect(newerInput).toHaveValue("30");
+        await newerInput.press("Escape");
+        await expect(row).toContainText("12.34 USD");
+        await expect(row).toContainText("3.784 KWD");
+        await expect(category).toHaveValue("생활");
+    });
 }
 
 test("ACCOUNT-RECEIPT points explain why table amount editing opens the detail modal", async ({ page }) => {
@@ -553,8 +567,10 @@ test("ACCOUNT-RECEIPT analysis summary aggregates multiple receipts and follows 
             ...candidate,
             receiptId: `photo-${call}-receipt-${index + 1}`,
         }));
-        return fulfillJson(route, responseDto({ receiptCount: receipts.length, warnings: [], ocrEngine: "vision", usedAi: true,
-            categoryOptions: [{ name: "Food", source: "EXISTING" }], receipts }));
+        return fulfillJson(route, responseDto({
+            receiptCount: receipts.length, warnings: [], ocrEngine: "vision", usedAi: true,
+            categoryOptions: [{ name: "Food", source: "EXISTING" }], receipts
+        }));
     });
     await page.goto("/ko/account-books/1");
     await page.getByRole("button", { name: "거래 등록", exact: true }).click();
@@ -782,13 +798,17 @@ test("ACCOUNT-RECEIPT compact inline category and single-card amount retain serv
     await page.route("**/transactions/receipt-conversion", route => {
         const candidate = JSON.parse(route.request().postData() ?? "{}");
         conversions.push(candidate);
-        return fulfillJson(route, responseDto({ ...receipt, originalAmount: "15", purchaseTotal: "15",
-            convertedAmount: "4.600", conversionQuoteId: "c".repeat(64) }));
+        return fulfillJson(route, responseDto({
+            ...receipt, originalAmount: "15", purchaseTotal: "15",
+            convertedAmount: "4.600", conversionQuoteId: "c".repeat(64)
+        }));
     });
-    await openReceiptReview(page, "ko", 1, { title: "LAWSON 船堀店", categoryName: "반려동물", categorySource: "NEW",
+    await openReceiptReview(page, "ko", 1, {
+        title: "LAWSON 船堀店", categoryName: "반려동물", categorySource: "NEW",
         purchaseTotal: "12.34", bookAmount: "12.34", reviewStatus: "READY",
         paymentBreakdown: [{ paymentType: "CREDIT_CARD", amount: "12.34", evidence: "VISA", duplicateGroup: null }],
-        amountReason: "SETTLED_PAYMENT_EXCLUDING_LOYALTY_POINTS" });
+        amountReason: "SETTLED_PAYMENT_EXCLUDING_LOYALTY_POINTS"
+    });
     const row = page.getByTestId("receipt-review-card").first();
     await expect(row.getByRole("textbox")).toHaveCount(0);
     await expect(row.getByRole("combobox")).toHaveCount(0);
@@ -829,15 +849,21 @@ for (const locale of ["ko", "ja"] as const) {
             const sample = { ...book, name: "日本旅行", currencyCode: "JPY", currencySymbol: "¥", currencyDecimalPlaces: 0 };
             await page.route("**/api/v1/account-books/1", route => fulfillJson(route, responseDto(sample)));
             await page.route("**/api/v1/account-books/1/summary", route => fulfillJson(route, responseDto(sample)));
-            const facts = { ...receipt, transactionDate: "2026-09-20", detectedLanguage: "ja", detectedCurrencyCode: "JPY", originalCurrencyCode: "JPY",
+            const facts = {
+                ...receipt, transactionDate: "2026-09-20", detectedLanguage: "ja", detectedCurrencyCode: "JPY", originalCurrencyCode: "JPY",
                 accountBookCurrencyCode: "JPY", exchangeRate: "1", conversionStatus: "NOT_REQUIRED", roundingPrecision: 0,
-                amountReason: "SETTLED_PAYMENT_EXCLUDING_LOYALTY_POINTS", reviewStatus: "READY" };
-            const primary = { ...facts, title: "LAWSON 船堀店", storeName: "LAWSON", branchName: "船堀店", categoryName: "食費", categorySource: "NEW",
+                amountReason: "SETTLED_PAYMENT_EXCLUDING_LOYALTY_POINTS", reviewStatus: "READY"
+            };
+            const primary = {
+                ...facts, title: "LAWSON 船堀店", storeName: "LAWSON", branchName: "船堀店", categoryName: "食費", categorySource: "NEW",
                 originalAmount: "908", bookAmount: "908", purchaseTotal: "908",
-                paymentBreakdown: [{ paymentType: "CREDIT_CARD", amount: "908", evidence: "クレジット", duplicateGroup: null }], convertedAmount: "908" };
+                paymentBreakdown: [{ paymentType: "CREDIT_CARD", amount: "908", evidence: "クレジット", duplicateGroup: null }], convertedAmount: "908"
+            };
             await openReceiptReview(page, locale, 2, primary,
-                { ...facts, receiptId: "receipt-2", title: "杉養蜂園 川越店", storeName: "杉養蜂園", branchName: "川越店", categoryName: "買物", categorySource: "NEW",
-                    originalAmount: "1998", bookAmount: "1998", purchaseTotal: "1998", convertedAmount: "1998" });
+                {
+                    ...facts, receiptId: "receipt-2", title: "杉養蜂園 川越店", storeName: "杉養蜂園", branchName: "川越店", categoryName: "買物", categorySource: "NEW",
+                    originalAmount: "1998", bookAmount: "1998", purchaseTotal: "1998", convertedAmount: "1998"
+                });
             const analysisToggle = page.locator('button[aria-controls="receipt-analysis-content"]');
             if (await analysisToggle.getAttribute("aria-expanded") === "true")
                 await analysisToggle.click();
@@ -966,12 +992,16 @@ for (const mode of ["list", "table"] as const) {
             const payload = route.request().postDataJSON();
             requests.push(payload);
             const paid = payload.paymentBreakdown[0].amount;
-            return fulfillJson(route, responseDto({ ...receipt, originalAmount: paid, originalCurrencyCode: payload.originalCurrencyCode,
-                convertedAmount: Number(paid) === 15 ? "4.600" : "3.784", conversionQuoteId: "d".repeat(64) }));
+            return fulfillJson(route, responseDto({
+                ...receipt, originalAmount: paid, originalCurrencyCode: payload.originalCurrencyCode,
+                convertedAmount: Number(paid) === 15 ? "4.600" : "3.784", conversionQuoteId: "d".repeat(64)
+            }));
         });
-        await openReceiptReview(page, "ko", 1, { purchaseTotal: "12.34", bookAmount: "12.34",
+        await openReceiptReview(page, "ko", 1, {
+            purchaseTotal: "12.34", bookAmount: "12.34",
             paymentBreakdown: [{ paymentType: "CREDIT_CARD", amount: "12.34", evidence: "VISA", duplicateGroup: null }],
-            amountReason: "SETTLED_PAYMENT_EXCLUDING_LOYALTY_POINTS", reviewStatus: "READY" });
+            amountReason: "SETTLED_PAYMENT_EXCLUDING_LOYALTY_POINTS", reviewStatus: "READY"
+        });
         const row = page.getByTestId("receipt-review-card").first();
         await openReviewEditor(page, row);
         const editor = page.getByTestId("receipt-review-editor");
@@ -1007,17 +1037,21 @@ for (const mode of ["list", "table"] as const) {
         await page.route("**/transactions/receipt-conversion", route => {
             const payload = route.request().postDataJSON();
             conversions.push(payload);
-            return fulfillJson(route, responseDto({ ...receipt, originalAmount: payload.paymentBreakdown[0].amount,
+            return fulfillJson(route, responseDto({
+                ...receipt, originalAmount: payload.paymentBreakdown[0].amount,
                 originalCurrencyCode: payload.originalCurrencyCode, requestedRateDate: payload.transactionDate,
-                convertedAmount: "6.899", conversionQuoteId: "e".repeat(64) }));
+                convertedAmount: "6.899", conversionQuoteId: "e".repeat(64)
+            }));
         });
         await page.route("**/transactions/receipt-batch", route => {
             batch = route.request().postDataJSON();
             return fulfillJson(route, { status: 409, message: "capture only" }, 409);
         });
-        await openReceiptReview(page, "ko", 1, { storeName: "Cafe", purchaseTotal: "12.34", bookAmount: "12.34",
+        await openReceiptReview(page, "ko", 1, {
+            storeName: "Cafe", purchaseTotal: "12.34", bookAmount: "12.34",
             paymentBreakdown: [{ paymentType: "CASH", amount: "12.34", evidence: "現金", duplicateGroup: null }],
-            cashTendered: null, change: null, reviewStatus: "READY" });
+            cashTendered: null, change: null, reviewStatus: "READY"
+        });
         const row = page.getByTestId("receipt-review-card").first();
         await openReviewEditor(page, row);
         const editor = page.getByTestId("receipt-review-editor");
@@ -1074,8 +1108,10 @@ for (const mode of ["list", "table"] as const) {
         expect(conversions[0].paymentBreakdown).toEqual([{ paymentType: "CASH", amount: "22.50", evidence: "現金", duplicateGroup: null }]);
         await page.getByTestId("receipt-submit-selected").click();
         await expect.poll(() => batch).toBeDefined();
-        expect(batch!.receipts[0]).toMatchObject({ originalAmount: "22.5", originalCurrencyCode: "EUR", transactionDate: "2026-09-16",
-            title: "修正した店舗 川越店", storeName: "修正した店舗", branchName: "川越店", memo: "保存前の確認メモ", categoryName: "생활", conversionQuoteId: "e".repeat(64) });
+        expect(batch!.receipts[0]).toMatchObject({
+            originalAmount: "22.5", originalCurrencyCode: "EUR", transactionDate: "2026-09-16",
+            title: "修正した店舗 川越店", storeName: "修正した店舗", branchName: "川越店", memo: "保存前の確認メモ", categoryName: "생활", conversionQuoteId: "e".repeat(64)
+        });
         await expectNoPageOverflow(page);
     });
 
@@ -1088,8 +1124,10 @@ for (const mode of ["list", "table"] as const) {
             const payload = route.request().postDataJSON();
             if (++calls === 1) return fulfillJson(route, { status: 503, message: "unavailable" }, 503);
             if (calls === 2) return fulfillJson(route, responseDto(receipt));
-            return fulfillJson(route, responseDto({ ...receipt, originalAmount: payload.originalAmount,
-                convertedAmount: "4.600", conversionQuoteId: "f".repeat(64) }));
+            return fulfillJson(route, responseDto({
+                ...receipt, originalAmount: payload.originalAmount,
+                convertedAmount: "4.600", conversionQuoteId: "f".repeat(64)
+            }));
         });
         await openReceiptReview(page, "ko", 1);
         const row = page.getByTestId("receipt-review-card").first();
@@ -1123,14 +1161,18 @@ for (const mode of ["list", "table"] as const) {
         await page.route("**/transactions/receipt-conversion", route => {
             const payload = route.request().postDataJSON();
             requests.push(payload);
-            return fulfillJson(route, responseDto({ ...receipt, originalAmount: payload.originalAmount, originalCurrencyCode: "JPY",
-                convertedAmount: "10.24", conversionQuoteId: "9".repeat(64) }));
+            return fulfillJson(route, responseDto({
+                ...receipt, originalAmount: payload.originalAmount, originalCurrencyCode: "JPY",
+                convertedAmount: "10.24", conversionQuoteId: "9".repeat(64)
+            }));
         });
-        await openReceiptReview(page, "ko", 1, { originalAmount: "5020", bookAmount: "5020", purchaseTotal: "7089", detectedCurrencyCode: "JPY",
+        await openReceiptReview(page, "ko", 1, {
+            originalAmount: "5020", bookAmount: "5020", purchaseTotal: "7089", detectedCurrencyCode: "JPY",
             originalCurrencyCode: "JPY", paymentBreakdown: [
                 { paymentType: "LOYALTY_POINTS", amount: "2069", evidence: "ポイント", duplicateGroup: null },
                 { paymentType: "CREDIT_CARD", amount: "5020", evidence: "カード", duplicateGroup: null },
-            ], reviewStatus: "READY" });
+            ], reviewStatus: "READY"
+        });
         const row = page.getByTestId("receipt-review-card").first();
         await openReviewEditor(page, row);
         const editor = page.getByTestId("receipt-review-editor");
@@ -1214,20 +1256,24 @@ for (const { mode, locale, width } of [
         await page.route("**/transactions/receipt-conversion", route => {
             const payload = route.request().postDataJSON();
             conversions.push(payload);
-            return fulfillJson(route, responseDto({ ...receipt, originalAmount: payload.originalAmount,
-                originalCurrencyCode: "JPY", convertedAmount: "16.060", exchangeRate: "0.002", conversionQuoteId: "8".repeat(64) }));
+            return fulfillJson(route, responseDto({
+                ...receipt, originalAmount: payload.originalAmount,
+                originalCurrencyCode: "JPY", convertedAmount: "16.060", exchangeRate: "0.002", conversionQuoteId: "8".repeat(64)
+            }));
         });
         await page.route("**/transactions/receipt-batch", route => {
             batches.push(route.request().postDataJSON());
             return fulfillJson(route, responseDto([transaction]));
         });
-        await openReceiptReview(page, locale, 1, { title: "ちいかわレストラン沖縄", storeName: "ちいかわレストラン沖縄",
+        await openReceiptReview(page, locale, 1, {
+            title: "ちいかわレストラン沖縄", storeName: "ちいかわレストラン沖縄",
             purchaseTotal: "8030", originalAmount: "8030", bookAmount: "8030", detectedCurrencyCode: "JPY", originalCurrencyCode: "JPY",
             paymentBreakdown: [
                 { paymentType: "LOYALTY_POINTS", amount: "4000", evidence: "ポイント利用", duplicateGroup: null },
                 { paymentType: "CREDIT_CARD", amount: "4000", evidence: "カード", duplicateGroup: null },
             ], reviewStatus: "NEEDS_REVIEW", amountReason: "PAYMENT_TOTAL_MISMATCH", convertedAmount: null,
-            conversionStatus: "NEEDS_REVIEW", conversionQuoteId: null, warnings: ["AMOUNT_REQUIRES_REVIEW", "PAYMENT_TOTAL_MISMATCH"] });
+            conversionStatus: "NEEDS_REVIEW", conversionQuoteId: null, warnings: ["AMOUNT_REQUIRES_REVIEW", "PAYMENT_TOTAL_MISMATCH"]
+        });
         const row = page.getByTestId("receipt-review-card").first();
         await expect(row).toContainText(labels.receipt.review.statusNeedsReview);
         await expect(page.getByTestId("receipt-submit-selected")).toBeDisabled();
@@ -1274,11 +1320,13 @@ for (const { mode, locale, width } of [
         await page.getByTestId("receipt-submit-selected").click();
         await expect.poll(() => batches.length).toBe(1);
         expect(conversions).toHaveLength(1);
-        expect(batches[0].receipts[0]).toMatchObject({ originalAmount: "8030", purchaseTotal: "8030", conversionQuoteId: "8".repeat(64),
+        expect(batches[0].receipts[0]).toMatchObject({
+            originalAmount: "8030", purchaseTotal: "8030", conversionQuoteId: "8".repeat(64),
             paymentBreakdown: [
                 { paymentType: "OTHER_PAID", amount: "4000", evidence: "ポイント利用" },
                 { paymentType: "CREDIT_CARD", amount: "4030", evidence: "カード" },
-            ] });
+            ]
+        });
     });
 }
 
@@ -1294,14 +1342,18 @@ for (const { locale, width, colorScheme } of [
         await page.emulateMedia({ colorScheme });
         await mockAccountBook(page);
         const detail = locales[locale];
-        const sampleBook = { ...book, name: "日本旅行", currencyCode: "JPY", currencySymbol: "¥", currencyDecimalPlaces: 0,
-            incomeAmount: "20000.00000000", expenseAmount: "10606.00000000", balance: "9394.00000000" };
-        const saved = { ...transaction, title: "ANA FESTA 那覇空港店", storeName: "ANA FESTA", category: "食費", memo: "お土産",
+        const sampleBook = {
+            ...book, name: "日本旅行", currencyCode: "JPY", currencySymbol: "¥", currencyDecimalPlaces: 0,
+            incomeAmount: "20000.00000000", expenseAmount: "10606.00000000", balance: "9394.00000000"
+        };
+        const saved = {
+            ...transaction, title: "ANA FESTA 那覇空港店", storeName: "ANA FESTA", category: "食費", memo: "お土産",
             amount: "10606.00000000", originalAmount: "10606.00000000", originalCurrencyCode: "JPY", targetCurrencyCode: "JPY",
             purchaseTotal: "10606.00000000", bookAmount: "10606.00000000", cashTendered: "11000.00000000", changeAmount: "394.00000000",
             exchangeRate: "1.000000000000", requestedRateDate: "2026-09-15", effectiveRateDate: "2026-09-15",
             conversionPolicyVersion: "receipt-fx-v1", roundingPrecision: 0, roundingMode: "HALF_UP",
-            receiptPaymentBreakdownJson: JSON.stringify([{ paymentType: "CASH", amount: "10606.00000000", evidence: "現金" }]) };
+            receiptPaymentBreakdownJson: JSON.stringify([{ paymentType: "CASH", amount: "10606.00000000", evidence: "現金" }])
+        };
         await page.route("**/api/v1/account-books**", async route => {
             const suffix = new URL(route.request().url()).pathname.split("/account-books")[1];
             let body: unknown;
@@ -1360,9 +1412,11 @@ for (const mode of ["list", "table"] as const) {
             batches.push(route.request().postDataJSON());
             return fulfillJson(route, responseDto([transaction]));
         });
-        await openReceiptReview(page, "ko", 1, { originalAmount: "10606.00000000", bookAmount: "10606.00000000", purchaseTotal: "10606.00000000",
+        await openReceiptReview(page, "ko", 1, {
+            originalAmount: "10606.00000000", bookAmount: "10606.00000000", purchaseTotal: "10606.00000000",
             detectedCurrencyCode: "JPY", originalCurrencyCode: "JPY", convertedAmount: "21.21200000", exchangeRate: "0.002000000000",
-            paymentBreakdown: [{ paymentType: "CREDIT_CARD", amount: "10606.00000000", evidence: "VISA", duplicateGroup: null }], reviewStatus: "READY" });
+            paymentBreakdown: [{ paymentType: "CREDIT_CARD", amount: "10606.00000000", evidence: "VISA", duplicateGroup: null }], reviewStatus: "READY"
+        });
         const row = page.getByTestId("receipt-review-card").first();
         await expect(row).toContainText("10,606 JPY");
         await expect(row).toContainText("21.212 KWD");
@@ -1377,8 +1431,10 @@ for (const mode of ["list", "table"] as const) {
         await expect(row).toContainText("21.212 KWD");
         await page.getByTestId("receipt-submit-selected").click();
         await expect.poll(() => batches.length).toBe(1);
-        expect(batches[0].receipts[0]).toMatchObject({ originalAmount: "10606.00000000", purchaseTotal: "10606.00000000", conversionQuoteId: "a".repeat(64),
-            paymentBreakdown: [{ paymentType: "CREDIT_CARD", amount: "10606.00000000" }] });
+        expect(batches[0].receipts[0]).toMatchObject({
+            originalAmount: "10606.00000000", purchaseTotal: "10606.00000000", conversionQuoteId: "a".repeat(64),
+            paymentBreakdown: [{ paymentType: "CREDIT_CARD", amount: "10606.00000000" }]
+        });
         expect(conversions).toBe(0);
     });
 }
@@ -1393,17 +1449,21 @@ for (const mode of ["list", "table"] as const) {
         const requests: Array<Record<string, unknown>> = [];
         const batches: Array<{ receipts: Array<Record<string, unknown>> }> = [];
         const keys: Array<string | undefined> = [];
-        const initial = { ...receipt, originalAmount: "1652", originalCurrencyCode: "JPY", detectedCurrencyCode: "JPY",
+        const initial = {
+            ...receipt, originalAmount: "1652", originalCurrencyCode: "JPY", detectedCurrencyCode: "JPY",
             purchaseTotal: "1652", bookAmount: "1652", convertedAmount: "1652", accountBookCurrencyCode: "JPY",
             exchangeRate: "1", conversionStatus: "NOT_REQUIRED", roundingPrecision: 0, title: "GARAGE HOUSE", storeName: "GARAGE HOUSE",
             cashTendered: "2000", change: "348", reviewStatus: "READY",
-            paymentBreakdown: [{ paymentType: "CASH", amount: "1652", evidence: "現金", duplicateGroup: null }] };
+            paymentBreakdown: [{ paymentType: "CASH", amount: "1652", evidence: "現金", duplicateGroup: null }]
+        };
         await page.route("**/transactions/receipt-conversion", route => {
             const payload = route.request().postDataJSON();
             requests.push(payload);
-            return fulfillJson(route, responseDto({ ...initial, originalAmount: payload.originalAmount,
+            return fulfillJson(route, responseDto({
+                ...initial, originalAmount: payload.originalAmount,
                 convertedAmount: payload.originalAmount, requestedRateDate: payload.transactionDate,
-                conversionQuoteId: String(requests.length).repeat(64) }));
+                conversionQuoteId: String(requests.length).repeat(64)
+            }));
         });
         await page.route("**/transactions/receipt-batch", route => {
             batches.push(route.request().postDataJSON());
@@ -1475,8 +1535,10 @@ for (const mode of ["list", "table"] as const) {
         expect(batches[0]).toEqual(batches[1]);
         expect(keys[0]).toBeTruthy();
         expect(keys[1]).toBe(keys[0]);
-        expect(batches[0].receipts[0]).toMatchObject({ originalAmount: "1540", purchaseTotal: "1540", cashTendered: "2000", change: "460",
-            paymentBreakdown: [{ paymentType: "CASH", amount: "1540" }], transactionDate: "2026-09-16", conversionQuoteId: "3".repeat(64) });
+        expect(batches[0].receipts[0]).toMatchObject({
+            originalAmount: "1540", purchaseTotal: "1540", cashTendered: "2000", change: "460",
+            paymentBreakdown: [{ paymentType: "CASH", amount: "1540" }], transactionDate: "2026-09-16", conversionQuoteId: "3".repeat(64)
+        });
         expect(requests).toHaveLength(3);
         await expect(row).toContainText("1,540 JPY");
         await expectNoPageOverflow(page);
@@ -1629,8 +1691,10 @@ for (const mode of ["list", "table"] as const) {
         await page.route("**/transactions/receipt-conversion", route => {
             const payload = route.request().postDataJSON();
             conversions.push(payload);
-            return fulfillJson(route, responseDto({ ...receipt, originalAmount: "4400", originalCurrencyCode: payload.originalCurrencyCode,
-                requestedRateDate: payload.transactionDate, convertedAmount: "13.200", exchangeRate: "0.003", conversionQuoteId: "b".repeat(64) }));
+            return fulfillJson(route, responseDto({
+                ...receipt, originalAmount: "4400", originalCurrencyCode: payload.originalCurrencyCode,
+                requestedRateDate: payload.transactionDate, convertedAmount: "13.200", exchangeRate: "0.003", conversionQuoteId: "b".repeat(64)
+            }));
         });
         await page.route("**/transactions/receipt-batch", route => {
             batch = route.request().postDataJSON();

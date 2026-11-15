@@ -353,7 +353,7 @@ test("LIVE-WRITING-RESULT the completed real Writing result opens without anothe
             .map((attempt) => ({ answer: attempt.answer, score: String(attempt.evaluation!.overall) })));
         await expect.poll(() => writing.evaluate((element, values) =>
             values.every((value) => element.textContent?.includes(value.answer) && element.textContent?.includes(value.score)),
-        expectedValues)).toBe(true);
+            expectedValues)).toBe(true);
         await page.screenshot({ path: path.join(configuration.evidenceDirectory, "ll-writing-result-live.png"), fullPage: true });
         expect(session.failures).toEqual([]);
         expect(learningWrites).toEqual([]);

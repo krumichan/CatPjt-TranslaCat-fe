@@ -809,8 +809,8 @@ export const LANGUAGE_LEARNING_SPEAKING_TURNS = Array.from({ length: 5 }, (_, in
         index === 0
             ? ["REPLAY", "HINT", "HINT", "SAMPLE_ANSWER"]
             : index === 1
-              ? ["TRANSLATION"]
-              : [],
+                ? ["TRANSLATION"]
+                : [],
     excludedFromEvaluation: false,
     failedStage: null,
     errorCode: null,

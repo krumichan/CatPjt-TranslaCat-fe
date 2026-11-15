@@ -14,9 +14,13 @@ export interface CompletedAudioCase {
 export function verifyCompletedCandidatePair(scenario: CompletedAudioCase, value: unknown) {
     const actor = Number(scenario.actorId);
     const hash = (text: unknown): text is string => typeof text === "string" && /^[a-f0-9]{64}$/i.test(text);
-    const pair = value as { stack?: string; actorId?: string; novel?: string; episode?: string;
-        sourceFileSha256?: string; outcome?: string; evidence?: { orderedTranslationsSha256?: string;
-            snapshot?: { state?: string; revision?: string } } } | null;
+    const pair = value as {
+        stack?: string; actorId?: string; novel?: string; episode?: string;
+        sourceFileSha256?: string; outcome?: string; evidence?: {
+            orderedTranslationsSha256?: string;
+            snapshot?: { state?: string; revision?: string }
+        }
+    } | null;
 
     // 번호 자체를 완료 증거로 취급하지 않는다. 새 campaign도 실제 성공 결과의 모든 식별자가 맞아야 한다.
     if (scenario.stack !== "candidate" || !/^\d{7}$/.test(scenario.actorId ?? "")
@@ -29,8 +33,10 @@ export function verifyCompletedCandidatePair(scenario: CompletedAudioCase, value
         || pair.evidence.orderedTranslationsSha256?.toLowerCase() !== scenario.expectedTranslationPairsSha256.toLowerCase()) {
         throw new Error("COMPLETED_AUDIO_BINDING_MISMATCH");
     }
-    return { verified: true, actorId: scenario.actorId, novel: scenario.novel, episode: scenario.episode,
-        sourceRevision: scenario.sourceRevision, orderedTranslationsSha256: pair.evidence.orderedTranslationsSha256 };
+    return {
+        verified: true, actorId: scenario.actorId, novel: scenario.novel, episode: scenario.episode,
+        sourceRevision: scenario.sourceRevision, orderedTranslationsSha256: pair.evidence.orderedTranslationsSha256
+    };
 }
 
 export function verifyCompletedCandidatePairBytes(scenario: CompletedAudioCase, bytes: Uint8Array) {

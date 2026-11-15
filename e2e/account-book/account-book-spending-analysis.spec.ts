@@ -5,8 +5,10 @@ import { responseDto } from "../support/mock-data";
 import type { SpendingAnalysisJob, SpendingAnalysisRequest } from "../../src/types/accountBookAnalysis";
 
 function evidenceTransaction(request: SpendingAnalysisRequest, accountBookId = 1) {
-    return { id: 11, accountBookId, type: "EXPENSE", title: "Amazon USB 케이블", storeName: "Amazon.co.jp", category: "쇼핑", amount: "1200",
-        transactionDate: `${request.year}-${String(request.month ?? 10).padStart(2, "0")}-24`, memo: "공개 테스트 거래", sourceType: null, sourceId: null, sourceYear: null, sourceMonth: null };
+    return {
+        id: 11, accountBookId, type: "EXPENSE", title: "Amazon USB 케이블", storeName: "Amazon.co.jp", category: "쇼핑", amount: "1200",
+        transactionDate: `${request.year}-${String(request.month ?? 10).padStart(2, "0")}-24`, memo: "공개 테스트 거래", sourceType: null, sourceId: null, sourceYear: null, sourceMonth: null
+    };
 }
 
 function analysisResponse(request: SpendingAnalysisRequest, fingerprint: string, accountBookId = 1) {
@@ -18,25 +20,33 @@ function analysisResponse(request: SpendingAnalysisRequest, fingerprint: string,
     else endDate.setUTCMonth(endDate.getUTCMonth() + (annual ? 12 : request.quarter ? 3 : request.half ? 6 : 1));
     const end = endDate.toISOString().slice(0, 10);
     const savings = { basisAmount: "1200", lower: "1200", estimate: "1200", upper: "1200", grossReduction: "1200", replacementCost: "0", reductionLowBps: 10000, reductionHighBps: 10000, replacementLowBps: 0, replacementHighBps: 0, kind: "SKIP_EXTRA_ITEM", assumption: "기본 사용품은 유지하고 해당 추가 구매 한 건을 생략하는 가정입니다." };
-    return { periodType: request.periodType, year: request.year, month: request.periodType === "MONTHLY" ? month : null,
+    return {
+        periodType: request.periodType, year: request.year, month: request.periodType === "MONTHLY" ? month : null,
         quarter: request.quarter ?? null, half: request.half ?? null, periodStart: start, periodEndExclusive: end,
         analysisId: "", policyVersion: "purchase-context-v4", savings: annual ? null : { ...savings, kind: "COMBINED" },
         currencyCode: "JPY", decimalPlaces: 0, totalExpense: "54000", transactionCount: annual ? 1200 : 5,
         coverage: { analyzedTransactionCount: annual ? 600 : 5, totalTransactionCount: annual ? 1200 : 5, isPartial: annual, reason: annual ? "TRANSACTION_LIMIT" : null },
         summary: request.comment ? "추가 설명을 반영한 결과입니다. 필요한 치료비를 유지하고 반복 구매를 검토하세요." : "실제 구매 내역을 확인한 결과입니다. 비슷한 소액 구매를 모아 검토해 보세요.",
-        findings: [{ id: "finding-1", title: "소액 쇼핑을 구매 전에 확인해 보세요", reason: `${request.year}년 ${request.month ?? 10}월 24일 Amazon.co.jp에서 USB 케이블 구매에 ¥1,200을 사용했습니다.`, action: "다음 소품 구매 전에 이미 보유한 물품을 먼저 확인해 보세요.",
+        findings: [{
+            id: "finding-1", title: "소액 쇼핑을 구매 전에 확인해 보세요", reason: `${request.year}년 ${request.month ?? 10}월 24일 Amazon.co.jp에서 USB 케이블 구매에 ¥1,200을 사용했습니다.`, action: "다음 소품 구매 전에 이미 보유한 물품을 먼저 확인해 보세요.",
             opinion: "기본 사용품을 유지하면서 같은 역할의 추가 선택은 조정할 여지가 있습니다.",
-            contextQuestion: null, uncertainty: "이 거래만으로 불필요한 구매라고 단정할 수 없습니다.", evidenceAmount: "1200", evidenceTransactions: [evidenceTransaction(request, accountBookId)], savings: annual ? null : savings }],
-        contextComment: request.comment ?? null, generatedAt: "2026-10-31T12:00:00Z", snapshotFingerprint: fingerprint };
+            contextQuestion: null, uncertainty: "이 거래만으로 불필요한 구매라고 단정할 수 없습니다.", evidenceAmount: "1200", evidenceTransactions: [evidenceTransaction(request, accountBookId)], savings: annual ? null : savings
+        }],
+        contextComment: request.comment ?? null, generatedAt: "2026-10-31T12:00:00Z", snapshotFingerprint: fingerprint
+    };
 }
 
 async function mockAnalysisBook(page: Page) {
-    const state = { fingerprint: "snapshot-1", calls: [] as SpendingAnalysisRequest[], snapshots: [] as string[], failNextPost: 0, failSnapshot: false,
+    const state = {
+        fingerprint: "snapshot-1", calls: [] as SpendingAnalysisRequest[], snapshots: [] as string[], failNextPost: 0, failSnapshot: false,
         pauseNext: false, release: null as (() => void) | null, unexpected: [] as string[], history: [] as ReturnType<typeof analysisResponse>[],
         findingCount: 1, owner: true, currentJob: null as SpendingAnalysisJob | null,
-        jobs: new Map<number, SpendingAnalysisJob>(), cancelCalls: [] as number[], readNotifications: [] as string[] };
-    const book = { id: 1, name: "AI 분석 검증 가계부", description: "Public mock fixture", category: "개인", currencyCode: "JPY", currencySymbol: "¥", currencyDecimalPlaces: 0,
-        incomeAmount: "100000", expenseAmount: "54000", balance: "46000", transactionCount: 5, myRole: "OWNER" };
+        jobs: new Map<number, SpendingAnalysisJob>(), cancelCalls: [] as number[], readNotifications: [] as string[]
+    };
+    const book = {
+        id: 1, name: "AI 분석 검증 가계부", description: "Public mock fixture", category: "개인", currencyCode: "JPY", currencySymbol: "¥", currencyDecimalPlaces: 0,
+        incomeAmount: "100000", expenseAmount: "54000", balance: "46000", transactionCount: 5, myRole: "OWNER"
+    };
     await mockCommonPageDependencies(page);
     await mockIdleWebSocket(page);
     await page.route("**/api/v1/support/notifications/*/read", route => {
@@ -93,8 +103,10 @@ async function mockAnalysisBook(page: Page) {
                 return route.fulfill({ status, contentType: "application/json", body: "{}" });
             }
             const id = state.calls.length;
-            const running: SpendingAnalysisJob = { id, periodStart: response.periodStart, periodEndExclusive: response.periodEndExclusive,
-                status: "RUNNING", canCancel: state.owner, requestedByMe: true, analysisId: null, errorCode: null };
+            const running: SpendingAnalysisJob = {
+                id, periodStart: response.periodStart, periodEndExclusive: response.periodEndExclusive,
+                status: "RUNNING", canCancel: state.owner, requestedByMe: true, analysisId: null, errorCode: null
+            };
             state.jobs.set(id, running);
             state.currentJob = running;
             const complete = () => {
@@ -255,8 +267,10 @@ test("ACCOUNT-ANALYSIS manually analyzes below graphs and opens exact read-only 
     await expect(card).toContainText("선택 기간 지출");
     await expect(page.getByTestId("ranking-store-item")).toBeVisible();
     expect(state.calls).toHaveLength(0);
-    const positions = await page.evaluate(() => ({ ai: document.querySelector('[data-testid="spending-analysis"]')!.getBoundingClientRect().top,
-        store: document.querySelector('[data-testid="ranking-store-item"]')!.getBoundingClientRect().bottom }));
+    const positions = await page.evaluate(() => ({
+        ai: document.querySelector('[data-testid="spending-analysis"]')!.getBoundingClientRect().top,
+        store: document.querySelector('[data-testid="ranking-store-item"]')!.getBoundingClientRect().bottom
+    }));
     expect(positions.ai).toBeGreaterThan(positions.store);
 
     // 실행: 코멘트 없이 명시적으로 분석하고 원본 거래 카드와 표를 확인한다.

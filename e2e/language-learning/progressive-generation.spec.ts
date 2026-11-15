@@ -133,12 +133,18 @@ test.describe("Language Learning progressive generation", () => {
     });
 
     test("B5 deferred partial Reading keeps published answer and offers no generation retry", async ({ page }) => {
-        const first = { ...question(1), answered: true, correct: true, correctAnswer: ["A"],
-            attempts: [{ attemptId: 901, attemptNo: 1, answer: ["A"], correct: true,
-                official: true, submittedAt: "2026-09-09T12:00:00" }] };
+        const first = {
+            ...question(1), answered: true, correct: true, correctAnswer: ["A"],
+            attempts: [{
+                attemptId: 901, attemptNo: 1, answer: ["A"], correct: true,
+                official: true, submittedAt: "2026-09-09T12:00:00"
+            }]
+        };
         await page.route("**/api/v1/language-learning/practice/sets/401", (route) => fulfillApiJson(route,
-            responseDto({ ...practiceSet([first]), mode: "STRUCTURE", generationStatus: "PARTIAL",
-                generationFailureMessage: "READING_B5_STRUCTURE_DEFERRED", answeredCount: 1 })));
+            responseDto({
+                ...practiceSet([first]), mode: "STRUCTURE", generationStatus: "PARTIAL",
+                generationFailureMessage: "READING_B5_STRUCTURE_DEFERRED", answeredCount: 1
+            })));
         let retried = false;
         await page.route("**/api/v1/language-learning/practice/sets/401/retry-generation", (route) => {
             retried = true;

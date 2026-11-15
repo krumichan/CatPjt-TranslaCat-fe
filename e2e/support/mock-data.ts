@@ -237,8 +237,8 @@ export const makeMessage = ({
         senderType === "USER"
             ? sender.nickname
             : senderType === "AI"
-              ? senderName
-              : null,
+                ? senderName
+                : null,
     senderEmail: senderType === "USER" ? sender.email : null,
     senderProfileImageUrl,
     senderType,
@@ -309,11 +309,11 @@ export const makeOpenChatRoomListItem = ({
     joined?: boolean;
     joinable?: boolean;
     joinBlockedReason?:
-        | "NONE"
-        | "ALREADY_JOINED"
-        | "ROOM_CLOSED"
-        | "ROOM_FULL"
-        | "BANNED";
+    | "NONE"
+    | "ALREADY_JOINED"
+    | "ROOM_CLOSED"
+    | "ROOM_FULL"
+    | "BANNED";
     ownerProfile?: ReturnType<typeof makeOpenChatProfile>;
 }) => ({
     id,
@@ -362,11 +362,11 @@ export const makeOpenChatRoomDetail = ({
     joined?: boolean;
     joinable?: boolean;
     joinBlockedReason?:
-        | "NONE"
-        | "ALREADY_JOINED"
-        | "ROOM_CLOSED"
-        | "ROOM_FULL"
-        | "BANNED";
+    | "NONE"
+    | "ALREADY_JOINED"
+    | "ROOM_CLOSED"
+    | "ROOM_FULL"
+    | "BANNED";
     myRole?: "OWNER" | "ADMIN" | "MEMBER" | null;
     ownerProfile?: ReturnType<typeof makeOpenChatProfile>;
     myOpenProfile?: ReturnType<typeof makeOpenChatProfile> | null;

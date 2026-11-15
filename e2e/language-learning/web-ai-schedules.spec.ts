@@ -341,12 +341,14 @@ test.describe("웹 AI 학습 계획", () => {
         await page.addInitScript(() => {
             const attempts: string[] = [];
             Object.defineProperty(window, "__webAiCopyAttempts", { value: attempts });
-            Object.defineProperty(navigator, "clipboard", { configurable: true, value: {
-                writeText: (text: string) => {
-                    attempts.push(text);
-                    return attempts.length === 1 ? Promise.reject(new DOMException("Denied", "NotAllowedError")) : Promise.resolve();
-                },
-            } });
+            Object.defineProperty(navigator, "clipboard", {
+                configurable: true, value: {
+                    writeText: (text: string) => {
+                        attempts.push(text);
+                        return attempts.length === 1 ? Promise.reject(new DOMException("Denied", "NotAllowedError")) : Promise.resolve();
+                    },
+                }
+            });
         });
         const { editor, footer } = await createReadyPlan(page);
         await editor.getByRole("button", { name: "편집기 닫기" }).click();
@@ -426,12 +428,14 @@ test.describe("웹 AI 학습 계획", () => {
         await page.addInitScript(() => {
             const attempts: string[] = [];
             Object.defineProperty(window, "__webAiCopyAttempts", { value: attempts });
-            Object.defineProperty(navigator, "clipboard", { configurable: true, value: {
-                writeText: (text: string) => {
-                    attempts.push(text);
-                    return attempts.length === 1 ? Promise.reject(new DOMException("Denied", "NotAllowedError")) : Promise.resolve();
-                },
-            } });
+            Object.defineProperty(navigator, "clipboard", {
+                configurable: true, value: {
+                    writeText: (text: string) => {
+                        attempts.push(text);
+                        return attempts.length === 1 ? Promise.reject(new DOMException("Denied", "NotAllowedError")) : Promise.resolve();
+                    },
+                }
+            });
         });
         const { editor, footer } = await createReadyPlan(page);
         let connectionRequests = 0;

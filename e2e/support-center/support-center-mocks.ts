@@ -158,18 +158,18 @@ export async function mockSupportCenter(
         ] as MockMessage[],
         notifications: (withReplyNotification
             ? [
-                  {
-                      id: 301,
-                      type: "SUPPORT_REPLY",
-                      title: "번역 결과 저장 문의에 답변이 등록되었습니다.",
-                      targetType: "INQUIRY",
-                      targetId: 11,
-                      replyId: 101,
-                      isRead: false,
-                      readAt: null,
-                      createdAt: UPDATED_AT,
-                  },
-              ]
+                {
+                    id: 301,
+                    type: "SUPPORT_REPLY",
+                    title: "번역 결과 저장 문의에 답변이 등록되었습니다.",
+                    targetType: "INQUIRY",
+                    targetId: 11,
+                    replyId: 101,
+                    isRead: false,
+                    readAt: null,
+                    createdAt: UPDATED_AT,
+                },
+            ]
             : []) as MockNotification[],
         mutations: [] as Mutation[],
         unexpectedRequests: [] as string[],

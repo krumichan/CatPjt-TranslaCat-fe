@@ -60,8 +60,10 @@ test("NOVEL-LEGACY-OFF actual cached reader survives without Novel service", asy
         failure = error instanceof Error ? error.message.slice(0, 1200) : "UNKNOWN_FAILURE";
         throw error;
     } finally {
-        fs.writeFileSync(file, JSON.stringify({ status, failure, legacyGets, newNovelRequests, sourceFileSha256: hash(bytes),
+        fs.writeFileSync(file, JSON.stringify({
+            status, failure, legacyGets, newNovelRequests, sourceFileSha256: hash(bytes),
             actualHashes, boundary: "Actual local OFF FE/BE/MySQL legacy reader; raw external source HTML is an exact local fixture. Synthetic NextAuth packaging with real BE login. No real Google completion or public scraping claim.",
-            finishedAt: new Date().toISOString() }, null, 2), { flag: "wx" });
+            finishedAt: new Date().toISOString()
+        }, null, 2), { flag: "wx" });
     }
 });

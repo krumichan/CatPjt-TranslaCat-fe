@@ -157,58 +157,66 @@ test("PARAGRAPH deleted or foreign saved plan clears displayed source after a de
 });
 
 for (const policy of ["curated-writing-feedback-v6", "curated-writing-feedback-v7", "curated-writing-feedback-v8", "curated-writing-feedback-v12"] as const) {
-test(`PARAGRAPH ${policy}: partial absence has no invented quote while grounded correction remains visible`, async ({ page }, testInfo) => {
-    // 준비: 실제로 있는 시각과 없는 이유를 분리한 저장 결과만 합성한다. 모델 품질 검증은 아니다.
-    const prescribed = policy === "curated-writing-feedback-v8" || policy === "curated-writing-feedback-v12";
-    const state = await mockParagraphWriting(page);
-    const plan = paragraphPlan(1);
-    Object.assign(plan, { status: "COMPLETED", learningLanguage: "ja", personalizedFeedbackStatus: "ACTIVE_QA", submittedItemCount: 1, feedbackCompletedItemCount: 1 });
-    const item = plan.items[0];
-    item.answered = true;
-    item.canSubmit = false;
-    item.taskRequirements = ["시각과 이유 전달"];
-    item.reference = { checklist: ["시각과 이유 전달"], referenceAnswers: ["参考文"], alternativeNote: "다른 표현도 가능합니다.", isOnlyCorrectAnswer: false };
-    const answer = "午前九時に始まります。";
-    item.attempts = [{ answerId: 19001, attemptDate: plan.learningDate, answer, submittedAt: "2026-10-04T00:00:00Z", resultPolicy: "REFERENCE_ONLY", evaluation: null,
-        feedback: { status: "SUCCEEDED", failureCode: null, canRetry: false, result: {
-            policyVersion: policy, resultPolicy: "REFERENCE_ONLY",
-            observations: [{ requirementId: "C1", status: "UNMET", evidenceKind: "LEARNER_TEXT", segmentIds: ["S1"], answerQuotes: [answer],
-                originText: "시각은 있지만 이유 전달 요소가 없습니다.", learningText: "時刻はありますが、理由の説明がありません。",
-                relationChecks: { causality: "NOT_APPLICABLE", chronology: "PRESERVED", specificity: "PRESERVED", stance: "NOT_APPLICABLE" },
-                requirementParts: [{ requirementQuote: "시각과 ", status: "PRESENT", evidence: [{ segmentId: "S1", quote: answer }], taskFactIds: ["T1"], ...(prescribed ? { taskConditionIds: [] } : {}) },
-                    { requirementQuote: "이유 전달", status: "ABSENT", evidence: [], taskFactIds: [], ...(prescribed ? { taskConditionIds: [] } : {}) }] }],
-            necessaryCorrections: [{ requirementId: "C1", segmentId: "S1", original: answer, replacement: "午前九時に始まりました。",
-                patch: { original: "始まります", replacement: "始まりました" }, issueType: "LANGUAGE_FORM", sourceFactId: "", formReason: "INFLECTION",
-                ...(prescribed ? { sourceAuthorityId: "" } : {}),
-                originText: "활용형을 확인하세요.", learningText: "活用を確認してください。" }], optionalAlternatives: [], uncertainties: [],
-        } } }];
-    state.stored = plan;
-    await page.setViewportSize({ width: 390, height: 844 });
+    test(`PARAGRAPH ${policy}: partial absence has no invented quote while grounded correction remains visible`, async ({ page }, testInfo) => {
+        // 준비: 실제로 있는 시각과 없는 이유를 분리한 저장 결과만 합성한다. 모델 품질 검증은 아니다.
+        const prescribed = policy === "curated-writing-feedback-v8" || policy === "curated-writing-feedback-v12";
+        const state = await mockParagraphWriting(page);
+        const plan = paragraphPlan(1);
+        Object.assign(plan, { status: "COMPLETED", learningLanguage: "ja", personalizedFeedbackStatus: "ACTIVE_QA", submittedItemCount: 1, feedbackCompletedItemCount: 1 });
+        const item = plan.items[0];
+        item.answered = true;
+        item.canSubmit = false;
+        item.taskRequirements = ["시각과 이유 전달"];
+        item.reference = { checklist: ["시각과 이유 전달"], referenceAnswers: ["参考文"], alternativeNote: "다른 표현도 가능합니다.", isOnlyCorrectAnswer: false };
+        const answer = "午前九時に始まります。";
+        item.attempts = [{
+            answerId: 19001, attemptDate: plan.learningDate, answer, submittedAt: "2026-10-04T00:00:00Z", resultPolicy: "REFERENCE_ONLY", evaluation: null,
+            feedback: {
+                status: "SUCCEEDED", failureCode: null, canRetry: false, result: {
+                    policyVersion: policy, resultPolicy: "REFERENCE_ONLY",
+                    observations: [{
+                        requirementId: "C1", status: "UNMET", evidenceKind: "LEARNER_TEXT", segmentIds: ["S1"], answerQuotes: [answer],
+                        originText: "시각은 있지만 이유 전달 요소가 없습니다.", learningText: "時刻はありますが、理由の説明がありません。",
+                        relationChecks: { causality: "NOT_APPLICABLE", chronology: "PRESERVED", specificity: "PRESERVED", stance: "NOT_APPLICABLE" },
+                        requirementParts: [{ requirementQuote: "시각과 ", status: "PRESENT", evidence: [{ segmentId: "S1", quote: answer }], taskFactIds: ["T1"], ...(prescribed ? { taskConditionIds: [] } : {}) },
+                        { requirementQuote: "이유 전달", status: "ABSENT", evidence: [], taskFactIds: [], ...(prescribed ? { taskConditionIds: [] } : {}) }]
+                    }],
+                    necessaryCorrections: [{
+                        requirementId: "C1", segmentId: "S1", original: answer, replacement: "午前九時に始まりました。",
+                        patch: { original: "始まります", replacement: "始まりました" }, issueType: "LANGUAGE_FORM", sourceFactId: "", formReason: "INFLECTION",
+                        ...(prescribed ? { sourceAuthorityId: "" } : {}),
+                        originText: "활용형을 확인하세요.", learningText: "活用を確認してください。"
+                    }], optionalAlternatives: [], uncertainties: [],
+                }
+            }
+        }];
+        state.stored = plan;
+        await page.setViewportSize({ width: 390, height: 844 });
 
-    // 실행: 실제 페이지에서 저장 결과를 열고 다시 읽는다.
-    await page.goto(`/ko/language-learning/writing/paragraph?planId=${plan.dailySetId}`);
-    const panel = page.getByTestId("paragraph-feedback-19001");
-    const present = panel.getByTestId("paragraph-part-C1-1");
-    const absent = panel.getByTestId("paragraph-part-C1-2");
+        // 실행: 실제 페이지에서 저장 결과를 열고 다시 읽는다.
+        await page.goto(`/ko/language-learning/writing/paragraph?planId=${plan.dailySetId}`);
+        const panel = page.getByTestId("paragraph-feedback-19001");
+        const present = panel.getByTestId("paragraph-part-C1-1");
+        const absent = panel.getByTestId("paragraph-part-C1-2");
 
-    // 검증: 없는 요소에는 인용이 없고 실제 요소에만 근거가 붙는다. 교정은 실제 구간에 남는다.
-    await expect(present.getByTestId("paragraph-part-status")).toHaveText("답안에 있음");
-    await expect(present.locator("blockquote")).toHaveText(answer);
-    await expect(absent.getByTestId("paragraph-part-status")).toHaveText("답안에 없음");
-    await expect(absent.getByTestId("paragraph-part-requirement")).toHaveText("이유 전달");
-    await expect(absent.getByTestId("paragraph-part-missing")).toHaveText("이 요구 요소에 해당하는 내용이 답안에 없습니다.");
-    await expect(absent.locator("blockquote")).toHaveCount(0);
-    await expect(panel.getByText(`${answer} → 午前九時に始まりました。`, { exact: true })).toBeVisible();
-    await page.reload();
-    await expect(absent.locator("blockquote")).toHaveCount(0);
-    await expect(present.locator("blockquote")).toHaveText(answer);
-    expect(state.writes).toEqual([]);
-    expect(state.answers).toBe(0);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-    await panel.scrollIntoViewIfNeeded();
-    await panel.screenshot({ path: testInfo.outputPath("structured-feedback-panel.png") });
-    await page.screenshot({ path: testInfo.outputPath("structured-partial-absence.png"), fullPage: true });
-});
+        // 검증: 없는 요소에는 인용이 없고 실제 요소에만 근거가 붙는다. 교정은 실제 구간에 남는다.
+        await expect(present.getByTestId("paragraph-part-status")).toHaveText("답안에 있음");
+        await expect(present.locator("blockquote")).toHaveText(answer);
+        await expect(absent.getByTestId("paragraph-part-status")).toHaveText("답안에 없음");
+        await expect(absent.getByTestId("paragraph-part-requirement")).toHaveText("이유 전달");
+        await expect(absent.getByTestId("paragraph-part-missing")).toHaveText("이 요구 요소에 해당하는 내용이 답안에 없습니다.");
+        await expect(absent.locator("blockquote")).toHaveCount(0);
+        await expect(panel.getByText(`${answer} → 午前九時に始まりました。`, { exact: true })).toBeVisible();
+        await page.reload();
+        await expect(absent.locator("blockquote")).toHaveCount(0);
+        await expect(present.locator("blockquote")).toHaveText(answer);
+        expect(state.writes).toEqual([]);
+        expect(state.answers).toBe(0);
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+        await panel.scrollIntoViewIfNeeded();
+        await panel.screenshot({ path: testInfo.outputPath("structured-feedback-panel.png") });
+        await page.screenshot({ path: testInfo.outputPath("structured-partial-absence.png"), fullPage: true });
+    });
 }
 
 test("PARAGRAPH v8: a guided instruction correction is distinct from a learner fact or language-form error", async ({ page }, testInfo) => {
@@ -223,18 +231,26 @@ test("PARAGRAPH v8: a guided instruction correction is distinct from a learner f
     item.taskRequirements = ["원래 예정 시각을 전달하는가?"];
     item.reference = { checklist: item.taskRequirements, referenceAnswers: ["午前九時に始まる予定でした。"], alternativeNote: "다른 표현도 가능합니다.", isOnlyCorrectAnswer: false };
     const answer = "午前九時に始まります。";
-    item.attempts = [{ answerId: 19008, attemptDate: plan.learningDate, answer, submittedAt: "2026-10-12T00:00:00Z", resultPolicy: "REFERENCE_ONLY", evaluation: null,
-        feedback: { status: "SUCCEEDED", failureCode: null, canRetry: false, result: {
-            policyVersion: "curated-writing-feedback-v8", resultPolicy: "REFERENCE_ONLY",
-            observations: [{ requirementId: "C1", status: "UNMET", evidenceKind: "LEARNER_TEXT", segmentIds: ["S1"], answerQuotes: [answer],
-                originText: "원래 예정과 현재 안내를 구분해 주세요.", learningText: "元の予定と現在の案内を区別してください。",
-                relationChecks: { causality: "NOT_APPLICABLE", chronology: "CONFLICT", specificity: "PRESERVED", stance: "NOT_APPLICABLE" },
-                requirementParts: [{ requirementQuote: "원래 예정 시각을 전달하는가?", status: "CONFLICT", evidence: [{ segmentId: "S1", quote: "始まります" }], taskFactIds: [], taskConditionIds: ["P1"] }] }],
-            necessaryCorrections: [{ requirementId: "C1", segmentId: "S1", original: answer, replacement: "午前九時に始まる予定でした。",
-                patch: { original: "始まります", replacement: "始まる予定でした" }, issueType: "TASK_CONDITION_CONFLICT", sourceFactId: "", sourceAuthorityId: "P1", formReason: "NONE",
-                originText: "과제에 명시된 원래 예정 시각으로 전달하세요.", learningText: "課題の指示に従って元の予定として伝えてください。" }],
-            optionalAlternatives: [], uncertainties: [],
-        } } }];
+    item.attempts = [{
+        answerId: 19008, attemptDate: plan.learningDate, answer, submittedAt: "2026-10-12T00:00:00Z", resultPolicy: "REFERENCE_ONLY", evaluation: null,
+        feedback: {
+            status: "SUCCEEDED", failureCode: null, canRetry: false, result: {
+                policyVersion: "curated-writing-feedback-v8", resultPolicy: "REFERENCE_ONLY",
+                observations: [{
+                    requirementId: "C1", status: "UNMET", evidenceKind: "LEARNER_TEXT", segmentIds: ["S1"], answerQuotes: [answer],
+                    originText: "원래 예정과 현재 안내를 구분해 주세요.", learningText: "元の予定と現在の案内を区別してください。",
+                    relationChecks: { causality: "NOT_APPLICABLE", chronology: "CONFLICT", specificity: "PRESERVED", stance: "NOT_APPLICABLE" },
+                    requirementParts: [{ requirementQuote: "원래 예정 시각을 전달하는가?", status: "CONFLICT", evidence: [{ segmentId: "S1", quote: "始まります" }], taskFactIds: [], taskConditionIds: ["P1"] }]
+                }],
+                necessaryCorrections: [{
+                    requirementId: "C1", segmentId: "S1", original: answer, replacement: "午前九時に始まる予定でした。",
+                    patch: { original: "始まります", replacement: "始まる予定でした" }, issueType: "TASK_CONDITION_CONFLICT", sourceFactId: "", sourceAuthorityId: "P1", formReason: "NONE",
+                    originText: "과제에 명시된 원래 예정 시각으로 전달하세요.", learningText: "課題の指示に従って元の予定として伝えてください。"
+                }],
+                optionalAlternatives: [], uncertainties: [],
+            }
+        }
+    }];
     state.stored = plan;
 
     // 실행·검증: 조건 라벨을 유지하고 사실/활용 오류로 잘못 표시하지 않는다.

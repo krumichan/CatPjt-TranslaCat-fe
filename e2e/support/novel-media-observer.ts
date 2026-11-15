@@ -31,12 +31,14 @@ export async function installNativeMediaObserver(page: Page) {
         }, true);
         const media = new WeakSet<HTMLMediaElement>();
         // 원래 native play를 그대로 호출/반환한다. Audio 대체, autoplay 변경, event 주입, Promise 대체는 없다.
-        HTMLMediaElement.prototype.play = function () {
+        HTMLMediaElement.prototype.play = function() {
             observed.__novelObservedAudio = this;
             if (!media.has(this)) {
                 media.add(this);
-                this.addEventListener("playing", event => state.playing.push({ atMs: performance.now(), trusted: event.isTrusted,
-                    currentTime: this.currentTime, duration: this.duration, readyState: this.readyState, nativeElement: this instanceof HTMLAudioElement }));
+                this.addEventListener("playing", event => state.playing.push({
+                    atMs: performance.now(), trusted: event.isTrusted,
+                    currentTime: this.currentTime, duration: this.duration, readyState: this.readyState, nativeElement: this instanceof HTMLAudioElement
+                }));
             }
             return nativePlay.call(this);
         };
@@ -51,8 +53,10 @@ export async function nativePlaybackPosition(page: Page) {
     return page.evaluate(() => {
         const audio = (window as ObservedWindow).__novelObservedAudio;
         if (!audio) return null;
-        return { observedAtMs: performance.now(), currentTime: audio.currentTime, duration: audio.duration,
-            playbackRate: audio.playbackRate, paused: audio.paused, ended: audio.ended, nativeElement: audio instanceof HTMLAudioElement };
+        return {
+            observedAtMs: performance.now(), currentTime: audio.currentTime, duration: audio.duration,
+            playbackRate: audio.playbackRate, paused: audio.paused, ended: audio.ended, nativeElement: audio instanceof HTMLAudioElement
+        };
     });
 }
 
@@ -64,7 +68,9 @@ export function nativeClickToPlaying(before: NativeMediaObservation | null, afte
     if (!after?.nativePlay || !click?.trusted || !firstPlaying?.trusted || !firstPlaying.nativeElement || firstPlaying.atMs < click.atMs) {
         throw new Error("NATIVE_CLICK_AND_PLAYING_REQUIRED");
     }
-    return { origin: "native DOM click capture", endpoint: "native trusted HTMLAudioElement playing event",
+    return {
+        origin: "native DOM click capture", endpoint: "native trusted HTMLAudioElement playing event",
         clickAtMs: click.atMs, playingAtMs: firstPlaying.atMs, clickToPlayingMs: firstPlaying.atMs - click.atMs,
-        readClickCount: clicks.length, playingEventCount: playing.length, clicks, playing };
+        readClickCount: clicks.length, playingEventCount: playing.length, clicks, playing
+    };
 }

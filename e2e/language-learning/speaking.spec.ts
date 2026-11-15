@@ -148,7 +148,7 @@ test.describe("Language Learning Speaking", () => {
         await page.addInitScript(() => {
             localStorage.setItem("language-learning:speaking:note:301", "old note");
             const originalSetItem = Storage.prototype.setItem;
-            Storage.prototype.setItem = function (key, value) {
+            Storage.prototype.setItem = function(key, value) {
                 if (key.startsWith("language-learning:speaking:note:")) {
                     throw new DOMException("Storage quota exceeded", "QuotaExceededError");
                 }
@@ -325,11 +325,11 @@ test.describe("Language Learning Speaking", () => {
             (metric) =>
                 metric.metricType === "PRONUNCIATION"
                     ? {
-                          ...metric,
-                          state: "NOT_EVALUABLE",
-                          score: null,
-                          notEvaluableReason: "Audio quality insufficient",
-                      }
+                        ...metric,
+                        state: "NOT_EVALUABLE",
+                        score: null,
+                        notEvaluableReason: "Audio quality insufficient",
+                    }
                     : metric,
         );
         await page.route(EVALUATION_URL, (route) =>

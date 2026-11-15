@@ -285,7 +285,7 @@ test.describe("Language Learning Listening", () => {
     });
 
     test("LLL-11B History Audio를 가져오는 동안 로딩 상태로 중복 클릭을 막는다", async ({ page }) => {
-        let release = () => {};
+        let release = () => { };
         const gate = new Promise<void>((resolve) => { release = resolve; });
         let audioRequests = 0;
         await page.route("**/api/v1/language-learning/listening/items/711/audio", async (route) => {

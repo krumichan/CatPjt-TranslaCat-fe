@@ -10,9 +10,11 @@ const unit = (value: string) => ({ rawJa: value, ja: value, ko: `${value} 번역
 const card = (rank: number, arrival: number) => ({ itemId: `i${rank}`, identifier: `n${rank}`, rank, sourcePosition: rank - 1, status: "READY", title: unit(`題${rank}`), author: unit("作家"), synopsis: unit("夜空を見る物語。"), statusText: unit("完結"), genreText: "", isShortStory: false, arrivalSequence: arrival, errorCode: null as string | null, cached: arrival === 0 });
 const selector = { kind: "RANKING", period: "daily", genreId: "all", keyword: "", page: 1, language: "ko" };
 const catalog = (items: ReturnType<typeof card>[], selected = selector, snapshotId = "list1") => ({ snapshotId, eventSequence: items.length, state: items.length === 50 ? "SUCCEEDED" : "RUNNING", total: 50, ready: items.filter(i => i.status === "READY").length, failed: items.filter(i => i.status === "FAILED").length, pageInfo: null, selector: selected, items });
-const source = (size = 100) => ({ revision: "repair-source", segmentationVersion: "v1", title: unit("本文"), pagerInfo: null,
+const source = (size = 100) => ({
+    revision: "repair-source", segmentationVersion: "v1", title: unit("本文"), pagerInfo: null,
     segments: Array.from({ length: size }, (_, order) => ({ id: `s${order}`, order, paragraphId: `p${order}`, paragraphIndex: order, startOffset: 0, endOffset: 5, rawJa: "猫が眠る。", plainJa: "猫が眠る。", ko: order === 1 ? null : `고양이가 잔다 ${order}.`, status: order === 1 ? "FAILED" : "SUCCEEDED", errorCode: order === 1 ? "PROVIDER_TIMEOUT" : null })),
-    totalSegments: size, completedSegments: size - 1, state: "PARTIAL", jobId: "job1", eventSequence: 5, durableComplete: false });
+    totalSegments: size, completedSegments: size - 1, state: "PARTIAL", jobId: "job1", eventSequence: 5, durableComplete: false
+});
 
 test.beforeEach(async ({ page, context }) => {
     await installMockAuthCookie(context, "ADMIN");
@@ -27,8 +29,10 @@ test("NOVEL-CATALOG-ERROR-01 rejected genre request stops loading and can reconn
     await page.route("**/novels/catalog", route => {
         const body = route.request().postDataJSON();
         expect(body.genreId).toBe("_201");
-        if (rejected) return route.fulfill({ status: 400, contentType: "application/json",
-            body: JSON.stringify(responseDto({ code: "NOVEL_REQUEST_INVALID", retryable: false })) });
+        if (rejected) return route.fulfill({
+            status: 400, contentType: "application/json",
+            body: JSON.stringify(responseDto({ code: "NOVEL_REQUEST_INVALID", retryable: false }))
+        });
         return fulfillJson(route, responseDto(catalog(Array.from({ length: 50 }, (_, index) => card(index + 1, index)), body)));
     });
     await page.route("**/novels/catalog/*/cancel", route => fulfillJson(route, responseDto({})));
@@ -177,8 +181,10 @@ test("NOVEL-REPAIR-01 repair one gap preserves other99, focus and measures commi
     const initial = source();
     let trace = "", repaired = false, posts = 0;
     const recovery = () => ({ repairId: "repair1", state: repaired ? "SUCCEEDED" : "RUNNING", targetIds: ["s1"], committedIds: repaired ? ["s1"] : [], errorCode: null, traceId: trace });
-    const value = () => ({ ...initial, recovery: recovery(), eventSequence: repaired ? 7 : 6, state: repaired ? "SUCCEEDED" : "RUNNING", durableComplete: repaired, completedSegments: repaired ? 100 : 99,
-        segments: initial.segments.map(item => repaired && item.id === "s1" ? { ...item, status: "SUCCEEDED", errorCode: null, ko: "고양이가 잔다 1." } : item) });
+    const value = () => ({
+        ...initial, recovery: recovery(), eventSequence: repaired ? 7 : 6, state: repaired ? "SUCCEEDED" : "RUNNING", durableComplete: repaired, completedSegments: repaired ? 100 : 99,
+        segments: initial.segments.map(item => repaired && item.id === "s1" ? { ...item, status: "SUCCEEDED", errorCode: null, ko: "고양이가 잔다 1." } : item)
+    });
     await page.route("**/episodes/2/reader", route => fulfillJson(route, responseDto(initial)));
     await page.route("**/episodes/2/translations/job1/repair", route => {
         posts++; trace = route.request().headers()["x-novel-trace-id"];
@@ -217,9 +223,11 @@ for (const interrupt of ["none", "pause", "stop"] as const) {
         await page.route("**/episodes/2/reader", route => fulfillJson(route, responseDto(initial)));
         await page.route("**/episodes/2/translations/job1/repair", route => {
             repairs++;
-            return fulfillJson(route, responseDto({ ...initial, state: "SUCCEEDED", durableComplete: true, completedSegments: 3, eventSequence: 7,
+            return fulfillJson(route, responseDto({
+                ...initial, state: "SUCCEEDED", durableComplete: true, completedSegments: 3, eventSequence: 7,
                 segments: initial.segments.map(item => ({ ...item, status: "SUCCEEDED", errorCode: null, ko: `고양이가 잔다 ${item.order}.` })),
-                recovery: { repairId: "repair1", state: "SUCCEEDED", targetIds: ["s1"], committedIds: ["s1"], errorCode: null, traceId: route.request().headers()["x-novel-trace-id"] } }));
+                recovery: { repairId: "repair1", state: "SUCCEEDED", targetIds: ["s1"], committedIds: ["s1"], errorCode: null, traceId: route.request().headers()["x-novel-trace-id"] }
+            }));
         });
         await page.route("**/episodes/2/audio", route => {
             const request = route.request().postDataJSON(); calls.push(request.segmentId);

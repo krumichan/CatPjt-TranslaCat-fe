@@ -713,15 +713,15 @@ test.describe("FE #15 notification center", () => {
                 responseDto({
                     chatRooms: invitationArrived
                         ? [
-                              makeRoomListItem({
-                                  id: 700,
-                                  roomType: "GROUP",
-                                  sourceType: "MANUAL",
-                                  name: "첫 초대방",
-                                  memberCount: 2,
-                                  unreadCount: 0,
-                              }),
-                          ]
+                            makeRoomListItem({
+                                id: 700,
+                                roomType: "GROUP",
+                                sourceType: "MANUAL",
+                                name: "첫 초대방",
+                                memberCount: 2,
+                                unreadCount: 0,
+                            }),
+                        ]
                         : [],
                 }),
             ),

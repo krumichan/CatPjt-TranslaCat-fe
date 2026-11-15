@@ -213,24 +213,24 @@ test.describe("Language Learning Core & Writing", () => {
                 responseDto(
                     allSubmitted
                         ? [
-                              {
-                                  activityId: "WRITING:101",
-                                  source: "WRITING",
-                                  originLanguage: "ko",
-                                  learningLanguage: "ja",
-                                  learningDate: today,
-                                  title: "Daily Writing · TRANSLATION",
-                                  topic: "TRANSLATION",
-                                  durationSeconds: 0,
-                                  overallScore: completed ? 84 : null,
-                                  completionStatus: completed
-                                      ? "COMPLETED"
-                                      : "READY",
-                                  evaluationStatus: completed
-                                      ? "SUCCESS"
-                                      : "PENDING",
-                              },
-                          ]
+                            {
+                                activityId: "WRITING:101",
+                                source: "WRITING",
+                                originLanguage: "ko",
+                                learningLanguage: "ja",
+                                learningDate: today,
+                                title: "Daily Writing · TRANSLATION",
+                                topic: "TRANSLATION",
+                                durationSeconds: 0,
+                                overallScore: completed ? 84 : null,
+                                completionStatus: completed
+                                    ? "COMPLETED"
+                                    : "READY",
+                                evaluationStatus: completed
+                                    ? "SUCCESS"
+                                    : "PENDING",
+                            },
+                        ]
                         : [],
                 ),
             );
@@ -410,9 +410,9 @@ test.describe("Language Learning Core & Writing", () => {
                             (keyword) =>
                                 keyword.id === 3
                                     ? {
-                                          ...keyword,
-                                          displayName: localizedKeyword,
-                                      }
+                                        ...keyword,
+                                        displayName: localizedKeyword,
+                                    }
                                     : keyword,
                         ),
                 }),

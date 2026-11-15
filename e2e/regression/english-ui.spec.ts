@@ -189,9 +189,9 @@ test("EN-UI-05 기존 KR·JP·JPKR 전환과 등록된 공개 가이드를 유�
     await context.clearCookies();
     await page.route("**/api/auth/session", route => fulfillJson(route, {}));
     const guideLocale = guideI18n.languages.some(language => String(language) === "en") ? "en" : "ja";
-    const response = await page.goto(`/${guideLocale}/docs`);
+    const response = await page.goto(`/${guideLocale}/guides`);
     expect(response?.status()).toBe(200);
-    await expect(page).toHaveURL(new RegExp(`/${guideLocale}/docs$`));
+    await expect(page).toHaveURL(new RegExp(`/${guideLocale}/guides$`));
     await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
     await expect(page.locator("html")).toHaveAttribute("lang", guideLocale);
 });

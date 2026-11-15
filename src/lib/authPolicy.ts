@@ -9,9 +9,9 @@ export function stripLocalePrefix(pathname: string, supportedLocales: readonly s
         : pathname;
 }
 
-export function isPublicDocsPath(pathname: string): boolean {
-    // 문서 언어는 앱 표시 언어와 별개이며, 공개 범위는 각 /docs 경계 안으로 한정한다.
-    return /^\/(ko|ja|en)\/docs(?:\/|$)/.test(pathname);
+/** 로그인 없이 열 수 있는 로케일별 가이드 URL인지 확인한다. */
+export function isPublicGuidePath(pathname: string): boolean {
+    return /^\/(ko|ja|en)\/guides(?:\/|$)/.test(pathname);
 }
 
 export function validBirthDate(value: string, now = new Date()): boolean {

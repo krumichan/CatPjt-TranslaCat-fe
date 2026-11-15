@@ -273,7 +273,7 @@ export function getGuideHelpTarget(topic: GuideHelpTopic, locale: string) {
     const suffix = topic === "index" ? "" : "/" + topic;
 
     return {
-        href: "/" + guideLocale + "/docs" + suffix,
+        href: "/" + guideLocale + "/guides" + suffix,
         title: guideHelpTopics[topic][guideLocale],
     };
 }

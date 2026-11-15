@@ -28,7 +28,7 @@ function modalFocusHarness({ explicitInitialFocus = false } = {}) {
   function element(tag, attrs = {}) {
     return { tag, attrs, isConnected: true, focus() { document.activeElement = this; } };
   }
-  const help = element("a", { href: "/ko/docs/account-books/receipt-review" });
+  const help = element("a", { href: "/ko/guides/account-books/receipt-review" });
   const amount = element("input", { initialFocus: explicitInitialFocus });
   const disabled = element("button", { disabled: true });
   const cancel = element("button");

@@ -9,7 +9,7 @@ import * as jsxRuntime from "react/jsx-runtime";
 import { renderToStaticMarkup } from "react-dom/server";
 import ts from "typescript";
 
-import { isPublicDocsPath, PUBLIC_AUTH_PAGES, stripLocalePrefix } from "../../src/lib/authPolicy.ts";
+import { isPublicGuidePath, PUBLIC_AUTH_PAGES, stripLocalePrefix } from "../../src/lib/authPolicy.ts";
 import * as policy from "../../src/lib/mobileAuthPolicy.ts";
 
 const requestId = "55b79b33-07b9-4d4b-a3f8-cf24ea76b139";
@@ -138,7 +138,7 @@ function proxyHarness(status = 200) {
     "next-auth/middleware": { withAuth: () => () => { calls.push("auth"); return new Response(null, { status: 401 }); } },
     "@/i18n/config": { locales: ["ko", "ja", "en", "learning"] },
     "@/lib/authError": { isTerminalAuthError: () => false },
-    "@/lib/authPolicy": { isPublicDocsPath, PUBLIC_AUTH_PAGES, stripLocalePrefix },
+    "@/lib/authPolicy": { isPublicGuidePath, PUBLIC_AUTH_PAGES, stripLocalePrefix },
   }).default;
   const run = pathname => {
     const url = new URL(pathname, origin);
@@ -174,7 +174,7 @@ test("다른 로그인·문서·보호 페이지와 비슷한 경로의 인증 �
 
   // 실행 및 검증
   for (const [pathname, boundary] of [
-    ["/ko/login", "intl"], ["/ja/register", "intl"], ["/ko/error", "intl"], ["/ko/docs", "intl"],
+    ["/ko/login", "intl"], ["/ja/register", "intl"], ["/ko/error", "intl"], ["/ko/guides", "intl"],
     ["/ko/settings/account", "auth"], ["/ko/mobile/sign-in/other", "auth"], ["/ko/mobile/sign-in-other", "auth"],
   ]) {
     h.calls.length = 0;

@@ -51,13 +51,13 @@ export default async function GuideLayout({
         <RootProvider
             i18n={i18nProvider(guideTranslations, locale)}
             theme={{ enabled: false }}
-            search={{ options: { api: "/api/docs/search" } }}
+            search={{ options: { api: "/api/guides/search" } }}
         >
             <DocsLayout
                 tree={guideSource.getPageTree(locale)}
                 i18n
                 nav={{
-                    url: `/${locale}/docs`,
+                    url: `/${locale}/guides`,
                     title: (
                         <span className="flex items-center gap-3">
                             <BrandWordmark className="w-36" alt="TranslaCat" />

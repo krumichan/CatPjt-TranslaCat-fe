@@ -4,7 +4,7 @@ import { docs } from "../../../.source/server";
 import { guideI18n } from "@/lib/docs/i18n";
 
 export const guideSource = loader({
-    baseUrl: "/docs",
+    baseUrl: "/guides",
     i18n: guideI18n,
     source: docs.toFumadocsSource(),
 });

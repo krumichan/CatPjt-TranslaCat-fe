@@ -8,7 +8,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import ts from "typescript";
 
 import { locales } from "../../src/i18n/config.ts";
-import { isPublicDocsPath, isSameOrigin, PUBLIC_AUTH_PAGES, sameAuthSession, stripLocalePrefix, validBirthDate, validPassword } from "../../src/lib/authPolicy.ts";
+import { isPublicGuidePath, isSameOrigin, PUBLIC_AUTH_PAGES, sameAuthSession, stripLocalePrefix, validBirthDate, validPassword } from "../../src/lib/authPolicy.ts";
 
 function loadSource(relative, modules) {
   const source = fs.readFileSync(new URL(`../../src/${relative}`, import.meta.url), "utf8");
@@ -240,15 +240,15 @@ test("registration is public while account management stays protected", () => {
 
 test("public guides respect locale and docs path segment boundaries", () => {
   // 준비: 이름이 비슷한 경로와 학습 모드 경로는 공개 문서에 포함하지 않는다.
-  const publicPaths = ["/ko/docs", "/ja/docs/", "/ko/docs/getting-started", "/ja/docs/topics/chat", "/en/docs", "/en/docs/account-books/open"];
-  const protectedPaths = ["/docs", "/learning/docs", "/ko/docs-other", "/ja/docs2/page", "/korea/docs", "/japanese/docs", "/ko/settings/account", "/en/docs-other", "/en/settings/account", "/english/docs"];
+  const publicPaths = ["/ko/guides", "/ja/guides/", "/ko/guides/getting-started", "/ja/guides/topics/chat", "/en/guides", "/en/guides/account-books/open"];
+  const protectedPaths = ["/docs", "/learning/docs", "/ko/guides-other", "/ja/guides2/page", "/korea/guides", "/japanese/guides", "/ko/settings/account", "/en/guides-other", "/en/settings/account", "/english/guides", "/learning/guides", "/ko/docs", "/en/docs"];
 
   // 실행 및 검증
   for (const pathname of publicPaths) {
-    assert.equal(isPublicDocsPath(pathname), true, pathname);
+    assert.equal(isPublicGuidePath(pathname), true, pathname);
   }
   for (const pathname of protectedPaths) {
-    assert.equal(isPublicDocsPath(pathname), false, pathname);
+    assert.equal(isPublicGuidePath(pathname), false, pathname);
   }
 });
 
@@ -261,19 +261,19 @@ test("proxy bypasses authentication for public guides and keeps neighboring rout
     "next-auth/middleware": { withAuth: () => (request) => { calls.push("auth"); return request.nextUrl.pathname; } },
     "@/i18n/config": { locales: ["ko", "ja", "en", "learning"] },
     "@/lib/authError": { isTerminalAuthError: () => false },
-    "@/lib/authPolicy": { isPublicDocsPath, PUBLIC_AUTH_PAGES, stripLocalePrefix },
+    "@/lib/authPolicy": { isPublicGuidePath, PUBLIC_AUTH_PAGES, stripLocalePrefix },
   }).default;
   const paths = [
-    ["/ko/docs", "intl"],
-    ["/ja/docs/getting-started", "intl"],
-    ["/en/docs", "guide"],
-    ["/en/docs/account-books/open", "guide"],
+    ["/ko/guides", "intl"],
+    ["/ja/guides/getting-started", "intl"],
+    ["/en/guides", "guide"],
+    ["/en/guides/account-books/open", "guide"],
     ["/en/docs-other", "auth"],
     ["/en/settings/account", "auth"],
     ["/en/login", "intl"],
     ["/ko/docs-other", "auth"],
     ["/ja/docs2/child", "auth"],
-    ["/learning/docs", "auth"],
+    ["/learning/guides", "auth"],
     ["/ko/login", "intl"],
     ["/korea/login", "auth"],
     ["/japanese/register", "auth"],
@@ -290,7 +290,7 @@ test("proxy bypasses authentication for public guides and keeps neighboring rout
 
 test("guide rendering bypasses session providers and restores guards on application routes", () => {
   // 준비: 문서 조회에는 세션 공급자와 만료 세션 guard가 필요하지 않다.
-  let pathname = "/ko/docs";
+  let pathname = "/ko/guides";
   const calls = [];
   const AuthContext = loadSource("components/auth/AuthContext.tsx", {
     "react": { default: React },
@@ -298,16 +298,16 @@ test("guide rendering bypasses session providers and restores guards on applicat
     "next/navigation": { usePathname: () => pathname },
     "next-auth/react": { SessionProvider: ({ children }) => { calls.push("session"); return children; } },
     "@/components/auth/AuthSessionGuard": { default: ({ children }) => { calls.push("guard"); return children; } },
-    "@/lib/authPolicy": { isPublicDocsPath },
+    "@/lib/authPolicy": { isPublicGuidePath },
   }).default;
 
   // 실행 및 검증: 앱과 문서를 왕복해도 각 경로의 인증 경계가 유지된다.
-  for (const currentPath of ["/ko/docs", "/ko/settings/account", "/ja/docs/getting-started", "/ja/login", "/en/docs/account-books/open", "/en/settings/account"]) {
+  for (const currentPath of ["/ko/guides", "/ko/settings/account", "/ja/guides/getting-started", "/ja/login", "/en/guides/account-books/open", "/en/settings/account"]) {
     pathname = currentPath;
     calls.length = 0;
     const html = renderToStaticMarkup(createElement(AuthContext, null, createElement("p", null, "content")));
     assert.equal(html, "<p>content</p>");
-    assert.deepEqual(calls, isPublicDocsPath(currentPath) ? [] : ["session", "guard"], currentPath);
+    assert.deepEqual(calls, isPublicGuidePath(currentPath) ? [] : ["session", "guard"], currentPath);
   }
 });
 

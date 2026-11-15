@@ -25,7 +25,7 @@ test("every contextual help topic resolves to the matching public guide in all t
       const title = source.match(/^title:\s*(.+)$/m)?.[1].trim();
       const target = getGuideHelpTarget(topic, locale);
       assert.equal(target.title, title, `${topic}/${locale}`);
-      assert.equal(target.href, `/${locale}/docs${topic === "index" ? "" : `/${topic}`}`);
+      assert.equal(target.href, `/${locale}/guides${topic === "index" ? "" : `/${topic}`}`);
     }
   }
 });
@@ -37,8 +37,8 @@ test("learning mode keeps the Japanese guide and unsupported display locales use
 
   // 검증: 앱의 기존 가이드 언어 규칙을 유지한다.
   assert.equal(getGuideHelpLocale("learning"), "ja");
-  assert.equal(learning.href, "/ja/docs/account-books/receipt-review");
-  assert.equal(fallback.href, "/ko/docs/chat/messages-translation");
+  assert.equal(learning.href, "/ja/guides/account-books/receipt-review");
+  assert.equal(fallback.href, "/ko/guides/chat/messages-translation");
 });
 
 test("help links are accessible native links that open the exact task without submitting a surrounding form", () => {

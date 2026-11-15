@@ -28,9 +28,9 @@ export async function generateMetadata({ params }: GuidePageProps): Promise<Meta
         alternates: {
             canonical: page.url,
             languages: {
-                ko: `/ko/docs${suffix}`,
-                ja: `/ja/docs${suffix}`,
-                en: `/en/docs${suffix}`,
+                ko: `/ko/guides${suffix}`,
+                ja: `/ja/guides${suffix}`,
+                en: `/en/guides${suffix}`,
             },
         },
         openGraph: {

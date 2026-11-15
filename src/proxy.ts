@@ -3,7 +3,7 @@ import { withAuth } from "next-auth/middleware";
 import { NextRequest, NextResponse } from 'next/server';
 import { locales } from "@/i18n/config";
 import { isTerminalAuthError } from "@/lib/authError";
-import { isPublicDocsPath, PUBLIC_AUTH_PAGES, stripLocalePrefix } from "@/lib/authPolicy";
+import { isPublicGuidePath, PUBLIC_AUTH_PAGES, stripLocalePrefix } from "@/lib/authPolicy";
 
 const publicPages = PUBLIC_AUTH_PAGES;
 
@@ -35,14 +35,14 @@ export default function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl;
 
     // 기존 공개 영문 가이드는 전용 루트를 유지한다. 다른 영어 앱 화면은 아래 인증·locale 경계를 따른다.
-    if (pathname.startsWith('/en/') && isPublicDocsPath(pathname)) {
+    if (pathname.startsWith('/en/') && isPublicGuidePath(pathname)) {
         return NextResponse.next();
     }
 
     const purePath = stripLocalePrefix(pathname, locales) || '/';
 
     // 인증 화면은 정확한 경로만, 가이드는 언어별 문서 하위 경로까지 공개한다.
-    const isPublic = publicPages.includes(purePath) || isPublicDocsPath(pathname);
+    const isPublic = publicPages.includes(purePath) || isPublicGuidePath(pathname);
 
     if (isPublic) {
         const response = intlMiddleware(req);

@@ -31,7 +31,7 @@ export default function LoginPage() {
         <div className="flex justify-center"><GoogleLoginButton label={t("googleLogin")} /></div>
         <div className="mt-6 border-t border-slate-200 pt-5 dark:border-white/10">
             <Link
-                href="/docs"
+                href="/guides"
                 locale={guideLocale}
                 data-testid="login-guide-link"
                 className="flex min-h-10 items-center justify-center gap-2 rounded-lg text-sm font-bold text-blue-600 transition hover:text-blue-500 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-500 dark:text-blue-400"

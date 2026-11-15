@@ -24,10 +24,17 @@ test("GUIDE-ROUTE-01 이전 주소에서 공개 가이드로 이동한다", asyn
     }
 
     // 실제 가이드 목차 앵커로 새 주소에 도착했는지 확인한다.
-    const anchor = "#" + encodeURIComponent("화면-언어-바꾸기");
+    const anchorId = "화면-언어-바꾸기";
+    const anchor = "#" + encodeURIComponent(anchorId);
     await page.goto(migrationCases[0][0] + query + anchor);
-    expect(new URL(page.url()).hash).toBe(anchor);
-    await expect(page.getByRole("heading", { name: "화면 언어 바꾸기", exact: true })).toBeVisible();
+    const url = new URL(page.url());
+    expect(url.pathname).toBe(migrationCases[0][1]);
+    expect(url.hash).toBe(anchor);
+    const titleLink = page.locator(`h2[id="${anchorId}"]`).getByRole("link", {
+        name: "화면 언어 바꾸기",
+        exact: true,
+    });
+    await expect(titleLink).toBeVisible();
 });
 
 // 공개용 /docs와 동명의 다른 경로를 가이드가 가로채지 않는지 확인한다.

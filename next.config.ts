@@ -109,6 +109,7 @@ const nextConfig: NextConfig = {
         }));
 
         return [
+            { source: "/guides", destination: "/ko/guides", permanent: false },
             { source: "/guides/:path*", destination: "/ko/guides/:path*", permanent: false },
             ...designEntrances,
             ...legacyGuides,

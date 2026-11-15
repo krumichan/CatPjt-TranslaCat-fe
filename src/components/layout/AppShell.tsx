@@ -16,13 +16,16 @@ interface AppShellProps {
     children: React.ReactNode;
 }
 
+/** 경로에 따라 로그인 화면과 공통 탐색 영역을 배치한다. */
 export default function AppShell({
     children,
 }: AppShellProps) {
+    // 현재 경로로 공통 탐색 표시와 채팅방의 스크롤 범위를 결정한다.
     const pathname = usePathname();
     const isLoginPage = pathname === "/login";
     const isChatRoomPage = /^\/chat\/rooms\/[^/]+\/?$/.test(pathname);
 
+    // 모바일 메뉴와 데스크톱 사이드바의 표시 상태를 관리한다.
     const [isMobileNavigationOpen, setMobileNavigationOpen] =
         useState(false);
 
@@ -39,6 +42,7 @@ export default function AppShell({
         setMobileNavigationOpen(false);
     }, []);
 
+    // 로그인 화면에는 배경과 본문, 하단 포털을 제공한다.
     if (isLoginPage) {
         return (
             <div className="relative flex h-screen w-full flex-col overflow-hidden">

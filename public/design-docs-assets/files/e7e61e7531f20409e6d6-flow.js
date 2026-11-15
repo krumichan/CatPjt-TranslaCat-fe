@@ -1,0 +1,1 @@
+window.registerImplementation(["e7e61e7531f20409e6d6",{"e7e61e7531f20409e6d6-8bff58f50205":[[["call","candidates.getFirst","",[16,16],[16,37]],["call","content","",[16,16],[16,47]],["call","parts","",[16,16],[16,55]],["call","getFirst","",[16,16],[16,66]],["call","text","",[16,16],[16,73]],["return","","직전 처리 결과",[16,9],[16,74]]],false]}]);

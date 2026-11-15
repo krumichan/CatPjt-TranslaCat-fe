@@ -1,0 +1,1 @@
+window.registerImplementation(["993766689c5e4a3f31bd",{"993766689c5e4a3f31bd-9d59ef5adf16":[[["map","items.map","콜백",[8,18],[8,65],{"callbacks":[["인자 콜백",[["local-return","","<li key={item}>{item}</li>",[8,38],[8,64]]]]]}],["return","","직전 처리 결과",[4,5],[11,7]]],false]}]);

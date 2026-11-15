@@ -1,0 +1,1 @@
+window.registerImplementation(["5bc7c7e827c417276d20",{"5bc7c7e827c417276d20-3de8f9b1fc7a":[[["map","rooms.map","콜백",[13,14],[15,15],{"callbacks":[["인자 콜백",[["local-return","","( <ChatRoomListItem key={room.id} room={room} /> )",[13,34],[15,14]]]]]}],["return","","직전 처리 결과",[11,5],[17,7]]],false]}]);

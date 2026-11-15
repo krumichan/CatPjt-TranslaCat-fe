@@ -1,0 +1,1 @@
+window.registerImplementation(["181f06952e97ca5f3d25",{"181f06952e97ca5f3d25-8be7e7d082d5":[[["await","비동기 결과 대기","",[12,24],[12,36]],["assign","{ locale }","직전 처리 결과",[12,11],[12,36],{"mode":"초기값"}],["call","redirect","`/${locale}/language-learning#learning-profile`",[14,5],[14,62]]],false]}]);

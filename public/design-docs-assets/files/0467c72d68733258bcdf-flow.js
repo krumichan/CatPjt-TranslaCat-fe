@@ -1,0 +1,1 @@
+window.registerImplementation(["0467c72d68733258bcdf",{"0467c72d68733258bcdf-005ad5e5c6b9":[[["compute","식 평가","domain === \"VOCABULARY\"",[8,9],[8,32]],["if","조건 판정","(domain === \"VOCABULARY\")",[8,8],[8,33],{"yes":[["return","","<VocabularyRetirementPage />",[8,34],[8,70]]],"no":[]}],["return","","<AvailablePracticeModeLandingPage domain={domain} />",[9,5],[9,65]]],false]}]);

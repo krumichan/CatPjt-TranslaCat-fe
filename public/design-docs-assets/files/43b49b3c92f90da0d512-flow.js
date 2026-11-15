@@ -1,0 +1,1 @@
+window.registerImplementation(["43b49b3c92f90da0d512",{"43b49b3c92f90da0d512-565ee0c3d18c":[[["call","useVoiceTranslationController","",[7,24],[7,55]],["assign","controller","직전 처리 결과",[7,11],[7,55],{"mode":"초기값"}],["return","","<VoiceTranslationView controller={controller} />",[8,5],[8,61]]],false]}]);

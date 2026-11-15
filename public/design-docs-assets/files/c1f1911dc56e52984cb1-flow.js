@@ -1,0 +1,1 @@
+window.registerImplementation(["c1f1911dc56e52984cb1",{"c1f1911dc56e52984cb1-464331797673":[[["call","settings.get","userId",[15,16],[15,36]],["return","","직전 처리 결과",[15,9],[15,37]]],false],"c1f1911dc56e52984cb1-b3f25b0c8069":[[["call","settings.update","userId, request",[19,16],[19,48]],["return","","직전 처리 결과",[19,9],[19,49]]],false]}]);

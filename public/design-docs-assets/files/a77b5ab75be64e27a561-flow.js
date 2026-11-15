@@ -1,0 +1,1 @@
+window.registerImplementation(["a77b5ab75be64e27a561",{"a77b5ab75be64e27a561-0488837c5acd":[[["await","비동기 결과 대기","",[4,23],[4,35]],["assign","{ setId }","직전 처리 결과",[4,11],[4,35],{"mode":"초기값"}],["call","Number","setId",[5,65],[5,78]],["return","","직전 처리 결과",[5,5],[5,108]]],false]}]);

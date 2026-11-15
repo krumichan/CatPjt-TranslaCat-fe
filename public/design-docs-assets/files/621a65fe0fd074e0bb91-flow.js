@@ -1,0 +1,1 @@
+window.registerImplementation(["621a65fe0fd074e0bb91",{"621a65fe0fd074e0bb91-e2223d9b4d4c":[[["call","useTranslations","\"Navigation.mobile\"",[21,15],[21,51]],["assign","t","직전 처리 결과",[21,11],[21,51],{"mode":"초기값"}],["call","t","\"open\"",[34,33],[34,42]],["return","","직전 처리 결과",[23,5],[59,7]]],false]}]);

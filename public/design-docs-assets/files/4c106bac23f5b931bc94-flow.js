@@ -1,0 +1,1 @@
+window.registerImplementation(["4c106bac23f5b931bc94",{"4c106bac23f5b931bc94-c5f53cd40564":[[["return","","( <div className=\"flex min-h-[calc(100vh-4rem)] items-center justify-center text-slate-500 dark:text-slate-400\"> <Loader2 className=\"mr-2 h-5 w-5 animate-spin\" /> {message} </div> )",[12,5],[17,7]]],false]}]);

@@ -1,0 +1,1 @@
+window.registerImplementation(["2f0b705e87319e7954e4",{"2f0b705e87319e7954e4-0046bd2adb9c":[[["compute","구조화 값 구성","",[16,20],[16,49]],["map","contents.map","콜백",[18,14],[26,15],{"callbacks":[["인자 콜백",[["call","ln","unit",[21,44],[21,52]],["local-return","","직전 처리 결과",[18,44],[26,14]]]]]}],["return","","직전 처리 결과",[13,5],[28,7]]],false]}]);

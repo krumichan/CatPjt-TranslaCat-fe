@@ -1,0 +1,1 @@
+window.registerImplementation(["92e4056884c20720b8df",{"92e4056884c20720b8df-3b3ce3dd232a":[[["call","accountBookSummaryQueryService.getSummary","accountBookId, year, month",[21,16],[25,10]],["return","","직전 처리 결과",[21,9],[25,11]]],false]}]);

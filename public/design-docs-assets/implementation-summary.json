@@ -1,0 +1,37 @@
+{
+  "projects": {
+    "translacat": {
+      "indexed": 11253,
+      "parseWarnings": 0,
+      "functions": 11253,
+      "operations": 272182,
+      "empty": 68,
+      "files": 2359,
+      "api:function": 393,
+      "api:exported": 1,
+      "api:inline": 151,
+      "recoveredAndReviewed": 97
+    },
+    "unity": {
+      "indexed": 3053,
+      "parseWarnings": 0,
+      "functions": 3053,
+      "operations": 113305,
+      "empty": 4,
+      "files": 247,
+      "api:inline": 34,
+      "api:function": 1
+    },
+    "unreal": {
+      "indexed": 1432,
+      "parseWarnings": 0,
+      "functions": 1432,
+      "operations": 64735,
+      "empty": 3,
+      "files": 83,
+      "recoveredAndReviewed": 4,
+      "api:inline": 20
+    }
+  },
+  "errors": []
+}

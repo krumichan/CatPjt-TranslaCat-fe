@@ -1,0 +1,1 @@
+window.registerImplementation(["9c94a1203577e7831b6d",{"9c94a1203577e7831b6d-ed895b99f3a1":[[["call","useTranslations","\"AccountBook.empty\"",[4,15],[4,51]],["assign","t","직전 처리 결과",[4,11],[4,51],{"mode":"초기값"}],["call","t","\"title\"",[9,18],[9,28]],["call","t","\"description\"",[12,18],[12,34]],["return","","직전 처리 결과",[6,5],[15,7]]],false]}]);

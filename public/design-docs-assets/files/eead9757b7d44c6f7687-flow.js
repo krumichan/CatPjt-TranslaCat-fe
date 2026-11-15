@@ -1,0 +1,1 @@
+window.registerImplementation(["eead9757b7d44c6f7687",{"eead9757b7d44c6f7687-d5c14a90a280":[[["call","accountBookSummaryFacade.getSummary","accountBookId, year, month",[28,17],[32,18]],["call","ResponseUtil.ok","accountBookSummaryFacade.getSummary( accountBookId, year, month )",[27,16],[33,10]],["return","","직전 처리 결과",[27,9],[33,11]]],false]}]);

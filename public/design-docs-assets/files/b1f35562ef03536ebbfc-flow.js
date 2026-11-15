@@ -1,0 +1,1 @@
+window.registerImplementation(["b1f35562ef03536ebbfc",{"b1f35562ef03536ebbfc-4188b28b8f0f":[[["map","items.map","콜백",[16,18],[21,19],{"callbacks":[["인자 콜백",[["local-return","","( <li key={`${title}-${index}-${value}`} className=\"flex gap-2\"> <span aria-hidden=\"true\">•</span> <span>{value}</span> </li> )",[16,46],[21,18]]]]]}],["return","","직전 처리 결과",[10,5],[24,7]]],false]}]);

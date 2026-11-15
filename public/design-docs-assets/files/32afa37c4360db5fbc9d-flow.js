@@ -1,0 +1,1 @@
+window.registerImplementation(["32afa37c4360db5fbc9d",{"32afa37c4360db5fbc9d-0bc94580ed54":[[["call","useOpenChatRooms","initialKeyword",[13,24],[13,56]],["assign","controller","직전 처리 결과",[13,11],[13,56],{"mode":"초기값"}],["return","","<OpenChatExploreView controller={controller} />",[15,5],[15,60]]],false]}]);

@@ -1,0 +1,1 @@
+window.registerImplementation(["4c7b8f1ef93f49bc93d6",{"4c7b8f1ef93f49bc93d6-4a7a9c4f4d1b":[[["construct","AiReceiptAnalysisOptions","ocrLanguage, mode, stopKeywords, importantKeywords, excludeItemKeywords, categoryCandidates, defaultCategoryCandidates",[16,16],[23,43]],["return","","직전 처리 결과",[16,9],[23,44]]],false]}]);

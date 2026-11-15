@@ -1,0 +1,1 @@
+window.registerImplementation(["2610bf108545534b6f83",{"2610bf108545534b6f83-4bc25b6d51ec":[[["call","useAppLanguage","",[7,24],[7,40]],["assign","{ language }","직전 처리 결과",[7,9],[7,40],{"mode":"초기값"}],["call","novelDisplayRuns","value, language, target",[8,26],[8,67]],["return","","직전 처리 결과",[8,3],[8,92]]],false]}]);

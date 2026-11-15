@@ -1,0 +1,1 @@
+window.registerImplementation(["4005da8328078f909043",{"4005da8328078f909043-5333d4556174":[[["call","friend.getId","",[19,17],[19,31]],["call","friend.getCreatedAt","",[21,17],[21,38]],["construct","FriendResponseDto","friend.getId(), friendProfile, friend.getCreatedAt()",[18,16],[22,10]],["return","","직전 처리 결과",[18,9],[22,11]]],false]}]);

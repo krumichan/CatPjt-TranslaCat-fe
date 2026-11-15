@@ -1,0 +1,1 @@
+window.registerImplementation(["6208dff60cc0196aaad7",{"6208dff60cc0196aaad7-eef7641a5e72":[[["call","require","inputs.size in 1..2",[20,9],[20,37]],["declare","digest","선언",[21,13],[21,19]],["declare","output","선언",[24,13],[24,19]],["call","WritingSourceRecovery.proposals","output, batchId, digest, inputs",[40,16],[40,80]],["return","","직전 처리 결과",[40,9],[40,80]]],false]}]);

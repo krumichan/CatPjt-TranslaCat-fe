@@ -1,0 +1,1 @@
+window.registerImplementation(["e4e479d9e6ba18018a39",{"e4e479d9e6ba18018a39-632e528b036e":[[["await","비동기 결과 대기","",[12,24],[12,36]],["assign","{ locale }","직전 처리 결과",[12,11],[12,36],{"mode":"초기값"}],["call","redirect","`/${locale}/chat?tab=friends`",[14,5],[14,44]]],false]}]);

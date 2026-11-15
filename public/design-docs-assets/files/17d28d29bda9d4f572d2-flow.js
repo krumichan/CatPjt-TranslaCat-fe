@@ -1,0 +1,1 @@
+window.registerImplementation(["17d28d29bda9d4f572d2",{"17d28d29bda9d4f572d2-a2e075a06ea8":[[["call","ValidateRoomAccessAsync","userId, roomId, cancellationToken",[11,16],[11,74]],["return","","직전 처리 결과",[11,9],[11,75]]],false]}]);

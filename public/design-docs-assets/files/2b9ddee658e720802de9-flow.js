@@ -1,0 +1,1 @@
+window.registerImplementation(["2b9ddee658e720802de9",{"2b9ddee658e720802de9-3ec3ddcff38e":[[["call","routing","",[8,5],[11,6],{"callbacks":[["인자 콜백",[["call","swaggerUI","path = \"openapi\", swaggerFile = \"documentation.yaml\"",[10,9],[10,72]]]]]}]],false]}]);

@@ -1,0 +1,1 @@
+window.registerImplementation(["9cd07ce06c05a632257e",{"9cd07ce06c05a632257e-44f11f1b4548":[[["call","useOpenChatCreate","",[7,24],[7,43]],["assign","controller","직전 처리 결과",[7,11],[7,43],{"mode":"초기값"}],["return","","<OpenChatCreateView controller={controller} />",[9,5],[9,59]]],false]}]);

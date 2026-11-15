@@ -1,0 +1,1 @@
+window.registerImplementation(["e92b352d7abc909f6055",{"e92b352d7abc909f6055-77c8a821dc43":[[["call","useTranslations","\"LanguageLearning.vocabulary.retired\"",[8,15],[8,69]],["assign","t","직전 처리 결과",[8,11],[8,69],{"mode":"초기값"}],["call","t","\"title\"",[9,86],[9,96]],["call","t","\"description\"",[9,111],[9,127]],["return","","직전 처리 결과",[9,5],[9,189]]],false]}]);

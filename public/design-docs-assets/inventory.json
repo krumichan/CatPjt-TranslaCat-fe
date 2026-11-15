@@ -1,0 +1,47 @@
+{
+  "files": 3665,
+  "functions": 15738,
+  "parseWarnings": {
+    "translacat": 78,
+    "unity": 1,
+    "unreal": 52
+  },
+  "projects": {
+    "translacat": {
+      "files": 3298,
+      "functions": 11253,
+      "scopedCalls": 11788,
+      "catalog": {
+        "api": 544,
+        "db": 264,
+        "screens": 100,
+        "network": 2,
+        "types": 414
+      }
+    },
+    "unity": {
+      "files": 251,
+      "functions": 3053,
+      "scopedCalls": 10046,
+      "catalog": {
+        "api": 35,
+        "db": 62,
+        "screens": 2,
+        "network": 7,
+        "types": 31
+      }
+    },
+    "unreal": {
+      "files": 116,
+      "functions": 1432,
+      "scopedCalls": 2959,
+      "catalog": {
+        "api": 20,
+        "db": 48,
+        "screens": 3,
+        "network": 208,
+        "types": 21
+      }
+    }
+  }
+}

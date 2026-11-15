@@ -1,0 +1,1 @@
+window.registerImplementation(["1e3253710c2f8e898b7c",{"1e3253710c2f8e898b7c-569217c1cc3a":[[["assign","this.x","x",[16,13],[16,23],{"mode":"대입"}],["assign","this.y","y",[17,13],[17,23],{"mode":"대입"}],["assign","this.z","z",[18,13],[18,23],{"mode":"대입"}]],false]}]);

@@ -1,0 +1,1 @@
+window.registerImplementation(["cdf1e4942eea09d755ed",{"cdf1e4942eea09d755ed-121c98864bd8":[[["call","platformService.platforms","",[24,32],[24,59]],["call","ResponseUtil.ok","platformService.platforms()",[24,16],[24,60]],["return","","직전 처리 결과",[24,9],[24,61]]],false]}]);

@@ -1,0 +1,1 @@
+window.registerImplementation(["004fd956692978686963",{"004fd956692978686963-40c9f408fb30":[[["call","currencyService.listEnabledCurrencies","",[25,32],[25,71]],["call","ResponseUtil.ok","currencyService.listEnabledCurrencies()",[25,16],[25,72]],["return","","직전 처리 결과",[25,9],[25,73]]],false]}]);

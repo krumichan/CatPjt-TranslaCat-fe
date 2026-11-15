@@ -1,0 +1,1 @@
+window.registerImplementation(["5c06e7591362c54800e2",{"5c06e7591362c54800e2-701d725373ca":[[["call","userBlock.getId","",[19,17],[19,34]],["call","userBlock.getCreatedAt","",[21,17],[21,41]],["construct","UserBlockResponseDto","userBlock.getId(), blockedUserProfile, userBlock.getCreatedAt()",[18,16],[22,10]],["return","","직전 처리 결과",[18,9],[22,11]]],false]}]);

@@ -1,0 +1,1 @@
+window.registerImplementation(["a7238dc169cec94e9b20",{"a7238dc169cec94e9b20-bbffadd7fbc9":[[["return","","( <Link href=\"/\" aria-label=\"TranslaCat\" className={`inline-flex shrink-0 items-center transition-opacity hover:opacity-80 ${className ?? \"\"}`} > <BrandWordmark className=\"w-[145px] sm:w-[190px]\" priority /> </Link> )",[11,5],[19,7]]],false]}]);

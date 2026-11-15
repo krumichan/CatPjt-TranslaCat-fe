@@ -1,0 +1,1 @@
+window.registerImplementation(["58e7935e4236492fd9d0",{"58e7935e4236492fd9d0-d910a59e5af8":[[["construct","ThreadPoolTaskScheduler","",[13,25],[13,54]],["assign","scheduler","직전 처리 결과",[13,13],[13,54],{"mode":"초기값"}],["call","scheduler.setThreadNamePrefix","\"board-translation-\"",[14,9],[14,60]],["return","","scheduler",[15,9],[15,26]]],false]}]);

@@ -1,0 +1,1 @@
+window.registerImplementation(["4ae72dbeaa57c19d6e92",{"4ae72dbeaa57c19d6e92-f80fbb147fea":[[["call","embedded.catalogStatus","actor, platform, id",[12,16],[12,59]],["return","","직전 처리 결과",[12,9],[12,60]]],false]}]);

@@ -1,0 +1,1 @@
+window.registerImplementation(["7a6add7b993e1fd223df",{"7a6add7b993e1fd223df-cd97e00d3f4d":[[["call","genreService.list","platformCode",[26,32],[26,63]],["call","ResponseUtil.ok","genreService.list(platformCode)",[26,16],[26,64]],["return","","직전 처리 결과",[26,9],[26,65]]],false]}]);

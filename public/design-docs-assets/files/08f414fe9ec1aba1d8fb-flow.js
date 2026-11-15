@@ -1,0 +1,1 @@
+window.registerImplementation(["08f414fe9ec1aba1d8fb",{"08f414fe9ec1aba1d8fb-494b43b6342a":[[["call","settings.getSettings","adminUserId",[15,16],[15,49]],["return","","직전 처리 결과",[15,9],[15,50]]],false],"08f414fe9ec1aba1d8fb-37460e5fdb48":[[["call","settings.update","adminUserId, request",[19,16],[19,53]],["return","","직전 처리 결과",[19,9],[19,54]]],false]}]);

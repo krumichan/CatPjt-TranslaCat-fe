@@ -1,0 +1,1 @@
+window.registerImplementation(["456ddac9331bf4436126",{"456ddac9331bf4436126-a0a884f23e62":[[["await","비동기 결과 대기","",[8,27],[8,39]],["assign","{ sessionId }","직전 처리 결과",[8,11],[8,39],{"mode":"초기값"}],["call","Number","sessionId",[9,49],[9,66]],["return","","직전 처리 결과",[9,5],[9,71]]],false]}]);

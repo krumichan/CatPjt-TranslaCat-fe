@@ -1,0 +1,1 @@
+window.registerImplementation(["e04e3e2bab261e81b34b",{"e04e3e2bab261e81b34b-0c2d30b75841":[[["compute","구조화 값 구성","",[12,19],[16,10]],["call","Ok","new { status = \"UP\", service = \"TranslaCat.Chat\" }",[12,16],[16,11]],["return","","직전 처리 결과",[12,9],[16,12]]],false]}]);

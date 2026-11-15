@@ -1,0 +1,1 @@
+window.registerImplementation(["cc7c73a650a5ff21be90",{"cc7c73a650a5ff21be90-ecea2c4c7082":[[["declare","databaseSettings","선언",[8,9],[8,25]],["call","dependencies","",[10,5],[14,6],{"callbacks":[["인자 콜백",[["call","provide","",[11,9],[13,10],{"callbacks":[["인자 콜백",[["operation","simple_identifier","databaseSettings",[12,13],[12,29]]]]]}]]]]}]],false]}]);

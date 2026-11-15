@@ -1,0 +1,1 @@
+window.registerImplementation(["68d6cd884e56f1ac0ff7",{"68d6cd884e56f1ac0ff7-6714671f4887":[[["call","base.OnModelCreating","modelBuilder",[43,9],[43,43]],["call","modelBuilder.UseCollation","\"utf8mb4_0900_ai_ci\"",[46,9],[46,56]],["call","modelBuilder.ApplyConfigurationsFromAssembly","typeof(ChatDbContext).Assembly",[47,9],[47,85]]],false]}]);

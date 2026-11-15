@@ -1,0 +1,1 @@
+window.registerImplementation(["7e805c98b72700e6d09c",{"7e805c98b72700e6d09c-cea3f4ec6798":[[["call","this.novelSearchService.list","platformCode, keyword, page",[24,32],[24,89]],["call","ResponseUtil.ok","this.novelSearchService.list(platformCode, keyword, page)",[24,16],[24,90]],["return","","직전 처리 결과",[24,9],[24,91]]],false]}]);

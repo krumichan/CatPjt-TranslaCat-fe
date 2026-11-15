@@ -1,0 +1,1 @@
+window.registerImplementation(["92c3dd7172967fa1fce9",{"92c3dd7172967fa1fce9-6507f54d9e77":[[["assign","this.ocrLanguage","ocrLanguage",[40,9],[40,39],{"mode":"대입"}],["call","Boolean.TRUE.equals","enabled",[41,24],[41,52]],["assign","this.enabled","직전 처리 결과",[41,9],[41,52],{"mode":"대입"}]],false]}]);

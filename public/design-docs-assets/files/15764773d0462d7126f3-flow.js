@@ -1,0 +1,1 @@
+window.registerImplementation(["15764773d0462d7126f3",{"15764773d0462d7126f3-12cc8eedc829":[[["return","","ProceedsGold",[80,9],[80,29]]],false],"15764773d0462d7126f3-c81462de5374":[[["call","TradeId.IsValid","",[85,16],[85,33]],["return","","직전 처리 결과",[85,9],[85,34]]],false]}]);

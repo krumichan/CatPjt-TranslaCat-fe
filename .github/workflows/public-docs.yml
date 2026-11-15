@@ -1,0 +1,50 @@
+name: Public docs and guides candidate verification
+on:
+  push:
+    branches: [ci/public-docs-guide-root-20261115]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      AUTH_TRUST_HOST: 'true'
+      NEXTAUTH_SECRET: synthetic-ci-public-docs-login
+      NEXTAUTH_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_API_URL: http://127.0.0.1:3000/api/v1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 4
+          persist-credentials: false
+      - name: Pin the product commit and retain the verification scripts
+        run: |
+          cp .github/public-docs-smoke/* "$RUNNER_TEMP/"
+          git checkout --detach '480e341515a39e2fcae073ba9d27f9949b30cd08'
+          test "$(git rev-parse HEAD)" = '480e341515a39e2fcae073ba9d27f9949b30cd08'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run test:unit
+      - run: npm run test:auth
+      - run: npx eslint next.config.ts src/proxy.ts src/lib/docs src/app/api/guides/search e2e/regression/guide-routes.spec.ts
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Verify the built public docs, legacy links, and authentication boundary
+        run: |
+          npm run start -- --hostname 127.0.0.1 --port 3000 > "$RUNNER_TEMP/public-docs-next.log" 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          for attempt in {1..30}; do
+            if curl -fsS -o /dev/null http://127.0.0.1:3000/docs; then break; fi
+            sleep 2
+          done
+          node "$RUNNER_TEMP/check-public-docs-routes.mjs" http://127.0.0.1:3000
+          node "$RUNNER_TEMP/check-public-docs-browser.cjs" http://127.0.0.1:3000
+

@@ -50,9 +50,9 @@ export function DashboardActivityPerformanceCard({
                 {data.collectingData
                     ? t("collectingData")
                     : t("activity.coverage", {
-                          evaluated: data.coverage?.evaluated ?? 0,
-                          total: data.coverage?.total ?? 0,
-                      })}
+                        evaluated: data.coverage?.evaluated ?? 0,
+                        total: data.coverage?.total ?? 0,
+                    })}
             </p>
             <div
                 className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10"

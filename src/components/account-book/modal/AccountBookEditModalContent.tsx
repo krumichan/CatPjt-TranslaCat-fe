@@ -1,7 +1,7 @@
-import {X} from "lucide-react";
-import AccountBookBasicFields, {DIRECT_INPUT_VALUE} from "@/components/account-book/modal/AccountBookBasicFields";
+import { X } from "lucide-react";
+import AccountBookBasicFields, { DIRECT_INPUT_VALUE } from "@/components/account-book/modal/AccountBookBasicFields";
 import { SyntheticEvent, useRef, useState } from "react";
-import {useTranslations} from "next-intl";
+import { useTranslations } from "next-intl";
 import {
     AccountBook,
     AccountBookEditFormValues

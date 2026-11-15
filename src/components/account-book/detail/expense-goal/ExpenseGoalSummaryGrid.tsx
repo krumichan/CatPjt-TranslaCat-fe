@@ -13,14 +13,14 @@ type ExpenseGoalSummaryGridProps = {
 };
 
 export default function ExpenseGoalSummaryGrid({
-   currencyCode,
-   expenseAmount,
-   remainingAmount,
-   exceededAmount,
-   isExceeded,
-   currentExpenseLabel,
-   remainingAmountLabel,
-   exceededAmountLabel,
+    currencyCode,
+    expenseAmount,
+    remainingAmount,
+    exceededAmount,
+    isExceeded,
+    currentExpenseLabel,
+    remainingAmountLabel,
+    exceededAmountLabel,
 }: ExpenseGoalSummaryGridProps) {
     const formatAmount = useAmountFormatter();
     return (

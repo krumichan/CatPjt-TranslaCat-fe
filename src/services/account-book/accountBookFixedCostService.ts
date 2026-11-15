@@ -6,7 +6,7 @@ import {
     AccountBookFixedCostGenerateResponse, AccountBookFixedCostGenerationTargetsResponse,
     AccountBookFixedCostRequest,
 } from "@/types/accountBook";
-import {ResponseDto} from "@/types/common";
+import { ResponseDto } from "@/types/common";
 
 export const accountBookFixedCostService = {
     async listFixedCosts(

@@ -28,11 +28,10 @@ export function ChoiceAnswerPanel({ controller }: ChoiceAnswerPanelProps) {
                             aria-checked={selected}
                             onClick={() => controller.setSelectedOptionKey(option.key)}
                             disabled={controller.isSubmitting}
-                            className={`flex w-full items-start gap-3 rounded-2xl border px-4 py-4 text-left text-sm font-bold transition ${
-                                selected
+                            className={`flex w-full items-start gap-3 rounded-2xl border px-4 py-4 text-left text-sm font-bold transition ${selected
                                     ? "border-blue-500 bg-blue-50 text-blue-900 ring-2 ring-blue-100 dark:bg-blue-500/10 dark:text-blue-100 dark:ring-blue-500/10"
                                     : "border-slate-200 bg-white text-slate-700 hover:border-blue-300 dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
-                            }`}
+                                }`}
                         >
                             <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-black dark:bg-white/10">
                                 {option.key}

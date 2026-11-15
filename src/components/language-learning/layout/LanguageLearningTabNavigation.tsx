@@ -95,9 +95,9 @@ export function LanguageLearningTabNavigation() {
                     active
                         ? "bg-blue-600 text-white shadow-sm"
                         : cn(
-                              "text-slate-500 hover:bg-slate-100 hover:text-slate-900",
-                              "dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white",
-                          ),
+                            "text-slate-500 hover:bg-slate-100 hover:text-slate-900",
+                            "dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white",
+                        ),
                 )}
             >
                 <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
@@ -133,9 +133,9 @@ export function LanguageLearningTabNavigation() {
                             learningActive
                                 ? "bg-blue-600 text-white shadow-sm"
                                 : cn(
-                                      "text-slate-500 hover:bg-slate-100 hover:text-slate-900",
-                                      "dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white",
-                                  ),
+                                    "text-slate-500 hover:bg-slate-100 hover:text-slate-900",
+                                    "dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white",
+                                ),
                         )}
                     >
                         <BookOpen className="h-4 w-4 shrink-0" aria-hidden="true" />

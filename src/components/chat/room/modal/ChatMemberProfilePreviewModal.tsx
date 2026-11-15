@@ -18,8 +18,8 @@ interface ChatMemberProfilePreviewModalProps {
     isSendingFriendRequest: boolean;
     loadErrorCode: ChatMemberProfileLoadErrorCode | null;
     friendRequestErrorCode:
-        | ChatMemberFriendRequestErrorCode
-        | null;
+    | ChatMemberFriendRequestErrorCode
+    | null;
     onRetry: () => Promise<boolean>;
     onSendFriendRequest: () => Promise<boolean>;
     onClose: () => void;

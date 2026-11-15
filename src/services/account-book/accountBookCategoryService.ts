@@ -1,6 +1,6 @@
-import {AccountBookCategory} from "@/types/accountBook";
-import {apiClient} from "@/lib/apiClient";
-import {ResponseDto} from "@/types/common";
+import { AccountBookCategory } from "@/types/accountBook";
+import { apiClient } from "@/lib/apiClient";
+import { ResponseDto } from "@/types/common";
 
 export const accountBookCategoryService = {
     async listCategories(accountBookId: number | string): Promise<AccountBookCategory[]> {

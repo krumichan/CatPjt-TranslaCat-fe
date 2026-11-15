@@ -64,7 +64,7 @@ export function useNovelCatalogController(platform: string, selector: CatalogSel
                 // 시작 응답 전에 떠난 경우에도 snapshot을 알게 되면 구독을 해지해 남은 큐를 중지한다.
                 if (activeScope.current !== scope) {
                     commands.current.delete(scope);
-                    void novelCatalogService.cancel(platform, next.snapshotId).catch(() => {});
+                    void novelCatalogService.cancel(platform, next.snapshotId).catch(() => { });
                 }
                 return;
             }
@@ -83,7 +83,7 @@ export function useNovelCatalogController(platform: string, selector: CatalogSel
         // 조회 재연결과 분리한 화면/검색 세대 해지다. 공유 작업 자체의 소유권은 서버가 유지한다.
         if (current.current?.scope === scope) {
             commands.current.delete(scope);
-            void novelCatalogService.cancel(platform, current.current.snapshot.snapshotId).catch(() => {});
+            void novelCatalogService.cancel(platform, current.current.snapshot.snapshotId).catch(() => { });
         }
     }, [platform, scope]);
 

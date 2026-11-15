@@ -51,12 +51,12 @@ export function ChatLanguageSettingsModal({
     const saveErrorMessage = saveErrorCode ? t("saveFailed") : null;
     const settingsKey = settings
         ? [
-              settings.originalLanguageCode,
-              settings.translationLanguageCode,
-              String(settings.showOriginal),
-              String(settings.showTranslation),
-              resolvedSource ?? "UNKNOWN",
-          ].join(":")
+            settings.originalLanguageCode,
+            settings.translationLanguageCode,
+            String(settings.showOriginal),
+            String(settings.showTranslation),
+            resolvedSource ?? "UNKNOWN",
+        ].join(":")
         : "empty";
 
     return (

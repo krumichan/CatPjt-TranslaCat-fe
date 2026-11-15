@@ -28,8 +28,8 @@ export function ChatPartnerProfilePreviewModal({
             profileAlt={
                 partner
                     ? t("profileAlt", {
-                          nickname: partner.displayName,
-                      })
+                        nickname: partner.displayName,
+                    })
                     : ""
             }
             bioLabel={t("bio")}

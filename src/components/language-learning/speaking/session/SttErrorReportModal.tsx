@@ -13,12 +13,12 @@ const REPORT_OPTIONS: Array<{
     key: string;
     value: SttReportType;
 }> = [
-    { key: "wrong", value: "WRONG_TEXT" },
-    { key: "missing", value: "MISSING_TEXT" },
-    { key: "language", value: "LANGUAGE_MISMATCH" },
-    { key: "almostNone", value: "OTHER" },
-    { key: "other", value: "OTHER" },
-];
+        { key: "wrong", value: "WRONG_TEXT" },
+        { key: "missing", value: "MISSING_TEXT" },
+        { key: "language", value: "LANGUAGE_MISMATCH" },
+        { key: "almostNone", value: "OTHER" },
+        { key: "other", value: "OTHER" },
+    ];
 
 export function SttErrorReportModal({
     open,

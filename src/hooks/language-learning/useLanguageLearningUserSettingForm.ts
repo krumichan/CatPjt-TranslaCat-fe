@@ -97,9 +97,9 @@ export function useLanguageLearningUserSettingForm({
             form.dailySentenceCount <= setting.maxDailySentenceCount &&
             Number.isInteger(form.dailySpeakingGoalMinutes) &&
             form.dailySpeakingGoalMinutes >=
-                setting.minDailySpeakingGoalMinutes &&
+            setting.minDailySpeakingGoalMinutes &&
             form.dailySpeakingGoalMinutes <=
-                setting.maxDailySpeakingGoalMinutes &&
+            setting.maxDailySpeakingGoalMinutes &&
             form.speakingVoiceId.trim().length > 0 &&
             form.speakingPlaybackSpeed.trim().length > 0 &&
             Number.isInteger(form.dailyListeningGoalCount) &&

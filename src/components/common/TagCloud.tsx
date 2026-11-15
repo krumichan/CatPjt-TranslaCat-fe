@@ -1,7 +1,7 @@
 "use client";
 
 import SpinLoader from "@/components/common/SpinLoader";
-import {useTranslations} from "next-intl";
+import { useTranslations } from "next-intl";
 import RubyText from "@/components/common/RubyText";
 
 interface TagItem {
@@ -32,7 +32,7 @@ export default function TagCloud<T extends TagItem>({
                 {title}
             </h3>
 
-            <SpinLoader isLoading={isLoading} size="md"/>
+            <SpinLoader isLoading={isLoading} size="md" />
 
             {isEmpty ? (
                 <div className="flex flex-col items-center py-6 opacity-60">
@@ -56,7 +56,7 @@ export default function TagCloud<T extends TagItem>({
                                 hover:text-white
                                 hover:shadow-lg hover:shadow-blue-500/20"
                         >
-                            <RubyText content={"# " + item.name}/>
+                            <RubyText content={"# " + item.name} />
                         </button>
                     ))}
                 </div>

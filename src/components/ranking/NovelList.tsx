@@ -1,8 +1,8 @@
 import RubyText from "@/components/common/RubyText";
-import {TranslationUnit} from "@/types/common";
-import {Novel} from "@/types/novel";
-import {useAppRouter} from "@/hooks/useAppRouter";
-import {ROUTES, to} from "@/constants/routes";
+import { TranslationUnit } from "@/types/common";
+import { Novel } from "@/types/novel";
+import { useAppRouter } from "@/hooks/useAppRouter";
+import { ROUTES, to } from "@/constants/routes";
 
 interface RankingListProps {
     novels: Novel[];
@@ -41,26 +41,26 @@ export default function NovelList({ novels, platformCode, ln, showRank = false }
 
                             {/* 제목 */}
                             <h2 className="text-xl font-bold text-[#2D2D2D] dark:text-zinc-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                <RubyText content={ln(novel.title)}/>
+                                <RubyText content={ln(novel.title)} />
                             </h2>
 
                             {/* 작가명 추가 */}
                             <div className="text-sm text-gray-500 dark:text-zinc-500 font-medium mb-1">
                                 <span className="text-xs mr-1 opacity-70">by</span>
-                                <RubyText content={ln(novel.author)}/>
+                                <RubyText content={ln(novel.author)} />
                             </div>
 
                             {/* 상태 뱃지 */}
                             <div
                                 className="inline-flex flex-col px-3 py-1.5 text-[10px] font-black rounded-xl bg-blue-100/50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 uppercase tracking-widest border border-blue-200/50 dark:border-blue-800/30"
                             >
-                                <RubyText content={ln(novel.status)}/>
+                                <RubyText content={ln(novel.status)} />
                             </div>
                         </div>
 
                         {/* 줄거리 */}
                         <div className="text-gray-600 dark:text-zinc-400 text-sm leading-relaxed min-w-0 w-full">
-                            <RubyText content={ln(novel.synopsis)}/>
+                            <RubyText content={ln(novel.synopsis)} />
                         </div>
                     </div>
                 </div>

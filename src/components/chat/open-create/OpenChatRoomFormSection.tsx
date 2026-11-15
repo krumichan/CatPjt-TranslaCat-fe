@@ -177,15 +177,13 @@ export function OpenChatRoomFormSection({
                             return (
                                 <label
                                     key={value}
-                                    className={`relative flex cursor-pointer items-start gap-3 rounded-3xl border p-4 transition focus-within:ring-2 focus-within:ring-orange-500 ${
-                                        selected
+                                    className={`relative flex cursor-pointer items-start gap-3 rounded-3xl border p-4 transition focus-within:ring-2 focus-within:ring-orange-500 ${selected
                                             ? "border-orange-400 bg-orange-50 dark:border-orange-400 dark:bg-orange-500/10"
                                             : "border-slate-200 hover:border-orange-200 dark:border-white/10 dark:hover:border-orange-400/30"
-                                    } ${
-                                        isLocked
+                                        } ${isLocked
                                             ? "cursor-not-allowed opacity-70"
                                             : ""
-                                    }`}
+                                        }`}
                                 >
                                     <input
                                         type="radio"
@@ -196,11 +194,10 @@ export function OpenChatRoomFormSection({
                                         className="sr-only"
                                     />
                                     <span
-                                        className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl ${
-                                            selected
+                                        className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl ${selected
                                                 ? "bg-orange-500 text-white dark:bg-orange-400 dark:text-slate-950"
                                                 : "bg-slate-100 text-slate-500 dark:bg-white/5 dark:text-slate-300"
-                                        }`}
+                                            }`}
                                     >
                                         <Icon
                                             className="h-4 w-4"

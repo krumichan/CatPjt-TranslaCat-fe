@@ -43,11 +43,11 @@ export function ChatRoomPageOverlays({
 
     const moderationActions = openMemberProfilePreview.profile
         ? getOpenChatModerationActions({
-              actorRole: room.myRole,
-              actorOpenChatMemberId:
-                  openChat.myProfile.profile?.openChatMemberId,
-              target: openMemberProfilePreview.profile,
-          })
+            actorRole: room.myRole,
+            actorOpenChatMemberId:
+                openChat.myProfile.profile?.openChatMemberId,
+            target: openMemberProfilePreview.profile,
+        })
         : [];
 
     return (

@@ -65,19 +65,17 @@ export function ChatTranslationBlock({
                 return (
                     <div
                         key={translation.id || normalizedLanguageCode}
-                        className={`rounded-2xl px-3 py-2 text-xs ${
-                            isMine
+                        className={`rounded-2xl px-3 py-2 text-xs ${isMine
                                 ? "bg-white/10 text-blue-50"
                                 : "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300"
-                        }`}
+                            }`}
                     >
                         <div className="mb-1 flex items-center justify-between gap-2">
                             <span
-                                className={`rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.2em] ${
-                                    isMine
+                                className={`rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.2em] ${isMine
                                         ? "bg-white/15 text-blue-50"
                                         : "bg-white text-slate-400 ring-1 ring-slate-200 dark:bg-slate-950 dark:text-slate-400 dark:ring-white/10"
-                                }`}
+                                    }`}
                             >
                                 {normalizedLanguageCode || "-"}
                             </span>
@@ -92,11 +90,10 @@ export function ChatTranslationBlock({
                                         )
                                     }
                                     disabled={isRetrying}
-                                    className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-black transition disabled:cursor-not-allowed disabled:opacity-60 ${
-                                        isMine
+                                    className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-black transition disabled:cursor-not-allowed disabled:opacity-60 ${isMine
                                             ? "bg-white/15 text-white hover:bg-white/25"
                                             : "bg-white text-rose-600 ring-1 ring-rose-100 hover:bg-rose-50 dark:bg-slate-950 dark:text-rose-200 dark:ring-rose-400/30 dark:hover:bg-rose-500/10"
-                                    }`}
+                                        }`}
                                 >
                                     {isRetrying ? (
                                         <Loader2
@@ -152,11 +149,10 @@ export function ChatTranslationBlock({
                                 <button
                                     type="button"
                                     onClick={() => void onRefreshMessages()}
-                                    className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-black transition ${
-                                        isMine
+                                    className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-black transition ${isMine
                                             ? "bg-white/10 text-blue-50 hover:bg-white/20"
                                             : "bg-white text-slate-400 ring-1 ring-slate-200 hover:bg-slate-50 dark:bg-slate-950 dark:text-slate-300 dark:ring-white/10 dark:hover:bg-white/10"
-                                    }`}
+                                        }`}
                                 >
                                     <RefreshCcw
                                         className="h-3 w-3"

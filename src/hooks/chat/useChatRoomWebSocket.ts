@@ -416,7 +416,7 @@ export const useChatRoomWebSocket = ({
             const delay = Math.min(3000 * 2 ** Math.min(sessionLookupFailures++, 4), 30_000);
 
             // deactivate가 완료되기 전에 activate하면 기존 연결 시도가 살아날 수 있다.
-            void client.deactivate().catch(() => {}).then(() => {
+            void client.deactivate().catch(() => { }).then(() => {
                 if (!isCurrentConnection()) return;
                 cancelSessionRetry();
                 retryTimer = setTimeout(() => {
@@ -464,7 +464,7 @@ export const useChatRoomWebSocket = ({
             heartbeatIncoming: 10000,
             heartbeatOutgoing: 10000,
             // STOMP debug frame에는 Authorization이 포함될 수 있으므로 원문을 기록하지 않는다.
-            debug: () => {},
+            debug: () => { },
 
             onConnect: () => {
                 if (!isCurrentConnection() || !connectedAccessToken) {

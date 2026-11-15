@@ -16,12 +16,12 @@ import { SyntheticEvent, useMemo, useState } from "react";
 import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 
 export function FixedCostFormModalContent({
-   fixedCost,
-   currencyCode,
-   categoryOptions,
-   storeOptions,
-   onClose,
-   onSubmit,
+    fixedCost,
+    currencyCode,
+    categoryOptions,
+    storeOptions,
+    onClose,
+    onSubmit,
 }: FixedCostFormModalProps) {
     const formatAmount = useAmountFormatter();
     const t = useTranslations("AccountBook.detail.fixedCost.modal");

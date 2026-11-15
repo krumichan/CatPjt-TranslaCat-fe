@@ -1,7 +1,7 @@
-import type {RecentView} from "@/services/recentViewService";
-import {ROUTES, to} from "@/constants/routes";
-import {novelTargetLanguage, withNovelTarget} from "@/features/novel/translationLanguage";
-import {catalogWorkPath} from "@/features/novel/catalog";
+import type { RecentView } from "@/services/recentViewService";
+import { ROUTES, to } from "@/constants/routes";
+import { novelTargetLanguage, withNovelTarget } from "@/features/novel/translationLanguage";
+import { catalogWorkPath } from "@/features/novel/catalog";
 
 export const getRecentViewLink = (item: RecentView): string => {
     const { platformCode, novelId, episodeId, type } = item;

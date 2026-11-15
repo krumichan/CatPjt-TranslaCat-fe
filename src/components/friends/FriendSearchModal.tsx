@@ -147,10 +147,10 @@ export default function FriendSearchModal({
 
                             {userSearch.searchErrorCode ===
                                 "PUBLIC_ID_REQUIRED" && (
-                                <p className="mt-3 text-sm font-bold text-rose-500">
-                                    {t("messages.publicIdRequired")}
-                                </p>
-                            )}
+                                    <p className="mt-3 text-sm font-bold text-rose-500">
+                                        {t("messages.publicIdRequired")}
+                                    </p>
+                                )}
 
                             <div className="mt-4 flex justify-end gap-2">
                                 <button
@@ -210,7 +210,7 @@ export default function FriendSearchModal({
                                         }
                                     />
                                 ) : userSearch.searchErrorCode ===
-                                  "NOT_FOUND" ? (
+                                    "NOT_FOUND" ? (
                                     <FriendModalSearchState
                                         title={t("state.notFoundTitle")}
                                         description={t(
@@ -218,7 +218,7 @@ export default function FriendSearchModal({
                                         )}
                                     />
                                 ) : userSearch.searchErrorCode ===
-                                  "SEARCH_FAILED" ? (
+                                    "SEARCH_FAILED" ? (
                                     <FriendModalSearchState
                                         variant="error"
                                         title={t("state.failedTitle")}

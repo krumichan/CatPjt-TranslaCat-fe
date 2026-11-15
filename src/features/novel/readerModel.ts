@@ -103,8 +103,10 @@ export function parseReaderSnapshot(value: unknown, expectedTarget?: NovelTarget
             || !recovery.committedIds.every(id => recovery.targetIds instanceof Array && recovery.targetIds.includes(id)
                 && value.segments instanceof Array && value.segments.some(item => item.id === id && item.status === "SUCCEEDED"))) throw new Error("INVALID_RECOVERY_CONTRACT");
     }
-    return { ...value, targetLanguage: target, title: { ...value.title, targetLanguage: target },
-        segments: value.segments.map(item => ({ ...item, targetLanguage: target })) } as unknown as ReaderSnapshot;
+    return {
+        ...value, targetLanguage: target, title: { ...value.title, targetLanguage: target },
+        segments: value.segments.map(item => ({ ...item, targetLanguage: target }))
+    } as unknown as ReaderSnapshot;
 }
 
 export function acceptSnapshot(current: ReaderSnapshot, next: ReaderSnapshot, newJob = false): boolean {
@@ -126,7 +128,7 @@ export function acceptSnapshot(current: ReaderSnapshot, next: ReaderSnapshot, ne
 }
 
 export function planReading(segments: NovelSegment[], mode: ReadingMode, language: NovelLanguage, selectedId?: string,
-                            allowReadyPrefix = false): NovelSegment[] {
+    allowReadyPrefix = false): NovelSegment[] {
     const index = mode === "all" ? 0 : segments.findIndex(item => item.id === selectedId);
     if (index < 0) throw new Error("SEGMENT_NOT_FOUND");
     // 빈 문단의 위치/ID는 화면에 보존하고 음성 요청만 생략한다.

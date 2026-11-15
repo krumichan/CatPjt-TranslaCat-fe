@@ -1,6 +1,6 @@
 import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
-import {TransactionFilterType} from "@/types/accountBook";
+import { TransactionFilterType } from "@/types/accountBook";
 
 type MonthOption = {
     value: string;
@@ -32,10 +32,10 @@ export default function TransactionFilterPanel({
         label: string;
         value: TransactionFilterType;
     }[] = [
-        { label: t("type.all"), value: "ALL" },
-        { label: t("type.income"), value: "INCOME" },
-        { label: t("type.expense"), value: "EXPENSE" },
-    ];
+            { label: t("type.all"), value: "ALL" },
+            { label: t("type.income"), value: "INCOME" },
+            { label: t("type.expense"), value: "EXPENSE" },
+        ];
 
     return (
         <div className="mb-6 rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-[0_12px_30px_rgba(15,23,42,0.12)] backdrop-blur-md dark:border-white/10 dark:bg-zinc-800/80 dark:shadow-xl">
@@ -60,11 +60,10 @@ export default function TransactionFilterPanel({
                             key={item.value}
                             type="button"
                             onClick={() => onChangeFilterType(item.value)}
-                            className={`rounded-xl px-3 py-3 text-sm font-semibold transition ${
-                                filterType === item.value
+                            className={`rounded-xl px-3 py-3 text-sm font-semibold transition ${filterType === item.value
                                     ? "bg-orange-500 text-white shadow-[0_10px_20px_rgba(249,115,22,0.25)]"
                                     : "border border-slate-200 bg-slate-50 text-slate-500 hover:border-orange-300 hover:bg-orange-50 dark:border-white/10 dark:bg-black/30 dark:text-slate-300 dark:hover:border-orange-400/60 dark:hover:bg-orange-500/10"
-                            }`}
+                                }`}
                         >
                             {item.label}
                         </button>

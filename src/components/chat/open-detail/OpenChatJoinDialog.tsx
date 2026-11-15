@@ -115,8 +115,8 @@ export function OpenChatJoinDialog({
                             joinedPendingImage
                                 ? t("join.retryImage")
                                 : mode === "rejoin"
-                                  ? t("join.rejoinSubmit")
-                                  : t("join.submit")
+                                    ? t("join.rejoinSubmit")
+                                    : t("join.submit")
                         }
                         onSubmit={onSubmit}
                         onCancel={onClose}

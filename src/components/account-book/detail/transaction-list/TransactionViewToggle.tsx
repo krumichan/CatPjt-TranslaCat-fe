@@ -19,11 +19,10 @@ export default function TransactionViewToggle({
             <button
                 type="button"
                 onClick={() => onChangeViewMode("CARD")}
-                className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition ${
-                    viewMode === "CARD"
+                className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition ${viewMode === "CARD"
                         ? "bg-orange-500 text-white shadow-sm"
                         : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/10"
-                }`}
+                    }`}
             >
                 <LayoutGrid size={15} />
                 {t("view.card")}
@@ -32,11 +31,10 @@ export default function TransactionViewToggle({
             <button
                 type="button"
                 onClick={() => onChangeViewMode("TABLE")}
-                className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition ${
-                    viewMode === "TABLE"
+                className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition ${viewMode === "TABLE"
                         ? "bg-orange-500 text-white shadow-sm"
                         : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/10"
-                }`}
+                    }`}
             >
                 <Table2 size={15} />
                 {t("view.table")}

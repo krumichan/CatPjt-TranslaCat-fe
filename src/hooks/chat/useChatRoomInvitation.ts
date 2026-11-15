@@ -58,8 +58,8 @@ interface UseChatRoomInvitationResult {
     isSubmitting: boolean;
     errorCode: ChatRoomInvitationErrorCode | null;
     successCode:
-        | ChatRoomInvitationSuccessCode
-        | null;
+    | ChatRoomInvitationSuccessCode
+    | null;
     openInvitation: () => void;
     closeInvitation: () => void;
     toggleFriend: (friendUserId: number) => void;
@@ -249,9 +249,9 @@ export function useChatRoomInvitation({
             setSelectedFriendUserIds((current) =>
                 current.includes(friendUserId)
                     ? current.filter(
-                          (id) =>
-                              id !== friendUserId,
-                      )
+                        (id) =>
+                            id !== friendUserId,
+                    )
                     : [...current, friendUserId],
             );
             setErrorCode(null);
@@ -369,11 +369,11 @@ export function useChatRoomInvitation({
 
         const nextTargetPublicIds = pendingInput
             ? Array.from(
-                  new Set([
-                      ...targetPublicIds,
-                      pendingInput,
-                  ]),
-              )
+                new Set([
+                    ...targetPublicIds,
+                    pendingInput,
+                ]),
+            )
             : targetPublicIds;
 
         if (
@@ -412,23 +412,23 @@ export function useChatRoomInvitation({
         try {
             const response = isDirectConversion
                 ? await chatRoomInvitationService
-                      .convertDirectToGroup(room.id, {
-                          name: groupName.trim(),
-                          description:
-                              groupDescription.trim() ||
-                              null,
-                          targetUserIds:
-                              selectedFriendUserIds,
-                          targetPublicIds:
-                              nextTargetPublicIds,
-                      })
+                    .convertDirectToGroup(room.id, {
+                        name: groupName.trim(),
+                        description:
+                            groupDescription.trim() ||
+                            null,
+                        targetUserIds:
+                            selectedFriendUserIds,
+                        targetPublicIds:
+                            nextTargetPublicIds,
+                    })
                 : await chatRoomMemberService
-                      .inviteMembers(room.id, {
-                          targetUserIds:
-                              selectedFriendUserIds,
-                          targetPublicIds:
-                              nextTargetPublicIds,
-                      });
+                    .inviteMembers(room.id, {
+                        targetUserIds:
+                            selectedFriendUserIds,
+                        targetPublicIds:
+                            nextTargetPublicIds,
+                    });
 
             if (response.createdNewGroupRoom) {
                 setSuccessCode("GROUP_CREATED");

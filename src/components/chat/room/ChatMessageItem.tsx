@@ -77,13 +77,13 @@ export function ChatMessageItem({
     const senderDisplayName = message.authorDeleted ? "탈퇴한 사용자" : hidden ? "숨겨진 메시지" : isAiMessage
         ? message.senderName ?? tAiMessage("unknownName")
         : isOpenRoom
-          ? openSender?.nickname ?? tMemberProfile("unknownUser")
-          : message.senderName ?? tMemberProfile("unknownUser");
+            ? openSender?.nickname ?? tMemberProfile("unknownUser")
+            : message.senderName ?? tMemberProfile("unknownUser");
     const senderProfileImageUrl = isAiMessage
         ? message.senderProfileImageUrl
         : isOpenRoom
-          ? openSender?.profileImageUrl ?? null
-          : message.senderProfileImageUrl;
+            ? openSender?.profileImageUrl ?? null
+            : message.senderProfileImageUrl;
     const openProfileAction = isAiMessage
         ? onOpenAiSenderProfile
         : onOpenSenderProfile;
@@ -112,9 +112,8 @@ export function ChatMessageItem({
             data-testid={
                 isAiMessage ? `chat-ai-message-${message.id}` : undefined
             }
-            className={`flex w-full items-start gap-2 ${
-                isMine ? "justify-end" : "justify-start"
-            }`}
+            className={`flex w-full items-start gap-2 ${isMine ? "justify-end" : "justify-start"
+                }`}
         >
             {showSenderProfile && (
                 <ChatSenderAvatar
@@ -130,9 +129,8 @@ export function ChatMessageItem({
             )}
 
             <div
-                className={`flex min-w-0 flex-1 flex-col ${
-                    isMine ? "items-end" : "items-start"
-                }`}
+                className={`flex min-w-0 flex-1 flex-col ${isMine ? "items-end" : "items-start"
+                    }`}
             >
                 {!isMine && (
                     <div className="mb-1 flex flex-wrap items-center gap-1.5 px-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
@@ -155,17 +153,15 @@ export function ChatMessageItem({
                 )}
 
                 <div
-                    className={`flex max-w-[86%] items-end gap-2 ${
-                        isMine ? "flex-row-reverse" : "flex-row"
-                    }`}
+                    className={`flex max-w-[86%] items-end gap-2 ${isMine ? "flex-row-reverse" : "flex-row"
+                        }`}
                 >
                     <div
                         data-testid={`chat-message-bubble-${message.id}`}
-                        className={`max-w-full rounded-3xl px-4 py-3 shadow-sm ${
-                            isMine
+                        className={`max-w-full rounded-3xl px-4 py-3 shadow-sm ${isMine
                                 ? "rounded-br-md bg-blue-600 text-white"
                                 : "rounded-bl-md bg-white text-slate-900 dark:bg-slate-800 dark:text-white"
-                        }`}
+                            }`}
                     >
                         {showOriginalContent && (
                             <p className="whitespace-pre-wrap break-words text-sm leading-6">
@@ -189,9 +185,8 @@ export function ChatMessageItem({
 
                     {(showUnreadMemberCount || messageTime) && (
                         <div
-                            className={`mb-1 flex shrink-0 flex-col gap-0.5 ${
-                                isMine ? "items-end" : "items-start"
-                            }`}
+                            className={`mb-1 flex shrink-0 flex-col gap-0.5 ${isMine ? "items-end" : "items-start"
+                                }`}
                         >
                             {showUnreadMemberCount && (
                                 <span

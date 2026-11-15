@@ -43,7 +43,7 @@ export function ChatPresenceIndicator({
                 state === "online" && "bg-emerald-500",
                 state === "offline" && "bg-slate-400 dark:bg-slate-500",
                 state === "unknown" &&
-                    "border border-slate-400 bg-white text-[8px] font-black leading-none text-slate-500 dark:border-slate-500 dark:bg-slate-900 dark:text-slate-300",
+                "border border-slate-400 bg-white text-[8px] font-black leading-none text-slate-500 dark:border-slate-500 dark:bg-slate-900 dark:text-slate-300",
                 className,
             )}
         >

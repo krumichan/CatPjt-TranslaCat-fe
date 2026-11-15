@@ -32,15 +32,15 @@ export function SpeakingRecorderPanel({
                     <p className="text-xs font-black text-blue-600 dark:text-blue-300">
                         {controller.rerecordTargetTurn
                             ? t("readAloudRerecordLabel", {
-                                  problem: controller.rerecordTargetTurn.problemIndex ?? 0,
-                                  attempt: controller.rerecordTargetTurn.attemptIndex ?? 0,
-                              })
+                                problem: controller.rerecordTargetTurn.problemIndex ?? 0,
+                                attempt: controller.rerecordTargetTurn.attemptIndex ?? 0,
+                            })
                             : t("readAloudAttemptLabel", {
-                                  problem: controller.readAloudActiveProblemIndex,
-                                  total: controller.readAloudProblemCount,
-                                  attempt: controller.readAloudNextAttemptIndex,
-                                  required: controller.readAloudRequiredAttempts,
-                              })}
+                                problem: controller.readAloudActiveProblemIndex,
+                                total: controller.readAloudProblemCount,
+                                attempt: controller.readAloudNextAttemptIndex,
+                                required: controller.readAloudRequiredAttempts,
+                            })}
                     </p>
                     <p className="mt-1 text-[11px] leading-5 text-slate-500 dark:text-slate-400">
                         {controller.rerecordTargetTurn
@@ -134,10 +134,10 @@ export function SpeakingRecorderPanel({
                                 {controller.turnPhase === "PREPARING_UPLOAD"
                                     ? t("uploading")
                                     : controller.turnPhase === "PROCESSING"
-                                      ? t("processing")
-                                      : controller.rerecordTargetTurn
-                                        ? t("replaceRecording")
-                                        : t("submit")}
+                                        ? t("processing")
+                                        : controller.rerecordTargetTurn
+                                            ? t("replaceRecording")
+                                            : t("submit")}
                             </button>
                         </>
                     )}
@@ -164,8 +164,8 @@ export function SpeakingRecorderPanel({
                     />
                     {controller.recordingValidationError === "TOO_SHORT"
                         ? t("tooShort", {
-                              seconds: SPEAKING_MIN_VALID_AUDIO_SECONDS,
-                          })
+                            seconds: SPEAKING_MIN_VALID_AUDIO_SECONDS,
+                        })
                         : t("tooLarge")}
                 </div>
             )}

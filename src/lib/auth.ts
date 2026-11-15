@@ -25,7 +25,7 @@ export const authOptions: NextAuthOptions = {
     logger: {
         error(code) { console.error("Authentication error:", code); },
         warn(code) { console.warn("Authentication warning:", code); },
-        debug() {},
+        debug() { },
     },
     providers: [
         GoogleProvider({

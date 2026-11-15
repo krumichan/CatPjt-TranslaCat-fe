@@ -3,8 +3,8 @@ import {
     AccountBookMonthlyGoalListResponse,
     AccountBookMonthlyGoalRequest
 } from "@/types/accountBook";
-import {apiClient} from "@/lib/apiClient";
-import {ResponseDto} from "@/types/common";
+import { apiClient } from "@/lib/apiClient";
+import { ResponseDto } from "@/types/common";
 
 export const accountBookMonthlyGoalService = {
     async getMonthlyGoal(

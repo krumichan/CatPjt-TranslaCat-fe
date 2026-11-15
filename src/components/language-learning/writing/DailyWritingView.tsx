@@ -97,23 +97,22 @@ export function DailyWritingView({ controller }: DailyWritingViewProps) {
                         {controller.isRegenerating
                             ? t("regenerate.loading")
                             : t("regenerate.action", {
-                                  count: controller.remainingRegenerations,
-                              })}
+                                count: controller.remainingRegenerations,
+                            })}
                     </button>
                 </div>
                 <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
                     <div
                         className="h-full rounded-full bg-blue-600 transition-all"
                         style={{
-                            width: `${
-                                dailySet.sentenceCount === 0
+                            width: `${dailySet.sentenceCount === 0
                                     ? 0
                                     : Math.round(
-                                          (controller.completedCount /
-                                              dailySet.sentenceCount) *
-                                              100,
-                                      )
-                            }%`,
+                                        (controller.completedCount /
+                                            dailySet.sentenceCount) *
+                                        100,
+                                    )
+                                }%`,
                         }}
                     />
                 </div>
@@ -179,9 +178,9 @@ export function DailyWritingView({ controller }: DailyWritingViewProps) {
                                 {bulkIsEvaluating
                                     ? t("bulkEvaluation.backgroundDescription")
                                     : t("bulkEvaluation.description", {
-                                          filled: controller.bulkFilledCount,
-                                          total: controller.bulkPendingCount,
-                                      })}
+                                        filled: controller.bulkFilledCount,
+                                        total: controller.bulkPendingCount,
+                                    })}
                             </p>
                             {bulkIsEvaluating && (
                                 <p className="mt-1 text-xs font-bold text-amber-700 dark:text-amber-200">

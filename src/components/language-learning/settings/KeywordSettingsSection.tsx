@@ -73,8 +73,8 @@ export function KeywordSettingsSection({
         manager.actionErrorCode === "LANGUAGE_LEARNING_KEYWORD_DUPLICATED"
             ? t("duplicate")
             : manager.actionErrorCode
-              ? t("actionFailed")
-              : null;
+                ? t("actionFailed")
+                : null;
 
     return (
         <section className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm dark:border-white/10 dark:bg-slate-900/75">

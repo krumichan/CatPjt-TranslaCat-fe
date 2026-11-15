@@ -75,11 +75,10 @@ export default function ReceiptKeywordSettingsSection({
                             key={type}
                             type="button"
                             onClick={() => onActiveTypeChange(type)}
-                            className={`rounded-xl px-3 py-2 text-sm font-bold transition ${
-                                isActive
+                            className={`rounded-xl px-3 py-2 text-sm font-bold transition ${isActive
                                     ? "bg-orange-500 text-white"
                                     : "bg-slate-100 text-slate-500 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-300 dark:hover:bg-white/15"
-                            }`}
+                                }`}
                         >
                             {t(`types.${type}`)}
                         </button>
@@ -166,11 +165,10 @@ export default function ReceiptKeywordSettingsSection({
                                     type="button"
                                     onClick={() => onToggleEnabled(item)}
                                     disabled={processingId !== null}
-                                    className={`rounded-xl px-3 py-2 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-60 ${
-                                        item.enabled
+                                    className={`rounded-xl px-3 py-2 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-60 ${item.enabled
                                             ? "bg-orange-100 text-orange-600 dark:bg-orange-500/20 dark:text-orange-300"
                                             : "bg-slate-200 text-slate-500 dark:bg-white/10 dark:text-slate-300"
-                                    }`}
+                                        }`}
                                 >
                                     {item.enabled
                                         ? t("enabled")

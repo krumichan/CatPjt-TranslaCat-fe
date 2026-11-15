@@ -10,8 +10,8 @@ type SettingsBackButtonProps = {
 };
 
 export default function SettingsBackButton({
-   fallbackHref = "/settings",
-   variant = "default",
+    fallbackHref = "/settings",
+    variant = "default",
 }: SettingsBackButtonProps) {
     const t = useTranslations("Settings.common");
     const router = useRouter();

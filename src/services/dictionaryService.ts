@@ -1,8 +1,8 @@
-import {apiClient} from "@/lib/apiClient";
+import { apiClient } from "@/lib/apiClient";
 
 export const dictionaryService = {
-    register: async(surface: string, reading: string): Promise<void> => {
-        const body = {surface, reading};
+    register: async (surface: string, reading: string): Promise<void> => {
+        const body = { surface, reading };
 
         const response = await apiClient("/dictionary/register", {
             method: "POST",

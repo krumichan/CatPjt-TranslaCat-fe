@@ -20,17 +20,17 @@ type AccountBookBasicFieldsProps = {
 };
 
 export default function AccountBookBasicFields({
-   translationKey,
-   name,
-   description,
-   categoryOptions,
-   categorySelectValue,
-   isDirectInput,
-   newCategoryName,
-   onChangeName,
-   onChangeDescription,
-   onChangeCategorySelectValue,
-   onChangeNewCategoryName,
+    translationKey,
+    name,
+    description,
+    categoryOptions,
+    categorySelectValue,
+    isDirectInput,
+    newCategoryName,
+    onChangeName,
+    onChangeDescription,
+    onChangeCategorySelectValue,
+    onChangeNewCategoryName,
 }: AccountBookBasicFieldsProps) {
     const t = useTranslations(translationKey);
 

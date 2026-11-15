@@ -87,9 +87,9 @@ export function DashboardIntegratedAbilityWidget({
                                 {metric.collectingData
                                     ? t("collectingData")
                                     : t("integrated.metricMeta", {
-                                          count: metric.sampleCount,
-                                          confidence: metric.confidence,
-                                      })}
+                                        count: metric.sampleCount,
+                                        confidence: metric.confidence,
+                                    })}
                             </p>
                         </div>
                     ))}

@@ -95,9 +95,9 @@ export function ChatRoomHeader({
     const partnerProfileButtonLabel =
         room.directPartner
             ? t("header.openPartnerProfile", {
-                  nickname:
-                      room.directPartner.displayName,
-              })
+                nickname:
+                    room.directPartner.displayName,
+            })
             : null;
 
     return (

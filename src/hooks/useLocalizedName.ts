@@ -1,4 +1,4 @@
-import {useLocale} from "next-intl";
+import { useLocale } from "next-intl";
 
 type LocalizedObject =
     | { nameJa: string; nameKo: string; nameEn?: string }

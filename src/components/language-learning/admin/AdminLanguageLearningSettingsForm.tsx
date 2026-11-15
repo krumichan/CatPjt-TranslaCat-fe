@@ -19,13 +19,13 @@ const NUMBER_FIELDS: Array<{
     >;
     min: number;
 }> = [
-    { key: "defaultDailySentenceCount", min: 1 },
-    { key: "minDailySentenceCount", min: 1 },
-    { key: "maxDailySentenceCount", min: 1 },
-    { key: "dailyKeywordMaxCount", min: 0 },
-    { key: "reviewAvailableDays", min: 1 },
-    { key: "levelRecheckRecommendationDays", min: 1 },
-];
+        { key: "defaultDailySentenceCount", min: 1 },
+        { key: "minDailySentenceCount", min: 1 },
+        { key: "maxDailySentenceCount", min: 1 },
+        { key: "dailyKeywordMaxCount", min: 0 },
+        { key: "reviewAvailableDays", min: 1 },
+        { key: "levelRecheckRecommendationDays", min: 1 },
+    ];
 
 const BOOLEAN_FIELDS = [
     "adaptiveWritingEnabled",

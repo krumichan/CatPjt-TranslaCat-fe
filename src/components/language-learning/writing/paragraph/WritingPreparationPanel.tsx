@@ -145,8 +145,10 @@ export function WritingPreparationPanel({ owner, loginSessionId, writingType, bu
                 <label className="block" htmlFor="writing-repair-notes">{t("reason")}</label>
                 <textarea id="writing-repair-notes" className="w-full rounded border bg-transparent p-2" rows={3} maxLength={2000} value={notes} disabled={busy || pending} onChange={(event) => setNotes(event.target.value)} />
                 <button type="button" disabled={busy || pending || !notes.trim()} className="rounded border p-2 disabled:opacity-50" onClick={() => void run(async () => {
-                    await send({ requestKey: crypto.randomUUID(), writingType: prepared.writingType, targetBand: prepared.targetBand,
-                        topicKey: prepared.topicKey, repairOfRequestKey: prepared.requestKey, repairNotes: notes.trim() });
+                    await send({
+                        requestKey: crypto.randomUUID(), writingType: prepared.writingType, targetBand: prepared.targetBand,
+                        topicKey: prepared.topicKey, repairOfRequestKey: prepared.requestKey, repairNotes: notes.trim()
+                    });
                 })}>{t(prepared.repairMode === "CORE_REPLACEMENT" ? "replace" : "repair")}</button>
             </div> : <p className="text-sm">{t(`blocked.${prepared.repairBlockedReason}`)}</p>}
         </div>}

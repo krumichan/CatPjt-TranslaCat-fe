@@ -28,7 +28,7 @@ export function createBrowserStorageStore(storageKey: string | null) {
     };
 
     const subscribe = (onStoreChange: () => void) => {
-        if (storageKey === null || typeof window === "undefined") return () => {};
+        if (storageKey === null || typeof window === "undefined") return () => { };
 
         const onStorage = (event: StorageEvent) => {
             if (event.key !== null && event.key !== storageKey) return;

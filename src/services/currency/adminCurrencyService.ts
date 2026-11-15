@@ -1,6 +1,6 @@
 import { apiClient } from "@/lib/apiClient";
 import { ResponseDto } from "@/types/common";
-import {AdminCurrency, CurrencyCreateRequest, CurrencyUpdateRequest} from "@/types/currency";
+import { AdminCurrency, CurrencyCreateRequest, CurrencyUpdateRequest } from "@/types/currency";
 
 export const adminCurrencyService = {
     async list(): Promise<AdminCurrency[]> {

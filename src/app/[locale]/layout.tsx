@@ -6,61 +6,61 @@ import "@fontsource/noto-sans-jp/700.css";
 import "../globals.css";
 import AuthContext from "@/components/auth/AuthContext";
 import React from "react";
-import {getMessages} from "next-intl/server";
-import {NextIntlClientProvider} from "next-intl";
-import {ThemeProvider} from "@/components/common/ThemeProvider";
+import { getMessages } from "next-intl/server";
+import { NextIntlClientProvider } from "next-intl";
+import { ThemeProvider } from "@/components/common/ThemeProvider";
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+    variable: "--font-geist-sans",
+    subsets: ["latin"],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+    variable: "--font-geist-mono",
+    subsets: ["latin"],
 });
 
 // 본문 한글에만 사용한다. 빌드에서 자체 호스팅하고 다른 화면에서는 미리 내려받지 않는다.
 const novelKoreanSerif = Noto_Serif_KR({
-  variable: "--font-novel-ko",
-  weight: "400",
-  display: "swap",
-  preload: false,
+    variable: "--font-novel-ko",
+    weight: "400",
+    display: "swap",
+    preload: false,
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL!),
-  title: "TranslaCat",
-  description: '언어의 벽을 넘는 가장 귀여운 방법',
-  openGraph: {
-    title: 'TranslaCat',
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL!),
+    title: "TranslaCat",
     description: '언어의 벽을 넘는 가장 귀여운 방법',
-    type: 'website',
-    images: ['/images/opengraph-image-groups.png'],
-  },
+    openGraph: {
+        title: 'TranslaCat',
+        description: '언어의 벽을 넘는 가장 귀여운 방법',
+        type: 'website',
+        images: ['/images/opengraph-image-groups.png'],
+    },
 };
 
 export default async function RootLayout(props: {
-  children: React.ReactNode;
-  params: Promise<{ locale: string }>;
+    children: React.ReactNode;
+    params: Promise<{ locale: string }>;
 }) {
-  const { locale } = await props.params;
-  const messages = await getMessages();
+    const { locale } = await props.params;
+    const messages = await getMessages();
 
-  return (
-    <html lang={locale} suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${novelKoreanSerif.variable} antialiased`}
-      >
-        <NextIntlClientProvider messages={messages} locale={locale}>
-          {/* 공개 문서와 인증 화면 사이를 이동해도 테마 공급자는 유지한다. */}
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <AuthContext>
-              <main>{props.children}</main>
-            </AuthContext>
-          </ThemeProvider>
-        </NextIntlClientProvider>
-      </body>
-    </html>
-  );
+    return (
+        <html lang={locale} suppressHydrationWarning>
+            <body
+                className={`${geistSans.variable} ${geistMono.variable} ${novelKoreanSerif.variable} antialiased`}
+            >
+                <NextIntlClientProvider messages={messages} locale={locale}>
+                    {/* 공개 문서와 인증 화면 사이를 이동해도 테마 공급자는 유지한다. */}
+                    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+                        <AuthContext>
+                            <main>{props.children}</main>
+                        </AuthContext>
+                    </ThemeProvider>
+                </NextIntlClientProvider>
+            </body>
+        </html>
+    );
 }

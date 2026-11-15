@@ -81,9 +81,9 @@ export function useSpeakingStartPageController() {
 
     const hasPendingModeEvaluation = (modeStatusQuery.data ?? []).some(
         (status) =>
-            (status.resultKind === "SESSION_COACHING"
-                ? status.resultStatus === "PENDING" || status.resultStatus === "RUNNING"
-                : status.sessionStatus === "EVALUATING" ||
+        (status.resultKind === "SESSION_COACHING"
+            ? status.resultStatus === "PENDING" || status.resultStatus === "RUNNING"
+            : status.sessionStatus === "EVALUATING" ||
             status.evaluationStatus === "PENDING" ||
             status.evaluationStatus === "EVALUATING"),
     );

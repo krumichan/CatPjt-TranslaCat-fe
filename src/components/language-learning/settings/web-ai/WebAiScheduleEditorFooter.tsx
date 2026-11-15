@@ -15,7 +15,7 @@ interface WebAiScheduleEditorFooterProps {
     busy?: boolean;
 }
 
-const subscribeToPortal = () => () => {};
+const subscribeToPortal = () => () => { };
 const getPortalElement = () => document.getElementById("bottom-ui-portal");
 const getServerPortalElement = () => null;
 

@@ -264,11 +264,10 @@ export function LanguageLearningSettingForm({
                                 <label
                                     key={taskType}
                                     data-testid={`listening-setting-task-option-${taskType}`}
-                                    className={`cursor-pointer rounded-xl border px-3 py-3 transition ${
-                                        checked
+                                    className={`cursor-pointer rounded-xl border px-3 py-3 transition ${checked
                                             ? "border-blue-500 bg-blue-50 dark:bg-blue-500/10"
                                             : "border-slate-200 bg-white dark:border-white/10 dark:bg-black/10"
-                                    }`}
+                                        }`}
                                 >
                                     <input
                                         type="checkbox"
@@ -293,10 +292,10 @@ export function LanguageLearningSettingForm({
                     {!form.defaultListeningTaskTypes.some(
                         (task) => task === "DICTATION" || task === "REPEAT_AFTER_AUDIO",
                     ) && (
-                        <p role="alert" className="mt-2 text-xs font-bold text-rose-600 dark:text-rose-300">
-                            {t("defaultListeningTasksInvalid")}
-                        </p>
-                    )}
+                            <p role="alert" className="mt-2 text-xs font-bold text-rose-600 dark:text-rose-300">
+                                {t("defaultListeningTasksInvalid")}
+                            </p>
+                        )}
                 </fieldset>
 
                 <label className="block">

@@ -1,6 +1,6 @@
-import {apiClient} from "@/lib/apiClient";
-import type {TranslationUnit} from "@/types/common";
-import type {NovelTargetLanguage} from "@/features/novel/translationLanguage";
+import { apiClient } from "@/lib/apiClient";
+import type { TranslationUnit } from "@/types/common";
+import type { NovelTargetLanguage } from "@/features/novel/translationLanguage";
 
 export interface RecentView {
     id: number;
@@ -8,7 +8,7 @@ export interface RecentView {
     type: string;
     novelId: string;
     episodeId?: string;
-    title: Omit<TranslationUnit, "ko"> & {ko: string | null};
+    title: Omit<TranslationUnit, "ko"> & { ko: string | null };
     targetLanguage?: NovelTargetLanguage;
     titleEn?: string | null;
     viewedAt: string;
@@ -19,7 +19,7 @@ export const recentViewService = {
         id: number,
     ): Promise<void> => {
         const response = await apiClient(
-        `/recent/${id}`, {
+            `/recent/${id}`, {
             method: "DELETE",
         });
 
@@ -27,12 +27,12 @@ export const recentViewService = {
             throw new Error("Failed to delete recent view.");
         }
     },
-    getTop10: async(): Promise<RecentView[]> => {
+    getTop10: async (): Promise<RecentView[]> => {
         try {
             const response = await apiClient(
                 `/recent/top10`, {
-                    method: "GET",
-                }
+                method: "GET",
+            }
             );
 
             if (!response.ok) {
@@ -47,7 +47,7 @@ export const recentViewService = {
             return [];
         }
     },
-    saveRecent: async(
+    saveRecent: async (
         platformCode: string,
         type: string,
         novelId: string,
@@ -55,7 +55,7 @@ export const recentViewService = {
         title: string,
         titleJa: string,
         titleKo: string,
-        translation?: {targetLanguage: NovelTargetLanguage; titleEn?: string | null},
+        translation?: { targetLanguage: NovelTargetLanguage; titleEn?: string | null },
     ): Promise<void> => {
         const body = {
             platformCode,
@@ -70,12 +70,12 @@ export const recentViewService = {
 
         const response = await apiClient(
             `/recent/save`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(body),
-            }
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(body),
+        }
         );
 
         if (!response.ok) {

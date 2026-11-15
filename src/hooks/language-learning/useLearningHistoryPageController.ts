@@ -61,12 +61,12 @@ export function useLearningHistoryPageController() {
     const detailQuery = useQuery({
         keys: selectedActivityId && loginSessionId
             ? ([
-                  "language-learning-history-detail",
-                  selectedActivityId,
-                  detailReadScope,
-                  detailReadRevision,
-                  loginSessionId,
-              ] as const)
+                "language-learning-history-detail",
+                selectedActivityId,
+                detailReadScope,
+                detailReadRevision,
+                loginSessionId,
+            ] as const)
             : null,
         fetcher: (_key, activityId, _scope, _revision, expectedLoginSessionId) =>
             learningHistoryService.getDetail(activityId, { expectedLoginSessionId }),

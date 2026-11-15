@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { BookPlus, Save, RotateCcw } from "lucide-react";
-import {dictionaryService} from "@/services/dictionaryService";
+import { dictionaryService } from "@/services/dictionaryService";
 
 interface DictRegistrationModalProps {
     isOpen: boolean;
@@ -113,8 +113,8 @@ export default function DictRegistrationModal({
 
                 <div className="flex gap-2 mt-8">
                     <button onClick={onClose}
-                            disabled={isSubmitting}
-                            className="flex-1 py-4 text-sm font-bold text-zinc-500 hover:bg-zinc-100 dark:hover:bg-white/5 rounded-2xl transition-all">
+                        disabled={isSubmitting}
+                        className="flex-1 py-4 text-sm font-bold text-zinc-500 hover:bg-zinc-100 dark:hover:bg-white/5 rounded-2xl transition-all">
                         Cancel
                     </button>
                     <button

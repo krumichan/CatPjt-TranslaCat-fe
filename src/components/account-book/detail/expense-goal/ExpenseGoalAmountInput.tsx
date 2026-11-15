@@ -9,10 +9,10 @@ type ExpenseGoalAmountInputProps = {
 };
 
 export default function ExpenseGoalAmountInput({
-   currencyCode,
-   value,
-   placeholder,
-   onChange,
+    currencyCode,
+    value,
+    placeholder,
+    onChange,
 }: ExpenseGoalAmountInputProps) {
     return (
         <div className="flex overflow-hidden rounded-xl border border-slate-300 bg-slate-50 focus-within:border-orange-400 focus-within:ring-2 focus-within:ring-orange-200 dark:border-white/10 dark:bg-black/30 dark:focus-within:ring-orange-500/20">

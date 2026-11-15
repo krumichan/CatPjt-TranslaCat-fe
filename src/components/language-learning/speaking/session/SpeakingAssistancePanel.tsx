@@ -19,13 +19,13 @@ const ASSISTANCE_ITEMS: Array<{
     type: AssistanceType;
     icon: typeof Volume2;
 }> = [
-    { type: "REPLAY", icon: Volume2 },
-    { type: "SLOW_PLAYBACK", icon: Snail },
-    { type: "SHOW_QUESTION", icon: RotateCcw },
-    { type: "HINT", icon: Lightbulb },
-    { type: "TRANSLATION", icon: Languages },
-    { type: "SAMPLE_ANSWER", icon: MessageSquareQuote },
-];
+        { type: "REPLAY", icon: Volume2 },
+        { type: "SLOW_PLAYBACK", icon: Snail },
+        { type: "SHOW_QUESTION", icon: RotateCcw },
+        { type: "HINT", icon: Lightbulb },
+        { type: "TRANSLATION", icon: Languages },
+        { type: "SAMPLE_ANSWER", icon: MessageSquareQuote },
+    ];
 
 export function SpeakingAssistancePanel({
     usage,

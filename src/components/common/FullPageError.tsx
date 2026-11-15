@@ -1,6 +1,6 @@
 "use client";
 
-import {useRouter} from "@/navigation";
+import { useRouter } from "@/navigation";
 import FullPageLayout from "@/components/common/FullPageLayout";
 
 interface FullPageErrorProps {

@@ -74,7 +74,7 @@ export function AppMobileNavigationDrawer({
             const first = focusableElements[0];
             const last =
                 focusableElements[
-                    focusableElements.length - 1
+                focusableElements.length - 1
                 ];
 
             if (
@@ -115,20 +115,18 @@ export function AppMobileNavigationDrawer({
         <div
             aria-hidden={!isOpen}
             inert={!isOpen}
-            className={`fixed inset-0 z-140 lg:hidden ${
-                isOpen
+            className={`fixed inset-0 z-140 lg:hidden ${isOpen
                     ? "pointer-events-auto"
                     : "pointer-events-none"
-            }`}
+                }`}
         >
             <button
                 type="button"
                 tabIndex={isOpen ? 0 : -1}
                 aria-label={t("close")}
                 onClick={onClose}
-                className={`absolute inset-0 bg-slate-950/55 backdrop-blur-sm transition-opacity duration-200 motion-reduce:transition-none ${
-                    isOpen ? "opacity-100" : "opacity-0"
-                }`}
+                className={`absolute inset-0 bg-slate-950/55 backdrop-blur-sm transition-opacity duration-200 motion-reduce:transition-none ${isOpen ? "opacity-100" : "opacity-0"
+                    }`}
             />
 
             <div
@@ -139,11 +137,10 @@ export function AppMobileNavigationDrawer({
                 aria-label={t("title")}
                 onKeyDown={stopPropagation}
                 data-testid="app-mobile-navigation-drawer"
-                className={`absolute inset-y-0 left-0 flex w-[min(86vw,320px)] flex-col border-r border-slate-200 bg-white shadow-2xl transition-transform duration-200 motion-reduce:transition-none dark:border-[var(--tc-ocean-border)] dark:bg-[var(--tc-ocean-shell)] ${
-                    isOpen
+                className={`absolute inset-y-0 left-0 flex w-[min(86vw,320px)] flex-col border-r border-slate-200 bg-white shadow-2xl transition-transform duration-200 motion-reduce:transition-none dark:border-[var(--tc-ocean-border)] dark:bg-[var(--tc-ocean-shell)] ${isOpen
                         ? "translate-x-0"
                         : "-translate-x-full"
-                }`}
+                    }`}
             >
                 <div className="flex h-15 shrink-0 items-center justify-between border-b border-slate-200 px-4 dark:border-white/10">
                     <Logo />

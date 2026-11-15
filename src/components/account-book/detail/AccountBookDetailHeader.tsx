@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, Plus, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { CurrencyCode } from "@/types/accountBook";
-import {ReactNode} from "react";
+import { ReactNode } from "react";
 import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 
 type AccountBookDetailHeaderData = {

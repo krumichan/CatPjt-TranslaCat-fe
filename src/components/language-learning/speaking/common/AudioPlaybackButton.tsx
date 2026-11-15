@@ -38,8 +38,8 @@ export function AudioPlaybackButton({
                     playback.isPlaying
                         ? t("pause")
                         : slow
-                          ? t("playSlow")
-                          : t("play")
+                            ? t("playSlow")
+                            : t("play")
                 }
                 className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:bg-slate-50 disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
             >
@@ -52,8 +52,8 @@ export function AudioPlaybackButton({
                     (slow
                         ? t("slow")
                         : playback.isPlaying
-                          ? t("pause")
-                          : t("play"))}
+                            ? t("pause")
+                            : t("play"))}
             </button>
             {!compact && (
                 <span className="text-xs tabular-nums text-slate-400">

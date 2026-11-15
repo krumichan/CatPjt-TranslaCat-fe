@@ -180,7 +180,7 @@ export function useFriendGroupChatCreate(): UseFriendGroupChatCreateResult {
                 } else {
                     setErrorCode((currentError) =>
                         currentError === "SELECTION_REQUIRED" ||
-                        currentError === "SELECTION_ADJUSTED"
+                            currentError === "SELECTION_ADJUSTED"
                             ? null
                             : currentError,
                     );

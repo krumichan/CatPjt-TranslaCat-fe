@@ -1,7 +1,7 @@
 import { Folder } from "lucide-react";
 import { useTranslations } from "next-intl";
 import AccountBookListItem from "@/components/account-book/AccountBookListItem";
-import {AccountBook, AccountBookCategoryGroup} from "@/types/accountBook";
+import { AccountBook, AccountBookCategoryGroup } from "@/types/accountBook";
 
 type AccountBookCategorySectionProps = {
     category: AccountBookCategoryGroup;

@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import RubyText from "@/components/common/RubyText";
 
 interface SearchFormProps {
@@ -35,7 +35,7 @@ export default function SearchForm({
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 items-center w-full">
             {title && (
                 <h3 className="text-xl font-bold text-[#2D2D2D] dark:text-white transition-colors">
-                    <RubyText content={title}/>
+                    <RubyText content={title} />
                 </h3>
             )}
 

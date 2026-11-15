@@ -32,13 +32,13 @@ export function createCuratedWritingService(loginSessionId: string) {
         )),
         submit: async (itemId: number, answer: string, contentRevision: string) => read(await request(
             `/items/${itemId}/answers`, {
-                method: "POST", body: JSON.stringify({ answer, contentRevision }),
-            },
+            method: "POST", body: JSON.stringify({ answer, contentRevision }),
+        },
         )),
         replace: async (setId: number, rePractice = false) => read(await request(
             `/sets/${setId}/replace`, {
-                method: "POST", body: JSON.stringify({ rePractice }),
-            },
+            method: "POST", body: JSON.stringify({ rePractice }),
+        },
         )),
     };
 }

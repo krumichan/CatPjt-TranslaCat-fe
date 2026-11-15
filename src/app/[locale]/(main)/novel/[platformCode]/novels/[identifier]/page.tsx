@@ -1,30 +1,30 @@
 "use client";
 
-import {useParams, useSearchParams} from "next/navigation";
-import {useLocale} from "next-intl";
-import {useEffect, useRef, useState} from "react";
-import {NovelDetail, novelService} from "@/services/novelService";
+import { useParams, useSearchParams } from "next/navigation";
+import { useLocale } from "next-intl";
+import { useEffect, useRef, useState } from "react";
+import { NovelDetail, novelService } from "@/services/novelService";
 import SpinLoader from "@/components/common/SpinLoader";
 import ListPager from "@/components/common/ListPager";
-import {useScrollLock} from "@/hooks/useScrollLock";
-import {useSmoothNavigation} from "@/hooks/useSmoothNavigation";
-import {NovelHeroCard} from "@/components/novel/NovelHeroCard";
-import {EpisodeItem} from "@/components/novel/RawEpisodeItem";
+import { useScrollLock } from "@/hooks/useScrollLock";
+import { useSmoothNavigation } from "@/hooks/useSmoothNavigation";
+import { NovelHeroCard } from "@/components/novel/NovelHeroCard";
+import { EpisodeItem } from "@/components/novel/RawEpisodeItem";
 import OverlayLoader from "@/components/common/OverlayLoader";
-import {useQuery} from "@/hooks/useQuery";
+import { useQuery } from "@/hooks/useQuery";
 import FullPageError from "@/components/common/FullPageError";
-import {recentViewService} from "@/services/recentViewService";
-import {RECENT_VIEW_TYPE} from "@/types/common";
-import {useAppRouter} from "@/hooks/useAppRouter";
-import {ROUTES, to} from "@/constants/routes";
-import {useSession} from "next-auth/react";
+import { recentViewService } from "@/services/recentViewService";
+import { RECENT_VIEW_TYPE } from "@/types/common";
+import { useAppRouter } from "@/hooks/useAppRouter";
+import { ROUTES, to } from "@/constants/routes";
+import { useSession } from "next-auth/react";
 import NovelTranslationLanguageSelect from "@/components/novel/NovelTranslationLanguageSelect";
-import {novelTargetLanguage, supportsNovelTranslation, withNovelTarget, type NovelTargetLanguage} from "@/features/novel/translationLanguage";
+import { novelTargetLanguage, supportsNovelTranslation, withNovelTarget, type NovelTargetLanguage } from "@/features/novel/translationLanguage";
 
 export default function NovelPage() {
     const params = useParams();
     const query = useSearchParams();
-    const {data: session} = useSession();
+    const { data: session } = useSession();
     const targetLanguage = supportsNovelTranslation(String(params.platformCode)) ? novelTargetLanguage(query.get("novelTarget")) : "ko";
     const ownerScope = session?.user.publicId ?? session?.user.email ?? "";
     // 목차 페이지 캐시는 같은 작품·계정·번역 언어 안에서만 이어간다.
@@ -32,7 +32,7 @@ export default function NovelPage() {
     return <ScopedNovelPage key={scope} targetLanguage={targetLanguage} ownerScope={ownerScope} />;
 }
 
-function ScopedNovelPage({targetLanguage, ownerScope}: {targetLanguage: NovelTargetLanguage; ownerScope: string}) {
+function ScopedNovelPage({ targetLanguage, ownerScope }: { targetLanguage: NovelTargetLanguage; ownerScope: string }) {
     // 1. Hooks & Router (환경 설정)
     const params = useParams();
     const searchParams = useSearchParams();
@@ -96,7 +96,7 @@ function ScopedNovelPage({targetLanguage, ownerScope}: {targetLanguage: NovelTar
             recentTitle,
             recentTitleJa,
             recentTitleKo ?? "",
-            {targetLanguage},
+            { targetLanguage },
         ).catch(err => {
             // 비동기로 처리하되, 실패 시 메인 흐름에 지장이 없게 합니다.
             console.error("Failed to save recent view history:", err);

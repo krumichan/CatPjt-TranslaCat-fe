@@ -150,8 +150,8 @@ export function DailyWritingItemCard({
                             {isSubmitting
                                 ? t("queueing")
                                 : isEvaluationFailed
-                                  ? t("retry")
-                                  : t("submit")}
+                                    ? t("retry")
+                                    : t("submit")}
                         </button>
                     </div>
                 </div>

@@ -19,9 +19,9 @@ type ExpenseRankingChartTooltipProps = {
 };
 
 export default function ExpenseRankingChartTooltip({
-   active,
-   payload,
-   currencyCode,
+    active,
+    payload,
+    currencyCode,
 }: ExpenseRankingChartTooltipProps) {
     const formatAmount = useAmountFormatter();
     const t = useTranslations("AccountBook.detail.rankingChart.tooltip");

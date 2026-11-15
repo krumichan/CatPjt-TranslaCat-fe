@@ -71,11 +71,11 @@ export default defineConfig({
     webServer: skipWebServer
         ? undefined
         : {
-              command: `npm run dev -- --webpack --hostname ${hostname} --port ${port}`,
-              url: readinessURL,
-              reuseExistingServer: !process.env.CI,
-              timeout: 120_000,
-              stdout: "pipe",
-              stderr: "pipe",
-          },
+            command: `npm run dev -- --webpack --hostname ${hostname} --port ${port}`,
+            url: readinessURL,
+            reuseExistingServer: !process.env.CI,
+            timeout: 120_000,
+            stdout: "pipe",
+            stderr: "pipe",
+        },
 });

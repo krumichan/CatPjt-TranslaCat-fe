@@ -58,7 +58,7 @@ export class NovelPlayback {
     private pending = new Map<string, { controller: AbortController; promise: Promise<NovelAudioPart> }>();
     private failedLookahead = new Set<string>();
 
-    constructor(private dependencies: Dependencies) {}
+    constructor(private dependencies: Dependencies) { }
 
     private emit(change: Partial<PlaybackState>) {
         this.state = { ...this.state, ...change };
@@ -144,7 +144,7 @@ export class NovelPlayback {
         if (!this.identity || language !== this.language || queue.length < this.queue.length) return;
         // 기존 합성의 텍스트 hash/ID가 바뀌면 재생을 중단한다. 새 문장은 명시한 연속 읽기 의사에만 붙인다.
         if (this.queue.some((item, index) => item.id !== queue[index].id
-                || item.plainJa !== queue[index].plainJa || (language !== "ja" && novelTranslation(item, language) !== novelTranslation(queue[index], language)))) {
+            || item.plainJa !== queue[index].plainJa || (language !== "ja" && novelTranslation(item, language) !== novelTranslation(queue[index], language)))) {
             this.stop();
             return;
         }
@@ -296,8 +296,10 @@ export class NovelPlayback {
             const result = await this.obtain(position);
             if (generation !== this.generation || !this.intent) return;
             const responseAt = this.dependencies.now();
-            if (this.state.firstAudioResponseMs === null) this.emit({ firstAudioResponseMs: responseAt - this.started,
-                firstAudioHeadersMs: localCacheHit ? null : result.transport?.requestToHeadersMs ?? null, firstAudioCacheHit: localCacheHit || result.cacheHit === true });
+            if (this.state.firstAudioResponseMs === null) this.emit({
+                firstAudioResponseMs: responseAt - this.started,
+                firstAudioHeadersMs: localCacheHit ? null : result.transport?.requestToHeadersMs ?? null, firstAudioCacheHit: localCacheHit || result.cacheHit === true
+            });
             this.url = this.dependencies.createUrl(result.blob);
             const audio = this.dependencies.createAudio(this.url);
             this.audio = audio;
@@ -312,8 +314,10 @@ export class NovelPlayback {
             audio.onplaying = () => {
                 if (!current() || !this.intent) { audio.pause(); return; }
                 const now = this.dependencies.now();
-                this.emit({ status: "playing", segmentId: segment.id, firstAudioPlayingMs: this.state.firstAudioPlayingMs ?? now - this.started,
-                    gapsMs: this.endedAt === null ? this.state.gapsMs : [...this.state.gapsMs, now - this.endedAt] });
+                this.emit({
+                    status: "playing", segmentId: segment.id, firstAudioPlayingMs: this.state.firstAudioPlayingMs ?? now - this.started,
+                    gapsMs: this.endedAt === null ? this.state.gapsMs : [...this.state.gapsMs, now - this.endedAt]
+                });
                 this.endedAt = null;
             };
             audio.onpause = () => {

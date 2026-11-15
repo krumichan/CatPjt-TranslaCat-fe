@@ -28,13 +28,13 @@ export default function FriendProfilePreviewModal({
 
     const profile = friend
         ? {
-              publicId: friend.publicId,
-              displayName: friend.nickname,
-              profileImageUrl: friend.profileImageUrl,
-              profileBackgroundImageUrl:
-                  friend.profileBackgroundImageUrl,
-              bio: friend.bio,
-          }
+            publicId: friend.publicId,
+            displayName: friend.nickname,
+            profileImageUrl: friend.profileImageUrl,
+            profileBackgroundImageUrl:
+                friend.profileBackgroundImageUrl,
+            bio: friend.bio,
+        }
         : null;
 
     return (
@@ -46,8 +46,8 @@ export default function FriendProfilePreviewModal({
             profileAlt={
                 friend
                     ? t("profileAlt", {
-                          nickname: friend.nickname,
-                      })
+                        nickname: friend.nickname,
+                    })
                     : ""
             }
             bioLabel={t("bio")}

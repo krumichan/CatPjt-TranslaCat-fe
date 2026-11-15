@@ -21,8 +21,10 @@ export function useAccountBookSpendingAnalysis(accountBookId: number, selectedMo
         const following = new Date(`${first}T00:00:00Z`);
         following.setUTCMonth(following.getUTCMonth() + 1);
         following.setUTCDate(0);
-        return { ...initial, periodType: "MONTHLY", quarterValue: String(Math.ceil(Number(initial.monthValue.slice(5)) / 3)),
-            halfValue: Number(initial.monthValue.slice(5)) <= 6 ? "1" : "2", startValue: first, endValue: following.toISOString().slice(0, 10) };
+        return {
+            ...initial, periodType: "MONTHLY", quarterValue: String(Math.ceil(Number(initial.monthValue.slice(5)) / 3)),
+            halfValue: Number(initial.monthValue.slice(5)) <= 6 ? "1" : "2", startValue: first, endValue: following.toISOString().slice(0, 10)
+        };
     });
     const [comments, setComments] = useState<Record<string, string>>({});
     const [record, setRecord] = useState<AnalysisRecord | null>(null);
@@ -167,7 +169,7 @@ export function useAccountBookSpendingAnalysis(accountBookId: number, selectedMo
     useEffect(() => {
         // 같은 기간을 보는 동안 완료된 내 요청만 자동으로 연다.
         if (isVisible && job?.status === "SUCCEEDED" && job.analysisId && follow.current?.id === job.id
-                && follow.current.scope === scope) {
+            && follow.current.scope === scope) {
             void loadSaved({ analysisId: job.analysisId }, true);
         }
     }, [isVisible, job, loadSaved, scope]);

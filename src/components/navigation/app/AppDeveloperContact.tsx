@@ -23,19 +23,17 @@ export function AppDeveloperContact({
 }: AppDeveloperContactProps) {
     const t = useTranslations("Navigation.developer");
     const emailLabel = `${t("email")}: ${DEVELOPER_EMAIL}`;
-    const linkClassName = `group relative flex min-h-11 items-center rounded-xl text-xs text-slate-600 transition hover:bg-slate-100 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-blue-400 ${
-        isCollapsed
+    const linkClassName = `group relative flex min-h-11 items-center rounded-xl text-xs text-slate-600 transition hover:bg-slate-100 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-blue-400 ${isCollapsed
             ? "justify-center px-2"
             : "gap-2 px-2"
-    }`;
+        }`;
 
     return (
         <section
             aria-label={t("title")}
             data-testid="app-developer-contact"
-            className={`shrink-0 border-t border-slate-200 pt-3 dark:border-white/10 ${
-                isCollapsed ? "mx-2" : "mx-3"
-            }`}
+            className={`shrink-0 border-t border-slate-200 pt-3 dark:border-white/10 ${isCollapsed ? "mx-2" : "mx-3"
+                }`}
         >
             {!isCollapsed && (
                 <div className="mb-1 px-2">

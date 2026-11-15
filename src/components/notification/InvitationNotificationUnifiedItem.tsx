@@ -163,7 +163,7 @@ export default function InvitationNotificationUnifiedItem({
                             >
                                 <X className="h-4 w-4" aria-hidden="true" />
                                 {isProcessing &&
-                                processingFriendRequestAction === "REJECT"
+                                    processingFriendRequestAction === "REJECT"
                                     ? t("actions.processing")
                                     : t("actions.reject")}
                             </button>
@@ -181,7 +181,7 @@ export default function InvitationNotificationUnifiedItem({
                                     aria-hidden="true"
                                 />
                                 {isProcessing &&
-                                processingFriendRequestAction === "ACCEPT"
+                                    processingFriendRequestAction === "ACCEPT"
                                     ? t("actions.processing")
                                     : t("actions.accept")}
                             </button>
@@ -199,7 +199,7 @@ export default function InvitationNotificationUnifiedItem({
                         >
                             <X className="h-4 w-4" aria-hidden="true" />
                             {isProcessing &&
-                            processingFriendRequestAction === "CANCEL"
+                                processingFriendRequestAction === "CANCEL"
                                 ? t("actions.processing")
                                 : t("actions.cancel")}
                         </button>

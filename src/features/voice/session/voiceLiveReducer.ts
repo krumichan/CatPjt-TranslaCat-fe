@@ -10,10 +10,10 @@ import type {
 export type VoiceLiveAction =
     | { type: "RESET" }
     | {
-          type: "CHANNEL_STATE";
-          channel: VoiceChannel;
-          state: VoiceClientChannelState;
-      }
+        type: "CHANNEL_STATE";
+        channel: VoiceChannel;
+        state: VoiceClientChannelState;
+    }
     | { type: "EVENT"; event: VoicePublicEvent };
 
 export const INITIAL_VOICE_LIVE_STATE: VoiceLiveState = {

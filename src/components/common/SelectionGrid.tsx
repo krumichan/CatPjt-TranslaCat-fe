@@ -1,7 +1,7 @@
 "use client";
 
 import SpinLoader from "@/components/common/SpinLoader";
-import {useTranslations} from "next-intl";
+import { useTranslations } from "next-intl";
 import RubyText from "@/components/common/RubyText";
 
 interface GridItem {
@@ -29,7 +29,7 @@ export default function SelectionGrid<T extends GridItem>({
 
     return (
         <div className="relative w-full max-w-4xl px-4 min-h-[200px] flex items-center justify-center">
-            <SpinLoader isLoading={isLoading} size="lg"/>
+            <SpinLoader isLoading={isLoading} size="lg" />
 
             {isEmpty ? (
                 <div className="flex flex-col items-center justify-center py-12 animate-in fade-in duration-700">
@@ -48,24 +48,21 @@ export default function SelectionGrid<T extends GridItem>({
                         <button
                             key={item.id}
                             onClick={() => onSelect(item)}
-                            className={`group relative p-8 rounded-2xl border transition-all duration-300 transform hover:-translate-y-2 text-center shadow-lg hover:shadow-2xl ${
-                                selectedId === item.id
+                            className={`group relative p-8 rounded-2xl border transition-all duration-300 transform hover:-translate-y-2 text-center shadow-lg hover:shadow-2xl ${selectedId === item.id
                                     ? "bg-blue-600/10 dark:bg-blue-600/20 border-blue-500 dark:border-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.15)]"
                                     : "bg-white/70 dark:bg-white/10 border-black/5 dark:border-white/10 hover:border-blue-300 dark:hover:border-white/30 backdrop-blur-sm"
-                            }`}
+                                }`}
                         >
-                            <h2 className={`text-2xl font-bold mb-2 transition-colors ${
-                                selectedId === item.id
+                            <h2 className={`text-2xl font-bold mb-2 transition-colors ${selectedId === item.id
                                     ? "text-blue-600 dark:text-blue-400"
                                     : "text-[#2D2D2D] dark:text-white"
-                            }`}>
+                                }`}>
                                 <RubyText content={item.name} />
                             </h2>
-                            <p className={`font-mono text-sm transition-all duration-300 ${
-                                selectedId === item.id
+                            <p className={`font-mono text-sm transition-all duration-300 ${selectedId === item.id
                                     ? "text-blue-500 opacity-100"
                                     : "text-blue-400 opacity-0 group-hover:opacity-100"
-                            }`}>
+                                }`}>
                                 {item.code.toUpperCase()}
                             </p>
                             {selectedId === item.id && (

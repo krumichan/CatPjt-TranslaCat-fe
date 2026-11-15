@@ -44,21 +44,20 @@ export function OpenChatRoomCard({ room }: OpenChatRoomCardProps) {
                 </div>
 
                 <span
-                    className={`rounded-full px-3 py-1 text-xs font-black ${
-                        room.joined
+                    className={`rounded-full px-3 py-1 text-xs font-black ${room.joined
                             ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-200"
                             : isFull || isBanned
-                              ? "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-200"
-                              : "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-200"
-                    }`}
+                                ? "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-200"
+                                : "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-200"
+                        }`}
                 >
                     {room.joined
                         ? t("status.joined")
                         : isBanned
-                          ? t("status.banned")
-                          : isFull
-                            ? t("status.full")
-                            : t("status.joinable")}
+                            ? t("status.banned")
+                            : isFull
+                                ? t("status.full")
+                                : t("status.joinable")}
                 </span>
             </div>
 

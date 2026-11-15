@@ -97,8 +97,8 @@ export function SpeakingReadAloudProblemPanel({
                 {controller.turnPhase === "EVALUATING_PROBLEM"
                     ? t("evaluating")
                     : problem === controller.readAloudProblemCount
-                      ? t("evaluateLast")
-                      : t("evaluateAndNext")}
+                        ? t("evaluateLast")
+                        : t("evaluateAndNext")}
             </button>
 
             {!controller.readAloudCanEvaluate && totalAttempts >= controller.readAloudRequiredAttempts && (

@@ -8,7 +8,7 @@ type Context = { owner: string; signal: AbortSignal };
 
 async function request(path: string, options: RequestInit, context: Context): Promise<unknown> {
     const controller = new AbortController();
-    let rejectInterruption: (error: Error) => void = () => {};
+    let rejectInterruption: (error: Error) => void = () => { };
     const interruption = new Promise<never>((_, reject) => { rejectInterruption = reject; });
     const stop = () => {
         controller.abort();

@@ -27,14 +27,14 @@ type AccountBookExpenseGoalCardProps = {
 };
 
 export default function AccountBookExpenseGoalCard({
-   accountBookId,
-   selectedMonth,
-   currencyCode,
-   goalAmount,
-   expenseAmount,
-   isLoading = false,
-   errorMessage,
-   onSaveGoalAmount,
+    accountBookId,
+    selectedMonth,
+    currencyCode,
+    goalAmount,
+    expenseAmount,
+    isLoading = false,
+    errorMessage,
+    onSaveGoalAmount,
 }: AccountBookExpenseGoalCardProps) {
     const formatAmount = useAmountFormatter();
     const t = useTranslations("AccountBook.detail.expenseGoal");

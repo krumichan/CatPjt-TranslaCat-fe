@@ -91,11 +91,10 @@ export default function FriendListToolbar({
                     <button
                         type="button"
                         onClick={onToggleGroupSelectionMode}
-                        className={`inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-black transition ${
-                            isGroupSelectionMode
+                        className={`inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-black transition ${isGroupSelectionMode
                                 ? "bg-slate-950 text-white dark:bg-white dark:text-slate-950"
                                 : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-200 dark:hover:bg-white/15"
-                        }`}
+                            }`}
                     >
                         <UsersRound
                             className="h-4 w-4"

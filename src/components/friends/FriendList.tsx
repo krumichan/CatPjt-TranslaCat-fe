@@ -43,7 +43,7 @@ export default function FriendList({
                     isStartingChat={
                         isStartingChat &&
                         startingChatFriendUserId ===
-                            friend.friendUserId
+                        friend.friendUserId
                     }
                     isDeleting={
                         deletingFriendUserId === friend.friendUserId

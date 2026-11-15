@@ -1,17 +1,17 @@
 "use client";
 
-import React, {useEffect, useRef, useState} from "react";
-import {Platform} from "@/types/platform";
-import {useTranslations} from "next-intl";
-import {platformService} from "@/services/platformService";
-import {Genre, genreService} from "@/services/genreService";
-import {useLocalizedName} from "@/hooks/useLocalizedName";
+import React, { useEffect, useRef, useState } from "react";
+import { Platform } from "@/types/platform";
+import { useTranslations } from "next-intl";
+import { platformService } from "@/services/platformService";
+import { Genre, genreService } from "@/services/genreService";
+import { useLocalizedName } from "@/hooks/useLocalizedName";
 import SelectionGrid from "@/components/common/SelectionGrid";
 import SearchForm from "@/components/common/SearchForm";
 import TagCloud from "@/components/common/TagCloud";
-import {scrollToTop} from "@/utils/scroll";
-import {ROUTES, to} from "@/constants/routes";
-import {useAppRouter} from "@/hooks/useAppRouter";
+import { scrollToTop } from "@/utils/scroll";
+import { ROUTES, to } from "@/constants/routes";
+import { useAppRouter } from "@/hooks/useAppRouter";
 
 export default function PlatformSelectPage() {
     // 1. Hooks & Router (환경 설정)
@@ -87,7 +87,7 @@ export default function PlatformSelectPage() {
 
         const code = selectedPlatform.code.toLowerCase();
         // 제목의 &·#·?도 검색어 안에 유지하고 URL 필터로 해석하지 않는다.
-        const search = new URLSearchParams({keyword: query.trim(), page: "1"});
+        const search = new URLSearchParams({ keyword: query.trim(), page: "1" });
         router.push(`${to(ROUTES.NOVEL_SEARCH, code)}?${search}`);
     };
 
@@ -101,7 +101,7 @@ export default function PlatformSelectPage() {
                 </div>
 
                 <SelectionGrid
-                    items={platforms.map(p => ({...p, name: ln(p)}))}
+                    items={platforms.map(p => ({ ...p, name: ln(p) }))}
                     selectedId={selectedPlatform?.id}
                     onSelect={handlePlatformSelect}
                     isLoading={isLoading}
@@ -110,13 +110,12 @@ export default function PlatformSelectPage() {
 
             <div
                 ref={sectionRef}
-                    className={`w-full max-w-4xl flex flex-col gap-10 items-center py-20 transition-all duration-1000 ${
-                    selectedPlatform ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20 pointer-events-none"
-                }`}
+                className={`w-full max-w-4xl flex flex-col gap-10 items-center py-20 transition-all duration-1000 ${selectedPlatform ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20 pointer-events-none"
+                    }`}
             >
                 {selectedPlatform && (
                     <>
-                        <div className="h-px w-full bg-linear-to-r from-transparent via-black/10 dark:via-white/20 to-transparent"/>
+                        <div className="h-px w-full bg-linear-to-r from-transparent via-black/10 dark:via-white/20 to-transparent" />
 
                         <SearchForm
                             title={`${ln(selectedPlatform)} ${t('searchSuffix')}`}
@@ -127,7 +126,7 @@ export default function PlatformSelectPage() {
 
                         <TagCloud
                             title={t('genreTitle')}
-                            items={genres.map(g => ({...g, name: ln(g)}))}
+                            items={genres.map(g => ({ ...g, name: ln(g) }))}
                             isLoading={isGenreLoading}
                             onItemClick={(genre) => {
                                 if (selectedPlatform) {

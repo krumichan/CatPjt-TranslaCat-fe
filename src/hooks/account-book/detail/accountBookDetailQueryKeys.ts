@@ -1,4 +1,4 @@
-import {TransactionFilterType, TransactionType} from "@/types/accountBook";
+import { TransactionFilterType, TransactionType } from "@/types/accountBook";
 
 export const accountBookDetailQueryKeys = {
     detail: (accountBookId: number) =>

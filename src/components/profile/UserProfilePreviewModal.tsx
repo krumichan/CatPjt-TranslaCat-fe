@@ -93,7 +93,7 @@ export default function UserProfilePreviewModal({
             const firstElement = focusableElements[0];
             const lastElement =
                 focusableElements[
-                    focusableElements.length - 1
+                focusableElements.length - 1
                 ];
 
             if (

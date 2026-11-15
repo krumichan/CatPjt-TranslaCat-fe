@@ -61,8 +61,8 @@ interface ChatRoomMenuDrawerProps {
     loadErrorCode: string | null;
     canInvite: boolean;
     successCode:
-        | ChatRoomInvitationSuccessCode
-        | null;
+    | ChatRoomInvitationSuccessCode
+    | null;
     onClose: () => void;
     onRetry: () => Promise<void>;
     onOpenMemberProfile: (
@@ -311,8 +311,8 @@ export function ChatRoomMenuDrawer({
                             <dd data-testid="chat-room-my-role" className="text-right font-bold text-slate-700 dark:text-slate-200">
                                 {room.myRole
                                     ? t(
-                                          `members.roles.${room.myRole}`,
-                                      )
+                                        `members.roles.${room.myRole}`,
+                                    )
                                     : "-"}
                             </dd>
                         </dl>
@@ -516,156 +516,156 @@ export function ChatRoomMenuDrawer({
                             <ul className="mt-4 space-y-2">
                                 {room.roomType === "OPEN"
                                     ? openMembers.map((member) => {
-                                          const moderationActions =
-                                              getOpenChatModerationActions({
-                                                  actorRole: room.myRole,
-                                                  actorOpenChatMemberId:
-                                                      currentOpenChatMemberId,
-                                                  target: member,
-                                              });
+                                        const moderationActions =
+                                            getOpenChatModerationActions({
+                                                actorRole: room.myRole,
+                                                actorOpenChatMemberId:
+                                                    currentOpenChatMemberId,
+                                                target: member,
+                                            });
 
-                                          return (
-                                              <li
-                                                  key={member.openChatMemberId}
-                                                  className="flex items-center gap-1 rounded-2xl border border-slate-200 bg-white p-1 transition hover:border-orange-200 hover:shadow-sm dark:border-white/10 dark:bg-white/5 dark:hover:border-orange-400/40"
-                                              >
-                                                  <button
-                                                      type="button"
-                                                      data-testid={`open-chat-room-member-${member.openChatMemberId}`}
-                                                      onClick={() =>
-                                                          onOpenOpenMemberProfile(
-                                                              member.openChatMemberId,
-                                                          )
-                                                      }
-                                                      aria-label={t(
-                                                          "members.openProfile",
-                                                          { nickname: member.nickname },
-                                                      )}
-                                                      className="flex min-w-0 flex-1 items-center gap-3 rounded-xl p-2 text-left transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 dark:hover:bg-white/5"
-                                                  >
-                                                      <OpenChatAvatar
-                                                          profileImageUrl={
-                                                              member.profileImageUrl
-                                                          }
-                                                          alt={member.nickname}
-                                                          size="sm"
-                                                      />
-                                                      <div className="min-w-0 flex-1">
-                                                          <div className="flex items-center gap-2">
-                                                              <p className="truncate text-sm font-black text-slate-900 dark:text-white">
-                                                                  {member.nickname}
-                                                              </p>
-                                                              {aiDisclosureType !== "PRIVATE" && (
-                                                                  <ChatPresenceIndicator
-                                                                      online={member.online}
-                                                                      testId={`chat-open-member-presence-${member.openChatMemberId}`}
-                                                                  />
-                                                              )}
-                                                              <OpenChatRoleBadge
-                                                                  role={member.role}
-                                                                  className="shrink-0"
-                                                              />
-                                                          </div>
-                                                          {!hideHumanIdentifiers && (
-                                                              <p className="mt-1 inline-flex items-center gap-1 font-mono text-xs font-black tracking-wider text-orange-500">
-                                                                  <Hash
-                                                                      className="h-3 w-3"
-                                                                      aria-hidden="true"
-                                                                  />
-                                                                  {member.memberCode}
-                                                              </p>
-                                                          )}
-                                                          <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400">
-                                                              <CalendarDays
-                                                                  className="h-3 w-3"
-                                                                  aria-hidden="true"
-                                                              />
-                                                              {t(
-                                                                  "members.joinedAt",
-                                                                  {
-                                                                      date: formatJoinedAt(
-                                                                          member.joinedAt,
-                                                                      ),
-                                                                  },
-                                                              )}
-                                                          </p>
-                                                      </div>
-                                                  </button>
-                                                  <OpenChatMemberModerationActions
-                                                      target={member}
-                                                      actions={moderationActions}
-                                                      onAction={
-                                                          onOpenModerationAction
-                                                      }
-                                                  />
-                                              </li>
-                                          );
-                                      })
+                                        return (
+                                            <li
+                                                key={member.openChatMemberId}
+                                                className="flex items-center gap-1 rounded-2xl border border-slate-200 bg-white p-1 transition hover:border-orange-200 hover:shadow-sm dark:border-white/10 dark:bg-white/5 dark:hover:border-orange-400/40"
+                                            >
+                                                <button
+                                                    type="button"
+                                                    data-testid={`open-chat-room-member-${member.openChatMemberId}`}
+                                                    onClick={() =>
+                                                        onOpenOpenMemberProfile(
+                                                            member.openChatMemberId,
+                                                        )
+                                                    }
+                                                    aria-label={t(
+                                                        "members.openProfile",
+                                                        { nickname: member.nickname },
+                                                    )}
+                                                    className="flex min-w-0 flex-1 items-center gap-3 rounded-xl p-2 text-left transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 dark:hover:bg-white/5"
+                                                >
+                                                    <OpenChatAvatar
+                                                        profileImageUrl={
+                                                            member.profileImageUrl
+                                                        }
+                                                        alt={member.nickname}
+                                                        size="sm"
+                                                    />
+                                                    <div className="min-w-0 flex-1">
+                                                        <div className="flex items-center gap-2">
+                                                            <p className="truncate text-sm font-black text-slate-900 dark:text-white">
+                                                                {member.nickname}
+                                                            </p>
+                                                            {aiDisclosureType !== "PRIVATE" && (
+                                                                <ChatPresenceIndicator
+                                                                    online={member.online}
+                                                                    testId={`chat-open-member-presence-${member.openChatMemberId}`}
+                                                                />
+                                                            )}
+                                                            <OpenChatRoleBadge
+                                                                role={member.role}
+                                                                className="shrink-0"
+                                                            />
+                                                        </div>
+                                                        {!hideHumanIdentifiers && (
+                                                            <p className="mt-1 inline-flex items-center gap-1 font-mono text-xs font-black tracking-wider text-orange-500">
+                                                                <Hash
+                                                                    className="h-3 w-3"
+                                                                    aria-hidden="true"
+                                                                />
+                                                                {member.memberCode}
+                                                            </p>
+                                                        )}
+                                                        <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400">
+                                                            <CalendarDays
+                                                                className="h-3 w-3"
+                                                                aria-hidden="true"
+                                                            />
+                                                            {t(
+                                                                "members.joinedAt",
+                                                                {
+                                                                    date: formatJoinedAt(
+                                                                        member.joinedAt,
+                                                                    ),
+                                                                },
+                                                            )}
+                                                        </p>
+                                                    </div>
+                                                </button>
+                                                <OpenChatMemberModerationActions
+                                                    target={member}
+                                                    actions={moderationActions}
+                                                    onAction={
+                                                        onOpenModerationAction
+                                                    }
+                                                />
+                                            </li>
+                                        );
+                                    })
                                     : members.map((member) => (
-                                          <li key={member.id}>
-                                              <button
-                                                  type="button"
-                                                  data-testid={`chat-room-member-${member.userId}`}
-                                                  onClick={() =>
-                                                      onOpenMemberProfile(
-                                                          member.userId,
-                                                      )
-                                                  }
-                                                  aria-label={t(
-                                                      "members.openProfile",
-                                                      {
-                                                          nickname:
-                                                              member.displayName,
-                                                      },
-                                                  )}
-                                                  className="flex w-full items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3 text-left transition hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 dark:border-white/10 dark:bg-white/5 dark:hover:border-orange-400/40"
-                                              >
-                                                  <ChatRoomAvatar
-                                                      profileImageUrl={
-                                                          member.profileImageUrl
-                                                      }
-                                                      alt={member.displayName}
-                                                  />
-                                                  <div className="min-w-0 flex-1">
-                                                      <div className="flex items-center gap-2">
-                                                          <p className="truncate text-sm font-black text-slate-900 dark:text-white">
-                                                              {member.displayName}
-                                                          </p>
-                                                          {aiDisclosureType !== "PRIVATE" && (
-                                                              <ChatPresenceIndicator
-                                                                  online={member.online}
-                                                                  testId={`chat-group-member-presence-${member.id}`}
-                                                              />
-                                                          )}
-                                                          <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-black text-slate-500 dark:bg-white/10 dark:text-slate-300">
-                                                              {t(
-                                                                  `members.roles.${member.role}`,
-                                                              )}
-                                                          </span>
-                                                      </div>
-                                                      {!hideHumanIdentifiers && (
-                                                          <p className="mt-1 truncate text-xs font-semibold text-slate-500 dark:text-slate-400">
-                                                              {member.publicId || "-"}
-                                                          </p>
-                                                      )}
-                                                      <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400">
-                                                          <CalendarDays
-                                                              className="h-3 w-3"
-                                                              aria-hidden="true"
-                                                          />
-                                                          {t(
-                                                              "members.joinedAt",
-                                                              {
-                                                                  date: formatJoinedAt(
-                                                                      member.joinedAt,
-                                                                  ),
-                                                              },
-                                                          )}
-                                                      </p>
-                                                  </div>
-                                              </button>
-                                          </li>
-                                      ))}
+                                        <li key={member.id}>
+                                            <button
+                                                type="button"
+                                                data-testid={`chat-room-member-${member.userId}`}
+                                                onClick={() =>
+                                                    onOpenMemberProfile(
+                                                        member.userId,
+                                                    )
+                                                }
+                                                aria-label={t(
+                                                    "members.openProfile",
+                                                    {
+                                                        nickname:
+                                                            member.displayName,
+                                                    },
+                                                )}
+                                                className="flex w-full items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3 text-left transition hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 dark:border-white/10 dark:bg-white/5 dark:hover:border-orange-400/40"
+                                            >
+                                                <ChatRoomAvatar
+                                                    profileImageUrl={
+                                                        member.profileImageUrl
+                                                    }
+                                                    alt={member.displayName}
+                                                />
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="truncate text-sm font-black text-slate-900 dark:text-white">
+                                                            {member.displayName}
+                                                        </p>
+                                                        {aiDisclosureType !== "PRIVATE" && (
+                                                            <ChatPresenceIndicator
+                                                                online={member.online}
+                                                                testId={`chat-group-member-presence-${member.id}`}
+                                                            />
+                                                        )}
+                                                        <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-black text-slate-500 dark:bg-white/10 dark:text-slate-300">
+                                                            {t(
+                                                                `members.roles.${member.role}`,
+                                                            )}
+                                                        </span>
+                                                    </div>
+                                                    {!hideHumanIdentifiers && (
+                                                        <p className="mt-1 truncate text-xs font-semibold text-slate-500 dark:text-slate-400">
+                                                            {member.publicId || "-"}
+                                                        </p>
+                                                    )}
+                                                    <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400">
+                                                        <CalendarDays
+                                                            className="h-3 w-3"
+                                                            aria-hidden="true"
+                                                        />
+                                                        {t(
+                                                            "members.joinedAt",
+                                                            {
+                                                                date: formatJoinedAt(
+                                                                    member.joinedAt,
+                                                                ),
+                                                            },
+                                                        )}
+                                                    </p>
+                                                </div>
+                                            </button>
+                                        </li>
+                                    ))}
 
                                 {aiMembers.map((member) => (
                                     <li key={`ai-${member.aiMemberId}`}>

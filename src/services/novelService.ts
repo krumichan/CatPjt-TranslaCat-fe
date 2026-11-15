@@ -1,5 +1,5 @@
-import {apiClient} from "@/lib/apiClient";
-import type {PageNumber, TranslationUnit} from "@/types/common";
+import { apiClient } from "@/lib/apiClient";
+import type { PageNumber, TranslationUnit } from "@/types/common";
 import type { NovelTargetLanguage } from "@/features/novel/translationLanguage";
 
 export interface NovelTranslationUnit extends Omit<TranslationUnit, "ko"> {

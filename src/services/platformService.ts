@@ -1,5 +1,5 @@
-import {Platform} from "@/types/platform";
-import {apiClient} from "@/lib/apiClient";
+import { Platform } from "@/types/platform";
+import { apiClient } from "@/lib/apiClient";
 
 export const platformService = {
     async getPlatforms(): Promise<Platform[]> {

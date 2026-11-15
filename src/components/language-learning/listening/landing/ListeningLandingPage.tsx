@@ -94,19 +94,19 @@ export function ListeningLandingPage() {
                             const actionLabel = completed
                                 ? t("modeSelector.result")
                                 : evaluating
-                                  ? t("modeSelector.evaluationProgress")
-                                  : failed
-                                    ? t("modeSelector.retry")
-                                    : activeForMode
-                                      ? t("modeSelector.resume")
-                                      : status?.dailySetId
-                                        ? t("modeSelector.continue")
-                                        : t("modeSelector.start");
+                                    ? t("modeSelector.evaluationProgress")
+                                    : failed
+                                        ? t("modeSelector.retry")
+                                        : activeForMode
+                                            ? t("modeSelector.resume")
+                                            : status?.dailySetId
+                                                ? t("modeSelector.continue")
+                                                : t("modeSelector.start");
                             const href = (completed || evaluating) && status?.latestSessionId
                                 ? `/language-learning/listening/session/${status.latestSessionId}/result`
                                 : activeForMode && controller.activeSession
-                                  ? `/language-learning/listening/session/${controller.activeSession.sessionId}`
-                                  : null;
+                                    ? `/language-learning/listening/session/${controller.activeSession.sessionId}`
+                                    : null;
 
                             return (
                                 <article

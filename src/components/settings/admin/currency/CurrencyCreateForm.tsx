@@ -19,19 +19,19 @@ type CurrencyCreateFormProps = {
 };
 
 export default function CurrencyCreateForm({
-   code,
-   name,
-   symbol,
-   decimalPlaces,
-   baseCurrency,
-   canSubmit,
-   isSubmitting,
-   onChangeCode,
-   onChangeName,
-   onChangeSymbol,
-   onChangeDecimalPlaces,
-   onChangeBaseCurrency,
-   onSubmit,
+    code,
+    name,
+    symbol,
+    decimalPlaces,
+    baseCurrency,
+    canSubmit,
+    isSubmitting,
+    onChangeCode,
+    onChangeName,
+    onChangeSymbol,
+    onChangeDecimalPlaces,
+    onChangeBaseCurrency,
+    onSubmit,
 }: CurrencyCreateFormProps) {
     const t = useTranslations("Settings.currencyPage");
 

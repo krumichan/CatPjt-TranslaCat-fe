@@ -384,8 +384,8 @@ export function ChatAiManagementModal({
                                     )}
 
                                     {!canManage &&
-                                    setting.disclosureType === "PRIVATE" &&
-                                    members.length > 0 ? (
+                                        setting.disclosureType === "PRIVATE" &&
+                                        members.length > 0 ? (
                                         <div
                                             data-testid="chat-ai-private-members-hidden"
                                             className="mt-4 rounded-3xl border border-violet-200 bg-violet-50/60 px-5 py-8 text-center dark:border-violet-400/20 dark:bg-violet-500/5"

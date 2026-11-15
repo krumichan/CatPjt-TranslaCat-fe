@@ -40,11 +40,10 @@ export function ChatRoomListItem({ room }: ChatRoomListItemProps) {
                     />
                 ) : (
                     <div
-                        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${
-                            isFriendRoom || isOpenRoom
+                        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${isFriendRoom || isOpenRoom
                                 ? "bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-300"
                                 : "bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-300"
-                        }`}
+                            }`}
                     >
                         {isOpenRoom ? (
                             <Globe2 className="h-5 w-5" aria-hidden="true" />
@@ -81,11 +80,10 @@ export function ChatRoomListItem({ room }: ChatRoomListItemProps) {
                                             )}
                                         </span>
                                         <span
-                                            className={`rounded-full px-2 py-0.5 font-medium ${
-                                                isFriendRoom
+                                            className={`rounded-full px-2 py-0.5 font-medium ${isFriendRoom
                                                     ? "bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-300"
                                                     : "bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-300"
-                                            }`}
+                                                }`}
                                         >
                                             {t(
                                                 getSourceTypeTranslationKey(

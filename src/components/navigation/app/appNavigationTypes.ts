@@ -4,24 +4,24 @@ export type AppNavigationBadge = "new" | "comingSoon";
 
 export interface AppNavigationItem {
     key:
-        | "home"
-        | "platform"
-        | "voice"
-        | "accountBook"
-        | "chat"
-        | "languageLearning"
-        | "support"
-        | "boards";
+    | "home"
+    | "platform"
+    | "voice"
+    | "accountBook"
+    | "chat"
+    | "languageLearning"
+    | "support"
+    | "boards";
     href: string;
     labelKey:
-        | "home"
-        | "platform"
-        | "voice"
-        | "accountBook"
-        | "chat"
-        | "languageLearning"
-        | "support"
-        | "boards";
+    | "home"
+    | "platform"
+    | "voice"
+    | "accountBook"
+    | "chat"
+    | "languageLearning"
+    | "support"
+    | "boards";
     icon: LucideIcon;
     matchPaths: string[];
     adminOnly?: boolean;

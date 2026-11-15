@@ -23,9 +23,8 @@ export function DisclosureToggleButton({
             aria-expanded={isOpen}
             aria-controls={controls}
             onClick={onToggle}
-            className={`inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white font-black text-slate-600 transition hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10 ${
-                compact ? "px-2.5 py-1.5 text-xs" : "px-3 py-2 text-sm"
-            }`}
+            className={`inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white font-black text-slate-600 transition hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10 ${compact ? "px-2.5 py-1.5 text-xs" : "px-3 py-2 text-sm"
+                }`}
         >
             <span>{isOpen ? collapseLabel : expandLabel}</span>
             <ChevronDown

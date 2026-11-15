@@ -25,13 +25,12 @@ export function LanguageLearningStateCard({
             className="rounded-3xl border border-slate-200 bg-white/90 p-6 text-center shadow-sm dark:border-white/10 dark:bg-slate-900/75"
         >
             <Icon
-                className={`mx-auto h-8 w-8 ${
-                    variant === "loading"
+                className={`mx-auto h-8 w-8 ${variant === "loading"
                         ? "animate-spin text-blue-500"
                         : variant === "error"
-                          ? "text-rose-500"
-                          : "text-amber-500"
-                }`}
+                            ? "text-rose-500"
+                            : "text-amber-500"
+                    }`}
                 aria-hidden="true"
             />
             <h2 className="mt-4 text-lg font-black text-slate-900 dark:text-white">

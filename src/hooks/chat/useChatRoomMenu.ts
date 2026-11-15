@@ -147,7 +147,7 @@ export function useChatRoomMenu({
                         ...currentData,
                         openMembers: currentData.openMembers.map((member) =>
                             member.openChatMemberId ===
-                            profile.openChatMemberId
+                                profile.openChatMemberId
                                 ? { ...member, ...profile }
                                 : member,
                         ),
@@ -179,13 +179,13 @@ export function useChatRoomMenu({
                 (currentData) =>
                     currentData
                         ? {
-                              ...currentData,
-                              openMembers: currentData.openMembers.map((member) =>
-                                  member.openChatMemberId === openChatMemberId
-                                      ? { ...member, role }
-                                      : member,
-                              ),
-                          }
+                            ...currentData,
+                            openMembers: currentData.openMembers.map((member) =>
+                                member.openChatMemberId === openChatMemberId
+                                    ? { ...member, role }
+                                    : member,
+                            ),
+                        }
                         : currentData,
                 false,
             );
@@ -209,12 +209,12 @@ export function useChatRoomMenu({
                 (currentData) =>
                     currentData
                         ? {
-                              ...currentData,
-                              openMembers: currentData.openMembers.filter(
-                                  (member) =>
-                                      member.openChatMemberId !== openChatMemberId,
-                              ),
-                          }
+                            ...currentData,
+                            openMembers: currentData.openMembers.filter(
+                                (member) =>
+                                    member.openChatMemberId !== openChatMemberId,
+                            ),
+                        }
                         : currentData,
                 false,
             );
@@ -246,7 +246,7 @@ export function useChatRoomMenu({
                 setPendingPresence((current) => {
                     const next = new Map(
                         current.roomId === roomId &&
-                        current.roomType === roomType
+                            current.roomType === roomType
                             ? current.byMemberRef
                             : EMPTY_PENDING_PRESENCE,
                     );
@@ -304,7 +304,7 @@ export function useChatRoomMenu({
 
     const pendingPresenceByMemberRef =
         pendingPresence.roomId === roomId &&
-        pendingPresence.roomType === roomType
+            pendingPresence.roomType === roomType
             ? pendingPresence.byMemberRef
             : EMPTY_PENDING_PRESENCE;
 

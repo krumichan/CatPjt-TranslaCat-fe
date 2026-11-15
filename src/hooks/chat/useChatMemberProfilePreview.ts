@@ -31,8 +31,8 @@ interface UseChatMemberProfilePreviewResult {
     isSendingFriendRequest: boolean;
     loadErrorCode: ChatMemberProfileLoadErrorCode | null;
     friendRequestErrorCode:
-        | ChatMemberFriendRequestErrorCode
-        | null;
+    | ChatMemberFriendRequestErrorCode
+    | null;
     openProfile: (userId: number) => Promise<boolean>;
     retryProfile: () => Promise<boolean>;
     closeProfile: () => void;
@@ -143,7 +143,7 @@ export function useChatMemberProfilePreview({
 
                 setProfile(
                     latestPresencePatchVersion >
-                            presencePatchVersionAtRequest &&
+                        presencePatchVersionAtRequest &&
                         latestOnline !== undefined
                         ? { ...nextProfile, online: latestOnline }
                         : nextProfile,
@@ -240,9 +240,9 @@ export function useChatMemberProfilePreview({
             setProfile((current) =>
                 current?.userId === targetUserId
                     ? {
-                          ...current,
-                          friendStatus: "REQUEST_SENT",
-                      }
+                        ...current,
+                        friendStatus: "REQUEST_SENT",
+                    }
                     : current,
             );
 
@@ -267,9 +267,9 @@ export function useChatMemberProfilePreview({
                 setProfile((current) =>
                     current?.userId === targetUserId
                         ? {
-                              ...current,
-                              friendStatus: nextStatus,
-                          }
+                            ...current,
+                            friendStatus: nextStatus,
+                        }
                         : current,
                 );
                 setFriendRequestErrorCode(null);

@@ -36,15 +36,14 @@ export function DailyWritingTypeTabs({
                         role="tab"
                         aria-selected={active}
                         onClick={() => onSelect(type)}
-                        className={`rounded-xl px-3 py-2.5 text-xs font-black transition sm:text-sm ${
-                            active
+                        className={`rounded-xl px-3 py-2.5 text-xs font-black transition sm:text-sm ${active
                                 ? "bg-white text-blue-700 shadow-sm dark:bg-slate-800 dark:text-blue-300"
                                 : completed
-                                  ? "text-emerald-700 hover:text-emerald-800 dark:text-emerald-300 dark:hover:text-emerald-200"
-                                  : evaluating
-                                    ? "text-amber-700 hover:text-amber-800 dark:text-amber-300 dark:hover:text-amber-200"
-                                    : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
-                        }`}
+                                    ? "text-emerald-700 hover:text-emerald-800 dark:text-emerald-300 dark:hover:text-emerald-200"
+                                    : evaluating
+                                        ? "text-amber-700 hover:text-amber-800 dark:text-amber-300 dark:hover:text-amber-200"
+                                        : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                            }`}
                     >
                         <span className="inline-flex items-center justify-center gap-1.5">
                             {completed && (

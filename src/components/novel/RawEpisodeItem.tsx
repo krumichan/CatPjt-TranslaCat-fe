@@ -1,6 +1,6 @@
 "use client";
 
-import {RawEpisode} from "@/services/novelService";
+import { RawEpisode } from "@/services/novelService";
 import NovelLocalizedText from "@/components/novel/NovelLocalizedText";
 import type { NovelTargetLanguage } from "@/features/novel/translationLanguage";
 

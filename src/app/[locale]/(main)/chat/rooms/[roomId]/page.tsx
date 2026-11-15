@@ -1,5 +1,5 @@
 import { ChatRoomPage } from "@/components/chat/room/ChatRoomPage";
-import {notFound} from "next/navigation";
+import { notFound } from "next/navigation";
 
 interface PageProps {
     params: Promise<{
@@ -33,7 +33,7 @@ export default async function ChatRoomRoutePage({
     const parsedFirstUnreadMessageId = Number(firstUnreadMessageIdValue);
     const initialFirstUnreadMessageId =
         Number.isSafeInteger(parsedFirstUnreadMessageId) &&
-        parsedFirstUnreadMessageId > 0
+            parsedFirstUnreadMessageId > 0
             ? parsedFirstUnreadMessageId
             : null;
 

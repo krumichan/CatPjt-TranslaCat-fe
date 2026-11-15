@@ -45,74 +45,74 @@ export default function FriendHelpModal({
     const items =
         variant === "friendSearch"
             ? [
-                  {
-                      icon: <Search className="h-5 w-5" aria-hidden="true" />,
-                      title: t("search.items.publicId.title"),
-                      description: t("search.items.publicId.description"),
-                  },
-                  {
-                      icon: (
-                          <UserPlus
-                              className="h-5 w-5"
-                              aria-hidden="true"
-                          />
-                      ),
-                      title: t("search.items.request.title"),
-                      description: t("search.items.request.description"),
-                  },
-                  {
-                      icon: (
-                          <MessageCircle
-                              className="h-5 w-5"
-                              aria-hidden="true"
-                          />
-                      ),
-                      title: t("search.items.friend.title"),
-                      description: t("search.items.friend.description"),
-                  },
-              ]
+                {
+                    icon: <Search className="h-5 w-5" aria-hidden="true" />,
+                    title: t("search.items.publicId.title"),
+                    description: t("search.items.publicId.description"),
+                },
+                {
+                    icon: (
+                        <UserPlus
+                            className="h-5 w-5"
+                            aria-hidden="true"
+                        />
+                    ),
+                    title: t("search.items.request.title"),
+                    description: t("search.items.request.description"),
+                },
+                {
+                    icon: (
+                        <MessageCircle
+                            className="h-5 w-5"
+                            aria-hidden="true"
+                        />
+                    ),
+                    title: t("search.items.friend.title"),
+                    description: t("search.items.friend.description"),
+                },
+            ]
             : [
-                  {
-                      icon: (
-                          <UserPlus
-                              className="h-5 w-5"
-                              aria-hidden="true"
-                          />
-                      ),
-                      title: t("list.items.find.title"),
-                      description: t("list.items.find.description"),
-                  },
-                  {
-                      icon: (
-                          <MessageCircle
-                              className="h-5 w-5"
-                              aria-hidden="true"
-                          />
-                      ),
-                      title: t("list.items.direct.title"),
-                      description: t("list.items.direct.description"),
-                  },
-                  {
-                      icon: (
-                          <UsersRound
-                              className="h-5 w-5"
-                              aria-hidden="true"
-                          />
-                      ),
-                      title: t("list.items.group.title"),
-                      description: t("list.items.group.description"),
-                  },
-                  {
-                      icon: (
-                          <Shield
-                              className="h-5 w-5"
-                              aria-hidden="true"
-                          />
-                      ),
-                      title: t("list.items.manage.title"),
-                      description: t("list.items.manage.description"),
-                  },
-              ];
+                {
+                    icon: (
+                        <UserPlus
+                            className="h-5 w-5"
+                            aria-hidden="true"
+                        />
+                    ),
+                    title: t("list.items.find.title"),
+                    description: t("list.items.find.description"),
+                },
+                {
+                    icon: (
+                        <MessageCircle
+                            className="h-5 w-5"
+                            aria-hidden="true"
+                        />
+                    ),
+                    title: t("list.items.direct.title"),
+                    description: t("list.items.direct.description"),
+                },
+                {
+                    icon: (
+                        <UsersRound
+                            className="h-5 w-5"
+                            aria-hidden="true"
+                        />
+                    ),
+                    title: t("list.items.group.title"),
+                    description: t("list.items.group.description"),
+                },
+                {
+                    icon: (
+                        <Shield
+                            className="h-5 w-5"
+                            aria-hidden="true"
+                        />
+                    ),
+                    title: t("list.items.manage.title"),
+                    description: t("list.items.manage.description"),
+                },
+            ];
 
     return createPortal(
         <div

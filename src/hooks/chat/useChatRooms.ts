@@ -116,9 +116,9 @@ export function useChatRooms(): UseChatRoomsResult {
                 currentRooms.map((room) =>
                     room.id === event.chatRoomId
                         ? {
-                              ...room,
-                              unreadCount: Math.max(0, event.unreadCount),
-                          }
+                            ...room,
+                            unreadCount: Math.max(0, event.unreadCount),
+                        }
                         : room,
                 ),
             );

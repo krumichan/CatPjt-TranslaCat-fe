@@ -1,5 +1,5 @@
-import {useCallback, useRef} from "react";
-import {scrollToElement, scrollToTop} from "@/utils/scroll";
+import { useCallback, useRef } from "react";
+import { scrollToElement, scrollToTop } from "@/utils/scroll";
 
 export const useSmoothNavigation = () => {
     const isFirstRender = useRef(true);

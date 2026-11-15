@@ -10,10 +10,10 @@ const TYPES: Array<{
     type: DailyWritingType;
     icon: typeof Languages;
 }> = [
-    { type: "TRANSLATION", icon: Languages },
-    { type: "GUIDED", icon: ListChecks },
-    { type: "FREE", icon: PencilLine },
-];
+        { type: "TRANSLATION", icon: Languages },
+        { type: "GUIDED", icon: ListChecks },
+        { type: "FREE", icon: PencilLine },
+    ];
 
 export function DailyWritingTypeSelector({
     onSelect,
@@ -50,23 +50,23 @@ export function DailyWritingTypeSelector({
                     const cardClass = isCompleted
                         ? "border-emerald-300 bg-emerald-50/80 hover:border-emerald-400 hover:bg-emerald-50 dark:border-emerald-400/30 dark:bg-emerald-500/10 dark:hover:border-emerald-300/50 dark:hover:bg-emerald-500/15"
                         : isEvaluating
-                          ? "border-amber-300 bg-amber-50/80 hover:border-amber-400 hover:bg-amber-50 dark:border-amber-400/30 dark:bg-amber-500/10 dark:hover:border-amber-300/50 dark:hover:bg-amber-500/15"
-                          : isInProgress
-                            ? "border-blue-300 bg-blue-50/70 hover:border-blue-400 hover:bg-blue-50 dark:border-blue-400/30 dark:bg-blue-500/10 dark:hover:border-blue-300/50 dark:hover:bg-blue-500/15"
-                            : "border-slate-200 bg-slate-50 hover:border-blue-300 hover:bg-blue-50/60 dark:border-white/10 dark:bg-white/5 dark:hover:border-blue-400/40 dark:hover:bg-blue-500/10";
+                            ? "border-amber-300 bg-amber-50/80 hover:border-amber-400 hover:bg-amber-50 dark:border-amber-400/30 dark:bg-amber-500/10 dark:hover:border-amber-300/50 dark:hover:bg-amber-500/15"
+                            : isInProgress
+                                ? "border-blue-300 bg-blue-50/70 hover:border-blue-400 hover:bg-blue-50 dark:border-blue-400/30 dark:bg-blue-500/10 dark:hover:border-blue-300/50 dark:hover:bg-blue-500/15"
+                                : "border-slate-200 bg-slate-50 hover:border-blue-300 hover:bg-blue-50/60 dark:border-white/10 dark:bg-white/5 dark:hover:border-blue-400/40 dark:hover:bg-blue-500/10";
                     const iconClass = isCompleted
                         ? "bg-white text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300"
                         : isEvaluating
-                          ? "bg-white text-amber-600 dark:bg-amber-500/15 dark:text-amber-300"
-                          : "bg-white text-blue-600 dark:bg-white/10 dark:text-blue-300";
+                            ? "bg-white text-amber-600 dark:bg-amber-500/15 dark:text-amber-300"
+                            : "bg-white text-blue-600 dark:bg-white/10 dark:text-blue-300";
 
                     const actionLabel = isCompleted
                         ? t("result")
                         : isEvaluating
-                          ? t("viewProgress")
-                          : isInProgress
-                            ? t("continue")
-                            : t("start");
+                            ? t("viewProgress")
+                            : isInProgress
+                                ? t("continue")
+                                : t("start");
 
                     return (
                         <article

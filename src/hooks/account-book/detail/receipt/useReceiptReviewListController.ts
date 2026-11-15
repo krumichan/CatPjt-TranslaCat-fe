@@ -104,8 +104,10 @@ export function useReceiptReviewListController({ review, categoryNames }: Params
     const beginTitleEdit = (item: ReceiptReviewItem) => {
         if (review.isBusy || hasInlineEdit)
             return;
-        setTitleEdit({ clientId: item.clientId, value: item.title, originalTitle: item.title,
-            analysisRevision: item.analysisRevision, error: null });
+        setTitleEdit({
+            clientId: item.clientId, value: item.title, originalTitle: item.title,
+            analysisRevision: item.analysisRevision, error: null
+        });
     };
 
     const cancelTitleEdit = () => setTitleEdit(null);

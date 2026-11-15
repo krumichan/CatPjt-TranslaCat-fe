@@ -74,9 +74,8 @@ export default function AccountBookSummaryCards({
                     </div>
 
                     <p
-                        className={`break-all text-lg font-bold ${
-                            isLoading ? "animate-pulse text-slate-300" : item.valueClassName
-                        }`}
+                        className={`break-all text-lg font-bold ${isLoading ? "animate-pulse text-slate-300" : item.valueClassName
+                            }`}
                     >
                         {isLoading ? "..." : item.value}
                     </p>

@@ -30,10 +30,10 @@ export default function FriendListContentSection({
 
     const actionErrorMessageKey =
         friendList.actionErrorCode &&
-        friendList.actionErrorCode !== "LOAD_FAILED"
+            friendList.actionErrorCode !== "LOAD_FAILED"
             ? FRIEND_LIST_ACTION_ERROR_MESSAGE_KEYS[
-                friendList.actionErrorCode
-                ]
+            friendList.actionErrorCode
+            ]
             : null;
 
     return (

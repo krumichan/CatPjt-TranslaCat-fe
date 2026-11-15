@@ -267,9 +267,9 @@ export function ChatMessageList({
                     if (
                         container &&
                         container.scrollHeight -
-                            container.scrollTop -
-                            container.clientHeight <=
-                            LOAD_NEWER_SCROLL_THRESHOLD &&
+                        container.scrollTop -
+                        container.clientHeight <=
+                        LOAD_NEWER_SCROLL_THRESHOLD &&
                         hasNewer
                     ) {
                         void tryLoadNewer();
@@ -316,10 +316,10 @@ export function ChatMessageList({
                     const isOpenRoom = roomType === "OPEN";
                     const isMine = isOpenRoom
                         ? currentOpenChatMemberId !== null &&
-                          message.sender?.openChatMemberId ===
-                              currentOpenChatMemberId
+                        message.sender?.openChatMemberId ===
+                        currentOpenChatMemberId
                         : !!currentUserEmail &&
-                          message.senderEmail === currentUserEmail;
+                        message.senderEmail === currentUserEmail;
                     const senderProfileId = isOpenRoom
                         ? message.sender?.openChatMemberId ?? null
                         : message.senderUserId;
@@ -371,17 +371,17 @@ export function ChatMessageList({
                                     onOpenSenderProfile={
                                         canOpenSenderProfile
                                             ? () =>
-                                                  onOpenSenderProfile(
-                                                      senderProfileId!,
-                                                  )
+                                                onOpenSenderProfile(
+                                                    senderProfileId!,
+                                                )
                                             : undefined
                                     }
                                     onOpenAiSenderProfile={
                                         canOpenAiSenderProfile
                                             ? () =>
-                                                  onOpenAiSenderProfile(
-                                                      message.senderAiMemberId!,
-                                                  )
+                                                onOpenAiSenderProfile(
+                                                    message.senderAiMemberId!,
+                                                )
                                             : undefined
                                     }
                                     onRetryTranslation={onRetryTranslation}

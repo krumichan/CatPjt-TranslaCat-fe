@@ -147,8 +147,8 @@ export function CustomKeywordItem({
                             {keyword.canonicalKey}
                             {keyword.pendingEffectiveDate
                                 ? ` · ${t("pending", {
-                                      date: keyword.pendingEffectiveDate,
-                                  })}`
+                                    date: keyword.pendingEffectiveDate,
+                                })}`
                                 : ""}
                         </p>
                     </div>

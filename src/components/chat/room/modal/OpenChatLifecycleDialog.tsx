@@ -103,11 +103,10 @@ export function OpenChatLifecycleDialog({
                             {candidates.map((member) => (
                                 <label
                                     key={member.openChatMemberId}
-                                    className={`flex cursor-pointer items-center gap-3 rounded-2xl border p-3 transition ${
-                                        selectedTargetId === member.openChatMemberId
+                                    className={`flex cursor-pointer items-center gap-3 rounded-2xl border p-3 transition ${selectedTargetId === member.openChatMemberId
                                             ? "border-orange-400 bg-orange-50 dark:bg-orange-500/10"
                                             : "border-slate-200 dark:border-white/10"
-                                    }`}
+                                        }`}
                                 >
                                     <input
                                         type="radio"
@@ -166,9 +165,8 @@ export function OpenChatLifecycleDialog({
                                 data-testid="open-chat-lifecycle-confirm"
                                 disabled={isSubmitting}
                                 onClick={() => void onSubmit()}
-                                className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-black text-white disabled:opacity-50 ${
-                                    mode === "TRANSFER" ? "bg-orange-500" : "bg-rose-500"
-                                }`}
+                                className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-black text-white disabled:opacity-50 ${mode === "TRANSFER" ? "bg-orange-500" : "bg-rose-500"
+                                    }`}
                             >
                                 {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
                                 {t(`dialog.${mode}.confirm`)}

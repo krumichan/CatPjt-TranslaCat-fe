@@ -7,8 +7,10 @@ export type ReportTarget = { roomId: number; displayName: string } & (
     { targetType: "MEMBER"; targetOpenChatMemberId: number; targetUserId?: never } |
     { targetType: "MEMBER"; targetUserId: number; targetOpenChatMemberId?: never }
 );
-export type ReportRequest = { targetType: "MESSAGE" | "MEMBER"; reason: ReportReason; detail: string; clientRequestId: string;
-    messageId?: number; targetOpenChatMemberId?: number; targetUserId?: number };
+export type ReportRequest = {
+    targetType: "MESSAGE" | "MEMBER"; reason: ReportReason; detail: string; clientRequestId: string;
+    messageId?: number; targetOpenChatMemberId?: number; targetUserId?: number
+};
 export interface ReportReceipt {
     id: number; roomId: number; targetType: "MESSAGE" | "MEMBER"; reason: ReportReason; status: ReportStatus;
     createdAt: string; evidenceExpiresAt: string; duplicate: boolean; version: number; evidenceExpired: boolean;
@@ -46,19 +48,23 @@ function member<T extends string>(value: unknown, values: readonly T[]): T {
 export function parseReportReceipt(value: unknown): ReportReceipt {
     const row = object(value);
     if (typeof row.version !== "number" || !Number.isSafeInteger(row.version) || row.version < 0) throw new Error("REPORT_INVALID_RESPONSE");
-    return { id: safeReportId(row.id), roomId: safeReportId(row.roomId), targetType: member(row.targetType, ["MESSAGE", "MEMBER"]),
+    return {
+        id: safeReportId(row.id), roomId: safeReportId(row.roomId), targetType: member(row.targetType, ["MESSAGE", "MEMBER"]),
         reason: member(row.reason, REPORT_REASONS), status: member(row.status, REPORT_STATUSES), createdAt: date(row.createdAt),
-        evidenceExpiresAt: date(row.evidenceExpiresAt), duplicate: boolean(row.duplicate), version: row.version, evidenceExpired: boolean(row.evidenceExpired) };
+        evidenceExpiresAt: date(row.evidenceExpiresAt), duplicate: boolean(row.duplicate), version: row.version, evidenceExpired: boolean(row.evidenceExpired)
+    };
 }
 export function parseReportDetail(value: unknown, now = Date.now()): ReportDetail {
     const row = object(value);
     const receipt = parseReportReceipt(row);
     const expired = receipt.evidenceExpired || Date.parse(receipt.evidenceExpiresAt) <= now;
     // 만료된 증거가 지연 응답에 남아 있어도 UI 상태에는 원문과 표시 이름을 보관하지 않는다.
-    return { ...receipt, evidenceExpired: expired, detail: row.detail == null ? "" : text(row.detail),
+    return {
+        ...receipt, evidenceExpired: expired, detail: row.detail == null ? "" : text(row.detail),
         evidenceContent: expired || row.evidenceContent == null ? null : text(row.evidenceContent, 100000),
         evidenceSenderDisplay: expired || row.evidenceSenderDisplay == null ? null : text(row.evidenceSenderDisplay, 500),
-        reviewNote: row.reviewNote == null ? null : text(row.reviewNote), updatedAt: date(row.updatedAt) };
+        reviewNote: row.reviewNote == null ? null : text(row.reviewNote), updatedAt: date(row.updatedAt)
+    };
 }
 export function parseReportList(value: unknown): ReportList {
     const row = object(value);

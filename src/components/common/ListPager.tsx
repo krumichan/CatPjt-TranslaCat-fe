@@ -1,6 +1,6 @@
 "use client";
 
-import {PageNumber} from "@/types/common";
+import { PageNumber } from "@/types/common";
 
 interface ListPagerProps {
     pageInfo: PageNumber;
@@ -47,11 +47,10 @@ export default function ListPager({ pageInfo, currentPage, onPageChange }: ListP
                                 <button
                                     key={pageNum}
                                     onClick={() => onPageChange(pageNum)}
-                                    className={`w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center rounded-xl font-bold transition-all text-sm sm:text-base ${
-                                        pageNum === activePage
+                                    className={`w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center rounded-xl font-bold transition-all text-sm sm:text-base ${pageNum === activePage
                                             ? "bg-blue-600 text-white shadow-md scale-105 z-10"
                                             : "hover:bg-black/5 dark:hover:bg-white/5 text-zinc-500 dark:text-zinc-400"
-                                    }`}
+                                        }`}
                                 >
                                     {pageNum}
                                 </button>

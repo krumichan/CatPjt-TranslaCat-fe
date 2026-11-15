@@ -140,7 +140,7 @@ export function AppSidebarRecentHistory() {
                         {item.targetLanguage === "en" ? <span className="line-clamp-2 text-xs font-semibold leading-5">
                             <NovelLocalizedText value={recentNovelEnglishText(item)} locale={locale} targetLanguage="en" />
                         </span> : <RubyText
-                            content={localizedName({...item.title, ko: item.title.ko ?? ""})}
+                            content={localizedName({ ...item.title, ko: item.title.ko ?? "" })}
                             className="line-clamp-2 text-xs font-semibold leading-5"
                         />}
                     </button>

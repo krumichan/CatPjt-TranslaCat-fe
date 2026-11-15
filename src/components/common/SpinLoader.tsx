@@ -17,7 +17,7 @@ export default function SpinLoader({ isLoading, size = "md" }: SpinnerProps) {
                 <div className={`
                     ${size === "sm" ? "w-6 h-6 border-2" : size === "lg" ? "w-16 h-16 border-4" : "w-10 h-10 border-4"} 
                     border-blue-500 border-t-transparent rounded-full animate-spin
-                `}/>
+                `} />
             </div>
         </div>
     );

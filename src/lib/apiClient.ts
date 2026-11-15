@@ -113,7 +113,7 @@ async function requestSession(signal?: AbortSignal | null) {
 
     // 인증 조회도 요청 제한 시간에 포함해 세션 응답 지연이 화면을 잠그지 않게 한다.
     signal.throwIfAborted();
-    let onAbort: () => void = () => {};
+    let onAbort: () => void = () => { };
     const aborted = new Promise<never>((_, reject) => {
         onAbort = () => reject(signal.reason ?? new DOMException("요청이 취소되었습니다.", "AbortError"));
         signal.addEventListener("abort", onAbort, { once: true });

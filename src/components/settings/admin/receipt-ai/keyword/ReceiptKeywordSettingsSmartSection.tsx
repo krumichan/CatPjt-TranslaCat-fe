@@ -38,7 +38,7 @@ export default function ReceiptKeywordSettingsSmartSection() {
                     keywordSettings.deleteTargetKeyword
                         ? t("deleteModal.description", {
                             keyword:
-                            keywordSettings.deleteTargetKeyword.keyword,
+                                keywordSettings.deleteTargetKeyword.keyword,
                         })
                         : undefined
                 }

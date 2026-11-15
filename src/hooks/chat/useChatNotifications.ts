@@ -311,9 +311,9 @@ export function useChatNotifications() {
                             items: currentData.items.map((currentItem) =>
                                 currentItem.roomId === item.roomId
                                     ? {
-                                          ...currentItem,
-                                          unreadCount: nextUnreadCount,
-                                      }
+                                        ...currentItem,
+                                        unreadCount: nextUnreadCount,
+                                    }
                                     : currentItem,
                             ),
                         };
@@ -326,14 +326,14 @@ export function useChatNotifications() {
                         const nextUnreadChatMessageCount = Math.max(
                             0,
                             currentData.unreadChatMessageCount -
-                                removedUnreadCount,
+                            removedUnreadCount,
                         );
                         const nextUnreadChatRoomCount = Math.max(
                             0,
                             currentData.unreadChatRoomCount -
-                                (item.unreadCount > 0 && nextUnreadCount === 0
-                                    ? 1
-                                    : 0),
+                            (item.unreadCount > 0 && nextUnreadCount === 0
+                                ? 1
+                                : 0),
                         );
 
                         return {

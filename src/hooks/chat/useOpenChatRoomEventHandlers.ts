@@ -69,7 +69,7 @@ export function useOpenChatRoomEventHandlers({
                 event.targetOpenChatMemberId,
                 event.role,
                 currentOpenChatMemberId ===
-                    event.targetOpenChatMemberId,
+                event.targetOpenChatMemberId,
             );
         },
         [currentOpenChatMemberId, onApplyRole, roomId],

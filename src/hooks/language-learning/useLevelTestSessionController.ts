@@ -241,7 +241,7 @@ export function useLevelTestSessionController(sessionId: number) {
                     result.nextQuestion != null &&
                     result.nextQuestion.sessionId === refreshedSession.sessionId &&
                     result.nextQuestion.questionNumber ===
-                        refreshedSession.currentQuestionNumber;
+                    refreshedSession.currentQuestionNumber;
                 const refreshedQuestion = canUseEmbeddedNextQuestion
                     ? await questionQuery.mutate(result.nextQuestion!, false)
                     : await questionQuery.mutate((current) => current, true);
@@ -282,31 +282,31 @@ export function useLevelTestSessionController(sessionId: number) {
             const result =
                 question.answerMode === "AUDIO"
                     ? await languageLearningLevelService.submitAudio(
-                          sessionId,
-                          question.itemId,
-                          recorder.audioBlob!,
-                          recorder.elapsedSeconds * 1000,
-                          attempt.idempotencyKey,
-                      )
+                        sessionId,
+                        question.itemId,
+                        recorder.audioBlob!,
+                        recorder.elapsedSeconds * 1000,
+                        attempt.idempotencyKey,
+                    )
                     : await languageLearningLevelService.submitAnswer(
-                          sessionId,
-                          question.itemId,
-                          {
-                              selectedOptionKey:
-                                  question.answerMode === "CHOICE" && !isSentenceOrder
-                                      ? selectedOptionKey
-                                      : null,
-                              selectedOptionKeys:
-                                  question.answerMode === "CHOICE" && isSentenceOrder
-                                      ? selectedOptionKeys
-                                      : [],
-                              textAnswer:
-                                  question.answerMode === "TEXT"
-                                      ? textAnswer.trim()
-                                      : null,
-                              idempotencyKey: attempt.idempotencyKey,
-                          },
-                      );
+                        sessionId,
+                        question.itemId,
+                        {
+                            selectedOptionKey:
+                                question.answerMode === "CHOICE" && !isSentenceOrder
+                                    ? selectedOptionKey
+                                    : null,
+                            selectedOptionKeys:
+                                question.answerMode === "CHOICE" && isSentenceOrder
+                                    ? selectedOptionKeys
+                                    : [],
+                            textAnswer:
+                                question.answerMode === "TEXT"
+                                    ? textAnswer.trim()
+                                    : null,
+                            idempotencyKey: attempt.idempotencyKey,
+                        },
+                    );
 
             submissionAttemptRef.current = null;
             setRerecordRequested(false);
@@ -399,7 +399,7 @@ export function useLevelTestSessionController(sessionId: number) {
             const playbackLimit = Math.max(
                 0,
                 question.referencePlaybackLimit ??
-                    (question.domain === "LISTENING" ? 2 : 0),
+                (question.domain === "LISTENING" ? 2 : 0),
             );
             if (playbackLimit === 0 || referencePlaybackCount >= playbackLimit) return false;
             setIsAudioLoading(true);
@@ -452,8 +452,8 @@ export function useLevelTestSessionController(sessionId: number) {
         actionErrorCode === "LEVEL_TEST_NEXT_QUESTION_REFRESH_FAILED";
     const loadError = Boolean(
         sessionQuery.isError ||
-            questionQuery.isError ||
-            answerAcceptedNextQuestionFailed,
+        questionQuery.isError ||
+        answerAcceptedNextQuestionFailed,
     );
 
     return {

@@ -44,11 +44,11 @@ export function useDailyWritingPageController() {
         keys:
             canLoadDaily && entry.setting?.timezone
                 ? ([
-                      "daily-writing-today-progress",
-                      entry.setting.timezone,
-                      entry.setting.originLanguage,
-                      entry.setting.learningLanguage,
-                  ] as const)
+                    "daily-writing-today-progress",
+                    entry.setting.timezone,
+                    entry.setting.originLanguage,
+                    entry.setting.learningLanguage,
+                ] as const)
                 : null,
         fetcher: () =>
             learningHistoryService.getAll({
@@ -63,11 +63,11 @@ export function useDailyWritingPageController() {
         keys:
             canLoadDaily && selectedWritingType
                 ? ([
-                      "daily-writing-today",
-                      selectedWritingType,
-                      entry.setting?.originLanguage,
-                      entry.setting?.learningLanguage,
-                  ] as const)
+                    "daily-writing-today",
+                    selectedWritingType,
+                    entry.setting?.originLanguage,
+                    entry.setting?.learningLanguage,
+                ] as const)
                 : null,
         fetcher: (_key, writingType) =>
             dailyWritingService.getToday(writingType),
@@ -149,8 +149,8 @@ export function useDailyWritingPageController() {
                 history.completionStatus === "COMPLETED"
                     ? "COMPLETED"
                     : history.evaluationStatus === "PENDING"
-                      ? "EVALUATING"
-                      : "IN_PROGRESS";
+                        ? "EVALUATING"
+                        : "IN_PROGRESS";
             const current = result[writingType];
             if (
                 current.state === "COMPLETED" &&

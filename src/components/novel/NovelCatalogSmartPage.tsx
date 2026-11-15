@@ -32,11 +32,15 @@ export default function NovelCatalogSmartPage({ kind }: { kind: "RANKING" | "SEA
     const targetLanguage = novelTargetLanguage(query.get("novelTarget"));
     // Catalog의 별칭과 달리 기존 기간 API는 PlatformCode의 정식 이름만 받는다.
     const periodPlatform = platform.toLowerCase() === "syosyetu" ? "syosetu" : platform.toLowerCase();
-    const { data: periods = [], isLoading: loadingPeriods, mutate: reloadPeriods } = useQuery({ keys: [periodPlatform, "catalog-periods"] as const,
-        fetcher: p => rankingService.getPeriods(p), enabled: kind === "RANKING" });
+    const { data: periods = [], isLoading: loadingPeriods, mutate: reloadPeriods } = useQuery({
+        keys: [periodPlatform, "catalog-periods"] as const,
+        fetcher: p => rankingService.getPeriods(p), enabled: kind === "RANKING"
+    });
     const periodOptions = periods.map(value => ({ ...value, code: value.code.toLowerCase() }));
-    const controller = useNovelCatalogController(platform, { kind, period: kind === "RANKING" ? period : "", genreId: kind === "RANKING" ? genre : "",
-        keyword: kind === "SEARCH" ? keyword : "", page, language: targetLanguage === "en" ? "en" : locale === "ja" ? "ja" : "ko" }, kind === "SEARCH" ? !!keyword.trim() : !!period && !!genre);
+    const controller = useNovelCatalogController(platform, {
+        kind, period: kind === "RANKING" ? period : "", genreId: kind === "RANKING" ? genre : "",
+        keyword: kind === "SEARCH" ? keyword : "", page, language: targetLanguage === "en" ? "en" : locale === "ja" ? "ja" : "ko"
+    }, kind === "SEARCH" ? !!keyword.trim() : !!period && !!genre);
     const url = kind === "RANKING" ? to(ROUTES.NOVEL_GENRE, platform, genre) : to(ROUTES.NOVEL_SEARCH, platform);
     const navigate = (changes: Record<string, string>) => {
         const next = new URLSearchParams(query.toString());

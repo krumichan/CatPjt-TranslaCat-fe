@@ -29,15 +29,13 @@ export function AppSidebarItem({
         </span>
     ) : null;
 
-    const commonClassName = `tc-service-accent tc-nav-item group relative flex min-h-11 w-full items-center rounded-xl transition ${
-        isCollapsed
+    const commonClassName = `tc-service-accent tc-nav-item group relative flex min-h-11 w-full items-center rounded-xl transition ${isCollapsed
             ? "justify-center px-2"
             : "gap-3 px-3"
-    } ${
-        isActive
+        } ${isActive
             ? "shadow-sm"
             : "text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
-    }`;
+        }`;
 
     if (item.disabled) {
         return (

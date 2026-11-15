@@ -22,10 +22,10 @@ type MonthlyExpenseChartTooltipProps = {
 };
 
 export default function MonthlyExpenseChartTooltip({
-   active,
-   label,
-   payload,
-   currencyCode,
+    active,
+    label,
+    payload,
+    currencyCode,
 }: MonthlyExpenseChartTooltipProps) {
     const formatAmount = useAmountFormatter();
     const t = useTranslations("AccountBook.detail.monthlyChart.tooltip");
@@ -60,21 +60,22 @@ export default function MonthlyExpenseChartTooltip({
                 {payload.map((item) => {
                     const rawAmount = item.dataKey === "goalPlot" ? item.payload?.expenseGoalAmount : item.payload?.expenseAmount;
                     return (
-                    <div
-                        key={String(item.dataKey)}
-                        className="flex flex-wrap items-center justify-between gap-2"
-                    >
-                        <span className="text-slate-500 dark:text-slate-400">
-                            {item.name}
-                        </span>
+                        <div
+                            key={String(item.dataKey)}
+                            className="flex flex-wrap items-center justify-between gap-2"
+                        >
+                            <span className="text-slate-500 dark:text-slate-400">
+                                {item.name}
+                            </span>
 
-                        <span className="font-medium text-slate-900 dark:text-slate-100">
-                            {rawAmount == null
-                                ? t("unset")
-                                : formatAmount(rawAmount, currencyCode)}
-                        </span>
-                    </div>
-                );})}
+                            <span className="font-medium text-slate-900 dark:text-slate-100">
+                                {rawAmount == null
+                                    ? t("unset")
+                                    : formatAmount(rawAmount, currencyCode)}
+                            </span>
+                        </div>
+                    );
+})}
 
                 <div className="mt-2 border-t border-slate-200 pt-2 dark:border-white/10">
                     <div className="flex flex-wrap items-center justify-between gap-2">

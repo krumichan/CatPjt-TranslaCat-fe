@@ -65,9 +65,11 @@ export function matchesAnalysisPeriod(response: SpendingAnalysisResponse, period
 }
 
 export function inputsFromAnalysis(response: SpendingAnalysisResponse): SpendingAnalysisInputs {
-    return { periodType: response.periodType, monthValue: response.periodStart.slice(0, 7), yearValue: String(response.year),
+    return {
+        periodType: response.periodType, monthValue: response.periodStart.slice(0, 7), yearValue: String(response.year),
         quarterValue: String(response.quarter ?? 1), halfValue: String(response.half ?? 1),
-        startValue: response.periodStart, endValue: inclusiveAnalysisEnd(response.periodEndExclusive) };
+        startValue: response.periodStart, endValue: inclusiveAnalysisEnd(response.periodEndExclusive)
+    };
 }
 
 export function inclusiveAnalysisEnd(endExclusive: string) {

@@ -115,8 +115,8 @@ export default function ChatActivityNotificationItem({
     const actionLabel = canNavigate
         ? t("openRoom", { roomName })
         : item.isRead
-          ? t("read")
-          : t("markRead");
+            ? t("read")
+            : t("markRead");
 
     return (
         <button
@@ -125,15 +125,13 @@ export default function ChatActivityNotificationItem({
             onClick={() => void handleClick()}
             disabled={isProcessing || !isActionable}
             aria-label={actionLabel}
-            className={`w-full rounded-3xl border p-4 text-left shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400/70 ${
-                item.isRead
+            className={`w-full rounded-3xl border p-4 text-left shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400/70 ${item.isRead
                     ? "border-slate-200 bg-white dark:border-white/10 dark:bg-white/5"
                     : "border-orange-200 bg-orange-50/60 hover:bg-orange-50 dark:border-orange-900/60 dark:bg-orange-950/20 dark:hover:bg-orange-950/30"
-            } ${
-                isActionable
+                } ${isActionable
                     ? "cursor-pointer"
                     : "cursor-default disabled:opacity-100"
-            }`}
+                }`}
         >
             <div className="flex items-start gap-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-200">

@@ -23,8 +23,8 @@ export function DailyWritingPromptBlock({
         writingType === "TRANSLATION"
             ? t("promptLabel.TRANSLATION")
             : writingType === "GUIDED"
-              ? t("promptLabel.GUIDED")
-              : t("promptLabel.FREE");
+                ? t("promptLabel.GUIDED")
+                : t("promptLabel.FREE");
 
     return (
         <div className="rounded-2xl bg-slate-50 p-5 dark:bg-white/5">

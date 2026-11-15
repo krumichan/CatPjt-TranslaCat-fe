@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 interface MenuOptions {
     hasBottomBar?: boolean; // 하단 바 제어 여부
@@ -93,10 +93,9 @@ export function useMenuControl(options: MenuOptions = { hasBottomBar: false }) {
             '--content-move': (options.hasBottomBar && !isMenuVisible) ? '-60px' : '0px'
         } as React.CSSProperties,
         // 패딩 역시 옵션에 따라 다르게 적용
-        mainClassName: `w-full max-w-4xl px-4 md:px-6 pb-32 transition-all duration-300 ${
-            isMenuVisible
+        mainClassName: `w-full max-w-4xl px-4 md:px-6 pb-32 transition-all duration-300 ${isMenuVisible
                 ? (options.hasBottomBar ? 'pt-20 md:pt-24' : 'pt-20') // 헤더 공간 확보
                 : (options.hasBottomBar ? 'pt-4 md:pt-8' : 'pt-4')    // 숨겼을 때
-        }`
+            }`
     };
 }

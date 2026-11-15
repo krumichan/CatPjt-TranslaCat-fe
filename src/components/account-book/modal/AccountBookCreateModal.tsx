@@ -1,4 +1,4 @@
-import {useMemo, useRef, useState} from "react";
+import { useMemo, useRef, useState } from "react";
 import type { SyntheticEvent } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
@@ -8,7 +8,7 @@ import {
     Currency,
 } from "@/types/accountBook";
 import { formatDecimalInput, isPositiveDecimal } from "@/utils/account-book/decimalInput";
-import AccountBookBasicFields, {DIRECT_INPUT_VALUE} from "@/components/account-book/modal/AccountBookBasicFields";
+import AccountBookBasicFields, { DIRECT_INPUT_VALUE } from "@/components/account-book/modal/AccountBookBasicFields";
 import { GuideHelpLink } from "@/components/common/GuideHelpLink";
 
 type AccountBookCreateModalProps = {
@@ -21,12 +21,12 @@ type AccountBookCreateModalProps = {
 };
 
 export default function AccountBookCreateModal({
-   isOpen,
-   categoryOptions,
-   currencies,
-   isCurrencyLoading,
-   onClose,
-   onSubmit,
+    isOpen,
+    categoryOptions,
+    currencies,
+    isCurrencyLoading,
+    onClose,
+    onSubmit,
 }: AccountBookCreateModalProps) {
     const t = useTranslations("AccountBook.createModal");
 

@@ -58,7 +58,7 @@ export function AvailablePracticeModeLandingPage({ domain }: { domain: PracticeD
 
     useEffect(() => {
         if (domain !== "READING" || !entry.setting?.configured
-                || entry.levelStatus?.profileState === "LEVEL_TEST_REQUIRED") return;
+            || entry.levelStatus?.profileState === "LEVEL_TEST_REQUIRED") return;
         let cancelled = false;
         void readingVocabularyService.getReadingAvailability()
             .then((value) => { if (!cancelled) setAvailability(value); })
@@ -106,7 +106,7 @@ export function AvailablePracticeModeLandingPage({ domain }: { domain: PracticeD
             return;
         }
         if (domain === "READING" && mode === "STRUCTURE"
-                && !availabilityByMode.get("STRUCTURE")?.generationAvailable) return;
+            && !availabilityByMode.get("STRUCTURE")?.generationAvailable) return;
         setStartingMode(mode);
         setError(false);
         try {
@@ -190,11 +190,10 @@ export function AvailablePracticeModeLandingPage({ domain }: { domain: PracticeD
                             return (
                                 <article
                                     key={key}
-                                    className={`flex h-full flex-col rounded-3xl border p-5 transition hover:-translate-y-0.5 hover:shadow-md ${
-                                        completed
+                                    className={`flex h-full flex-col rounded-3xl border p-5 transition hover:-translate-y-0.5 hover:shadow-md ${completed
                                             ? "border-emerald-200 bg-emerald-50/70 hover:border-emerald-300 dark:border-emerald-500/30 dark:bg-emerald-500/10"
                                             : "border-slate-200 bg-slate-50 hover:border-blue-300 hover:bg-blue-50/60 dark:border-white/10 dark:bg-white/5 dark:hover:border-blue-400/40 dark:hover:bg-blue-500/10"
-                                    }`}
+                                        }`}
                                 >
                                     <div className="flex items-start justify-between gap-3">
                                         <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-blue-600 shadow-sm dark:bg-white/10 dark:text-blue-300">

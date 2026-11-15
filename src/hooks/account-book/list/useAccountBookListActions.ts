@@ -147,9 +147,9 @@ export function useAccountBookListActions({
                 return currentData.map((accountBook) =>
                     accountBook.id === accountBookId
                         ? {
-                              ...updatedAccountBook,
-                              expenseGoalAmount,
-                          }
+                            ...updatedAccountBook,
+                            expenseGoalAmount,
+                        }
                         : accountBook
                 );
             }, false);

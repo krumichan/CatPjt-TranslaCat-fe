@@ -1,9 +1,9 @@
 import createMiddleware from 'next-intl/middleware';
 import { withAuth } from "next-auth/middleware";
-import {NextRequest, NextResponse} from 'next/server';
-import {locales} from "@/i18n/config";
-import {isTerminalAuthError} from "@/lib/authError";
-import {isPublicDocsPath, PUBLIC_AUTH_PAGES, stripLocalePrefix} from "@/lib/authPolicy";
+import { NextRequest, NextResponse } from 'next/server';
+import { locales } from "@/i18n/config";
+import { isTerminalAuthError } from "@/lib/authError";
+import { isPublicDocsPath, PUBLIC_AUTH_PAGES, stripLocalePrefix } from "@/lib/authPolicy";
 
 const publicPages = PUBLIC_AUTH_PAGES;
 

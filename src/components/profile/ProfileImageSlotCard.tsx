@@ -141,11 +141,10 @@ export default function ProfileImageSlotCard({
                 <div className="mt-5 flex flex-wrap gap-2">
                     <label
                         htmlFor={inputId}
-                        className={`inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-black text-slate-600 transition hover:border-orange-300 hover:text-orange-500 dark:border-white/10 dark:text-slate-200 dark:hover:border-orange-400/60 dark:hover:text-orange-200 ${
-                            isBusy
+                        className={`inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-black text-slate-600 transition hover:border-orange-300 hover:text-orange-500 dark:border-white/10 dark:text-slate-200 dark:hover:border-orange-400/60 dark:hover:text-orange-200 ${isBusy
                                 ? "pointer-events-none opacity-50"
                                 : ""
-                        }`}
+                            }`}
                     >
                         <ImagePlus
                             className="h-4 w-4"

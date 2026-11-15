@@ -42,8 +42,8 @@ interface ChatRoomInvitationModalProps {
     isFriendLoading: boolean;
     isSubmitting: boolean;
     errorCode:
-        | ChatRoomInvitationErrorCode
-        | null;
+    | ChatRoomInvitationErrorCode
+    | null;
     onClose: () => void;
     onToggleFriend: (
         friendUserId: number,
@@ -218,11 +218,11 @@ export function ChatRoomInvitationModal({
                         >
                             {isDirectConversion
                                 ? t(
-                                      "invitation.directTitle",
-                                  )
+                                    "invitation.directTitle",
+                                )
                                 : t(
-                                      "invitation.groupTitle",
-                                  )}
+                                    "invitation.groupTitle",
+                                )}
                         </h2>
                         <GuideHelpLink topic="chat/direct-groups" variant="text" className="mt-1" />
                     </div>
@@ -381,7 +381,7 @@ export function ChatRoomInvitationModal({
                                 )}
                             </div>
                         ) : errorCode ===
-                          "FRIEND_LOAD_FAILED" ? (
+                            "FRIEND_LOAD_FAILED" ? (
                             <div className="mt-4 rounded-3xl border border-rose-200 bg-rose-50 p-5 text-center dark:border-rose-400/30 dark:bg-rose-500/10">
                                 <AlertCircle
                                     className="mx-auto h-7 w-7 text-rose-500"
@@ -409,7 +409,7 @@ export function ChatRoomInvitationModal({
                                 </button>
                             </div>
                         ) : filteredFriends.length ===
-                          0 ? (
+                            0 ? (
                             <div className="mt-4 rounded-3xl border border-dashed border-slate-300 py-9 text-center text-sm font-bold text-slate-400 dark:border-white/15">
                                 {t(
                                     "invitation.friends.empty",
@@ -429,11 +429,10 @@ export function ChatRoomInvitationModal({
                                                 key={
                                                     friend.friendUserId
                                                 }
-                                                className={`flex cursor-pointer items-center gap-3 rounded-2xl border p-3 transition ${
-                                                    checked
+                                                className={`flex cursor-pointer items-center gap-3 rounded-2xl border p-3 transition ${checked
                                                         ? "border-orange-400 bg-orange-50 dark:border-orange-400 dark:bg-orange-500/10"
                                                         : "border-slate-200 bg-white hover:border-orange-200 dark:border-white/10 dark:bg-white/5 dark:hover:border-orange-400/30"
-                                                }`}
+                                                    }`}
                                             >
                                                 <input
                                                     type="checkbox"
@@ -519,58 +518,58 @@ export function ChatRoomInvitationModal({
 
                         {targetPublicIds.length >
                             0 && (
-                            <div className="mt-3 flex flex-wrap gap-2">
-                                {targetPublicIds.map(
-                                    (publicId) => (
-                                        <span
-                                            key={
-                                                publicId
-                                            }
-                                            className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-black text-slate-600 dark:bg-white/10 dark:text-slate-200"
-                                        >
-                                            {publicId}
-                                            <button
-                                                type="button"
-                                                disabled={
-                                                    isSubmitting
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                    {targetPublicIds.map(
+                                        (publicId) => (
+                                            <span
+                                                key={
+                                                    publicId
                                                 }
-                                                onClick={() =>
-                                                    onRemovePublicId(
-                                                        publicId,
-                                                    )
-                                                }
-                                                aria-label={t(
-                                                    "invitation.publicIds.remove",
-                                                    {
-                                                        publicId,
-                                                    },
-                                                )}
-                                                className="rounded-full p-0.5 transition hover:bg-slate-200 disabled:cursor-not-allowed dark:hover:bg-white/10"
+                                                className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-black text-slate-600 dark:bg-white/10 dark:text-slate-200"
                                             >
-                                                <X
-                                                    className="h-3.5 w-3.5"
-                                                    aria-hidden="true"
-                                                />
-                                            </button>
-                                        </span>
-                                    ),
-                                )}
-                            </div>
-                        )}
+                                                {publicId}
+                                                <button
+                                                    type="button"
+                                                    disabled={
+                                                        isSubmitting
+                                                    }
+                                                    onClick={() =>
+                                                        onRemovePublicId(
+                                                            publicId,
+                                                        )
+                                                    }
+                                                    aria-label={t(
+                                                        "invitation.publicIds.remove",
+                                                        {
+                                                            publicId,
+                                                        },
+                                                    )}
+                                                    className="rounded-full p-0.5 transition hover:bg-slate-200 disabled:cursor-not-allowed dark:hover:bg-white/10"
+                                                >
+                                                    <X
+                                                        className="h-3.5 w-3.5"
+                                                        aria-hidden="true"
+                                                    />
+                                                </button>
+                                            </span>
+                                        ),
+                                    )}
+                                </div>
+                            )}
                     </section>
 
                     {errorCode &&
                         errorCode !==
-                            "FRIEND_LOAD_FAILED" && (
-                        <p
-                            role="alert"
-                            className="mt-6 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-600 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-200"
-                        >
-                            {t(
-                                `invitation.errors.${errorCode}`,
-                            )}
-                        </p>
-                    )}
+                        "FRIEND_LOAD_FAILED" && (
+                            <p
+                                role="alert"
+                                className="mt-6 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-600 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-200"
+                            >
+                                {t(
+                                    `invitation.errors.${errorCode}`,
+                                )}
+                            </p>
+                        )}
                 </div>
 
                 <footer className="flex flex-col-reverse gap-3 border-t border-slate-200 px-5 py-4 sm:flex-row sm:justify-end dark:border-white/10">
@@ -607,13 +606,13 @@ export function ChatRoomInvitationModal({
 
                         {isSubmitting
                             ? t(
-                                  "invitation.submitting",
-                              )
+                                "invitation.submitting",
+                            )
                             : isDirectConversion
-                              ? t(
+                                ? t(
                                     "invitation.createGroup",
                                 )
-                              : t(
+                                : t(
                                     "invitation.invite",
                                 )}
                     </button>

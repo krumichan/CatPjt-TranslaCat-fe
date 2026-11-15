@@ -42,9 +42,11 @@ export function useNovelReadAloud(base: string, snapshot: ReaderSnapshot | null,
         const onAnchor = (event: MouseEvent) => {
             const anchor = event.target instanceof Element ? event.target.closest("a[href]") : null;
             if (!(anchor instanceof HTMLAnchorElement)) return;
-            if (leavesReaderInCurrentTab({ button: event.button, altKey: event.altKey, ctrlKey: event.ctrlKey,
+            if (leavesReaderInCurrentTab({
+                button: event.button, altKey: event.altKey, ctrlKey: event.ctrlKey,
                 metaKey: event.metaKey, shiftKey: event.shiftKey, defaultPrevented: event.defaultPrevented,
-                download: anchor.hasAttribute("download"), target: anchor.target, href: anchor.href, currentHref: window.location.href })) {
+                download: anchor.hasAttribute("download"), target: anchor.target, href: anchor.href, currentHref: window.location.href
+            })) {
                 stopForNavigation();
             }
         };

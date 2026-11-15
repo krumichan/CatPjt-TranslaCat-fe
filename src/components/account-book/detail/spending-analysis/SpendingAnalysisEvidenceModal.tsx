@@ -30,7 +30,7 @@ export default function SpendingAnalysisEvidenceModal({ finding, currencyCode, g
             summary={t("evidenceSnapshot", { generatedAt: formattedDate })} portalTarget={portalTarget} onClose={onClose}>
             <TransactionList transactions={transactions} currencyCode={currencyCode}
                 viewMode={viewMode} onChangeViewMode={setViewMode} onClickDetailTransaction={setDetail}
-                totalElements={transactions.length} page={0} totalPages={1} onChangePage={() => {}} />
+                totalElements={transactions.length} page={0} totalPages={1} onChangePage={() => { }} />
         </ExpenseRankingTransactionListDialog>
     );
 }

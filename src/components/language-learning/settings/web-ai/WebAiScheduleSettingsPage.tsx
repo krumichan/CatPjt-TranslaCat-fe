@@ -225,11 +225,11 @@ export function WebAiScheduleSettingsPage() {
     const promptSummary = effectiveDraft && prerequisites.ready &&
         (effectiveDraft.keywordMode === "CUSTOM" || defaultKeywordStatus === "ready") && currentIssues.length === 0
         ? buildWebAiPrompt(
-              effectiveDraft,
-              locale === "en" || locale === "ja" || locale === "learning" ? locale : "ko",
-              areaLabels,
-              defaultKeywords,
-          )
+            effectiveDraft,
+            locale === "en" || locale === "ja" || locale === "learning" ? locale : "ko",
+            areaLabels,
+            defaultKeywords,
+        )
         : "";
 
     const startNew = () => {

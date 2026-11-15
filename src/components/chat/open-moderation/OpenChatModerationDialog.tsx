@@ -104,10 +104,9 @@ export function OpenChatModerationDialog({
                             <dt className="font-bold text-slate-400">{t("nextRole")}</dt>
                             <dd className="text-right font-black text-slate-800 dark:text-slate-100">
                                 {t(
-                                    `roles.${
-                                        action === "ASSIGN_ADMIN"
-                                            ? "ADMIN"
-                                            : "MEMBER"
+                                    `roles.${action === "ASSIGN_ADMIN"
+                                        ? "ADMIN"
+                                        : "MEMBER"
                                     }`,
                                 )}
                             </dd>
@@ -178,11 +177,10 @@ export function OpenChatModerationDialog({
                         data-testid="open-chat-moderation-confirm"
                         onClick={() => void onSubmit()}
                         disabled={isSubmitting}
-                        className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-black text-white transition disabled:cursor-not-allowed disabled:opacity-60 ${
-                            isBan
+                        className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-black text-white transition disabled:cursor-not-allowed disabled:opacity-60 ${isBan
                                 ? "bg-rose-500 hover:bg-rose-600"
                                 : "bg-orange-500 hover:bg-orange-600"
-                        }`}
+                            }`}
                     >
                         {isSubmitting && (
                             <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />

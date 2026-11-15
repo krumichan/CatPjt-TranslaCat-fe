@@ -37,11 +37,10 @@ export default function CurrencyListItem({
                         )}
 
                         <span
-                            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${
-                                currency.enabled
+                            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${currency.enabled
                                     ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-300"
                                     : "bg-slate-200 text-slate-500 dark:bg-white/10 dark:text-slate-300"
-                            }`}
+                                }`}
                         >
                             {currency.enabled ? (
                                 <CheckCircle2 size={13} />
@@ -80,11 +79,10 @@ export default function CurrencyListItem({
                     <button
                         type="button"
                         onClick={() => onToggleEnabled(currency)}
-                        className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-bold transition ${
-                            currency.enabled
+                        className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-bold transition ${currency.enabled
                                 ? "bg-slate-100 text-slate-500 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
                                 : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-300 dark:hover:bg-emerald-500/20"
-                        }`}
+                            }`}
                     >
                         {currency.enabled ? (
                             <XCircle size={14} />

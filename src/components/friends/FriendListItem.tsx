@@ -111,15 +111,13 @@ export default function FriendListItem({
             aria-label={t("actions.openProfilePreview", {
                 nickname: friend.nickname,
             })}
-            className={`rounded-4xl border bg-white/90 p-4 shadow-sm outline-none transition hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md focus-visible:ring-4 focus-visible:ring-orange-100 dark:bg-slate-950/70 dark:hover:border-orange-400/40 dark:focus-visible:ring-orange-500/10 ${
-                isSelected
+            className={`rounded-4xl border bg-white/90 p-4 shadow-sm outline-none transition hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md focus-visible:ring-4 focus-visible:ring-orange-100 dark:bg-slate-950/70 dark:hover:border-orange-400/40 dark:focus-visible:ring-orange-500/10 ${isSelected
                     ? "border-orange-300 ring-4 ring-orange-100 dark:border-orange-400/70 dark:ring-orange-500/10"
                     : "border-slate-200 dark:border-white/10"
-            } ${
-                isActionBusy
+                } ${isActionBusy
                     ? "cursor-default"
                     : "cursor-pointer"
-            }`}
+                }`}
         >
             <div className="flex items-start gap-4">
                 {isGroupSelectionMode && (
@@ -129,18 +127,17 @@ export default function FriendListItem({
                         aria-label={
                             isSelected
                                 ? t("actions.unselectFriend", {
-                                      nickname: friend.nickname,
-                                  })
+                                    nickname: friend.nickname,
+                                })
                                 : t("actions.selectFriend", {
-                                      nickname: friend.nickname,
-                                  })
+                                    nickname: friend.nickname,
+                                })
                         }
                         disabled={isActionBusy}
-                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border text-sm font-black transition disabled:cursor-not-allowed disabled:opacity-50 ${
-                            isSelected
+                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border text-sm font-black transition disabled:cursor-not-allowed disabled:opacity-50 ${isSelected
                                 ? "border-orange-500 bg-orange-500 text-white"
                                 : "border-slate-200 bg-white text-slate-400 hover:border-orange-300 hover:text-orange-500 dark:border-white/10 dark:bg-slate-950 dark:hover:border-orange-400"
-                        }`}
+                            }`}
                     >
                         {isSelected ? (
                             <Check

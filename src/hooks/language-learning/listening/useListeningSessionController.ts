@@ -399,8 +399,8 @@ export function useListeningSessionController(sessionId: number) {
             const allTerminal = official.length >= targetItemCount
                 && official.every((candidate) => TERMINAL_ATTEMPT.has(candidate.status));
             if (session.status !== "COMPLETED"
-                    && session.status !== "EVALUATING"
-                    && allTerminal) {
+                && session.status !== "EVALUATING"
+                && allTerminal) {
                 await listeningService.complete(
                     session.sessionId,
                     Date.now() - pageStartedAt.current,
@@ -466,8 +466,8 @@ export function useListeningSessionController(sessionId: number) {
         // reviewed the answer. Reflect that progress immediately without
         // advancing the visible item.
         if (attempt?.evaluationPurpose === "OFFICIAL"
-                && attempt.answerRevealed
-                && !progressedSlots.has(attempt.itemIndex ?? attempt.itemId)) {
+            && attempt.answerRevealed
+            && !progressedSlots.has(attempt.itemIndex ?? attempt.itemId)) {
             progressedSlots.add(attempt.itemIndex ?? attempt.itemId);
         }
 

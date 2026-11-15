@@ -61,7 +61,7 @@ export function ChatHubTabs({
             event.preventDefault();
             const nextTab =
                 CHAT_HUB_TABS[
-                    (currentIndex + 1) % CHAT_HUB_TABS.length
+                (currentIndex + 1) % CHAT_HUB_TABS.length
                 ];
             selectTab(nextTab);
             return;
@@ -74,8 +74,8 @@ export function ChatHubTabs({
             event.preventDefault();
             const previousTab =
                 CHAT_HUB_TABS[
-                    (currentIndex - 1 + CHAT_HUB_TABS.length) %
-                        CHAT_HUB_TABS.length
+                (currentIndex - 1 + CHAT_HUB_TABS.length) %
+                CHAT_HUB_TABS.length
                 ];
             selectTab(previousTab);
             return;
@@ -112,11 +112,10 @@ export function ChatHubTabs({
                 onKeyDown={(event) =>
                     handleKeyDown(event, "chat")
                 }
-                className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition ${
-                    activeTab === "chat"
+                className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition ${activeTab === "chat"
                         ? "bg-blue-600 text-white shadow-sm"
                         : "text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
-                }`}
+                    }`}
             >
                 <MessageCircle
                     className="h-4 w-4"
@@ -136,11 +135,10 @@ export function ChatHubTabs({
                 onKeyDown={(event) =>
                     handleKeyDown(event, "friends")
                 }
-                className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition ${
-                    activeTab === "friends"
+                className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition ${activeTab === "friends"
                         ? "bg-orange-500 text-white shadow-sm dark:bg-orange-400 dark:text-slate-950"
                         : "text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
-                }`}
+                    }`}
             >
                 <UsersRound
                     className="h-4 w-4"

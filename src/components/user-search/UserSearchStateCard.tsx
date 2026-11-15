@@ -17,11 +17,10 @@ export function UserSearchStateCard({
 }: StateCardProps) {
     return (
         <div
-            className={`rounded-4xl border p-8 text-center ${
-                danger
+            className={`rounded-4xl border p-8 text-center ${danger
                     ? "border-rose-200 bg-rose-50 text-rose-600 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-200"
                     : "border-slate-200 bg-slate-50 text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-300"
-            }`}
+                }`}
         >
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-sm dark:bg-slate-900">
                 {icon}

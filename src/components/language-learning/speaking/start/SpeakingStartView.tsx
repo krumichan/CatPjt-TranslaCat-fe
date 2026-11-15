@@ -94,17 +94,17 @@ export function SpeakingStartView({
             )}
 
             {controller.practiceMode && (
-            <div className="sticky bottom-4 z-20 flex justify-end">
-                <button
-                    type="button"
-                    onClick={() => void controller.createSession()}
-                    disabled={!controller.isValid || controller.isCreating}
-                    className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                    {controller.isCreating ? t("creating") : t("start")}
-                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </button>
-            </div>
+                <div className="sticky bottom-4 z-20 flex justify-end">
+                    <button
+                        type="button"
+                        onClick={() => void controller.createSession()}
+                        disabled={!controller.isValid || controller.isCreating}
+                        className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        {controller.isCreating ? t("creating") : t("start")}
+                        <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                </div>
             )}
         </div>
     );

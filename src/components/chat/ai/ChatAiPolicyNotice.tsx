@@ -38,11 +38,10 @@ export function ChatAiPolicyNotice({
     return (
         <div
             data-testid="chat-ai-policy-notice"
-            className={`rounded-2xl border px-4 py-3 text-sm ${
-                isPrivate
+            className={`rounded-2xl border px-4 py-3 text-sm ${isPrivate
                     ? "border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-400/30 dark:bg-violet-500/10 dark:text-violet-100"
                     : "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-400/30 dark:bg-sky-500/10 dark:text-sky-100"
-            }`}
+                }`}
         >
             <div className="flex items-start gap-3">
                 <Icon className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />

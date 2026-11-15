@@ -31,11 +31,10 @@ export default function FloatingActionButton({
             style={{
                 transitionDelay: isOpen ? `${delay}ms` : "0ms",
             }}
-            className={`inline-flex h-9 w-9 items-center justify-center rounded-full border shadow-[0_8px_20px_rgba(15,23,42,0.18)] transition duration-200 ${
-                isOpen
+            className={`inline-flex h-9 w-9 items-center justify-center rounded-full border shadow-[0_8px_20px_rgba(15,23,42,0.18)] transition duration-200 ${isOpen
                     ? "translate-y-0 scale-100 opacity-100"
                     : "translate-y-2 scale-75 opacity-0"
-            } ${variantClassName}`}
+                } ${variantClassName}`}
         >
             {icon}
         </button>

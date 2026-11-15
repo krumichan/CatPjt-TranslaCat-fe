@@ -159,7 +159,7 @@ export function useChatRoomReadStatus({
             if (
                 pendingMessageIdRef.current !== null &&
                 pendingMessageIdRef.current <=
-                    lastSucceededMessageIdRef.current
+                lastSucceededMessageIdRef.current
             ) {
                 pendingMessageIdRef.current = null;
             }

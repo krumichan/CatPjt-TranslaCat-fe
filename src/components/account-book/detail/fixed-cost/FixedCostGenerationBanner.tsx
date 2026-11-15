@@ -1,4 +1,4 @@
-import {Loader2, Repeat} from "lucide-react";
+import { Loader2, Repeat } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
     AccountBookFixedCostGenerationTargetsResponse,
@@ -31,9 +31,8 @@ export default function FixedCostGenerationBanner({
 
     return (
         <section
-            className={`mb-6 rounded-2xl border border-orange-200 bg-orange-50/90 p-5 shadow-[0_12px_30px_rgba(249,115,22,0.12)] transition dark:border-orange-500/20 dark:bg-orange-500/10 ${
-                isLoading ? "opacity-80" : ""
-            }`}
+            className={`mb-6 rounded-2xl border border-orange-200 bg-orange-50/90 p-5 shadow-[0_12px_30px_rgba(249,115,22,0.12)] transition dark:border-orange-500/20 dark:bg-orange-500/10 ${isLoading ? "opacity-80" : ""
+                }`}
         >
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex gap-3">

@@ -15,8 +15,8 @@ export function ChatMemberFriendRelationAction({
     profile: ChatRoomMemberProfile;
     isSending: boolean;
     errorCode:
-        | ChatMemberFriendRequestErrorCode
-        | null;
+    | ChatMemberFriendRequestErrorCode
+    | null;
     onSend: () => Promise<boolean>;
 }) {
     const t = useTranslations(
@@ -52,29 +52,29 @@ export function ChatMemberFriendRelationAction({
 
             {profile.friendStatus ===
                 "REQUEST_SENT" && (
-                <ChatMemberRelationNotice
-                    icon={
-                        <UserCheck
-                            className="h-4 w-4"
-                            aria-hidden="true"
-                        />
-                    }
-                    text={t("sent")}
-                />
-            )}
+                    <ChatMemberRelationNotice
+                        icon={
+                            <UserCheck
+                                className="h-4 w-4"
+                                aria-hidden="true"
+                            />
+                        }
+                        text={t("sent")}
+                    />
+                )}
 
             {profile.friendStatus ===
                 "REQUEST_RECEIVED" && (
-                <ChatMemberRelationNotice
-                    icon={
-                        <UserMinus
-                            className="h-4 w-4"
-                            aria-hidden="true"
-                        />
-                    }
-                    text={t("received")}
-                />
-            )}
+                    <ChatMemberRelationNotice
+                        icon={
+                            <UserMinus
+                                className="h-4 w-4"
+                                aria-hidden="true"
+                            />
+                        }
+                        text={t("received")}
+                    />
+                )}
 
             {errorCode && (
                 <p

@@ -1,6 +1,6 @@
-import {useTheme} from "next-themes";
-import {useEffect, useState} from "react";
-import {Moon, Sun} from "lucide-react";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
+import { Moon, Sun } from "lucide-react";
 
 export default function ThemeSwitcher() {
     const [mounted, setMounted] = useState(false);
@@ -12,7 +12,7 @@ export default function ThemeSwitcher() {
     }, []);
 
     if (!mounted) {
-        return <div className="p-2 w-9 h-9"/>;
+        return <div className="p-2 w-9 h-9" />;
     }
 
     return (

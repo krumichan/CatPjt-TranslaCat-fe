@@ -1,20 +1,20 @@
 "use client";
 
-import {useParams, useSearchParams} from "next/navigation";
-import {useLocalizedName} from "@/hooks/useLocalizedName";
-import React, {useEffect, useState} from "react";
-import {Novel} from "@/types/novel";
-import {PageNumber} from "@/types/common";
-import {useRequestDedupe} from "@/hooks/useRequestOnce";
-import {searchService} from "@/services/searchService";
-import {scrollToTop} from "@/utils/scroll";
+import { useParams, useSearchParams } from "next/navigation";
+import { useLocalizedName } from "@/hooks/useLocalizedName";
+import React, { useEffect, useState } from "react";
+import { Novel } from "@/types/novel";
+import { PageNumber } from "@/types/common";
+import { useRequestDedupe } from "@/hooks/useRequestOnce";
+import { searchService } from "@/services/searchService";
+import { scrollToTop } from "@/utils/scroll";
 import NovelList from "@/components/ranking/NovelList";
 import SearchForm from "@/components/common/SearchForm";
-import {useTranslations} from "next-intl";
+import { useTranslations } from "next-intl";
 import ListPager from "@/components/common/ListPager";
 import SpinLoader from "@/components/common/SpinLoader";
-import {useAppRouter} from "@/hooks/useAppRouter";
-import {ROUTES, to} from "@/constants/routes";
+import { useAppRouter } from "@/hooks/useAppRouter";
+import { ROUTES, to } from "@/constants/routes";
 
 export default function SearchNovelPage() {
     // 1. Hooks & Router (환경 설정)
@@ -92,7 +92,7 @@ export default function SearchNovelPage() {
 
             <div className="relative min-h-100">
 
-                <SpinLoader isLoading={isLoading} size="lg"/>
+                <SpinLoader isLoading={isLoading} size="lg" />
 
                 {/* 2. 검색한 소설 리스트 */}
                 <NovelList

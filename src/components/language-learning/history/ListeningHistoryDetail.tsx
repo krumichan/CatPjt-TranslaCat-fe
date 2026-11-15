@@ -57,8 +57,8 @@ export function ListeningHistoryDetail({ detail }: { detail: ListeningHistoryDet
                                             {task.audioAvailability?.expired
                                                 ? t("userAudioExpired")
                                                 : task.audioAvailability?.available
-                                                  ? t("userAudioRetained", { until: task.audioAvailability.retentionUntil ?? "-" })
-                                                  : t("userAudioUnavailable")}
+                                                    ? t("userAudioRetained", { until: task.audioAvailability.retentionUntil ?? "-" })
+                                                    : t("userAudioUnavailable")}
                                         </p>
                                         {task.audioAvailability && (
                                             <ListeningUserAudioPlayer

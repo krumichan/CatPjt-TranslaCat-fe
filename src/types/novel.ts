@@ -1,4 +1,4 @@
-import {TranslationUnit} from "@/types/common";
+import { TranslationUnit } from "@/types/common";
 
 export interface Novel {
     rank: number | undefined | null;

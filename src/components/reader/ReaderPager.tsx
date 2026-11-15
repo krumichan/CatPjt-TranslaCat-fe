@@ -1,7 +1,7 @@
 "use client";
 
-import {useState, type ReactNode} from "react";
-import {BookPlus, List, X} from "lucide-react";
+import { useState, type ReactNode } from "react";
+import { BookPlus, List, X } from "lucide-react";
 import DictRegistrationModal from "@/components/dictionary/DictRegistrationModal";
 
 interface ReaderPagerProps {
@@ -42,11 +42,10 @@ export default function ReaderPager({
     return (
         <>
             <footer
-                className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-30 w-[calc(100%-2.5rem)] max-w-lg transition-all duration-500 ease-in-out ${
-                    isVisible
+                className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-30 w-[calc(100%-2.5rem)] max-w-lg transition-all duration-500 ease-in-out ${isVisible
                         ? 'translate-y-0 opacity-100'
                         : 'translate-y-32 opacity-0 pointer-events-none'
-                }`}
+                    }`}
             >
                 {/* 위로 펼쳐지는 서브 메뉴 영역 */}
                 <div id="reader-pager-menu" aria-hidden={!isMenuOpen} className={`
@@ -94,11 +93,10 @@ export default function ReaderPager({
                     <button
                         disabled={!prevIdentifier}
                         onClick={onPrev}
-                        className={`flex-1 h-10 flex items-center justify-center gap-2 rounded-full transition-all group ${
-                                prevIdentifier
-                                    ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-md hover:bg-zinc-50 dark:hover:bg-zinc-700 active:scale-95"
-                                    : "bg-zinc-100/50 dark:bg-zinc-800/30 text-zinc-400 opacity-40 cursor-not-allowed"
-                        }`}
+                        className={`flex-1 h-10 flex items-center justify-center gap-2 rounded-full transition-all group ${prevIdentifier
+                                ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-md hover:bg-zinc-50 dark:hover:bg-zinc-700 active:scale-95"
+                                : "bg-zinc-100/50 dark:bg-zinc-800/30 text-zinc-400 opacity-40 cursor-not-allowed"
+                            }`}
                     >
                         <span className="text-sm group-hover:-translate-x-0.5 transition-transform">←</span>
                         <span className="text-[10px] font-extrabold text-zinc-500 dark:text-zinc-400">PREV</span>
@@ -121,11 +119,10 @@ export default function ReaderPager({
                             aria-expanded={isMenuOpen}
                             aria-controls="reader-pager-menu"
                             className={`flex-1 min-w-20 h-9 flex items-center justify-center gap-1 text-[11px] font-black tracking-[0.15em]
-                                rounded-full shadow-sm active:scale-95 transition-all uppercase border ${
-                                isMenuOpen
+                                rounded-full shadow-sm active:scale-95 transition-all uppercase border ${isMenuOpen
                                     ? "bg-orange-500 text-white border-orange-400"
                                     : "bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 border-black/5"
-                            }`}
+                                }`}
                         >
                             {/* X 대신 닫기 텍스트나 기호 사용 */}
                             {isMenuOpen ? <X size={16} strokeWidth={3} /> : <>{openMenuIndicator}<span>OPEN</span></>}
@@ -143,11 +140,10 @@ export default function ReaderPager({
                     <button
                         disabled={!nextIdentifier}
                         onClick={onNext}
-                        className={`flex-1 h-10 flex items-center justify-center gap-2 rounded-full shadow-lg transition-all group ${
-                            nextIdentifier
+                        className={`flex-1 h-10 flex items-center justify-center gap-2 rounded-full shadow-lg transition-all group ${nextIdentifier
                                 ? "bg-orange-500 hover:bg-orange-600 text-white shadow-orange-500/20"
                                 : "bg-zinc-200 dark:bg-zinc-800 text-zinc-400 opacity-50 cursor-not-allowed"
-                        }`}
+                            }`}
                     >
                         <span className="text-[10px] font-extrabold tracking-tight">NEXT</span>
                         <span className="text-sm group-hover:translate-x-0.5 transition-transform">→</span>
@@ -165,7 +161,7 @@ export default function ReaderPager({
                 }}
             />
 
-            <div className="h-20"/> {/* 여백 확보 */}
+            <div className="h-20" /> {/* 여백 확보 */}
         </>
     );
 }

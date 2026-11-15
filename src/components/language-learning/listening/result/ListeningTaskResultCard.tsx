@@ -87,8 +87,8 @@ export function ListeningTaskResultCard({
                         {task.audioAvailability?.expired
                             ? t("audioExpired")
                             : task.audioAvailability?.available
-                              ? t("audioRetained", { until: task.audioAvailability.retentionUntil ?? "-" })
-                              : t("audioUnavailable")}
+                                ? t("audioRetained", { until: task.audioAvailability.retentionUntil ?? "-" })
+                                : t("audioUnavailable")}
                     </p>
                     {task.audioAvailability && (
                         <ListeningUserAudioPlayer

@@ -35,11 +35,11 @@ interface OpenChatProfileFormProps {
     initialNickname?: string;
     isSubmitting?: boolean;
     processStage?:
-        | "CREATING"
-        | "SAVING"
-        | "UPLOADING"
-        | "DELETING"
-        | null;
+    | "CREATING"
+    | "SAVING"
+    | "UPLOADING"
+    | "DELETING"
+    | null;
     disabled?: boolean;
     errorCode?: string | null;
     submitLabel?: string;
@@ -213,9 +213,8 @@ export function OpenChatProfileForm({
                 <div className="mt-4 flex flex-wrap justify-center gap-2">
                     <label
                         htmlFor={inputId}
-                        className={`inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-slate-200 px-4 py-2 text-sm font-black text-slate-600 transition hover:border-orange-300 hover:text-orange-500 dark:border-white/10 dark:text-slate-200 ${
-                            isBusy ? "pointer-events-none opacity-50" : ""
-                        }`}
+                        className={`inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-slate-200 px-4 py-2 text-sm font-black text-slate-600 transition hover:border-orange-300 hover:text-orange-500 dark:border-white/10 dark:text-slate-200 ${isBusy ? "pointer-events-none opacity-50" : ""
+                            }`}
                     >
                         <ImagePlus className="h-4 w-4" aria-hidden="true" />
                         {currentImageUrl

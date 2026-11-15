@@ -63,18 +63,18 @@ export function useOpenChatMemberProfilePreview(roomId: number) {
                     latestPresencePatchRef.current.get(openChatMemberId);
                 const profileWithRealtimePatch =
                     latestPatch &&
-                    latestPatchVersion > patchVersionAtRequest
+                        latestPatchVersion > patchVersionAtRequest
                         ? { ...nextProfile, ...latestPatch }
                         : nextProfile;
 
                 setProfile(
                     latestPresencePatchVersion >
-                            presencePatchVersionAtRequest &&
+                        presencePatchVersionAtRequest &&
                         latestOnline !== undefined
                         ? {
-                              ...profileWithRealtimePatch,
-                              online: latestOnline,
-                          }
+                            ...profileWithRealtimePatch,
+                            online: latestOnline,
+                        }
                         : profileWithRealtimePatch,
                 );
                 return true;
@@ -136,7 +136,7 @@ export function useOpenChatMemberProfilePreview(roomId: number) {
 
             setProfile((current) =>
                 current?.openChatMemberId ===
-                nextProfile.openChatMemberId
+                    nextProfile.openChatMemberId
                     ? { ...current, ...snapshot }
                     : current,
             );

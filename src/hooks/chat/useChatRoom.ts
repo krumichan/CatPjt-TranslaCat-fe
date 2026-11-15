@@ -149,13 +149,13 @@ const mergeMessagesWithoutDuplicates = (
             message.id,
             previous
                 ? {
-                      ...previous,
-                      ...message,
-                      translations: chatMessageHidden(message) ? [] : mergeTranslationsWithoutDuplicates([
-                          ...previous.translations,
-                          ...message.translations,
-                      ]),
-                  }
+                    ...previous,
+                    ...message,
+                    translations: chatMessageHidden(message) ? [] : mergeTranslationsWithoutDuplicates([
+                        ...previous.translations,
+                        ...message.translations,
+                    ]),
+                }
                 : message,
         );
     }
@@ -190,7 +190,7 @@ export function useChatRoom(
     const normalizedFirstUnreadMessageId = useMemo(
         () =>
             Number.isSafeInteger(initialFirstUnreadMessageId) &&
-            (initialFirstUnreadMessageId ?? 0) > 0
+                (initialFirstUnreadMessageId ?? 0) > 0
                 ? initialFirstUnreadMessageId
                 : null,
         [initialFirstUnreadMessageId],
@@ -272,29 +272,29 @@ export function useChatRoom(
             const messageRequest = shouldPreserveAnchoredMessages
                 ? Promise.resolve({ mode: "preserve" as const })
                 : shouldUseInitialAnchor
-                ? chatService
-                      .getMessagesAroundAnchor(
-                          roomId,
-                          normalizedFirstUnreadMessageId,
-                      )
-                      .then((response) => ({
-                          mode: "anchor" as const,
-                          response,
-                      }))
-                      .catch(async (error) => {
-                          console.warn(
-                              "Failed to load first-unread anchor. Falling back to latest messages.",
-                              error,
-                          );
-                          return {
-                              mode: "latest" as const,
-                              response: await chatService.getMessages(roomId),
-                          };
-                      })
-                : chatService.getMessages(roomId).then((response) => ({
-                      mode: "latest" as const,
-                      response,
-                  }));
+                    ? chatService
+                        .getMessagesAroundAnchor(
+                            roomId,
+                            normalizedFirstUnreadMessageId,
+                        )
+                        .then((response) => ({
+                            mode: "anchor" as const,
+                            response,
+                        }))
+                        .catch(async (error) => {
+                            console.warn(
+                                "Failed to load first-unread anchor. Falling back to latest messages.",
+                                error,
+                            );
+                            return {
+                                mode: "latest" as const,
+                                response: await chatService.getMessages(roomId),
+                            };
+                        })
+                    : chatService.getMessages(roomId).then((response) => ({
+                        mode: "latest" as const,
+                        response,
+                    }));
 
             const [roomResponse, messageResult] = await Promise.all([
                 chatService.getRoom(roomId),
@@ -311,9 +311,9 @@ export function useChatRoom(
                 roomResponse.directPartner &&
                 latestDirectPresence &&
                 directPresencePatchVersionRef.current >
-                    presencePatchVersionAtRequest &&
+                presencePatchVersionAtRequest &&
                 roomResponse.directPartner.publicId ===
-                    latestDirectPresence.publicId
+                latestDirectPresence.publicId
             ) {
                 resolvedRoom = {
                     ...roomResponse,
@@ -559,8 +559,8 @@ export function useChatRoom(
                 typeof event.readerOpenChatMemberId === "number"
                     ? `open:${event.readerOpenChatMemberId}`
                     : typeof event.readerUserId === "number"
-                      ? `user:${event.readerUserId}`
-                      : null;
+                        ? `user:${event.readerUserId}`
+                        : null;
 
             if (readerCursorKey === null) {
                 return;
@@ -590,7 +590,7 @@ export function useChatRoom(
                             message.senderUserId === event.readerUserId) ||
                         (typeof event.readerOpenChatMemberId === "number" &&
                             message.sender?.openChatMemberId ===
-                                event.readerOpenChatMemberId);
+                            event.readerOpenChatMemberId);
 
                     if (
                         message.senderType === "SYSTEM" ||
@@ -655,9 +655,9 @@ export function useChatRoom(
                 currentMessages.map((message) =>
                     message.sender?.openChatMemberId === openChatMemberId
                         ? {
-                              ...message,
-                              sender: { ...message.sender, role },
-                          }
+                            ...message,
+                            sender: { ...message.sender, role },
+                        }
                         : message,
                 ),
             );
@@ -681,12 +681,12 @@ export function useChatRoom(
             setRoom((currentRoom) =>
                 currentRoom?.roomType === "OPEN"
                     ? {
-                          ...currentRoom,
-                          memberCount: Math.max(
-                              0,
-                              currentRoom.memberCount - 1,
-                          ),
-                      }
+                        ...currentRoom,
+                        memberCount: Math.max(
+                            0,
+                            currentRoom.memberCount - 1,
+                        ),
+                    }
                     : currentRoom,
             );
         },

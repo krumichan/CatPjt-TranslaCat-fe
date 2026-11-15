@@ -3,8 +3,10 @@ import { useAmountFormatter } from "@/components/account-book/AccountBookCurrenc
 import { inclusiveAnalysisEnd } from "@/utils/account-book/spendingAnalysis";
 import type { SpendingAnalysisHistoryPage } from "@/types/accountBookAnalysis";
 
-type Props = { history?: SpendingAnalysisHistoryPage; page: number; loading: boolean; error: boolean; busy: boolean;
-    onPage: (page: number) => void; onOpen: (id: string) => void; onRetry: () => void };
+type Props = {
+    history?: SpendingAnalysisHistoryPage; page: number; loading: boolean; error: boolean; busy: boolean;
+    onPage: (page: number) => void; onOpen: (id: string) => void; onRetry: () => void
+};
 
 export default function SpendingAnalysisHistory({ history, page, loading, error, busy, onPage, onOpen, onRetry }: Props) {
     const t = useTranslations("AccountBook.detail.spendingAnalysis");

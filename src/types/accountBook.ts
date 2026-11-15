@@ -1,4 +1,4 @@
-import {PagedModel} from "@/types/common";
+import { PagedModel } from "@/types/common";
 
 export type AccountBookInvitationStatus =
     | "PENDING"

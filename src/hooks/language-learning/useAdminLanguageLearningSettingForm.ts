@@ -43,11 +43,11 @@ export function useAdminLanguageLearningSettingForm() {
         const speakingGoalValid =
             form.minDailySpeakingGoalMinutes >= 1 &&
             form.minDailySpeakingGoalMinutes <=
-                form.defaultDailySpeakingGoalMinutes &&
+            form.defaultDailySpeakingGoalMinutes &&
             form.defaultDailySpeakingGoalMinutes <=
-                form.maxDailySpeakingGoalMinutes &&
+            form.maxDailySpeakingGoalMinutes &&
             form.dailySpeakingHardLimitMinutes >=
-                form.maxDailySpeakingGoalMinutes &&
+            form.maxDailySpeakingGoalMinutes &&
             form.dailySpeakingHardLimitMinutes <= 240;
 
         const sessionValid =

@@ -1,24 +1,24 @@
 "use client";
 
-import {useParams, useSearchParams} from "next/navigation";
-import {useTranslations} from "next-intl";
-import {useLocalizedName} from "@/hooks/useLocalizedName";
-import {useEffect, useRef, useState} from "react";
-import {rankingService} from "@/services/rankingService";
-import {PageNumber} from "@/types/common";
+import { useParams, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useLocalizedName } from "@/hooks/useLocalizedName";
+import { useEffect, useRef, useState } from "react";
+import { rankingService } from "@/services/rankingService";
+import { PageNumber } from "@/types/common";
 import ListPager from "@/components/common/ListPager";
 import CapsuleTab from "@/components/common/CapsuleTab";
 import SectionHeader from "@/components/common/SectionHeader";
 import NovelList from "@/components/ranking/NovelList";
-import {Novel} from "@/types/novel";
-import {useQuery} from "@/hooks/useQuery";
+import { Novel } from "@/types/novel";
+import { useQuery } from "@/hooks/useQuery";
 import FullPageError from "@/components/common/FullPageError";
-import {useSmoothNavigation} from "@/hooks/useSmoothNavigation";
+import { useSmoothNavigation } from "@/hooks/useSmoothNavigation";
 import OverlayLoader from "@/components/common/OverlayLoader";
 import OverlayLoaderSection from "@/components/common/OverlayLoaderSection";
-import {useAppRouter} from "@/hooks/useAppRouter";
-import {ROUTES, to} from "@/constants/routes";
-import {Trophy} from "lucide-react";
+import { useAppRouter } from "@/hooks/useAppRouter";
+import { ROUTES, to } from "@/constants/routes";
+import { Trophy } from "lucide-react";
 
 export default function GenreRankingPage() {
     // 1. Hooks & Router (환경 설정)

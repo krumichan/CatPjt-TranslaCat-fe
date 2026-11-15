@@ -1,6 +1,6 @@
-import {PageNumber} from "@/types/common";
-import {Novel} from "@/types/novel";
-import {apiClient} from "@/lib/apiClient";
+import { PageNumber } from "@/types/common";
+import { Novel } from "@/types/novel";
+import { apiClient } from "@/lib/apiClient";
 
 export interface NovelSearchDetail {
     pageInfo: PageNumber;

@@ -114,10 +114,10 @@ export function useProfileImageSlot({
             const updatedProfile =
                 kind === "profile"
                     ? await userProfileService.uploadProfileImage(
-                          selectedFile,
-                      )
+                        selectedFile,
+                    )
                     : await userProfileService
-                          .uploadProfileBackgroundImage(selectedFile);
+                        .uploadProfileBackgroundImage(selectedFile);
 
             onProfileChange(updatedProfile);
             revokePreview();
@@ -155,7 +155,7 @@ export function useProfileImageSlot({
                 kind === "profile"
                     ? await userProfileService.deleteProfileImage()
                     : await userProfileService
-                          .deleteProfileBackgroundImage();
+                        .deleteProfileBackgroundImage();
 
             onProfileChange(updatedProfile);
             clearSelection();

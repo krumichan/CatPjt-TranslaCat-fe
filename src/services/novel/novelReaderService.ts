@@ -26,11 +26,13 @@ export async function novelRequest(path: string, signal: AbortSignal, body?: unk
             return value !== null && Number.isFinite(Number(value)) && Number(value) >= 0 ? Number(value) : undefined;
         };
         // 원문/번역과 다른 기계의 벽시계는 로그에 넣지 않는다. 현재 요청의 독립 duration만 보존한다.
-        return envelope.body && typeof envelope.body === "object" ? { ...envelope.body, transport: {
-            traceId, requestToHeadersMs: headersAt - started, bodyReadMs: performance.now() - headersAt,
-            beDurationMs: duration("X-Novel-Be-Duration-Ms"), beAuthDispatchMs: duration("X-Novel-Be-Auth-Dispatch-Ms"),
-            upstreamHeadersMs: duration("X-Novel-Upstream-Headers-Ms"), upstreamDurationMs: duration("X-Novel-Upstream-Duration-Ms"), beValidationMs: duration("X-Novel-Be-Validation-Ms"),
-        } } : envelope.body;
+        return envelope.body && typeof envelope.body === "object" ? {
+            ...envelope.body, transport: {
+                traceId, requestToHeadersMs: headersAt - started, bodyReadMs: performance.now() - headersAt,
+                beDurationMs: duration("X-Novel-Be-Duration-Ms"), beAuthDispatchMs: duration("X-Novel-Be-Auth-Dispatch-Ms"),
+                upstreamHeadersMs: duration("X-Novel-Upstream-Headers-Ms"), upstreamDurationMs: duration("X-Novel-Upstream-Duration-Ms"), beValidationMs: duration("X-Novel-Be-Validation-Ms"),
+            }
+        } : envelope.body;
     } finally {
         clearTimeout(timer);
         signal.removeEventListener("abort", cancel);
@@ -70,8 +72,10 @@ export const novelReaderService = {
             throw new Error("INVALID_AUDIO_CONTRACT");
         }
         const bytes = Uint8Array.from(atob(dto.audioBase64), char => char.charCodeAt(0));
-        return { revision, segmentId, language, partIndex, partCount: Number(dto.partCount), blob: new Blob([bytes], { type: String(dto.contentType) }),
+        return {
+            revision, segmentId, language, partIndex, partCount: Number(dto.partCount), blob: new Blob([bytes], { type: String(dto.contentType) }),
             cacheHit: dto.cacheHit === true || dto.cacheDisposition === "HIT", audioPolicyVersion: typeof dto.audioPolicyVersion === "string" ? dto.audioPolicyVersion : undefined,
-            transport: dto.transport as NovelTransportTiming };
+            transport: dto.transport as NovelTransportTiming
+        };
     },
 };

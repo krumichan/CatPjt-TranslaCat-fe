@@ -54,10 +54,10 @@ export function SpeakingCoachingResultView({
                         </button>
                         {item.evidence.sourceProvenance === "AUTOMATIC_SPEECH_RECOGNITION"
                             && !item.evidence.verbatimAccuracyVerified && (
-                            <p data-testid="speaking-coaching-asr-caution" className="mt-2 text-xs leading-5 text-amber-700 dark:text-amber-300">
-                                {t("asrCaution")}
-                            </p>
-                        )}
+                                <p data-testid="speaking-coaching-asr-caution" className="mt-2 text-xs leading-5 text-amber-700 dark:text-amber-300">
+                                    {t("asrCaution")}
+                                </p>
+                            )}
                         {item.suggestedExpression && (
                             <div className="mt-2 flex items-start gap-2 rounded-xl bg-violet-50 p-3 text-sm text-violet-900 dark:bg-violet-500/10 dark:text-violet-100">
                                 <Lightbulb className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />

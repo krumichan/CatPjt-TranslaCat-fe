@@ -204,11 +204,10 @@ export default function FriendGroupChatCreatePageContent() {
                         {errorMessage && (
                             <p
                                 role="alert"
-                                className={`mt-5 rounded-2xl border px-4 py-3 text-sm font-bold ${
-                                    groupCreate.errorCode === "SELECTION_ADJUSTED"
+                                className={`mt-5 rounded-2xl border px-4 py-3 text-sm font-bold ${groupCreate.errorCode === "SELECTION_ADJUSTED"
                                         ? "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-400/30 dark:bg-amber-500/10 dark:text-amber-200"
                                         : "border-rose-200 bg-rose-50 text-rose-600 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-200"
-                                }`}
+                                    }`}
                             >
                                 {errorMessage}
                             </p>

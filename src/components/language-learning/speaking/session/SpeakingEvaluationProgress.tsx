@@ -35,21 +35,21 @@ export function SpeakingEvaluationProgress({
         },
         ...(eligibility.requiredUserSpeechSeconds > 0
             ? [
-                  {
-                      key: "duration",
-                      complete:
-                          eligibility.validUserSpeechSeconds >=
-                          eligibility.requiredUserSpeechSeconds,
-                      value: t("durationValue", {
-                          current: Math.floor(
-                              eligibility.validUserSpeechSeconds,
-                          ),
-                          required: Math.floor(
-                              eligibility.requiredUserSpeechSeconds,
-                          ),
-                      }),
-                  },
-              ]
+                {
+                    key: "duration",
+                    complete:
+                        eligibility.validUserSpeechSeconds >=
+                        eligibility.requiredUserSpeechSeconds,
+                    value: t("durationValue", {
+                        current: Math.floor(
+                            eligibility.validUserSpeechSeconds,
+                        ),
+                        required: Math.floor(
+                            eligibility.requiredUserSpeechSeconds,
+                        ),
+                    }),
+                },
+            ]
             : []),
         {
             key: "stt",
@@ -69,11 +69,10 @@ export function SpeakingEvaluationProgress({
                 {t("title")}
             </h2>
             <div
-                className={`mt-3 grid gap-2 ${
-                    practiceMode === "READ_ALOUD"
+                className={`mt-3 grid gap-2 ${practiceMode === "READ_ALOUD"
                         ? "sm:grid-cols-2"
                         : "sm:grid-cols-3"
-                }`}
+                    }`}
             >
                 {items.map((item) => {
                     const Icon = item.complete ? CheckCircle2 : Circle;

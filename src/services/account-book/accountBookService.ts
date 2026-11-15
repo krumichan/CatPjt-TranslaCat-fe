@@ -54,8 +54,7 @@ export const accountBookService = {
         const queryString = searchParams.toString();
 
         const response = await apiClient(
-            `/account-books/${accountBookId}/summary${
-                queryString ? `?${queryString}` : ""
+            `/account-books/${accountBookId}/summary${queryString ? `?${queryString}` : ""
             }`,
             {
                 method: "GET",

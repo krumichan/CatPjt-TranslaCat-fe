@@ -3,7 +3,7 @@ import {
     AccountBook,
     AccountBookEditFormValues,
 } from "@/types/accountBook";
-import {AccountBookEditModalContent} from "@/components/account-book/modal/AccountBookEditModalContent";
+import { AccountBookEditModalContent } from "@/components/account-book/modal/AccountBookEditModalContent";
 
 type AccountBookEditModalProps = {
     isOpen: boolean;

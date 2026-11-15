@@ -26,11 +26,10 @@ export function LevelTestHistoryView({ controller }: LevelTestHistoryViewProps) 
                         type="button"
                         onClick={() => controller.setFilter(filter)}
                         aria-pressed={controller.filter === filter}
-                        className={`rounded-full px-4 py-2 text-sm font-black ${
-                            controller.filter === filter
+                        className={`rounded-full px-4 py-2 text-sm font-black ${controller.filter === filter
                                 ? "bg-blue-600 text-white"
                                 : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-300"
-                        }`}
+                            }`}
                     >
                         {t(`filter.${filter}`)}
                     </button>

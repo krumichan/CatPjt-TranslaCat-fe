@@ -1,8 +1,8 @@
 "use client";
 
 import FullPageError from "@/components/common/FullPageError";
-import {useRouter} from "@/navigation";
-import {useSearchParams} from "next/navigation";
+import { useRouter } from "@/navigation";
+import { useSearchParams } from "next/navigation";
 
 export default function AuthErrorPage() {
     const searchParams = useSearchParams();

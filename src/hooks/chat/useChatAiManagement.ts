@@ -157,13 +157,13 @@ export function useChatAiManagement({
                 ...current,
                 ...(kind === "profile"
                     ? {
-                          profileFile: file,
-                          removeProfileImage: false,
-                      }
+                        profileFile: file,
+                        removeProfileImage: false,
+                    }
                     : {
-                          backgroundFile: file,
-                          removeBackgroundImage: false,
-                      }),
+                        backgroundFile: file,
+                        removeBackgroundImage: false,
+                    }),
             }));
         },
         [t],
@@ -173,15 +173,15 @@ export function useChatAiManagement({
         setForm((current) =>
             kind === "profile"
                 ? {
-                      ...current,
-                      profileFile: null,
-                      removeProfileImage: true,
-                  }
+                    ...current,
+                    profileFile: null,
+                    removeProfileImage: true,
+                }
                 : {
-                      ...current,
-                      backgroundFile: null,
-                      removeBackgroundImage: true,
-                  },
+                    ...current,
+                    backgroundFile: null,
+                    removeBackgroundImage: true,
+                },
         );
     }, []);
 
@@ -277,10 +277,10 @@ export function useChatAiManagement({
                 editor.mode === "create"
                     ? await chatAiService.createMember(roomId, request)
                     : await chatAiService.updateMember(
-                          roomId,
-                          editor.member!.aiMemberId,
-                          request,
-                      );
+                        roomId,
+                        editor.member!.aiMemberId,
+                        request,
+                    );
 
             await persistImages(persistedMember);
             await reloadAll();
@@ -350,9 +350,9 @@ export function useChatAiManagement({
                 (current) =>
                     current
                         ? {
-                              ...current,
-                              ...patch,
-                          }
+                            ...current,
+                            ...patch,
+                        }
                         : current,
                 false,
             );

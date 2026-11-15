@@ -1,6 +1,6 @@
 "use client";
 
-import {NovelDetail} from "@/services/novelService";
+import { NovelDetail } from "@/services/novelService";
 import NovelBilingualField from "@/components/novel/NovelBilingualField";
 import type { NovelTargetLanguage } from "@/features/novel/translationLanguage";
 import { novelUiText } from "@/features/novel/uiText";

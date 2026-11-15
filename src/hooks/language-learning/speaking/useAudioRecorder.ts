@@ -114,9 +114,9 @@ export function useAudioRecorder({
 
                 const duration = startedAtRef.current
                     ? Math.min(
-                          maxSeconds,
-                          (Date.now() - startedAtRef.current) / 1000,
-                      )
+                        maxSeconds,
+                        (Date.now() - startedAtRef.current) / 1000,
+                    )
                     : elapsedSeconds;
                 setElapsedSeconds(Math.max(0, duration));
 

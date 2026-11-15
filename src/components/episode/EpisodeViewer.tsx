@@ -1,7 +1,7 @@
 "use client";
 
 import RubyText from "@/components/common/RubyText";
-import {TranslationUnit} from "@/types/common";
+import { TranslationUnit } from "@/types/common";
 
 interface Props {
     contents: TranslationUnit[];

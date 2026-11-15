@@ -117,17 +117,17 @@ export function LevelTestQuestionCard({ controller }: LevelTestQuestionCardProps
                 {question.itemType !== "GRAMMAR_SENTENCE_ORDER"
                     && question.itemType !== "SPEAKING_REPEAT"
                     && question.promptText.trim().length > 0 && (
-                    <div className="mt-5 rounded-2xl bg-slate-50 p-5 dark:bg-white/5">
-                        <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">
-                            {t("session.prompt")}
-                        </p>
-                        <LevelTestPromptText
-                            text={question.promptText}
-                            emphasisText={question.emphasisText}
-                            className="mt-3 whitespace-pre-wrap text-base font-bold leading-7 text-slate-900 dark:text-white sm:text-lg"
-                        />
-                    </div>
-                )}
+                        <div className="mt-5 rounded-2xl bg-slate-50 p-5 dark:bg-white/5">
+                            <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">
+                                {t("session.prompt")}
+                            </p>
+                            <LevelTestPromptText
+                                text={question.promptText}
+                                emphasisText={question.emphasisText}
+                                className="mt-3 whitespace-pre-wrap text-base font-bold leading-7 text-slate-900 dark:text-white sm:text-lg"
+                            />
+                        </div>
+                    )}
 
                 {question.taskGuidance && (
                     <div

@@ -46,14 +46,14 @@ export function UnifiedLearningHistoryList({ controller }: { controller: Learnin
                     const Icon = item.source === "SPEAKING"
                         ? MessageCircleMore
                         : item.source === "LISTENING"
-                          ? Ear
-                          : item.source === "READING"
-                            ? BookOpen
-                            : item.source === "VOCABULARY"
-                              ? LibraryBig
-                              : item.source === "LEVEL_TEST"
-                              ? ClipboardCheck
-                              : PencilLine;
+                            ? Ear
+                            : item.source === "READING"
+                                ? BookOpen
+                                : item.source === "VOCABULARY"
+                                    ? LibraryBig
+                                    : item.source === "LEVEL_TEST"
+                                        ? ClipboardCheck
+                                        : PencilLine;
                     return (
                         <button key={item.activityId} type="button" data-testid={`history-activity-${item.activityId}`} onClick={() => controller.selectActivity(item.activityId)} className={cn("w-full rounded-xl px-3 py-3 text-left transition", selected ? "bg-blue-600 text-white" : "bg-slate-50 text-slate-700 hover:bg-slate-100 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10")}>
                             <div className="flex items-center gap-2"><Icon className="h-4 w-4 shrink-0" aria-hidden="true" /><span className="text-xs font-black">{t(`source.${item.source}`)}</span></div>

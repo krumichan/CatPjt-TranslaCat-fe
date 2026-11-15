@@ -146,11 +146,10 @@ export default function ConfirmModal({
                                 aria-label={helpButtonLabel ?? "Help"}
                                 aria-pressed={isHelpOpen}
                                 disabled={isLoading}
-                                className={`rounded-full p-2 transition disabled:cursor-not-allowed disabled:opacity-50 ${
-                                    isHelpOpen
+                                className={`rounded-full p-2 transition disabled:cursor-not-allowed disabled:opacity-50 ${isHelpOpen
                                         ? "bg-orange-50 text-orange-500 dark:bg-orange-500/10 dark:text-orange-200"
                                         : "text-slate-400 hover:bg-slate-100 hover:text-orange-500 dark:text-slate-500 dark:hover:bg-white/10 dark:hover:text-orange-200"
-                                }`}
+                                    }`}
                             >
                                 <CircleHelp
                                     className="h-5 w-5"

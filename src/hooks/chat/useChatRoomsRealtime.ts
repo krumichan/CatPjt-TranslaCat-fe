@@ -71,9 +71,8 @@ export function useChatRoomsRealtime({
             return null;
         }
 
-        return `${loginSessionId}:${accessToken}:${normalizedRoomIds.join(",")}:${
-            shouldSubscribeNotifications ? "notifications" : "rooms"
-        }`;
+        return `${loginSessionId}:${accessToken}:${normalizedRoomIds.join(",")}:${shouldSubscribeNotifications ? "notifications" : "rooms"
+            }`;
     }, [
         accessToken,
         loginSessionId,
@@ -195,7 +194,7 @@ export function useChatRoomsRealtime({
             const delay = Math.min(3000 * 2 ** Math.min(sessionLookupFailures++, 4), 30_000);
 
             // deactivate가 완료되기 전에 activate하면 기존 연결 시도가 살아날 수 있다.
-            void client.deactivate().catch(() => {}).then(() => {
+            void client.deactivate().catch(() => { }).then(() => {
                 if (!isCurrentConnection()) return;
                 cancelSessionRetry();
                 retryTimer = setTimeout(() => {
@@ -241,7 +240,7 @@ export function useChatRoomsRealtime({
             reconnectDelay: 3000,
             heartbeatIncoming: 10000,
             heartbeatOutgoing: 10000,
-            debug: () => {},
+            debug: () => { },
             onConnect: () => {
                 if (!isCurrentConnection() || !connectedAccessToken) return;
                 const shouldSyncAfterReconnect =

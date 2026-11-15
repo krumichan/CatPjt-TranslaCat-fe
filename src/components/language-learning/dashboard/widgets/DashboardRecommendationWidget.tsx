@@ -39,8 +39,8 @@ export function DashboardRecommendationWidget({
                             const href = item.recommendedActivity === "LISTENING"
                                 ? "/language-learning/listening"
                                 : item.recommendedActivity === "SPEAKING"
-                                  ? "/language-learning/speaking"
-                                  : "/language-learning/writing";
+                                    ? "/language-learning/speaking"
+                                    : "/language-learning/writing";
                             return (
                                 <article key={item.recommendationId} className="rounded-2xl bg-blue-50 p-4 dark:bg-blue-500/10">
                                     <div className="flex items-start justify-between gap-3">

@@ -1,6 +1,6 @@
-import {apiClient} from "@/lib/apiClient";
-import {PageNumber} from "@/types/common";
-import {Novel} from "@/types/novel";
+import { apiClient } from "@/lib/apiClient";
+import { PageNumber } from "@/types/common";
+import { Novel } from "@/types/novel";
 
 export interface RankingPeriod {
     code: string;
@@ -15,7 +15,7 @@ export interface NovelRankingDetail {
 export const rankingService = {
     getPeriods: async (platformCode: string): Promise<RankingPeriod[]> => {
         const response = await apiClient(`/${platformCode}/ranking/periods`, {
-           method: "GET",
+            method: "GET",
         });
 
         if (!response.ok) {
@@ -35,9 +35,9 @@ export const rankingService = {
     ): Promise<NovelRankingDetail> => {
         const response = await apiClient(
             `/${platformCode}/ranking/novels/${period}/${identifier}?page=${page}`,
-        {
-            method: "GET",
-        });
+            {
+                method: "GET",
+            });
 
         if (!response.ok) {
             throw new Error("Failed to load ranking novels.");

@@ -37,9 +37,8 @@ export default function FixedCostListItem({
 
     return (
         <div
-            className={`flex min-w-0 flex-col items-stretch justify-between gap-3 rounded-xl bg-slate-50 px-3 py-3 transition dark:bg-black/20 sm:flex-row sm:items-center sm:px-4 ${
-                fixedCost.active ? "" : "opacity-55"
-            }`}
+            className={`flex min-w-0 flex-col items-stretch justify-between gap-3 rounded-xl bg-slate-50 px-3 py-3 transition dark:bg-black/20 sm:flex-row sm:items-center sm:px-4 ${fixedCost.active ? "" : "opacity-55"
+                }`}
         >
             <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
@@ -52,11 +51,10 @@ export default function FixedCostListItem({
                     </span>
 
                     <span
-                        className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                            fixedCost.active
+                        className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${fixedCost.active
                                 ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-300"
                                 : "bg-slate-200 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
-                        }`}
+                            }`}
                     >
                         {fixedCost.active
                             ? t("status.active")

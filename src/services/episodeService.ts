@@ -1,6 +1,6 @@
-import {TranslationUnit} from "@/types/common";
-import {apiClient} from "@/lib/apiClient";
-import {episodeBasePath} from "@/features/novel/readerModel";
+import { TranslationUnit } from "@/types/common";
+import { apiClient } from "@/lib/apiClient";
+import { episodeBasePath } from "@/features/novel/readerModel";
 
 export interface PagerInfo {
     prevIdentifier: string | null;
@@ -22,8 +22,8 @@ export const episodeService = {
     ): Promise<EpisodeDetail> => {
         const response = await apiClient(
             episodeBasePath(platformCode, novelIdentifier, episodeIdentifier), {
-                method:"GET"
-            });
+            method: "GET"
+        });
 
         if (!response.ok) {
             throw new Error("Failed to load episode detail.");

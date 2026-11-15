@@ -30,21 +30,19 @@ export default function FriendListStatePanel({
 
     return (
         <div
-            className={`rounded-4xl px-5 py-12 text-center ${
-                isError
+            className={`rounded-4xl px-5 py-12 text-center ${isError
                     ? "border border-rose-200 bg-rose-50 text-rose-600 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-200"
                     : "border border-slate-200 bg-slate-50 text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-300"
-            }`}
+                }`}
         >
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-white text-current shadow-sm dark:bg-slate-950">
                 {ICONS[variant]}
             </div>
             <h3
-                className={`mt-5 text-xl font-black ${
-                    isError
+                className={`mt-5 text-xl font-black ${isError
                         ? "text-rose-600 dark:text-rose-200"
                         : "text-slate-950 dark:text-white"
-                }`}
+                    }`}
             >
                 {title}
             </h3>

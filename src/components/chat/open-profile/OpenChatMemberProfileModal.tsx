@@ -77,12 +77,12 @@ export function OpenChatMemberProfileModal({
 
     const joinedAt = profile
         ? new Intl.DateTimeFormat(locale, {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-          }).format(new Date(profile.joinedAt))
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+        }).format(new Date(profile.joinedAt))
         : "";
 
     return createPortal(

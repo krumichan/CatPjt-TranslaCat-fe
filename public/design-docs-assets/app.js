@@ -1,5 +1,6 @@
 'use strict';
 const products = {translacat:'TranslaCat',unity:'Mosslight Isles · Unity',unreal:'Fablewood · Unreal'};
+const technologyLabels = {ko:'기술 스택',ja:'技術スタック',en:'Technology stack'};
 const categories = {screens:'화면',types:'요청·응답 타입',db:'DB·저장',network:'게임 통신'};
 const main = document.querySelector('#main');
 const nav = document.querySelector('#nav');
@@ -18,6 +19,7 @@ window.registerRouteImplementation = ([id, flows]) => routeImplementationContent
 window.registerImplementation = ([id, flows]) => implementationContent.set(id, flows);
 const catalogs = new Map();
 const scriptPromises = new Map();
+const technologyPages = new Map();
 const originalNavAria = nav.getAttribute('aria-label');
 let index, pages, files, fnIndex, functionCatalog, contracts, apiCatalog, systemCatalog;
 let currentVersion = 0;
@@ -32,6 +34,9 @@ window.registerIndex = (data) => {
     functionCatalog = buildFunctionCatalog(files,data.functions);
 };
 window.registerPages = (data) => { pages = data; };
+window.registerTechnologyPages = ([locale, articles, navigation = {}]) => {
+    technologyPages.set(locale, { articles, navigation });
+};
 window.registerContracts = (data) => {
     contracts=data;
     apiCatalog=buildApiCatalog(data.operations);
@@ -115,17 +120,51 @@ function functionMenu(project, active, location) {
     return `<details class="function-menu"${open?' open':''}><summary>함수 설계</summary>${link(functionRoute(project),'저장소 목차',active==='functions'&&!location)}${repoLinks}</details>`;
 }
 
+
+const technologyMenuLabels = {
+    ko: { index: '기술 목차', lesson: '강의 본문' },
+    ja: { index: '技術目次', lesson: '講義本文' },
+    en: { index: 'Technology index', lesson: 'Full lesson' },
+};
+
+/** 選択中の講義とフローを含む、製品別の技術メニューを生成する。 */
+function technologyMenu(project, label, active, lessonId, flowId) {
+    const base = project + '/technology';
+    const locale = designI18n.language;
+    const groups = technologyPages.get(locale)?.navigation[project] ?? [];
+    if (!groups.length) return link(base, label, active && !lessonId);
+
+    const labels = technologyMenuLabels[locale];
+    const sections = groups.map(group => {
+        const groupActive = active && group.lessons.some(lesson => lesson.id === lessonId);
+        const lessons = group.lessons.map(lesson => {
+            const route = base + '/' + lesson.id;
+            const selected = groupActive && lesson.id === lessonId;
+            return `<details${selected ? ' open' : ''}><summary>${escapeHtml(lesson.title)}</summary>`
+                + link(route, labels.lesson, selected && !flowId)
+                + lesson.flows.map(flow => link(route + '/flow/' + flow.id, flow.title, selected && flow.id === flowId)).join('')
+                + '</details>';
+        }).join('');
+        return `<details${groupActive ? ' open' : ''}><summary>${escapeHtml(group.title)}</summary>${lessons}</details>`;
+    }).join('');
+
+    return `<details class="technology-menu"${active ? ' open' : ''}><summary>${escapeHtml(label)}</summary>`
+        + link(base, labels.index, active && !lessonId) + sections + '</details>';
+}
+
 function navigation(activeProduct, active, focus, location, rest) {
     // 設計文書と同じ言語で利用ガイドを開く。
     const guideLanguage = designI18n.language;
     const guideLabels = {ko:'사용 가이드',ja:'利用ガイド',en:'User guides'};
     const guideLink = '<a href="/'+guideLanguage+'/guides" data-user-guide>'+guideLabels[guideLanguage]+'</a>';
-    nav.innerHTML = link('home','문서 홈', activeProduct === 'home') + guideLink + Object.entries(products).map(([id,name]) => {
+    const technologyLabel = technologyLabels[designI18n.language];
+    nav.innerHTML = link('home','문서 홈', activeProduct === 'home')
+        + link('technology',technologyLabel,activeProduct==='technology') + guideLink + Object.entries(products).map(([id,name]) => {
         const current=activeProduct===id;
         const legacyFunctions=current&&active==='functions'?functionMenu(id,active,location):'';
         const legacyApi=current&&active==='api'&&focus!=='op'?apiMenu(id,true,focus,rest):'';
         const indexes=Object.entries(categories).filter(([kind])=>id!=='translacat'||kind!=='network');
-        return `<details${current?' open':''}><summary>${escapeHtml(name)}</summary>${link(id,'기본설계',current&&!active)}${systemNav(id,current,active,focus,rest)}${legacyFunctions}${legacyApi}<details${current&&categories[active]?' open':''}><summary>설계 색인</summary>${indexes.map(([kind,title])=>link(id+'/'+kind,title,current&&active===kind)).join('')}</details></details>`;
+        return `<details${current?' open':''}><summary>${escapeHtml(name)}</summary>${link(id,'기본설계',current&&!active)}${technologyMenu(id,technologyLabel,current&&active==='technology',focus,rest[0]==='flow'?rest[1]:null)}${systemNav(id,current,active,focus,rest)}${legacyFunctions}${legacyApi}<details${current&&categories[active]?' open':''}><summary>설계 색인</summary>${indexes.map(([kind,title])=>link(id+'/'+kind,title,current&&active===kind)).join('')}</details></details>`;
     }).join('') + link('standard','작성과 검수 기준',activeProduct==='standard') + link('scope','설계 검토 범위',activeProduct==='scope') + link('verification','실행 검증',activeProduct==='verification');
 }
 
@@ -329,12 +368,31 @@ async function render() {
     if(version!==currentVersion) return;
     syncLanguageControls(locale);
     const [project='home',section,part,...rest]=getRoute();
+    const technologyRoute = project==='technology'&&!section ? 'technology' :
+        Object.hasOwn(products,project)&&section==='technology' ?
+            [project,section,part].filter(Boolean).join('/') : null;
     nav.classList.remove('open');menu.setAttribute('aria-expanded','false');
     let html;
     let location;
+    let selectedTechnologyFlow;
     try {
+        if (technologyRoute || Object.hasOwn(products, project)) {
+            // 技術メニューには既存の言語別バンドルが持つ見出しを使う。
+            await loadScript(`technology-${locale}.js`).catch(() => {});
+        }
         if(project==='search') html=searchFunctions(section??'',Number(part)||1);
         else if(!project||project==='home') html=home();
+        else if(technologyRoute) {
+            const bundle = technologyPages.get(locale);
+            const article = bundle?.articles[technologyRoute];
+            const lesson = bundle?.navigation[project]?.flatMap(group => group.lessons)
+                .find(entry => entry.id === part);
+            if (rest.length === 2 && rest[0] === 'flow') {
+                selectedTechnologyFlow = lesson?.flows.find(flow => flow.id === rest[1]);
+            }
+            if (!article || (rest.length && !selectedTechnologyFlow)) throw new Error('문서를 찾을 수 없습니다.');
+            html = articleHtml(article, products[project] ? project : null);
+        }
         else if(project==='scope'&&!section) html=coveragePage();
         else if(project==='scope'&&section==='api') html=contractAudit(part);
         else if(products[project]&&!section) {
@@ -421,6 +479,10 @@ async function render() {
     await renderDiagramImages(main,()=>version===currentVersion);
     if(version!==currentVersion) return;
     document.body.dataset.rendered=String(version);
+    if (selectedTechnologyFlow) {
+        const flowHeading = headings.find(element => element.textContent === selectedTechnologyFlow.title);
+        flowHeading?.scrollIntoView({ block: 'start' });
+    }
     if(section==='detail'&&part) document.getElementById(part)?.scrollIntoView();
     if((section==='fn'&&rest[0]==='implementation')||(section==='api'&&rest[1]==='implementation')) document.getElementById('구현-상세-흐름도')?.scrollIntoView();
 }

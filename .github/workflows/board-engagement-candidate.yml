@@ -44,9 +44,9 @@ jobs:
       - run: npm run build
       - name: Check the built board route protects signed-out visitors
         run: |
-          npm run start -- --hostname 127.0.0.1 --port 3000 > "$RUNNER_TEMP/board-server.log" 2>&1 &
+          setsid npm run start -- --hostname 127.0.0.1 --port 3000 > "$RUNNER_TEMP/board-server.log" 2>&1 &
           server=$!
-          trap 'kill "$server" 2>/dev/null || true' EXIT
+          trap 'kill -- -"$server" 2>/dev/null || true; wait "$server" 2>/dev/null || true' EXIT
           for attempt in {1..30}; do
             if curl -fsS -o /dev/null http://127.0.0.1:3000/ko/docs; then break; fi
             sleep 2

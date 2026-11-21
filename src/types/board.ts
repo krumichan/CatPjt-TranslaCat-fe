@@ -1,5 +1,18 @@
 export type Board = "ADMIN" | "MEMBER" | "ANONYMOUS";
 export type BoardLocale = "ko" | "ja" | "en";
+export type BoardSort = "LATEST" | "POPULAR";
+export type BoardReaction = "LIKE" | "DISLIKE" | "NONE";
+
+export interface BoardCategory {
+    id: string;
+    name: string;
+}
+
+export interface BoardReactions {
+    likes: number;
+    dislikes: number;
+    mine: BoardReaction;
+}
 
 export interface BoardAttachment {
     id: string;
@@ -21,6 +34,9 @@ export interface BoardEntry {
     translatedContent: string | null;
     translating: boolean;
     attachments: BoardAttachment[];
+    category?: BoardCategory | null;
+    viewCount?: number | null;
+    reactions?: BoardReactions | null;
 }
 
 export interface BoardPage {
@@ -33,4 +49,6 @@ export interface BoardDraft {
     content: string;
     password?: string;
     attachments?: string[];
+    categoryId?: string;
+    clearCategory?: boolean;
 }

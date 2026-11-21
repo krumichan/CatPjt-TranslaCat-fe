@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Download } from "lucide-react";
 import { useTranslations } from "next-intl";
 import useSWR from "swr";
 
 import ConfirmModal from "@/components/common/ConfirmModal";
 import { boardError, type BoardApi } from "@/services/board/boardService";
-import type { Board, BoardDraft, BoardEntry, BoardLocale } from "@/types/board";
+import type { Board, BoardCategory, BoardDraft, BoardEntry, BoardLocale } from "@/types/board";
 import { BoardComposer, BoardUnlockForm } from "./BoardForms";
+import { BoardPostActions } from "./BoardPostActions";
 import { boardErrorStyle, boardPrimaryButton, boardSecondaryButton } from "./boardStyles";
 
 const MAX_REPLY_DEPTH = 8;
@@ -21,7 +22,11 @@ interface ThreadContext {
     login: string;
 }
 
-export function BoardThread({ onDeleted, ...context }: ThreadContext & { onDeleted: () => void }) {
+/** 게시글 본문과 댓글을 열고 화면에 표시된 본문만 조회로 집계한다. */
+export function BoardThread({ onDeleted, categories, ...context }: ThreadContext & {
+    onDeleted: () => void;
+    categories?: BoardCategory[];
+}) {
     const t = useTranslations("Board");
     const { api, board, post, locale, login } = context;
     const { data, error, mutate } = useSWR(
@@ -33,6 +38,39 @@ export function BoardThread({ onDeleted, ...context }: ThreadContext & { onDelet
             revalidateIfStale: true,
         },
     );
+    const visible = Boolean(data && !data.locked && !data.mine && data.viewCount != null && !error);
+
+    // 목록 프리페치, 잠긴 글, 배경 탭의 갱신은 실제 읽기로 집계하지 않는다.
+    useEffect(() => {
+        if (!visible) {
+            return;
+        }
+
+        let active = true;
+        let sent = false;
+        // 사용자가 글 탭을 보게 될 때 세션이 허용하는 경우에만 한 번 전송한다.
+        function recordVisiblePost() {
+            if (sent || document.visibilityState !== "visible") {
+                return;
+            }
+            sent = true;
+            void api.recordView(post).then((viewCount) => {
+                if (active) {
+                    void mutate((entry) => entry && !entry.locked ? { ...entry, viewCount } : entry, false);
+                }
+            }).catch(() => {
+                // 조회수 요청이 일시적으로 실패해도 본문과 댓글은 읽을 수 있다.
+                sent = false;
+            });
+        }
+
+        recordVisiblePost();
+        document.addEventListener("visibilitychange", recordVisiblePost);
+        return () => {
+            active = false;
+            document.removeEventListener("visibilitychange", recordVisiblePost);
+        };
+    }, [api, mutate, post, visible]);
 
     if (error) return <p role="alert" className={boardErrorStyle}>{t(boardError(error))}</p>;
     if (!data) return <p role="status">{t("loading")}</p>;
@@ -45,8 +83,15 @@ export function BoardThread({ onDeleted, ...context }: ThreadContext & { onDelet
 
     return (
         <>
-            <BoardEntryContent entry={data} context={context} isPost
+            <BoardEntryContent entry={data} context={context} isPost categories={categories}
                 onUpdated={async () => { await mutate(); }} onDeleted={onDeleted} />
+            <BoardPostActions
+                entry={data}
+                api={api}
+                onVoted={async (reactions) => {
+                    await mutate((entry) => entry && !entry.locked ? { ...entry, reactions } : entry, false);
+                }}
+            />
             <section aria-label={t("comments")} className="space-y-4 border-t border-slate-200 pt-5 dark:border-white/10">
                 <h2 className="text-lg font-semibold">{t("comments")}</h2>
                 <BoardReplyList context={context} protectedThread={data.secret} />
@@ -146,10 +191,12 @@ function BoardReply({ entry, context, depth, onChanged }: {
     );
 }
 
-function BoardEntryContent({ context, entry, isPost = false, onUpdated, onDeleted }: {
+// 본문·첨부와 작성자 편집 기능을 표시한다.
+function BoardEntryContent({ context, entry, isPost = false, categories, onUpdated, onDeleted }: {
     context: ThreadContext;
     entry: BoardEntry;
     isPost?: boolean;
+    categories?: BoardCategory[];
     onUpdated: () => Promise<void>;
     onDeleted: () => void | Promise<void>;
 }) {
@@ -196,7 +243,7 @@ function BoardEntryContent({ context, entry, isPost = false, onUpdated, onDelete
     }
 
     if (editing) {
-        return <BoardComposer board={board} api={api} post={isPost} initial={entry}
+        return <BoardComposer board={board} api={api} post={isPost} initial={entry} categories={categories}
             close={() => setEditing(false)} save={async (draft) => {
                 await api.update(post, reply, draft);
                 setEditing(false);
@@ -213,6 +260,7 @@ function BoardEntryContent({ context, entry, isPost = false, onUpdated, onDelete
                 <span>{entry.author ?? t("anonymousAuthor")}</span>
                 <time dateTime={entry.createdAt}>{new Date(entry.createdAt).toLocaleString(locale)}</time>
                 {entry.secret && <span>{t(isPost ? "secretPost" : "secretReply")}</span>}
+                {isPost && entry.category && <span>{entry.category.name}</span>}
             </div>
             <p className="whitespace-pre-wrap break-words leading-relaxed">
                 {(!original && entry.translatedContent) || entry.content}

@@ -5,7 +5,7 @@ import { LockKeyhole } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { boardError, BOARD_FILE_LIMIT, BOARD_R2_LIMIT, type BoardApi } from "@/services/board/boardService";
-import type { Board, BoardDraft, BoardEntry } from "@/types/board";
+import type { Board, BoardCategory, BoardDraft, BoardEntry } from "@/types/board";
 import { boardErrorStyle, boardInput, boardPrimaryButton, boardSecondaryButton } from "./boardStyles";
 
 interface SelectedFile {
@@ -15,16 +15,20 @@ interface SelectedFile {
     progress: number;
 }
 
-export function BoardComposer({ board, api, post, initial, save, close }: {
+/** 게시글·댓글을 작성하거나 수정하고, 게시글에는 분류와 첨부를 함께 저장한다. */
+export function BoardComposer({ board, api, post, initial, categories, initialCategory, save, close }: {
     board: Board;
     api: BoardApi;
     post: boolean;
     initial?: BoardEntry;
+    categories?: BoardCategory[];
+    initialCategory?: string;
     save: (draft: BoardDraft) => Promise<void>;
     close: () => void;
 }) {
     const t = useTranslations("Board");
     const [title, setTitle] = useState(initial?.title ?? "");
+    const [category, setCategory] = useState(initial?.category?.id ?? initialCategory ?? "");
     const [content, setContent] = useState(initial?.content ?? "");
     const [secret, setSecret] = useState(initial?.secret ?? false);
     const [password, setPassword] = useState("");
@@ -36,6 +40,7 @@ export function BoardComposer({ board, api, post, initial, save, close }: {
 
     useEffect(() => () => upload.current?.abort(), []);
 
+    // 입력과 첨부가 모두 준비된 경우 현재 초안을 저장한다.
     async function submit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         if (upload.current) return;
@@ -72,6 +77,7 @@ export function BoardComposer({ board, api, post, initial, save, close }: {
             controller.signal.throwIfAborted();
             await save({
                 ...(post ? { title, attachments } : {}),
+                ...(post && categories ? (category ? { categoryId: category } : { clearCategory: true }) : {}),
                 content,
                 ...(secret ? { password } : {}),
             });
@@ -107,6 +113,22 @@ export function BoardComposer({ board, api, post, initial, save, close }: {
 
     return (
         <form onSubmit={submit} className="space-y-4 rounded-2xl border border-slate-200 p-4 dark:border-white/10">
+            {post && categories && categories.length > 0 && (
+                <label className="grid gap-2 text-sm font-medium">
+                    {t("category")}
+                    <select
+                        className={boardInput}
+                        value={category}
+                        disabled={busy}
+                        onChange={(event) => setCategory(event.target.value)}
+                    >
+                        <option value="">{t("uncategorized")}</option>
+                        {categories.map((item) => (
+                            <option key={item.id} value={item.id}>{item.name}</option>
+                        ))}
+                    </select>
+                </label>
+            )}
             {post && (
                 <label className="grid gap-2 text-sm font-medium">
                     {t("postTitle")}

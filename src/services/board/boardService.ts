@@ -1,6 +1,16 @@
 import { apiClient } from "@/lib/apiClient";
 import { ApiResponseError, parseResponseBody } from "@/services/common/responseParser";
-import type { Board, BoardDraft, BoardEntry, BoardLocale, BoardPage } from "@/types/board";
+import type {
+    Board,
+    BoardCategory,
+    BoardDraft,
+    BoardEntry,
+    BoardLocale,
+    BoardPage,
+    BoardReaction,
+    BoardReactions,
+    BoardSort,
+} from "@/types/board";
 
 interface UploadStatus {
     id: string;
@@ -20,6 +30,7 @@ interface SignedUrl {
 export const BOARD_FILE_LIMIT = 30_000_000;
 export const BOARD_R2_LIMIT = 5 * 2 ** 40 - 5 * 2 ** 30;
 
+/** 게시판과 로그인 세션을 고정한 API를 만든다. */
 export function boardService(board: Board, session: string) {
     async function request<T>(path: string, options: RequestInit = {}) {
         const response = await apiClient(`/boards/${board}${path}`, {
@@ -30,7 +41,12 @@ export function boardService(board: Board, session: string) {
         return parseResponseBody<T>(response, "Board");
     }
 
-    function write<T>(path: string, method: string, body?: BoardDraft | { password: string }) {
+    // 게시판 변경 요청의 입력을 JSON으로 직렬화한다.
+    function write<T>(
+        path: string,
+        method: string,
+        body?: BoardDraft | { password: string } | { reaction: BoardReaction } | { name: string },
+    ) {
         return request<T>(path, { method, body: body && JSON.stringify(body) });
     }
 
@@ -90,10 +106,22 @@ export function boardService(board: Board, session: string) {
     }
 
     return {
-        list: (locale: BoardLocale, page: number) =>
-            request<BoardPage>(`/posts?locale=${locale}&page=${page}`),
+        list: (locale: BoardLocale, page: number, sort: BoardSort, category: string) =>
+            request<BoardPage>(`/posts?${new URLSearchParams({
+                locale,
+                page: String(page),
+                sort,
+                ...(category === "uncategorized" ? { uncategorized: "true" } : category ? { category } : {}),
+            })}`),
         post: (id: string, locale: BoardLocale) =>
             request<BoardEntry>(`/posts/${id}?locale=${locale}`),
+        recordView: (id: string) => write<number>(`/posts/${id}/views`, "POST"),
+        vote: (id: string, reaction: BoardReaction) =>
+            write<BoardReactions>(`/posts/${id}/vote`, "PUT", { reaction }),
+        categories: () => request<BoardCategory[]>("/categories"),
+        saveCategory: (name: string, category?: string) => category
+            ? write<BoardCategory>(`/categories/${category}`, "PUT", { name })
+            : write<BoardCategory>("/categories", "POST", { name }),
         replies: (post: string, parent: string | undefined, locale: BoardLocale, page: number) =>
             request<BoardPage>(`/posts/${post}/replies?${new URLSearchParams({
                 locale,
@@ -121,6 +149,7 @@ export function boardError(error: unknown) {
             case "BOARD_WRONG_PASSWORD": return "wrongPassword";
             case "BOARD_STORAGE_UNAVAILABLE": return "storageError";
             case "BOARD_INVALID_INPUT": return "invalid";
+            case "BOARD_CATEGORY_DUPLICATE": return "duplicateCategory";
         }
 
         if (error.status === 429) return "retryLater";

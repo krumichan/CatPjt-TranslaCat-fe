@@ -44,6 +44,10 @@
       "title": "Account book settings",
       "description": "Manage the default currency, default categories and monthly goal display."
     },
+    "boards": {
+      "title": "Board management",
+      "description": "Add topic categories to general and anonymous boards."
+    },
     "currency": {
       "title": "Currencies",
       "description": "Manage currency codes, symbols, decimal places and the default currency for account books."

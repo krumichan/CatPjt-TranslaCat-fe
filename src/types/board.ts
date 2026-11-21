@@ -1,4 +1,6 @@
-export const BOARD_TYPES = ["MEMBER", "ANONYMOUS", "ADMIN"] as const;
+export const BOARD_TOPIC_TYPES = ["MEMBER", "ANONYMOUS"] as const;
+export type BoardTopicType = (typeof BOARD_TOPIC_TYPES)[number];
+export const BOARD_TYPES = [...BOARD_TOPIC_TYPES, "ADMIN"] as const;
 export type Board = (typeof BOARD_TYPES)[number];
 export type BoardLocale = "ko" | "ja" | "en";
 export type BoardSort = "LATEST" | "POPULAR";

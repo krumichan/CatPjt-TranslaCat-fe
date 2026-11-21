@@ -4,9 +4,8 @@
     "latest": "新着",
     "popular": "人気",
     "emptyPopular": "人気の投稿はまだありません。",
-    "createForum": "掲示板を作成",
-    "forumName": "掲示板名",
-    "forumType": "掲示板の種類",
+    "createForum": "カテゴリーを追加",
+    "forumName": "カテゴリー名",
     "duplicateForum": "この種類には同じ名前の掲示板があります。",
     "views": "閲覧数",
     "viewCount": "閲覧 {count, number}",
@@ -65,7 +64,18 @@
     "accessError": "掲示板または項目にアクセスできません。",
     "storageError": "添付ファイルのストレージを利用できません。しばらくしてから再試行してください。",
     "invalid": "入力内容や添付ファイルを確認してください。",
-    "error": "処理できませんでした。しばらくしてから再試行してください。"
+    "error": "処理できませんでした。しばらくしてから再試行してください。",
+    "boardGroups": "掲示板の種類",
+    "groups": {
+      "MEMBER": "一般",
+      "ANONYMOUS": "匿名",
+      "ADMIN": "管理者"
+    },
+    "categoriesFor": "{group}カテゴリー",
+    "generalForum": "一般掲示板",
+    "directoryBack": "戻る",
+    "categoryAdded": "「{name}」カテゴリーを追加しました。",
+    "legacyAdminForums": "既存の管理者掲示板"
   },
   "Navigation": {
     "boards": "掲示板"

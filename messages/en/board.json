@@ -4,9 +4,8 @@
     "latest": "Latest",
     "popular": "Popular",
     "emptyPopular": "There are no popular posts yet.",
-    "createForum": "Create board",
-    "forumName": "Board name",
-    "forumType": "Board type",
+    "createForum": "Add category",
+    "forumName": "Category name",
     "duplicateForum": "A board of this type already has that name.",
     "views": "Views",
     "viewCount": "{count, number} views",
@@ -65,7 +64,18 @@
     "accessError": "You cannot access this board or item.",
     "storageError": "Attachment storage is unavailable. Try again later.",
     "invalid": "Check the input or attachments.",
-    "error": "The request could not be completed. Try again later."
+    "error": "The request could not be completed. Try again later.",
+    "boardGroups": "Board groups",
+    "groups": {
+      "MEMBER": "General",
+      "ANONYMOUS": "Anonymous",
+      "ADMIN": "Admin"
+    },
+    "categoriesFor": "{group} categories",
+    "generalForum": "General board",
+    "directoryBack": "Back",
+    "categoryAdded": "Added the {name} category.",
+    "legacyAdminForums": "Existing admin boards"
   },
   "Navigation": {
     "boards": "Boards"

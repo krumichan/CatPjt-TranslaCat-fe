@@ -14,14 +14,14 @@ import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import useSWR, { SWRConfig } from "swr";
 
-import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils";
 import { Link, useRouter } from "@/navigation";
 import { boardDirectory, boardError, boardService, type BoardApi } from "@/services/board/boardService";
-import { BOARD_TYPES, type BoardForum, type BoardLocale, type BoardSort } from "@/types/board";
-import { BoardForumEditor } from "./BoardForumEditor";
+import { BOARD_TOPIC_TYPES, BOARD_TYPES, type BoardForum, type BoardLocale, type BoardSort } from "@/types/board";
+import { BoardDirectory } from "./BoardDirectory";
 import { BoardComposer } from "./BoardForms";
 import { BoardThread } from "./BoardThread";
+import { boardGroupPath, boardPath } from "./boardNavigation";
 import { boardErrorStyle, boardPrimaryButton, boardSecondaryButton } from "./boardStyles";
 
 const POST_ID = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
@@ -38,98 +38,64 @@ export function BoardSmartPage() {
     const t = useTranslations("Board");
     const locale = useLocale();
     const params = useSearchParams();
-    const router = useRouter();
     const login = session?.loginSessionId;
     const authenticated = status === "authenticated" && Boolean(login);
     const isAdmin = session?.user?.role === "ADMIN";
     const directory = useMemo(() => boardDirectory(login ?? ""), [login]);
-    const { data: forums, error, mutate } = useSWR(
+    const { data: forums, error } = useSWR(
         authenticated ? ["board-directory", login] : null,
         directory.list,
         { shouldRetryOnError: false },
     );
 
-    // 이전 글 주소는 서버에서 글의 실제 게시판을 찾는다. 새 주소는 게시판 ID를 직접 보존한다.
+    // 그룹 선택과 글 주소를 구분한다. 이전 주소는 서버에서 글의 실제 게시판을 찾는다.
     const rawPost = params.get("post");
     const post = rawPost && POST_ID.test(rawPost) ? rawPost : null;
     const forumId = params.get("forum");
     const legacyBoard = params.get("board");
     const legacyType = BOARD_TYPES.find((type) => type === (legacyBoard ?? "MEMBER"));
     const legacyCategory = params.get("category");
-    const locate = authenticated && !forumId && post && legacyType && (legacyType !== "ADMIN" || isAdmin);
+    const legacyPost = authenticated && forumId === null && post && legacyType && (legacyType !== "ADMIN" || isAdmin)
+        ? { type: legacyType, post }
+        : null;
     const { data: location, error: locationError } = useSWR(
-        locate ? ["board-location", login, legacyType, post] : null,
-        () => directory.locate(legacyType!, post!),
+        legacyPost ? ["board-location", login, legacyPost.type, legacyPost.post] as const : null,
+        ([, , type, id]) => directory.locate(type, id),
         { shouldRetryOnError: false },
     );
+
+    const showingForum = forumId !== null || legacyBoard !== null || legacyCategory !== null || post !== null;
     const legacyForum = forums?.find(({ id, type }) => id === legacyCategory && type === legacyType);
     const selectedId = forumId ?? location?.id ?? legacyForum?.id ?? legacyType;
     const forum = forums?.find(({ id }) => id === selectedId);
+    const group = BOARD_TOPIC_TYPES.find((type) => type === params.get("group")) ?? "MEMBER";
     const sort: BoardSort = params.get("sort") === "POPULAR" ? "POPULAR" : "LATEST";
 
-    // 학습 모드의 게시글 번역 언어는 기존과 같이 한국어를 사용한다.
+    // 학습 모드의 게시글은 기존과 동일하게 한국어로 번역해 표시한다.
     const language: BoardLocale = locale === "ja" || locale === "en" ? locale : "ko";
-
-    // 등록 결과를 목록에 반영한 다음 새 게시판을 열고 서버 목록과 동기화한다.
-    async function openCreatedForum(created: BoardForum) {
-        await mutate((current) => [
-            ...(current ?? []).filter(({ id }) => id !== created.id),
-            created,
-        ], { revalidate: false });
-        router.push(boardPath(created.id));
-        void mutate();
-    }
-
     const failure = error || locationError;
-    const waiting = status === "loading" || authenticated && (!forums || (Boolean(locate) && !location));
+    const waiting = status === "loading" || authenticated && (!forums || (legacyPost !== null && !location));
 
     return (
         <div className="mx-auto max-w-6xl space-y-5 px-4 pb-12 pt-28 sm:px-6">
-            <header className={cn(BOARD_SURFACE, "px-4 pt-4 sm:px-6 sm:pt-5")}>
-                <h1 className="mb-3 flex items-center gap-3 text-2xl font-bold tracking-tight sm:mb-4">
-                    <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-violet-100 text-violet-700 dark:bg-violet-400/15 dark:text-violet-300">
-                        <ClipboardList className="size-5" aria-hidden="true" />
-                    </span>
+            {!showingForum && (
+                <h1 className="flex items-center gap-3 text-2xl font-bold tracking-tight">
+                    <ClipboardList className="size-6 text-violet-600 dark:text-violet-300" aria-hidden="true" />
                     {t("title")}
                 </h1>
-                {authenticated && forums && (
-                    <nav aria-label={t("title")} className="max-h-40 overflow-y-auto border-t border-slate-100 dark:border-white/10">
-                        <ul className="flex flex-wrap gap-x-1 gap-y-1 py-1">
-                            {forums.map((item) => (
-                                <li key={item.id} className="min-w-0 max-w-full">
-                                    <Link
-                                        href={boardPath(item.id)}
-                                        aria-current={item.id === forum?.id ? "page" : undefined}
-                                        className={cn(
-                                            "inline-flex min-h-11 max-w-full flex-wrap items-center gap-x-2 rounded-lg px-2.5 py-1.5 text-sm font-semibold wrap-anywhere sm:px-4",
-                                            "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-violet-500",
-                                            item.id === forum?.id
-                                                ? "bg-violet-100 text-violet-800 dark:bg-violet-400/15 dark:text-violet-300"
-                                                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white",
-                                        )}
-                                    >
-                                        {item.name ?? t(item.type)}
-                                        {item.name && <span className="text-xs font-normal opacity-80">{t(item.type)}</span>}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </nav>
-                )}
-                {authenticated && isAdmin && (
-                    <BoardForumEditor create={directory.create} onCreated={(created) => void openCreatedForum(created)} />
-                )}
-            </header>
+            )}
             {failure ? (
                 <p role="alert" className={boardErrorStyle}>{t(boardError(failure))}</p>
             ) : waiting ? (
                 <p role="status">{t("loading")}</p>
-            ) : !authenticated || !login ? (
+            ) : !authenticated || !login || !forums ? (
                 <p className="rounded-xl border border-slate-200 p-6 dark:border-white/10">{t("loginRequired")}</p>
+            ) : !showingForum ? (
+                <BoardDirectory forums={forums} group={group} />
             ) : !forum ? (
                 <p role="alert" className={boardErrorStyle}>{t("accessError")}</p>
             ) : (
-                // 게시판 ID별로 글·댓글·잠금 해제 상태를 독립적으로 관리한다.
+                // 게시판을 전환하면 현재 글·댓글·잠금 해제 캐시를 분리한다.
                 <SWRConfig
                     key={`${login}:${forum.id}:${post ?? ""}:${language}:${sort}`}
                     value={{ provider: () => new Map() }}
@@ -153,17 +119,22 @@ function BoardWorkspace({ forum, post, language, login, sort }: {
     const router = useRouter();
     const api = useMemo(() => boardService(forum.id, login), [forum.id, login]);
 
+    const title = forum.name ?? (forum.type === "MEMBER" ? t("generalForum") : t(forum.type));
+    const back = post
+        ? boardPath(forum.id, sort)
+        : boardGroupPath(forum.type === "ADMIN" ? "MEMBER" : forum.type);
+
     return (
-        <section
-            aria-label={forum.name ?? t(forum.type)}
-            className={cn(BOARD_SURFACE, "min-w-0", post && "space-y-5 p-4 sm:p-6")}
-        >
+        <section aria-label={title} className={cn(BOARD_SURFACE, "min-w-0")}>
+            <header className="flex items-center gap-3 border-b border-slate-200 px-4 py-4 sm:px-5 dark:border-white/10">
+                <Link href={back} className={boardSecondaryButton}>
+                    <ChevronLeft className="size-4 shrink-0" aria-hidden="true" />
+                    <span className="sr-only sm:not-sr-only">{t(post ? "back" : "directoryBack")}</span>
+                </Link>
+                <h1 className="min-w-0 text-xl font-bold wrap-anywhere sm:text-2xl">{title}</h1>
+            </header>
             {post ? (
-                <>
-                    <Link href={boardPath(forum.id, sort)} className={boardSecondaryButton}>
-                        <ChevronLeft className="size-4" aria-hidden="true" />
-                        {t("back")}
-                    </Link>
+                <div className="space-y-5 p-4 sm:p-6">
                     <BoardThread
                         board={forum.type}
                         post={post}
@@ -172,7 +143,7 @@ function BoardWorkspace({ forum, post, language, login, sort }: {
                         api={api}
                         onDeleted={() => router.push(boardPath(forum.id, sort))}
                     />
-                </>
+                </div>
             ) : (
                 <BoardList forum={forum} locale={language} login={login} api={api} sort={sort} />
             )}
@@ -209,24 +180,7 @@ function BoardList({ forum, locale, login, api, sort }: {
 
     return (
         <>
-            <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-5">
-                <h2 className="text-lg font-bold">{forum.name ?? t(forum.type)}</h2>
-                <div className="flex flex-wrap gap-2">
-                    <button
-                        type="button"
-                        className={boardSecondaryButton}
-                        onClick={() => setOriginals((value) => !value)}
-                    >
-                        <Languages className="size-4" aria-hidden="true" />
-                        {t(originals ? "showTranslation" : "showOriginal")}
-                    </button>
-                    <button type="button" className={boardPrimaryButton} onClick={() => setComposing(true)}>
-                        <PencilLine className="size-4" aria-hidden="true" />
-                        {t("newPost")}
-                    </button>
-                </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-3 px-4 pb-4 sm:px-5">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 px-4 py-3 sm:px-5 dark:border-white/10">
                 <nav aria-label={t("sort")} className="inline-flex gap-1 rounded-xl bg-slate-100 p-1 dark:bg-white/5">
                     {(["LATEST", "POPULAR"] as const).map((order) => (
                         <Link
@@ -243,9 +197,23 @@ function BoardList({ forum, locale, login, api, sort }: {
                         </Link>
                     ))}
                 </nav>
+                <div className="ml-auto flex flex-wrap items-center gap-2">
+                    <button
+                        type="button"
+                        className={boardSecondaryButton}
+                        onClick={() => setOriginals((value) => !value)}
+                    >
+                        <Languages className="size-4" aria-hidden="true" />
+                        {t(originals ? "showTranslation" : "showOriginal")}
+                    </button>
+                    <button type="button" className={boardPrimaryButton} onClick={() => setComposing(true)}>
+                        <PencilLine className="size-4" aria-hidden="true" />
+                        {t("newPost")}
+                    </button>
+                </div>
             </div>
             {composing && (
-                <div className="px-4 pb-4 sm:px-5">
+                <div className="px-4 py-4 sm:px-5">
                     <BoardComposer
                         board={forum.type}
                         api={api}
@@ -272,7 +240,7 @@ function BoardList({ forum, locale, login, api, sort }: {
                         aria-hidden="true"
                         className={cn(
                             BOARD_ROW_LAYOUT,
-                            "hidden border-y border-slate-200 bg-slate-50 py-2.5 text-xs font-semibold text-slate-600",
+                            "hidden border-b border-slate-200 bg-slate-50 py-2.5 text-xs font-semibold text-slate-600",
                             "sm:grid dark:border-white/10 dark:bg-white/5 dark:text-slate-300",
                         )}
                     >
@@ -282,7 +250,7 @@ function BoardList({ forum, locale, login, api, sort }: {
                         <span className="text-right">{t("views")}</span>
                     </div>
                     {/* 모바일에서는 제목 아래에 작성자와 날짜를 배치하고 제목 전체를 읽을 수 있게 줄바꿈한다. */}
-                    <ul className="divide-y divide-slate-100 border-t border-slate-200 sm:border-t-0 dark:divide-white/10 dark:border-white/10">
+                    <ul className="divide-y divide-slate-100 dark:divide-white/10">
                         {data.items.map((entry) => (
                             <li key={entry.id}>
                                 <Link
@@ -362,16 +330,4 @@ function BoardList({ forum, locale, login, api, sort }: {
             )}
         </>
     );
-}
-
-// 게시판 ID와 정렬·게시글을 주소에 남겨 공유와 뒤로 가기를 지원한다.
-function boardPath(forumId: string, sort: BoardSort = "LATEST", post?: string) {
-    const query = new URLSearchParams({ forum: forumId });
-    if (sort === "POPULAR") {
-        query.set("sort", sort);
-    }
-    if (post) {
-        query.set("post", post);
-    }
-    return `${ROUTES.BOARDS}?${query}`;
 }

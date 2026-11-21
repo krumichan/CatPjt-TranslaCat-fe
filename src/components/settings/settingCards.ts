@@ -2,6 +2,7 @@ import React from "react";
 import {
     BookOpen,
     Bot,
+    ClipboardList,
     GraduationCap,
     Languages,
     MessageCircle,
@@ -63,6 +64,15 @@ export const settingCards: SettingCard[] = [
         statusKey: "status.preparing",
         icon: WalletCards,
         enabled: false,
+    },
+    {
+        href: "/settings/admin/boards",
+        titleKey: "boards.title",
+        descriptionKey: "boards.description",
+        statusKey: "status.available",
+        icon: ClipboardList,
+        adminOnly: true,
+        enabled: true,
     },
     {
         href: "/settings/admin/currencies",

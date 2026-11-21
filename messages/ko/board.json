@@ -4,9 +4,8 @@
     "latest": "최신글",
     "popular": "인기글",
     "emptyPopular": "아직 인기글이 없습니다.",
-    "createForum": "게시판 개설",
-    "forumName": "게시판 이름",
-    "forumType": "게시판 유형",
+    "createForum": "카테고리 추가",
+    "forumName": "카테고리 이름",
     "duplicateForum": "이 유형에 같은 이름의 게시판이 있습니다.",
     "views": "조회",
     "viewCount": "조회 {count, number}",
@@ -65,7 +64,18 @@
     "accessError": "게시판이나 항목에 접근할 수 없습니다.",
     "storageError": "첨부 저장소를 사용할 수 없습니다. 잠시 후 다시 시도해 주세요.",
     "invalid": "입력 또는 첨부파일을 확인해 주세요.",
-    "error": "요청을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요."
+    "error": "요청을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.",
+    "boardGroups": "게시판 유형",
+    "groups": {
+      "MEMBER": "일반",
+      "ANONYMOUS": "익명",
+      "ADMIN": "관리자"
+    },
+    "categoriesFor": "{group} 카테고리",
+    "generalForum": "일반 게시판",
+    "directoryBack": "뒤로가기",
+    "categoryAdded": "{name} 카테고리를 추가했습니다.",
+    "legacyAdminForums": "기존 관리자 게시판"
   },
   "Navigation": {
     "boards": "게시판"

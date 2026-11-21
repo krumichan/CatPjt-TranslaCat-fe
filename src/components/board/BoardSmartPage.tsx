@@ -17,14 +17,13 @@ import useSWR, { SWRConfig } from "swr";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils";
 import { Link, useRouter } from "@/navigation";
-import { boardError, boardService, type BoardApi } from "@/services/board/boardService";
-import type { Board, BoardCategory, BoardLocale, BoardSort } from "@/types/board";
-import { BoardCategoryEditor } from "./BoardCategoryEditor";
+import { boardDirectory, boardError, boardService, type BoardApi } from "@/services/board/boardService";
+import { BOARD_TYPES, type BoardForum, type BoardLocale, type BoardSort } from "@/types/board";
+import { BoardForumEditor } from "./BoardForumEditor";
 import { BoardComposer } from "./BoardForms";
 import { BoardThread } from "./BoardThread";
-import { boardErrorStyle, boardInput, boardPrimaryButton, boardSecondaryButton } from "./boardStyles";
+import { boardErrorStyle, boardPrimaryButton, boardSecondaryButton } from "./boardStyles";
 
-const BOARD_IDS = ["MEMBER", "ANONYMOUS", "ADMIN"] as const;
 const POST_ID = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
 const BOARD_ROW_LAYOUT = cn(
     "grid items-center gap-x-4 px-4 sm:px-5",
@@ -32,32 +31,57 @@ const BOARD_ROW_LAYOUT = cn(
 );
 const BOARD_SURFACE = "rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-slate-900";
 
-interface BoardFilter {
-    sort: BoardSort;
-    category: string;
-}
-
-/** 로그인 세션에 허용된 게시판으로 URL을 해석하고 게시판별 작업 화면을 표시한다. */
+/** 로그인한 사용자에게 게시판 목록을 보여주고 주소에서 선택된 게시판을 연다. */
 export function BoardSmartPage() {
-    // URL에서 선택한 게시판과 게시글을 읽고 관리자 탭은 관리자 세션에만 연다.
+    // 세션별로 게시판 목록을 읽어 관리자용 게시판이 계정 전환 후 남지 않게 한다.
     const { data: session, status } = useSession();
     const t = useTranslations("Board");
     const locale = useLocale();
     const params = useSearchParams();
+    const router = useRouter();
     const login = session?.loginSessionId;
+    const authenticated = status === "authenticated" && Boolean(login);
     const isAdmin = session?.user?.role === "ADMIN";
-    const availableBoards = BOARD_IDS.filter((item) => item !== "ADMIN" || isAdmin);
-    const board = availableBoards.find((item) => item === params.get("board")) ?? "MEMBER";
+    const directory = useMemo(() => boardDirectory(login ?? ""), [login]);
+    const { data: forums, error, mutate } = useSWR(
+        authenticated ? ["board-directory", login] : null,
+        directory.list,
+        { shouldRetryOnError: false },
+    );
+
+    // 이전 글 주소는 서버에서 글의 실제 게시판을 찾는다. 새 주소는 게시판 ID를 직접 보존한다.
     const rawPost = params.get("post");
     const post = rawPost && POST_ID.test(rawPost) ? rawPost : null;
-    const rawCategory = params.get("category") ?? "";
-    const filter: BoardFilter = {
-        sort: board !== "ADMIN" && params.get("sort") === "POPULAR" ? "POPULAR" : "LATEST",
-        category: rawCategory === "uncategorized" || POST_ID.test(rawCategory) ? rawCategory : "",
-    };
+    const forumId = params.get("forum");
+    const legacyBoard = params.get("board");
+    const legacyType = BOARD_TYPES.find((type) => type === (legacyBoard ?? "MEMBER"));
+    const legacyCategory = params.get("category");
+    const locate = authenticated && !forumId && post && legacyType && (legacyType !== "ADMIN" || isAdmin);
+    const { data: location, error: locationError } = useSWR(
+        locate ? ["board-location", login, legacyType, post] : null,
+        () => directory.locate(legacyType!, post!),
+        { shouldRetryOnError: false },
+    );
+    const legacyForum = forums?.find(({ id, type }) => id === legacyCategory && type === legacyType);
+    const selectedId = forumId ?? location?.id ?? legacyForum?.id ?? legacyType;
+    const forum = forums?.find(({ id }) => id === selectedId);
+    const sort: BoardSort = params.get("sort") === "POPULAR" ? "POPULAR" : "LATEST";
 
     // 학습 모드의 게시글 번역 언어는 기존과 같이 한국어를 사용한다.
     const language: BoardLocale = locale === "ja" || locale === "en" ? locale : "ko";
+
+    // 등록 결과를 목록에 반영한 다음 새 게시판을 열고 서버 목록과 동기화한다.
+    async function openCreatedForum(created: BoardForum) {
+        await mutate((current) => [
+            ...(current ?? []).filter(({ id }) => id !== created.id),
+            created,
+        ], { revalidate: false });
+        router.push(boardPath(created.id));
+        void mutate();
+    }
+
+    const failure = error || locationError;
+    const waiting = status === "loading" || authenticated && (!forums || (Boolean(locate) && !location));
 
     return (
         <div className="mx-auto max-w-6xl space-y-5 px-4 pb-12 pt-28 sm:px-6">
@@ -68,45 +92,49 @@ export function BoardSmartPage() {
                     </span>
                     {t("title")}
                 </h1>
-                {status === "authenticated" && login && (
-                    <nav aria-label={t("title")} className="flex flex-wrap gap-x-1 border-t border-slate-100 dark:border-white/10">
-                        {availableBoards.map((item) => (
-                            <Link
-                                key={item}
-                                href={boardPath(item)}
-                                aria-current={item === board ? "page" : undefined}
-                                className={cn(
-                                    "inline-flex min-h-12 items-center border-b-2 px-2.5 text-sm font-semibold sm:px-4",
-                                    "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-violet-500",
-                                    item === board
-                                        ? "border-violet-600 text-violet-700 dark:border-violet-400 dark:text-violet-300"
-                                        : "border-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white",
-                                )}
-                            >
-                                {t(item)}
-                            </Link>
-                        ))}
+                {authenticated && forums && (
+                    <nav aria-label={t("title")} className="max-h-40 overflow-y-auto border-t border-slate-100 dark:border-white/10">
+                        <ul className="flex flex-wrap gap-x-1 gap-y-1 py-1">
+                            {forums.map((item) => (
+                                <li key={item.id} className="min-w-0 max-w-full">
+                                    <Link
+                                        href={boardPath(item.id)}
+                                        aria-current={item.id === forum?.id ? "page" : undefined}
+                                        className={cn(
+                                            "inline-flex min-h-11 max-w-full flex-wrap items-center gap-x-2 rounded-lg px-2.5 py-1.5 text-sm font-semibold wrap-anywhere sm:px-4",
+                                            "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-violet-500",
+                                            item.id === forum?.id
+                                                ? "bg-violet-100 text-violet-800 dark:bg-violet-400/15 dark:text-violet-300"
+                                                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white",
+                                        )}
+                                    >
+                                        {item.name ?? t(item.type)}
+                                        {item.name && <span className="text-xs font-normal opacity-80">{t(item.type)}</span>}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
                     </nav>
                 )}
+                {authenticated && isAdmin && (
+                    <BoardForumEditor create={directory.create} onCreated={(created) => void openCreatedForum(created)} />
+                )}
             </header>
-            {status === "loading" ? (
+            {failure ? (
+                <p role="alert" className={boardErrorStyle}>{t(boardError(failure))}</p>
+            ) : waiting ? (
                 <p role="status">{t("loading")}</p>
-            ) : status !== "authenticated" || !login ? (
+            ) : !authenticated || !login ? (
                 <p className="rounded-xl border border-slate-200 p-6 dark:border-white/10">{t("loginRequired")}</p>
+            ) : !forum ? (
+                <p role="alert" className={boardErrorStyle}>{t("accessError")}</p>
             ) : (
-                // 게시판·상세 글·언어·세션 경계를 기준으로 목록과 열람 상태를 분리한다.
+                // 게시판 ID별로 글·댓글·잠금 해제 상태를 독립적으로 관리한다.
                 <SWRConfig
-                    key={`${login}:${board}:${post ?? ""}:${language}:${filter.sort}:${filter.category}`}
+                    key={`${login}:${forum.id}:${post ?? ""}:${language}:${sort}`}
                     value={{ provider: () => new Map() }}
                 >
-                    <BoardWorkspace
-                        board={board}
-                        post={post}
-                        language={language}
-                        login={login}
-                        filter={filter}
-                        isAdmin={isAdmin}
-                    />
+                    <BoardWorkspace forum={forum} post={post} language={language} login={login} sort={sort} />
                 </SWRConfig>
             )}
         </div>
@@ -114,68 +142,51 @@ export function BoardSmartPage() {
 }
 
 // 같은 게시판의 목록과 글 상세가 세션으로 범위가 지정된 API를 공유한다.
-function BoardWorkspace({ board, post, language, login, filter, isAdmin }: {
-    board: Board;
+function BoardWorkspace({ forum, post, language, login, sort }: {
+    forum: BoardForum;
     post: string | null;
     language: BoardLocale;
     login: string;
-    filter: BoardFilter;
-    isAdmin: boolean;
+    sort: BoardSort;
 }) {
     const t = useTranslations("Board");
     const router = useRouter();
-    const api = useMemo(() => boardService(board, login), [board, login]);
-    const { data: categories, mutate: reloadCategories } = useSWR(
-        ["board-categories", login, board],
-        api.categories,
-        { shouldRetryOnError: false },
-    );
+    const api = useMemo(() => boardService(forum.id, login), [forum.id, login]);
 
     return (
         <section
-            aria-label={t(board)}
+            aria-label={forum.name ?? t(forum.type)}
             className={cn(BOARD_SURFACE, "min-w-0", post && "space-y-5 p-4 sm:p-6")}
         >
             {post ? (
                 <>
-                    <Link href={boardPath(board, undefined, filter)} className={boardSecondaryButton}>
+                    <Link href={boardPath(forum.id, sort)} className={boardSecondaryButton}>
                         <ChevronLeft className="size-4" aria-hidden="true" />
                         {t("back")}
                     </Link>
                     <BoardThread
-                        board={board}
+                        board={forum.type}
                         post={post}
                         locale={language}
                         login={login}
                         api={api}
-                        categories={categories}
-                        onDeleted={() => router.push(boardPath(board, undefined, filter))}
+                        onDeleted={() => router.push(boardPath(forum.id, sort))}
                     />
                 </>
             ) : (
-                <BoardList
-                    board={board}
-                    locale={language}
-                    login={login}
-                    api={api}
-                    filter={filter}
-                    categories={categories}
-                    onCategoriesSaved={isAdmin ? async () => { await reloadCategories(); } : undefined}
-                />
+                <BoardList forum={forum} locale={language} login={login} api={api} sort={sort} />
             )}
         </section>
     );
 }
 
 // 현재 게시판의 글 목록을 표시하고 목록에서 새 글을 작성한다.
-function BoardList({ board, locale, login, api, filter, categories, onCategoriesSaved }: {
-    board: Board;
+function BoardList({ forum, locale, login, api, sort }: {
+    forum: BoardForum;
     locale: BoardLocale;
     login: string;
     api: BoardApi;
-    filter: BoardFilter;
-    categories?: BoardCategory[];
-    onCategoriesSaved?: () => Promise<void>;
+    sort: BoardSort;
 }) {
     // 페이지 이동과 원문 표시 여부는 현재 목록 화면에만 적용한다.
     const t = useTranslations("Board");
@@ -187,8 +198,8 @@ function BoardList({ board, locale, login, api, filter, categories, onCategories
 
     // 요청 범위별로 목록을 나누고 번역 대기 중인 항목이 있을 때 목록을 갱신한다.
     const { data, isLoading, error, mutate } = useSWR(
-        ["board-list", login, board, locale, page, filter.sort, filter.category],
-        () => api.list(locale, page, filter.sort, filter.category),
+        ["board-list", login, forum.id, locale, page, sort],
+        () => api.list(locale, page, sort),
         {
             refreshInterval: (current) => current?.items.some((entry) => entry.translating) ? 2500 : 0,
             shouldRetryOnError: false,
@@ -199,7 +210,7 @@ function BoardList({ board, locale, login, api, filter, categories, onCategories
     return (
         <>
             <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-5">
-                <h2 className="text-lg font-bold">{t("postList")}</h2>
+                <h2 className="text-lg font-bold">{forum.name ?? t(forum.type)}</h2>
                 <div className="flex flex-wrap gap-2">
                     <button
                         type="button"
@@ -215,63 +226,36 @@ function BoardList({ board, locale, login, api, filter, categories, onCategories
                     </button>
                 </div>
             </div>
-            <div className="flex flex-wrap items-center justify-between gap-3 px-4 pb-4 sm:px-5">
-                {board !== "ADMIN" && (
-                    <nav aria-label={t("sort")} className="inline-flex gap-1 rounded-xl bg-slate-100 p-1 dark:bg-white/5">
-                        {(["LATEST", "POPULAR"] as const).map((sort) => (
-                            <Link
-                                key={sort}
-                                href={boardPath(board, undefined, { ...filter, sort })}
-                                aria-current={sort === filter.sort ? "page" : undefined}
-                                className={cn(
-                                    "rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 dark:text-slate-300",
-                                    "aria-[current=page]:bg-white aria-[current=page]:text-violet-700",
-                                    "dark:aria-[current=page]:bg-white/10 dark:aria-[current=page]:text-violet-300",
-                                )}
-                            >
-                                {t(sort === "POPULAR" ? "popular" : "latest")}
-                            </Link>
-                        ))}
-                    </nav>
-                )}
-                <select
-                    className={cn(boardInput, "w-auto max-w-full py-2")}
-                    aria-label={t("category")}
-                    value={filter.category}
-                    onChange={(event) => router.push(boardPath(board, undefined, {
-                        ...filter,
-                        category: event.target.value,
-                    }))}
-                >
-                    <option value="">{t("allCategories")}</option>
-                    <option value="uncategorized">{t("uncategorized")}</option>
-                    {!categories?.some(({ id }) => id === filter.category) && filter.category
-                        && filter.category !== "uncategorized" && <option value={filter.category}>{t("category")}</option>}
-                    {categories?.map((category) => (
-                        <option key={category.id} value={category.id}>{category.name}</option>
+            <div className="flex flex-wrap items-center gap-3 px-4 pb-4 sm:px-5">
+                <nav aria-label={t("sort")} className="inline-flex gap-1 rounded-xl bg-slate-100 p-1 dark:bg-white/5">
+                    {(["LATEST", "POPULAR"] as const).map((order) => (
+                        <Link
+                            key={order}
+                            href={boardPath(forum.id, order)}
+                            aria-current={order === sort ? "page" : undefined}
+                            className={cn(
+                                "rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 dark:text-slate-300",
+                                "aria-[current=page]:bg-white aria-[current=page]:text-violet-700",
+                                "dark:aria-[current=page]:bg-white/10 dark:aria-[current=page]:text-violet-300",
+                            )}
+                        >
+                            {t(order === "POPULAR" ? "popular" : "latest")}
+                        </Link>
                     ))}
-                </select>
+                </nav>
             </div>
-            {onCategoriesSaved && categories && (
-                <BoardCategoryEditor api={api} categories={categories} onSaved={async () => {
-                    await onCategoriesSaved();
-                    await mutate();
-                }} />
-            )}
             {composing && (
                 <div className="px-4 pb-4 sm:px-5">
                     <BoardComposer
-                        board={board}
+                        board={forum.type}
                         api={api}
                         post
-                        categories={categories}
-                        initialCategory={filter.category === "uncategorized" ? undefined : filter.category}
                         close={() => setComposing(false)}
                         save={async (draft) => {
                             // 저장에 성공하면 목록을 갱신하고 새 게시글로 이동한다.
                             const created = await api.createPost(draft);
                             void mutate();
-                            router.push(boardPath(board, created.id, filter));
+                            router.push(boardPath(forum.id, "LATEST", created.id));
                         }}
                     />
                 </div>
@@ -302,7 +286,7 @@ function BoardList({ board, locale, login, api, filter, categories, onCategories
                         {data.items.map((entry) => (
                             <li key={entry.id}>
                                 <Link
-                                    href={boardPath(board, entry.id, filter)}
+                                    href={boardPath(forum.id, sort, entry.id)}
                                     className={cn(
                                         BOARD_ROW_LAYOUT,
                                         "group min-h-15 grid-cols-[minmax(0,1fr)_auto_auto_1rem] gap-y-1 py-3",
@@ -311,11 +295,6 @@ function BoardList({ board, locale, login, api, filter, categories, onCategories
                                     )}
                                 >
                                     <span className="col-span-3 flex min-w-0 flex-wrap items-start gap-2 sm:col-span-1">
-                                        {!entry.locked && entry.category && (
-                                            <span className="max-w-full truncate rounded bg-violet-100 px-1.5 py-0.5 text-xs font-semibold text-violet-700 dark:bg-violet-400/15 dark:text-violet-300">
-                                                {entry.category.name}
-                                            </span>
-                                        )}
                                         {entry.locked && (
                                             <LockKeyhole className="mt-0.5 size-4 shrink-0 text-violet-600 dark:text-violet-300" aria-hidden="true" />
                                         )}
@@ -355,7 +334,7 @@ function BoardList({ board, locale, login, api, filter, categories, onCategories
             ) : (
                 <div className="flex flex-col items-center gap-3 border-t border-slate-200 px-4 py-12 text-center dark:border-white/10">
                     <ClipboardList className="size-7 text-slate-400" aria-hidden="true" />
-                    <p className="text-sm text-slate-500">{t(filter.sort === "POPULAR" ? "emptyPopular" : "empty")}</p>
+                    <p className="text-sm text-slate-500">{t(sort === "POPULAR" ? "emptyPopular" : "empty")}</p>
                 </div>
             )}
             {(page > 0 || data?.hasMore) && (
@@ -385,14 +364,11 @@ function BoardList({ board, locale, login, api, filter, categories, onCategories
     );
 }
 
-// 게시판과 선택한 글을 URL에 보존해 공유와 뒤로 가기를 지원한다.
-function boardPath(board: Board, post?: string, filter?: BoardFilter) {
-    const query = new URLSearchParams({ board });
-    if (filter?.sort === "POPULAR") {
-        query.set("sort", filter.sort);
-    }
-    if (filter?.category) {
-        query.set("category", filter.category);
+// 게시판 ID와 정렬·게시글을 주소에 남겨 공유와 뒤로 가기를 지원한다.
+function boardPath(forumId: string, sort: BoardSort = "LATEST", post?: string) {
+    const query = new URLSearchParams({ forum: forumId });
+    if (sort === "POPULAR") {
+        query.set("sort", sort);
     }
     if (post) {
         query.set("post", post);

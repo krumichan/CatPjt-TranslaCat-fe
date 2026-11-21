@@ -2,7 +2,7 @@ import { apiClient } from "@/lib/apiClient";
 import { ApiResponseError, parseResponseBody } from "@/services/common/responseParser";
 import type {
     Board,
-    BoardCategory,
+    BoardForum,
     BoardDraft,
     BoardEntry,
     BoardLocale,
@@ -30,22 +30,36 @@ interface SignedUrl {
 export const BOARD_FILE_LIMIT = 30_000_000;
 export const BOARD_R2_LIMIT = 5 * 2 ** 40 - 5 * 2 ** 30;
 
-/** 게시판과 로그인 세션을 고정한 API를 만든다. */
-export function boardService(board: Board, session: string) {
-    async function request<T>(path: string, options: RequestInit = {}) {
-        const response = await apiClient(`/boards/${board}${path}`, {
-            ...options,
-            cache: "no-store",
-        }, session);
+// 모든 게시판 API는 현재 로그인 세션에만 요청하고 잠금 해제 응답을 캐시하지 않는다.
+async function requestBoard<T>(path: string, session: string, options: RequestInit = {}) {
+    const response = await apiClient(`/boards${path}`, { ...options, cache: "no-store" }, session);
+    return parseResponseBody<T>(response, "Board");
+}
 
-        return parseResponseBody<T>(response, "Board");
+/** 로그인한 사용자가 열 수 있는 게시판을 조회하고 관리자가 독립 게시판을 개설한다. */
+export function boardDirectory(session: string) {
+    return {
+        list: () => requestBoard<BoardForum[]>("", session),
+        create: (name: string, type: Board) => requestBoard<BoardForum>("", session, {
+            method: "POST",
+            body: JSON.stringify({ name, type }),
+        }),
+        locate: (type: Board, post: string) =>
+            requestBoard<{ id: string }>(`/${type}/posts/${post}/location`, session),
+    };
+}
+
+/** 선택한 게시판 ID와 로그인 세션을 고정한 게시글 API를 만든다. */
+export function boardService(forumId: string, session: string) {
+    function request<T>(path: string, options: RequestInit = {}) {
+        return requestBoard<T>(`/${encodeURIComponent(forumId)}${path}`, session, options);
     }
 
     // 게시판 변경 요청의 입력을 JSON으로 직렬화한다.
     function write<T>(
         path: string,
         method: string,
-        body?: BoardDraft | { password: string } | { reaction: BoardReaction } | { name: string },
+        body?: BoardDraft | { password: string } | { reaction: BoardReaction },
     ) {
         return request<T>(path, { method, body: body && JSON.stringify(body) });
     }
@@ -106,22 +120,17 @@ export function boardService(board: Board, session: string) {
     }
 
     return {
-        list: (locale: BoardLocale, page: number, sort: BoardSort, category: string) =>
+        list: (locale: BoardLocale, page: number, sort: BoardSort) =>
             request<BoardPage>(`/posts?${new URLSearchParams({
                 locale,
                 page: String(page),
                 sort,
-                ...(category === "uncategorized" ? { uncategorized: "true" } : category ? { category } : {}),
             })}`),
         post: (id: string, locale: BoardLocale) =>
             request<BoardEntry>(`/posts/${id}?locale=${locale}`),
         recordView: (id: string) => write<number>(`/posts/${id}/views`, "POST"),
         vote: (id: string, reaction: BoardReaction) =>
             write<BoardReactions>(`/posts/${id}/vote`, "PUT", { reaction }),
-        categories: () => request<BoardCategory[]>("/categories"),
-        saveCategory: (name: string, category?: string) => category
-            ? write<BoardCategory>(`/categories/${category}`, "PUT", { name })
-            : write<BoardCategory>("/categories", "POST", { name }),
         replies: (post: string, parent: string | undefined, locale: BoardLocale, page: number) =>
             request<BoardPage>(`/posts/${post}/replies?${new URLSearchParams({
                 locale,
@@ -149,7 +158,7 @@ export function boardError(error: unknown) {
             case "BOARD_WRONG_PASSWORD": return "wrongPassword";
             case "BOARD_STORAGE_UNAVAILABLE": return "storageError";
             case "BOARD_INVALID_INPUT": return "invalid";
-            case "BOARD_CATEGORY_DUPLICATE": return "duplicateCategory";
+            case "BOARD_FORUM_DUPLICATE": return "duplicateForum";
         }
 
         if (error.status === 429) return "retryLater";

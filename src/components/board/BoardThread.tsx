@@ -7,7 +7,7 @@ import useSWR from "swr";
 
 import ConfirmModal from "@/components/common/ConfirmModal";
 import { boardError, type BoardApi } from "@/services/board/boardService";
-import type { Board, BoardCategory, BoardDraft, BoardEntry, BoardLocale } from "@/types/board";
+import type { Board, BoardDraft, BoardEntry, BoardLocale } from "@/types/board";
 import { BoardComposer, BoardUnlockForm } from "./BoardForms";
 import { BoardPostActions } from "./BoardPostActions";
 import { boardErrorStyle, boardPrimaryButton, boardSecondaryButton } from "./boardStyles";
@@ -23,9 +23,8 @@ interface ThreadContext {
 }
 
 /** 게시글 본문과 댓글을 열고 화면에 표시된 본문만 조회로 집계한다. */
-export function BoardThread({ onDeleted, categories, ...context }: ThreadContext & {
+export function BoardThread({ onDeleted, ...context }: ThreadContext & {
     onDeleted: () => void;
-    categories?: BoardCategory[];
 }) {
     const t = useTranslations("Board");
     const { api, board, post, locale, login } = context;
@@ -83,7 +82,7 @@ export function BoardThread({ onDeleted, categories, ...context }: ThreadContext
 
     return (
         <>
-            <BoardEntryContent entry={data} context={context} isPost categories={categories}
+            <BoardEntryContent entry={data} context={context} isPost
                 onUpdated={async () => { await mutate(); }} onDeleted={onDeleted} />
             <BoardPostActions
                 entry={data}
@@ -192,11 +191,10 @@ function BoardReply({ entry, context, depth, onChanged }: {
 }
 
 // 본문·첨부와 작성자 편집 기능을 표시한다.
-function BoardEntryContent({ context, entry, isPost = false, categories, onUpdated, onDeleted }: {
+function BoardEntryContent({ context, entry, isPost = false, onUpdated, onDeleted }: {
     context: ThreadContext;
     entry: BoardEntry;
     isPost?: boolean;
-    categories?: BoardCategory[];
     onUpdated: () => Promise<void>;
     onDeleted: () => void | Promise<void>;
 }) {
@@ -243,7 +241,7 @@ function BoardEntryContent({ context, entry, isPost = false, categories, onUpdat
     }
 
     if (editing) {
-        return <BoardComposer board={board} api={api} post={isPost} initial={entry} categories={categories}
+        return <BoardComposer board={board} api={api} post={isPost} initial={entry}
             close={() => setEditing(false)} save={async (draft) => {
                 await api.update(post, reply, draft);
                 setEditing(false);
@@ -260,7 +258,6 @@ function BoardEntryContent({ context, entry, isPost = false, categories, onUpdat
                 <span>{entry.author ?? t("anonymousAuthor")}</span>
                 <time dateTime={entry.createdAt}>{new Date(entry.createdAt).toLocaleString(locale)}</time>
                 {entry.secret && <span>{t(isPost ? "secretPost" : "secretReply")}</span>}
-                {isPost && entry.category && <span>{entry.category.name}</span>}
             </div>
             <p className="whitespace-pre-wrap break-words leading-relaxed">
                 {(!original && entry.translatedContent) || entry.content}

@@ -1,6 +1,6 @@
 import type { Page } from "@playwright/test";
 
-import type { BoardEntry, BoardReaction } from "../../src/types/board";
+import type { BoardEntry, BoardForum, BoardReaction } from "../../src/types/board";
 import { expect, installMockAuthCookie, test } from "../fixtures/mock-test";
 import {
     fulfillJson,
@@ -10,7 +10,9 @@ import {
 import { responseDto } from "../support/mock-data";
 import { TEST_USERS } from "../support/test-users";
 
-const CATEGORY = { id: "bbbbbbbb-0000-4000-8000-000000000009", name: "테스트 빌드" };
+const QUESTIONS: BoardForum = { id: "bbbbbbbb-0000-4000-8000-000000000009", type: "MEMBER", name: "질문 게시판" };
+const FEEDBACK: BoardForum = { id: "bbbbbbbb-0000-4000-8000-000000000010", type: "MEMBER", name: "의견 게시판" };
+const CREATED: BoardForum = { id: "bbbbbbbb-0000-4000-8000-000000000011", type: "ANONYMOUS", name: "익명 상담" };
 const POST: BoardEntry = {
     id: "bbbbbbbb-0000-4000-8000-000000000001",
     locked: false,
@@ -25,7 +27,6 @@ const POST: BoardEntry = {
     translatedContent: null,
     translating: false,
     attachments: [],
-    category: CATEGORY,
     viewCount: 4,
     reactions: { likes: 3, dislikes: 0, mine: "NONE" },
 };
@@ -37,32 +38,64 @@ const LOCKED_POST: BoardEntry = {
     author: null,
     title: null,
     translatedTitle: null,
-    category: null,
     viewCount: null,
     reactions: null,
 };
 const LONG_TITLE = "TranslaCatMobileCompatibilityTestBuild".repeat(5);
+const QUESTION = {
+    ...POST,
+    id: "bbbbbbbb-0000-4000-8000-000000000003",
+    translatedTitle: "질문 게시판의 첫 글",
+};
+const OPINION = {
+    ...POST,
+    id: "bbbbbbbb-0000-4000-8000-000000000004",
+    translatedTitle: "의견 게시판의 첫 글",
+};
 
-// 게시판 목록의 페이지와 권한 경계를 앱과 같은 응답 형식으로 재현한다.
-async function mockBoardLists(page: Page) {
-    await page.route(/\/boards\/(MEMBER|ANONYMOUS|ADMIN)\/categories$/, (route) =>
-        fulfillJson(route, responseDto([CATEGORY])),
-    );
-    await page.route(/\/boards\/(MEMBER|ANONYMOUS|ADMIN)\/posts\?/, (route) => {
+// 유형은 같아도 게시판 ID마다 목록이 다르고 관리자 게시판은 역할에 따라 노출된다.
+async function mockBoardLists(page: Page, administrator = false) {
+    const directory: BoardForum[] = [
+        { id: "MEMBER", type: "MEMBER", name: null },
+        { id: "ANONYMOUS", type: "ANONYMOUS", name: null },
+        QUESTIONS,
+        FEEDBACK,
+    ];
+    if (administrator) {
+        directory.push({ id: "ADMIN", type: "ADMIN", name: null });
+    }
+
+    const creations: unknown[] = [];
+    await page.route(/\/api\/v1\/boards$/, (route) => {
+        if (route.request().method() === "POST") {
+            creations.push(route.request().postDataJSON());
+            directory.push(CREATED);
+            return fulfillJson(route, responseDto(CREATED), 201);
+        }
+        return fulfillJson(route, responseDto(directory));
+    });
+
+    await page.route(/\/api\/v1\/boards\/[^/]+\/posts\?/, (route) => {
         const url = new URL(route.request().url());
-        if (url.pathname.includes("/ANONYMOUS/")) {
+        const id = url.pathname.split("/").at(-2);
+        const popular = url.searchParams.get("sort") === "POPULAR";
+        if (id === QUESTIONS.id) {
+            return fulfillJson(route, responseDto({ items: popular ? [QUESTION] : [QUESTION, LOCKED_POST], hasMore: false }));
+        }
+        if (id === FEEDBACK.id) {
+            return fulfillJson(route, responseDto({ items: [OPINION], hasMore: false }));
+        }
+        if (id === CREATED.id) {
+            return fulfillJson(route, responseDto({ items: [], hasMore: false }));
+        }
+        if (id === "ANONYMOUS") {
             return fulfillJson(route, responseDto({ items: [{ ...POST, author: null }], hasMore: false }));
         }
-
-        if (url.pathname.includes("/ADMIN/")) {
+        if (id === "ADMIN") {
             return fulfillJson(route, responseDto({
                 items: [{ ...POST, title: LONG_TITLE, translatedTitle: null }, LOCKED_POST],
                 hasMore: false,
             }));
-        }
-
-        if (url.searchParams.get("sort") === "POPULAR" || url.searchParams.has("category")) {
-            return fulfillJson(route, responseDto({ items: [POST], hasMore: false }));
         }
         if (url.searchParams.get("page") === "1") {
             return fulfillJson(route, responseDto({ items: [LOCKED_POST], hasMore: false }));
@@ -70,15 +103,18 @@ async function mockBoardLists(page: Page) {
 
         return fulfillJson(route, responseDto({ items: [POST, LOCKED_POST], hasMore: true }));
     });
-    await page.route(/\/boards\/MEMBER\/posts\/[^/?]+\/replies\?/, (route) =>
+    await page.route(/\/api\/v1\/boards\/[^/]+\/posts\/[^/?]+\/replies\?/, (route) =>
         fulfillJson(route, responseDto({ items: [], hasMore: false })),
     );
-    await page.route(/\/boards\/MEMBER\/posts\/[^/?]+\?/, (route) =>
-        fulfillJson(route, responseDto({ ...POST, content: "Build installation notes." })),
-    );
-    await page.route(/\/boards\/MEMBER\/posts\/[^/?]+\/views$/, (route) =>
+    await page.route(/\/api\/v1\/boards\/[^/]+\/posts\/[^/?]+\?/, (route) => {
+        const id = new URL(route.request().url()).pathname.split("/").at(-1);
+        const item = id === QUESTION.id ? QUESTION : POST;
+        return fulfillJson(route, responseDto({ ...item, content: "Build installation notes." }));
+    });
+    await page.route(/\/api\/v1\/boards\/[^/]+\/posts\/[^/?]+\/views$/, (route) =>
         fulfillJson(route, responseDto(5)),
     );
+    return creations;
 }
 
 test("홈 게시판 카드에서 글 목록, 번역과 상세 화면으로 이동한다", async ({ page }) => {
@@ -93,7 +129,7 @@ test("홈 게시판 카드에서 글 목록, 번역과 상세 화면으로 이�
     await expect(page).toHaveURL(/\/ko\/boards$/, { timeout: 35_000 });
     const list = page.getByRole("region", { name: "일반 회원" });
     const tabs = page.locator("header").getByRole("navigation", { name: "게시판" });
-    await expect(tabs.getByRole("link", { name: "일반 회원" })).toHaveAttribute("aria-current", "page");
+    await expect(tabs.getByRole("link", { name: "일반 회원", exact: true })).toHaveAttribute("aria-current", "page");
     await expect(tabs.getByRole("link", { name: "관리자 전용" })).toHaveCount(0);
     await expect(list.getByRole("link", { name: /안드로이드 테스트 빌드/ })).toBeVisible();
     await page.screenshot({ path: test.info().outputPath("boards-desktop.png") });
@@ -109,21 +145,21 @@ test("홈 게시판 카드에서 글 목록, 번역과 상세 화면으로 이�
     await list.getByRole("link", { name: /Android test build/ }).click();
     await expect(page).toHaveURL(new RegExp(`[?&]post=${POST.id}$`));
     await page.getByRole("link", { name: "목록으로" }).click();
-    await expect(page).toHaveURL(/[?&]board=MEMBER$/);
+    await expect(page).toHaveURL(/[?&]forum=MEMBER$/);
 });
 
-test("인기글과 카테고리를 함께 선택하고 한 표를 변경하거나 취소한다", async ({ page }) => {
-    // 준비: 실제 화면의 요청을 받고 투표의 최종 선택과 조회 요청 수를 기록한다.
+test("같은 회원 유형의 게시판도 최신글과 인기글을 각각 조회한다", async ({ page }) => {
+    // 준비: 두 게시판의 글을 분리하고 실제 화면이 보낸 투표와 조회 요청을 기록한다.
     await mockCommonPageDependencies(page);
     await mockIdleWebSocket(page);
     await mockBoardLists(page);
     const reactions: BoardReaction[] = [];
     let views = 0;
-    await page.route(/\/boards\/MEMBER\/posts\/[^/?]+\/views$/, (route) => {
+    await page.route(/\/posts\/[^/?]+\/views$/, (route) => {
         views++;
         return fulfillJson(route, responseDto(5));
     });
-    await page.route(/\/boards\/MEMBER\/posts\/[^/?]+\/vote$/, (route) => {
+    await page.route(/\/posts\/[^/?]+\/vote$/, (route) => {
         const { reaction } = route.request().postDataJSON() as { reaction: BoardReaction };
         reactions.push(reaction);
         return fulfillJson(route, responseDto({
@@ -132,30 +168,83 @@ test("인기글과 카테고리를 함께 선택하고 한 표를 변경하거�
             mine: reaction,
         }));
     });
-    await page.goto("/ko/boards");
-
-    // 실행: 인기글과 분류를 적용하고 글을 열어 좋아요, 싫어요, 취소 순으로 누른다.
+    await page.goto(`/ko/boards?forum=${QUESTIONS.id}`);
+    const navigation = page.locator("header").getByRole("navigation", { name: "게시판" });
+    const questions = page.getByRole("region", { name: QUESTIONS.name! });
     const popular = page.getByRole("link", { name: "인기글", exact: true });
+
+    // 실행: 질문의 최신글에서 비밀글을 확인하고 인기글에서 공개 글만 연다.
+    await expect(questions.getByRole("link", { name: /비밀 게시글/ })).toBeVisible();
+    await expect(questions.getByRole("link", { name: /의견 게시판의 첫 글/ })).toHaveCount(0);
     await popular.click();
     await expect(popular).toHaveAttribute("aria-current", "page");
-    await page.getByRole("combobox", { name: "카테고리" }).selectOption(CATEGORY.id);
-    await expect(page).toHaveURL(new RegExp(`sort=POPULAR&category=${CATEGORY.id}$`));
-    await expect(page.getByRole("link", { name: /비밀 게시글/ })).toHaveCount(0);
+    const question = questions.getByRole("link", { name: /질문 게시판의 첫 글/ });
+    await expect(question).toBeVisible();
+    await expect(questions.getByRole("link", { name: /비밀 게시글/ })).toHaveCount(0);
     expect(views).toBe(0);
-    await page.getByRole("link", { name: /안드로이드 테스트 빌드/ }).click();
+
+    // 검증: 한 표를 전환·취소한 후에도 돌아온 목록은 질문 게시판의 인기글이다.
+    await question.click();
     await expect(page.getByText("조회 5", { exact: true })).toBeVisible();
     await page.getByRole("button", { name: "좋아요 3" }).click();
     await expect(page.getByRole("button", { name: "좋아요 4" })).toHaveAttribute("aria-pressed", "true");
     await page.getByRole("button", { name: "싫어요 0" }).click();
     await expect(page.getByRole("button", { name: "싫어요 1" })).toHaveAttribute("aria-pressed", "true");
     await page.getByRole("button", { name: "싫어요 1" }).click();
-
-    // 검증: 취소는 중립으로 돌아가고 상세에서 목록으로 돌아가도 선택을 유지한다.
     await expect(page.getByRole("button", { name: "싫어요 0" })).toHaveAttribute("aria-pressed", "false");
     expect(reactions).toEqual(["LIKE", "DISLIKE", "NONE"]);
     expect(views).toBe(1);
     await page.getByRole("link", { name: "목록으로" }).click();
-    await expect(page).toHaveURL(new RegExp(`sort=POPULAR&category=${CATEGORY.id}$`));
+    await expect(page).toHaveURL(new RegExp(`forum=${QUESTIONS.id}&sort=POPULAR$`));
+
+    // 의견 게시판에서는 선택 상태를 새 목록으로 초기화하고 해당 게시판의 인기글만 보여준다.
+    await navigation.getByRole("link", { name: /^의견 게시판/ }).click();
+    await expect(page).toHaveURL(new RegExp(`forum=${FEEDBACK.id}$`));
+    await popular.click();
+    await expect(popular).toHaveAttribute("aria-current", "page");
+    const feedback = page.getByRole("region", { name: FEEDBACK.name! });
+    await expect(feedback.getByRole("link", { name: /의견 게시판의 첫 글/ })).toBeVisible();
+    await expect(feedback.getByRole("link", { name: /질문 게시판의 첫 글/ })).toHaveCount(0);
+});
+
+test("이전 주소에서 전환된 게시판의 글을 연다", async ({ page }) => {
+    // 준비: 기존 일반 회원 URL을 질문 게시판으로 전환된 글에 연결한다.
+    await mockCommonPageDependencies(page);
+    await mockIdleWebSocket(page);
+    await mockBoardLists(page);
+    await page.route(/\/api\/v1\/boards\/MEMBER\/posts\/[^/]+\/location$/, (route) =>
+        fulfillJson(route, responseDto({ id: QUESTIONS.id })),
+    );
+
+    // 실행
+    await page.goto(`/ko/boards?board=MEMBER&post=${QUESTION.id}`);
+
+    // 검증: 해당 게시판에서 본문을 읽고 돌아가는 링크도 게시판 ID를 사용한다.
+    const questions = page.getByRole("region", { name: QUESTIONS.name! });
+    await expect(questions.getByRole("heading", { name: QUESTION.translatedTitle })).toBeVisible();
+    await expect(questions.getByRole("link", { name: "목록으로" }))
+        .toHaveAttribute("href", `/ko/boards?forum=${QUESTIONS.id}`);
+});
+
+test("관리자는 게시판 이름과 익명 유형을 선택하여 개설한다", async ({ page, context }) => {
+    // 준비: 관리자 역할의 모의 세션으로 개설 요청을 기록한다.
+    await installMockAuthCookie(context, "ADMIN");
+    await mockCommonPageDependencies(page, TEST_USERS.A, "ADMIN");
+    await mockIdleWebSocket(page);
+    const creations = await mockBoardLists(page, true);
+    await page.goto("/ko/boards");
+
+    // 실행
+    await page.locator("summary").filter({ hasText: "게시판 개설" }).click();
+    await page.getByLabel("게시판 이름").fill(CREATED.name!);
+    await page.getByLabel("게시판 유형").selectOption("ANONYMOUS");
+    await page.getByRole("button", { name: "게시판 개설" }).click();
+
+    // 검증: 개설한 빈 게시판을 열고 선택한 유형을 서버에 전달한다.
+    await expect(page).toHaveURL(new RegExp(`forum=${CREATED.id}$`));
+    const forum = page.getByRole("region", { name: CREATED.name! });
+    await expect(forum.getByText("아직 게시글이 없습니다.")).toBeVisible();
+    expect(creations).toEqual([{ name: CREATED.name, type: "ANONYMOUS" }]);
 });
 
 test("모바일에서도 관리자 글 목록을 읽고 익명 게시판으로 전환한다", async ({ page, context }) => {
@@ -164,13 +253,13 @@ test("모바일에서도 관리자 글 목록을 읽고 익명 게시판으로 �
     await installMockAuthCookie(context, "ADMIN");
     await mockCommonPageDependencies(page, TEST_USERS.A, "ADMIN");
     await mockIdleWebSocket(page);
-    await mockBoardLists(page);
+    await mockBoardLists(page, true);
     await page.addInitScript(() => {
         localStorage.setItem("theme", "dark");
     });
 
     // 실행: 관리자 탭을 링크로 열고 글 목록 레이아웃을 읽는다.
-    await page.goto("/ko/boards?board=ADMIN");
+    await page.goto("/ko/boards?forum=ADMIN");
     const admin = page.getByRole("region", { name: "관리자 전용" });
     const longRow = admin.getByRole("link", { name: new RegExp(LONG_TITLE) });
     await expect(longRow).toBeVisible();
@@ -182,7 +271,7 @@ test("모바일에서도 관리자 글 목록을 읽고 익명 게시판으로 �
     expect(overflow).toBe(false);
     await page.screenshot({ path: test.info().outputPath("boards-mobile.png") });
     await page.locator("header").getByRole("link", { name: "익명 게시판", exact: true }).click();
-    await expect(page).toHaveURL(/[?&]board=ANONYMOUS$/);
+    await expect(page).toHaveURL(/[?&]forum=ANONYMOUS$/);
     const anonymous = page.getByRole("region", { name: "익명 게시판" });
     await expect(anonymous.getByText("익명", { exact: true })).toBeVisible();
 });

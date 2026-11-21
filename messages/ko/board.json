@@ -1,5 +1,9 @@
 {
   "Board": {
+    "postList": "게시글 목록",
+    "author": "작성자",
+    "createdAt": "작성일",
+    "page": "{number}페이지",
     "title": "게시판",
     "ADMIN": "관리자 전용",
     "MEMBER": "일반 회원",

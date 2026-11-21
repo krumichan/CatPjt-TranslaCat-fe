@@ -4,6 +4,7 @@ import {
     ArrowRight,
     BookOpen,
     BookOpenText,
+    ClipboardList,
     GraduationCap,
     Headset,
     MessageCircle,
@@ -24,13 +25,16 @@ const SERVICE_CARD_STYLE = cn(
     "dark:border-slate-700 dark:bg-slate-900 dark:hover:shadow-black/20",
 );
 
+/** ホームにサービスへの入口を表示し、管理者専用サービスは権限に応じて表示する。 */
 export function ServiceSelectPage() {
+    // 表示言語とセッションを各サービスのリンクと表示条件に反映する。
     const t = useTranslations("ServiceSelect");
     const locale = useLocale();
     const guideLocale = locale === "learning" ? "ja" : locale;
     const { data: session } = useSession();
     const isAdmin = session?.user?.role === "ADMIN";
 
+    // ホームのカードはナビゲーションと共通のサービス識別子・アクセント色を使う。
     const services = [
         {
             id: "novel",
@@ -71,6 +75,14 @@ export function ServiceSelectPage() {
             icon: GraduationCap,
             href: "/language-learning",
             serviceKey: "languageLearning",
+        },
+        {
+            id: "boards",
+            title: t("boardsTitle"),
+            description: t("boardsDesc"),
+            icon: ClipboardList,
+            href: ROUTES.BOARDS,
+            serviceKey: "boards",
         },
         {
             id: "support",

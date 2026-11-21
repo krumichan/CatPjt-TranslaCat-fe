@@ -1,5 +1,9 @@
 {
   "Board": {
+    "postList": "Posts",
+    "author": "Author",
+    "createdAt": "Posted",
+    "page": "Page {number}",
     "title": "Boards",
     "ADMIN": "Admin only",
     "MEMBER": "Members",

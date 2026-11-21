@@ -1,5 +1,7 @@
 {
   "ServiceSelect": {
+    "boardsTitle": "Boards",
+    "boardsDesc": "Read posts and join the discussion.",
     "title": "All services",
     "description": "Choose a service to open it.",
     "guideLink": "User guide",

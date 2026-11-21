@@ -15,6 +15,7 @@
   --tc-service-accountBook: #876000;
   --tc-service-chat: #7154b8;
   --tc-service-languageLearning: #087b62;
+  --tc-service-boards: #6640ae;
   --tc-service-support: #087d94;
   --font-translacat-sans:
     "Noto Sans JP",
@@ -37,6 +38,7 @@
   --tc-service-accountBook: #f1cb7a;
   --tc-service-chat: #bea7ff;
   --tc-service-languageLearning: #8bdfc5;
+  --tc-service-boards: #c5afff;
   --tc-service-support: #7fd5e6;
   --color-slate-500: #8ca3b8;
 }
@@ -98,6 +100,7 @@
 .tc-service-accent[data-service="accountBook"] { --tc-service-color: var(--tc-service-accountBook); }
 .tc-service-accent[data-service="chat"] { --tc-service-color: var(--tc-service-chat); }
 .tc-service-accent[data-service="languageLearning"] { --tc-service-color: var(--tc-service-languageLearning); }
+.tc-service-accent[data-service="boards"] { --tc-service-color: var(--tc-service-boards); }
 .tc-service-accent[data-service="support"] { --tc-service-color: var(--tc-service-support); }
 
 .tc-nav-item { border-left: 3px solid transparent; }

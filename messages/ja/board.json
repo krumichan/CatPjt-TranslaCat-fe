@@ -1,5 +1,9 @@
 {
   "Board": {
+    "postList": "投稿一覧",
+    "author": "投稿者",
+    "createdAt": "投稿日",
+    "page": "{number}ページ",
     "title": "掲示板",
     "ADMIN": "管理者専用",
     "MEMBER": "一般会員",

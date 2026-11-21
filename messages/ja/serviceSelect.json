@@ -1,5 +1,7 @@
 {
   "ServiceSelect": {
+    "boardsTitle": "掲示板",
+    "boardsDesc": "投稿を読み、コメントで意見を交わします。",
     "title": "すべてのサービス",
     "description": "サービスを選ぶと、その画面に直接移動します。",
     "guideLink": "使い方ガイド",

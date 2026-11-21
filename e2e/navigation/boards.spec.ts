@@ -136,6 +136,7 @@ test("홈 게시판 카드에서 글 목록, 번역과 상세 화면으로 이�
     const groups = page.getByRole("navigation", { name: "게시판 유형" });
     await expect(groups.getByRole("link", { name: "일반", exact: true })).toHaveAttribute("aria-current", "page");
     await expect(groups.getByRole("link", { name: "관리자", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "게시판 관리", exact: true })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "카테고리 추가" })).toHaveCount(0);
 
     // 기본 게시판을 선택하면 목록과 원문 보기 버튼이 같은 화면에서 열린다.
@@ -238,16 +239,15 @@ test("이전 주소에서 전환된 게시판의 글을 연다", async ({ page }
 });
 
 test("관리자 설정에서 일반과 익명에 각각 카테고리를 추가한다", async ({ page, context }) => {
-    // 준비: 관리자 설정의 게시판 관리 카드에서 두 유형의 추가 요청을 기록한다.
+    // 준비: 게시판 상단의 관리자 설정 바로가기를 열어 두 유형의 추가 요청을 기록한다.
     await installMockAuthCookie(context, "ADMIN");
     await mockCommonPageDependencies(page, TEST_USERS.A, "ADMIN");
     await mockIdleWebSocket(page);
     const creations = await mockBoardLists(page, true);
     await page.goto("/ko/boards");
     await expect(page.getByRole("link", { name: "관리자", exact: true })).toBeVisible();
-    await page.getByRole("button", { name: "사용자 메뉴" }).click();
-    await page.getByRole("menuitem", { name: "설정", exact: true }).click();
-    await page.getByRole("link", { name: /게시판 관리/ }).click();
+    await page.getByRole("link", { name: "게시판 관리", exact: true }).click();
+    await expect(page).toHaveURL(/\/ko\/settings\/admin\/boards$/);
     const general = page.getByRole("region", { name: "일반 카테고리" });
     const anonymous = page.getByRole("region", { name: "익명 카테고리" });
 

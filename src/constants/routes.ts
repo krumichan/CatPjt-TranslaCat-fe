@@ -6,6 +6,7 @@ export const ROUTES = {
     SETTINGS: "/settings",
     SUPPORT: "/support",
     BOARDS: "/boards",
+    BOARD_SETTINGS: "/settings/admin/boards",
     NOVEL_DETAIL: '/novel/[platformCode]/novels/[identifier]',
     NOVEL_SEARCH: '/novel/[platformCode]/search/novels',
     NOVEL_GENRE: '/novel/[platformCode]/genres/[genreId]',

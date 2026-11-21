@@ -8,12 +8,14 @@ import {
     Languages,
     LockKeyhole,
     PencilLine,
+    Settings,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import useSWR, { SWRConfig } from "swr";
 
+import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils";
 import { Link, useRouter } from "@/navigation";
 import { boardDirectory, boardError, boardService, type BoardApi } from "@/services/board/boardService";
@@ -36,6 +38,7 @@ export function BoardSmartPage() {
     // 세션별로 게시판 목록을 읽어 관리자용 게시판이 계정 전환 후 남지 않게 한다.
     const { data: session, status } = useSession();
     const t = useTranslations("Board");
+    const settings = useTranslations("Settings.boards");
     const locale = useLocale();
     const params = useSearchParams();
     const login = session?.loginSessionId;
@@ -79,10 +82,25 @@ export function BoardSmartPage() {
     return (
         <div className="mx-auto max-w-6xl space-y-5 px-4 pb-12 pt-28 sm:px-6">
             {!showingForum && (
-                <h1 className="flex items-center gap-3 text-2xl font-bold tracking-tight">
-                    <ClipboardList className="size-6 text-violet-600 dark:text-violet-300" aria-hidden="true" />
-                    {t("title")}
-                </h1>
+                <div className="flex items-center justify-between gap-3">
+                    <h1 className="flex min-w-0 items-center gap-3 text-2xl font-bold tracking-tight">
+                        <ClipboardList
+                            className="size-6 shrink-0 text-violet-600 dark:text-violet-300"
+                            aria-hidden="true"
+                        />
+                        {t("title")}
+                    </h1>
+                    {authenticated && isAdmin && (
+                        <Link
+                            href={ROUTES.BOARD_SETTINGS}
+                            className={cn(boardSecondaryButton, "size-11 shrink-0 p-0")}
+                            aria-label={settings("title")}
+                            title={settings("title")}
+                        >
+                            <Settings className="size-5" aria-hidden="true" />
+                        </Link>
+                    )}
+                </div>
             )}
             {failure ? (
                 <p role="alert" className={boardErrorStyle}>{t(boardError(failure))}</p>

@@ -13,6 +13,8 @@ import {
     WalletCards,
 } from "lucide-react";
 
+import { ROUTES } from "@/constants/routes";
+
 export type SettingCard = {
     href: string;
     titleKey: string;
@@ -66,7 +68,7 @@ export const settingCards: SettingCard[] = [
         enabled: false,
     },
     {
-        href: "/settings/admin/boards",
+        href: ROUTES.BOARD_SETTINGS,
         titleKey: "boards.title",
         descriptionKey: "boards.description",
         statusKey: "status.available",

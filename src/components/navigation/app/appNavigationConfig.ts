@@ -1,6 +1,7 @@
 import {
     BookOpen,
     ClipboardList,
+    FileText,
     GraduationCap,
     Headset,
     Home,
@@ -14,6 +15,7 @@ import type {
     AppNavigationSection,
 } from "@/components/navigation/app/appNavigationTypes";
 import { ROUTES } from "@/constants/routes";
+import { DOCUMENT_TRANSLATION_PATH } from "@/features/document-translation/model";
 
 export const APP_NAVIGATION_SECTIONS: AppNavigationSection[] = [
     {
@@ -47,6 +49,13 @@ export const APP_NAVIGATION_SECTIONS: AppNavigationSection[] = [
                 labelKey: "voice",
                 icon: Mic,
                 matchPaths: [ROUTES.VOICE_SELECT],
+            },
+            {
+                key: "documentTranslation",
+                href: DOCUMENT_TRANSLATION_PATH,
+                labelKey: "documentTranslation",
+                icon: FileText,
+                matchPaths: [DOCUMENT_TRANSLATION_PATH],
             },
             {
                 key: "accountBook",

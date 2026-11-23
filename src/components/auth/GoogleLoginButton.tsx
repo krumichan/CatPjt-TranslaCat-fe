@@ -6,7 +6,8 @@ import { useState } from "react";
 import { identityRequest, identityErrorCode } from "@/services/identityClient";
 import { AuthErrorMessage } from "@/components/auth/AuthFormParts";
 
-export default function GoogleLoginButton({ label }: { label: string }) {
+/** 검증된 복귀 주소가 있으면 Google 로그인 후 그 화면으로 이동한다. */
+export default function GoogleLoginButton({ label, callbackUrl }: { label: string; callbackUrl?: string }) {
     const locale = useLocale();
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -17,7 +18,7 @@ export default function GoogleLoginButton({ label }: { label: string }) {
         try {
             // 취소한 연결 시도의 callback이 일반 로그인으로 해석되지 않도록 먼저 정리한다.
             await identityRequest("/api/account/google/cancel", {});
-            await signIn("google", { callbackUrl: `/${locale}` });
+            await signIn("google", { callbackUrl: callbackUrl ?? `/${locale}` });
         } catch (error) {
             setError(identityErrorCode(error));
             setBusy(false);

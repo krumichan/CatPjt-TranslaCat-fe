@@ -5,6 +5,7 @@ import {
     BookOpen,
     BookOpenText,
     ClipboardList,
+    FileText,
     GraduationCap,
     Headset,
     MessageCircle,
@@ -17,6 +18,8 @@ import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { Link } from "@/navigation";
 import { ROUTES } from "@/constants/routes";
+import { getDocumentTranslationCopy } from "@/features/document-translation/messages";
+import { DOCUMENT_TRANSLATION_PATH } from "@/features/document-translation/model";
 
 const SERVICE_CARD_STYLE = cn(
     "tc-service-accent tc-service-card group flex min-h-48 flex-col rounded-2xl",
@@ -30,6 +33,7 @@ export function ServiceSelectPage() {
     // 表示言語とセッションを各サービスのリンクと表示条件に反映する。
     const t = useTranslations("ServiceSelect");
     const locale = useLocale();
+    const documentCopy = getDocumentTranslationCopy(locale);
     const guideLocale = locale === "learning" ? "ja" : locale;
     const { data: session } = useSession();
     const isAdmin = session?.user?.role === "ADMIN";
@@ -51,6 +55,14 @@ export function ServiceSelectPage() {
             icon: Mic,
             href: ROUTES.VOICE_SELECT,
             serviceKey: "voice",
+        },
+        {
+            id: "documentTranslation",
+            title: documentCopy.title,
+            description: documentCopy.description,
+            icon: FileText,
+            href: DOCUMENT_TRANSLATION_PATH,
+            serviceKey: "documentTranslation",
         },
         {
             id: "accountBook",

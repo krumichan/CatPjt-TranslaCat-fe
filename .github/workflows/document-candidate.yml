@@ -1,0 +1,66 @@
+name: Document FE candidate verification
+on:
+  push:
+    branches: [ci/document-first-introduction-fe-20261123]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      AUTH_TRUST_HOST: 'true'
+      NEXTAUTH_SECRET: synthetic-ci-board-login
+      NEXTAUTH_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_API_URL: http://127.0.0.1:3000/api/v1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 5
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run test:unit
+      - run: npm run test:auth
+      - name: Verify document authentication and file transport
+        run: node --test .github/document-fe-check.mjs
+      - name: Lint document code and shared authentication links
+        run: npx eslint 'src/app/[locale]/(main)/document-translation' src/features/document-translation src/services/document-translation src/components/auth src/components/service-select/ServiceSelectPage.tsx src/components/navigation/app/appNavigationConfig.ts src/components/navigation/app/appNavigationTypes.ts
+      - run: npm run build
+      - name: Check built document routes protect signed-out visitors
+        run: |
+          setsid npm run start -- --hostname 127.0.0.1 --port 3000 > "$RUNNER_TEMP/board-server.log" 2>&1 &
+          server=$!
+          trap 'kill -- -"$server" 2>/dev/null || true; wait "$server" 2>/dev/null || true' EXIT
+          for attempt in {1..30}; do
+            if curl -fsS -o /dev/null http://127.0.0.1:3000/ko/docs; then break; fi
+            sleep 2
+          done
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          for (const locale of ['ko', 'ja', 'en']) {
+            const result = await fetch(`http://127.0.0.1:3000/${locale}/document-translation`, {redirect: 'manual'});
+            assert.equal(result.status, 307, locale);
+            assert.match(result.headers.get('location'), /\/login(?:\?|$)/, locale);
+            const job = await fetch(`http://127.0.0.1:3000/${locale}/document-translation/jobs/00000000-0000-4000-8000-000000000001`, {redirect: 'manual'});
+            assert.equal(job.status, 307, locale);
+            assert.match(job.headers.get('location'), /\/login(?:\?|$)/, locale);
+          }
+          JS
+      - name: Install the CI browser
+        run: npx playwright install --with-deps chromium
+      - name: Verify board list, votes, category filters and mobile navigation
+        env:
+          E2E_BASE_URL: http://127.0.0.1:3000
+        run: npx playwright test e2e/navigation/boards.spec.ts --project=mock-chromium --workers=1 --reporter=line
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: document-browser-failure
+          path: test-results/

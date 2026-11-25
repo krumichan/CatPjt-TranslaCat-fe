@@ -12,7 +12,7 @@ function harness(fetchAudio, options = {}) {
     fetchAudio: (id, language, index, signal) => { calls.push({ id, language, index, signal }); return fetchAudio(id, index, signal); },
     now: () => ++clock, createUrl: () => `blob:${audios.length}`, revokeUrl() { },
     onChange: state => states.push(state), createAudio: () => {
-      const audio = { duration: 10, currentTime: 0, play: async () => { if (options.blocked) throw new Error("NotAllowedError"); audio.onplaying?.(); }, pause: () => audio.onpause?.(), load() { }, removeAttribute() { } };
+      const audio = { duration: 10, currentTime: 0, play: async () => { if (options.blocked) throw new Error("NotAllowedError"); if (!options.manualPlaying) audio.onplaying?.(); }, pause: () => audio.onpause?.(), load() { }, removeAttribute() { } };
       audios.push(audio);
       return audio;
     },
@@ -75,15 +75,17 @@ test("pause while preparing aborts and fences a late response", async () => {
   assert.equal(h.calls.length, 1);
 });
 
-test("lookahead uses the playing position and stays at one next part", async () => {
-  // 준비 / 실행
-  const h = harness(async () => piece);
+test("lookahead starts at native playing and stays at one next part", async () => {
+  // 준비: 첫 조각의 미디어와 재생 이벤트 사이의 요청 상태를 관찰한다.
+  const h = harness(async () => piece, { manualPlaying: true });
   h.player.start([sentence("a"), sentence("b"), sentence("c")], "ja");
   await flush();
-  assert.equal(h.calls.length, 1);
-  h.audios[0].currentTime = 8;
-  h.audios[0].ontimeupdate?.();
+  assert.deepEqual(h.calls.map(item => item.id), ["a"]);
+
+  // 실행: 긴 첫 조각도 실제 재생을 시작한 시점에 다음 하나를 요청한다.
+  h.audios[0].onplaying();
   await flush();
+
   // 검증: 다음 응답 도착이나 반복 timeupdate로 세 번째를 생성하지 않는다.
   assert.deepEqual(h.calls.map(item => item.id), ["a", "b"]);
   h.audios[0].ontimeupdate?.();
@@ -145,7 +147,7 @@ test("일본어 본문 낭독은 한국어 복구 도착으로 정상 오디오�
   await flush();
   h.player.appendReady([sentence("a"), sentence("b")], "ja", false);
   assert.equal(h.states.at(-1).status, "playing");
-  assert.equal(h.calls.length, 1);
+  assert.deepEqual(h.calls.map(item => item.id), ["a", "b"]);
   h.player.stop();
 });
 
@@ -190,10 +192,9 @@ test("failed lookahead is not automatically retried at the next sentence", async
   const h = harness(async id => { if (id === "b") throw new Error("busy"); return piece; });
   h.player.start([sentence("a"), sentence("b")], "ja");
   await flush();
-  // 실행: 재생 위치에서 다음 부분 준비가 실패했다.
-  h.audios[0].currentTime = 8;
-  h.audios[0].ontimeupdate();
-  await flush();
+  // 실행: 다음 조각 준비가 실패한 뒤 현재 조각을 일시정지하고 재개한다.
+  h.player.pause();
+  await h.player.resume();
   h.audios[0].onended();
   await flush();
   // 검증: 도달 이벤트로 유료 요청을 자동 재전송하지 않는다.

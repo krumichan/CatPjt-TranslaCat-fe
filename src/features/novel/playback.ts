@@ -251,14 +251,15 @@ export class NovelPlayback {
         return this.index + 1 < this.queue.length ? { index: this.index + 1, part: 0 } : null;
     }
 
-    private prepareNext(audio: HTMLAudioElement, partCount: number) {
-        // 합성 완료는 다음 합성의 트리거가 아니다. 전체/이어읽기의 실제 재생 끝3초 이내만 한 부분을 준비한다.
-        if (!this.intent || this.state.status !== "playing" || this.queue.length <= 1
-            || !Number.isFinite(audio.duration) || audio.duration <= 0 || audio.currentTime < Math.max(0, audio.duration - 3)) return;
+    // 실제로 재생하는 동안 현재 위치 바로 다음의 한 조각만 준비한다.
+    private prepareNext(partCount: number) {
+        if (!this.intent || this.state.status !== "playing" || this.queue.length <= 1) return;
         const next = this.nextPosition(partCount);
         if (!next) return;
+
+        // 같은 조각의 재생 이벤트나 일시정지·재개로 실패한 합성을 다시 요청하지 않는다.
         const key = this.key(next);
-        if (this.lookaheadAttempted === key) return;
+        if (this.lookaheadAttempted === key || this.failedLookahead.has(key)) return;
         this.lookaheadAttempted = key;
         const generation = this.generation;
         const preparation = this.obtain(next);
@@ -319,6 +320,7 @@ export class NovelPlayback {
                     gapsMs: this.endedAt === null ? this.state.gapsMs : [...this.state.gapsMs, now - this.endedAt]
                 });
                 this.endedAt = null;
+                this.prepareNext(result.partCount);
             };
             audio.onpause = () => {
                 if (!current() || !this.intent || audio.ended) return;
@@ -327,7 +329,8 @@ export class NovelPlayback {
                 this.emit({ status: "paused", segmentId: null });
             };
             audio.onerror = () => { if (current()) this.fail("AUDIO_DECODE_FAILED"); };
-            audio.ontimeupdate = () => { if (current()) this.prepareNext(audio, result.partCount); };
+            // 재생 중 번역이 보충된 경우 같은 위치의 다음 조각을 준비한다.
+            audio.ontimeupdate = () => { if (current()) this.prepareNext(result.partCount); };
             audio.onended = () => {
                 if (!current() || !this.intent) return;
                 this.endedAt = this.dependencies.now();

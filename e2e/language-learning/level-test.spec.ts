@@ -7,6 +7,7 @@ import { expect, test } from "../fixtures/mock-test";
 import { fulfillApiJson, fulfillJson } from "../support/api-mocks";
 import {
     LEVEL_TEST_DICTATION,
+    LEVEL_TEST_HISTORY,
     LEVEL_TEST_INTERPRETATION,
     LEVEL_TEST_LISTENING,
     LEVEL_TEST_QUESTION,
@@ -355,6 +356,16 @@ test.describe("Language Learning Level Test", () => {
     });
 
     test("LLT-19 Dashboard의 Learning Profile과 공통 History에서 Level Test 결과에 접근할 수 있다", async ({ page }) => {
+        // 준비: 대시보드는 현재 언어가 확인된 이력만 연결한다. 언어 불명인 과거 이력을 대신 쓰지 않는다.
+        await page.route("**/api/v1/language-learning/level-test/history", (route) =>
+            fulfillApiJson(route, responseDto(LEVEL_TEST_HISTORY.map((item) => ({
+                ...item,
+                originLanguage: "ko",
+                learningLanguage: "ja",
+            })))),
+        );
+
+        // 실행 및 검증: 최근 결과 링크와 공통 이력 접근 조건을 그대로 유지한다.
         await page.goto("/language-learning/profile");
         await expect(page).toHaveURL(/language-learning#learning-profile$/);
         await expect(page.getByTestId("dashboard-learning-profile")).toBeVisible();

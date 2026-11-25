@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSWRConfig } from "swr";
 
 import { LANGUAGE_LEARNING_ERROR_CODES } from "@/features/language-learning/common/errorMapping";
 import { createIdempotencyKey } from "@/features/language-learning/listening/idempotency";
@@ -11,7 +12,7 @@ import { useQuery } from "@/hooks/useQuery";
 import { useRouter } from "@/navigation";
 import { getApiErrorCode } from "@/services/common/responseParser";
 import { languageLearningLevelService } from "@/services/language-learning/languageLearningLevelService";
-import type { LevelTestAnswerResult } from "@/types/language-learning/level";
+import type { LevelTestAnswerResult, LevelTestQuestion } from "@/types/language-learning/level";
 
 const RERECORD_REQUIRED_REASON_CODES = new Set([
     "INVALID_AUDIO",
@@ -22,8 +23,10 @@ const RERECORD_REQUIRED_REASON_CODES = new Set([
     "LOW_STT_CONFIDENCE",
 ]);
 
+/** 검증된 세션·현재 문항만 표시하고 답변 수락 뒤의 조회 실패가 재제출로 이어지지 않게 한다. */
 export function useLevelTestSessionController(sessionId: number) {
     const router = useRouter();
+    const { mutate: mutateCache } = useSWRConfig();
     const entry = useLanguageLearningEntryState();
     const [sessionValidated, setSessionValidated] = useState(false);
     const [questionValidated, setQuestionValidated] = useState(false);
@@ -145,6 +148,18 @@ export function useLevelTestSessionController(sessionId: number) {
         [referenceAudioUrl],
     );
 
+    // 검증 중에는 SWR key가 비활성화되므로 직접 조회한 결과를 명시한 세션 캐시에 확정한다.
+    const refreshCurrentQuestion = useCallback(async (embedded?: LevelTestQuestion | null) => {
+        const current = embedded ?? await languageLearningLevelService.getCurrent(sessionId);
+        await mutateCache(
+            ["language-learning-level-current", sessionId],
+            current,
+            { revalidate: false },
+        );
+        return current;
+    }, [mutateCache, sessionId]);
+
+    // 세션을 먼저 재확인하고 현재 문항만 복구한다. 이전 문항은 검증이 끝날 때까지 숨긴다.
     const recoverCurrentQuestion = useCallback(async () => {
         setActionErrorCode(null);
         setSessionValidated(false);
@@ -155,12 +170,9 @@ export function useLevelTestSessionController(sessionId: number) {
         );
         setSessionValidated(refreshedSession != null);
         if (!refreshedSession || refreshedSession.status === "COMPLETED") return;
-        const refreshedQuestion = await questionQuery.mutate(
-            (current) => current,
-            true,
-        );
+        const refreshedQuestion = await refreshCurrentQuestion();
         setQuestionValidated(refreshedQuestion != null);
-    }, [questionQuery, sessionQuery]);
+    }, [refreshCurrentQuestion, sessionQuery]);
 
     const isRecoverableStaleItemError = useCallback((code: string | null) => {
         return (
@@ -213,6 +225,7 @@ export function useLevelTestSessionController(sessionId: number) {
         textAnswer,
     ]);
 
+    // 답변 수락은 유지하고 다음 문항만 다시 읽는다. 조회 실패로 이전 답변을 다시 보내지 않는다.
     const applyResult = useCallback(
         async (result: LevelTestAnswerResult) => {
             setLastResult(result);
@@ -242,9 +255,9 @@ export function useLevelTestSessionController(sessionId: number) {
                     result.nextQuestion.sessionId === refreshedSession.sessionId &&
                     result.nextQuestion.questionNumber ===
                     refreshedSession.currentQuestionNumber;
-                const refreshedQuestion = canUseEmbeddedNextQuestion
-                    ? await questionQuery.mutate(result.nextQuestion!, false)
-                    : await questionQuery.mutate((current) => current, true);
+                const refreshedQuestion = await refreshCurrentQuestion(
+                    canUseEmbeddedNextQuestion ? result.nextQuestion : undefined,
+                );
                 setQuestionValidated(refreshedQuestion != null);
                 if (!refreshedQuestion) {
                     throw new Error("Level Test question refresh returned no data.");
@@ -261,7 +274,7 @@ export function useLevelTestSessionController(sessionId: number) {
                 return false;
             }
         },
-        [questionQuery, router, sessionId, sessionQuery],
+        [refreshCurrentQuestion, router, sessionId, sessionQuery],
     );
 
     const submit = useCallback(async () => {

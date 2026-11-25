@@ -76,13 +76,15 @@ test("pause while preparing aborts and fences a late response", async () => {
 });
 
 test("lookahead starts at native playing and stays at one next part", async () => {
-  // 준비: 첫 조각의 미디어와 재생 이벤트 사이의 요청 상태를 관찰한다.
+  // 준비: 재생 이벤트가 오기 전에는 첫 조각만 요청한다.
   const h = harness(async () => piece, { manualPlaying: true });
   h.player.start([sentence("a"), sentence("b"), sentence("c")], "ja");
   await flush();
+  h.audios[0].ontimeupdate?.();
   assert.deepEqual(h.calls.map(item => item.id), ["a"]);
+  assert.equal(h.states.at(-1).firstAudioPlayingMs, null);
 
-  // 실행: 긴 첫 조각도 실제 재생을 시작한 시점에 다음 하나를 요청한다.
+  // 실행: 현재 조각이 실제로 재생을 시작하면 바로 다음 하나가 준비된다.
   h.audios[0].onplaying();
   await flush();
 

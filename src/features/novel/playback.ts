@@ -251,13 +251,13 @@ export class NovelPlayback {
         return this.index + 1 < this.queue.length ? { index: this.index + 1, part: 0 } : null;
     }
 
-    // 실제로 재생하는 동안 현재 위치 바로 다음의 한 조각만 준비한다.
+    // 실제 재생 중에 현재 위치 바로 다음의 한 조각을 준비한다.
     private prepareNext(partCount: number) {
         if (!this.intent || this.state.status !== "playing" || this.queue.length <= 1) return;
         const next = this.nextPosition(partCount);
         if (!next) return;
 
-        // 같은 조각의 재생 이벤트나 일시정지·재개로 실패한 합성을 다시 요청하지 않는다.
+        // 갱신 이벤트나 일시정지·재개로 같은 실패를 자동 재요청하지 않는다.
         const key = this.key(next);
         if (this.lookaheadAttempted === key || this.failedLookahead.has(key)) return;
         this.lookaheadAttempted = key;
@@ -329,7 +329,7 @@ export class NovelPlayback {
                 this.emit({ status: "paused", segmentId: null });
             };
             audio.onerror = () => { if (current()) this.fail("AUDIO_DECODE_FAILED"); };
-            // 재생 중 번역이 보충된 경우 같은 위치의 다음 조각을 준비한다.
+            // 재생 도중 번역이 보충되면 현재 위치의 다음 조각을 준비한다.
             audio.ontimeupdate = () => { if (current()) this.prepareNext(result.partCount); };
             audio.onended = () => {
                 if (!current() || !this.intent) return;

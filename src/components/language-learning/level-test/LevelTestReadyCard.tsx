@@ -4,6 +4,7 @@ import { Clock3, Gauge, History, Mic2, RotateCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { LevelTestErrorNotice } from "@/components/language-learning/level-test/LevelTestErrorNotice";
+import { LevelTestSelfSelectionCard } from "@/components/language-learning/level-test/LevelTestSelfSelectionCard";
 import type { LanguageLearningLevelTestController } from "@/hooks/language-learning/useLanguageLearningLevelTestController";
 import { Link } from "@/navigation";
 
@@ -20,6 +21,7 @@ const DOMAINS = [
     ["SPEAKING", 3],
 ] as const;
 
+/** 初回は自己選択と実測を提示し、既存の基準点や進行中のテストを上書きしない。 */
 export function LevelTestReadyCard({ controller }: LevelTestReadyCardProps) {
     const t = useTranslations("LanguageLearning.levelTest");
     const status = controller.status!;
@@ -27,6 +29,9 @@ export function LevelTestReadyCard({ controller }: LevelTestReadyCardProps) {
 
     return (
         <div className="space-y-5">
+            {isInitial && !status.activeSessionId && (
+                <LevelTestSelfSelectionCard disabled={controller.isStarting} onSelect={controller.selfSelect} />
+            )}
             <section className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm dark:border-white/10 dark:bg-slate-900/75 sm:p-8">
                 <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                     <div className="flex gap-4">

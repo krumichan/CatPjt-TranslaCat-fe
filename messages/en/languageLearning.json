@@ -397,6 +397,15 @@
       }
     },
     "levelTest": {
+      "selfSelection": {
+        "title": "Start without a test",
+        "description": "Choose a starting level from B1 to B3.",
+        "score": "{score} points in every skill",
+        "notice": "This is a starting estimate, not a test result. Your overall score and every skill use the selected app band's midpoint, rounded to an integer. You can take a level test later.",
+        "confirm": "Start at this level",
+        "saving": "Saving starting level…",
+        "historyLabel": "Self-selected starting level"
+      },
       "title": "Level test",
       "description": "A comprehensive 20-question level test covering vocabulary, grammar, reading, listening, writing, and speaking.",
       "loading": "Checking level test status.",

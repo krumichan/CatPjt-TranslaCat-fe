@@ -11,15 +11,17 @@ interface LevelTestResultViewProps {
     result: LevelTestResult;
 }
 
+/** 自己選択の初期得点と、通常の実測結果を別の説明で表示する。 */
 export function LevelTestResultView({ result }: LevelTestResultViewProps) {
     const t = useTranslations("LanguageLearning.levelTest.result");
     const levelTestT = useTranslations("LanguageLearning.levelTest");
+    const selfSelected = result.sessionType === "SELF_SELECTED";
 
     return (
         <div className="space-y-5">
             <section className="rounded-3xl border border-emerald-200 bg-white/90 p-6 text-center shadow-sm dark:border-emerald-500/20 dark:bg-slate-900/75 sm:p-9">
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-300">
-                    {t("multiSkillBadge")}
+                    {selfSelected ? levelTestT("selfSelection.historyLabel") : t("multiSkillBadge")}
                 </p>
                 <h2 className="mt-3 text-xl font-black text-slate-950 dark:text-white">
                     {t("overall")}
@@ -33,7 +35,7 @@ export function LevelTestResultView({ result }: LevelTestResultViewProps) {
                     </p>
                 )}
                 <p className="mx-auto mt-3 max-w-xl text-xs leading-5 text-slate-500 dark:text-slate-400">
-                    {t("internalBandNotice")}
+                    {selfSelected ? levelTestT("selfSelection.notice") : t("internalBandNotice")}
                 </p>
             </section>
 

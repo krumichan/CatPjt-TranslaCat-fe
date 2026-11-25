@@ -12,12 +12,15 @@ interface LevelTestHistoryDetailViewProps {
     detail: LevelTestHistoryDetail;
 }
 
+/** 受験していない自己選択の履歴は設問を捏造せず、初期値であることを明示する。 */
 export function LevelTestHistoryDetailView({ detail }: LevelTestHistoryDetailViewProps) {
     const t = useTranslations("LanguageLearning.levelTest.history");
     const sessionT = useTranslations("LanguageLearning.levelTest.session");
     const itemT = useTranslations("LanguageLearning.levelTest.itemType");
     const domainT = useTranslations("LanguageLearning.levelTest.domain");
     const bandT = useTranslations("LanguageLearning.levelTest.band");
+    const selfT = useTranslations("LanguageLearning.levelTest.selfSelection");
+    const selfSelected = detail.summary.sessionType === "SELF_SELECTED";
 
     return (
         <div className="space-y-5">
@@ -25,7 +28,7 @@ export function LevelTestHistoryDetailView({ detail }: LevelTestHistoryDetailVie
                 <div className="flex flex-wrap items-end justify-between gap-4">
                     <div>
                         <p className="text-xs font-black uppercase tracking-[0.14em] text-blue-600 dark:text-blue-300">
-                            {t("multiSkill")}
+                            {selfSelected ? selfT("historyLabel") : t("multiSkill")}
                         </p>
                         <h2 className="mt-2 text-2xl font-black text-slate-950 dark:text-white">
                             {t("overall", { score: detail.summary.overallScore ?? "—" })}
@@ -45,6 +48,7 @@ export function LevelTestHistoryDetailView({ detail }: LevelTestHistoryDetailVie
 
                 <div className="mt-5">
                     <LevelTestScoreGrid scores={detail.summary.domainScores} />
+                    {selfSelected && <p className="mt-3 text-xs leading-5 text-slate-500 dark:text-slate-400">{selfT("notice")}</p>}
                 </div>
             </section>
 

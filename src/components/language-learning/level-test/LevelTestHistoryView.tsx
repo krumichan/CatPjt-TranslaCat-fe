@@ -11,11 +11,13 @@ interface LevelTestHistoryViewProps {
     controller: ReturnType<typeof useLevelTestHistoryController>;
 }
 
-const FILTERS: LevelTestHistoryFilter[] = ["ALL", "INITIAL", "RECHECK"];
+const FILTERS: LevelTestHistoryFilter[] = ["ALL", "INITIAL", "RECHECK", "SELF_SELECTED"];
 
+/** 自己選択は実測履歴と区別し、専用フィルターで確認できるようにする。 */
 export function LevelTestHistoryView({ controller }: LevelTestHistoryViewProps) {
     const t = useTranslations("LanguageLearning.levelTest.history");
     const bandT = useTranslations("LanguageLearning.levelTest.band");
+    const selfT = useTranslations("LanguageLearning.levelTest.selfSelection");
 
     return (
         <div className="space-y-4">
@@ -31,7 +33,7 @@ export function LevelTestHistoryView({ controller }: LevelTestHistoryViewProps) 
                                 : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-300"
                             }`}
                     >
-                        {t(`filter.${filter}`)}
+                        {filter === "SELF_SELECTED" ? selfT("historyLabel") : t(`filter.${filter}`)}
                     </button>
                 ))}
             </div>
@@ -56,7 +58,7 @@ export function LevelTestHistoryView({ controller }: LevelTestHistoryViewProps) 
                                                 : "—"}
                                         </p>
                                         <p className="mt-2 text-base font-black text-slate-950 dark:text-white">
-                                            {t("multiSkill")}
+                                            {item.sessionType === "SELF_SELECTED" ? selfT("historyLabel") : t("multiSkill")}
                                         </p>
                                         <p className="mt-1 text-sm font-bold text-slate-500 dark:text-slate-400">
                                             {t("overall", { score: item.overallScore ?? "—" })}

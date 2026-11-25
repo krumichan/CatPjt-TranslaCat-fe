@@ -7,6 +7,7 @@ import {
     ClipboardList,
     GraduationCap,
     Headset,
+    Images,
     MessageCircle,
     Mic,
     WalletCards,
@@ -17,6 +18,8 @@ import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { Link } from "@/navigation";
 import { ROUTES } from "@/constants/routes";
+import { getImageTranslationMessages } from "@/features/image-translation/messages";
+import { IMAGE_TRANSLATION_ENABLED, IMAGE_TRANSLATION_PATH } from "@/features/image-translation/model";
 
 const SERVICE_CARD_STYLE = cn(
     "tc-service-accent tc-service-card group flex min-h-48 flex-col rounded-2xl",
@@ -33,6 +36,7 @@ export function ServiceSelectPage() {
     const guideLocale = locale === "learning" ? "ja" : locale;
     const { data: session } = useSession();
     const isAdmin = session?.user?.role === "ADMIN";
+    const imageTranslation = getImageTranslationMessages(locale);
 
     // ホームのカードはナビゲーションと共通のサービス識別子・アクセント色を使う。
     const services = [
@@ -51,6 +55,14 @@ export function ServiceSelectPage() {
             icon: Mic,
             href: ROUTES.VOICE_SELECT,
             serviceKey: "voice",
+        },
+        {
+            id: "imageTranslation",
+            title: imageTranslation.title,
+            description: imageTranslation.description,
+            icon: Images,
+            href: IMAGE_TRANSLATION_PATH,
+            serviceKey: "platform",
         },
         {
             id: "accountBook",
@@ -94,9 +106,11 @@ export function ServiceSelectPage() {
         },
     ] as const;
 
-    const visibleServices = services.filter(
-        (service) => service.id !== "novel" || isAdmin,
-    );
+    const visibleServices = services.filter((service) => {
+        if (service.id === "novel") return isAdmin;
+        if (service.id === "imageTranslation") return IMAGE_TRANSLATION_ENABLED;
+        return true;
+    });
 
     return (
         <main

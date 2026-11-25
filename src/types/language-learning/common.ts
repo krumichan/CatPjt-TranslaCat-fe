@@ -33,7 +33,7 @@ export type WritingMetric =
 
 export type WritingEvaluationContext = "DAILY" | "LEVEL_TEST";
 
-export type LevelTestSessionType = "INITIAL" | "RECHECK";
+export type LevelTestSessionType = "INITIAL" | "RECHECK" | "SELF_SELECTED";
 
 export type LevelTestDifficulty =
     | "EASY"

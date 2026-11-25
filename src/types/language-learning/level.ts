@@ -61,6 +61,14 @@ export interface LevelTestStatus {
     proficiencyBand: LevelTestProficiencyBand | null;
 }
 
+export type LevelSelfSelectionBand = "B1" | "B2" | "B3";
+
+/** サーバーが得点を決定するため、クライアントは帯域と再送キーだけを送る。 */
+export interface LevelSelfSelectRequest {
+    band: LevelSelfSelectionBand;
+    idempotencyKey: string;
+}
+
 export interface LevelTestSession {
     sessionId: number;
     sessionType: LevelTestSessionType;

@@ -11,6 +11,7 @@ import type {
     LevelTestSession,
     LevelTestStartRequest,
     LevelTestStatus,
+    LevelSelfSelectRequest,
 } from "@/types/language-learning/level";
 
 function jsonBody(value: unknown): RequestInit {
@@ -21,6 +22,15 @@ function jsonBody(value: unknown): RequestInit {
 }
 
 export const languageLearningLevelService = {
+    /** 初回のB1〜B3自己選択を保存し、AI評価を実行せず初期基準点を返す。 */
+    selfSelect: async (request: LevelSelfSelectRequest): Promise<LevelTestSession> => {
+        const response = await apiClient(
+            "/language-learning/level-test/self-selection",
+            jsonBody(request),
+        );
+        return parseResponseBody<LevelTestSession>(response, "LanguageLearningLevelSelfSelection");
+    },
+
     getStatus: async (): Promise<LevelTestStatus> => {
         const response = await apiClient("/language-learning/level-test/status", {
             method: "GET",

@@ -7,8 +7,10 @@ import { useSearchParams } from "next/navigation";
 
 import { Link, useRouter } from "@/navigation";
 import { AuthErrorMessage, AuthField, authButtonClass } from "@/components/auth/AuthFormParts";
+import type { DocumentLoginReturn } from "@/features/document-translation/loginReturn";
 
-export default function LocalLoginForm() {
+/** 기존 자격 증명 로그인과 검증된 문서 복귀 경로를 처리한다. */
+export default function LocalLoginForm({ returnTo }: { returnTo?: DocumentLoginReturn }) {
     const t = useTranslations("Auth");
     const locale = useLocale();
     const router = useRouter();
@@ -28,10 +30,10 @@ export default function LocalLoginForm() {
                 email: email.trim(),
                 password,
                 redirect: false,
-                callbackUrl: `/${locale}`,
+                callbackUrl: returnTo?.pathname ?? `/${locale}`,
             });
 
-            // 결과와 관계없이 비밀번호를 지우고 성공한 세션만 메인 화면으로 이동한다.
+            // 비밀번호를 지우고 성공한 세션에서만 검증된 복귀 경로 또는 홈으로 이동한다.
             setPassword("");
             if (!result?.ok || result.error) {
                 setError(result?.error === "CredentialsSignin"
@@ -39,7 +41,11 @@ export default function LocalLoginForm() {
                     : result?.error ?? "AUTH_UNAVAILABLE");
                 return;
             }
-            router.replace("/");
+            if (returnTo) {
+                router.replace(returnTo.href, { locale: returnTo.locale });
+            } else {
+                router.replace("/");
+            }
             router.refresh();
         } catch {
             setPassword("");

@@ -14,6 +14,7 @@ import { AUTH_UNAUTHORIZED_EVENT } from "@/lib/authEvents";
 import { usePathname } from "next/navigation";
 import { stripLocalePrefix } from "@/lib/authPolicy";
 import { locales } from "@/i18n/config";
+import { parseDocumentLoginPath } from "@/features/document-translation/loginReturn";
 import {
     isTemporaryAuthError,
     isTerminalAuthError,
@@ -26,7 +27,12 @@ interface AuthSessionGuardProps {
 export default function AuthSessionGuard({
     children,
 }: AuthSessionGuardProps) {
-    const keepDeletionReceipt = stripLocalePrefix(usePathname(), locales) === "/account-deletion";
+    const pathname = usePathname();
+    const keepDeletionReceipt = stripLocalePrefix(pathname, locales) === "/account-deletion";
+    const documentReturn = parseDocumentLoginPath(pathname);
+    const loginUrl = documentReturn
+        ? "/" + documentReturn.locale + "/login?" + new URLSearchParams({ callbackUrl: documentReturn.pathname })
+        : "/login";
     const {
         data: session,
         update,
@@ -41,13 +47,13 @@ export default function AuthSessionGuard({
         signOutStartedRef.current = true;
 
         void signOut({
-            callbackUrl: "/login",
+            callbackUrl: loginUrl,
             // 탈퇴로 서버 세션이 폐기돼도 공개 영수증 화면은 유지해 처리 상태를 확인하게 한다.
             redirect: !keepDeletionReceipt,
         }).catch(() => {
             signOutStartedRef.current = false;
         });
-    }, [keepDeletionReceipt]);
+    }, [keepDeletionReceipt, loginUrl]);
 
     useEffect(() => {
         const handleUnauthorized = () => {

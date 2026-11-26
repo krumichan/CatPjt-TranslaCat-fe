@@ -97,6 +97,7 @@
 .tc-service-accent[data-service="home"] { --tc-service-color: var(--tc-service-home); }
 .tc-service-accent[data-service="platform"] { --tc-service-color: var(--tc-service-platform); }
 .tc-service-accent[data-service="voice"] { --tc-service-color: var(--tc-service-voice); }
+.tc-service-accent[data-service="documentTranslation"] { --tc-service-color: var(--tc-service-home); }
 .tc-service-accent[data-service="accountBook"] { --tc-service-color: var(--tc-service-accountBook); }
 .tc-service-accent[data-service="chat"] { --tc-service-color: var(--tc-service-chat); }
 .tc-service-accent[data-service="languageLearning"] { --tc-service-color: var(--tc-service-languageLearning); }

@@ -6,7 +6,7 @@ import { Link } from "@/navigation";
 
 import { documentErrorMessage, type DocumentTranslationCopy } from "./messages";
 import { DOCUMENT_TRANSLATION_PATH, isActiveDocumentJob } from "./model";
-import { DOCUMENT_PANEL, DOCUMENT_SECONDARY_BUTTON } from "./styles";
+import { DOCUMENT_PANEL, DOCUMENT_PRIMARY_BUTTON, DOCUMENT_SECONDARY_BUTTON } from "./styles";
 import { useDocumentJob } from "./useDocumentJob";
 
 type Props = { jobId: string; loginSessionId: string; copy: DocumentTranslationCopy; locale: string };

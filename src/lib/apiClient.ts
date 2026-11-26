@@ -72,7 +72,9 @@ export const apiClient = async (
         ...(options.headers as Record<string, string>),
     };
 
-    if (!(options.body instanceof FormData)) {
+    // 바이너리 호출이 지정한 MIME과 브라우저의 multipart boundary를 보존한다.
+    const hasBlobContentType = options.body instanceof Blob && headers["Content-Type"] !== undefined;
+    if (!(options.body instanceof FormData) && !hasBlobContentType) {
         headers["Content-Type"] = "application/json";
     }
 

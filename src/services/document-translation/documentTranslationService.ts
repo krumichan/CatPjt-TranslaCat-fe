@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/apiClient";
-import type { DocumentJob, DocumentUpload } from "@/features/document-translation/model";
+import { documentFormatFromFileName, type DocumentJob, type DocumentUpload } from "@/features/document-translation/model";
 
 type DocumentRequest = { loginSessionId: string; signal: AbortSignal };
 
@@ -51,18 +51,23 @@ export function isUncertainDocumentMutation(error: unknown): boolean {
     return !(error instanceof DocumentRequestError) || error.status === 429 || error.status >= 500;
 }
 
-/** 문서와 언어 조합을 멀티파트로 제출하고 원시 작업 객체를 반환한다. */
+/** 파일명 없이 문서 바이트와 언어·형식을 제출하고 접수된 작업을 반환한다. */
 export async function createDocumentJob(input: DocumentUpload, key: string, request: DocumentRequest): Promise<DocumentJob> {
-    const body = new FormData();
-    body.set("file", input.file);
-    body.set("sourceLanguage", input.sourceLanguage);
-    body.set("targetLanguage", input.targetLanguage);
+    const format = documentFormatFromFileName(input.file.name);
+    if (!format) {
+        throw new DocumentRequestError(400, "UNSUPPORTED_FORMAT");
+    }
+    const query = new URLSearchParams({
+        format,
+        sourceLanguage: input.sourceLanguage,
+        targetLanguage: input.targetLanguage,
+    });
 
-    // apiClient가 브라우저의 multipart boundary를 유지한다.
-    const response = await requestDocument(DOCUMENT_API_PATH, {
+    // raw 본문을 써서 파일명 전송과 서버의 multipart 임시 파일 생성을 피한다.
+    const response = await requestDocument(DOCUMENT_API_PATH + "?" + query, {
         method: "POST",
-        headers: { "Idempotency-Key": key },
-        body,
+        headers: { "Idempotency-Key": key, "Content-Type": "application/octet-stream" },
+        body: input.file,
     }, request, 120_000);
     return response.json() as Promise<DocumentJob>;
 }

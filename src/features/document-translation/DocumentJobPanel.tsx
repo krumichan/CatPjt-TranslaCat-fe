@@ -6,15 +6,17 @@ import { Link } from "@/navigation";
 
 import { documentErrorMessage, type DocumentTranslationCopy } from "./messages";
 import { DOCUMENT_TRANSLATION_PATH, isActiveDocumentJob } from "./model";
-import { DOCUMENT_PANEL, DOCUMENT_PRIMARY_BUTTON, DOCUMENT_SECONDARY_BUTTON } from "./styles";
+import { DOCUMENT_PANEL, DOCUMENT_SECONDARY_BUTTON } from "./styles";
 import { useDocumentJob } from "./useDocumentJob";
 
 type Props = { jobId: string; loginSessionId: string; copy: DocumentTranslationCopy; locale: string };
 
 /** 서버 상태와 저장 기한에 맞는 동작만 표시한다. */
 export function DocumentJobPanel({ jobId, loginSessionId, copy, locale }: Props) {
-    const { job, statusError, actionError, action, now, downloaded, refresh, execute, waitBeforeAction } =
-        useDocumentJob(jobId, loginSessionId);
+    const {
+        job, statusError, actionError, action, now, receivedResult, downloadRequested, canSaveFallback,
+        refresh, execute, saveFallback, waitBeforeAction,
+    } = useDocumentJob(jobId, loginSessionId);
     if (!job) {
         return (
             <div className={DOCUMENT_PANEL + " space-y-4"}>
@@ -31,18 +33,19 @@ export function DocumentJobPanel({ jobId, loginSessionId, copy, locale }: Props)
         );
     }
 
-    // 상태 응답의 시각을 기준으로 새로고침 뒤에도 대기 안내와 만료 상태를 복원한다.
+    // 서버가 결과를 건네준 작업은 수령 기한이 지나도 완료 상태로 표시한다.
     const expires = Date.parse(job.expiresAt);
-    const expired = job.status === "EXPIRED" || now >= expires;
+    const redeemed = job.status === "SUCCEEDED" && (!job.downloadPath || receivedResult);
+    const expired = job.status === "EXPIRED" || (!redeemed && now >= expires);
     const active = !expired && isActiveDocumentJob(job.status);
     const canCancel = active && job.status !== "CANCELLING";
-    const canRetry = !expired && (job.status === "CANCELLED" || (job.status === "FAILED" && job.retryable));
-    const canDownload = !expired && job.status === "SUCCEEDED" && !!job.downloadPath;
+    const canRetry = !expired && job.retryable && (job.status === "CANCELLED" || job.status === "FAILED");
+    const unavailable = redeemed && !action && !downloadRequested && !canSaveFallback && !actionError;
     const showLongWait = active && now - Date.parse(job.createdAt) >= 60_000;
     const hasProgress = job.status === "TRANSLATING" && job.totalSegments !== null && job.totalSegments > 0;
     const actionDisabled = action !== undefined || waitBeforeAction;
     const displayLocale = locale === "learning" ? "ja" : locale;
-    const expiryLabel = Number.isFinite(expires)
+    const expiryLabel = !redeemed && Number.isFinite(expires)
         ? new Intl.DateTimeFormat(displayLocale, { dateStyle: "medium", timeStyle: "short" }).format(expires)
         : null;
 
@@ -108,14 +111,23 @@ export function DocumentJobPanel({ jobId, loginSessionId, copy, locale }: Props)
                 {actionError && (
                     <p role="alert" className="text-sm text-red-700 dark:text-red-300">{documentErrorMessage(copy, actionError)}</p>
                 )}
+                {unavailable && (
+                    <p className="text-sm text-slate-600 dark:text-slate-300">
+                        {documentErrorMessage(copy, "DOWNLOAD_UNAVAILABLE")}
+                    </p>
+                )}
+                {action === "download" && <p role="status" className="text-sm">{copy.downloading}</p>}
                 {waitBeforeAction && <p role="status" className="text-sm">{copy.retryLater}</p>}
-                {downloaded && <p role="status" className="text-sm text-emerald-800 dark:text-emerald-300">{copy.downloadStarted}</p>}
+                {downloadRequested && (
+                    <p role="status" className="text-sm text-emerald-800 dark:text-emerald-300">{copy.downloadStarted}</p>
+                )}
 
                 <div className="flex flex-wrap gap-2">
-                    {canDownload && (
-                        <button type="button" className={DOCUMENT_PRIMARY_BUTTON} disabled={actionDisabled} onClick={() => void execute("download")}>
+                    {canSaveFallback && (
+                        <button type="button" className={DOCUMENT_SECONDARY_BUTTON} disabled={actionDisabled}
+                                onClick={() => void saveFallback()}>
                             <ArrowDownToLine className="size-4" aria-hidden="true" />
-                            {action === "download" ? copy.downloading : copy.download}
+                            {copy.saveIfBlocked}
                         </button>
                     )}
                     {canRetry && (

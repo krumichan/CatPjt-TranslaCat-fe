@@ -11,6 +11,7 @@ import {
 } from "@/services/document-translation/documentTranslationService";
 
 import { documentErrorMessage, type DocumentTranslationCopy } from "./messages";
+import { rememberDocumentFileName } from "./pendingDocumentFileName";
 import {
     DOCUMENT_FORMATS,
     DOCUMENT_LANGUAGE_OPTIONS,
@@ -93,6 +94,7 @@ export function DocumentUploadForm({ loginSessionId, copy }: Props) {
                 { loginSessionId, signal: controller.signal },
             );
             controller.signal.throwIfAborted();
+            rememberDocumentFileName(job.jobId, loginSessionId, file.name);
             router.push(documentJobPath(job.jobId));
         } catch (failure) {
             if (!controller.signal.aborted) {

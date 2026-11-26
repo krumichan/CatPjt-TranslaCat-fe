@@ -55,6 +55,12 @@ export function isActiveDocumentJob(status: DocumentJobStatus): boolean {
         || status === "REPACKING" || status === "CANCELLING";
 }
 
+/** 파일명 확장자에서 업로드 API가 받는 형식을 찾는다. */
+export function documentFormatFromFileName(fileName: string): DocumentFormat | undefined {
+    const suffix = fileName.match(/\.([^.]+)$/)?.[1]?.toLowerCase();
+    return DOCUMENT_FORMATS.find((format) => format === suffix);
+}
+
 /** 로컬에서 판정할 수 있는 파일 크기와 확장자 오류를 반환한다. */
 export function documentUploadError(file: File): string | undefined {
     if (file.size === 0) {
@@ -65,8 +71,7 @@ export function documentUploadError(file: File): string | undefined {
     }
 
     // MIME은 브라우저에서 비어 있을 수 있으므로 실제 형식 검사는 BE에서 시행한다.
-    const suffix = file.name.match(/\.([^.]+)$/)?.[1]?.toLowerCase();
-    return DOCUMENT_FORMATS.some((format) => format === suffix) ? undefined : "UNSUPPORTED_FORMAT";
+    return documentFormatFromFileName(file.name) ? undefined : "UNSUPPORTED_FORMAT";
 }
 
 /** 교차 원점 헤더에 의존하지 않고 번역 언어와 원래 확장자를 반영한다. */

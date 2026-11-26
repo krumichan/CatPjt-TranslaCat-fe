@@ -138,6 +138,7 @@ function createApiHarness(getSession, { fetchResponse } = {}) {
     },
   }, {
     DOMException,
+    Blob,
     FormData,
     Response,
     fetch: async (url, options) => {

@@ -11,7 +11,7 @@ function loadSource(relative, modules, globals = {}) {
   }).outputText;
   const exports = {};
   vm.runInNewContext(compiled, {
-    exports, Response, FormData, DOMException, Date, AbortSignal, process: { env: {} }, ...globals,
+    exports, Response, Blob, FormData, DOMException, Date, AbortSignal, process: { env: {} }, ...globals,
     require(name) { assert.ok(name in modules, `Unexpected dependency: ${name}`); return modules[name]; },
   });
   return exports;

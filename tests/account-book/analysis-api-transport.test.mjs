@@ -49,7 +49,7 @@ function harness(settings = {}) {
   vm.runInNewContext(compiled, {
     exports,
     process: { env: { NEXT_PUBLIC_API_URL: standardBase, NEXT_PUBLIC_ACCOUNT_BOOK_ANALYSIS_API_URL: configured } },
-    URL, DOMException, FormData, Response, Date,
+    URL, DOMException, Blob, FormData, Response, Date,
     require(name) {
       assert.ok(name in modules, `Unexpected dependency: ${name}`);
       return modules[name];
@@ -84,6 +84,29 @@ for (const route of routes) {
     assert.equal(client.unauthorized, 0);
   });
 }
+
+test("document uploads preserve the Blob and its explicit MIME on the standard API", async () => {
+  // 준비: 브라우저 문서 업로드와 같은 바이너리 본문 및 명시적 MIME을 전달한다.
+  const client = harness();
+  const endpoint = "/document-translations?format=docx&sourceLanguage=ja&targetLanguage=en";
+  const contentType = "application/octet-stream";
+  const body = new Blob(["synthetic document content"], { type: contentType });
+
+  // 실행
+  await client.apiClient(endpoint, {
+    method: "POST",
+    body,
+    headers: { "Content-Type": contentType },
+  }, "login-current");
+
+  // 검증: 본문 객체, MIME과 기존 인증 헤더가 표준 API 요청까지 유지된다.
+  assert.equal(client.requests.length, 1);
+  const [request] = client.requests;
+  assert.equal(request.url, standardBase + endpoint);
+  assert.equal(request.options.body, body);
+  assert.equal(request.options.headers["Content-Type"], contentType);
+  assert.equal(request.options.headers.Authorization, "Bearer synthetic-test-token");
+});
 
 test("unset or blank dedicated configuration preserves every original URL", async () => {
   // 준비 / 실행

@@ -21,15 +21,16 @@ const DOMAINS = [
     ["SPEAKING", 3],
 ] as const;
 
-/** 初回は自己選択と実測を提示し、既存の基準点や進行中のテストを上書きしない。 */
+/** サーバーが自己選択を許可した初回テストでは、実測の開始・再開と自己選択を提示する。 */
 export function LevelTestReadyCard({ controller }: LevelTestReadyCardProps) {
     const t = useTranslations("LanguageLearning.levelTest");
     const status = controller.status!;
     const isInitial = !status.initialLevelTestCompleted;
+    const showSelfSelection = isInitial && (status.selfSelectionAvailable ?? !status.activeSessionId);
 
     return (
         <div className="space-y-5">
-            {isInitial && !status.activeSessionId && (
+            {showSelfSelection && (
                 <LevelTestSelfSelectionCard disabled={controller.isStarting} onSelect={controller.selfSelect} />
             )}
             <section className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm dark:border-white/10 dark:bg-slate-900/75 sm:p-8">
@@ -76,6 +77,7 @@ export function LevelTestReadyCard({ controller }: LevelTestReadyCardProps) {
                             <button
                                 type="button"
                                 onClick={controller.resume}
+                                disabled={controller.isStarting}
                                 className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-black text-white transition hover:bg-blue-500"
                             >
                                 {t("ready.resume")}

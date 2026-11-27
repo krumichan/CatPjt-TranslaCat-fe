@@ -16,6 +16,8 @@ for (const [band, score, proficiency] of [
         let selected = false;
         let selections = 0;
         let testsStarted = 0;
+        const openedSessionId = band === "B3" ? 3198 : null;
+        let abandonedQuestionRequests = 0;
         const summary = {
             sessionId: 3199, sessionType: "SELF_SELECTED", overallScore: score, proficiencyBand: proficiency,
             domainScores: { vocabulary: score, grammar: score, reading: score, listening: score, writing: score, speaking: score },
@@ -23,8 +25,10 @@ for (const [band, score, proficiency] of [
         };
         await page.route("**/api/v1/language-learning/level-test/status", (route) => fulfillApiJson(route, responseDto({
             profileState: selected ? "CALIBRATING" : "LEVEL_TEST_REQUIRED", initialLevelTestCompleted: selected,
-            recheckRecommended: false, activeSessionId: null, currentQuestionNumber: null,
+            recheckRecommended: false, activeSessionId: selected ? null : openedSessionId,
+            currentQuestionNumber: !selected && openedSessionId != null ? 1 : null,
             baseLevelScore: selected ? score : null, proficiencyBand: selected ? proficiency : null,
+            selfSelectionAvailable: !selected,
         })));
         await page.route("**/api/v1/language-learning/level-test/history", (route) =>
             fulfillApiJson(route, responseDto(selected ? [summary] : [])));
@@ -49,12 +53,27 @@ for (const [band, score, proficiency] of [
             fulfillApiJson(route, responseDto({ ...summary, recommendedDifficulty: "MY_LEVEL" })));
         await page.route("**/api/v1/language-learning/level-test/history/3199", (route) =>
             fulfillApiJson(route, responseDto({ summary, items: [] })));
+        if (openedSessionId != null) {
+            await page.route(`**/api/v1/language-learning/level-test/sessions/${openedSessionId}`, (route) =>
+                fulfillApiJson(route, responseDto({
+                    sessionId: openedSessionId, sessionType: "INITIAL", status: selected ? "ABANDONED" : "IN_PROGRESS",
+                    totalQuestions: 20, currentQuestionNumber: 1, currentComplexityBand: 2,
+                    baseLevelScore: null, proficiencyBand: null, startedAt: summary.completedAt, completedAt: null,
+                })));
+            await page.route(`**/api/v1/language-learning/level-test/sessions/${openedSessionId}/current-item`, (route) => {
+                abandonedQuestionRequests += 1;
+                return fulfillApiJson(route, errorDto("UNEXPECTED_QUESTION", "The abandoned test must stay closed"), 409);
+            });
+        }
 
         // 실행: 선택 전에는 저장할 수 없고 B1~B3 중 하나를 명시적으로 고른다.
         await page.goto("/language-learning/level-test");
         const submit = page.getByRole("button", { name: "선택한 레벨로 시작", exact: true });
         await expect(submit).toBeDisabled();
         await expect(page.getByRole("radio")).toHaveCount(3);
+        if (openedSessionId != null) {
+            await expect(page.getByRole("button", { name: "진행 중 테스트 이어하기" })).toBeVisible();
+        }
         await page.getByRole("radio", { name: new RegExp(`^${band}`) }).check();
         await submit.click();
 
@@ -67,12 +86,32 @@ for (const [band, score, proficiency] of [
         await expect(page.getByText("직접 선택한 초기 레벨", { exact: true })).toBeVisible();
         await page.goto("/language-learning/level-test/history/3199");
         await expect(page.getByText("직접 선택한 초기 레벨", { exact: true }).first()).toBeVisible();
-        await page.goto("/language-learning/level-test");
+        await page.goto(openedSessionId == null
+            ? "/language-learning/level-test"
+            : `/language-learning/level-test/session/${openedSessionId}`);
+        await expect(page).toHaveURL(/\/level-test$/);
         await expect(page.getByRole("button", { name: "선택한 레벨로 시작", exact: true })).toHaveCount(0);
         expect(selections).toBe(1);
         expect(testsStarted).toBe(0);
+        expect(abandonedQuestionRequests).toBe(0);
     });
 }
+
+test("LL-SELF-ANSWERED 첫 답안이 이미 저장된 시험에서는 재개만 제공한다", async ({ page }) => {
+    // 준비: 평가 실패로 첫 문항에 머물러도 서버가 직접 선택을 금지한다.
+    await mockLanguageLearningBase(page);
+    await mockLanguageLearningLevelTest(page);
+    await page.route("**/api/v1/language-learning/level-test/status", (route) => fulfillApiJson(route, responseDto({
+        profileState: "LEVEL_TEST_REQUIRED", initialLevelTestCompleted: false, recheckRecommended: false,
+        activeSessionId: 3198, currentQuestionNumber: 1, baseLevelScore: null, proficiencyBand: null,
+        selfSelectionAvailable: false,
+    })));
+
+    // 실행 및 검증: 재개는 가능하며 B1~B3 선택은 나타나지 않는다.
+    await page.goto("/language-learning/level-test");
+    await expect(page.getByRole("button", { name: "진행 중 테스트 이어하기" })).toBeVisible();
+    await expect(page.getByRole("radio")).toHaveCount(0);
+});
 
 test("LL-SELF-RETRY 저장 실패 후 같은 선택은 같은 키로 재시도한다", async ({ page }) => {
     // 준비: 첫 통신만 실패하고 두 번째는 같은 요청을 받았는지 확인한다.

@@ -47,7 +47,8 @@ export function useLevelTestSessionController(sessionId: number) {
             Number.isFinite(sessionId) &&
             sessionId > 0 &&
             sessionValidated &&
-            sessionQuery.data?.status !== "COMPLETED",
+            sessionQuery.data?.status !== "COMPLETED" &&
+            sessionQuery.data?.status !== "ABANDONED",
         config: {
             revalidateOnMount: true,
             onSuccess: () => setQuestionValidated(true),
@@ -137,9 +138,12 @@ export function useLevelTestSessionController(sessionId: number) {
     }, [question?.status, questionQuery, sessionQuery]);
 
     useEffect(() => {
-        if (sessionQuery.data?.status !== "COMPLETED") return;
-        router.replace(`/language-learning/level-test/result/${sessionId}`);
-    }, [router, sessionId, sessionQuery.data?.status]);
+        if (session?.status === "COMPLETED") {
+            router.replace(`/language-learning/level-test/result/${sessionId}`);
+        } else if (session?.status === "ABANDONED") {
+            router.replace("/language-learning/level-test");
+        }
+    }, [router, sessionId, session?.status]);
 
     useEffect(
         () => () => {
@@ -169,7 +173,7 @@ export function useLevelTestSessionController(sessionId: number) {
             true,
         );
         setSessionValidated(refreshedSession != null);
-        if (!refreshedSession || refreshedSession.status === "COMPLETED") return;
+        if (!refreshedSession || refreshedSession.status === "COMPLETED" || refreshedSession.status === "ABANDONED") return;
         const refreshedQuestion = await refreshCurrentQuestion();
         setQuestionValidated(refreshedQuestion != null);
     }, [refreshCurrentQuestion, sessionQuery]);

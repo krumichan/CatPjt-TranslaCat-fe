@@ -59,6 +59,8 @@ export interface LevelTestStatus {
     currentQuestionNumber: number | null;
     baseLevelScore: number | null;
     proficiencyBand: LevelTestProficiencyBand | null;
+    /** 旧バージョンの状態応答では省略される。 */
+    selfSelectionAvailable?: boolean | null;
 }
 
 export type LevelSelfSelectionBand = "B1" | "B2" | "B3";

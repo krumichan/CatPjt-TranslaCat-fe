@@ -115,6 +115,111 @@ test("papasu payment facts keep 7089 purchase total and derive 5020 book amount"
   assert.equal(changed.selected, true);
 });
 
+test("purchase total does not overwrite a card allocation when the receipt also has cash facts", () => {
+  // 準備: 合計が未読取で、現金預りとカード明細が両方ある。
+  const [item] = reviews({
+    ...ready, purchaseTotal: "", originalAmount: null, bookAmount: null,
+    reviewStatus: "NEEDS_REVIEW", amountReason: "MISSING_OR_INVALID_PURCHASE_TOTAL",
+    cashTendered: "8380", change: "0",
+    paymentBreakdown: [{ paymentType: "CREDIT_CARD", amount: "8380", evidence: "observed", duplicateGroup: null }],
+  });
+
+  // 実行 / 検証: 合計の入力だけでは支払方法を変更せず、確認は引き続き必要。
+  const total = editReceiptReview(item, "purchaseTotal", "8380");
+  assert.equal(classifyReceiptInlineAmountEdit(item).mode, "DETAILS_REQUIRED");
+  assert.equal(total.paymentBreakdown[0].paymentType, "CREDIT_CARD");
+  assert.equal(total.amountReason, "PAYMENT_TOTAL_MISMATCH");
+  assert.equal(hasValidReceiptSource(total), false);
+
+  // 実行 / 検証: 現金払いと確認して修正すると同じ現金を二重に計上しない。
+  const corrected = editReceiptPayment(total, 0, "8380", "CASH");
+  assert.equal(corrected.originalAmount, "8380");
+  assert.equal(corrected.observedPaymentTypes[0], "CREDIT_CARD");
+  assert.equal(hasValidReceiptSource(corrected), true);
+  assert.equal(corrected.conversionStale, true);
+});
+
+for (const paymentBreakdown of [
+  [],
+  [{ paymentType: "CASH", amount: "", evidence: "現金", duplicateGroup: null }],
+  [{ paymentType: "CASH", amount: "8380", evidence: "現金", duplicateGroup: null }],
+]) {
+  test(`8380 JPY cash fills the book amount without a second input (payment rows: ${paymentBreakdown.length}, has amount: ${Boolean(paymentBreakdown[0]?.amount)})`, () => {
+    // 準備: 換算済みとして表示できない解析結果。原金額だけが欠けている。
+    const receipt = {
+      ...ready, purchaseTotal: "8380", originalAmount: null, bookAmount: null,
+      detectedCurrencyCode: "JPY", cashTendered: "8380", change: "0",
+      paymentBreakdown, reviewStatus: "NEEDS_REVIEW",
+    };
+
+    // 実行: 解析を開く場合と、後から購入総額だけを入力する場合を確認する。
+    const [fromAnalysis] = reviews(receipt);
+    const [withoutTotal] = reviews({ ...receipt, purchaseTotal: "" });
+    const afterEdit = editReceiptReview(withoutTotal, "purchaseTotal", "8380");
+
+    // 検証: 同じ金額を再入力せず、再確認用の原金額と明細を確定する。
+    for (const item of [fromAnalysis, afterEdit]) {
+      assert.equal(item.originalAmount, "8380");
+      assert.equal(item.reviewStatus, "READY");
+      assert.equal(item.paymentBreakdown[0]?.amount, paymentBreakdown.length ? "8380" : undefined);
+      assert.equal(hasValidReceiptSource(item), true);
+      assert.equal(item.conversion.conversionQuoteId, null);
+      assert.equal(item.conversionStale, true);
+      assert.equal(canRegisterReceipt(item), false);
+    }
+  });
+}
+
+test("cash disagreement keeps the book amount empty even when there are no payment rows", () => {
+  // 準備: 明細なしで、お釣りの差し引き後は購入総額と一致しない。
+  const [item] = reviews({
+    ...ready, purchaseTotal: "8380", originalAmount: null, bookAmount: null,
+    detectedCurrencyCode: "JPY", cashTendered: "9000", change: "0",
+    reviewStatus: "NEEDS_REVIEW",
+  });
+  assert.equal(item.originalAmount, "");
+
+  // 実行 / 検証: 不一致の間は換算を止め、お釣りだけを正せば原金額が復元される。
+  const mismatched = editReceiptReview(item, "cashTendered", "9001");
+  assert.equal(mismatched.originalAmount, "");
+  assert.equal(mismatched.amountReason, "INVALID_CASH_FACTS");
+  assert.equal(hasValidReceiptSource(mismatched), false);
+  assert.equal(editReceiptReview(mismatched, "change", "621").originalAmount, "8380");
+});
+
+test("a missing book amount is recovered from reconciled cash and points", () => {
+  // 準備: 8,380円のうち500円はポイント。現金は預り8,000円からお釣り120円を引く。
+  const [item] = reviews({
+    ...ready, purchaseTotal: "8380", originalAmount: null, bookAmount: null,
+    detectedCurrencyCode: "JPY", cashTendered: "8000", change: "120",
+    reviewStatus: "NEEDS_REVIEW", paymentBreakdown: [
+      { paymentType: "LOYALTY_POINTS", amount: "500", evidence: "ポイント", duplicateGroup: null },
+      { paymentType: "CASH", amount: "8000", evidence: "預り", duplicateGroup: null },
+    ],
+  });
+
+  // 検証: 実際に支払った金額だけを換算対象にする。
+  assert.equal(item.originalAmount, "7880");
+  assert.equal(item.paymentBreakdown[0].amount, "500");
+  assert.equal(hasValidReceiptSource(item), true);
+});
+
+test("invalid cash facts identify the cash fields as the source of the conversion blocker", () => {
+  // 準備: 現金預り額と釣銭は記録済みだが、現金の支払明細は一致しない。
+  const [item] = reviews({
+    ...ready, purchaseTotal: "8380", bookAmount: "8380",
+    cashTendered: "10000", change: "1620",
+    paymentBreakdown: [{ paymentType: "CASH", amount: "8380", evidence: null, duplicateGroup: null }],
+  });
+
+  // 実行 / 検証
+  const changed = editReceiptPayment(item, 0, "8000");
+  assert.ok(validateReceiptForRegistration(changed).blockingIssues.some(
+    issue => issue.code === "INVALID_CASH_FACTS" && issue.field === "cashTendered",
+  ));
+  assert.equal(hasValidReceiptSource(changed), false);
+});
+
 test("cash tendered and change determine the settled cash amount without double counting", () => {
   const cash = {
     ...ready, purchaseTotal: "9.00", originalAmount: "9.00", bookAmount: "9.00",
@@ -152,6 +257,7 @@ test("a single card allocation is an unambiguous inline correction and remains s
   });
 
   assert.deepEqual(classifyReceiptInlineAmountEdit(item), { mode: "SINGLE_PAYMENT", paymentIndex: 0, reason: null });
+  assert.equal(classifyReceiptInlineAmountEdit({ ...item, cashTendered: "0", change: "0" }).mode, "SINGLE_PAYMENT");
   const changed = applyReceiptInlineAmountCorrection(item, "15.00");
   assert.ok(changed);
   assert.equal(changed.purchaseTotal, "15.00");

@@ -5,6 +5,8 @@ import type { ReceiptQueueItem } from "@/types/accountBookReceiptReview";
 import type { TransactionFormModalProps } from "@/types/accountBookTransactionForm";
 import { useReceiptReview } from "./useReceiptReview";
 
+export const RECEIPT_PHOTO_LIMIT = 10;
+
 type UseReceiptWorkflowParams = Pick<TransactionFormModalProps, "onAnalyzeReceipt"
     | "onPreviewReceiptConversion"
     | "onSubmitReceiptBatch"
@@ -42,6 +44,7 @@ export function useReceiptWorkflow({
         []
     );
     const [receiptAnalysisMessage, setReceiptAnalysisMessage] = useState<string | null>(null);
+    const [receiptSelectionError, setReceiptSelectionError] = useState<{ selected: number; remaining: number } | null>(null);
     const analysisPending = receiptQueue.some((item) => ["queued", "analyzing"].includes(item.status));
     const isAnalyzingReceipt = receiptQueue.some((item) => item.status === "analyzing");
     const receiptReview = useReceiptReview(
@@ -120,9 +123,17 @@ export function useReceiptWorkflow({
         await analyzeTargets(receiptQueueRef.current.filter((item) => item.status === "queued"));
     };
 
+    // 選択した画像はまとめて追加し、上限を超えた場合は既存の一覧を保つ。
     const addReceiptFiles = (files: File[]) => {
-        const available = Math.max(0, 10 - receiptQueueRef.current.length);
-        const accepted = files.slice(0, available).map((file): ReceiptQueueItem => ({
+        if (!files.length) return;
+
+        const remaining = RECEIPT_PHOTO_LIMIT - receiptQueueRef.current.length;
+        if (files.length > remaining) {
+            setReceiptSelectionError({ selected: files.length, remaining });
+            return;
+        }
+
+        const accepted = files.map((file): ReceiptQueueItem => ({
             sourceImageId: crypto.randomUUID(),
             file,
             previewUrl: typeof URL !== "undefined" && URL.createObjectURL ? URL.createObjectURL(file) : "",
@@ -131,10 +142,9 @@ export function useReceiptWorkflow({
             receiptCount: 0,
             error: null,
         }));
-        if (accepted.length)
-            updateQueue((current) => [...current, ...accepted]);
-        if (files.length > accepted.length)
-            setReceiptAnalysisMessage(t("receipt.queueLimit", { count: 10 }));
+        updateQueue((current) => [...current, ...accepted]);
+        setReceiptSelectionError(null);
+        setReceiptAnalysisMessage(null);
     };
 
     const removeReceiptFile = (sourceImageId: string) => {
@@ -145,6 +155,7 @@ export function useReceiptWorkflow({
             URL.revokeObjectURL(target.previewUrl);
         updateQueue((current) => current.filter((item) => item.sourceImageId !== sourceImageId));
         receiptReview.removeSource(sourceImageId);
+        setReceiptSelectionError(null);
     };
 
     const cancelReceiptAnalysis = (sourceImageId: string) => {
@@ -180,7 +191,7 @@ export function useReceiptWorkflow({
         receiptAnalysisMode,
         setReceiptAnalysisMode,
         receiptAnalysisMessage,
-        setReceiptAnalysisMessage,
+        receiptSelectionError,
         isAnalyzingReceipt,
         handleAnalyzeReceipt,
     };

@@ -23,6 +23,7 @@ type Props = {
     onChange: (item: ReceiptReviewItem) => void;
 };
 
+/** 編集欄と、計算済みの原金額から支払情報に移る操作を表示する。 */
 export default function ReceiptReviewField({ item, field, label, options = {}, validation, onChange }: Props) {
     const t = useTranslations("AccountBook.detail.transactionModal");
     const id = receiptFieldId(item.clientId, field);
@@ -62,7 +63,8 @@ export default function ReceiptReviewField({ item, field, label, options = {}, v
                     onClick={(event) => {
                         const details = event.currentTarget.closest("article")?.querySelector("details");
                         if (details) details.open = true;
-                        document.getElementById(receiptFieldId(item.clientId, "paymentBreakdown"))?.focus();
+                        const target = item.paymentBreakdown.length ? "paymentBreakdown" : "cashTendered";
+                        document.getElementById(receiptFieldId(item.clientId, target))?.focus();
                     }}>
                     {t("receipt.review.receiptDetails")}
                 </button>

@@ -1,5 +1,7 @@
 import type { AccountBookReceiptAnalysisResponse } from "@/types/accountBook";
 import type { ReceiptReviewItem } from "./types";
+import { recalculateAmountFacts } from "./money";
+import { staleConversion } from "./conversion";
 
 export const CONVERSION_WARNING_CODES = new Set([
     "PREVIOUS_PUBLISHED_RATE",
@@ -9,6 +11,7 @@ export const CONVERSION_WARNING_CODES = new Set([
     "DATE_REQUIRES_REVIEW",
 ]);
 
+/** 解析結果を編集用に変換し、支払根拠から確定できる原金額を補う。 */
 export function createReceiptReview(
     response: AccountBookReceiptAnalysisResponse,
     sourceImageId = "legacy-source",
@@ -61,8 +64,21 @@ export function createReceiptReview(
             amountCorrection: null,
             analysisTraceId: response.analysisTraceId ?? null,
         };
-        // 선택은 검토 완료와 별개다. 미완료 항목은 공통 검증이 전체 등록을 차단한다.
-        return review;
+        // 원금액이 빠졌을 때만 결제 근거와 총액의 대조로 복구한다.
+        const hasPaymentFacts = review.paymentBreakdown.length > 0
+            || (review.cashTendered?.trim() && review.change?.trim());
+        if (review.originalAmount.trim() || !hasPaymentFacts || review.reviewStatus === "EXCLUDED"
+            || review.amountPolicyVersion !== "receipt-book-amount-v1") {
+            return review;
+        }
+
+        const reconciled = recalculateAmountFacts(review);
+        if (reconciled.reviewStatus !== "READY") {
+            return review;
+        }
+
+        // 보완된 금액은 기존 환산 결과와 분리하고 재확인을 거친다.
+        return { ...reconciled, conversionStale: true, conversion: staleConversion(reconciled) };
     });
 }
 

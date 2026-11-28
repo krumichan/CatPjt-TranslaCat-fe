@@ -36,6 +36,7 @@ export function decimalText(value: bigint): string {
     return fraction ? `${whole}.${fraction}` : whole.toString();
 }
 
+/** 購入総額と支払明細を照合し、家計簿に反映する原金額を確定する。 */
 export function recalculateAmountFacts(item: ReceiptReviewItem): ReceiptReviewItem {
     const total = decimalUnits(item.purchaseTotal);
     if (total == null || total <= ZERO)
@@ -45,7 +46,20 @@ export function recalculateAmountFacts(item: ReceiptReviewItem): ReceiptReviewIt
             reviewStatus: "NEEDS_REVIEW",
             amountReason: "MISSING_OR_INVALID_PURCHASE_TOTAL",
         };
-    if (!item.paymentBreakdown.length)
+    // 現金預り額とお釣りが揃っていれば、支払明細がなくても差額を購入総額と照合する。
+    const tendered = decimalUnits(item.cashTendered);
+    const change = decimalUnits(item.change);
+    const netCash = tendered !== null && change !== null && tendered >= change ? tendered - change : null;
+    if (!item.paymentBreakdown.length) {
+        if (item.cashTendered?.trim() && item.change?.trim() && netCash !== total) {
+            return {
+                ...item,
+                originalAmount: "",
+                reviewStatus: "NEEDS_REVIEW",
+                amountReason: "INVALID_CASH_FACTS",
+            };
+        }
+
         return {
             ...item,
             originalAmount: decimalText(total),
@@ -53,9 +67,19 @@ export function recalculateAmountFacts(item: ReceiptReviewItem): ReceiptReviewIt
             amountPolicyVersion: "receipt-book-amount-v1",
             amountReason: "PURCHASE_TOTAL_NO_PAYMENT_ALLOCATION",
         };
+    }
+
+    // 単一の現金明細で金額だけが欠けている場合、購入総額と一致した現金の差額を使う。
+    const [firstPayment] = item.paymentBreakdown;
+    const paymentBreakdown = item.paymentBreakdown.length === 1 && firstPayment.paymentType === "CASH"
+        && !firstPayment.amount?.trim() && netCash === total
+        ? [{ ...firstPayment, amount: decimalText(netCash) }]
+        : item.paymentBreakdown;
+
+    // 重複する明細をまとめ、支払方法ごとの金額を計算する。
     const groups = new Map<string, ReceiptPaymentItem>();
     const collapsed: ReceiptPaymentItem[] = [];
-    for (const payment of item.paymentBreakdown) {
+    for (const payment of paymentBreakdown) {
         const amount = decimalUnits(payment.amount);
         if (amount == null || amount <= ZERO || payment.paymentType === "UNKNOWN")
             return {
@@ -93,17 +117,15 @@ export function recalculateAmountFacts(item: ReceiptReviewItem): ReceiptReviewIt
             nonCashPaid += amount;
     }
     const hasCash = collapsed.some((payment) => payment.paymentType === "CASH");
-    if (item.cashTendered) {
-        const tendered = decimalUnits(item.cashTendered);
-        const change = decimalUnits(item.change);
-        if (tendered == null || change == null || tendered < change)
+    // 現金の預り額を重ねて計上せず、実際に支払った差額を使う。
+    if (item.cashTendered?.trim()) {
+        if (netCash === null)
             return {
                 ...item,
                 originalAmount: "",
                 reviewStatus: "NEEDS_REVIEW",
                 amountReason: "INVALID_CASH_FACTS",
             };
-        const netCash = tendered - change;
         if (hasCash && cashPaid !== tendered && cashPaid !== netCash)
             return {
                 ...item,
@@ -112,7 +134,7 @@ export function recalculateAmountFacts(item: ReceiptReviewItem): ReceiptReviewIt
                 amountReason: "INVALID_CASH_FACTS",
             };
         cashPaid = netCash;
-    } else if (!hasCash && item.change && decimalUnits(item.change) !== ZERO) {
+    } else if (!hasCash && item.change?.trim() && change !== ZERO) {
         return {
             ...item,
             originalAmount: "",
@@ -120,6 +142,7 @@ export function recalculateAmountFacts(item: ReceiptReviewItem): ReceiptReviewIt
             amountReason: "INVALID_CASH_FACTS"
         };
     }
+    // 実支払額とポイントの合計が購入総額と一致することを確認する。
     let paid = nonCashPaid + cashPaid;
     if (points + paid !== total) {
         const ungrouped = collapsed.filter((payment) => !payment.duplicateGroup
@@ -153,6 +176,7 @@ export function recalculateAmountFacts(item: ReceiptReviewItem): ReceiptReviewIt
 
     return {
         ...item,
+        paymentBreakdown,
         originalAmount: decimalText(paid),
         reviewStatus: "READY",
         amountPolicyVersion: "receipt-book-amount-v1",

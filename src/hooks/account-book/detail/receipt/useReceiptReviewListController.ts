@@ -151,7 +151,8 @@ export function useReceiptReviewListController({ review, categoryNames }: Params
         amountEditToken.current += 1;
         returnFocusRef.current = event.currentTarget;
         if (classifyReceiptInlineAmountEdit(item).mode === "DETAILS_REQUIRED") {
-            openEditor(item, event.currentTarget, "paymentBreakdown");
+            const field = item.paymentBreakdown.length ? "paymentBreakdown" : "cashTendered";
+            openEditor(item, event.currentTarget, field);
             return;
         }
         setAmountEdit({

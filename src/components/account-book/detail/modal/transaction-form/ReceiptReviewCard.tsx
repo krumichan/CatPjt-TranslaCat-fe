@@ -42,6 +42,7 @@ type Props = {
     sourcePreviewUrl?: string;
 };
 
+/** レシートの入力欄と、入力内容に応じた換算確認の操作を表示する。 */
 export default function ReceiptReviewCard({
     item,
     index,
@@ -61,12 +62,26 @@ export default function ReceiptReviewCard({
     const t = useTranslations("AccountBook.detail.transactionModal");
     const needsRecalculation = validation.blockingIssues.some((entry) => entry.field === "conversion");
     const paymentDetailsRef = useRef<HTMLDetailsElement>(null);
-    const paymentMismatch = item.reviewStatus !== "READY" && item.amountReason === "PAYMENT_TOTAL_MISMATCH";
-    // 합계 오류가 숨겨진 상세 안에서 발생하면 정정할 결제 내역을 바로 펼친다.
+    const canPreview = hasValidReceiptSource(item);
+    const paymentIssueField = validation.blockingIssues.find(
+        ({ field }) => field === "paymentBreakdown" || field === "cashTendered" || field === "purchaseTotal",
+    )?.field;
+    const displayedIssues = canPreview
+        ? validation.blockingIssues
+        : validation.blockingIssues.filter(({ field }) => field !== "conversion");
+
+    // 結済に関する入力エラーが起きたら詳細を開き、再確認ボタンからも該当欄に戻れるようにする。
     useEffect(() => {
-        if (paymentMismatch && paymentDetailsRef.current)
+        if (paymentIssueField && paymentDetailsRef.current)
             paymentDetailsRef.current.open = true;
-    }, [paymentMismatch]);
+    }, [paymentIssueField]);
+
+    // 折りたたまれた明細を開いてからフォーカスを移す。
+    const focusPaymentIssue = () => {
+        if (!paymentIssueField || !paymentDetailsRef.current) return;
+        paymentDetailsRef.current.open = true;
+        document.getElementById(receiptFieldId(item.clientId, paymentIssueField))?.focus();
+    };
     const issue = (field: ReceiptBlockingField) => validation.blockingIssues.find((entry) => entry.field === field);
 
     const error = (field: ReceiptBlockingField) => {
@@ -235,12 +250,12 @@ export default function ReceiptReviewCard({
             <ReceiptReviewConversionSummary item={item} />
 
             <ReceiptWarnings warnings={validation.advisoryWarnings} />
-            {validation.blockingIssues.length > 0 && (
+            {displayedIssues.length > 0 && (
                 <ul
                     className="mt-3 space-y-1"
                     aria-label={t("receipt.review.currentIssues")}
                 >
-                    {validation.blockingIssues.map((entry) => (
+                    {displayedIssues.map((entry) => (
                         <li
                             key={`${entry.code}-${entry.field}`}
                             className="text-xs font-semibold text-red-600 dark:text-red-300"
@@ -255,14 +270,23 @@ export default function ReceiptReviewCard({
                     className="mt-3 text-xs font-semibold text-amber-700 dark:text-amber-300"
                     role="status"
                 >
-                    {t("receipt.review.staleConversion")}
+                    {t(canPreview ? "receipt.review.staleConversion" : "receipt.review.previewBlocked")}
                 </p>
+            )}
+            {needsRecalculation && !canPreview && paymentIssueField && (
+                <button
+                    type="button"
+                    onClick={focusPaymentIssue}
+                    className="mt-2 rounded-lg px-3 py-2 text-sm font-semibold text-orange-700 underline dark:text-orange-300"
+                >
+                    {t("receipt.review.goToPaymentIssue")}
+                </button>
             )}
             {(needsRecalculation || previewing) && <button
                 id={receiptFieldId(item.clientId, "conversion")}
                 type="button"
                 data-testid={`receipt-recalculate-${item.receiptId}`}
-                disabled={disabled || !hasValidReceiptSource(item)}
+                disabled={disabled || !canPreview}
                 onClick={() => onPreview(item)}
                 className="mt-3 w-full rounded-xl border border-orange-300 px-3 py-2 text-sm font-semibold text-orange-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-orange-300"
             >

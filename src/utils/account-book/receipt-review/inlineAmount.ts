@@ -2,13 +2,18 @@ import type { ReceiptReviewItem, ReceiptInlineAmountEditPolicy } from "./types";
 import { decimalUnits, ZERO, PAID_TYPES, recalculateAmountFacts } from "./money";
 import { staleConversion } from "./conversion";
 
+/** 結済・現金の記録を保ったまま、合計だけで修正できるかを判定する。 */
 export function classifyReceiptInlineAmountEdit(item: ReceiptReviewItem): ReceiptInlineAmountEditPolicy {
-    if (!item.paymentBreakdown.length)
+    if (!item.paymentBreakdown.length) {
+        if (item.cashTendered?.trim() && item.change?.trim()) {
+            return { mode: "DETAILS_REQUIRED", paymentIndex: null, reason: "CASH_CHANGE" };
+        }
         return {
             mode: "SIMPLE_TOTAL",
             paymentIndex: null,
             reason: null
         };
+    }
     if (item.paymentBreakdown.some((payment) => payment.paymentType === "LOYALTY_POINTS"))
         return {
             mode: "DETAILS_REQUIRED",
@@ -22,9 +27,11 @@ export function classifyReceiptInlineAmountEdit(item: ReceiptReviewItem): Receip
             reason: "MULTIPLE_PAYMENTS"
         };
     const [payment] = item.paymentBreakdown;
-    const hasCashFacts = payment.paymentType === "CASH"
-        && (Boolean(item.cashTendered?.trim()) || Boolean(item.change?.trim()) && decimalUnits(item.change) !== ZERO);
-    if (hasCashFacts)
+    // 現金預り・釣銭はカード明細があっても精算に使う。両方ゼロならカード単独の編集が可能。
+    const tendered = decimalUnits(item.cashTendered);
+    const change = decimalUnits(item.change);
+    const hasCashFacts = Boolean(item.cashTendered?.trim()) || (Boolean(item.change?.trim()) && change !== ZERO);
+    if (hasCashFacts && (payment.paymentType === "CASH" || tendered !== ZERO || change !== ZERO))
         return {
             mode: "DETAILS_REQUIRED",
             paymentIndex: null,

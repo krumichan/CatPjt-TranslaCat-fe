@@ -127,14 +127,12 @@ export default function TransactionFormModal(props: TransactionFormModalProps) {
                             receiptQueue={form.receiptQueue}
                             receiptAnalysisMode={form.receiptAnalysisMode}
                             receiptAnalysisMessage={form.receiptAnalysisMessage}
+                            receiptSelectionError={form.receiptSelectionError}
                             isAnalyzingReceipt={form.isAnalyzingReceipt}
                             disabled={isBlockingModal}
                             canAnalyzeReceipt={form.receiptQueue.some((item) => item.status === "queued") && !!onAnalyzeReceipt && !form.receiptReview.isBusy}
                             onAnalysisModeChange={form.setReceiptAnalysisMode}
-                            onFilesChange={(files) => {
-                                form.addReceiptFiles(files);
-                                form.setReceiptAnalysisMessage(null);
-                            }}
+                            onFilesChange={form.addReceiptFiles}
                             onRemove={form.removeReceiptFile}
                             onCancel={form.cancelReceiptAnalysis}
                             onRetry={(sourceImageId) => void form.retryReceiptAnalysis(sourceImageId)}

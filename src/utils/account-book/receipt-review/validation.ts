@@ -48,6 +48,7 @@ export function canRegisterReceipt(item: ReceiptReviewItem): boolean {
     return validateReceiptForRegistration(item).registrable;
 }
 
+/** 登録の可否と、修正する入力欄へ案内できるエラーを返す。 */
 export function validateReceiptForRegistration(item: ReceiptReviewItem): ReceiptRegistrationValidation {
     const blockingIssues: ReceiptBlockingIssue[] = [];
     const add = (code: ReceiptBlockingIssue["code"], field: ReceiptBlockingField) => blockingIssues.push({ code, field });
@@ -73,6 +74,8 @@ export function validateReceiptForRegistration(item: ReceiptReviewItem): Receipt
         add("PAYMENT_INVALID", "paymentBreakdown");
     if (item.reviewStatus !== "READY" && item.amountReason === "PAYMENT_TOTAL_MISMATCH")
         add("PAYMENT_TOTAL_MISMATCH", "paymentBreakdown");
+    else if (item.reviewStatus !== "READY" && item.amountReason === "INVALID_CASH_FACTS")
+        add("INVALID_CASH_FACTS", "cashTendered");
     else if (!isValidPositiveMoney(item.originalAmount) || item.reviewStatus !== "READY")
         add("BOOK_AMOUNT_INVALID", "originalAmount");
     if (item.amountPolicyVersion !== "receipt-book-amount-v1")

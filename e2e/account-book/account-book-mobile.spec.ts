@@ -1617,6 +1617,100 @@ test("ACCOUNT-RECEIPT compact phone keeps a usable review viewport", async ({ pa
     await page.screenshot({ path: test.info().outputPath("compact-phone-last-editor.png") });
 });
 
+test("ACCOUNT-RECEIPT rejects the whole over-limit selection and allows selecting the remaining photos", async ({ page }) => {
+    // 準備: モバイル幅で日本語の写真選択画面を開く。
+    await page.setViewportSize({ width: 390, height: 740 });
+    await mockAccountBook(page);
+    const detail = locales.ja;
+    const labels = detail.transactionModal;
+    await page.goto("/ja/account-books/1");
+    await page.getByRole("button", { name: detail.header.createTransaction, exact: true }).click();
+    await page.getByRole("button", { name: labels.inputMode.receipt, exact: true }).click();
+    const picker = page.locator("#receipt-analysis-content input[type=file]");
+    const queue = page.getByTestId("receipt-file-queue").locator("li");
+    const overflow = page.getByTestId("receipt-selection-error");
+    const photos = Array.from({ length: 11 }, (_, index) => ({
+        name: `receipt-${index + 1}.png`,
+        mimeType: "image/png",
+        buffer: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=", "base64"),
+    }));
+
+    // 実行 / 検証: 最初の11枚は一部だけ追加されることなく、再選択できる。
+    await picker.setInputFiles(photos);
+    await expect(overflow).toContainText("11枚選択");
+    await expect(queue).toHaveCount(0);
+    await picker.setInputFiles(photos.slice(0, 8));
+    await expect(overflow).toHaveCount(0);
+    await expect(queue).toHaveCount(8);
+
+    // 実行 / 検証: 残り2枠に3枚は追加せず、2枚なら上限まで追加できる。
+    await picker.setInputFiles(photos.slice(8));
+    await expect(overflow).toContainText("あと2枚");
+    await expect(queue).toHaveCount(8);
+    await picker.setInputFiles(photos.slice(8, 10));
+    await expect(overflow).toHaveCount(0);
+    await expect(queue).toHaveCount(10);
+    await expect(picker).toBeDisabled();
+});
+
+test("ACCOUNT-RECEIPT fills the book amount and shows the same warning once", async ({ page }) => {
+    // 準備: 合計と原金額が空欄で、現金の根拠と三つの未翻訳コードがあるケース。
+    await page.setViewportSize({ width: 390, height: 844 });
+    await mockAccountBook(page);
+    const labels = locales.ja.transactionModal;
+    await openReceiptReview(page, "ja", 1, {
+        purchaseTotal: null, originalAmount: null, bookAmount: null, detectedCurrencyCode: "JPY",
+        originalCurrencyCode: "JPY", cashTendered: "8380", change: "0", reviewStatus: "NEEDS_REVIEW",
+        amountReason: "MISSING_OR_INVALID_PURCHASE_TOTAL", convertedAmount: null, conversionStatus: "NEEDS_REVIEW",
+        paymentBreakdown: [{ paymentType: "CASH", amount: "8380", evidence: "現金", duplicateGroup: null }],
+        warnings: ["UNLOCALIZED_RECEIPT_TEST_1", "UNLOCALIZED_RECEIPT_TEST_2", "UNLOCALIZED_RECEIPT_TEST_3"],
+    });
+    await openReviewEditor(page, page.getByTestId("receipt-review-card").first(), labels);
+    const editor = page.getByTestId("receipt-review-editor");
+    const amount = editor.getByRole("textbox", { name: labels.receipt.review.bookAmount, exact: true });
+    const warnings = editor.getByRole("list", { name: labels.receipt.review.warnings, exact: true });
+
+    // 実行: 購入総額だけを入力する。
+    await expect(amount).toHaveValue("");
+    await editor.getByRole("textbox", { name: labels.receipt.review.purchaseTotal, exact: true }).fill("8380");
+
+    // 検証: 原金額が入り、換算を再確認できる。同じ表示文は一件だけ残る。
+    await expect(amount).toHaveValue("8380");
+    await expect(editor.getByTestId("receipt-recalculate-receipt-1")).toBeEnabled();
+    await expect(warnings.getByText(labels.receipt.review.unknownWarning, { exact: true })).toHaveCount(1);
+});
+
+test("ACCOUNT-RECEIPT explains the 8380 JPY payment mismatch and guides the user back to the editable field", async ({ page }) => {
+    // 準備: 合計が空欄で、現金預り額とカード明細が両方ある合成データを使う。
+    await page.setViewportSize({ width: 390, height: 844 });
+    await mockAccountBook(page);
+    const labels = locales.ja.transactionModal;
+    await openReceiptReview(page, "ja", 1, {
+        purchaseTotal: null, originalAmount: null, bookAmount: null, detectedCurrencyCode: "JPY",
+        originalCurrencyCode: "JPY", cashTendered: "8380", change: "0", reviewStatus: "NEEDS_REVIEW",
+        amountReason: "MISSING_OR_INVALID_PURCHASE_TOTAL", convertedAmount: null, conversionStatus: "NEEDS_REVIEW",
+        paymentBreakdown: [{ paymentType: "CREDIT_CARD", amount: "8380" }],
+    });
+    await openReviewEditor(page, page.getByTestId("receipt-review-card").first(), labels);
+    const editor = page.getByTestId("receipt-review-editor");
+    const recalculate = editor.getByTestId("receipt-recalculate-receipt-1");
+    const total = editor.getByRole("textbox", { name: labels.receipt.review.purchaseTotal, exact: true });
+    const allocation = editor.locator('input[id$="paymentBreakdown"]');
+
+    // 実行 / 検証: 合計の入力後も、明細が矛盾する間は理由と修正先を表示する。
+    await total.fill("8380");
+    await expect(recalculate).toBeDisabled();
+    await expect(editor.getByText(labels.receipt.review.staleConversion, { exact: true })).toHaveCount(0);
+    await expect(editor.getByText(labels.receipt.review.previewBlocked, { exact: true })).toBeVisible();
+    await editor.getByRole("button", { name: labels.receipt.review.goToPaymentIssue, exact: true }).click();
+    await expect(allocation).toBeFocused();
+
+    // 検証: 実物が現金払いだと確認して区分を修正すると再確認できる。
+    await editor.locator('select[id$="paymentBreakdown-type"]').selectOption("CASH");
+    await expect(editor.getByRole("textbox", { name: labels.receipt.review.bookAmount, exact: true })).toHaveValue("8380");
+    await expect(recalculate).toBeEnabled();
+});
+
 for (const locale of ["ja", "ko"] as const) {
     test(`ACCOUNT-RECEIPT upload fills phone before results and collapses after analysis ${locale}`, async ({ page }) => {
         // 준비: 결과가 없는 모바일 업로드와 지연되는 분석 응답을 재현한다.

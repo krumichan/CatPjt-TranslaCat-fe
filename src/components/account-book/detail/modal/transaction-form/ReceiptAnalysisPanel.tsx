@@ -1,4 +1,5 @@
 import { useReceiptAnalysisPanel } from "@/hooks/account-book/detail/receipt/useReceiptAnalysisPanel";
+import { RECEIPT_PHOTO_LIMIT } from "@/hooks/account-book/detail/receipt/useReceiptWorkflow";
 import type { ReceiptQueueItem } from "@/types/accountBookReceiptReview";
 import { ChevronDown, ChevronUp, ImagePlus, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -11,6 +12,7 @@ type Props = {
     receiptQueue: ReceiptQueueItem[];
     receiptAnalysisMode: ReceiptAnalysisMode;
     receiptAnalysisMessage: string | null;
+    receiptSelectionError: { selected: number; remaining: number } | null;
     isAnalyzingReceipt: boolean;
     disabled: boolean;
     canAnalyzeReceipt: boolean;
@@ -29,10 +31,12 @@ type Props = {
     ) => void;
 };
 
+/** 写真の選択状況、選択エラーと分析待ちの一覧を表示する。 */
 export default function ReceiptAnalysisPanel({
     receiptQueue,
     receiptAnalysisMode,
     receiptAnalysisMessage,
+    receiptSelectionError,
     isAnalyzingReceipt,
     disabled,
     canAnalyzeReceipt,
@@ -57,6 +61,7 @@ export default function ReceiptAnalysisPanel({
         closeRegionPicker,
     } = useReceiptAnalysisPanel(receiptQueue);
     const hasResults = receiptCount > 0;
+    const remaining = RECEIPT_PHOTO_LIMIT - receiptQueue.length;
     return (
         // 결과 전에는 업로드가 남은 높이를 사용하고, 결과 후에는 검토 목록에 공간을 돌려준다.
         <div className={`mb-2 min-w-0 rounded-2xl border border-slate-200 bg-slate-50/90 p-2 sm:mb-3 sm:p-4 dark:border-white/10 dark:bg-black/25 ${hasResults ? "shrink-0" : "flex min-h-0 flex-1 flex-col"}`}>
@@ -89,6 +94,15 @@ export default function ReceiptAnalysisPanel({
                     {expanded ? <ChevronUp size={17} /> : <ChevronDown size={17} />}
                 </span>
             </button>
+            {receiptSelectionError && (
+                <p
+                    className="mt-2 shrink-0 rounded-xl bg-red-50 px-3 py-2 text-xs text-red-700 dark:bg-red-500/10 dark:text-red-300"
+                    role="alert"
+                    data-testid="receipt-selection-error"
+                >
+                    {t("receipt.selectionOverflow", receiptSelectionError)}
+                </p>
+            )}
             <div
                 id="receipt-analysis-content"
                 hidden={!expanded}
@@ -127,8 +141,9 @@ export default function ReceiptAnalysisPanel({
                     </span>
                     <input
                         type="file"
-                        multiple
-                        disabled={disabled || receiptQueue.length >= 10}
+                        multiple={remaining > 1}
+                        disabled={disabled || remaining === 0}
+                        aria-describedby="receipt-photo-capacity"
                         accept="image/jpeg,image/png,image/webp"
                         onChange={(event) => {
                             onFilesChange(Array.from(event.target.files ?? []));
@@ -137,6 +152,9 @@ export default function ReceiptAnalysisPanel({
                         className="block w-full min-w-0 max-w-full cursor-pointer rounded-xl border border-slate-300 bg-white px-2 py-3 text-xs text-slate-600 file:mr-2 file:rounded-lg file:border-0 file:bg-orange-50 file:px-2 file:py-2 file:text-xs file:font-semibold file:text-orange-600 dark:border-white/10 dark:bg-black/30 dark:text-slate-300"
                     />
                 </label>
+                <p id="receipt-photo-capacity" className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+                    {t("receipt.photoCapacity", { remaining, limit: RECEIPT_PHOTO_LIMIT })}
+                </p>
                 {receiptQueue.length > 0 && (
                     <ul
                         className="mt-3 grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-2"

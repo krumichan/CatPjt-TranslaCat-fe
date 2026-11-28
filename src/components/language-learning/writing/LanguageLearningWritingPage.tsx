@@ -9,8 +9,11 @@ import { DailyWritingSmartPage } from "@/components/language-learning/writing/Da
 import { CuratedWritingSmartPage } from "@/components/language-learning/writing/CuratedWritingSmartPage";
 import { useQuery } from "@/hooks/useQuery";
 import { languageLearningSettingService } from "@/services/language-learning/languageLearningSettingService";
+import type { PreparedWritingSelection } from "@/hooks/language-learning/useDailyWritingPageController";
 
-export function LanguageLearningWritingPage() {
+/** 保存済み自動出題を該当する日次セットで開く。 */
+export function LanguageLearningWritingPage({ prepared }: { prepared?: PreparedWritingSelection }) {
+    if (prepared) return <DailyWritingSmartPage prepared={prepared} key={`${prepared.date}:${prepared.type}`} />;
     return process.env.NEXT_PUBLIC_WRITING_CURATED_QA === "true"
         ? <ConfiguredWritingPage />
         : <DailyWritingSmartPage />;

@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 
 import SettingsSubPageHeader from "@/components/settings/SettingsSubPageHeader";
 import { AdminLanguageLearningSettingsSmartForm } from "@/components/language-learning/admin/AdminLanguageLearningSettingsSmartForm";
+import { AutoPracticeLimitsForm } from "@/components/language-learning/admin/AutoPracticeLimitsForm";
 
 export function AdminLanguageLearningSettingsPage() {
     const t = useTranslations("LanguageLearning.admin");
@@ -22,6 +23,7 @@ export function AdminLanguageLearningSettingsPage() {
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 pb-10 pt-24 sm:px-6 lg:px-8">
             <SettingsSubPageHeader eyebrow={t("eyebrow")} title={t("title")} description={t("description")} />
             <AdminLanguageLearningSettingsSmartForm />
+            <AutoPracticeLimitsForm />
         </div>
     );
 }

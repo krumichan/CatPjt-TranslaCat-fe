@@ -8,12 +8,13 @@ import { LanguageLearningPageLayout } from "@/components/language-learning/layou
 import { DailyWritingTypeSelector } from "@/components/language-learning/writing/DailyWritingTypeSelector";
 import { DailyWritingTypeTabs } from "@/components/language-learning/writing/DailyWritingTypeTabs";
 import { DailyWritingView } from "@/components/language-learning/writing/DailyWritingView";
-import { useDailyWritingPageController } from "@/hooks/language-learning/useDailyWritingPageController";
+import { useDailyWritingPageController, type PreparedWritingSelection } from "@/hooks/language-learning/useDailyWritingPageController";
 
-export function DailyWritingSmartPage() {
+/** 自動出題のリンクがある場合に、保存済みの対象日を最初に表示する。 */
+export function DailyWritingSmartPage({ prepared }: { prepared?: PreparedWritingSelection }) {
     const t = useTranslations("LanguageLearning.writing");
     const common = useTranslations("LanguageLearning.common");
-    const controller = useDailyWritingPageController();
+    const controller = useDailyWritingPageController(prepared);
 
     const content = (() => {
         if (controller.entry.isLoading) {

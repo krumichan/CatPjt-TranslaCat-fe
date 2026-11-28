@@ -5,6 +5,7 @@ import { KeywordSettingsSection } from "@/components/language-learning/settings/
 import { LanguageLearningSettingForm } from "@/components/language-learning/settings/LanguageLearningSettingForm";
 import { LevelRecheckSection } from "@/components/language-learning/settings/LevelRecheckSection";
 import { WebAiScheduleSettingsEntry } from "@/components/language-learning/settings/WebAiScheduleSettingsEntry";
+import { AutoPracticePlans } from "@/components/language-learning/settings/AutoPracticePlans";
 
 export function LanguageLearningSettingsView({ controller }: { controller: LanguageLearningSettingsPageController }) {
     return (
@@ -19,6 +20,7 @@ export function LanguageLearningSettingsView({ controller }: { controller: Langu
                 <KeywordSettingsSection manager={controller.keywordManager} />
             </div>
             <WebAiScheduleSettingsEntry />
+            {controller.entry.setting?.configured && <AutoPracticePlans />}
             <LevelRecheckSection status={controller.entry.levelStatus} />
         </div>
     );

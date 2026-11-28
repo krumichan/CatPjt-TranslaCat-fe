@@ -29,8 +29,10 @@ import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const EVALUATION_POLL_INTERVAL_MS = 1500;
+export type PreparedWritingSelection = { date: string; type: DailyWritingType };
 
-export function useDailyWritingPageController() {
+/** 예약 세트 링크에서는 학습일 기준 조회만 수행한다. */
+export function useDailyWritingPageController(prepared?: PreparedWritingSelection) {
     const { data: session } = useSession();
     const publicId = session?.user?.publicId ?? null;
     const entry = useLanguageLearningEntryState();
@@ -38,7 +40,8 @@ export function useDailyWritingPageController() {
         entry.setting?.configured === true &&
         entry.levelStatus?.profileState !== "LEVEL_TEST_REQUIRED";
     const [selectedWritingType, setSelectedWritingType] =
-        useState<DailyWritingType | null>(null);
+        useState<DailyWritingType | null>(prepared?.type ?? null);
+    const [preparedDate, setPreparedDate] = useState<string | null>(prepared?.date ?? null);
 
     const writingHistoryQuery = useQuery({
         keys:
@@ -65,12 +68,14 @@ export function useDailyWritingPageController() {
                 ? ([
                     "daily-writing-today",
                     selectedWritingType,
+                    preparedDate ?? "today",
                     entry.setting?.originLanguage,
                     entry.setting?.learningLanguage,
                 ] as const)
                 : null,
-        fetcher: (_key, writingType) =>
-            dailyWritingService.getToday(writingType),
+        fetcher: (_key, writingType, date) => date === "today"
+            ? dailyWritingService.getToday(writingType)
+            : dailyWritingService.getHistory(date, writingType),
         enabled: canLoadDaily && selectedWritingType !== null,
         config: {
             revalidateOnMount: true,
@@ -332,6 +337,7 @@ export function useDailyWritingPageController() {
 
     const selectWritingType = useCallback((writingType: DailyWritingType) => {
         hydratedDraftContextRef.current = null;
+        setPreparedDate(null);
         setSelectedWritingType(writingType);
         setDrafts({});
         setDraftsHydratedSetId(null);
@@ -347,6 +353,7 @@ export function useDailyWritingPageController() {
 
     const showTypeSelector = useCallback(() => {
         hydratedDraftContextRef.current = null;
+        setPreparedDate(null);
         setSelectedWritingType(null);
         setDrafts({});
         setDraftsHydratedSetId(null);
@@ -468,9 +475,9 @@ export function useDailyWritingPageController() {
 
             // 접수 결과를 서버에서 확인한 뒤 제출 잠금을 푼다. SWR의 비동기 재검증 중인 이전 canSubmit으로 재제출하지 않는다.
             try {
-                const refreshed = await dailyWritingService.getToday(
-                    dailyQuery.data.writingType,
-                );
+                const refreshed = preparedDate
+                    ? await dailyWritingService.getHistory(preparedDate, dailyQuery.data.writingType)
+                    : await dailyWritingService.getToday(dailyQuery.data.writingType);
                 await dailyQuery.mutate(refreshed, false);
             } catch (error) {
                 console.error("Failed to refresh queued Writing evaluations.", error);
@@ -488,6 +495,7 @@ export function useDailyWritingPageController() {
     }, [
         allItemsGenerated,
         changeBulkEvaluationRequested,
+        preparedDate,
         dailyQuery,
         drafts,
         draftsHydratedSetId,

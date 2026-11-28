@@ -9,6 +9,7 @@ import { DisclosureAllButton } from "@/components/language-learning/common/Discl
 import { DisclosureContent } from "@/components/language-learning/common/DisclosureContent";
 import { DisclosureToggleButton } from "@/components/language-learning/common/DisclosureToggleButton";
 import { DashboardLearningProfileSection } from "@/components/language-learning/dashboard/DashboardLearningProfileSection";
+import { PreparedPracticePanel } from "@/components/language-learning/dashboard/PreparedPracticePanel";
 import { DashboardActivityPerformanceWidget } from "@/components/language-learning/dashboard/widgets/DashboardActivityPerformanceWidget";
 import { DashboardGrowthWidget } from "@/components/language-learning/dashboard/widgets/DashboardGrowthWidget";
 import { DashboardIntegratedAbilityWidget } from "@/components/language-learning/dashboard/widgets/DashboardIntegratedAbilityWidget";
@@ -141,6 +142,7 @@ export function LanguageLearningDashboardView({
 
     return (
         <div className="space-y-6" data-testid="language-learning-dashboard">
+            <PreparedPracticePanel />
             {recheckRecommended && (
                 <section className="flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between dark:border-amber-400/20 dark:bg-amber-500/10">
                     <div>

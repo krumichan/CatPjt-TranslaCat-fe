@@ -68,3 +68,47 @@ test("대시보드는 비활성화된 플랜의 이월 문제를 기존 학습 �
     expect(requests.length).toBeGreaterThan(0);
     expect(requests.every((method) => method === "GET")).toBe(true);
 });
+
+test("수동 요청 뒤 같은 회차를 사용하고 자정 전에는 학습 링크를 숨긴다", async ({ page }) => {
+    await mockLanguageLearningBase(page);
+    const base = {
+        timezone: "Asia/Tokyo", limits, writingLimit: 8, availableAreas: ["READING_COMPREHENSION"],
+        plans: [{
+            id: "active", revision: 1, name: "자정 플랜", studyTime: "00:00", enabled: true,
+            originLanguage: "ko", learningLanguage: "ja", areas: { READING_COMPREHENSION: { standard: 1 } },
+        }],
+    };
+    const moved = {
+        id: 12, area: "READING_COMPREHENSION", requestedDate: "2026-11-24", learningDate: "2026-11-25",
+        availableAt: "2026-11-24T15:00:00Z", resourceId: null, state: "LOCKED", reason: null,
+    };
+    const manual = { learningDate: "2026-11-24", rolloverAt: "2026-11-24T12:00:00Z" };
+    let posts = 0;
+    let unlocked = false;
+    await page.route(workspaceRoute, (route) => fulfillApiJson(route, responseDto({
+        ...base,
+        manual: posts ? null : manual,
+        jobs: posts ? [unlocked ? { ...moved, state: "READY", resourceId: "-25" } : moved] : [],
+    })));
+    await page.route(`${workspaceRoute}/manual`, (route) => {
+        expect(route.request().method()).toBe("POST");
+        posts++;
+        return fulfillApiJson(route, responseDto({ ...base, jobs: [moved], manual: null }));
+    });
+
+    // 準備ボタンから一度だけ予約し、翌日公開の案内に切り替える。
+    await page.goto("/language-learning");
+    const card = page.getByTestId("prepared-practice");
+    await expect(card.getByText(/21:00까지 준비되지 않으면/)).toBeVisible();
+    await card.getByRole("button", { name: "오늘 문제 만들기" }).click();
+    await expect(card.getByText(/00:00부터 풀 수 있어요/)).toBeVisible();
+    await expect(card.getByRole("link", { name: "문제 풀기" })).toHaveCount(0);
+    await expect(card.getByRole("button", { name: "오늘 문제 만들기" })).toHaveCount(0);
+
+    // 翌日の公開状態を読み直すだけで、同じセットを再生成せず開ける。
+    unlocked = true;
+    await page.reload();
+    await expect(card.getByRole("link", { name: "문제 풀기" }))
+        .toHaveAttribute("href", /\/language-learning\/reading\/session\/-25$/);
+    expect(posts).toBe(1);
+});

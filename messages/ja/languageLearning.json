@@ -30,7 +30,11 @@
       "ready": "準備済み",
       "unavailable": "準備失敗または利用不可",
       "empty": "準備済みの問題はまだありません。",
-      "open": "問題を解く"
+      "open": "問題を解く",
+      "manualStart": "今日の問題を作る",
+      "manualCutoff": "{time}までに準備できない場合は、翌日0時から解けるように繰り越すことがあります。",
+      "opensAt": "{time}から解けます",
+      "movedToNextDay": "今日の準備リクエストを翌日の出題に繰り越しました。"
     },
     "webAiWorkflow": {
       "serverNoticeTitle": "Web AIで学習し、TranslaCatに記録しましょう",

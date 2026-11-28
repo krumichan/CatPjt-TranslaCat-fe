@@ -30,7 +30,11 @@
       "ready": "Ready",
       "unavailable": "Failed or unavailable",
       "empty": "No practice is ready yet.",
-      "open": "Start practice"
+      "open": "Start practice",
+      "manualStart": "Make today's questions",
+      "manualCutoff": "If preparation runs past {time}, this set may open tomorrow at midnight.",
+      "opensAt": "Opens at {time}",
+      "movedToNextDay": "Your request for today was moved to tomorrow's practice."
     },
     "webAiWorkflow": {
       "serverNoticeTitle": "Learn with a web AI and keep your records in TranslaCat",

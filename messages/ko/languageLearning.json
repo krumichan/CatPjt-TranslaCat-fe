@@ -30,7 +30,11 @@
       "ready": "준비 완료",
       "unavailable": "준비 실패 또는 이용 불가",
       "empty": "아직 준비된 문제가 없습니다.",
-      "open": "문제 풀기"
+      "open": "문제 풀기",
+      "manualStart": "오늘 문제 만들기",
+      "manualCutoff": "{time}까지 준비되지 않으면 내일 0시부터 풀 수 있도록 넘길 수 있어요.",
+      "opensAt": "{time}부터 풀 수 있어요",
+      "movedToNextDay": "오늘 요청한 문제를 내일 분량으로 옮겼어요."
     },
     "webAiWorkflow": {
       "serverNoticeTitle": "웹 AI와 함께 학습하고 TranslaCat에 기록하세요",

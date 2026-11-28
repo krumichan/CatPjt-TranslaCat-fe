@@ -20,6 +20,12 @@ const preparing = new Set(["PENDING", "CLAIMED", "QUEUED", "GENERATING"]);
 const playable = new Set(["READY", "PARTIAL"]);
 const actionClass = "rounded-lg border border-slate-300 px-3 py-1.5 text-sm dark:border-slate-600";
 
+/** UTC の公開・繰越時刻を学習者が設定した時間帯で表示する。 */
+function localTime(value: string, timezone: string) {
+    return new Intl.DateTimeFormat("en-GB", { timeZone: timezone, hour: "2-digit", minute: "2-digit" })
+        .format(new Date(value));
+}
+
 /** サーバーから保存済み問題だけを読み、準備済みセットを既存の学習画面につなぐ。 */
 export function PreparedPracticePanel() {
     const t = useTranslations("LanguageLearning.autoPractice");
@@ -27,6 +33,7 @@ export function PreparedPracticePanel() {
     const owner = useSession().data?.user?.publicId;
     const router = useRouter();
     const [pending, setPending] = useState(false);
+    const [manualPending, setManualPending] = useState(false);
     const [error, setError] = useState(false);
     const start = useRef<{ setId: number; key: string } | null>(null);
     const query = useQuery({
@@ -35,17 +42,34 @@ export function PreparedPracticePanel() {
         config: {
             shouldRetryOnError: false,
             revalidateOnMount: true,
-            refreshInterval: (data) => data?.jobs.some((job) => preparing.has(job.state))
+            refreshInterval: (data) => data?.jobs.some((job) => preparing.has(job.state) || job.state === "LOCKED")
                 ? 15_000 : data?.plans.some((plan) => plan.enabled) ? 60_000 : 0,
         },
     });
     const jobs = query.data?.jobs.filter((job) => job.state !== "COMPLETED") ?? [];
     if (!jobs.length && !query.data?.plans.some((plan) => plan.enabled)) return null;
+    const manual = query.data?.manual;
+    const timezone = query.data?.timezone ?? "UTC";
+
+    /** サーバーが確定した回で表示を更新し、再読込だけで追加予約を送らない。 */
+    async function prepareManually() {
+        if (manualPending) return;
+        setManualPending(true);
+        setError(false);
+        try {
+            const view = await autoPracticeService.prepareManually();
+            await query.mutate(view, false);
+        } catch {
+            setError(true);
+        } finally {
+            setManualPending(false);
+        }
+    }
 
     /** 音源まで準備済みのセットだけを使い、同じ開始操作を安全に再送できるようにする。 */
     async function openListening(job: PreparedPractice) {
         const setId = Number(job.resourceId);
-        if (pending || !Number.isSafeInteger(setId) || setId <= 0) return;
+        if (pending || job.resourceId == null || !Number.isSafeInteger(setId) || setId === 0) return;
         setPending(true);
         setError(false);
         try {
@@ -72,6 +96,17 @@ export function PreparedPracticePanel() {
                 <h2 className="font-bold">{t("preparedTitle")}</h2>
                 <Link className={actionClass} href="/language-learning/settings#automatic-practice">{t("title")}</Link>
             </div>
+            {manual && (
+                <div className="space-y-2">
+                    <button type="button" className={actionClass} disabled={manualPending}
+                        onClick={() => void prepareManually()}>
+                        {t(manualPending ? "preparing" : "manualStart")}
+                    </button>
+                    {manual.rolloverAt && <p className="text-sm text-slate-500">
+                        {t("manualCutoff", { time: localTime(manual.rolloverAt, timezone) })}
+                    </p>}
+                </div>
+            )}
             {error && <p role="alert" className="text-sm text-rose-600">{t("error")}</p>}
             {jobs.length === 0 && <p className="text-sm text-slate-500">{t("empty")}</p>}
             <ul className="divide-y divide-slate-200 dark:divide-slate-700">
@@ -83,9 +118,13 @@ export function PreparedPracticePanel() {
                             <div>
                                 <p className="font-semibold">{labels(`areas.${job.area}`)}</p>
                                 <p className="text-sm text-slate-500">
-                                    {job.learningDate} · {preparing.has(job.state)
-                                        ? t("preparing") : canPlay ? t("ready") : t("unavailable")}
+                                    {job.learningDate} · {job.state === "LOCKED" && job.availableAt
+                                        ? t("opensAt", { time: localTime(job.availableAt, timezone) })
+                                        : preparing.has(job.state) ? t("preparing") : canPlay ? t("ready") : t("unavailable")}
                                 </p>
+                                {job.requestedDate && job.requestedDate !== job.learningDate && (
+                                    <p className="text-sm text-slate-500">{t("movedToNextDay")}</p>
+                                )}
                             </div>
                             {canPlay && job.area.startsWith("WRITING_") && <Link className={actionClass}
                                 href={`/language-learning/writing?preparedDate=${job.learningDate}&preparedType=${writingType}`}>

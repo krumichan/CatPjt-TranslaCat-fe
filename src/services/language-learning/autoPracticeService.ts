@@ -26,6 +26,8 @@ export type PreparedPractice = {
     resourceId: string | null;
     state: string;
     reason: string | null;
+    requestedDate?: string | null;
+    availableAt?: string | null;
 };
 export type PracticeWorkspace = {
     timezone: string;
@@ -34,11 +36,12 @@ export type PracticeWorkspace = {
     writingLimit: number;
     availableAreas: PracticeArea[];
     jobs: PreparedPractice[];
+    manual?: { learningDate: string; rolloverAt: string | null } | null;
 };
 
 const root = "/language-learning/auto-practice";
 
-/** 自動出題は保存済みデータのみ返す。ブラウザーから生成を起動しない。 */
+/** 保存状態は GET で取得し、利用者が手動準備を選んだときだけ予約を送る。 */
 async function request<T>(path: string, method: string = "GET", body?: unknown): Promise<T> {
     const response = await apiClient(`${root}${path}`, {
         method,
@@ -49,6 +52,7 @@ async function request<T>(path: string, method: string = "GET", body?: unknown):
 
 export const autoPracticeService = {
     workspace: () => request<PracticeWorkspace>(""),
+    prepareManually: () => request<PracticeWorkspace>("/manual", "POST"),
     savePlan: (plan: PracticePlanInput, id?: string) => id
         ? request<PracticePlan>(`/plans/${encodeURIComponent(id)}`, "PUT", plan)
         : request<PracticePlan>("/plans", "POST", plan),
